@@ -57,7 +57,7 @@ spot colorants, gradient roles and mixed bitmap/image resource closure.
 `03_infra/src/export/builder/resources.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
 `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
 
 ### Responsabilidade deste owner

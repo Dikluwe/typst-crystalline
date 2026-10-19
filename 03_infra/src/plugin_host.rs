@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/plugin_host.md
-//! @prompt-hash f6e1963c
+//! @prompt-hash 9ac6295e
 //! @layer L3
 //! @updated 2026-09-26
 //! Host WASM facade; runtime responsibilities live in private L3 descendants.

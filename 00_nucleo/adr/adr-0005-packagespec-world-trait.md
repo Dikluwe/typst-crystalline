@@ -286,9 +286,9 @@ dependência externa. Não migra para L1 neste passo.
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/entities/package-spec.md` | Criar — PackageSpec puro em L1 |
+| `00_nucleo/prompts/core/entities/package_spec.md` | Criar — PackageSpec puro em L1 |
 | `00_nucleo/prompts/infra/package-spec-dto.md` | Criar — DTO em L3 |
-| `00_nucleo/prompts/contracts/world.md` | Criar — World trait em L1 |
+| `00_nucleo/prompts/core/contracts/world.md` | Criar — World trait em L1 |
 
 ---
 

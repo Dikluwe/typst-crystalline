@@ -28,7 +28,7 @@ or an absolute filesystem path as its identity.
 
 | Prompt | Required change |
 |---|---|
-| `00_nucleo/prompts/compiler/layout.md` | Example only: replace with the actual existing affected prompt and its contract change. |
+| `00_nucleo/prompts/core/compiler/layout/mod.md` | Example only: replace with the actual existing affected prompt and its contract change. |
 
 ## Consequences
 

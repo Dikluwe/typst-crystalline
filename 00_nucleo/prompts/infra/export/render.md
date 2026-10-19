@@ -78,7 +78,7 @@ manual TextShaped glyph compositing, with antialiased intersection and no state 
 `03_infra/src/export/render.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
 `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
 
 ### Responsabilidade deste owner
@@ -96,7 +96,7 @@ As sondas bilaterais e o estado exato em
 `lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
+O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
 
 ### Responsabilidade exclusiva
 

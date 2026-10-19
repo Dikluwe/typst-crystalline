@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/elements/_comum.md
-//! @prompt-hash 8e93bd87
+//! @prompt 00_nucleo/prompts/core/entities/elements/mod.md
+//! @prompt-hash 5eed0850
 //! @layer L1
 //! @updated 2026-06-10
 //!
@@ -28,10 +28,12 @@ pub mod strong;
 pub mod title;
 // Lote 2 P317 — família math element-shaped (11 variantes).
 pub mod math_accent;
+mod math_accent_tests;
 pub mod math_align_point;
 pub mod math_attach;
 pub mod math_cancel;
 pub mod math_cases;
+mod math_cases_tests;
 pub mod math_class_override; // P772y
 pub mod math_delimited;
 pub mod math_frac;
@@ -43,10 +45,8 @@ pub mod math_stretch;
 pub mod math_underline;
 pub mod math_underover;
 pub mod math_vec;
-mod p1429_math_accent_tests;
-mod p1430_math_cases_tests;
 
-mod p1431_math_matrix_tests;
+mod math_matrix_tests;
 // Lote 3 P318 — família lista/termos (5 variantes element-shaped).
 pub mod enum_item;
 pub mod link;

@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/math/layout/cases.md
+//! @prompt 00_nucleo/prompts/core/compiler/math/layout/cases.md
 //! @prompt-hash 1d5911fb
 //! @layer L1
 //! @updated 2026-08-14

@@ -1,0 +1,786 @@
+{
+  "head": "d330c717eb06c86a560c4cf3d8d0ba40224609b9",
+  "measured_at_utc": "2026-10-19T00:21:25.244987+00:00",
+  "working_tree_status": " M lab/tools/ci/check_mature_layout.py\n",
+  "candidates": [
+    {
+      "current_source": "01_core/src/entities/p1431_line_cap_tests.rs",
+      "proposed_source": "01_core/src/entities/line_cap_tests.rs",
+      "current_owner": "00_nucleo/prompts/entities/p1431-line-cap-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/entities/line_cap_tests.md",
+      "source_sha256": "b8c8454887e4ea74aade83eb3d2380bf7c16952536dc8edff83a7eae9770c234",
+      "owner_sha256": "c0cadfbaf0eec858c79fc01d7d707399186562917a3a9de637fd19615f074e23",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1431_auto_square_e_produtor_legado_butt_chegam_ao_frame",
+        "p1431_cap_opaco_falha_fechado"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "01_core/src/entities/elements/p1429_math_accent_tests.rs",
+      "proposed_source": "01_core/src/entities/elements/math_accent_tests.rs",
+      "current_owner": "00_nucleo/prompts/entities/elements/p1429-math-accent-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/entities/elements/math_accent_tests.md",
+      "source_sha256": "178ad902c29a7432af77144236f17259973708a930ca26f90363f34299bfe806",
+      "owner_sha256": "3f53bdfa1972958e8601370b95243dc553be8569b2659d0c18ec596bf15addc8",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1429_carrier_discrimina_valores_e_presenca_independentes",
+        "p1429_walkers_preservam_carrier_e_descem_so_na_base"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "01_core/src/entities/elements/p1430_math_cases_tests.rs",
+      "proposed_source": "01_core/src/entities/elements/math_cases_tests.rs",
+      "current_owner": "00_nucleo/prompts/entities/elements/p1430-math-cases-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/entities/elements/math_cases_tests.md",
+      "source_sha256": "f69914166fbb8e8d72b2f18b64c948f862ace47736907e48c54f28ea979fcac3",
+      "owner_sha256": "eec29fe7d9cbed06cf72b21174aa4ec660614d3119a35234140df81c8b74233d",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1430_carrier_discrimina_todos_os_bits_e_valores",
+        "p1430_children_ordem_alignpoint_e_walkers",
+        "p1430_child_order_participa_de_igualdade_e_hash"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "01_core/src/entities/elements/p1431_math_matrix_tests.rs",
+      "proposed_source": "01_core/src/entities/elements/math_matrix_tests.rs",
+      "current_owner": "00_nucleo/prompts/entities/elements/p1431-math-matrix-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/entities/elements/math_matrix_tests.md",
+      "source_sha256": "4f78670939c7fa71ad98a6121b8b8b77b188f862f856508b76f8e71840b669b8",
+      "owner_sha256": "d3af841c56efa4b537c3d1cfb3434724fa0eb37795fe36e5cf9d5e53d05d9f5d",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1431_carrier_completo_preserva_valores_ordem_e_bits",
+        "p1431_igualdade_e_hash_discriminam_campos_e_presenca",
+        "p1431_walkers_visitam_celulas_row_major_sem_perder_carrier",
+        "p1431_alignpoint_permanece_na_celula_do_carrier",
+        "p1431_opacidade_de_carrier_e_cascata_falha_fechado"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "02_shell/tests/p1361_duration.rs",
+      "proposed_source": "02_shell/tests/duration_presentation.rs",
+      "current_owner": "00_nucleo/prompts/shell/tests/p1361-duration.md",
+      "proposed_owner": "00_nucleo/prompts/shell/tests/duration_presentation.md",
+      "source_sha256": "c59cecc3d7a3d3944735be3ec2a10cd757e082d701c9cc3617de676ca8bc1c2e",
+      "owner_sha256": "0a7b43ec73411f407edc5b4d5ed2dd11aa0353b23d6ab4acd49d2a03b387dd1a",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1361_duration_exact_vector_is_deterministic_and_boundary_safe",
+        "p1362_watch_status_messages_are_exact_and_error_has_no_duration",
+        "p1363_watch_line_pads_timestamp_and_preserves_all_status_bodies"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/p307b_snapshot_tests.rs",
+      "proposed_source": "03_infra/src/pdf_snapshot_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export-fixtures.md",
+      "proposed_owner": "00_nucleo/prompts/infra/pdf_snapshot_tests.md",
+      "source_sha256": "cd5bb481f83a2cb93eadbcf4157894e4b693474ae5852213b69ffdf27b826a4f",
+      "owner_sha256": "c2ec15f3e84b7b991fc811f4fb4b72610cfa77a59a3298d2e23072849fa4e855",
+      "rationale": "Controlled crystalline PDF binary snapshots. Fixture identity and update environment variable remain unchanged.",
+      "test_functions": [
+        "p307b_01_markup_plain",
+        "p307b_02_markup_heading",
+        "p307b_03_text_styling",
+        "p307b_04_shapes",
+        "p307b_05_gradient_linear",
+        "p307b_06_gradient_conic",
+        "p307b_07_multi_feature",
+        "p307b_08_image_jpeg",
+        "p307b_09_cidfont"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/p1295_watch_contract.rs",
+      "proposed_source": "03_infra/tests/watch_snapshot_contract.rs",
+      "current_owner": "00_nucleo/prompts/infra/tests/p1295_watch_contract.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/watch_snapshot_contract.md",
+      "source_sha256": "177019099d3b4e5417c2771f73b67098e9c5ddee5b14c7e502def01660f7935d",
+      "owner_sha256": "bd918f6d60b82732e7e7f40ae30f9e3d43f29e4db7c8ce8b230035c660d48ade",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "snapshot_anterior_detecta_alteracao_de_mesmo_tamanho_sem_recaptura",
+        "snapshot_anterior_detecta_criacao_sem_recaptura",
+        "snapshot_anterior_detecta_remocao_sem_recaptura",
+        "snapshot_e_api_legada_preservam_assinaturas_publicas",
+        "wait_for_change_legado_permanece_funcional_sem_race_de_prontidao",
+        "rustdoc_json_pinado_prova_superficie_opaca_e_fechada"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/p1297_watch_capability_contract.rs",
+      "proposed_source": "03_infra/tests/armed_watch_contract.rs",
+      "current_owner": "00_nucleo/prompts/infra/tests/p1297_watch_capability_contract.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/armed_watch_contract.md",
+      "source_sha256": "3ac4e1d21add00b3fd48eabab9ccaafd31c0a83d5ef5ef53f64ecb5bac8949c0",
+      "owner_sha256": "b7a83fdf0f3de5b86b5d70e2e148c454f9875ef47f6ba5fa1d479c762e2b59bc",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "abandon_detecta_some_para_none_sem_captura_lazy_ou_recaptura",
+        "publish_detecta_staging_some_para_none_sem_captura_lazy_ou_recaptura",
+        "abandon_preserva_destino_valido",
+        "publish_falho_limpa_staging_e_preserva_erro_original_do_rename",
+        "publish_falho_nao_mascara_rename_quando_cleanup_tambem_falha",
+        "capacidade_consumidora_e_apis_p1295_preservam_assinaturas_publicas",
+        "rustdoc_json_pinado_fecha_superficie_publica_da_capacidade"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/p1405_pdf_label.rs",
+      "proposed_source": "03_infra/tests/pdf_semantic_label.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/p1405_pdf_label_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/pdf_semantic_label.md",
+      "source_sha256": "424cc57e1fd8b5a42e3b846d30781ba3acf533fe83e4a7c744dc4076bf8fe3a3",
+      "owner_sha256": "9417f8cf988ea2d39291e50bfe2d8531f8bd6d6dfc4153d1b0e111be2ec46a26",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "semantic_label_emits_lbl_structure_and_marked_content"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/p1424_html_frame.rs",
+      "proposed_source": "03_infra/tests/html_frame.rs",
+      "current_owner": "00_nucleo/prompts/infra/tests/p1424-tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/html_frame.md",
+      "source_sha256": "3ee4c25a96a2ab56c4efc7d09c36238c8ae5f725694c4d71fcb7783794f11700",
+      "owner_sha256": "5633f39d4a6526d234cf600c82eda832f98b4ce05cdf5a667da802e0487a7f32",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1424_html_feature_binding_e_assinatura_publica",
+        "p1424_html_texto_e_nesting_formam_uma_unica_ilha_intrinseca",
+        "p1424_html_rect_preserva_geometria_paint_e_transparencia",
+        "p1424_html_literal_sem_frame_e_unresolved_fail_closed"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/p1425_math_limits.rs",
+      "proposed_source": "03_infra/tests/math_limits.rs",
+      "current_owner": "00_nucleo/prompts/infra/tests/p1425-tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/math_limits.md",
+      "source_sha256": "ee1c35b4ba3fca687ab73401a493357348e10a9d8a8438453e86eb145675030f",
+      "owner_sha256": "564bd45f8f1906a7e4fe0667fabe3405f82bbc3054941b1dc2ac82c144a03a33",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1425_bare_e_qualificado_convergem_nos_tres_estados",
+        "p1425_qualificado_preserva_cinco_diagnosticos_publicos",
+        "p1425_scripts_permanece_controle_bilateral"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/p1427_math_frac.rs",
+      "proposed_source": "03_infra/tests/math_fraction_public_controls.rs",
+      "current_owner": "00_nucleo/prompts/infra/tests/p1427-tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/math_fraction_public_controls.md",
+      "source_sha256": "7b616fd2c5bfeccf42bee66bfae1f388803781a253f821e44ebc84cc7b86815a",
+      "owner_sha256": "d8f0ac3d0bdfcf74ca90ffb680c716007665594e0a71477a11a81f49f877862b",
+      "rationale": "Public fraction routes, signature errors, productive MATH constants and binom isolation; distinct from the representation/provenance suite.",
+      "test_functions": [
+        "p1427_tres_rotas_publicas_convergem",
+        "p1427_assinatura_publica_rejeita_dezasseis_negativos",
+        "p1427_extrai_skewed_gaps_newcmath",
+        "p1427_binom_ignora_style_de_frac"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/p1250_svg_integrated.rs",
+      "proposed_source": "03_infra/tests/svg_composite_graph.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/p1250_svg_integrated.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/svg_composite_graph.md",
+      "source_sha256": "3547684a8ea445844aab1af199234adefd8f81d87cd51fb8f13b38d787e69a2c",
+      "owner_sha256": "81133ed910cd0d9ac13ef1fe061f07388c5cdf9f4a6edbafd73011d2da6ae73c",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1250_corpus_integrado_preserva_grafo_geometria_e_conteudo"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/p1426_math_root.rs",
+      "proposed_source": "03_infra/tests/math_root.rs",
+      "current_owner": "00_nucleo/prompts/infra/tests/p1426-tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/math_root.md",
+      "source_sha256": "6058c6cba05da8b52a5cc3d8711b1e57398408a7ea367f45f49d9587333c78f6",
+      "owner_sha256": "7e743094bfc1899b587d59ccb292c3a8f54de0c826d7f36c500b3b7ba4ac060d",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1426_root_bare_e_qualificado_convergem",
+        "p1426_tres_estados_publicos_nao_colapsam",
+        "p1426_assinatura_publica_preserva_diagnosticos",
+        "p1426_sqrt_permanece_controle_bilateral"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/p1428_math_frac.rs",
+      "proposed_source": "03_infra/tests/math_fraction_representation_provenance.rs",
+      "current_owner": "00_nucleo/prompts/infra/tests/p1428-tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/math_fraction_representation_provenance.md",
+      "source_sha256": "611183575b5996d358c92193c0929e36575c96a78e74ae910be84650559b5343",
+      "owner_sha256": "cf5276ac82f1499b9d4bcc8164d7e0d826a6f4f0a1c5736851f5df63dfe8f901",
+      "rationale": "One-pass decoded HTML repr and evaluated-carrier num/den provenance bits; retains its complementary public controls.",
+      "test_functions": [
+        "p1428_repr_compara_texto_html_decodificado",
+        "v17_numeric_html_entities_keep_unicode_validation_and_single_decode",
+        "p1428_decoder_html_e_fail_closed",
+        "p1428_modulo_expoe_frac_unica_e_quatro_bits",
+        "p1428_controles_rotas_diagnosticos_constantes_e_binom"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/p1431_line_cap_tests.rs",
+      "proposed_source": "03_infra/src/export/line_cap_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/p1431-line-cap-tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/line_cap_tests.md",
+      "source_sha256": "3cffdf0b7528c47e1fcd63345a480402fff6b18bfa0c150ffe66b0c32c389bf9",
+      "owner_sha256": "71fc0ae3e074ac274833ec4bb68f5830d33c22256ffa15e2c7522982885f5bae",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1431_raster_mapeia_butt_round_square_e_auto_square",
+        "p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local",
+        "p1431_pdf_legado_butt_preserva_bytes_sem_zero_j",
+        "p1431_export_opaco_falha_fechado"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/tests/p1476_pdfa_attachments_af_tests.rs",
+      "proposed_source": "03_infra/src/export/tests/pdfa_associated_files_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/tests/p1476_pdfa_attachments_af_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/tests/pdfa_associated_files_tests.md",
+      "source_sha256": "c245f847a93ad3d36f4859b51b6be540d986d4924c55d94d88a4064316907e72",
+      "owner_sha256": "f8abec8a0c1fc2ff1e106615242d3adca2736483c83f9389143b91c73ace8888",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1476_af_relationship_present_with_correct_value_for_gated_archivals",
+        "p1476_af_relationship_absent_outside_gate_regression_guard",
+        "p1476_af_array_present_in_catalog_for_gated_archivals",
+        "p1476_af_array_absent_without_attachment_regression_guard",
+        "p1476_af_array_absent_outside_gate_regression_guard",
+        "p1476_pdfaid_a4f_a4e_include_conformance_letter",
+        "p1476_info_suppressed_for_a4f_a4e",
+        "p1476_output_intent_present_for_a4f_a4e",
+        "p1476_a4_alone_with_attachment_stays_outside_embedded_files_gate_regression_guard"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/tests/p1478_pdfa4f_empty_embedded_files_tests.rs",
+      "proposed_source": "03_infra/src/export/tests/pdfa4f_empty_embedded_files_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/tests/p1478_pdfa4f_empty_embedded_files_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/tests/pdfa4f_empty_embedded_files_tests.md",
+      "source_sha256": "112cf5586ca9bc307c7c05a3ce6c05c7b5dc3fd8393a2e8f8cdf8effd77532f4",
+      "owner_sha256": "8a23e86c511d82509cf6923d45eba8edf97fffdf3127a9bc034210ca103f310e",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1478_a4f_sem_anexo_produz_embedded_files_vazio",
+        "p1478_a4f_sem_anexo_nao_produz_af_nem_filespec",
+        "p1478_a4e_sem_anexo_nao_produz_embedded_files",
+        "p1478_outros_perfis_sem_anexo_nao_produzem_embedded_files_vazio",
+        "p1478_a4f_com_anexo_preserva_comportamento_p1476",
+        "p1478_a4f_sem_anexo_com_destino_nomeado_preserva_dests"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/tests/p1480_pdfua_identification_tests.rs",
+      "proposed_source": "03_infra/src/export/tests/pdfua_identification_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/tests/p1480_pdfua_identification_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/tests/pdfua_identification_tests.md",
+      "source_sha256": "111c3c8800f6fa16b52975149f46d717e99966817d71f183f872e003c9e34ff7",
+      "owner_sha256": "0fb5ee5c9b66ac696191a001aa619e1a66128727a9a0be7530d1e5460f648b14",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1480_ua1_emite_identificacao_xmp_na_posicao_contratada",
+        "p1480_ua1_emite_preferencia_de_exibir_titulo",
+        "p1480_perfis_sem_ua1_nao_ganham_observaveis_pdfua",
+        "p1480_pdfa_e_pdfua_coexistem_sem_substituicao",
+        "p1480_pdfa_pdfua_declara_schema_de_extensao_pdfua"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/tests/p1475_pdfa_conformance_core_tests.rs",
+      "proposed_source": "03_infra/src/export/tests/pdfa_core_metadata_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/tests/p1475_pdfa_conformance_core_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/tests/pdfa_core_metadata_tests.md",
+      "source_sha256": "7bf38ba34475a559164654b699e7553f656507b646c4108ca5f2535a96da26d1",
+      "owner_sha256": "f1ba1fd6645fa3ab89455f19d237cfaf275682693b245867c78765b629b5f0e2",
+      "rationale": "Metadata/trailer/output-intent fields only; conformance in the old filename overstates suite coverage.",
+      "test_functions": [
+        "p1475_trailer_id_is_present_universal_and_matches_xmp_ids",
+        "p1475_pdf_version_dynamic_with_standard_2_0_no_archival",
+        "p1475_pdf_version_without_standard_stays_1_7_regression_guard",
+        "p1475_pdfaid_present_for_a2_a3_family_with_correct_letter",
+        "p1475_pdfaid_present_for_a4_with_rev_2020_no_conformance",
+        "p1475_pdfaid_absent_without_any_standard_regression_guard",
+        "p1475_pdfaid_absent_for_scope_out_profiles_confirmed_negatively",
+        "p1475_output_intent_present_for_seven_archivals_in_scope",
+        "p1475_output_intent_absent_for_none_a1_ua1_alone_regression_guard",
+        "p1475_info_suppressed_only_for_a4",
+        "p1475_info_present_for_all_other_cases_regression_guard"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/tests/p1477_pdfa_icc_version_and_cidset_tests.rs",
+      "proposed_source": "03_infra/src/export/tests/pdfa_icc_version_and_cidset_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/tests/p1477_pdfa_icc_version_and_cidset_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/tests/pdfa_icc_version_and_cidset_tests.md",
+      "source_sha256": "f37a53d94871b7d99040b74a4d568bfa432b74d355e87546472e7e306d997944",
+      "owner_sha256": "bb24f41ef8705db4e03844f29f72e29632b8d2aeac9b6ee57c639374ce67d7d7",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1477_icc_v2_selected_for_versions_1_4_1_5_1_6_shared_point",
+        "p1477_icc_v4_regression_for_versions_1_7_2_0_shared_point",
+        "p1477_icc_v4_regression_without_any_standard_shared_point",
+        "p1477_icc_v2_selected_for_a1a_and_a1b_shared_point",
+        "p1477_icc_v4_regression_for_output_intent_default_version_gated_archival",
+        "p1477_icc_v2_selected_for_output_intent_with_explicit_version_1_4_to_1_6",
+        "p1477_output_intent_v2_for_a1a_a1b_per_l0_acceptance_section_5",
+        "p1477_cidset_present_in_font_descriptor_and_stream_is_dense_bitset",
+        "p1477_cidset_absent_for_helvetica_path_regression_guard",
+        "p1477_cidset_universal_present_regardless_of_standard",
+        "p1477_cidset_present_for_multifont_path"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/tests/p1481_pdfua_structure_tests.rs",
+      "proposed_source": "03_infra/src/export/tests/pdfua_structure_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/tests/p1481_pdfua_structure_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/tests/pdfua_structure_tests.md",
+      "source_sha256": "1ce6642be667ad508febe9c6a99a8a6bf5507c25ec4f73bd6ccfbccecff4d5b1",
+      "owner_sha256": "cc835ddb0b0203b39134782b38949ff86df9ea0c0c5b18595f3ac04f019f44b7",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1481_ua1_lingua_documental_e_texto_real_marcado",
+        "p1481_ua1_preserva_idioma_local",
+        "p1481_common_pdf_nao_recebe_lang_ua1",
+        "p1481_fragmentos_formam_um_heading_e_um_paragrafo"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/tests/p1483_pdf_spot_tests.rs",
+      "proposed_source": "03_infra/src/export/tests/pdf_spot_colors_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/tests/p1483_pdf_spot_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/tests/pdf_spot_colors_tests.md",
+      "source_sha256": "e1af3b7daa2b46ccbd82f03c7e3430570fb0da97025fa35ed2090eeafab2f445",
+      "owner_sha256": "b8beb8c0bfc6e5e524e4baad1fe8ec45348598fb8f63c2176e2248b7d6d91536",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1483_pdf_solid_fill_stroke_tints_and_reuse",
+        "p1483_pdf_special_names_and_cmyk_alternate",
+        "p1483_pdf_spot_gradient_fill_keeps_separation",
+        "p1483_pdf_process_control_has_no_separation",
+        "p1483_pdf_background_gradient_registers_pattern",
+        "p1483_pdf_compact_distinguishes_colorants_and_escapes_names",
+        "p1483_pdf_reused_spot_gradient_uses_distinct_shape_patterns"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/tests/p1486_pdf_page_labels_tests.rs",
+      "proposed_source": "03_infra/src/export/tests/pdf_page_labels_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/tests/p1486_pdf_page_labels_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/tests/pdf_page_labels_tests.md",
+      "source_sha256": "2f65623ce3aea5dbb035419f0626755c80ccfa28374bc326cf20730109ab72c2",
+      "owner_sha256": "c0011dac5edbef64decd5a041b0521c2e2fb203ad442a9c967b8c2ef8a7bbcf9",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1486_selecao_descontinua_preserva_rotulos_arabicos_originais",
+        "p1486_matriz_semantica_de_rotulos",
+        "p1486_prefixo_sufixo_literal_e_selecao_vazia",
+        "p1486_rotulos_coexistem_com_tagging_pdfa_e_pdfua",
+        "p1486_cid_e_multifont_preservam_rotulos"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/svg/p1360_ab_tests.rs",
+      "proposed_source": "03_infra/src/export/svg/pretty_serialization_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/svg/p1360_ab_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/svg/pretty_serialization_tests.md",
+      "source_sha256": "37774e67b2cc797e85311d1b54a035ce7b8dca3d611f0d761d4fc18b8efa1cc2",
+      "owner_sha256": "e899c7773c0f85cfaede51c96d395af6bd98a92f00187fec7a59825fea87c1ce",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1360_ab_svg_options_default_compact_and_true_indents"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/src/export/html/p1360_ab_tests.rs",
+      "proposed_source": "03_infra/src/export/html/pretty_serialization_tests.rs",
+      "current_owner": "00_nucleo/prompts/infra/export/html/p1360_ab_tests.md",
+      "proposed_owner": "00_nucleo/prompts/infra/export/html/pretty_serialization_tests.md",
+      "source_sha256": "1cca6fd1a5e1c3714ecf4777cc6da3275af94bca15f8d7b75d437ff2fb1c4003",
+      "owner_sha256": "b2f156b1eae77230e43818ac10793f2f76b1e8ad41faa57d8bb370cadd72db85",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1360_ab_html_pretty_preserves_phrasing_title_and_quoted_gt"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/support/wiring/p1291_callback_runtime.rs",
+      "proposed_source": "03_infra/tests/support/wiring/math_cancel_callback_runtime.rs",
+      "current_owner": "00_nucleo/prompts/infra/test-support/wiring/p1291_callback_runtime.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/support/wiring/math_cancel_callback_runtime.md",
+      "source_sha256": "06fbfac2b7ede73f77fd1821f75a7dce93be8e51dd3790c6921c958fb7b0c1cb",
+      "owner_sha256": "cfd5dd5e0c1e17901999f25bc8610de90c0678e2fa55e88e0c838794dbd817a0",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/support/wiring/p1292_contract.rs",
+      "proposed_source": "03_infra/tests/support/wiring/math_decoration_and_float_flush.rs",
+      "current_owner": "00_nucleo/prompts/infra/test-support/wiring/p1292_contract.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/support/wiring/math_decoration_and_float_flush.md",
+      "source_sha256": "8ebcefd4952a394e78fef5b82e821799d25aafefbb32f03296440d1680787b57",
+      "owner_sha256": "93553200d4a5ca4e58c02fb971e4bc23b149c07d5bf3264e55fe0a7e67fc6612",
+      "rationale": "Mixed existing suite for cancel/underline/vector geometry and place.flush. Retain the suite boundary; splitting owners is outside a rename migration.",
+      "test_functions": [],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/support/wiring/p1293_contract.rs",
+      "proposed_source": "03_infra/tests/support/wiring/language_and_export_contract.rs",
+      "current_owner": "00_nucleo/prompts/infra/test-support/wiring/p1293_contract.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/support/wiring/language_and_export_contract.md",
+      "source_sha256": "6b4612e388d200acc96ce84b913fe4d3458d0de8fc5e9f09a6f86f2e5bdd729e",
+      "owner_sha256": "185539b87ce85e9f43188253e347acbf3c45aeb0bfce3fce773bcc9bd52066a3",
+      "rationale": "Existing multi-surface integration suite: float.is-nan, math attach/binom/mono/script, HTML DOM/feature/serialization, grid/table names. Broad semantic name reflects existing scope without falsely reducing it to one feature.",
+      "test_functions": [],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/support/wiring/p1462_format_svg.rs",
+      "proposed_source": "03_infra/tests/support/wiring/format_svg.rs",
+      "current_owner": "00_nucleo/prompts/infra/test-support/wiring/p1462_format_svg.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/support/wiring/format_svg.md",
+      "source_sha256": "047224f46fd51c4978c7ddd4b7a926813e6712a797e0d2009b2c50a9afaaf4e0",
+      "owner_sha256": "f2c321f66594fc970a9ec07a158010ad769bd1959762773c023da51bbaa7c0b9",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/support/wiring/p1463_format_png.rs",
+      "proposed_source": "03_infra/tests/support/wiring/format_png.rs",
+      "current_owner": "00_nucleo/prompts/infra/test-support/wiring/p1463_format_png.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/support/wiring/format_png.md",
+      "source_sha256": "ab25fa66c71b7019f368c3b5f5899446e368018e29fb477bb8a909b1babdca12",
+      "owner_sha256": "9892abd2ff7b6a5e03c1dc8a4b30d1192d9ec4a45b27f184a446135cee2ddcf9",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/support/wiring/p1464_format_pdf.rs",
+      "proposed_source": "03_infra/tests/support/wiring/format_pdf_namespace.rs",
+      "current_owner": "00_nucleo/prompts/infra/test-support/wiring/p1464_format_pdf.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_namespace.md",
+      "source_sha256": "4a0bcd4e052e81d952a630ca69287c179fda5088d01646d175bccc76b591d4fc",
+      "owner_sha256": "f9f1025a9a0f429cb41f9290f0cce6dcd44dcb2b80c820291ef48f0dd3c6b591",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/support/wiring/p1465_format_html.rs",
+      "proposed_source": "03_infra/tests/support/wiring/format_html.rs",
+      "current_owner": "00_nucleo/prompts/infra/test-support/wiring/p1465_format_html.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/support/wiring/format_html.md",
+      "source_sha256": "b96ad58cfb2112f72d592dd22db9032052b721f64b9aa70822b6d9c09b54979d",
+      "owner_sha256": "dfee32a3281f212270491ed67780e74e7ac9f7a34c1a813e9ccf2906553e5968",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/support/wiring/p1467_format_pdf_tagged_pretty.rs",
+      "proposed_source": "03_infra/tests/support/wiring/format_pdf_tagged_pretty.rs",
+      "current_owner": "00_nucleo/prompts/infra/test-support/wiring/p1467_format_pdf_tagged_pretty.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_tagged_pretty.md",
+      "source_sha256": "ab1943e23aef14e3ab1987beb9e8c98d3b50aa1e5f7e5031310a41fc1d7c10d3",
+      "owner_sha256": "500f5eb04bb9fef4bcc60c373b36489ffcfdb170e33e6c1748ed75d6eb06ed41",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/support/wiring/p1468_format_pdf_pages.rs",
+      "proposed_source": "03_infra/tests/support/wiring/format_pdf_pages.rs",
+      "current_owner": "00_nucleo/prompts/infra/test-support/wiring/p1468_format_pdf_pages.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_pages.md",
+      "source_sha256": "cf921f5e1c1c55bc08f0f6b260b25b9717d9ceeb12555d61c4c006c46519c37a",
+      "owner_sha256": "698dd4fa99c5c638b68e662ff7c5f7e951f83267166e9f32933fa343fd3016c6",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "03_infra/tests/support/wiring/p1469_format_pdf_standard.rs",
+      "proposed_source": "03_infra/tests/support/wiring/format_pdf_standard.rs",
+      "current_owner": "00_nucleo/prompts/infra/test-support/wiring/p1469_format_pdf_standard.md",
+      "proposed_owner": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_standard.md",
+      "source_sha256": "ccabb2130e9c39b1204a10fc03b1ecc4797f5444d5ab683f4c1675f1ed8e27d7",
+      "owner_sha256": "b9269ae6e5fb1a7da9bb58ce38b281322adb0649885217b96358ba76f0f95717",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1286_contract.rs",
+      "proposed_source": "04_wiring/tests/smart_quotes_pdf_attachment_artifact.rs",
+      "current_owner": null,
+      "proposed_owner": null,
+      "source_sha256": "a27471122e5244e86e30e7d71411ff9048913d3a2831f6dc3dafcaddf45e9738",
+      "owner_sha256": null,
+      "rationale": "Existing black-box exemption in crystalline.toml has no L0 owner. Rename the exemption key/path; do not invent ownership or silently remove exemption.",
+      "test_functions": [
+        "p1286_smartquote_explicit_auto_erases_inherited_quotes",
+        "p1286_smartquote_counts_unicode_graphemes",
+        "p1286_attachment_preserves_virtual_path_and_metadata",
+        "p1286_artifact_suppresses_descendant_formula_structure_only_locally"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1289_float_is_infinite.rs",
+      "proposed_source": "04_wiring/tests/float_is_infinite.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1289_float_is_infinite.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/float_is_infinite.md",
+      "source_sha256": "b3a587e3d5cbd64e70e2460c962cbb233cf85daa5cc0cb19b3e5d65a8796c48d",
+      "owner_sha256": "2aacbe2b0fc3a4824cef9d4e01972708ccb2d3743511e2879013aaf87666d64d",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1289_float_is_infinite_reports_finite_infinite_and_nan",
+        "p1289_float_is_infinite_preserves_public_signature_and_errors"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1291_callback_runtime.rs",
+      "proposed_source": "04_wiring/tests/math_cancel_callback_runtime.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1291_callback_runtime.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/math_cancel_callback_runtime.md",
+      "source_sha256": "f7b77537eb2a9c8cfad5820d52cdc221d5cc2469a0ff97f4cb04c50ed3681c70",
+      "owner_sha256": "43cbfc2b749589aa57dc958b62dca1d166ecc7cfc720e0787ba908e656a1545a",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1291_callback_runtime_altera_angulo_final",
+        "p1291_callback_runtime_observa_style_efetivo",
+        "p1291_callback_runtime_erro_preserva_span_da_chamada",
+        "p1291_cross_sobrepoe_inverted_na_geometria_final",
+        "p1291_callback_aninhada_em_script_observa_size_efetivo_reduzido"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1292_contract.rs",
+      "proposed_source": "04_wiring/tests/math_decoration_and_float_flush.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1292_contract.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md",
+      "source_sha256": "15010c0450f509831d9546f8b70089ad731ea9ef46a2665c18045a838e4b058b",
+      "owner_sha256": "bc60bc88cb31bc072ebda8ded3f8be770124f8ad3c43c5b700ac440de61b14d2",
+      "rationale": "Mixed existing suite for cancel/underline/vector geometry and place.flush. Retain the suite boundary; splitting owners is outside a rename migration.",
+      "test_functions": [
+        "p1292_a_cancel_surface_repr_and_errors",
+        "p1292_a_cancel_callback_cross_context_span_and_background",
+        "p1292_b_math_underline_surface_identity_and_errors",
+        "p1292_b_math_underline_math_constants_styles_and_italic_correction",
+        "p1292_b_plain_mixed_baselines_and_following_line_advance",
+        "p1292_b_italic_f_preserves_frame_and_shortens_only_rule",
+        "p1292_b_underbar_fallback_constants_are_not_generic_line_defaults",
+        "p1292_c_vec_cardinality_defaults_repr_and_errors",
+        "p1292_c_vec_gap_finite_auto_absolute_and_mixed",
+        "p1292_d_place_flush_namespace_repr_and_errors",
+        "p1292_d_flush_prefix_suffix_clearance_nested_and_noop"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1293_contract.rs",
+      "proposed_source": "04_wiring/tests/language_and_export_contract.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1293_contract.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/language_and_export_contract.md",
+      "source_sha256": "5aba3ad009c90c6cff2d6095c897769fe6750a8d104777669a967d1d8ac5119c",
+      "owner_sha256": "74aa1484aa225c4199acf4197e5e2d7031ac4e458f8083c71adc83c319621866",
+      "rationale": "Existing multi-surface integration suite: float.is-nan, math attach/binom/mono/script, HTML DOM/feature/serialization, grid/table names. Broad semantic name reflects existing scope without falsely reducing it to one feature.",
+      "test_functions": [
+        "p1293_a_static_bound_values_and_closed_errors",
+        "p1293_b_identity_morphology_convergence_and_errors",
+        "p1293_b_semantic_layout_vectors_none_and_no_fraction_rule",
+        "p1293_c_surface_all_specific_casts_and_closed_errors",
+        "p1293_c_dom_order_void_escaping_and_nesting",
+        "p1293_c_serialization_modes_default_scope_and_non_html_neutrality",
+        "p1293_c_export_facade_is_public_direct_and_keeps_html_semantics_owned_below",
+        "p1293_c_feature_and_target_are_independent_axes",
+        "p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved",
+        "p1293_d_preexisting_arity_and_serializer_transcript_is_preserved"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1462_format_svg.rs",
+      "proposed_source": "04_wiring/tests/format_svg.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1462-format-svg.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/format_svg.md",
+      "source_sha256": "e6486c4bf9f1c1a216ea27a81993996956f6f41c811941d29407c8286ce3ba46",
+      "owner_sha256": "b9d20c2c836de7cfa7e2bccd39305836b6bd1d02d3b7e88ec53938cbab2ca3b3",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "public_identity_default_and_manual_construction",
+        "set_validation_uses_normal_errors_and_no_ignored_target_warning",
+        "root_is_accepted_and_two_distinct_containers_are_rejected",
+        "document_cascade_and_caller_override_select_svg_serialization",
+        "pretty_and_compact_are_valid_xml_with_same_source_morphology",
+        "svg_document_option_is_neutral_to_pdf_png_html_and_html_frame",
+        "p1465_successor_html_is_feature_gated_from_format_namespace"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1463_format_png.rs",
+      "proposed_source": "04_wiring/tests/format_png.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1463-format-png.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/format_png.md",
+      "source_sha256": "54ba74310f3fcef1acee19c92bc796883dc88f0872a3c4c5d1a4ee34752c6a75",
+      "owner_sha256": "a125b3d6a7fa77dbd64a603b56f5c5b17495c97ce3c32491f79732c70fd6fd97",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "public_surface_namespace_and_manual_construction",
+        "set_validation_uses_normal_errors_without_legacy_warning_or_artifact",
+        "one_point_ihdr_matrix_proves_defaults_cascade_precedence_and_limits",
+        "a4_default_usa_144_ppi_sem_alocacao_gigante",
+        "nested_rules_fail_with_exact_diagnostic_and_publish_no_artifact",
+        "png_document_and_caller_options_are_byte_neutral_to_svg",
+        "p1465_successor_html_is_feature_gated_from_format_namespace"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1464_format_pdf.rs",
+      "proposed_source": "04_wiring/tests/format_pdf_namespace.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1464-format-pdf.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/format_pdf_namespace.md",
+      "source_sha256": "52a338ebfa3c7a912b3d6e34ae86c459881765087293523dcb93ef9804e1284d",
+      "owner_sha256": "85e0c4d786c7fe74c580ce4a1aaf0988748d3955a4f967e7bf07646265ac1b2c",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1464_surface_defaults_aliases_and_manual_construction",
+        "p1464_permanent_members_are_reused_and_survive_with",
+        "p1464_a11y_trio_is_all_or_nothing_with_exact_diagnostics",
+        "p1464_svg_png_global_pdf_html_and_homonymous_closure_controls"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1465_format_html.rs",
+      "proposed_source": "04_wiring/tests/format_html.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1465-format-html.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/format_html.md",
+      "source_sha256": "a81320d3cb82f1e345d4b6c3f7ce6ce25448d2a9b99e5203ccc83cd3e4ede161",
+      "owner_sha256": "4a9c3c1a7812175c3af0b096783538627e9709269bc0e0f46bbd8be73860ac6f",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1465_gate_surface_and_manual_construction",
+        "p1465_all_114_members_reuse_global_html_and_survive_with",
+        "p1465_set_rule_validation_order_and_container_boundary",
+        "p1465_document_and_cli_precedence_preserve_dom"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1467_format_pdf_tagged_pretty.rs",
+      "proposed_source": "04_wiring/tests/format_pdf_tagged_pretty.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1467-format-pdf-tagged-pretty.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/format_pdf_tagged_pretty.md",
+      "source_sha256": "1c3b47f705b0921ac0c26a18f81e62784c16ec006ff7ad57ac75554572e524f4",
+      "owner_sha256": "a7cb0b5caae88b55dad2176b69e61ccb32ff22cfbddac63abfba175772bc21b8",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1467_absence_of_set_rule_resolves_auto_to_tagged",
+        "p1467_document_tagged_false_untags_pdf",
+        "p1467_document_tagged_true_tags_pdf",
+        "p1467_cli_pdf_tagged_false_wins_over_document_tagged_true",
+        "p1467_cli_pdf_tagged_true_wins_over_document_tagged_false",
+        "p1467_cli_no_pdf_tags_wins_over_document_tagged_true",
+        "p1467_document_pretty_true_without_cli_override",
+        "p1467_cli_pretty_wins_over_document_pretty_false",
+        "p1467_tagged_and_pretty_combine_independently",
+        "p1467_nested_format_pdf_rule_inside_block_fails_with_canonical_message"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1468_format_pdf_pages.rs",
+      "proposed_source": "04_wiring/tests/format_pdf_pages.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1468-format-pdf-pages.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/format_pdf_pages.md",
+      "source_sha256": "5befa8be4eba9c76777a84aac41d2c60acdba0ac8830d7937917189852def1b9",
+      "owner_sha256": "54124b9c5344c9549c5236ae69015d3887626d7f8acec8bcca4ec90906cbc76a",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1468_document_pages_int_selects_single_page",
+        "p1468_document_pages_dict_range_selects_two_pages",
+        "p1468_cli_pages_flag_selects_pages_without_document_decision",
+        "p1468_cli_pages_overrides_document_pages",
+        "p1468_page_beyond_document_end_does_not_crash",
+        "p1468_document_pages_and_tagged_true_is_compile_error",
+        "p1468_cli_pages_with_pdf_tagged_true_is_cli_only_error",
+        "p1468_document_pages_with_tagged_auto_warns_and_disables_tags",
+        "p1468_document_pages_with_tagged_false_is_silent_and_untagged",
+        "p1468_native_bookmarks_survive_for_included_page_heading",
+        "p1468_outline_child_is_reparented_when_parent_page_is_excluded",
+        "p1468_link_to_removed_page_omits_annotation"
+      ],
+      "status": "read-only reviewed proposal"
+    },
+    {
+      "current_source": "04_wiring/tests/p1469_format_pdf_standard.rs",
+      "proposed_source": "04_wiring/tests/format_pdf_standard.rs",
+      "current_owner": "00_nucleo/prompts/wiring/tests/p1469-format-pdf-standard.md",
+      "proposed_owner": "00_nucleo/prompts/wiring/tests/format_pdf_standard.md",
+      "source_sha256": "56aa7fb3e9a18895f510e805354a4a1b639ed86d3e40a32681342dd152d6ee2d",
+      "owner_sha256": "de13451f1fb6a7d7580b85b4084d11a8ad2990a8e7b6a887a4825825d0302ebf",
+      "rationale": "Semantic responsibility confirmed against the source functions and exclusive L0 contract; retain this existing unit and its assertions.",
+      "test_functions": [
+        "p1469_document_standard_explicit_version_sets_header",
+        "p1469_document_standard_archival_without_explicit_version_uses_range_maximum",
+        "p1469_document_standard_a1b_without_explicit_version_uses_1_4",
+        "p1469_cli_pdf_standard_flag_sets_header_without_document_decision",
+        "p1469_cli_pdf_standard_overrides_document_standard",
+        "p1469_no_standard_decision_anywhere_keeps_default_header_1_7",
+        "p1469_document_accessible_profile_with_tagged_false_is_compile_error",
+        "p1469_cli_accessible_profile_with_pdf_tagged_false_is_cli_only_error",
+        "p1469_cli_accessible_profile_with_pages_and_no_explicit_tagged_has_pages_hint",
+        "p1469_cli_pdf_standard_conflicting_versions_is_rejected_before_compiling"
+      ],
+      "status": "read-only reviewed proposal"
+    }
+  ],
+  "remaining_count": 48,
+  "combined_numbered_rust_count": 85,
+  "collisions": [],
+  "fixture_policy": "Separate asset inventory: preserve current fixture identities for this Rust/L0 move; see review for semantic directory/font candidates and mandatory byte-preservation checks."
+}

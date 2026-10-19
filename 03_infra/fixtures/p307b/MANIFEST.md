@@ -1,7 +1,7 @@
 # P307b — corpus canónico de snapshot binário
 
 **Data**: 2026-05-19 (gerado em P307a.2; expandido para 9 fixtures após feedback humano sobre cobertura)
-**L0 ancora**: `00_nucleo/prompts/infra/export-fixtures.md`
+**L0 ancora**: `00_nucleo/prompts/infra/pdf_snapshot_tests.md`
 **Propósito**: invariante observable bit-exact para validar P307b.1
 (extracção de submódulos) — ver ADR-0100 §"Critérios de validação"
 e ADR-0098 §"Evolução pós-P307".
@@ -112,12 +112,12 @@ Se o font path mudar ou a fonte ser actualizada, regenerar fixture.
 ## Como regenerar
 
 Ver protocolo completo em
-`00_nucleo/prompts/infra/export-fixtures.md` §"Protocolo de
+`00_nucleo/prompts/infra/pdf_snapshot_tests.md` §"Protocolo de
 regeneração".
 
 ## Como consumir (P307b.1)
 
-Ver template em `00_nucleo/prompts/infra/export-fixtures.md`
+Ver template em `00_nucleo/prompts/infra/pdf_snapshot_tests.md`
 §"Uso em P307b.1".
 
 ### Correção de falhas — 2026-09-28

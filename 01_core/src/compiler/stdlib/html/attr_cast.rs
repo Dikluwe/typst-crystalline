@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/html/attr_cast.md
-//! @prompt-hash 697e2b74
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md
+//! @prompt-hash 8564f6b7
 //! @layer L1
 //! @updated 2026-09-30
 

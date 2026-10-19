@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/structural/lists.md
-//! @prompt-hash c6190f2f
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/lists.md
+//! @prompt-hash 4cefc164
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -527,7 +527,7 @@ pub fn native_terms_item(
 /// P1473 (Agente B) — contrato RED de `list.item`/`enum.item`/`terms.item`
 /// qualificados e da segunda forma (posicional) de `terms()`. Fonte:
 /// `lab/history/construction/records/00_nucleo/materialization/typst-passo-1473.md` +
-/// `00_nucleo/prompts/compiler/stdlib/structural/lists.md` §P1473. Escrito
+/// `00_nucleo/prompts/core/compiler/stdlib/structural/lists.md` §P1473. Escrito
 /// sem ver a implementação (isolamento Agente A/B) — usa exclusivamente a
 /// avaliação de expressões Typst (`eval_expression`) como oráculo de
 /// observáveis de língua, nunca reconstrução directa da implementação

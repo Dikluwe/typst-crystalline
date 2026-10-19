@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/page_geometry.md
-//! @prompt-hash 37d4bb44
+//! @prompt 00_nucleo/prompts/core/compiler/layout/page_geometry.md
+//! @prompt-hash 20728a72
 //! @layer L1
 use crate::entities::layout_types::{
     PageConfig, PageDimension, PageMarginSpec, PageMargins,

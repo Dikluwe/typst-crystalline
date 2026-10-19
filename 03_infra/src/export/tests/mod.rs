@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/mod.md
-//! @prompt-hash 467e056b
+//! @prompt-hash d102f84b
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -10103,18 +10103,18 @@ mod p1140_6_tagged_pdf {
 // herdado de `export/mod.rs:994` (`#[cfg(test)] mod tests;`) — clareza
 // local, cada declaração fica auto-explicativa.
 #[cfg(test)]
-mod p1475_pdfa_conformance_core_tests;
+mod pdf_page_labels_tests;
 #[cfg(test)]
-mod p1476_pdfa_attachments_af_tests;
+mod pdf_spot_colors_tests;
 #[cfg(test)]
-mod p1477_pdfa_icc_version_and_cidset_tests;
+mod pdfa4f_empty_embedded_files_tests;
 #[cfg(test)]
-mod p1478_pdfa4f_empty_embedded_files_tests;
+mod pdfa_associated_files_tests;
 #[cfg(test)]
-mod p1480_pdfua_identification_tests;
+mod pdfa_core_metadata_tests;
 #[cfg(test)]
-mod p1481_pdfua_structure_tests;
+mod pdfa_icc_version_and_cidset_tests;
 #[cfg(test)]
-mod p1483_pdf_spot_tests;
+mod pdfua_identification_tests;
 #[cfg(test)]
-mod p1486_pdf_page_labels_tests;
+mod pdfua_structure_tests;

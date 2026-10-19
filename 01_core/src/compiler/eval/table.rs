@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/eval/table.md
+//! @prompt 00_nucleo/prompts/core/compiler/eval/table.md
 //! @prompt-hash 3edbda1b
 //! @layer L1
 

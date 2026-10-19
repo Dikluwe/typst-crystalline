@@ -1,0 +1,17 @@
+# L0 — core/compiler/stdlib/structural/math_accent_tests
+Hash do Código: 51496ed8
+
+Layer: L1 (test-only)
+Exclusive consumer: `01_core/src/compiler/stdlib/structural/math_accent_tests.rs`
+
+## Evidence and classification
+
+The consumer's `@prompt` at `01_core/src/compiler/stdlib/structural/math_accent_tests.rs:2` establishes this exclusive ownership. Implementation inspection is not a new bilateral parity measurement; original historical qualifications remain in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
+
+## Test obligations
+
+Exercise the actual published math.accent API: binding, positionals, casts, accent normalization, size, dotless, named/duplicate arguments, bare routes and symbolic wrappers. Verify MathAccent identity, repr, carrier contents, equality and attributable diagnostics. No harness classifier, score or external artifact; no productive implementation ownership.
+
+## Limits
+
+Preserve existing public observations and metadata. This documentary revision does not authorize productive-code, test-code, signature, default, pipeline-phase or compatibility changes. Respect exclusive ownership and pinned shared claims under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

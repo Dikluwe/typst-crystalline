@@ -12,6 +12,7 @@ paths including `00_nucleo/prompts/` in prose. Rust `@prompt` remains unchanged.
 
 - [ADR-0129](adr-0129-l0-owners-and-shared-tekt-nuclei.md)
 - [ADR-0130](adr-0130-canonical-l0-prompt-references.md)
+- [ADR-0131](adr-0131-owner-aligned-prompt-paths.md)
 - [ADR-0127](adr-0127-l0-gate-stop-vs-continuous-flow.md)
 - [ADR-0029](adr-0029-physical-l1-purity.md)
 - [ADR-0030](adr-0030-ram-performance-in-l1-domain.md)

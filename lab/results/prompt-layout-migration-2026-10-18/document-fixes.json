@@ -1,0 +1,1490 @@
+{
+  "utc": "2026-10-19T00:43:12.447565+00:00",
+  "checkpoint": "d330c717eb06c86a560c4cf3d8d0ba40224609b9",
+  "state": "Document-only changes after frozen successful functional/quality suite; reseal pending.",
+  "commands": [
+    {
+      "path": "00_nucleo/prompts/wiring/tests/cli.md",
+      "line": 39,
+      "old": "cargo test -p typst --test cli -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test cli -- --test-threads=1",
+      "target_source": "04_wiring/tests/cli.rs",
+      "package": "typst-wiring",
+      "target": "cli",
+      "reason": "incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/crystalline_lint.md",
+      "line": 26,
+      "old": "cargo test -p typst --test crystalline_lint -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test crystalline_lint -- --test-threads=1",
+      "target_source": "04_wiring/tests/crystalline_lint.rs",
+      "package": "typst-wiring",
+      "target": "crystalline_lint",
+      "reason": "incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/float_is_infinite.md",
+      "line": 23,
+      "old": "cargo test -p typst --test p1289_float_is_infinite -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test float_is_infinite -- --test-threads=1",
+      "target_source": "04_wiring/tests/float_is_infinite.rs",
+      "package": "typst-wiring",
+      "target": "float_is_infinite",
+      "reason": "renamed target; incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_html.md",
+      "line": 37,
+      "old": "cargo test -p typst --test p1465_format_html -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test format_html -- --test-threads=1",
+      "target_source": "04_wiring/tests/format_html.rs",
+      "package": "typst-wiring",
+      "target": "format_html",
+      "reason": "renamed target; incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_namespace.md",
+      "line": 35,
+      "old": "cargo test -p typst --test p1464_format_pdf -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test format_pdf_namespace -- --test-threads=1",
+      "target_source": "04_wiring/tests/format_pdf_namespace.rs",
+      "package": "typst-wiring",
+      "target": "format_pdf_namespace",
+      "reason": "renamed target; incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_pages.md",
+      "line": 28,
+      "old": "cargo test -p typst --test p1468_format_pdf_pages -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test format_pdf_pages -- --test-threads=1",
+      "target_source": "04_wiring/tests/format_pdf_pages.rs",
+      "package": "typst-wiring",
+      "target": "format_pdf_pages",
+      "reason": "renamed target; incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_standard.md",
+      "line": 28,
+      "old": "cargo test -p typst --test p1469_format_pdf_standard -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test format_pdf_standard -- --test-threads=1",
+      "target_source": "04_wiring/tests/format_pdf_standard.rs",
+      "package": "typst-wiring",
+      "target": "format_pdf_standard",
+      "reason": "renamed target; incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_tagged_pretty.md",
+      "line": 27,
+      "old": "cargo test -p typst --test p1467_format_pdf_tagged_pretty -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test format_pdf_tagged_pretty -- --test-threads=1",
+      "target_source": "04_wiring/tests/format_pdf_tagged_pretty.rs",
+      "package": "typst-wiring",
+      "target": "format_pdf_tagged_pretty",
+      "reason": "renamed target; incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_png.md",
+      "line": 26,
+      "old": "cargo test -p typst --test p1463_format_png -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test format_png -- --test-threads=1",
+      "target_source": "04_wiring/tests/format_png.rs",
+      "package": "typst-wiring",
+      "target": "format_png",
+      "reason": "renamed target; incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_svg.md",
+      "line": 26,
+      "old": "cargo test -p typst --test p1462_format_svg -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test format_svg -- --test-threads=1",
+      "target_source": "04_wiring/tests/format_svg.rs",
+      "package": "typst-wiring",
+      "target": "format_svg",
+      "reason": "renamed target; incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/language_and_export_contract.md",
+      "line": 26,
+      "old": "cargo test -p typst-wiring --test p1293_contract -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test language_and_export_contract -- --test-threads=1",
+      "target_source": "04_wiring/tests/language_and_export_contract.rs",
+      "package": "typst-wiring",
+      "target": "language_and_export_contract",
+      "reason": "renamed target; existing package retained"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/math_cancel_callback_runtime.md",
+      "line": 33,
+      "old": "cargo test -p typst --test p1291_callback_runtime -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test math_cancel_callback_runtime -- --test-threads=1",
+      "target_source": "04_wiring/tests/math_cancel_callback_runtime.rs",
+      "package": "typst-wiring",
+      "target": "math_cancel_callback_runtime",
+      "reason": "renamed target; incorrect package"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md",
+      "line": 28,
+      "old": "cargo test -p typst-wiring --test p1292_contract -- --test-threads=1",
+      "new": "cargo test -p typst-wiring --test math_decoration_and_float_flush -- --test-threads=1",
+      "target_source": "04_wiring/tests/math_decoration_and_float_flush.rs",
+      "package": "typst-wiring",
+      "target": "math_decoration_and_float_flush",
+      "reason": "renamed target; existing package retained"
+    }
+  ],
+  "titles": [
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/bindings/mod.md",
+      "old": "# L0 \u2014 compiler/eval/bindings",
+      "new": "# L0 \u2014 core/compiler/eval/bindings/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/eval/bindings.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/mod.md",
+      "old": "# L0 \u2014 compiler/eval",
+      "new": "# L0 \u2014 core/compiler/eval/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/eval.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/observation/mod.md",
+      "old": "# L0 \u2014 compiler/eval/observation",
+      "new": "# L0 \u2014 core/compiler/eval/observation/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/eval/observation.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/operators/mod.md",
+      "old": "# L0 \u2014 compiler/eval/operators",
+      "new": "# L0 \u2014 core/compiler/eval/operators/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/eval/operators.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_limits_override_observation_tests.md",
+      "old": "# L0 \u2014 compiler/eval/p1425-tests",
+      "new": "# L0 \u2014 core/compiler/eval/math_limits_override_observation_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/eval/p1425-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md",
+      "old": "# L0 \u2014 compiler/eval/p1426-tests",
+      "new": "# L0 \u2014 core/compiler/eval/math_root_evaluation_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/eval/p1426-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md",
+      "old": "# L0 \u2014 compiler/eval/p1427-tests",
+      "new": "# L0 \u2014 core/compiler/eval/math_frac_evaluation_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/eval/p1427-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_accent_observation_tests.md",
+      "old": "# L0 \u2014 compiler/eval/p1429-observation-tests",
+      "new": "# L0 \u2014 core/compiler/eval/math_accent_observation_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/eval/p1429-observation-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md",
+      "old": "# L0 \u2014 compiler/eval/p1430-tests",
+      "new": "# L0 \u2014 core/compiler/eval/math_cases_evaluation_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/eval/p1430-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md",
+      "old": "# L0 \u2014 compiler/eval/p1431-tests",
+      "new": "# L0 \u2014 core/compiler/eval/math_matrix_evaluation_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/eval/p1431-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/lang/mod.md",
+      "old": "# L0 \u2014 lang",
+      "new": "# L0 \u2014 core/compiler/lang/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/lang.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/layout/footnote_flush.md",
+      "old": "# L0 \u2014 footnote_overflow_columns",
+      "new": "# L0 \u2014 core/compiler/layout/footnote_flush",
+      "old_prompt_path": "00_nucleo/prompts/compiler/footnote_overflow_columns.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/layout/paragraph_select_bounded/justice_overflow.md",
+      "old": "# L0 \u2014 paragraph_select_justice_overflow",
+      "new": "# L0 \u2014 core/compiler/layout/paragraph_select_bounded/justice_overflow",
+      "old_prompt_path": "00_nucleo/prompts/compiler/layout/paragraph_select_justice_overflow.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/layout/paragraph_select_bounded/vanilla_lower.md",
+      "old": "# L0 \u2014 paragraph_select_vanilla_lower",
+      "new": "# L0 \u2014 core/compiler/layout/paragraph_select_bounded/vanilla_lower",
+      "old_prompt_path": "00_nucleo/prompts/compiler/layout/paragraph_select_vanilla_lower.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/layout/set_page.md",
+      "old": "# Prompt L0 \u2014 P537b \u2014 `#set page(columns:)` \u2192 mecanismo de colunas",
+      "new": "# L0 \u2014 core/compiler/layout/set_page",
+      "old_prompt_path": "00_nucleo/prompts/passo-537b-set-page-columns.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/mod.md",
+      "old": "# L0 \u2014 math/layout/_comum",
+      "new": "# L0 \u2014 core/compiler/math/layout/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/math/layout/_comum.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_limits_layout_tests.md",
+      "old": "# L0 \u2014 math/layout/p1425-tests",
+      "new": "# L0 \u2014 core/compiler/math/layout/math_limits_layout_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/math/layout/p1425-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_root_layout_tests.md",
+      "old": "# L0 \u2014 math/layout/p1426-tests",
+      "new": "# L0 \u2014 core/compiler/math/layout/math_root_layout_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/math/layout/p1426-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_frac_layout_tests.md",
+      "old": "# L0 \u2014 math/layout/p1427-tests",
+      "new": "# L0 \u2014 core/compiler/math/layout/math_frac_layout_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/math/layout/p1427-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_accent_layout_tests.md",
+      "old": "# L0 \u2014 math/layout/p1429-tests",
+      "new": "# L0 \u2014 core/compiler/math/layout/math_accent_layout_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/math/layout/p1429-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_cases_layout_tests.md",
+      "old": "# L0 \u2014 math/layout/p1430-tests",
+      "new": "# L0 \u2014 core/compiler/math/layout/math_cases_layout_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/math/layout/p1430-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_matrix_layout_tests.md",
+      "old": "# L0 \u2014 math/layout/p1431-tests",
+      "new": "# L0 \u2014 core/compiler/math/layout/math_matrix_layout_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/math/layout/p1431-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/source_transparency_tests.md",
+      "old": "# L0 \u2014 math/layout/source-transparency-tests",
+      "new": "# L0 \u2014 core/compiler/math/layout/source_transparency_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/math/layout/source-transparency-tests.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/parse/mod.md",
+      "old": "# L0 \u2014 parse",
+      "new": "# L0 \u2014 core/compiler/parse/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/parse.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/mod.md",
+      "old": "# L0 \u2014 stdlib/foundations",
+      "new": "# L0 \u2014 core/compiler/stdlib/foundations/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/foundations.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/regex_constructor.md",
+      "old": "# L0 \u2014 stdlib/foundations/regex",
+      "new": "# L0 \u2014 core/compiler/stdlib/foundations/regex_constructor",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/foundations/regex.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/html/html_constructor_surface_tests.md",
+      "old": "# L0 \u2014 stdlib/html/p1423-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/html/html_constructor_surface_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/html/p1423-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/html/html_frame_tests.md",
+      "old": "# L0 \u2014 stdlib/html/p1424-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/html/html_frame_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/mod.md",
+      "old": "# L0 \u2014 stdlib/_comum",
+      "new": "# L0 \u2014 core/compiler/stdlib/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/_comum.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/primitives_constructors.md",
+      "old": "# L0 \u2014 stdlib/primitives-constructors",
+      "new": "# L0 \u2014 core/compiler/stdlib/primitives_constructors",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/primitives-constructors.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_limits_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/math/p1425-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math/math_limits_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/math/p1425-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_root_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/math/p1426-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math/math_root_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/math/p1426-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_frac_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/math/p1427-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math/math_frac_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/math/p1427-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/mod.md",
+      "old": "# L0 \u2014 stdlib/structural",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1429-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_accent_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1429-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1430-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_cases_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1430-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_matrix_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1431-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_matrix_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_lr_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1436-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_lr_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1436-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_mid_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1437-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_mid_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1437-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_norm_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1438-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_norm_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1438-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overbrace_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1439-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_overbrace_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1439-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overbracket_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1440-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_overbracket_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1440-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overline_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1441-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_overline_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1441-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overparen_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1442-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_overparen_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1442-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overshell_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1443-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_overshell_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1443-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_primes_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1444-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_primes_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1444-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_round_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1445-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_round_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1445-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_stretch_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1446-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_stretch_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1446-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_abs_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1447-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_abs_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1447-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underbrace_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1448-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_underbrace_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1448-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underbracket_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1449-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_underbracket_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1449-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underparen_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1450-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_underparen_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1450-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_undershell_tests.md",
+      "old": "# L0 \u2014 stdlib/structural/p1451-tests",
+      "new": "# L0 \u2014 core/compiler/stdlib/structural/math_undershell_tests",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1451-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/text/mod.md",
+      "old": "# L0 \u2014 stdlib/text",
+      "new": "# L0 \u2014 core/compiler/stdlib/text/mod",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/text.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/page_structure.md",
+      "old": "# L0 \u2014 entities/content/page-structure",
+      "new": "# L0 \u2014 core/entities/content/page_structure",
+      "old_prompt_path": "00_nucleo/prompts/entities/content/page-structure.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/plain_text.md",
+      "old": "# L0 \u2014 entities/content/plain-text",
+      "new": "# L0 \u2014 core/entities/content/plain_text",
+      "old_prompt_path": "00_nucleo/prompts/entities/content/plain-text.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/rust_hash.md",
+      "old": "# L0 \u2014 entities/content/rust-hash",
+      "new": "# L0 \u2014 core/entities/content/rust_hash",
+      "old_prompt_path": "00_nucleo/prompts/entities/content/rust-hash.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/tests/mod.md",
+      "old": "# L0 \u2014 entities/content/tests",
+      "new": "# L0 \u2014 core/entities/content/tests/mod",
+      "old_prompt_path": "00_nucleo/prompts/entities/content/tests.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_accent_tests.md",
+      "old": "# Testes independentes P1429 \u2014 carrier `MathAccent`",
+      "new": "# L0 \u2014 core/entities/elements/math_accent_tests",
+      "old_prompt_path": "00_nucleo/prompts/entities/elements/p1429-math-accent-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_cases_tests.md",
+      "old": "# Testes independentes P1430 \u2014 carrier `MathCases`",
+      "new": "# L0 \u2014 core/entities/elements/math_cases_tests",
+      "old_prompt_path": "00_nucleo/prompts/entities/elements/p1430-math-cases-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_matrix_tests.md",
+      "old": "# Testes independentes P1431 \u2014 carrier `MathMatrix`",
+      "new": "# L0 \u2014 core/entities/elements/math_matrix_tests",
+      "old_prompt_path": "00_nucleo/prompts/entities/elements/p1431-math-matrix-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/font_list.md",
+      "old": "# Prompt L0 \u2014 entities/font-list",
+      "new": "# L0 \u2014 core/entities/font_list",
+      "old_prompt_path": "00_nucleo/prompts/entities/font-list.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/line_cap_tests.md",
+      "old": "# Testes independentes P1431 \u2014 transporte de `FrameItem::Line.cap`",
+      "new": "# L0 \u2014 core/entities/line_cap_tests",
+      "old_prompt_path": "00_nucleo/prompts/entities/p1431-line-cap-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/sealed_positions.md",
+      "old": "# Prompt L0 \u2014 `entities/sealed-positions`",
+      "new": "# L0 \u2014 core/entities/sealed_positions",
+      "old_prompt_path": "00_nucleo/prompts/entities/sealed-positions.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_node.md",
+      "old": "# L0 \u2014 entities/syntax-node",
+      "new": "# L0 \u2014 core/entities/syntax_node",
+      "old_prompt_path": "00_nucleo/prompts/entities/syntax-node.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/core/tests/outline_entry_indented.md",
+      "old": "# L0 \u2014 stdlib/structural/p1405_outline_indented_tests",
+      "new": "# L0 \u2014 core/tests/outline_entry_indented",
+      "old_prompt_path": "00_nucleo/prompts/compiler/stdlib/structural/p1405_outline_indented_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/html/pretty_serialization_tests.md",
+      "old": "# L0 \u2014 html/p1360_ab_tests",
+      "new": "# L0 \u2014 infra/export/html/pretty_serialization_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/html/p1360_ab_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/line_cap_tests.md",
+      "old": "# L0 \u2014 infra/export/p1431-line-cap-tests",
+      "new": "# L0 \u2014 infra/export/line_cap_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/p1431-line-cap-tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/subset.md",
+      "old": "# L0 \u2014 infra/export/font_subset",
+      "new": "# L0 \u2014 infra/export/subset",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/font_subset.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/svg/pretty_serialization_tests.md",
+      "old": "# L0 \u2014 svg/p1360_ab_tests",
+      "new": "# L0 \u2014 infra/export/svg/pretty_serialization_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/svg/p1360_ab_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfa_core_metadata_tests.md",
+      "old": "# L0 \u2014 infra/export/tests/p1475_pdfa_conformance_core_tests",
+      "new": "# L0 \u2014 infra/export/tests/pdfa_core_metadata_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/tests/p1475_pdfa_conformance_core_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfa_associated_files_tests.md",
+      "old": "# L0 \u2014 infra/export/tests/p1476_pdfa_attachments_af_tests",
+      "new": "# L0 \u2014 infra/export/tests/pdfa_associated_files_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/tests/p1476_pdfa_attachments_af_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfa_icc_version_and_cidset_tests.md",
+      "old": "# L0 \u2014 infra/export/tests/p1477_pdfa_icc_version_and_cidset_tests",
+      "new": "# L0 \u2014 infra/export/tests/pdfa_icc_version_and_cidset_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/tests/p1477_pdfa_icc_version_and_cidset_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfa4f_empty_embedded_files_tests.md",
+      "old": "# L0 \u2014 infra/export/tests/p1478_pdfa4f_empty_embedded_files_tests",
+      "new": "# L0 \u2014 infra/export/tests/pdfa4f_empty_embedded_files_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/tests/p1478_pdfa4f_empty_embedded_files_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfua_identification_tests.md",
+      "old": "# L0 \u2014 infra/export/tests/p1480_pdfua_identification_tests",
+      "new": "# L0 \u2014 infra/export/tests/pdfua_identification_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/tests/p1480_pdfua_identification_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfua_structure_tests.md",
+      "old": "# L0 \u2014 infra/export/tests/p1481_pdfua_structure_tests",
+      "new": "# L0 \u2014 infra/export/tests/pdfua_structure_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/tests/p1481_pdfua_structure_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdf_spot_colors_tests.md",
+      "old": "# L0 \u2014 infra/export/tests/p1483_pdf_spot_tests",
+      "new": "# L0 \u2014 infra/export/tests/pdf_spot_colors_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/tests/p1483_pdf_spot_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdf_page_labels_tests.md",
+      "old": "# L0 \u2014 infra/export/tests/p1486_pdf_page_labels_tests",
+      "new": "# L0 \u2014 infra/export/tests/pdf_page_labels_tests",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/tests/p1486_pdf_page_labels_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/world.md",
+      "old": "# L0 \u2014 infra/system-world",
+      "new": "# L0 \u2014 infra/world",
+      "old_prompt_path": "00_nucleo/prompts/infra/system-world.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/svg_composite_graph.md",
+      "old": "# L0 \u2014 infra/export/p1250_svg_integrated",
+      "new": "# L0 \u2014 infra/tests/svg_composite_graph",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/p1250_svg_integrated.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/pdf_semantic_label.md",
+      "old": "# L0 \u2014 infra/export/p1405_pdf_label_tests",
+      "new": "# L0 \u2014 infra/tests/pdf_semantic_label",
+      "old_prompt_path": "00_nucleo/prompts/infra/export/p1405_pdf_label_tests.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/math_cancel_callback_runtime.md",
+      "old": "# L0 \u2014 suporte de testes L3 / p1291_callback_runtime",
+      "new": "# L0 \u2014 infra/tests/support/wiring/math_cancel_callback_runtime",
+      "old_prompt_path": "00_nucleo/prompts/infra/test-support/wiring/p1291_callback_runtime.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/math_decoration_and_float_flush.md",
+      "old": "# L0 \u2014 suporte de testes L3 / p1292_contract",
+      "new": "# L0 \u2014 infra/tests/support/wiring/math_decoration_and_float_flush",
+      "old_prompt_path": "00_nucleo/prompts/infra/test-support/wiring/p1292_contract.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/language_and_export_contract.md",
+      "old": "# L0 \u2014 suporte de testes L3 / p1293_contract",
+      "new": "# L0 \u2014 infra/tests/support/wiring/language_and_export_contract",
+      "old_prompt_path": "00_nucleo/prompts/infra/test-support/wiring/p1293_contract.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_svg.md",
+      "old": "# L0 \u2014 suporte de testes L3 / p1462_format_svg",
+      "new": "# L0 \u2014 infra/tests/support/wiring/format_svg",
+      "old_prompt_path": "00_nucleo/prompts/infra/test-support/wiring/p1462_format_svg.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_png.md",
+      "old": "# L0 \u2014 suporte de testes L3 / p1463_format_png",
+      "new": "# L0 \u2014 infra/tests/support/wiring/format_png",
+      "old_prompt_path": "00_nucleo/prompts/infra/test-support/wiring/p1463_format_png.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_namespace.md",
+      "old": "# L0 \u2014 suporte de testes L3 / p1464_format_pdf",
+      "new": "# L0 \u2014 infra/tests/support/wiring/format_pdf_namespace",
+      "old_prompt_path": "00_nucleo/prompts/infra/test-support/wiring/p1464_format_pdf.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_html.md",
+      "old": "# L0 \u2014 suporte de testes L3 / p1465_format_html",
+      "new": "# L0 \u2014 infra/tests/support/wiring/format_html",
+      "old_prompt_path": "00_nucleo/prompts/infra/test-support/wiring/p1465_format_html.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_tagged_pretty.md",
+      "old": "# L0 \u2014 suporte de testes L3 / p1467_format_pdf_tagged_pretty",
+      "new": "# L0 \u2014 infra/tests/support/wiring/format_pdf_tagged_pretty",
+      "old_prompt_path": "00_nucleo/prompts/infra/test-support/wiring/p1467_format_pdf_tagged_pretty.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_pages.md",
+      "old": "# L0 \u2014 suporte de testes L3 / p1468_format_pdf_pages",
+      "new": "# L0 \u2014 infra/tests/support/wiring/format_pdf_pages",
+      "old_prompt_path": "00_nucleo/prompts/infra/test-support/wiring/p1468_format_pdf_pages.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_standard.md",
+      "old": "# L0 \u2014 suporte de testes L3 / p1469_format_pdf_standard",
+      "new": "# L0 \u2014 infra/tests/support/wiring/format_pdf_standard",
+      "old_prompt_path": "00_nucleo/prompts/infra/test-support/wiring/p1469_format_pdf_standard.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/main.md",
+      "old": "# L0 \u2014 wiring",
+      "new": "# L0 \u2014 wiring/main",
+      "old_prompt_path": "00_nucleo/prompts/wiring.md",
+      "reason": "old owning filename or module facade identity in title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/float_is_infinite.md",
+      "old": "# L0 \u2014 wiring/tests/p1289_float_is_infinite",
+      "new": "# L0 \u2014 wiring/tests/float_is_infinite",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1289_float_is_infinite.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/math_cancel_callback_runtime.md",
+      "old": "# L0 \u2014 wiring/tests/p1291_callback_runtime",
+      "new": "# L0 \u2014 wiring/tests/math_cancel_callback_runtime",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1291_callback_runtime.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md",
+      "old": "# L0 \u2014 wiring/tests/p1292_contract",
+      "new": "# L0 \u2014 wiring/tests/math_decoration_and_float_flush",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1292_contract.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/language_and_export_contract.md",
+      "old": "# L0 \u2014 wiring/tests/p1293_contract",
+      "new": "# L0 \u2014 wiring/tests/language_and_export_contract",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1293_contract.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_svg.md",
+      "old": "# L0 \u2014 wiring/tests/p1462-format-svg",
+      "new": "# L0 \u2014 wiring/tests/format_svg",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1462-format-svg.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_png.md",
+      "old": "# L0 \u2014 wiring/tests/p1463-format-png",
+      "new": "# L0 \u2014 wiring/tests/format_png",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1463-format-png.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_namespace.md",
+      "old": "# L0 \u2014 wiring/tests/p1464-format-pdf",
+      "new": "# L0 \u2014 wiring/tests/format_pdf_namespace",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1464-format-pdf.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_html.md",
+      "old": "# L0 \u2014 wiring/tests/p1465-format-html",
+      "new": "# L0 \u2014 wiring/tests/format_html",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1465-format-html.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_tagged_pretty.md",
+      "old": "# L0 \u2014 wiring/tests/p1467-format-pdf-tagged-pretty",
+      "new": "# L0 \u2014 wiring/tests/format_pdf_tagged_pretty",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1467-format-pdf-tagged-pretty.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_pages.md",
+      "old": "# L0 \u2014 wiring/tests/p1468-format-pdf-pages",
+      "new": "# L0 \u2014 wiring/tests/format_pdf_pages",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1468-format-pdf-pages.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_standard.md",
+      "old": "# L0 \u2014 wiring/tests/p1469-format-pdf-standard",
+      "new": "# L0 \u2014 wiring/tests/format_pdf_standard",
+      "old_prompt_path": "00_nucleo/prompts/wiring/tests/p1469-format-pdf-standard.md",
+      "reason": "numbered construction identity in active title",
+      "apply": "Replace first line only; preserve historical origin and body."
+    }
+  ],
+  "changed_prompts": [
+    {
+      "path": "00_nucleo/prompts/wiring/tests/cli.md",
+      "before_sha256": "8bd42a509d3d82e425b2f092a8283c41c942995554ae7640d3dd8ddc80cde4f4",
+      "after_sha256": "74e0b3ca11c4187980c8a7cf15127978adea3b2001746a526c28f2dc8b1eedeb"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/crystalline_lint.md",
+      "before_sha256": "193c6ad00d69c84eab6c39586059214da97f4c4734e942697a463ab1f75d22ee",
+      "after_sha256": "a6473b2841a3defa790997c4abde2780ffa8c8e47b54f4b184e1307533412cf8"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/float_is_infinite.md",
+      "before_sha256": "fc82a388bd5b8ddee6cc894e65fd50cea73b75c99b97fd59bbc17d26ad2257cd",
+      "after_sha256": "18c22991746b79c8d1a8a260e15d4982c8003a3e18cb0871ba59ff0d68b2df52"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_html.md",
+      "before_sha256": "238abbdafdbd22e22addbeec3b1c83356c5d4471b98c439102334e721331403f",
+      "after_sha256": "4c0903f46e2931d0fbf533998fbe44b867cbb8a26c746e01b2839b44d51a05ff"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_namespace.md",
+      "before_sha256": "424c3f7bf36b16a6cc71a6da162775e4e995420d8547ed426ffa225e5519633f",
+      "after_sha256": "e10ab9a3fcfdabc7bec861125f730419f871bb69991d33d71b3c5996b174d9f3"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_pages.md",
+      "before_sha256": "e708a3f14600f2b2f102b361df93a2d6ecac468708d1879a2653dd90fe924376",
+      "after_sha256": "ff15f5bb7c7ee228ba9ca543a5d593cc11290ac4c5a21eefb09be22f8745b2e6"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_standard.md",
+      "before_sha256": "539b00fcb1b582cb761276ed47d69d39574131f9ebf315c620b572a0afb9e289",
+      "after_sha256": "35b193bf964a311c76ad8750f2c92515712c94041a0fbf819ce038b712c0384b"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_pdf_tagged_pretty.md",
+      "before_sha256": "4119f341e4caf5a6b7602bc8775f3f252cc8d42f0330e4214af6d8aa30cf622a",
+      "after_sha256": "dc2252d836aea25f85891a6b4bc3b3b9a49dc731babb49e3c8f0168cff08cd8f"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_png.md",
+      "before_sha256": "e2cccd9b5ed5bcb3e641fc0ee74a019f20637da1998440e61ea6c4c1ce2678af",
+      "after_sha256": "101e5a1d11918f082e16e992347104a8db8b24afacb8d536aae38492b8fc3b83"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/format_svg.md",
+      "before_sha256": "e625e441aaf0a6eba4592e9621b67fab057752e021504acab6e00816ce370e1c",
+      "after_sha256": "4e2d71001a6ddbf876dea2284270d9472a2200bd5826ae1d1ab001537f3182d2"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/language_and_export_contract.md",
+      "before_sha256": "43461b9a6952e8d28add1a376ecb44c95f2ea7ea4484d9e39d14cc2fc501c70c",
+      "after_sha256": "3c1beb31a8d2955624ae1d66e6abccaef5dd76d01b8f8e115d3f3a4586836130"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/math_cancel_callback_runtime.md",
+      "before_sha256": "d499fadf08d03916527960055b786e3e0e993dcca17b46b715d2787731baebef",
+      "after_sha256": "fa1eb2b87a57c9d92b82784b454996a468890ae70f80c8c9ec05a5f5e7b7ff85"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md",
+      "before_sha256": "b0395ea9baf94752b26421a95b70ba6fd1f4e5f45b7dd0343471862a1df2b7d6",
+      "after_sha256": "4c2d0578d0a1678f880e397a96c75e418f8fab8438e2a3f1b75f97846cf034f0"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/bindings/mod.md",
+      "before_sha256": "d8cec9f6f773110391143b9c7a09632d05e1d3ffe09a60afb2e0f284e9715224",
+      "after_sha256": "e69be649ee1087678ce0edb5a263782a306a29148c2967630115afd238f2cbef"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/mod.md",
+      "before_sha256": "70c9e6a88042f64ee738c3445dbcf218fcf726539c20d7bedb16ed2d4162ddaf",
+      "after_sha256": "dd3b8e2cafca948ab060fab93779fc330793039f3641e0034bff457f36a42818"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/observation/mod.md",
+      "before_sha256": "465155faf41476e05f9dd4290e55eb8792c2d4c264f0b2f31fc545de6f1c6553",
+      "after_sha256": "79d30a0ceef3844ff08a00e992d872fae84f9df4ec2e4f3adffcd24b5cfd9eaa"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/operators/mod.md",
+      "before_sha256": "95f0c68c45e3e5bca435aa8b6bde4cd858e8a44a5376636f126349b556dce7aa",
+      "after_sha256": "542404a340015380b0fa2ea585c37ee0af174d72bfd4f8ee1426b74d2a0a45c1"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_limits_override_observation_tests.md",
+      "before_sha256": "a33100cf4ce40506a5ef46f10153f350428712005fb836efabff6ed7066621ca",
+      "after_sha256": "744c6fab889aaba5c850376a21646318cdc38bd359ccbc54ad0d06b2d0b83ffe"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md",
+      "before_sha256": "efd4e743b0b27bd34ce479b7a8b54e3aa1d25e42c416ea6c102abfeb04ccbf44",
+      "after_sha256": "937d416e170b41c955fab25da6e7d2a4e1f7d7ea30d845e14575e8775cc4cfe3"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md",
+      "before_sha256": "150ae266fb648ea8de897067f07fdb2d869754602b7de7c45341d13c283b734f",
+      "after_sha256": "b6187b015201359b5f73bda75773627db1fc8a33f12c7d3273bb2b9afba22c28"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_accent_observation_tests.md",
+      "before_sha256": "bc03f2be94843e89d2b1cfcaeb2119e0b7e698dba7956c592bf3aa3895a9571f",
+      "after_sha256": "ae2d507dc28bcf35112d77412823c5015ed3020dfde979ca0567b9ec135a8354"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md",
+      "before_sha256": "87affcd4a61cd197e99f02db320f05c2d72fd31295dfedf718bb849fe7347013",
+      "after_sha256": "8b20bf9a7fa71a76fa7ae56694e71438f1bbbb334ade4c447edc5bd23a6fb0d5"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md",
+      "before_sha256": "cf71e46c9798866855ab68b4704110f453bb29c1ba21dc2a343589d9cfba8891",
+      "after_sha256": "85b506acf010f69eb2a8f92ccc54e88ae10601f7cce9400bbee6c52191f46926"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/lang/mod.md",
+      "before_sha256": "55c890ea170feb35ccce458302cf04bdceb731408d124ba78a98f2b1890d6fa4",
+      "after_sha256": "854d9a661f039bc8059c7db7f770df5235777284454fa5a221d159284338cbe4"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/layout/footnote_flush.md",
+      "before_sha256": "3b78ed1ad32368b64122eebee4374668d120bbdd91c694b8c59b3b8122b4922b",
+      "after_sha256": "13621a2b034d6ec27359e2398e8522554e5675cad52842707d5f530e43093b4d"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/layout/paragraph_select_bounded/justice_overflow.md",
+      "before_sha256": "10b29f3c86e95a69031c86a9f51424f2e9ae3669270fc5e5cf22388ecd3fa512",
+      "after_sha256": "29a46efcde928bd41580a3ab671b407eda527af64a2d314707f5545533bab129"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/layout/paragraph_select_bounded/vanilla_lower.md",
+      "before_sha256": "a19227ccd6bea59754b277760b5d8d26d9fddacc4b98270e54683880d7eabd72",
+      "after_sha256": "680d67239481978d83108ac8e35175cb9901fe32829eff5638f30f8217a0ad8c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/layout/set_page.md",
+      "before_sha256": "aae356bbb2f34d995990f8a653db7b52655b9f71f040490602069039ea75cecb",
+      "after_sha256": "b698f95b6c1f58656664f8de3d4d9fc1dfd982b616367bf9536a7449394e6fcd"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/mod.md",
+      "before_sha256": "51070aff2a401220b5831677bb6a6d5631499eb36c1c9ac7da6dbca869d6730b",
+      "after_sha256": "4b4e7343d1dce151d9c8fc9a42f9442235b0b2c05b6c06bdfc08b808c77cf0f8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_limits_layout_tests.md",
+      "before_sha256": "5816b0410a14d0b2e35fc384b2158516087725faf4069910ce4245937978610d",
+      "after_sha256": "21280430d3dfb41dd1287379d5f0700da07dcd9a983c30a7d30c522abc8234a8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_root_layout_tests.md",
+      "before_sha256": "28862011bc1fa59cf60e22118d88d1521e438df68acdab1450cdf7cf83d059b2",
+      "after_sha256": "63710c57a4b08eb94dde76a02902b6970d2bfca4bfce264deef52e1eede7780c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_frac_layout_tests.md",
+      "before_sha256": "7d38668ea30b96c43f442625f96fabbad7d810630d55f3d76bfffaffb0a68a28",
+      "after_sha256": "fa27fef8be4b425b35d91e128d1b48049d2d92892bb22f9d6adb6c29d6193ed9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_accent_layout_tests.md",
+      "before_sha256": "7e9c8a55efca7fc716fc6908e27d369f3e457449e19652e0b5dfe4cad87b1400",
+      "after_sha256": "2da179f8c5a1f79be81dfe8442bc5df2b68cdd62d81cbb5c2716c35a1e86a975"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_cases_layout_tests.md",
+      "before_sha256": "91ed9f9532b61493090251df8f6296e4e9456316c8694639929379758e6f2a17",
+      "after_sha256": "731bbaf73fefbee568ca62c5a65f0b0ea757537608ed518614dac05005b51ef2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/math_matrix_layout_tests.md",
+      "before_sha256": "e2ae95353a10c1a448b5e07a050691d9b224a8ccff52a59454daf43db3b8d771",
+      "after_sha256": "65062e9eacdb46bee56c7eb15da87f53a0c9b87fe5bbcf4c357b64adcb7a756c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/math/layout/source_transparency_tests.md",
+      "before_sha256": "f1a66bf07619a22c3469d3c9da868eadd05106a8d43fd5544e1674049f0ba017",
+      "after_sha256": "f421b812b526c3742fab64ea22cd7d9e7b9f51a66eae2cc0ca7591f32610a08c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/parse/mod.md",
+      "before_sha256": "1b248d11f92bd951ffd070d0b90355986dacc7b5f866ea5dfa13301b09e9db39",
+      "after_sha256": "62de98bded938c46d6569e1aba2b2b6f3399b395b9831e57e4f88974776ffb23"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/mod.md",
+      "before_sha256": "6915e878c04123466217db2942013801a1e8be99c011547d0cb418ed2b3b31b5",
+      "after_sha256": "cb0d7cf4ef12fed470c47195b300ee30d302c53b7320728313bb4f6162e3f8af"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/regex_constructor.md",
+      "before_sha256": "0b3c29faa2cff8a1f48bfadac4d95ca31e75860050f08b03693f85fd748312c3",
+      "after_sha256": "c4074cfd0fb117b61fa84e81c5cef4c4e4fc5f4f7ecfe619935d69da321e310a"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/html/html_constructor_surface_tests.md",
+      "before_sha256": "89031b9ebd63f5af530543b02843c852b10b07082c070ad4c00a4edd31d9d120",
+      "after_sha256": "62c13b58f1e510ad4b69aca53c0aea7b1a9ae9afd2d3d0937ff270a5d2e69bbb"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/html/html_frame_tests.md",
+      "before_sha256": "254f713555c52a4c1f28bb4069fe006a7e4315015e378c49ec90766a5bdbfa37",
+      "after_sha256": "b467c9f87aad0cd071a8cdcc186bf7402cb404633a12357b4d67eaae0b678c4b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/mod.md",
+      "before_sha256": "aba0f19be71bd91ee469a2e451fab426dff86273aa44304ebfc9c03d81a69395",
+      "after_sha256": "9e7abc67a1166e57e850ee11fb63ef8c28d110c48ada4e42873ab4c135486b14"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/primitives_constructors.md",
+      "before_sha256": "e85f8b39ce9e7d3f59bed82f606cbc2341ef9b3c969de95fe7dd219c08a53beb",
+      "after_sha256": "274a75a244de582766bae83e70becd8d154451e45731caf980bad34f16d817fe"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_limits_tests.md",
+      "before_sha256": "ebf2dbfae2637e98fa05d679f63431aea9f2f2a095f1a13ada9fc85a95f9b0a4",
+      "after_sha256": "c3ae4ed57719ed80801fcfbe8c49398c07818168987b6758e7bcafd19a92bcee"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_root_tests.md",
+      "before_sha256": "32a9328baa38d7c8cca763235c001607a4c7a526e6bc37cf698ea2a6c70c6c13",
+      "after_sha256": "3230018ff0795ce2f6078803b0cde9f2fb80f67ec257edb283138f329a04f6ee"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_frac_tests.md",
+      "before_sha256": "983e2852f74bbae2e7798f45f088b0ec94e3d7114dfa0f4e74fda8ef32b3b6d9",
+      "after_sha256": "8d6fa4fa8e5fa72b00d0be9cd4c8cd0dd6ba0c8b01d308dfa12315e0433033b8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/mod.md",
+      "before_sha256": "912f5e0a7422e9c230370f3b45f942a86d086aa67e843187ac4e524e9e6df313",
+      "after_sha256": "56f8e2a7fa8b03308d5e73f5ac998e080163754bf6be9bc277fabd5f87845034"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md",
+      "before_sha256": "11661c3bcf6634a812a1c069676332caea8b12896d594076f217b87742c2fb20",
+      "after_sha256": "b84bd592c31fc30103abe7696a469a1e6396436799bb1e091b64d91376978010"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md",
+      "before_sha256": "4d7647b5773399231fdedf830163414107aef32e7de313e3f967ddc34ff4c60a",
+      "after_sha256": "e3564a1aa018323f80094f801bd5695a27d14475d40c76151f828c478ec025a3"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_matrix_tests.md",
+      "before_sha256": "df6c19a361d51a38853984e4de77aeaa4b3a9baddc7153e274ac3eac06e09332",
+      "after_sha256": "747093164087f667290095ee612fe2e095a908d763ea5b8fb095cdd7130f237f"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_lr_tests.md",
+      "before_sha256": "23b9b2ac2ec6351bb0fbd00ba3c93b409e5ae9322deac709920542c6c8070cb7",
+      "after_sha256": "42424ca72e4231474acfa3fdb97c93be6281fa4cfd0a572ecfcf4191ed604e0e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_mid_tests.md",
+      "before_sha256": "c1c6ae88c41e7814ce368c7d80b691a26a8d93fb7bd86ccc5bc9ec145b44b779",
+      "after_sha256": "44e36e4356fcf726df6eb11385714554792af7963702db6f42dc5a7b8225d0f6"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_norm_tests.md",
+      "before_sha256": "4beae77719c15e3663d7bf57655aad98fa22ce8ed9e19ec44cacbb258cd07805",
+      "after_sha256": "af5353410bb113a75079825640523b7c302261232c72d219a334c08a5ae5c8b8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overbrace_tests.md",
+      "before_sha256": "cde48fd279fccd9f2befc34e8a1632770743d2cf9f2d49be77705dcc2673bb2a",
+      "after_sha256": "7659c4a12756a01e6fad2dfa5a10a4af27480582f478379298a2f42e87cc00ef"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overbracket_tests.md",
+      "before_sha256": "78d7ae895e5cd35146eb48d3db1befb0de369534b18925bcba10568818a1821b",
+      "after_sha256": "bb316bbb95aabddfe0a2fce4b6e561e2ef5d2bab1e612a7e263f4990eff1cfad"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overline_tests.md",
+      "before_sha256": "1d3d40a1e68103c8bbc61aa30d2547f8efde57369a79de4864fddc848f714df9",
+      "after_sha256": "014758c7599aced8cb5cc4696f1b32306610fce340e4df7aeb754fd67f3f8e26"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overparen_tests.md",
+      "before_sha256": "a25de32f5923e27349e4562e3c80c4b0ab78b2f3785da0eef298081af4dcde5a",
+      "after_sha256": "b6fca6ad1405ad2af3feae368069d03700c5c4e9f0aa9ccf635cb60e3a0716a1"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overshell_tests.md",
+      "before_sha256": "72ca1f9043a25ce744794589d7c54062fff5dafe08f68c47f841754f20a3337f",
+      "after_sha256": "69652eddb6cc0f869ba2551461f5f41e51c58ab5504bbf6167da97916ac88620"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_primes_tests.md",
+      "before_sha256": "042b51e2a771396ac5b0f813976203210414fb30603166f323d9b82c27c57482",
+      "after_sha256": "bc8c572b4cb2ef8368093fbccedd666e9b02a92f7e42de42c4abd1a0a3db2da2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_round_tests.md",
+      "before_sha256": "f956d78176ea99aa7341a75c84badcc33d7b606398e202f01a53542e25a2e575",
+      "after_sha256": "166a8f59f7fdc5dba0467488eab0ce94508fd831d4650706d4683139ce5515a1"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_stretch_tests.md",
+      "before_sha256": "f968344e2236c132c697ee2fe964379793e964f296889860dcb61e11dfda02d9",
+      "after_sha256": "369c5828968b2bd0c26c2f22119aa875f0df02a2be1585f3cd458faad46498af"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_abs_tests.md",
+      "before_sha256": "5566aadff3ce7cd1bd24d3ec12c8f8670f5968db22e8ac02ae302f3d7ad6c669",
+      "after_sha256": "467971a18c0684cdd839ef0a29668e1f2d5b3de0faa09afe319b7895deb79066"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underbrace_tests.md",
+      "before_sha256": "1f201c54a935d00bd1570419936aa5c8ba43338ec69b5930fbed5ee6298d4176",
+      "after_sha256": "57fe8386857a9f5d9c8eb8bcb84450a835f7ab90a0d9864a9ae2df0836b652b9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underbracket_tests.md",
+      "before_sha256": "701865871ad434fa03825297c88b0dbad198ce5958339a50f0e8d721c3cfa308",
+      "after_sha256": "b6bb4eb6bbab804d73069d6c77cfb67c7d449d48d1f5b0c6108457f242801dfb"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underparen_tests.md",
+      "before_sha256": "a3d0d977d7719e5a3a15b0bc5776c982bf73121a8251edcf969648097c9bd93f",
+      "after_sha256": "e9f3b865878f3d56e94a52f6b25bab687e8cbe393d78bca592b946aa00b16583"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_undershell_tests.md",
+      "before_sha256": "8f18401ff63c3074fdf6a9076b98d38307177272dcab376f9c3a6c7c6a6486e4",
+      "after_sha256": "e4b785f22c314a2ac8dc77a2a5fac4ed2db6d1c663a11f771174828cff3451c3"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/text/mod.md",
+      "before_sha256": "d8cf3cf8efa7ceb62f3e059027ccd444cb1a80f7f2ba2a8e75f53aaa9a39923c",
+      "after_sha256": "bf4aa0c72e2d49e9c9a986d138aa5dee1f03b0764ccdd8e77ede27fb310e61e8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/page_structure.md",
+      "before_sha256": "45bcf0f69c96bce0016597b8d79e07e101e185c9521c6735f59eb4e40924b7a8",
+      "after_sha256": "4cec124bafd79af69e9a2211338d7ca6450413d4486d23b98d0c387178077bb0"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/plain_text.md",
+      "before_sha256": "42b3b901b9cf8522afcc8f63f38410c77c8a8abdd5aa6e37593206b737367616",
+      "after_sha256": "7111a2855a919ac3348bf69806dde24df653b54825fd75d1b5841fc9ab11c6e7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/rust_hash.md",
+      "before_sha256": "cf2ed6d2ddc30343e06bbd15575697328676e8565fafc530962a8d9b6ce11cb2",
+      "after_sha256": "525180aaa02e29baca7dc39f8a7966347ae0231fdc31a507ce243f9e93d684ad"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/tests/mod.md",
+      "before_sha256": "091b782f874e0ac1c3936235106a706324891e0544390c1cc36beb18ecb905f7",
+      "after_sha256": "29311e0b0e950156e7e9f51c8dbf0db07193a0e18c077e30a1cd8cbf22ecab90"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_accent_tests.md",
+      "before_sha256": "c98aca90f0d7ef705abbcf6d8dd05c4e24bbe0642750fe1c7104015c6c326cae",
+      "after_sha256": "a65d489ba922ece75060467b3d6d3824f1e2507a315c2e0dbe9f7d1989152c8b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_cases_tests.md",
+      "before_sha256": "487f62a25e910c198a725a33dd90d5ec4493d099c2a7a8253dd5e1895a107515",
+      "after_sha256": "3e52b5937a666bb8f821003f6c95213234ea4cab7e6259eca206b4ba4259f2f4"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_matrix_tests.md",
+      "before_sha256": "484b3ea78b34b81ce7b496208ad034367780a9387704d3763e65f884313063d8",
+      "after_sha256": "c5e8a24aa42c8928a16a7282600c04f9d36d2ebb88edd3428d2264880c8cfdb3"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/font_list.md",
+      "before_sha256": "f478f580b897d52590cd74f451ba5a494355102a34bc43922c600ce199041c41",
+      "after_sha256": "b04b5e59becf5342a7c6a88ec1e5f81387ae5379d7f67feb3e2f345efc1c2c69"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/line_cap_tests.md",
+      "before_sha256": "0f7c04767f1dcc5a093059663669aeb742af91d4a800e89389644161ab095830",
+      "after_sha256": "122614594ba162e4ce64c062aa861500f77cc5c8c8f69b7cd3359b72a2cbd244"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/sealed_positions.md",
+      "before_sha256": "4627c3da4264869f029ca39eae128f4d2828c09092e6bbaffa2e87b479303251",
+      "after_sha256": "7a9f6bcb73d172a70faa3f4a41926f9884355b291b11f28a03260ae0362a3a30"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_node.md",
+      "before_sha256": "cefdfb7ea2bb14b78c5543bee62793e79166cf097258e62cff1df4bfcdb90504",
+      "after_sha256": "e74c3be2bf06d8dc6337783b732c9423542333125c0f7a14a317532af4065525"
+    },
+    {
+      "path": "00_nucleo/prompts/core/tests/outline_entry_indented.md",
+      "before_sha256": "b41fbe04409d5eb1015bce705b0c023d1dc04a2e3ef3956dae804de8b993955c",
+      "after_sha256": "594bfb19d4f87ef97397c163266e1153e0f5b0c323702e1d4d758ee8289bb7bc"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/html/pretty_serialization_tests.md",
+      "before_sha256": "4353dbc033330457c8f44fa00f8699fd20745542b11297aa4fed91ae0bc5d728",
+      "after_sha256": "c6f812b1036f69c80dbf97b54e1f5f5425af94e1b6998d80019ab60fbbea92b9"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/line_cap_tests.md",
+      "before_sha256": "897df8aae22c98231b61110ed2a0575c1272535665e26fa71755194030e8aade",
+      "after_sha256": "163f2d6e3036b6be3e0f7785a0caf0cd6f6686837e879bc15fba98bc2e63d83f"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/subset.md",
+      "before_sha256": "618d89615ee4231ee67dc6d36495502482af831aa7dc5a2d35a11465c71f0bc8",
+      "after_sha256": "f5ddc1754597803ce2e28ff267e8c1c6858b6bda1404fd634abf3e6ea9ee282f"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/svg/pretty_serialization_tests.md",
+      "before_sha256": "43f26c55e553f2999000d736456e3629f41158b1ae4800c8a927406223769495",
+      "after_sha256": "909eb819b1ef06301a2f6dc3a5745cbbdd3e409d8e66b2830172713eb4bbb89d"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfa_core_metadata_tests.md",
+      "before_sha256": "507ff83e91528a33e3784de3b72d1fa005368a1be591dc75106c6db08344c49a",
+      "after_sha256": "d9cbe125a58da4a13fda2ccd9c10256789f716e02be39d724fe956d6716225c9"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfa_associated_files_tests.md",
+      "before_sha256": "3b7e3d367dad8bee26944616cfd0797446398ec3f6e533cedd11607b04db67ad",
+      "after_sha256": "123fa12a79fffb885f6bd173eaf25e3fbb28a1e366104403e871e745773f5ed9"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfa_icc_version_and_cidset_tests.md",
+      "before_sha256": "009c97a53630bfc118f44be7bd09cc964e0d46077b100207d9a2b731e106360b",
+      "after_sha256": "2ebbf08130be32480b0017c8390d970eebb2aa9084b957d1acb595991bc86f68"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfa4f_empty_embedded_files_tests.md",
+      "before_sha256": "2e3eef876c37bcca28a197556048250c34dbf9db3ab03bf9d1370bf846dba7f7",
+      "after_sha256": "25ef544ddcb91e3c7a1d1b098b79807a96173399a9377476ee917435271b21f1"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfua_identification_tests.md",
+      "before_sha256": "0cb86a32bffb425b6eca3eec23b50d86fbab5004a059fa247aa4e39f9d065087",
+      "after_sha256": "05d81a1d49485b13c6c2855be8ee8dd83afc7590f52ea65d79f29921a2e6c1fa"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdfua_structure_tests.md",
+      "before_sha256": "5b505a85c3edb17d320219697e37c87758fcb74ac36b5358c4134d6a78966c54",
+      "after_sha256": "c0decbbbbb5d36613993f3b9f3f495daf7e48a480b728611b1c6ac2ca3b466d3"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdf_spot_colors_tests.md",
+      "before_sha256": "73b7bed040d9623cca7f505e7246da4569083a2ed9ea120a2de1aa449b85a4d5",
+      "after_sha256": "0ddb1e6c5d3011eb01e0c4b95c13efdad583dcf0638b24cfe994ce0e022ae51c"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/tests/pdf_page_labels_tests.md",
+      "before_sha256": "63439a7449914f27898863bc72d80df79b60c5e9d77a9634299cb8ee74bc5881",
+      "after_sha256": "85430a26917b3dc58e19acf25ce29e6088b89007fc1e134404e882cc1e72836d"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/world.md",
+      "before_sha256": "9ab73f43ce4a42b6e85cee9ee77eca8c9d3899776ace790a7f655791086d9d6f",
+      "after_sha256": "ac3fe4f2aabb4e9c3aa631648fd0493a71cccad3599e4c04d161f600dc9fa185"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/svg_composite_graph.md",
+      "before_sha256": "ab5dcf8196c21ea155bbb7d9bf87431091ac5ec9858061233b62126f3a1731a3",
+      "after_sha256": "090843e3487bdd974ed924b22df43cb0dc60935f917253b3d33f3bc15e943931"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/pdf_semantic_label.md",
+      "before_sha256": "bf2e039503814c617c886421b2eab09b03acc70ff027843273b19d608f96082d",
+      "after_sha256": "1b03c3b2133c87f86018bb932f801e3df2f0410f3cc25a02f1ce2c2fe50a8fce"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/math_cancel_callback_runtime.md",
+      "before_sha256": "525c4a41cc1d834b6aacb5c7b85919128c1676a1d099bdd7831e2d0e2eb60349",
+      "after_sha256": "ac0449d69438245a943fb0f8dbd07e7d9509aaa2b9508faae1a74c7b783a7948"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/math_decoration_and_float_flush.md",
+      "before_sha256": "debc9c4fe1c2bf14d4480112f10bde8f3e9280ce524e68975d3d6d5756e018fa",
+      "after_sha256": "5dfe8b168e7f3383c021258fe8883ff32fdf2b468ad400a01dd82daabf12e9ad"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/language_and_export_contract.md",
+      "before_sha256": "77d443b0f71ba6364f3a2e0f8fb2c8128113709ae69045ff2effac2708420334",
+      "after_sha256": "d7650ac5c2a5e6dc138314ce9ab322f2e0828c46fb396e2bbe054c65b49bdf82"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_svg.md",
+      "before_sha256": "3530989ab58f63375f1812f9febe066b341adb753ef9c84cd9d2c397c5707354",
+      "after_sha256": "a7690ccbda619abf6dc831a78a4a1dc0920c7fb225db00ccfae660ed8a733a47"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_png.md",
+      "before_sha256": "5f8743212ef543b3c7d0f9731cfa6840620a0a6ea7b9cd26fe133f7456661aa8",
+      "after_sha256": "6a2a50fd9d2a6fe2b2aa21e7b92bd9a774bb336604e7fa28f4fbd3889804767f"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_namespace.md",
+      "before_sha256": "4d2d16e08dbbbadc3069ec8b4d2dbc6098348786144264680862ff9d46dd4fef",
+      "after_sha256": "f9e4c12d6de1f29153728d204d001a9cabc9b08500c8c9a58fbe975e4cdad2ac"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_html.md",
+      "before_sha256": "1f5b4e7d694aa958fb99c21dfa7c3df1fc44d0d020a4edff4bb7407fe1102b8b",
+      "after_sha256": "13e899471328e5c8b03aae491464adcb2c6e35383f3a0cddb70f8e152661321c"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_tagged_pretty.md",
+      "before_sha256": "a206000eaf885c85e705e636ae5a30a4f439965774fb239de69c4a991e20848e",
+      "after_sha256": "f6aee0c6c1cb604847584452814a28acfa0b9425d60df9bfa0853d966890b5f7"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_pages.md",
+      "before_sha256": "54a50102bc60c25456124679a288b61208b87b72c01122175ba2e3e107d5748c",
+      "after_sha256": "b9573fd046781039376268072bf6822abfb89f7adb4b26730dd007ddcdf9f8a2"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/support/wiring/format_pdf_standard.md",
+      "before_sha256": "b8c6d05c604c510969aae2c1f7079551d93faa05ecee36000ffe3e5428a80eb0",
+      "after_sha256": "4b35691495c4d37dba3898ca6f93b78dd130cb7c560182ffde86a1a315c7a95c"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/main.md",
+      "before_sha256": "7f5cf7cc3ab29c274d626148f138022b9459a620786d76bb7dc388080146e17e",
+      "after_sha256": "0d2ea70978e056a87bbe6dc26f4f7f1172508b9e672990002b530eba7f2df157"
+    }
+  ]
+}

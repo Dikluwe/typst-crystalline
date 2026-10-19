@@ -1,0 +1,9 @@
+Applied ./01_core/src/compiler/eval/mod.rs prompt=00_nucleo/prompts/core/compiler/eval/mod.md hash-a=b03c4bc6 hash-b=1de535f3
+Applied ./01_core/src/compiler/stdlib/structural/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/mod.md hash-a=5d440981 hash-b=e5ba8be0
+Applied ./01_core/src/entities/elements/mod.rs prompt=00_nucleo/prompts/core/entities/elements/mod.md hash-a=5eed0850 hash-b=ea4377c5
+Applied ./03_infra/src/export/html.rs prompt=00_nucleo/prompts/infra/export/html.md hash-a=8460c58e hash-b=2e73a56f
+Applied ./03_infra/src/export/mod.rs prompt=00_nucleo/prompts/infra/export/mod.md hash-a=535390e6 hash-b=c092762c
+Applied ./03_infra/src/export/svg.rs prompt=00_nucleo/prompts/infra/export/svg.md hash-a=00cab541 hash-b=066b77c6
+Applied ./03_infra/src/export/tests/mod.rs prompt=00_nucleo/prompts/infra/export/tests/mod.md hash-a=d102f84b hash-b=99722711
+
+Re-running analysis... ✅ 0 drift warnings remaining

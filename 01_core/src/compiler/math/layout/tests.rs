@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/math/layout/tests.md
+//! @prompt 00_nucleo/prompts/core/compiler/math/layout/tests.md
 //! @prompt-hash 1c5193d2
 //! @layer L1
 //! @updated 2026-09-30
@@ -5104,7 +5104,7 @@ mod p922_tests {
 // ── P945 — descida MathSize por nível (Display→Text é ×1.0), ─────────
 // `total_descent` de grelhas sem dupla contagem, e guardas anti-deriva.
 //
-// Especificação: `00_nucleo/prompts/entities/layout_types.md` §P945,
+// Especificação: `00_nucleo/prompts/core/entities/layout_types.md` §P945,
 // `compiler/math/layout/_comum.md` §P945, `matrix.md`/`cases.md` §P945.
 // Medição que motiva: `lab/results/construction/diagnostics/typst-passo-945-relatorio.md`
 // (células de mat/cases compostas a ×0.7 incondicional — o vanilla desce um
@@ -6831,7 +6831,7 @@ mod p961_tests {
 
 // ── P959 — shifts verticais dos limites com os 4 termos da tabela MATH ─────
 //
-// Especificação: `00_nucleo/prompts/compiler/math/layout/attach.md` §P959,
+// Especificação: `00_nucleo/prompts/core/compiler/math/layout/attach.md` §P959,
 // `entities/math_constants.md` §P959, `infra/font_metrics.md` §P959.
 // Fórmula do vanilla (`compute_limit_shifts`,
 // lab/typst-original/crates/typst-layout/src/math/scripts.rs:290-313`):
@@ -7354,7 +7354,7 @@ mod p962_tests {
 
 // ── P966 — recursão de `apply_math_default` em containers de markup ─────
 //
-// Especificação: `00_nucleo/prompts/compiler/math/layout/_comum.md` §P966.
+// Especificação: `00_nucleo/prompts/core/compiler/math/layout/mod.md` §P966.
 // Conteúdo de função de utilizador dentro de math chega como
 // `Content::Sequence` de markup (filhos mistos `Text`/`MathText`) ou
 // `Content::Styled` — e as folhas `MathText` de 1 carácter nunca recebiam

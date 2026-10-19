@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-19T00:20:42.629047+00:00",
+  "head": "d330c717eb06c86a560c4cf3d8d0ba40224609b9",
+  "branch": "codex/tekt-mature-layout",
+  "diff_head_stat": "",
+  "linter_sha256": "421d0797e7ae1a5102e9c5bcd87b488fea70a1997394c38765a03239fe579121",
+  "command": [
+    "/repos/Antigravity/typst-crystalline/lab/target/linter/debug/crystalline-lint",
+    ".",
+    "--format",
+    "sarif"
+  ],
+  "exit": 1
+}

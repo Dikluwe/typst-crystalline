@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/page_canvas.md
-//! @prompt-hash dfedba86
+//! @prompt 00_nucleo/prompts/core/entities/page_canvas.md
+//! @prompt-hash 6dc36439
 //! @layer L1
 use crate::entities::{layout_types::Length, paint::Paint, rel::Rel};
 

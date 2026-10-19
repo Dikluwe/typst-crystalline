@@ -408,7 +408,7 @@ lab/parity + tests parameterized + L0 prompt novo).
   selector) -> QuerySummary` + parsing de selector
   (Kind names + label syntax `<...>`) + dispatch a
   `Introspector::query_*`.
-- L0 prompt `00_nucleo/prompts/infra/query-helpers.md`
+- L0 prompt `00_nucleo/prompts/infra/query_helpers.md`
   (novo; hash `c7ea6387`).
 - 13 tests unit em `query_helpers::tests` (9 parse +
   4 query end-to-end via SystemWorld).

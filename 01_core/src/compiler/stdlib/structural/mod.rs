@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/structural.md
-//! @prompt-hash b145a1a7
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/mod.md
+//! @prompt-hash 1f49ddf6
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -35,43 +35,43 @@ mod table_grid;
 mod table_lines;
 mod title;
 
-#[path = "p1429_tests.rs"]
-mod p1429_tests;
+#[path = "math_accent_tests.rs"]
+mod math_accent_tests;
 
-#[path = "p1430_tests.rs"]
-mod p1430_tests;
+#[path = "math_cases_tests.rs"]
+mod math_cases_tests;
 
-#[path = "p1431_tests.rs"]
-mod p1431_tests;
+#[path = "math_matrix_tests.rs"]
+mod math_matrix_tests;
 
-#[path = "p1436_tests.rs"]
-mod p1436_tests;
+#[path = "math_lr_tests.rs"]
+mod math_lr_tests;
 
-#[path = "p1437_tests.rs"]
-mod p1437_tests;
+#[path = "math_mid_tests.rs"]
+mod math_mid_tests;
 
-#[path = "p1438_tests.rs"]
-mod p1438_tests;
+#[path = "math_norm_tests.rs"]
+mod math_norm_tests;
 
-#[path = "p1439_tests.rs"]
-mod p1439_tests;
+#[path = "math_overbrace_tests.rs"]
+mod math_overbrace_tests;
 
-#[path = "p1440_tests.rs"]
-mod p1440_tests;
+#[path = "math_overbracket_tests.rs"]
+mod math_overbracket_tests;
 
-#[path = "p1441_tests.rs"]
-mod p1441_tests;
-#[path = "p1442_tests.rs"]
-mod p1442_tests;
-mod p1443_tests;
-mod p1444_tests;
-mod p1445_tests;
-mod p1446_tests;
-mod p1447_tests;
-mod p1448_tests;
-mod p1449_tests;
-mod p1450_tests;
-mod p1451_tests;
+mod math_abs_tests;
+#[path = "math_overline_tests.rs"]
+mod math_overline_tests;
+#[path = "math_overparen_tests.rs"]
+mod math_overparen_tests;
+mod math_overshell_tests;
+mod math_primes_tests;
+mod math_round_tests;
+mod math_stretch_tests;
+mod math_underbrace_tests;
+mod math_underbracket_tests;
+mod math_underparen_tests;
+mod math_undershell_tests;
 
 pub(in crate::compiler) use math::equation::native_math_equation;
 

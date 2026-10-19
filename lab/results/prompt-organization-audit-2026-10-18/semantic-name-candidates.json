@@ -1,0 +1,266 @@
+{
+  "head": "d330c717eb06c86a560c4cf3d8d0ba40224609b9",
+  "candidates": [
+    {
+      "current_source": "01_core/src/compiler/eval/p1425_tests.rs",
+      "proposed_source": "01_core/src/compiler/eval/math_limits_override_observation_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/eval/p1425-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/eval/math_limits_override_observation_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/eval/p1426_tests.rs",
+      "proposed_source": "01_core/src/compiler/eval/math_root_evaluation_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/eval/p1426-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/eval/p1427_tests.rs",
+      "proposed_source": "01_core/src/compiler/eval/math_frac_evaluation_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/eval/p1427-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/eval/p1429_observation_tests.rs",
+      "proposed_source": "01_core/src/compiler/eval/math_accent_observation_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/eval/p1429-observation-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/eval/math_accent_observation_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/eval/p1430_tests.rs",
+      "proposed_source": "01_core/src/compiler/eval/math_cases_evaluation_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/eval/p1430-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/eval/p1431_tests.rs",
+      "proposed_source": "01_core/src/compiler/eval/math_matrix_evaluation_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/eval/p1431-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/math/layout/p1425_tests.rs",
+      "proposed_source": "01_core/src/compiler/math/layout/math_limits_layout_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/math/layout/p1425-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/math/layout/math_limits_layout_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/math/layout/p1426_tests.rs",
+      "proposed_source": "01_core/src/compiler/math/layout/math_root_layout_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/math/layout/p1426-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/math/layout/math_root_layout_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/math/layout/p1427_tests.rs",
+      "proposed_source": "01_core/src/compiler/math/layout/math_frac_layout_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/math/layout/p1427-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/math/layout/math_frac_layout_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/math/layout/p1429_tests.rs",
+      "proposed_source": "01_core/src/compiler/math/layout/math_accent_layout_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/math/layout/p1429-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/math/layout/math_accent_layout_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/math/layout/p1430_tests.rs",
+      "proposed_source": "01_core/src/compiler/math/layout/math_cases_layout_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/math/layout/p1430-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/math/layout/math_cases_layout_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/math/layout/p1431_tests.rs",
+      "proposed_source": "01_core/src/compiler/math/layout/math_matrix_layout_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/math/layout/p1431-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/math/layout/math_matrix_layout_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math/math_limits_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/math/p1425-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_limits_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/math/p1426_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math/math_root_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/math/p1426-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_root_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/math/p1427_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math/math_frac_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/math/p1427-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_frac_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1429_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1429-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1430_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1430-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1431_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_matrix_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_matrix_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1436_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_lr_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1436-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_lr_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1437_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_mid_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1437-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_mid_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1438_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_norm_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1438-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_norm_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1439_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_overbrace_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1439-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overbrace_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1440_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_overbracket_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1440-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overbracket_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1441_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_overline_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1441-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overline_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1442_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_overparen_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1442-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overparen_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1443_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_overshell_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1443-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overshell_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1444_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_primes_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1444-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_primes_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1445_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_round_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1445-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_round_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1446_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_stretch_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1446-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_stretch_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1447_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_abs_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1447-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_abs_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1448_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_underbrace_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1448-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underbrace_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1449_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_underbracket_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1449-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underbracket_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1450_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_underparen_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1450-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underparen_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/structural/p1451_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/structural/math_undershell_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1451-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/structural/math_undershell_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/html/p1423_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/html/html_constructor_surface_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/html/p1423-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/html/html_constructor_surface_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/src/compiler/stdlib/html/p1424_tests.rs",
+      "proposed_source": "01_core/src/compiler/stdlib/html/html_frame_tests.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/compiler/stdlib/html/html_frame_tests.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    },
+    {
+      "current_source": "01_core/tests/p1405_outline_indented.rs",
+      "proposed_source": "01_core/tests/outline_entry_indented.rs",
+      "current_owner": "00_nucleo/prompts/compiler/stdlib/structural/p1405_outline_indented_tests.md",
+      "proposed_owner": "00_nucleo/prompts/core/tests/outline_entry_indented.md",
+      "status": "Content-reviewed semantic name candidate; not applied. Internal module declarations, references, parent L0 and seals must be updated as part of any implementation."
+    }
+  ],
+  "coverage": "Generic numbered suites inspected by the delegated audit plus the requested outline integration example. Other descriptive numbered paths and fixtures still need final destination review.",
+  "collisions_after_combining_candidates_with_inventory": 0
+}

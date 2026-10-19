@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html.md
-//! @prompt-hash 986f1de9
+//! @prompt-hash 8460c58e
 //! @layer L3
 //! @updated 2026-09-26
 //!
@@ -12,9 +12,9 @@ use typst_core::entities::source_result::SourceDiagnostic;
 mod document;
 mod encoding;
 mod inline;
-#[cfg(test)]
-mod p1360_ab_tests;
 mod pretty;
+#[cfg(test)]
+mod pretty_serialization_tests;
 mod table;
 mod tags;
 #[cfg(test)]

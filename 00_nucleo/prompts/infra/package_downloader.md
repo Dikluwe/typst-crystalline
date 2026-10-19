@@ -23,7 +23,7 @@ These are current local source anchors, not a new upstream parity measurement.
 
 ## Contract
 
-Own synchronous network access, archive extraction and cache publication for `HttpPackageDownloader`, implementing the existing L1 PackageDownloader contract. The default registry is `https://packages.typst.org`; `with_url` configures a single alternative base. World package-root search belongs to `00_nucleo/prompts/infra/system-world/packages.md`, not here.
+Own synchronous network access, archive extraction and cache publication for `HttpPackageDownloader`, implementing the existing L1 PackageDownloader contract. The default registry is `https://packages.typst.org`; `with_url` configures a single alternative base. World package-root search belongs to `00_nucleo/prompts/infra/world/packages.md`, not here.
 
 Download only `preview`; other namespaces return NotFound. Preserve GET `<base>/preview/<name>-<version>.tar.gz` and final `<cache>/preview/<name>/<version>/`. Reuse an existing package directory; otherwise create a randomized `.tmp-<version>-<suffix>` under the same package parent, unpack gzip/tar and rename to the final destination. No explicit interprocess lock, checksum or signature verification is added. A DirectoryNotEmpty rename race accepts the existing destination. Other filesystem errors retain path/cause. Cleanup before an unsuccessful publication remains guarded; the concurrent-race cleanup discrepancy is recorded in `lab/results/construction/diagnostics/sanitization-infra-wiring-history.md` rather than claimed fixed.
 

@@ -305,7 +305,7 @@ Cross-references:
   — diagnóstico imutável P266.A.
 - ADR-0084 + ADR-0085 (P260 formalização; primeiro consumo
   directo P266).
-- `00_nucleo/prompts/entities/style_chain.md` — secção
+- `00_nucleo/prompts/core/entities/style_chain.md` — secção
   cumulativa P266 anotada.
 - P259 — Visualize Fase A (último audit pré-formalização P260;
   template literal directo P266).

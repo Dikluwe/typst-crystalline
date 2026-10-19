@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/eval/modules.md
+//! @prompt 00_nucleo/prompts/core/compiler/eval/modules.md
 //! @prompt-hash 31912dd7
 //! @layer L1
 //! @updated 2026-07-16
@@ -40,7 +40,7 @@ use super::{eval_expr, eval_markup, EvalContext};
 /// conteúdo de markup do ficheiro importado não vazam para o importador — só os
 /// bindings (`#let`/`#fn`) são expostos via `Module::scope()`. Espelha o
 /// `run_pass` do eval principal (Passo 109, ADR-0044), mas numa única passagem
-/// (o conteúdo é descartado). Ver `00_nucleo/prompts/compiler/eval.md` §P679.
+/// (o conteúdo é descartado). Ver `00_nucleo/prompts/core/compiler/eval/mod.md` §P679.
 fn eval_imported_file(
     source: &Source,
     name: &str,

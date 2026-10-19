@@ -58,7 +58,7 @@ it does not demonstrate reduced cognitive or implementation cost.
 ## Validation
 
 Execution receipts are collected in
-[lab/results/mature-layout-2026-10-18](../../lab/results/mature-layout-2026-10-18/).
+[lab/results/mature-layout-2026-10-18](../../lab/results/mature-layout-2026-10-18).
 Commands, timestamps, source hashes, and initial failed attempts are retained there.
 The linter is built from CI pin `12797073972e375d9ab078cf6750c8b30b71e2b9`.
 A separate copy of the checkpoint provides the before-migration baseline using

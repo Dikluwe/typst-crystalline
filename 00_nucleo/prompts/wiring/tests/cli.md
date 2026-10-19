@@ -36,7 +36,7 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 04_wiring/tests
 
 ## Verification and boundary
 
-Run `cargo test -p typst --test cli -- --test-threads=1` with the harness prerequisites above.
+Run `cargo test -p typst-wiring --test cli -- --test-threads=1` with the harness prerequisites above.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
@@ -379,7 +379,7 @@ O linter identifica enum e impl inerente de topo em L4, inclusive suporte de tes
 
 ### Responsabilidade exclusiva
 
-Transferir os tipos WatchedChild, seus impls e Drop existentes para `03_infra/tests/support/wiring/cli.rs`, owner `00_nucleo/prompts/infra/test-support/wiring/cli.md`. Conservar em `04_wiring/tests/cli.rs` todos os cenários e observações finais. Importar somente WatchedChild por módulo harness com #[path] estático para L3. Não usar esse módulo na biblioteca de produção. Os corpos anteriores desta transferência estão medidos em: 04_wiring/tests/cli.rs:60 struct_item WatchedChild; 04_wiring/tests/cli.rs:62 impl_item WatchedChild; 04_wiring/tests/cli.rs:76 impl_item WatchedChild.
+Transferir os tipos WatchedChild, seus impls e Drop existentes para `03_infra/tests/support/wiring/cli.rs`, owner `00_nucleo/prompts/infra/tests/support/wiring/cli.md`. Conservar em `04_wiring/tests/cli.rs` todos os cenários e observações finais. Importar somente WatchedChild por módulo harness com #[path] estático para L3. Não usar esse módulo na biblioteca de produção. Os corpos anteriores desta transferência estão medidos em: 04_wiring/tests/cli.rs:60 struct_item WatchedChild; 04_wiring/tests/cli.rs:62 impl_item WatchedChild; 04_wiring/tests/cli.rs:76 impl_item WatchedChild.
 
 ### Aceitação e limites
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/html.md
-//! @prompt-hash a0bfc803
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/html.md
+//! @prompt-hash e85e6756
 //! @layer L1
 
 use std::sync::Arc;
@@ -22,11 +22,11 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-#[path = "html/p1423_tests.rs"]
-mod p1423_tests;
+#[path = "html/html_constructor_surface_tests.rs"]
+mod html_constructor_surface_tests;
 
-#[path = "html/p1424_tests.rs"]
-mod p1424_tests;
+#[path = "html/html_frame_tests.rs"]
+mod html_frame_tests;
 
 mod attr_cast;
 mod attr_specs;

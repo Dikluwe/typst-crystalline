@@ -21,7 +21,7 @@ The upstream-oriented guide that previously occupied this README remains recover
 | `04_wiring/` | L4 composition and executable entry points |
 | `lab/` | Quarantined upstream source, experiments, tools, results, and build outputs |
 
-The current parity reference is pinned to upstream commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Historical reports for earlier pins do not certify this target. See the [architectural decisions](00_nucleo/adr/) and [L0 specifications](00_nucleo/prompts/) for current scope and acceptance criteria.
+The current parity reference is pinned to upstream commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Historical reports for earlier pins do not certify this target. See the [architectural decisions](00_nucleo/adr) and [L0 specifications](00_nucleo/prompts) for current scope and acceptance criteria.
 
 ## Build and validation
 
@@ -32,7 +32,7 @@ cargo build --locked -p typst-wiring --bin typst --release
 cargo build --locked --workspace --all-targets
 ```
 
-Project tools and CI instructions are under [`lab/tools/`](lab/tools/), including [`lab/tools/ci/README.md`](lab/tools/ci/README.md). Full validation includes tests, Clippy, formatting, documentation, and prompt lineage. The full suite uses Linux, export observers, the pinned upstream oracle, and temporary fixtures in `/dev/shm`; consult the CI guide for resource limits and exact commands. Windows compilation is checked separately. A local binary is not approval to publish a release.
+Project tools and CI instructions are under [`lab/tools/`](lab/tools), including [`lab/tools/ci/README.md`](lab/tools/ci/README.md). Full validation includes tests, Clippy, formatting, documentation, and prompt lineage. The full suite uses Linux, export observers, the pinned upstream oracle, and temporary fixtures in `/dev/shm`; consult the CI guide for resource limits and exact commands. Windows compilation is checked separately. A local binary is not approval to publish a release.
 
 ## Attribution
 

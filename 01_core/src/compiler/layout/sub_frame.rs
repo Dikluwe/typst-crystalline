@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/sub_frame.md
-//! @prompt-hash 6e077902
+//! @prompt 00_nucleo/prompts/core/compiler/layout/sub_frame.md
+//! @prompt-hash 107cbc56
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -51,7 +51,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// traduzir estes segmentos para o referencial do frame pai com a MESMA
     /// translação já aplicada aos `FrameItem`s devolvidos, e por os
     /// re-inserir em `self.decoration_lines_collector` (ver
-    /// `00_nucleo/prompts/compiler/layout.md` §"Decoração através de
+    /// `00_nucleo/prompts/core/compiler/layout/mod.md` §"Decoração através de
     /// `layout_sub_frame`").
     ///
     /// **P994** — `pub(in crate::compiler)` (era `pub(super)`): consumidor
@@ -253,7 +253,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // items normais para o seu próprio referencial) rebaseia estas
         // entradas com a MESMA translação, ou desce um nível de `path` se
         // envolver os items num `Group` — ver
-        // `00_nucleo/prompts/compiler/layout.md` §P908. Callers que não
+        // `00_nucleo/prompts/core/compiler/layout/mod.md` §P908. Callers que não
         // sabem compor Align/Place (medição-only, `measure_content_real`)
         // simplesmente ignoram (`_`) os dois vectores devolvidos —
         // equivalente ao descarte de antes.

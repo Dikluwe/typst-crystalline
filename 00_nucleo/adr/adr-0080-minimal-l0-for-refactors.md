@@ -302,7 +302,7 @@ proposto naquele spec aplica-se aqui: features runtime
 novas merecem L0 tocado).
 
 **L0 tocado partial P240** (3 ficheiros):
-- `00_nucleo/prompts/entities/content.md` — bloco
+- `00_nucleo/prompts/core/entities/content.md` — bloco
   `Content::StateDisplay` documentado.
 - `00_nucleo/prompts/engine/stdlib.md` — bloco
   `state_display(key, [callback])` documentado.
@@ -369,7 +369,7 @@ substituindo `state_display` por `counter_display`:
 **~6 entidades novas cumulativas** — não-trivial estructural;
 paridade absoluta P240; pattern de excepção justificada
 cristalizado. **L0 partial tocado** (3 ficheiros paralelos P240):
-- `00_nucleo/prompts/entities/content.md` — bloco
+- `00_nucleo/prompts/core/entities/content.md` — bloco
   `Content::CounterDisplayCallback` documentado.
 - `00_nucleo/prompts/engine/stdlib.md` — bloco
   `counter_display(key, [callback])` documentado.
@@ -425,10 +425,10 @@ estrutural; promoção real graded de scope-out P156G/H P231.
 
 **L0 partial tocado P242** (4 ficheiros — sub-categoria
 geometry/exporter distinta de P240/P241):
-- `00_nucleo/prompts/entities/corners.md` (**ficheiro novo**).
-- `00_nucleo/prompts/entities/geometry.md` — secção
+- `00_nucleo/prompts/core/entities/corners.md` (**ficheiro novo**).
+- `00_nucleo/prompts/core/entities/geometry.md` — secção
   `ShapeKind::RoundedRect`.
-- `00_nucleo/prompts/entities/content.md` — refino
+- `00_nucleo/prompts/core/entities/content.md` — refino
   `Block.radius` + `Boxed.radius` + materialização clip semantic.
 - `00_nucleo/prompts/infra/export.md` — secção rounded-rect
   clip path.
@@ -487,9 +487,9 @@ Magnitude real M (~2-3h) face L+ hipotetizado. **Sem `P243.div-N`**
 — paridade lição N=6 cumulativo precedente.
 
 **L0 partial tocado P243** (2 ficheiros — sub-categoria nova):
-- `00_nucleo/prompts/entities/region.md` — extensão `Regions`
+- `00_nucleo/prompts/core/entities/region.md` — extensão `Regions`
   backlog/last/advance + sub-padrão promoção real scope-out N=2.
-- `00_nucleo/prompts/entities/content.md` — secção promoção
+- `00_nucleo/prompts/core/entities/content.md` — secção promoção
   scope-outs Pad.right + Block.width + Boxed.width.
 
 **Pattern emergente total "L0 tocado pós-P229 (sub-categorias)"**

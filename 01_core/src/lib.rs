@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/core.md
+//! @prompt 00_nucleo/prompts/core/lib.md
 //! @prompt-hash b125c37c
 //! @layer L1
 //! @updated 2026-03-22
@@ -9,7 +9,7 @@ pub mod contracts;
 pub mod entities;
 // **P969** — oráculo de fórmulas do vanilla: só existe em builds de teste
 // (ferramenta de verificação, nunca caminho de execução — ver
-// `00_nucleo/prompts/testing/math_oracle.md`).
+// `00_nucleo/prompts/core/testing/math_oracle.md`).
 #[cfg(test)]
 pub(crate) mod testing;
 pub(crate) mod utils;

@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-19T00:29:42.196384+00:00",
+  "checkpoint": "d330c717eb06c86a560c4cf3d8d0ba40224609b9",
+  "historical_areas": [
+    "lab/history",
+    "lab/results/construction",
+    "lab/results/perf",
+    "lab/corpus",
+    "lab/typst-original"
+  ],
+  "historical_changes": [],
+  "fixture_payload_changes": [],
+  "fixture_document_changes": [
+    "03_infra/fixtures/p307b/MANIFEST.md"
+  ],
+  "fixture_document_validation": "Exact old bytes after applying only the owner path map equal current bytes. All other tracked fixture files unchanged.",
+  "scope": "Git comparison; ignored local files are not covered by this receipt."
+}

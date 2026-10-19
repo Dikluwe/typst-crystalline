@@ -1866,7 +1866,7 @@ empíricamente" registado P273.7-P273.15.
 ### Bloqueador real identificado (substituindo DEBT-56 fechado)
 
 - **P156H limitação consciente** em
-  `00_nucleo/prompts/entities/content.md:817-829`:
+  `00_nucleo/prompts/core/entities/content.md:817-829`:
   "`inset.top`/`inset.bottom` armazenados mas não aplicados em
   layout inline (alterariam line_height)".
 - **ADR-0078 §"Decisão" sub-fase (b)** — Refino multi-region flow

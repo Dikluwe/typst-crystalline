@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/color.md
+//! @prompt 00_nucleo/prompts/core/entities/color.md
 //! @prompt-hash 361b120f
 //! @layer L1
 //! @updated 2026-05-15
@@ -328,7 +328,7 @@ pub enum ColorSpaceError {
 // scratch com palette 0.7.6 — a crate que o vanilla usa). O vanilla opera
 // **no espaço da própria cor** com a fórmula `increase` do palette e converte
 // de volta ao espaço original nos operadores perceptuais. Ver
-// `00_nucleo/prompts/entities/color.md` §"Operadores de cor (P476/P477,
+// `00_nucleo/prompts/core/entities/color.md` §"Operadores de cor (P476/P477,
 // semântica corrigida em P742)".
 //
 // Helpers privados: duplicados de gradient.rs (circular dep impede import).

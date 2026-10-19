@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/realize/mod.md
-//! @prompt-hash 19ed65ef
+//! @prompt 00_nucleo/prompts/core/compiler/realize/mod.md
+//! @prompt-hash 18ac906e
 //! @layer L1
 //! @updated 2026-10-10
 

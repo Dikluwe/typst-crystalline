@@ -19,7 +19,7 @@ Own loading and classification of the compiled `typst_assets::fonts()` bytes. `E
 
 Classify the normalized metadata family name, not the raw filename or uncorrected nameID 1. Case-insensitive names starting with `Libertinus Serif` or exactly `New Computer Modern` belong to text. Exactly `New Computer Modern Math`, names starting with `DejaVu Sans Mono`, and unrecognized names belong to math/code. The metadata exception table belongs to `00_nucleo/prompts/infra/fonts.md`; preserve its documented family names with spaces.
 
-The embedded asset set makes Libertinus Serif and the bundled math/code faces available independently of host installation. `00_nucleo/prompts/infra/system-world/fonts.md` exclusively owns their insertion relative to system/project fonts and the existing builders. The language's default text family belongs to L1 style owners; neither those defaults nor CLI composition are redefined here.
+The embedded asset set makes Libertinus Serif and the bundled math/code faces available independently of host installation. `00_nucleo/prompts/infra/world/fonts.md` exclusively owns their insertion relative to system/project fonts and the existing builders. The language's default text family belongs to L1 style owners; neither those defaults nor CLI composition are redefined here.
 
 ## Verification boundary
 

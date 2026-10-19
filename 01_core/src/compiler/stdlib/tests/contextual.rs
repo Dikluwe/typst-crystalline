@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/tests/contextual.md
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/tests/contextual.md
 //! @prompt-hash 18bb6af0
 //! @layer L1
 //! @updated 2026-09-26

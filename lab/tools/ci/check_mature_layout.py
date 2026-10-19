@@ -31,6 +31,8 @@ OLD_ROOT_PATHS = (
     "00_nucleo/corpus-docs",
 )
 PRODUCT_DIRS = ("01_core", "02_shell", "03_infra", "04_wiring")
+PROMPT_LAYERS = dict(zip(PRODUCT_DIRS, ("core", "shell", "infra", "wiring")))
+STEP_NAME_RE = re.compile(r"^(?:p\d+|passo[-_]?\d+)", re.IGNORECASE)
 INCLUDE_SCAN_DIRS = PRODUCT_DIRS + ("lab/benches",)
 LINK_RE = re.compile(
     r"!?\[([^\]]*)\]\(\s*(<[^>]+>|(?:\\.|[^\s)])+)(?:\s+[^)]*)?\)",
@@ -288,29 +290,61 @@ def count_dynamic_include_paths(root: Path) -> int:
     return count
 
 
+def expected_owner_path(source: Path) -> Path:
+    """Map a repository-relative productive source to its layer's L0 owner.
+
+    Only the leading Cargo src/ component is omitted. Crate-root build.rs,
+    integration tests/, module mod.rs, and any nested src/ retain their meaning.
+    """
+    layer, *parts = source.parts
+    if parts and parts[0] == "src":
+        parts = parts[1:]
+    return Path("00_nucleo/prompts", PROMPT_LAYERS[layer], *parts).with_suffix(".md")
+
+
 def check_owner_paths(root: Path) -> list[Finding]:
     findings: list[Finding] = []
     owners: dict[str, list[str]] = {}
+    mapped: dict[str, list[str]] = {}
+    config_path = root / "crystalline.toml"
+    try:
+        config = tomllib.loads(config_path.read_text(encoding="utf-8"))
+        excluded = {Path(path) for path in config.get("excluded_files", {}).values()}
+    except (OSError, tomllib.TOMLDecodeError) as error:
+        return [Finding("OWNER_CONFIG_READ", "crystalline.toml", str(error))]
     for crate in PRODUCT_DIRS:
         for source in sorted((root / crate).rglob("*.rs")):
+            relative = source.relative_to(root)
+            if relative in excluded:
+                continue
+            source_name = relative.as_posix()
+            expected = expected_owner_path(relative).as_posix()
+            mapped.setdefault(expected, []).append(source_name)
+            if STEP_NAME_RE.match(source.stem):
+                findings.append(Finding("OWNER_SOURCE_STEP_NAME", source_name, "productive source filename must describe its meaning, not a numbered execution step"))
             try:
                 lines = source.read_text(encoding="utf-8", errors="replace").splitlines()[:40]
             except OSError as error:
                 findings.append(Finding("OWNER_SOURCE_READ", _relative(root, source), str(error)))
                 continue
-            for line in lines:
-                match = OWNER_RE.match(line)
-                if not match:
-                    continue
-                owner = match.group(1)
+            headers = [match.group(1) for line in lines if (match := OWNER_RE.match(line))]
+            if len(headers) != 1:
+                findings.append(Finding("OWNER_HEADER_COUNT", source_name, f"expected one @prompt owner header, found {len(headers)}"))
+            for owner in headers:
                 if not owner.startswith("00_nucleo/prompts/") or ".." in Path(owner).parts or Path(owner).is_absolute():
                     findings.append(Finding("OWNER_PATH_NONCANONICAL", _relative(root, source), f"owner must use canonical 00_nucleo/prompts path: {owner}"))
                     continue
+                if STEP_NAME_RE.match(Path(owner).stem):
+                    findings.append(Finding("OWNER_PROMPT_STEP_NAME", source_name, f"owning prompt filename must describe its meaning, not a numbered execution step: {owner}"))
+                if owner != expected:
+                    findings.append(Finding("OWNER_LAYOUT_MISMATCH", source_name, f"owner must mirror its layer and module path, omitting only leading src/: expected {expected}, found {owner}"))
                 if not (root / owner).is_file():
                     findings.append(Finding("OWNER_PATH_MISSING", _relative(root, source), f"owner prompt does not exist: {owner}"))
                     continue
                 owners.setdefault(owner, []).append(_relative(root, source))
-                break
+    for owner, consumers in sorted(mapped.items()):
+        if len(consumers) > 1:
+            findings.append(Finding("OWNER_LAYOUT_COLLISION", owner, f"source paths map to the same prompt: {', '.join(consumers)}"))
     for owner, consumers in sorted(owners.items()):
         if len(consumers) > 1:
             findings.append(Finding("OWNER_DUPLICATE", owner, f"prompt has multiple productive consumers: {', '.join(consumers)}"))

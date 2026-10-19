@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/mod
-Hash do Código: 0df5d5d7
+Hash do Código: 99722711
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
@@ -313,3 +313,7 @@ A primeira compilação all-targets em `lab/results/construction/diagnostics/cli
 Migrar as cinco chamadas de fixtures aos antigos PageContext::cidfont/multifont para with_font_scenario e FontScenario existente nomeado. Preservar, na mesma ordem, todas as expressões dos quatro recursos, mapas, fontes, bitmap, modo e Box::leak já existentes nas fixtures; não limpar ou mudar lifetime neste passo. CIDFont mantém bitmap None; Multifont mantém bindings Some(LookupCache::default()) uma vez por contexto. Adicionar somente import privado FontScenario. Manter nomes, fixtures, asserts, strings e números esperados integralmente. Não restaurar wrappers antigos nem silenciar erro de compilação. As chamadas são internas ao módulo de testes, sem API de produto nova.
 
 Fluxo contínuo ADR-0127: L0 antes do código e resselo restrito deste owner/consumer. Conferir cada argumento antigo contra o campo novo e equivalência do restante do arquivo após mascarar exclusivamente as chamadas migradas/import/hash. Reexecutar compilação all-targets, suíte workspace completa e gates da etapa com 12 GiB, swap zero e um job. Não alterar esperados para obter GREEN nem incluir testes que espelhem o carrier.
+
+## Owned test module declarations
+
+This consumer declares the following separately owned test modules: `pdfa_core_metadata_tests`, `pdfa_associated_files_tests`, `pdfa_icc_version_and_cidset_tests`, `pdfa4f_empty_embedded_files_tests`, `pdfua_identification_tests`, `pdfua_structure_tests`, `pdf_spot_colors_tests`, `pdf_page_labels_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.

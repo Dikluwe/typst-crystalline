@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/primitives-constructors/decimal.md
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/primitives_constructors/decimal.md
 //! @prompt-hash 43ab3898
 //! @layer L1
 //! @updated 2026-08-23

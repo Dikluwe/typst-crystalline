@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash 59a74c47
+//! @prompt-hash 535390e6
 //! @layer L3
 //! @updated 2026-09-21
 
@@ -32,9 +32,9 @@ mod fonts;
 mod gradients;
 mod html;
 mod images;
-pub(crate) mod oracle;
 #[cfg(test)]
-mod p1431_line_cap_tests;
+mod line_cap_tests;
+pub(crate) mod oracle;
 pub mod pdf_defaults;
 mod pdf_tiling;
 mod render;

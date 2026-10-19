@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/sequence/fractional_preflight.md
+//! @prompt 00_nucleo/prompts/core/compiler/layout/sequence/fractional_preflight.md
 //! @prompt-hash 3011ef11
 //! @layer L1
 //! @updated 2026-10-07

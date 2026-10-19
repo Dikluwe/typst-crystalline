@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/position_marker.md
+//! @prompt 00_nucleo/prompts/core/compiler/layout/position_marker.md
 //! @prompt-hash 5cae35f5
 //! @layer L1
 

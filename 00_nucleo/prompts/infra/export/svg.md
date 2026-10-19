@@ -1,5 +1,5 @@
 # L0 — svg
-Hash do Código: 87900134
+Hash do Código: 066b77c6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
@@ -51,7 +51,7 @@ Bundle/file routing stays outside this page exporter. No filesystem or new layou
 - `00_nucleo/prompts/infra/export/svg/groups.md` owns `03_infra/src/export/svg/groups.rs`.
 - `00_nucleo/prompts/infra/export/svg/images.md` owns `03_infra/src/export/svg/images.rs`.
 - `00_nucleo/prompts/infra/export/svg/navigation.md` owns `03_infra/src/export/svg/navigation.rs`.
-- `00_nucleo/prompts/infra/export/svg/p1360_ab_tests.md` owns `03_infra/src/export/svg/p1360_ab_tests.rs`.
+- `00_nucleo/prompts/infra/export/svg/pretty_serialization_tests.md` owns `03_infra/src/export/svg/pretty_serialization_tests.rs`.
 - `00_nucleo/prompts/infra/export/svg/paints.md` owns `03_infra/src/export/svg/paints.rs`.
 - `00_nucleo/prompts/infra/export/svg/serialization.md` owns `03_infra/src/export/svg/serialization.rs`.
 - `00_nucleo/prompts/infra/export/svg/tests.md` owns `03_infra/src/export/svg/tests.rs`.
@@ -63,7 +63,7 @@ Bundle/file routing stays outside this page exporter. No filesystem or new layou
 `03_infra/src/export/svg.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
 `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
 
 ### Responsabilidade deste owner
@@ -81,7 +81,7 @@ As sondas bilaterais e o estado exato em
 `lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
+O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
 
 ### Responsabilidade exclusiva
 
@@ -254,3 +254,7 @@ Fontes e L0 vigentes conferidos antes do código; snapshot lab/results/construct
 Concretizar C071 com SvgRenderSession privado e emprestado: fonts Option<&PreparedFonts>, glyph_defs &mut GlyphDefs, paint_defs &mut PaintDefs, clip_next_id &mut usize, destinations &SvgDestinationContext, glyph_fonts &SvgGlyphFontContext e html_frame bool. Uma coleção real de caches/IDs por exportação; render_item(xml,item,session) mantém match exaustivo, ordem background/body/foreground e todos os leaves. Grupo envia Size existente com Pt(inner_width/height), salva/restaura local_to_root. Link decorativo desliga html_frame apenas durante seus filhos, restaurando-o para irmãos; referências/caches são reemprestados, nunca clonados.
 
 Este adendo materializa somente o escopo nominal e supersede seu estado pendente da auditoria. Fluxo contínuo ADR-0127: sem contrato externo, default, fase ou compatibilidade novos. L0 primeiro e resselo restrito. RED de too_many_arguments antes do código, GREEN sem novas supressões ou alteração de limiar; expectativas anteriores devem continuar satisfeitas. Conferir corpos e transporte de valores, preservar fixtures/esperados, sem testes que espelhem carriers. Executar controles existentes de Grid/Table/outline e SVG/tiling antes/depois, suíte workspace completa, build, Clippy all-targets, Rustdoc, formato, linhagem estrita/reversa e Tekt sem novos avisos, sob 12 GiB, swap zero e um job. Resultados não certificam paridade global ou conformidade PDF/UA.
+
+## Owned test module declarations
+
+This consumer declares the following separately owned test modules: `pretty_serialization_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.

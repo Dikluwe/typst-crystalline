@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-19T00:27:24.670027+00:00",
+  "checkpoint": "d330c717eb06c86a560c4cf3d8d0ba40224609b9",
+  "method": "Compare rule, level, source identity mapped through migration manifest, and message; omit line offsets affected by path formatting.",
+  "before_counts": {
+    "V16": 105,
+    "V19": 1140,
+    "V20": 879
+  },
+  "after_counts": {
+    "V16": 105,
+    "V19": 1140,
+    "V20": 879
+  },
+  "new_findings": [],
+  "resolved_findings": [],
+  "final_recheck_utc": "2026-10-19T00:45:04.195514+00:00",
+  "final_recheck": "final-lint.sarif has identical rule/level/path/message findings to after-lint.sarif after documentary corrections and resealing"
+}

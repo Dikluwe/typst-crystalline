@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 3c9dd909
+//! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
+//! @prompt-hash c1bdc984
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -687,7 +687,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// sequência de descida por `FrameItem::Group.items`/`Link.items`
     /// (todos os elementos excepto o último) terminando no índice
     /// efectivo na lista alcançada (último elemento) — ver
-    /// `00_nucleo/prompts/compiler/layout.md` §P908, `resolve_path_slice`.
+    /// `00_nucleo/prompts/core/compiler/layout/mod.md` §P908, `resolve_path_slice`.
     pub(super) pending_align_centering: Vec<PendingAlignXEntry>,
     /// **P898** — simétrico de `pending_align_centering`, eixo vertical.
     /// `VAlign::Horizon`/`VAlign::Bottom` em `layout_align`/`layout_place`
@@ -767,14 +767,14 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
 /// **P908** — entrada de `pending_align_centering` (eixo X):
 /// `(path, count, align, content_w, origin_x, applied_x)`. `path`
 /// substitui o antigo `start_idx: usize` — ver
-/// `00_nucleo/prompts/compiler/layout.md` §P908.
+/// `00_nucleo/prompts/core/compiler/layout/mod.md` §P908.
 pub(super) type PendingAlignXEntry =
     (Vec<usize>, usize, crate::entities::layout_types::Align2D, f64, f64, f64);
 
 /// **P908** — entrada de `pending_align_v_centering` (eixo Y):
 /// `(path, count, align, content_h, origin_y, dy, applied_y)`. `path`
 /// substitui o antigo `start_idx: usize` — ver
-/// `00_nucleo/prompts/compiler/layout.md` §P908.
+/// `00_nucleo/prompts/core/compiler/layout/mod.md` §P908.
 pub(super) type PendingAlignYEntry =
     (Vec<usize>, usize, crate::entities::layout_types::Align2D, f64, f64, f64, f64);
 
@@ -835,7 +835,7 @@ pub(super) struct DeferredFloat {
     /// `pending_align_centering` — como `flush_pending_floats` corre
     /// sempre antes de `apply_pending_align_fixups` (mesma `new_page()`/
     /// `finish()`), a entrada resolve-se correctamente sem sequenciamento
-    /// novo. Ver `00_nucleo/prompts/compiler/layout.md` §P908.
+    /// novo. Ver `00_nucleo/prompts/core/compiler/layout/mod.md` §P908.
     pub orphaned_align_x: Vec<PendingAlignXEntry>,
     /// **P908** — simétrico de `orphaned_align_x`, eixo vertical.
     pub orphaned_align_y: Vec<PendingAlignYEntry>,
@@ -886,7 +886,7 @@ pub(super) struct DeferredCellTail {
     /// princípio de `resolve_path_slice`, caso raro: exige overflow de
     /// linha `Auto`/`Fraction` E um Align/Place aninhado cujos items
     /// fiquem divididos pelo próprio corte). Ver
-    /// `00_nucleo/prompts/compiler/layout.md` §P908.
+    /// `00_nucleo/prompts/core/compiler/layout/mod.md` §P908.
     pub orphaned_align_x: Vec<PendingAlignXEntry>,
     /// **P908** — simétrico de `orphaned_align_x`, eixo vertical.
     pub orphaned_align_y: Vec<PendingAlignYEntry>,

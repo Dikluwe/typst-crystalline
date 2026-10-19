@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select_forward.md
+//! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_select_forward.md
 //! @prompt-hash 5437efe6
 //! @layer L1
 //! @updated 2026-10-02

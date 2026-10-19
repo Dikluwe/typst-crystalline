@@ -24,7 +24,7 @@ bytes.
   the text emitter. Upstream PDF text rendering supplies architectural evidence,
   not a claim that every upstream mechanical choice is normative.
 - A4_DEFAULT_WIDTH/HEIGHT derive from Paper::A4.width_pt()/height_pt() in
-  `00_nucleo/prompts/entities/page_geometry.md`, using millimetres × 72 / 25.4.
+  `00_nucleo/prompts/core/entities/page_geometry.md`, using millimetres × 72 / 25.4.
   Rounded 595.28/841.89 are serialization examples, not production constants.
 - A4_FALLBACK_WIDTH_ROUNDED = 595.0 and A4_FALLBACK_HEIGHT_ROUNDED = 842.0
   remain the compatibility values for missing-page metadata/coordinate fallbacks.

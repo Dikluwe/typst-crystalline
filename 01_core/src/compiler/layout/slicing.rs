@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/slicing.md
-//! @prompt-hash ee969cac
+//! @prompt 00_nucleo/prompts/core/compiler/layout/slicing.md
+//! @prompt-hash acd2d8a8
 //! @layer L1
 //! @updated 2026-05-14
 //!
@@ -57,7 +57,7 @@ pub(super) fn slice_frame_items_at_height(
 /// `start.y`; para outros variants, é `pos.y`. **P908** — `pub(super)`:
 /// reaproveitado por `grid.rs` para replicar a MESMA decisão head/tail
 /// de `slice_frame_items_at_height` ao separar entradas órfãs de
-/// `pending_align_*` (ver `00_nucleo/prompts/compiler/layout.md` §P908).
+/// `pending_align_*` (ver `00_nucleo/prompts/core/compiler/layout/mod.md` §P908).
 pub(super) fn item_y_start(item: &FrameItem) -> f64 {
     match item {
         FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.y.0,

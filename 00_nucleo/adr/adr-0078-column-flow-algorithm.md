@@ -212,7 +212,7 @@ Sub-fase (a) parte 1 fechada:
   `current_items: Vec<FrameItem>`, `current_line: Vec<FrameItem>`,
   `width: f64`, `height: f64`) + 3 métodos (`new`, `reset`,
   `has_pending`) + 4 sentinelas P216A.
-- L0 `00_nucleo/prompts/entities/region.md` criado;
+- L0 `00_nucleo/prompts/core/entities/region.md` criado;
   hash propagado via `crystalline-lint --fix-hashes`.
 - `Layouter` struct refactored em
   `01_core/src/engine/layout/mod.rs`: 5 fields escalares

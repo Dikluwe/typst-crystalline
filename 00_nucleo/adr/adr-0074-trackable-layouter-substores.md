@@ -366,7 +366,7 @@ sealing 1× por iteração). Caminho B fixado em C2: campo
 `PagedDocument` com `Default::default()` retrocompatível.
 2 sentinelas + 2 unit tests = 4 tests novos.
 1852 → 1856 verdes; 0 violations. L0 prompt
-`00_nucleo/prompts/entities/sealed-positions.md` (hash
+`00_nucleo/prompts/core/entities/sealed_positions.md` (hash
 `94c68ba8`).
 
 ### P205C — `position_of` impl real + consumer migration — ✅ MATERIALIZADO 2026-05-07

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/footnote_overflow_columns.md
-//! @prompt-hash 79e92be6
+//! @prompt 00_nucleo/prompts/core/compiler/layout/footnote_flush.md
+//! @prompt-hash 8570d947
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -132,7 +132,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             ]);
             // P772g (encerra achado B de P772f) — origin_x real (`left_x`,
             // não 0.0): esta emissão é um "consumidor absoluto" de
-            // `layout_sub_frame` (ver 00_nucleo/prompts/compiler/layout.md
+            // `layout_sub_frame` (ver 00_nucleo/prompts/core/compiler/layout/mod.md
             // §"Contrato de composição de coordenadas"). Um `Content::Place`
             // aninhado no body da nota emite coordenadas absolutas via
             // `regions.cell`/`cell_origin_x`; se este sub-frame usasse
@@ -189,7 +189,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // `origin_y`/`applied_y` das entradas órfãs (quantidades sem
             // ascender embutido — mesma distinção física-vs-lógica de
             // `layout_align`/`layout_place`/`emit_deferred_float`,
-            // `00_nucleo/prompts/compiler/layout.md` §P908); `target_y`
+            // `00_nucleo/prompts/core/compiler/layout/mod.md` §P908); `target_y`
             // (pós-subtracção) só é correcto para os `FrameItem`s reais
             // abaixo, cujo `pos.y` já é baseline.
             let target_y_logical = y_cursor;
@@ -208,7 +208,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // reais abaixo. `path[0]` passa a apontar para a posição real
             // em `current_items` (soma o comprimento actual, capturado
             // ANTES do merge). Ver
-            // `00_nucleo/prompts/compiler/layout.md` §P908.
+            // `00_nucleo/prompts/core/compiler/layout/mod.md` §P908.
             let insertion_base = self.regions.current.current_items.len();
             for (mut path, count, align, content_w, origin_x, applied_x) in orphaned_x {
                 path[0] += insertion_base;

@@ -1,0 +1,1848 @@
+ 00_nucleo/README.md                                | 11 ++-
+ 00_nucleo/adr/ORDER.md                             |  1 +
+ 00_nucleo/adr/README.md                            |  2 +-
+ 00_nucleo/adr/adr-0005-packagespec-world-trait.md  |  4 +-
+ 00_nucleo/adr/adr-0009-default-math-class.md       |  8 +--
+ .../adr-0011-unicode-math-class-l1-dependency.md   |  2 +-
+ .../adr/adr-0019-ttf-parser-rustybuzz-in-l3.md     |  2 +-
+ 00_nucleo/adr/adr-0020-fontdb-in-l3.md             |  2 +-
+ 00_nucleo/adr/adr-0021-time-crate-datetime.md      |  2 +-
+ .../adr/adr-0033-functional-parity-with-vanilla.md |  4 +-
+ 00_nucleo/adr/adr-0054-debt-1-closure-criterion.md |  2 +-
+ .../adr/adr-0074-trackable-layouter-substores.md   |  2 +-
+ 00_nucleo/adr/adr-0075-vanilla-integration.md      |  2 +-
+ 00_nucleo/adr/adr-0077-regex-l1-dependency.md      |  4 +-
+ 00_nucleo/adr/adr-0078-column-flow-algorithm.md    |  2 +-
+ 00_nucleo/adr/adr-0080-minimal-l0-for-refactors.md | 14 ++--
+ ...-0091-gradient-color-space-and-cmyk-strategy.md |  2 +-
+ .../adr/adr-0118-context-based-runtime-state.md    | 10 +--
+ .../adr/adr-0120-textshaped-rustybuzz-pipeline.md  |  2 +-
+ .../adr/adr-0130-canonical-l0-prompt-references.md | 12 ++--
+ .../adr/adr-0131-owner-aligned-prompt-paths.md     | 78 ++++++++++++++++++++++
+ 00_nucleo/adr/template-adr.md                      |  2 +-
+ 00_nucleo/diagnostics/README.md                    |  2 +-
+ 00_nucleo/diagnostics/mature-layout-2026-10-18.md  |  2 +-
+ .../diagnostics/retired-nonowners-2026-10-18.md    | 10 +--
+ 00_nucleo/prompts/compiler/eval/p1426-tests.md     | 29 --------
+ 00_nucleo/prompts/compiler/eval/p1427-tests.md     | 31 ---------
+ 00_nucleo/prompts/compiler/eval/p1430-tests.md     | 35 ----------
+ 00_nucleo/prompts/compiler/eval/p1431-tests.md     | 40 -----------
+ .../compiler/stdlib/structural/math/p1425-tests.md | 17 -----
+ .../{ => core}/compiler/eval/bibliography.md       |  2 +-
+ .../{infra => core/compiler/eval}/bibtex.md        |  4 +-
+ .../{ => core}/compiler/eval/bindings/access.md    |  4 +-
+ .../{ => core}/compiler/eval/bindings/binding.md   |  4 +-
+ .../compiler/eval/bindings/field_access.md         |  2 +-
+ .../eval/bindings/field_access/callee_error.md     |  4 +-
+ .../eval/bindings/field_access/content_methods.md  |  4 +-
+ .../compiler/eval/bindings/field_access/fields.md  |  4 +-
+ .../eval/bindings/field_access/identity.md         |  4 +-
+ .../compiler/eval/bindings/method_dispatch.md      |  2 +-
+ .../compiler/eval/bindings/mod.md}                 |  2 +-
+ .../compiler/eval/bindings/value_methods.md        |  4 +-
+ .../compiler/eval/bindings/value_methods/color.md  |  2 +-
+ .../eval/bindings/value_methods/counter.md         |  2 +-
+ .../eval/bindings/value_methods/element_where.md   |  2 +-
+ .../eval/bindings/value_methods/selector.md        |  2 +-
+ .../compiler/eval/bindings/value_methods/state.md  |  2 +-
+ .../eval/bindings/value_methods/version.md         |  2 +-
+ .../{ => core}/compiler/eval/call_dispatch.md      |  2 +-
+ .../compiler/eval/call_dispatch/apply.md           |  4 +-
+ .../compiler/eval/call_dispatch/arguments.md       |  4 +-
+ .../{ => core}/compiler/eval/call_dispatch/call.md |  4 +-
+ .../compiler/eval/call_dispatch/call_spans.md      |  4 +-
+ .../eval/call_dispatch/collection_methods.md       |  2 +-
+ .../compiler/eval/call_dispatch/content_methods.md |  2 +-
+ .../eval/call_dispatch/contextual_calls.md         |  2 +-
+ .../eval/call_dispatch/instance_methods.md         |  2 +-
+ .../compiler/eval/call_dispatch/invoke.md          |  4 +-
+ .../compiler/eval/call_dispatch/location.md        |  4 +-
+ .../eval/call_dispatch/selector_intercepts.md      |  4 +-
+ .../compiler/eval/call_dispatch/trace_plugin.md    |  4 +-
+ .../compiler/eval/call_dispatch/type_fields.md     |  4 +-
+ .../compiler/eval/call_dispatch/value_methods.md   |  4 +-
+ 00_nucleo/prompts/{ => core}/compiler/eval/cast.md |  2 +-
+ .../prompts/{ => core}/compiler/eval/closures.md   |  2 +-
+ .../{ => core}/compiler/eval/context_reads.md      |  2 +-
+ .../{ => core}/compiler/eval/control_flow.md       |  4 +-
+ .../compiler/eval/expression_dispatch.md           |  4 +-
+ 00_nucleo/prompts/{ => core}/compiler/eval/flow.md |  2 +-
+ .../prompts/{ => core}/compiler/eval/font_dict.md  |  2 +-
+ .../prompts/{ => core}/compiler/eval/markup.md     |  4 +-
+ .../{ => core}/compiler/eval/markup_stream.md      |  2 +-
+ 00_nucleo/prompts/{ => core}/compiler/eval/math.md |  4 +-
+ .../{ => core}/compiler/eval/math/arguments.md     |  4 +-
+ .../{ => core}/compiler/eval/math/call_fallback.md |  2 +-
+ .../{ => core}/compiler/eval/math/callee.md        |  4 +-
+ .../{ => core}/compiler/eval/math/construct.md     |  4 +-
+ .../{ => core}/compiler/eval/math/delimiters.md    |  4 +-
+ .../prompts/{ => core}/compiler/eval/math/entry.md |  4 +-
+ .../{ => core}/compiler/eval/math/expression.md    |  4 +-
+ .../compiler/eval/math/expression_call.md          |  4 +-
+ .../{ => core}/compiler/eval/math/lookup.md        |  4 +-
+ .../compiler/eval/math/native_attachments.md       |  2 +-
+ .../compiler/eval/math/native_decorations.md       |  2 +-
+ .../compiler/eval/math/native_dispatch.md          |  4 +-
+ .../eval/math_accent_observation_tests.md}         | 14 ++--
+ .../compiler/eval/math_cases_evaluation_tests.md   | 35 ++++++++++
+ .../compiler/eval/math_frac_evaluation_tests.md    | 31 +++++++++
+ .../math_limits_override_observation_tests.md}     | 10 +--
+ .../compiler/eval/math_matrix_evaluation_tests.md  | 40 +++++++++++
+ .../compiler/eval/math_root_evaluation_tests.md    | 29 ++++++++
+ .../eval.md => core/compiler/eval/mod.md}          | 54 ++++++++-------
+ .../prompts/{ => core}/compiler/eval/modules.md    |  2 +-
+ .../compiler/eval/observation/content.md           |  2 +-
+ .../compiler/eval/observation/elements.md          |  2 +-
+ .../compiler/eval/observation/geometry.md          |  2 +-
+ .../{ => core}/compiler/eval/observation/math.md   |  2 +-
+ .../compiler/eval/observation/mod.md}              |  2 +-
+ .../{ => core}/compiler/eval/observation/page.md   |  2 +-
+ .../{ => core}/compiler/eval/observation/style.md  |  2 +-
+ .../{ => core}/compiler/eval/observation/value.md  |  2 +-
+ .../compiler/eval/operators/arithmetic.md          | 10 +--
+ .../{ => core}/compiler/eval/operators/equality.md |  2 +-
+ .../compiler/eval/operators/error_formatting.md    |  2 +-
+ .../{ => core}/compiler/eval/operators/join.md     |  4 +-
+ .../compiler/eval/operators/mod.md}                | 14 ++--
+ .../{ => core}/compiler/eval/operators/ordering.md |  2 +-
+ 00_nucleo/prompts/{ => core}/compiler/eval/repr.md |  4 +-
+ .../{ => core}/compiler/eval/repr/content.md       |  4 +-
+ .../{ => core}/compiler/eval/repr/format.md        |  4 +-
+ .../prompts/{ => core}/compiler/eval/repr/math.md  |  4 +-
+ .../{ => core}/compiler/eval/repr/measure.md       |  4 +-
+ .../prompts/{ => core}/compiler/eval/repr/paint.md |  4 +-
+ .../{ => core}/compiler/eval/repr/selector.md      |  4 +-
+ .../prompts/{ => core}/compiler/eval/repr/value.md |  4 +-
+ .../prompts/{ => core}/compiler/eval/rules.md      | 14 ++--
+ .../{ => core}/compiler/eval/rules/apply.md        |  8 +--
+ .../{ => core}/compiler/eval/rules/intercept.md    |  4 +-
+ .../{ => core}/compiler/eval/rules/math_set.md     |  4 +-
+ .../{ => core}/compiler/eval/rules/outline.md      |  4 +-
+ .../prompts/{ => core}/compiler/eval/rules/pdf.md  |  4 +-
+ .../{ => core}/compiler/eval/rules/realize.md      |  4 +-
+ .../prompts/{ => core}/compiler/eval/rules/set.md  |  6 +-
+ .../{ => core}/compiler/eval/rules/set/page.md     |  4 +-
+ .../{ => core}/compiler/eval/rules/set/text.md     |  4 +-
+ .../prompts/{ => core}/compiler/eval/rules/show.md |  6 +-
+ .../{ => core}/compiler/eval/rules/textual.md      |  2 +-
+ .../compiler/eval/rules/textual/matching.md        |  4 +-
+ .../eval/rules/textual/matching/projection.md      |  2 +-
+ .../compiler/eval/rules/textual/space.md           |  2 +-
+ .../{ => core}/compiler/eval/selector_matching.md  |  8 +--
+ .../compiler/eval/selector_matching/textual.md     |  2 +-
+ .../compiler/eval/show_rule_termination.md         |  4 +-
+ .../{ => core}/compiler/eval/syntax_diagnostics.md |  2 +-
+ .../prompts/{ => core}/compiler/eval/table.md      |  2 +-
+ .../prompts/{ => core}/compiler/eval/tests.md      | 12 ++--
+ .../prompts/{ => core}/compiler/introspect.md      | 26 ++++----
+ .../{ => core}/compiler/introspect/bibliography.md |  4 +-
+ .../compiler/introspect/classification.md          |  4 +-
+ .../{ => core}/compiler/introspect/convergence.md  |  6 +-
+ .../{ => core}/compiler/introspect/entrypoints.md  |  4 +-
+ .../compiler/introspect/extract_payload.md         |  6 +-
+ .../{ => core}/compiler/introspect/fixpoint.md     | 10 +--
+ .../{ => core}/compiler/introspect/from_tags.md    |  8 +--
+ .../introspect/from_tags/counter_updates.md        |  2 +-
+ .../compiler/introspect/from_tags/displays.md      |  2 +-
+ .../compiler/introspect/from_tags/equations.md     |  2 +-
+ .../compiler/introspect/from_tags/headings.md      |  2 +-
+ .../compiler/introspect/from_tags/state_updates.md |  2 +-
+ .../{ => core}/compiler/introspect/heading.md      |  8 +--
+ .../{ => core}/compiler/introspect/labelled.md     |  6 +-
+ .../{ => core}/compiler/introspect/locatable.md    |  2 +-
+ .../compiler/introspect/materialize_time.md        |  4 +-
+ .../compiler/introspect/outline_entries.md         |  4 +-
+ .../{ => core}/compiler/introspect/parent_index.md |  4 +-
+ .../{ => core}/compiler/introspect/populate.md     |  4 +-
+ .../{ => core}/compiler/introspect/queries.md      |  4 +-
+ .../prompts/{ => core}/compiler/introspect/walk.md |  6 +-
+ .../compiler/lang/equation_supplement.md           |  2 +-
+ .../{ => core}/compiler/lang/figure_supplement.md  |  2 +-
+ .../{ => core}/compiler/lang/heading_supplement.md |  2 +-
+ .../lang.md => core/compiler/lang/mod.md}          | 12 ++--
+ .../{ => core}/compiler/lang/outline_title.md      |  2 +-
+ .../prompts/{ => core}/compiler/lang/quotes.md     |  4 +-
+ .../prompts/{ => core}/compiler/layout/align.md    |  6 +-
+ .../prompts/{ => core}/compiler/layout/bib_csl.md  |  6 +-
+ .../{ => core}/compiler/layout/bib_csl/plan.md     |  2 +-
+ .../{ => core}/compiler/layout/bibliography.md     | 10 +--
+ .../{ => core}/compiler/layout/bidi_origin.md      |  2 +-
+ .../prompts/{ => core}/compiler/layout/block.md    | 10 +--
+ .../prompts/{ => core}/compiler/layout/boxed.md    | 12 ++--
+ .../{ => core}/compiler/layout/break_selection.md  |  4 +-
+ .../{ => core}/compiler/layout/cell_tail_commit.md | 10 +--
+ .../{ => core}/compiler/layout/checkpoint.md       |  2 +-
+ .../prompts/{ => core}/compiler/layout/cite.md     |  4 +-
+ .../prompts/{ => core}/compiler/layout/colbreak.md |  4 +-
+ .../{compiler => core/compiler/layout}/columns.md  | 14 ++--
+ .../{ => core}/compiler/layout/columns/flow.md     |  2 +-
+ .../compiler/layout/columns/segmented.md           |  2 +-
+ .../compiler/layout/columns/transitions.md         |  2 +-
+ .../{ => core}/compiler/layout/context_block.md    |  6 +-
+ .../{ => core}/compiler/layout/convergence.md      |  4 +-
+ .../{ => core}/compiler/layout/counter_display.md  |  4 +-
+ .../compiler/layout/counter_display_callback.md    |  4 +-
+ .../compiler/layout/counters.md}                   |  6 +-
+ .../prompts/{ => core}/compiler/layout/cursor.md   | 16 ++---
+ .../prompts/{ => core}/compiler/layout/curve.md    |  4 +-
+ .../{ => core}/compiler/layout/decorations.md      |  4 +-
+ .../prompts/{ => core}/compiler/layout/divider.md  |  4 +-
+ .../prompts/{ => core}/compiler/layout/dynamic.md  |  4 +-
+ .../{ => core}/compiler/layout/enum_item.md        |  6 +-
+ .../prompts/{ => core}/compiler/layout/equation.md | 12 ++--
+ .../compiler/layout/figure.md}                     |  4 +-
+ .../prompts/{ => core}/compiler/layout/finish.md   |  2 +-
+ .../{ => core}/compiler/layout/flow_suffix.md      |  6 +-
+ .../prompts/{ => core}/compiler/layout/flush.md    |  6 +-
+ .../prompts/{ => core}/compiler/layout/footnote.md |  6 +-
+ .../compiler/layout/footnote_flush.md}             |  8 +--
+ .../{ => core}/compiler/layout/format_options.md   |  4 +-
+ .../prompts/{ => core}/compiler/layout/grid.md     | 10 +--
+ .../{ => core}/compiler/layout/grid/borders.md     |  2 +-
+ .../{ => core}/compiler/layout/grid/cell_body.md   |  4 +-
+ .../compiler/layout/grid/cell_emission.md          |  4 +-
+ .../compiler/layout/grid/measurement_cache.md      |  2 +-
+ .../{ => core}/compiler/layout/grid/row_groups.md  |  2 +-
+ .../compiler/layout/grid/row_pagination.md         |  2 +-
+ .../{ => core}/compiler/layout/grid/rules.md       |  2 +-
+ .../{ => core}/compiler/layout/grid/tracks.md      |  6 +-
+ .../{ => core}/compiler/layout/grid_cell.md        |  6 +-
+ .../{ => core}/compiler/layout/grid_footer.md      |  6 +-
+ .../{ => core}/compiler/layout/grid_header.md      |  6 +-
+ .../{ => core}/compiler/layout/grid_placement.md   |  4 +-
+ .../prompts/{ => core}/compiler/layout/h_space.md  |  6 +-
+ .../prompts/{ => core}/compiler/layout/heading.md  |  6 +-
+ .../prompts/{ => core}/compiler/layout/helpers.md  | 10 +--
+ .../prompts/{ => core}/compiler/layout/hide.md     |  4 +-
+ .../{ => core}/compiler/layout/html_frame.md       |  8 +--
+ .../{ => core}/compiler/layout/hyphenation.md      |  4 +-
+ .../compiler/layout/image.md}                      |  8 +--
+ .../{ => core}/compiler/layout/line_commit.md      | 10 +--
+ .../{ => core}/compiler/layout/linebreak.md        |  6 +-
+ .../prompts/{ => core}/compiler/layout/link.md     | 10 +--
+ .../{ => core}/compiler/layout/link_capture.md     |  2 +-
+ .../{ => core}/compiler/layout/list_item.md        |  6 +-
+ .../{ => core}/compiler/layout/measurement.md      |  6 +-
+ .../prompts/{ => core}/compiler/layout/metrics.md  | 10 +--
+ .../layout.md => core/compiler/layout/mod.md}      | 30 ++++-----
+ .../compiler/layout/outline.md}                    |  6 +-
+ .../{ => core}/compiler/layout/outline_entry.md    |  6 +-
+ .../prompts/{ => core}/compiler/layout/pad.md      |  4 +-
+ .../{ => core}/compiler/layout/page_canvas.md      |  4 +-
+ .../{ => core}/compiler/layout/page_commit.md      |  8 +--
+ .../{ => core}/compiler/layout/page_geometry.md    |  6 +-
+ .../prompts/{ => core}/compiler/layout/page_run.md |  6 +-
+ .../{ => core}/compiler/layout/page_running.md     |  4 +-
+ .../{ => core}/compiler/layout/pagebreak.md        |  4 +-
+ .../compiler/layout/par_line_callbacks.md          |  6 +-
+ .../{ => core}/compiler/layout/paragraph.md        |  4 +-
+ .../{ => core}/compiler/layout/paragraph_emit.md   |  4 +-
+ .../{ => core}/compiler/layout/paragraph_hyphen.md |  4 +-
+ .../{ => core}/compiler/layout/paragraph_indent.md |  2 +-
+ .../compiler/layout/paragraph_pagination.md        |  2 +-
+ .../{ => core}/compiler/layout/paragraph_plan.md   |  2 +-
+ .../compiler/layout/paragraph_prepare.md           |  4 +-
+ .../{ => core}/compiler/layout/paragraph_select.md |  2 +-
+ .../compiler/layout/paragraph_select_bounded.md    |  2 +-
+ .../paragraph_select_bounded/justice_overflow.md}  |  2 +-
+ .../paragraph_select_bounded/vanilla_lower.md}     |  2 +-
+ .../compiler/layout/paragraph_select_forward.md    |  2 +-
+ .../prompts/{ => core}/compiler/layout/parbreak.md |  6 +-
+ .../{ => core}/compiler/layout/pdf_artifact.md     |  4 +-
+ .../{ => core}/compiler/layout/pdf_attach.md       |  4 +-
+ .../prompts/{ => core}/compiler/layout/place.md    | 12 ++--
+ .../{ => core}/compiler/layout/placement.md        | 12 ++--
+ .../{ => core}/compiler/layout/position_marker.md  |  2 +-
+ .../prompts/{ => core}/compiler/layout/quote.md    |  4 +-
+ .../compiler/layout/raw.md}                        |  4 +-
+ .../prompts/{ => core}/compiler/layout/realized.md |  2 +-
+ .../compiler/layout/references.md}                 |  6 +-
+ .../{ => core}/compiler/layout/region_progress.md  |  2 +-
+ .../prompts/{ => core}/compiler/layout/repeat.md   |  6 +-
+ .../prompts/{ => core}/compiler/layout/sequence.md |  8 +--
+ .../layout/sequence/fractional_preflight.md        |  2 +-
+ .../compiler/layout/sequence/inline_prefix.md      |  2 +-
+ .../compiler/layout/set_page.md}                   |  2 +-
+ .../compiler/layout/shape.md}                      |  8 +--
+ .../prompts/{ => core}/compiler/layout/slicing.md  |  8 +--
+ .../{ => core}/compiler/layout/smartquote.md       |  4 +-
+ .../prompts/{ => core}/compiler/layout/space.md    |  4 +-
+ .../prompts/{ => core}/compiler/layout/stack.md    | 10 +--
+ .../{ => core}/compiler/layout/state_display.md    |  4 +-
+ .../{ => core}/compiler/layout/style_scope.md      |  6 +-
+ .../{ => core}/compiler/layout/sub_frame.md        | 10 +--
+ .../prompts/{ => core}/compiler/layout/table.md    |  6 +-
+ .../{ => core}/compiler/layout/table_cell.md       |  6 +-
+ .../{ => core}/compiler/layout/table_footer.md     |  6 +-
+ .../{ => core}/compiler/layout/table_header.md     |  4 +-
+ .../{ => core}/compiler/layout/term_item.md        |  4 +-
+ .../prompts/{ => core}/compiler/layout/terms.md    |  6 +-
+ .../prompts/{ => core}/compiler/layout/tests.md    | 14 ++--
+ .../prompts/{ => core}/compiler/layout/text.md     |  8 +--
+ .../{ => core}/compiler/layout/text/style.md       |  2 +-
+ .../{ => core}/compiler/layout/text_baseline.md    |  2 +-
+ .../{ => core}/compiler/layout/text_measure.md     |  2 +-
+ .../{ => core}/compiler/layout/text_tracking.md    |  2 +-
+ .../prompts/{ => core}/compiler/layout/tiling.md   |  4 +-
+ .../prompts/{ => core}/compiler/layout/title.md    |  4 +-
+ .../{ => core}/compiler/layout/transform.md        | 10 +--
+ .../prompts/{ => core}/compiler/layout/v_space.md  |  4 +-
+ .../{ => core}/compiler/layout/vanilla_defaults.md |  4 +-
+ .../{ => core}/compiler/layout/word_layout.md      |  2 +-
+ .../{ => core}/compiler/layout/word_segment.md     |  6 +-
+ .../prompts/{ => core}/compiler/lexer/code.md      |  2 +-
+ .../prompts/{ => core}/compiler/lexer/markup.md    |  2 +-
+ .../prompts/{ => core}/compiler/lexer/math.md      |  2 +-
+ 00_nucleo/prompts/{ => core}/compiler/lexer/mod.md | 10 +--
+ .../{compiler => core/compiler/lexer}/scanner.md   |  2 +-
+ .../{ => core}/compiler/math/layout/accent.md      |  4 +-
+ .../{ => core}/compiler/math/layout/assembly.md    |  2 +-
+ .../{ => core}/compiler/math/layout/attach.md      |  2 +-
+ .../{ => core}/compiler/math/layout/callbacks.md   |  2 +-
+ .../{ => core}/compiler/math/layout/cancel.md      |  4 +-
+ .../{ => core}/compiler/math/layout/cases.md       |  2 +-
+ .../{ => core}/compiler/math/layout/delimited.md   |  2 +-
+ .../compiler/math/layout/external_bridge.md        |  2 +-
+ .../{ => core}/compiler/math/layout/frac.md        |  4 +-
+ .../compiler/math/layout/grid_composition.md       |  2 +-
+ .../compiler/math/layout/large_operator.md         |  2 +-
+ .../compiler/math/layout/line_decorations.md       |  2 +-
+ .../math/layout/math_accent_layout_tests.md}       | 10 +--
+ .../math/layout/math_cases_layout_tests.md}        | 12 ++--
+ .../math/layout/math_frac_layout_tests.md}         |  8 +--
+ .../math/layout/math_limits_layout_tests.md}       | 10 +--
+ .../math/layout/math_matrix_layout_tests.md}       | 16 ++---
+ .../math/layout/math_root_layout_tests.md}         |  8 +--
+ .../{ => core}/compiler/math/layout/matrix.md      |  2 +-
+ .../_comum.md => core/compiler/math/layout/mod.md} | 50 +++++++-------
+ .../compiler/math/layout/node_wrappers.md          |  2 +-
+ .../prompts/{ => core}/compiler/math/layout/op.md  |  6 +-
+ .../{ => core}/compiler/math/layout/root.md        |  2 +-
+ .../compiler/math/layout/sequence_composition.md   |  2 +-
+ .../math/layout/source_transparency_tests.md}      |  2 +-
+ .../{ => core}/compiler/math/layout/spacing.md     |  2 +-
+ .../{ => core}/compiler/math/layout/stretch.md     |  4 +-
+ .../{ => core}/compiler/math/layout/stretchy.md    |  4 +-
+ .../compiler/math/layout/style_transform.md        |  2 +-
+ .../{ => core}/compiler/math/layout/tests.md       |  2 +-
+ .../{ => core}/compiler/math/layout/underline.md   |  2 +-
+ .../{ => core}/compiler/math/layout/underover.md   |  2 +-
+ .../prompts/{ => core}/compiler/math/layout/vec.md |  2 +-
+ 00_nucleo/prompts/{ => core}/compiler/math/mod.md  |  6 +-
+ .../prompts/{ => core}/compiler/math/symbols.md    |  6 +-
+ 00_nucleo/prompts/{ => core}/compiler/mod.md       | 12 ++--
+ .../prompts/{ => core}/compiler/parse/code.md      |  4 +-
+ .../prompts/{ => core}/compiler/parse/markup.md    |  4 +-
+ .../prompts/{ => core}/compiler/parse/math.md      |  4 +-
+ .../parse.md => core/compiler/parse/mod.md}        |  4 +-
+ .../prompts/{ => core}/compiler/parse/parser.md    |  2 +-
+ .../compiler/parse/parser/checkpoints.md           |  2 +-
+ .../compiler/parse/parser/diagnostics.md           |  2 +-
+ .../{ => core}/compiler/parse/parser/state.md      |  2 +-
+ .../prompts/{ => core}/compiler/parse/patterns.md  |  4 +-
+ .../prompts/{ => core}/compiler/parse/rules.md     |  4 +-
+ .../{ => core}/compiler/realize/bare_math.md       |  4 +-
+ .../compiler/realize/context_occurrences.md        |  2 +-
+ .../prompts/{ => core}/compiler/realize/mod.md     |  8 +--
+ .../prompts/{ => core}/compiler/realize/recipes.md |  2 +-
+ .../{ => core}/compiler/realize/sequences.md       |  2 +-
+ .../{ => core}/compiler/realize/table_cells.md     |  2 +-
+ 00_nucleo/prompts/{ => core}/compiler/scopes.md    |  4 +-
+ .../prompts/{ => core}/compiler/stdlib/assert.md   |  4 +-
+ .../prompts/{ => core}/compiler/stdlib/calc.md     |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/calc/abs.md |  4 +-
+ .../compiler/stdlib/calc/combinatorics.md          |  4 +-
+ .../prompts/{ => core}/compiler/stdlib/calc/erf.md |  4 +-
+ .../{ => core}/compiler/stdlib/calc/extrema.md     |  4 +-
+ .../{ => core}/compiler/stdlib/calc/hyperbolic.md  |  6 +-
+ .../{ => core}/compiler/stdlib/calc/integer.md     |  4 +-
+ .../{ => core}/compiler/stdlib/calc/logarithms.md  |  6 +-
+ .../{ => core}/compiler/stdlib/calc/norm.md        |  4 +-
+ .../{ => core}/compiler/stdlib/calc/numeric.md     |  4 +-
+ .../{ => core}/compiler/stdlib/calc/power.md       |  4 +-
+ .../{ => core}/compiler/stdlib/calc/round.md       |  4 +-
+ .../{ => core}/compiler/stdlib/calc/trig.md        |  6 +-
+ .../{ => core}/compiler/stdlib/collections.md      |  2 +-
+ .../compiler/stdlib/collections/arguments.md       |  4 +-
+ .../compiler/stdlib/collections/array_access.md    |  4 +-
+ .../compiler/stdlib/collections/array_aggregate.md |  4 +-
+ .../compiler/stdlib/collections/array_predicate.md |  4 +-
+ .../compiler/stdlib/collections/array_sequence.md  |  4 +-
+ .../compiler/stdlib/collections/bytes.md           |  4 +-
+ .../compiler/stdlib/collections/dictionary.md      |  4 +-
+ .../compiler/stdlib/collections/str_access.md      |  4 +-
+ .../compiler/stdlib/collections/str_search.md      |  4 +-
+ .../compiler/stdlib/collections/str_transform.md   |  4 +-
+ .../compiler/stdlib/collections/validation.md      |  4 +-
+ .../prompts/{ => core}/compiler/stdlib/color.md    |  2 +-
+ .../{ => core}/compiler/stdlib/color/alpha.md      |  4 +-
+ .../{ => core}/compiler/stdlib/color/arguments.md  |  4 +-
+ .../{ => core}/compiler/stdlib/color/inspect.md    |  4 +-
+ .../{ => core}/compiler/stdlib/color/light.md      |  4 +-
+ .../{ => core}/compiler/stdlib/color/mix.md        |  4 +-
+ .../{ => core}/compiler/stdlib/color/palette.md    |  4 +-
+ .../{ => core}/compiler/stdlib/color/spot.md       |  4 +-
+ .../{ => core}/compiler/stdlib/color/transform.md  |  4 +-
+ .../prompts/{ => core}/compiler/stdlib/context.md  |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/counter.md  |  6 +-
+ .../{ => core}/compiler/stdlib/counter/display.md  |  2 +-
+ .../compiler/stdlib/counter/filtered_reads.md      |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/emoji.md    |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/eval.md     |  4 +-
+ .../{ => core}/compiler/stdlib/figure_image.md     |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/format.md   | 14 ++--
+ .../{ => core}/compiler/stdlib/foundations/cast.md |  2 +-
+ .../compiler/stdlib/foundations/color.md           |  6 +-
+ .../compiler/stdlib/foundations/datetime.md        |  4 +-
+ .../compiler/stdlib/foundations/float.md           |  4 +-
+ .../{ => core}/compiler/stdlib/foundations/int.md  |  4 +-
+ .../compiler/stdlib/foundations/mod.md}            |  4 +-
+ .../{ => core}/compiler/stdlib/foundations/path.md |  2 +-
+ .../compiler/stdlib/foundations/query.md           |  6 +-
+ .../stdlib/foundations/regex_constructor.md}       |  2 +-
+ .../{ => core}/compiler/stdlib/foundations/repr.md |  4 +-
+ .../compiler/stdlib/foundations/selector.md        |  2 +-
+ .../{ => core}/compiler/stdlib/foundations/str.md  |  4 +-
+ .../{ => core}/compiler/stdlib/foundations/ty.md   |  2 +-
+ .../{ => core}/compiler/stdlib/gradients.md        |  6 +-
+ .../compiler/stdlib/gradients/accessors.md         |  4 +-
+ .../{ => core}/compiler/stdlib/gradients/conic.md  |  4 +-
+ .../compiler/stdlib/gradients/dispatch.md          |  4 +-
+ .../{ => core}/compiler/stdlib/gradients/linear.md |  4 +-
+ .../compiler/stdlib/gradients/modifiers.md         |  4 +-
+ .../compiler/stdlib/gradients/parsing.md           |  4 +-
+ .../{ => core}/compiler/stdlib/gradients/radial.md |  4 +-
+ .../compiler/stdlib/gradients/sampling.md          |  4 +-
+ .../prompts/{ => core}/compiler/stdlib/html.md     | 10 ++-
+ .../{ => core}/compiler/stdlib/html/attr_cast.md   |  4 +-
+ .../{ => core}/compiler/stdlib/html/attr_specs.md  |  4 +-
+ .../{ => core}/compiler/stdlib/html/attr_values.md |  4 +-
+ .../{ => core}/compiler/stdlib/html/elem.md        |  4 +-
+ .../{ => core}/compiler/stdlib/html/frame.md       |  4 +-
+ .../compiler/stdlib/html/global_attrs.md           |  4 +-
+ .../stdlib/html/html_constructor_surface_tests.md} |  8 +--
+ .../compiler/stdlib/html/html_frame_tests.md}      |  6 +-
+ .../{ => core}/compiler/stdlib/html/namespace.md   |  4 +-
+ .../{ => core}/compiler/stdlib/html/tag_attrs.md   |  4 +-
+ .../compiler/stdlib/html/typed_element.md          |  4 +-
+ .../{ => core}/compiler/stdlib/html/typed_tags.md  |  4 +-
+ .../prompts/{ => core}/compiler/stdlib/label.md    |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/layout.md   |  6 +-
+ .../{ => core}/compiler/stdlib/layout/block.md     |  4 +-
+ .../{ => core}/compiler/stdlib/layout/box_elem.md  |  4 +-
+ .../{ => core}/compiler/stdlib/layout/casting.md   |  6 +-
+ .../{ => core}/compiler/stdlib/layout/columns.md   |  4 +-
+ .../{ => core}/compiler/stdlib/layout/grid.md      |  4 +-
+ .../{ => core}/compiler/stdlib/layout/hide.md      |  4 +-
+ .../{ => core}/compiler/stdlib/layout/measure.md   |  4 +-
+ .../{ => core}/compiler/stdlib/layout/pad.md       |  4 +-
+ .../{ => core}/compiler/stdlib/layout/page.md      |  4 +-
+ .../{ => core}/compiler/stdlib/layout/pagebreak.md |  4 +-
+ .../{ => core}/compiler/stdlib/layout/place.md     |  4 +-
+ .../{ => core}/compiler/stdlib/layout/repeat.md    |  4 +-
+ .../{ => core}/compiler/stdlib/layout/spacing.md   |  4 +-
+ .../{ => core}/compiler/stdlib/layout/stack.md     |  4 +-
+ .../{ => core}/compiler/stdlib/layout/stroke.md    |  6 +-
+ .../prompts/{ => core}/compiler/stdlib/loading.md  |  4 +-
+ .../{ => core}/compiler/stdlib/loading/cbor.md     |  4 +-
+ .../{ => core}/compiler/stdlib/loading/csv.md      |  4 +-
+ .../{ => core}/compiler/stdlib/loading/encoding.md |  4 +-
+ .../{ => core}/compiler/stdlib/loading/json.md     |  4 +-
+ .../compiler/stdlib/loading/json_encode.md         |  4 +-
+ .../{ => core}/compiler/stdlib/loading/read.md     |  4 +-
+ .../{ => core}/compiler/stdlib/loading/toml.md     |  4 +-
+ .../compiler/stdlib/loading/toml_encode.md         |  4 +-
+ .../{ => core}/compiler/stdlib/loading/xml.md      |  4 +-
+ .../{ => core}/compiler/stdlib/loading/yaml.md     |  4 +-
+ .../compiler/stdlib/loading/yaml_encode.md         |  4 +-
+ .../{ => core}/compiler/stdlib/math_style.md       |  2 +-
+ .../_comum.md => core/compiler/stdlib/mod.md}      |  8 +--
+ .../{ => core}/compiler/stdlib/numbering.md        |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/panic.md    |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/pdf.md      |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/plugin.md   |  2 +-
+ .../compiler/stdlib/primitives_constructors.md}    |  2 +-
+ .../stdlib/primitives_constructors}/array.md       |  2 +-
+ .../stdlib/primitives_constructors}/decimal.md     |  2 +-
+ .../stdlib/primitives_constructors}/duration.md    |  2 +-
+ .../stdlib/primitives_constructors}/version.md     |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/ref.md      |  2 +-
+ .../compiler/stdlib/registry/contextual.md         |  2 +-
+ .../{ => core}/compiler/stdlib/registry/data.md    |  2 +-
+ .../compiler/stdlib/registry/diagnostics.md        |  2 +-
+ .../compiler/stdlib/registry/figure_image.md       |  2 +-
+ .../{ => core}/compiler/stdlib/registry/formats.md |  2 +-
+ .../compiler/stdlib/registry/foundations.md        |  2 +-
+ .../{ => core}/compiler/stdlib/registry/layout.md  |  2 +-
+ .../{ => core}/compiler/stdlib/registry/math.md    |  2 +-
+ .../compiler/stdlib/registry/microbenchmarks.md    |  2 +-
+ .../{ => core}/compiler/stdlib/registry/mod.md     |  2 +-
+ .../{ => core}/compiler/stdlib/registry/modules.md |  2 +-
+ .../{ => core}/compiler/stdlib/registry/shapes.md  |  2 +-
+ .../compiler/stdlib/registry/structural.md         |  2 +-
+ .../compiler/stdlib/registry/table_grid.md         |  2 +-
+ .../{ => core}/compiler/stdlib/registry/tests.md   |  2 +-
+ .../{ => core}/compiler/stdlib/registry/text.md    |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/shapes.md   |  4 +-
+ .../compiler/stdlib/shapes/coordinates.md          |  4 +-
+ .../{ => core}/compiler/stdlib/shapes/curve.md     |  4 +-
+ .../{ => core}/compiler/stdlib/shapes/ellipse.md   |  4 +-
+ .../{ => core}/compiler/stdlib/shapes/line.md      |  4 +-
+ .../{ => core}/compiler/stdlib/shapes/paint.md     |  4 +-
+ .../{ => core}/compiler/stdlib/shapes/polygon.md   |  4 +-
+ .../{ => core}/compiler/stdlib/shapes/rect.md      |  4 +-
+ .../prompts/{ => core}/compiler/stdlib/state.md    |  4 +-
+ .../{ => core}/compiler/stdlib/state/resolve.md    |  2 +-
+ .../compiler/stdlib/structural/bibliography.md     |  2 +-
+ .../compiler/stdlib/structural/divider.md          |  2 +-
+ .../compiler/stdlib/structural/document.md         |  2 +-
+ .../compiler/stdlib/structural/footnote.md         |  6 +-
+ .../compiler/stdlib/structural/heading.md          |  2 +-
+ .../{ => core}/compiler/stdlib/structural/lists.md |  6 +-
+ .../compiler/stdlib/structural/markup.md           |  2 +-
+ .../{ => core}/compiler/stdlib/structural/math.md  | 20 +++---
+ .../compiler/stdlib/structural/math/abs.md         |  2 +-
+ .../compiler/stdlib/structural/math/accent.md      |  2 +-
+ .../compiler/stdlib/structural/math/annotations.md |  2 +-
+ .../compiler/stdlib/structural/math/attach.md      |  2 +-
+ .../compiler/stdlib/structural/math/binom.md       |  2 +-
+ .../compiler/stdlib/structural/math/cancel.md      |  2 +-
+ .../compiler/stdlib/structural/math/cases.md       |  2 +-
+ .../compiler/stdlib/structural/math/casts.md       |  2 +-
+ .../compiler/stdlib/structural/math/class.md       |  2 +-
+ .../compiler/stdlib/structural/math/equation.md    |  2 +-
+ .../compiler/stdlib/structural/math/frac.md        |  2 +-
+ .../compiler/stdlib/structural/math/limits.md      |  2 +-
+ .../compiler/stdlib/structural/math/lr.md          |  2 +-
+ .../stdlib/structural/math/math_frac_tests.md}     |  6 +-
+ .../stdlib/structural/math/math_limits_tests.md    | 17 +++++
+ .../stdlib/structural/math/math_root_tests.md}     |  6 +-
+ .../compiler/stdlib/structural/math/matrix.md      |  2 +-
+ .../compiler/stdlib/structural/math/mid.md         |  2 +-
+ .../compiler/stdlib/structural/math/norm.md        |  2 +-
+ .../compiler/stdlib/structural/math/op.md          |  2 +-
+ .../compiler/stdlib/structural/math/overline.md    |  2 +-
+ .../compiler/stdlib/structural/math/primes.md      |  2 +-
+ .../compiler/stdlib/structural/math/root.md        |  2 +-
+ .../compiler/stdlib/structural/math/round.md       |  2 +-
+ .../compiler/stdlib/structural/math/stretch.md     |  2 +-
+ .../compiler/stdlib/structural/math/underline.md   |  2 +-
+ .../compiler/stdlib/structural/math/underover.md   |  2 +-
+ .../compiler/stdlib/structural/math/vector.md      |  2 +-
+ .../compiler/stdlib/structural/math_abs_tests.md}  |  8 +--
+ .../stdlib/structural/math_accent_tests.md}        |  6 +-
+ .../stdlib/structural/math_cases_tests.md}         |  6 +-
+ .../compiler/stdlib/structural/math_lr_tests.md}   |  6 +-
+ .../stdlib/structural/math_matrix_tests.md}        |  6 +-
+ .../compiler/stdlib/structural/math_mid_tests.md}  |  6 +-
+ .../compiler/stdlib/structural/math_norm_tests.md} |  8 +--
+ .../stdlib/structural/math_overbrace_tests.md}     |  6 +-
+ .../stdlib/structural/math_overbracket_tests.md}   |  6 +-
+ .../stdlib/structural/math_overline_tests.md}      |  6 +-
+ .../stdlib/structural/math_overparen_tests.md}     |  6 +-
+ .../stdlib/structural/math_overshell_tests.md}     |  6 +-
+ .../stdlib/structural/math_primes_tests.md}        |  6 +-
+ .../stdlib/structural/math_round_tests.md}         |  8 +--
+ .../stdlib/structural/math_stretch_tests.md}       |  6 +-
+ .../stdlib/structural/math_underbrace_tests.md}    |  6 +-
+ .../stdlib/structural/math_underbracket_tests.md}  |  6 +-
+ .../stdlib/structural/math_underparen_tests.md}    |  6 +-
+ .../stdlib/structural/math_undershell_tests.md}    |  6 +-
+ .../compiler/stdlib/structural/mod.md}             | 10 ++-
+ .../compiler/stdlib/structural/outline.md          |  8 +--
+ .../{ => core}/compiler/stdlib/structural/par.md   |  6 +-
+ .../{ => core}/compiler/stdlib/structural/quote.md |  2 +-
+ .../compiler/stdlib/structural/table_grid.md       |  4 +-
+ .../compiler/stdlib/structural/table_lines.md      |  2 +-
+ .../{ => core}/compiler/stdlib/structural/title.md |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/sym.md      |  2 +-
+ .../prompts/{ => core}/compiler/stdlib/sys.md      |  4 +-
+ .../{ => core}/compiler/stdlib/tests/arguments.md  |  2 +-
+ .../{ => core}/compiler/stdlib/tests/assertions.md |  2 +-
+ .../compiler/stdlib/tests/bibliography.md          |  2 +-
+ .../{ => core}/compiler/stdlib/tests/calc.md       |  2 +-
+ .../{ => core}/compiler/stdlib/tests/color.md      |  2 +-
+ .../{ => core}/compiler/stdlib/tests/contextual.md |  2 +-
+ .../{ => core}/compiler/stdlib/tests/eval.md       |  2 +-
+ .../compiler/stdlib/tests/figure_image.md          |  2 +-
+ .../{ => core}/compiler/stdlib/tests/footnote.md   |  2 +-
+ .../compiler/stdlib/tests/foundations.md           |  2 +-
+ .../{ => core}/compiler/stdlib/tests/gradients.md  |  2 +-
+ .../compiler/stdlib/tests/introspection.md         |  2 +-
+ .../compiler/stdlib/tests/layout_containers.md     |  2 +-
+ .../compiler/stdlib/tests/layout_context.md        |  2 +-
+ .../compiler/stdlib/tests/layout_spacing.md        |  2 +-
+ .../{ => core}/compiler/stdlib/tests/math.md       |  2 +-
+ .../{ => core}/compiler/stdlib/tests/mod.md        |  2 +-
+ .../{ => core}/compiler/stdlib/tests/shapes.md     |  4 +-
+ .../{ => core}/compiler/stdlib/tests/stroke.md     |  4 +-
+ .../{ => core}/compiler/stdlib/tests/support.md    |  2 +-
+ .../{ => core}/compiler/stdlib/tests/symbols.md    |  2 +-
+ .../{ => core}/compiler/stdlib/tests/table_grid.md |  2 +-
+ .../{ => core}/compiler/stdlib/tests/text.md       |  2 +-
+ .../{ => core}/compiler/stdlib/tests/transforms.md |  2 +-
+ .../{ => core}/compiler/stdlib/text/case.md        |  2 +-
+ .../{ => core}/compiler/stdlib/text/constructor.md |  2 +-
+ .../{ => core}/compiler/stdlib/text/deco.md        |  2 +-
+ .../{ => core}/compiler/stdlib/text/lorem.md       |  2 +-
+ .../text.md => core/compiler/stdlib/text/mod.md}   |  4 +-
+ .../{ => core}/compiler/stdlib/text/shift.md       |  4 +-
+ .../{ => core}/compiler/stdlib/text/smallcaps.md   |  4 +-
+ .../{ => core}/compiler/stdlib/text/smartquote.md  |  2 +-
+ .../{ => core}/compiler/stdlib/transforms.md       |  6 +-
+ .../compiler/stdlib/visualize.md}                  |  2 +-
+ .../prompts/{ => core}/compiler/text_costs.md      |  2 +-
+ .../prompts/{world.md => core/contracts/mod.md}    |  2 +-
+ .../{ => core}/contracts/package_downloader.md     |  2 +-
+ .../prompts/{ => core}/contracts/plugin_host.md    |  4 +-
+ 00_nucleo/prompts/{ => core}/contracts/world.md    |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/args.md      |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/ast/code.md  |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/ast/expr.md  |  4 +-
+ .../prompts/{ => core}/entities/ast/markup.md      |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/ast/math.md  |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/ast/mod.md   |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/axes.md      |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/bib_entry.md |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/bib_store.md |  2 +-
+ .../prompts/{ => core}/entities/bidi_context.md    |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/bytes.md     |  8 +--
+ .../prompts/{ => core}/entities/citation_form.md   |  2 +-
+ .../prompts/{ => core}/entities/citation_style.md  |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/color.md     |  2 +-
+ .../{ => core}/entities/color/adjustments.md       |  2 +-
+ .../{ => core}/entities/color/conversion.md        |  2 +-
+ .../prompts/{ => core}/entities/color/mixing.md    |  2 +-
+ .../{ => core}/entities/compiler_features.md       |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/content.md   |  2 +-
+ .../{ => core}/entities/content/construction.md    |  4 +-
+ .../entities/content/construction/layout.md        |  2 +-
+ .../entities/content/construction/math.md          |  2 +-
+ .../entities/content/construction/references.md    |  2 +-
+ .../entities/content/construction/tables.md        |  2 +-
+ .../{ => core}/entities/content/emptiness.md       |  2 +-
+ .../{ => core}/entities/content/equality.md        |  2 +-
+ .../prompts/{ => core}/entities/content/fields.md  |  2 +-
+ .../{ => core}/entities/content/identity.md        |  2 +-
+ .../{ => core}/entities/content/morphology.md      |  2 +-
+ .../entities/content/page_structure.md}            |  2 +-
+ .../entities/content/plain_text.md}                |  2 +-
+ .../entities/content/rust_hash.md}                 |  2 +-
+ .../{ => core}/entities/content/sequence.md        |  2 +-
+ .../prompts/{ => core}/entities/content/source.md  |  2 +-
+ .../entities/content/tests/mod.md}                 |  2 +-
+ .../entities/content/tests/morphology.md           |  2 +-
+ .../entities/content/tests/projections.md          |  2 +-
+ .../entities/content/tests/representation.md       |  2 +-
+ .../{ => core}/entities/content/tests/sequence.md  |  2 +-
+ .../{ => core}/entities/content/tests/traversal.md |  2 +-
+ .../{ => core}/entities/content/traversal.md       |  6 +-
+ .../prompts/{ => core}/entities/content_hash.md    |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/corners.md   |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/counter.md   |  2 +-
+ .../prompts/{ => core}/entities/counter_format.md  |  2 +-
+ .../{ => core}/entities/counter_registry.md        |  2 +-
+ .../{ => core}/entities/counter_state_legacy.md    |  2 +-
+ .../prompts/{ => core}/entities/counter_update.md  |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/decimal.md   |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/dir.md       |  2 +-
+ .../{ => core}/entities/document_format_options.md |  4 +-
+ .../prompts/{ => core}/entities/document_info.md   |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/duration.md  |  6 +-
+ .../prompts/{ => core}/entities/element_info.md    |  2 +-
+ .../prompts/{ => core}/entities/element_kind.md    |  2 +-
+ .../prompts/{ => core}/entities/element_payload.md |  2 +-
+ .../{ => core}/entities/element_registry.md        |  2 +-
+ .../prompts/{ => core}/entities/elements/align.md  |  6 +-
+ .../{ => core}/entities/elements/bibliography.md   |  2 +-
+ .../prompts/{ => core}/entities/elements/block.md  |  2 +-
+ .../prompts/{ => core}/entities/elements/boxed.md  |  2 +-
+ .../prompts/{ => core}/entities/elements/cite.md   |  2 +-
+ .../{ => core}/entities/elements/colbreak.md       |  4 +-
+ .../{ => core}/entities/elements/columns.md        |  4 +-
+ .../{ => core}/entities/elements/context_block.md  |  4 +-
+ .../entities/elements/counter_display.md           |  4 +-
+ .../entities/elements/counter_display_callback.md  |  2 +-
+ .../{ => core}/entities/elements/counter_update.md |  2 +-
+ .../prompts/{ => core}/entities/elements/curve.md  |  2 +-
+ .../{ => core}/entities/elements/divider.md        |  4 +-
+ .../{ => core}/entities/elements/dynamic.md        |  4 +-
+ .../prompts/{ => core}/entities/elements/emph.md   |  4 +-
+ .../{ => core}/entities/elements/enum_item.md      |  2 +-
+ .../{ => core}/entities/elements/equation.md       |  2 +-
+ .../prompts/{ => core}/entities/elements/figure.md |  2 +-
+ .../{ => core}/entities/elements/figure_caption.md |  2 +-
+ .../prompts/{ => core}/entities/elements/flush.md  | 12 ++--
+ .../{ => core}/entities/elements/footnote.md       |  2 +-
+ .../{ => core}/entities/elements/footnote_entry.md |  2 +-
+ .../prompts/{ => core}/entities/elements/grid.md   |  2 +-
+ .../{ => core}/entities/elements/grid_cell.md      |  2 +-
+ .../{ => core}/entities/elements/grid_footer.md    |  4 +-
+ .../{ => core}/entities/elements/grid_header.md    |  4 +-
+ .../{ => core}/entities/elements/grid_hline.md     |  2 +-
+ .../{ => core}/entities/elements/grid_vline.md     |  2 +-
+ .../{ => core}/entities/elements/h_space.md        |  2 +-
+ .../{ => core}/entities/elements/heading.md        |  2 +-
+ .../prompts/{ => core}/entities/elements/hide.md   |  4 +-
+ .../prompts/{ => core}/entities/elements/image.md  |  2 +-
+ .../prompts/{ => core}/entities/elements/label.md  |  2 +-
+ .../{ => core}/entities/elements/linebreak.md      |  6 +-
+ .../prompts/{ => core}/entities/elements/link.md   |  2 +-
+ .../{ => core}/entities/elements/list_item.md      |  2 +-
+ .../{ => core}/entities/elements/math_accent.md    |  2 +-
+ .../entities/elements/math_accent_tests.md}        |  4 +-
+ .../entities/elements/math_align_point.md          |  2 +-
+ .../{ => core}/entities/elements/math_attach.md    |  2 +-
+ .../{ => core}/entities/elements/math_cancel.md    |  2 +-
+ .../{ => core}/entities/elements/math_cases.md     |  2 +-
+ .../entities/elements/math_cases_tests.md}         |  4 +-
+ .../entities/elements/math_class_override.md       |  2 +-
+ .../{ => core}/entities/elements/math_delimited.md |  2 +-
+ .../{ => core}/entities/elements/math_frac.md      |  2 +-
+ .../entities/elements/math_limits_override.md      |  2 +-
+ .../{ => core}/entities/elements/math_matrix.md    |  4 +-
+ .../entities/elements/math_matrix_tests.md}        |  6 +-
+ .../{ => core}/entities/elements/math_op.md        |  2 +-
+ .../{ => core}/entities/elements/math_root.md      |  2 +-
+ .../{ => core}/entities/elements/math_stretch.md   |  2 +-
+ .../{ => core}/entities/elements/math_styled.md    |  2 +-
+ .../{ => core}/entities/elements/math_underline.md |  2 +-
+ .../{ => core}/entities/elements/math_underover.md |  2 +-
+ .../{ => core}/entities/elements/math_vec.md       |  2 +-
+ .../{ => core}/entities/elements/metadata.md       |  2 +-
+ .../_comum.md => core/entities/elements/mod.md}    | 14 ++--
+ .../{ => core}/entities/elements/outline.md        |  2 +-
+ .../{ => core}/entities/elements/outline_entry.md  |  2 +-
+ .../{ => core}/entities/elements/overline.md       |  2 +-
+ .../prompts/{ => core}/entities/elements/pad.md    |  4 +-
+ .../{ => core}/entities/elements/page_run.md       |  2 +-
+ .../{ => core}/entities/elements/pagebreak.md      |  2 +-
+ .../{ => core}/entities/elements/pdf_artifact.md   |  2 +-
+ .../{ => core}/entities/elements/pdf_attach.md     |  2 +-
+ .../prompts/{ => core}/entities/elements/place.md  |  2 +-
+ .../prompts/{ => core}/entities/elements/quote.md  |  2 +-
+ .../prompts/{ => core}/entities/elements/raw.md    |  2 +-
+ .../prompts/{ => core}/entities/elements/ref.md    |  2 +-
+ .../prompts/{ => core}/entities/elements/repeat.md |  2 +-
+ .../prompts/{ => core}/entities/elements/shape.md  |  2 +-
+ .../{ => core}/entities/elements/smartquote.md     |  2 +-
+ .../prompts/{ => core}/entities/elements/stack.md  |  2 +-
+ .../prompts/{ => core}/entities/elements/state.md  |  4 +-
+ .../{ => core}/entities/elements/state_display.md  |  4 +-
+ .../{ => core}/entities/elements/state_update.md   |  2 +-
+ .../prompts/{ => core}/entities/elements/strike.md |  2 +-
+ .../prompts/{ => core}/entities/elements/strong.md |  4 +-
+ .../prompts/{ => core}/entities/elements/table.md  |  6 +-
+ .../{ => core}/entities/elements/table_cell.md     |  6 +-
+ .../{ => core}/entities/elements/table_footer.md   |  4 +-
+ .../{ => core}/entities/elements/table_header.md   |  4 +-
+ .../{ => core}/entities/elements/table_hline.md    |  2 +-
+ .../{ => core}/entities/elements/table_vline.md    |  2 +-
+ .../{ => core}/entities/elements/term_item.md      |  2 +-
+ .../prompts/{ => core}/entities/elements/terms.md  |  4 +-
+ .../{ => core}/entities/elements/test_callout.md   |  2 +-
+ .../prompts/{ => core}/entities/elements/title.md  |  8 +--
+ .../{ => core}/entities/elements/transform.md      |  4 +-
+ .../{ => core}/entities/elements/underline.md      |  2 +-
+ .../{ => core}/entities/elements/v_space.md        |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/engine.md    |  2 +-
+ .../prompts/{ => core}/entities/enum_numbering.md  |  2 +-
+ .../file-id.md => core/entities/file_id.md}        |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/font_book.md |  4 +-
+ .../font-list.md => core/entities/font_list.md}    |  4 +-
+ .../prompts/{ => core}/entities/font_variations.md |  2 +-
+ .../prompts/{ => core}/entities/frame_paint.md     |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/func.md      |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/geometry.md  |  2 +-
+ .../prompts/{ => core}/entities/glyph_variants.md  |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/gradient.md  |  2 +-
+ .../prompts/{ => core}/entities/gradient/conic.md  |  4 +-
+ .../{ => core}/entities/gradient/interpolation.md  |  4 +-
+ .../prompts/{ => core}/entities/gradient/kind.md   |  4 +-
+ .../prompts/{ => core}/entities/gradient/linear.md |  4 +-
+ .../{ => core}/entities/gradient/offsets.md        |  4 +-
+ .../prompts/{ => core}/entities/gradient/radial.md |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/html.md      |  2 +-
+ .../entities/image_format.md}                      |  2 +-
+ .../entities/image_sizer.md}                       |  2 +-
+ .../prompts/{ => core}/entities/introspector.md    |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/label.md     |  4 +-
+ .../prompts/{ => core}/entities/label_kind.md      |  2 +-
+ .../prompts/{ => core}/entities/label_registry.md  |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/lang.md      |  2 +-
+ .../prompts/{ => core}/entities/layout_types.md    |  8 +--
+ .../{ => core}/entities/layouter_runtime_state.md  |  2 +-
+ .../entities/line_cap_tests.md}                    |  6 +-
+ .../prompts/{ => core}/entities/list_marker.md     |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/location.md  |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/locator.md   |  2 +-
+ .../math-class.md => core/entities/math_class.md}  |  2 +-
+ .../prompts/{ => core}/entities/math_constants.md  |  2 +-
+ .../prompts/{ => core}/entities/math_style.md      |  2 +-
+ .../prompts/{ => core}/entities/metadata_store.md  |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/mod.md       | 16 +++--
+ 00_nucleo/prompts/{ => core}/entities/module.md    |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/numbering.md |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/operators.md |  4 +-
+ .../entities/package_spec.md}                      |  4 +-
+ .../prompts/{ => core}/entities/page_canvas.md     |  4 +-
+ .../prompts/{ => core}/entities/page_geometry.md   |  8 +--
+ .../prompts/{ => core}/entities/page_running.md    | 14 ++--
+ .../prompts/{ => core}/entities/page_store.md      |  4 +-
+ .../prompts/{ => core}/entities/page_supplement.md | 14 ++--
+ 00_nucleo/prompts/{ => core}/entities/paint.md     |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/parity.md    |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/path.md      |  2 +-
+ .../prompts/{ => core}/entities/plugin_func.md     | 10 +--
+ 00_nucleo/prompts/{ => core}/entities/position.md  |  2 +-
+ .../ptr-eq-arc.md => core/entities/ptr_eq_arc.md}  |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/regex.md     |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/region.md    |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/rel.md       |  2 +-
+ .../{ => core}/entities/resolved_label_store.md    |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/scope.md     |  2 +-
+ .../entities/sealed_positions.md}                  |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/selector.md  |  2 +-
+ .../prompts/{ => core}/entities/shaped_glyph.md    |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/show.md      |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/sides.md     |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/sink.md      |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/source.md    |  2 +-
+ .../entities/source_result.md}                     |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/span.md      |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/state.md     |  2 +-
+ .../prompts/{ => core}/entities/state_registry.md  |  2 +-
+ .../prompts/{ => core}/entities/state_update.md    |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/style.md     |  2 +-
+ .../prompts/{ => core}/entities/style_chain.md     |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/symbol.md    |  2 +-
+ .../entities/syntax_kind.md}                       |  4 +-
+ .../entities/syntax_mode.md}                       |  4 +-
+ .../entities/syntax_node.md}                       |  2 +-
+ .../entities/syntax_node}/errors.md                |  2 +-
+ .../entities/syntax_node}/linked.md                |  2 +-
+ .../entities/syntax_node}/representation.md        |  2 +-
+ .../syntax-set.md => core/entities/syntax_set.md}  |  4 +-
+ .../entities/syntax_text.md}                       |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/tag.md       |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/tiling.md    |  2 +-
+ 00_nucleo/prompts/{ => core}/entities/value.md     |  4 +-
+ 00_nucleo/prompts/{ => core}/entities/version.md   |  2 +-
+ .../entities/world_types.md}                       |  2 +-
+ 00_nucleo/prompts/{core.md => core/lib.md}         |  2 +-
+ .../prompts/{ => core}/testing/math_oracle.md      |  2 +-
+ 00_nucleo/prompts/{ => core}/testing/mod.md        |  2 +-
+ .../tests/outline_entry_indented.md}               |  8 +--
+ 00_nucleo/prompts/{compiler => core}/utils.md      |  2 +-
+ 00_nucleo/prompts/infra/embedded_fonts.md          |  2 +-
+ 00_nucleo/prompts/infra/export/builder/fonts.md    |  2 +-
+ 00_nucleo/prompts/infra/export/builder/metadata.md |  4 +-
+ .../prompts/infra/export/builder/resources.md      |  2 +-
+ 00_nucleo/prompts/infra/export/fonts.md            |  2 +-
+ 00_nucleo/prompts/infra/export/gradients/mod.md    |  4 +-
+ 00_nucleo/prompts/infra/export/html.md             |  8 ++-
+ ...0_ab_tests.md => pretty_serialization_tests.md} |  6 +-
+ .../{p1431-line-cap-tests.md => line_cap_tests.md} | 16 ++---
+ 00_nucleo/prompts/infra/export/mod.md              |  8 ++-
+ 00_nucleo/prompts/infra/export/pdf_defaults.md     |  2 +-
+ 00_nucleo/prompts/infra/export/render.md           |  4 +-
+ 00_nucleo/prompts/infra/export/stream.md           |  4 +-
+ 00_nucleo/prompts/infra/export/stream/draw.md      |  4 +-
+ 00_nucleo/prompts/infra/export/stream/separator.md |  2 +-
+ .../infra/export/stream/text_replacement.md        |  2 +-
+ .../infra/export/{font_subset.md => subset.md}     |  2 +-
+ 00_nucleo/prompts/infra/export/svg.md              | 12 ++--
+ ...0_ab_tests.md => pretty_serialization_tests.md} |  6 +-
+ 00_nucleo/prompts/infra/export/tests/mod.md        |  6 +-
+ ...ge_labels_tests.md => pdf_page_labels_tests.md} |  8 +--
+ ..._pdf_spot_tests.md => pdf_spot_colors_tests.md} |  6 +-
+ ...sts.md => pdfa4f_empty_embedded_files_tests.md} |  6 +-
+ ..._af_tests.md => pdfa_associated_files_tests.md} |  6 +-
+ ...e_core_tests.md => pdfa_core_metadata_tests.md} |  6 +-
+ ...sts.md => pdfa_icc_version_and_cidset_tests.md} |  6 +-
+ ...tion_tests.md => pdfua_identification_tests.md} |  6 +-
+ ...structure_tests.md => pdfua_structure_tests.md} |  6 +-
+ 00_nucleo/prompts/infra/fontdb.md                  |  2 +-
+ 00_nucleo/prompts/infra/fonts.md                   |  4 +-
+ 00_nucleo/prompts/infra/fonts/coverage.md          |  2 +-
+ .../infra/{image-sizer.md => image_sizer.md}       |  4 +-
+ 00_nucleo/prompts/infra/integration_tests.md       |  8 +--
+ 00_nucleo/prompts/infra/layout.md                  |  2 +-
+ 00_nucleo/prompts/infra/layout_bidi.md             |  4 +-
+ 00_nucleo/prompts/{infra.md => infra/lib.md}       |  8 ++-
+ 00_nucleo/prompts/infra/package_downloader.md      |  2 +-
+ .../{export-fixtures.md => pdf_snapshot_tests.md}  |  6 +-
+ 00_nucleo/prompts/infra/pipeline/html.md           |  2 +-
+ 00_nucleo/prompts/infra/pipeline/paged.md          |  4 +-
+ 00_nucleo/prompts/infra/pipeline/pdf.md            |  2 +-
+ 00_nucleo/prompts/infra/pipeline/resources.md      |  4 +-
+ 00_nucleo/prompts/infra/pipeline/svg.md            |  2 +-
+ 00_nucleo/prompts/infra/pipeline/tests.md          |  4 +-
+ 00_nucleo/prompts/infra/plugin_host.md             |  2 +-
+ .../{shell/init.md => infra/project_init.md}       |  2 +-
+ .../infra/{query-helpers.md => query_helpers.md}   |  4 +-
+ 00_nucleo/prompts/infra/shaper/reconciliation.md   |  4 +-
+ 00_nucleo/prompts/infra/shaper/tests.md            |  2 +-
+ 00_nucleo/prompts/infra/shaper/traversal.md        |  4 +-
+ ...ability_contract.md => armed_watch_contract.md} |  8 +--
+ .../infra/tests/{p1424-tests.md => html_frame.md}  |  6 +-
+ ...7-tests.md => math_fraction_public_controls.md} | 10 +--
+ ... => math_fraction_representation_provenance.md} | 14 ++--
+ .../infra/tests/{p1425-tests.md => math_limits.md} |  8 +--
+ .../infra/tests/{p1426-tests.md => math_root.md}   |  8 +--
+ .../pdf_semantic_label.md}                         |  6 +-
+ .../{test-support => tests/support}/wiring/cli.md  |  4 +-
+ .../support/wiring/format_html.md}                 |  6 +-
+ .../support/wiring/format_pdf_namespace.md}        |  6 +-
+ .../support/wiring/format_pdf_pages.md}            |  6 +-
+ .../support/wiring/format_pdf_standard.md}         |  6 +-
+ .../support/wiring/format_pdf_tagged_pretty.md}    |  6 +-
+ .../support/wiring/format_png.md}                  |  6 +-
+ .../support/wiring/format_svg.md}                  |  6 +-
+ .../wiring/language_and_export_contract.md}        |  6 +-
+ .../wiring/math_cancel_callback_runtime.md}        |  6 +-
+ .../wiring/math_decoration_and_float_flush.md}     |  6 +-
+ .../svg_composite_graph.md}                        |  8 +--
+ ...atch_contract.md => watch_snapshot_contract.md} |  8 +--
+ 00_nucleo/prompts/{shell => infra}/watch.md        |  6 +-
+ .../prompts/infra/{system-world.md => world.md}    | 16 ++---
+ .../prompts/infra/{system-world => world}/cache.md |  2 +-
+ .../infra/{system-world => world}/font_session.md  |  2 +-
+ .../prompts/infra/{system-world => world}/fonts.md |  2 +-
+ .../infra/{system-world => world}/packages.md      |  2 +-
+ .../prompts/infra/{system-world => world}/paths.md |  2 +-
+ .../{system-world => world}/source_session.md      |  2 +-
+ .../prompts/infra/{system-world => world}/tests.md |  2 +-
+ .../infra/{system-world => world}/world_impl.md    |  4 +-
+ 00_nucleo/prompts/shell/cli.md                     | 12 ++--
+ 00_nucleo/prompts/shell/duration.md                |  2 +-
+ .../prompts/shell/{fonts-command.md => fonts.md}   |  2 +-
+ 00_nucleo/prompts/{shell.md => shell/lib.md}       |  2 +-
+ ...{p1361-duration.md => duration_presentation.md} |  6 +-
+ 00_nucleo/prompts/{wiring.md => wiring/main.md}    |  4 +-
+ 00_nucleo/prompts/wiring/tests/cli.md              |  2 +-
+ ...9_float_is_infinite.md => float_is_infinite.md} | 12 ++--
+ .../tests/{p1465-format-html.md => format_html.md} | 18 ++---
+ ...p1464-format-pdf.md => format_pdf_namespace.md} | 18 ++---
+ ...468-format-pdf-pages.md => format_pdf_pages.md} | 20 +++---
+ ...rmat-pdf-standard.md => format_pdf_standard.md} | 20 +++---
+ ...agged-pretty.md => format_pdf_tagged_pretty.md} | 20 +++---
+ .../tests/{p1463-format-png.md => format_png.md}   | 18 ++---
+ .../tests/{p1462-format-svg.md => format_svg.md}   | 22 +++---
+ ...contract.md => language_and_export_contract.md} | 24 +++----
+ ..._runtime.md => math_cancel_callback_runtime.md} | 18 ++---
+ ...tract.md => math_decoration_and_float_flush.md} | 20 +++---
+ 01_core/src/compiler/eval/bibliography.rs          |  2 +-
+ 01_core/src/compiler/eval/bibtex.rs                |  4 +-
+ 01_core/src/compiler/eval/bindings/access.rs       |  4 +-
+ 01_core/src/compiler/eval/bindings/binding.rs      |  4 +-
+ 01_core/src/compiler/eval/bindings/field_access.rs |  2 +-
+ .../eval/bindings/field_access/callee_error.rs     |  4 +-
+ .../eval/bindings/field_access/content_methods.rs  |  4 +-
+ .../compiler/eval/bindings/field_access/fields.rs  |  4 +-
+ .../eval/bindings/field_access/identity.rs         |  4 +-
+ .../src/compiler/eval/bindings/method_dispatch.rs  |  2 +-
+ 01_core/src/compiler/eval/bindings/mod.rs          |  2 +-
+ .../src/compiler/eval/bindings/value_methods.rs    |  4 +-
+ .../compiler/eval/bindings/value_methods/color.rs  |  2 +-
+ .../eval/bindings/value_methods/counter.rs         |  2 +-
+ .../eval/bindings/value_methods/element_where.rs   |  2 +-
+ .../eval/bindings/value_methods/selector.rs        |  2 +-
+ .../compiler/eval/bindings/value_methods/state.rs  |  2 +-
+ .../eval/bindings/value_methods/version.rs         |  2 +-
+ 01_core/src/compiler/eval/call_dispatch.rs         |  2 +-
+ 01_core/src/compiler/eval/call_dispatch/apply.rs   |  4 +-
+ .../src/compiler/eval/call_dispatch/arguments.rs   |  4 +-
+ 01_core/src/compiler/eval/call_dispatch/call.rs    |  4 +-
+ .../src/compiler/eval/call_dispatch/call_spans.rs  |  4 +-
+ .../eval/call_dispatch/collection_methods.rs       |  2 +-
+ .../compiler/eval/call_dispatch/content_methods.rs |  2 +-
+ .../eval/call_dispatch/contextual_calls.rs         |  2 +-
+ .../eval/call_dispatch/instance_methods.rs         |  2 +-
+ 01_core/src/compiler/eval/call_dispatch/invoke.rs  |  4 +-
+ .../src/compiler/eval/call_dispatch/location.rs    |  4 +-
+ .../eval/call_dispatch/selector_intercepts.rs      |  4 +-
+ .../compiler/eval/call_dispatch/trace_plugin.rs    |  4 +-
+ .../src/compiler/eval/call_dispatch/type_fields.rs |  4 +-
+ .../compiler/eval/call_dispatch/value_methods.rs   |  4 +-
+ 01_core/src/compiler/eval/cast.rs                  |  2 +-
+ 01_core/src/compiler/eval/closures.rs              |  2 +-
+ 01_core/src/compiler/eval/context_reads.rs         |  2 +-
+ 01_core/src/compiler/eval/control_flow.rs          |  4 +-
+ 01_core/src/compiler/eval/expression_dispatch.rs   |  4 +-
+ 01_core/src/compiler/eval/flow.rs                  |  2 +-
+ 01_core/src/compiler/eval/font_dict.rs             |  2 +-
+ 01_core/src/compiler/eval/markup.rs                |  4 +-
+ 01_core/src/compiler/eval/markup_stream.rs         |  2 +-
+ 01_core/src/compiler/eval/math.rs                  |  4 +-
+ 01_core/src/compiler/eval/math/arguments.rs        |  4 +-
+ 01_core/src/compiler/eval/math/call_fallback.rs    |  2 +-
+ 01_core/src/compiler/eval/math/callee.rs           |  4 +-
+ 01_core/src/compiler/eval/math/construct.rs        |  4 +-
+ 01_core/src/compiler/eval/math/delimiters.rs       |  4 +-
+ 01_core/src/compiler/eval/math/entry.rs            |  4 +-
+ 01_core/src/compiler/eval/math/expression.rs       |  4 +-
+ 01_core/src/compiler/eval/math/expression_call.rs  |  4 +-
+ 01_core/src/compiler/eval/math/lookup.rs           |  4 +-
+ .../src/compiler/eval/math/native_attachments.rs   |  2 +-
+ .../src/compiler/eval/math/native_decorations.rs   |  2 +-
+ 01_core/src/compiler/eval/math/native_dispatch.rs  |  4 +-
+ ...n_tests.rs => math_accent_observation_tests.rs} |  4 +-
+ ...430_tests.rs => math_cases_evaluation_tests.rs} |  4 +-
+ ...1427_tests.rs => math_frac_evaluation_tests.rs} |  4 +-
+ ...s => math_limits_override_observation_tests.rs} |  4 +-
+ ...31_tests.rs => math_matrix_evaluation_tests.rs} |  4 +-
+ ...1426_tests.rs => math_root_evaluation_tests.rs} |  4 +-
+ 01_core/src/compiler/eval/mod.rs                   | 26 ++++----
+ 01_core/src/compiler/eval/modules.rs               |  4 +-
+ 01_core/src/compiler/eval/observation/content.rs   |  2 +-
+ 01_core/src/compiler/eval/observation/elements.rs  |  2 +-
+ 01_core/src/compiler/eval/observation/geometry.rs  |  2 +-
+ 01_core/src/compiler/eval/observation/math.rs      |  2 +-
+ 01_core/src/compiler/eval/observation/mod.rs       |  2 +-
+ 01_core/src/compiler/eval/observation/page.rs      |  2 +-
+ 01_core/src/compiler/eval/observation/style.rs     |  2 +-
+ 01_core/src/compiler/eval/observation/value.rs     |  2 +-
+ 01_core/src/compiler/eval/operators/arithmetic.rs  |  4 +-
+ 01_core/src/compiler/eval/operators/equality.rs    |  2 +-
+ .../compiler/eval/operators/error_formatting.rs    |  2 +-
+ 01_core/src/compiler/eval/operators/join.rs        |  4 +-
+ 01_core/src/compiler/eval/operators/mod.rs         |  4 +-
+ 01_core/src/compiler/eval/operators/ordering.rs    |  2 +-
+ 01_core/src/compiler/eval/repr.rs                  |  4 +-
+ 01_core/src/compiler/eval/repr/content.rs          |  4 +-
+ 01_core/src/compiler/eval/repr/format.rs           |  4 +-
+ 01_core/src/compiler/eval/repr/math.rs             |  4 +-
+ 01_core/src/compiler/eval/repr/measure.rs          |  4 +-
+ 01_core/src/compiler/eval/repr/paint.rs            |  4 +-
+ 01_core/src/compiler/eval/repr/selector.rs         |  4 +-
+ 01_core/src/compiler/eval/repr/value.rs            |  4 +-
+ 01_core/src/compiler/eval/rules.rs                 |  4 +-
+ 01_core/src/compiler/eval/rules/apply.rs           |  4 +-
+ 01_core/src/compiler/eval/rules/intercept.rs       |  4 +-
+ 01_core/src/compiler/eval/rules/math_set.rs        |  4 +-
+ 01_core/src/compiler/eval/rules/outline.rs         |  4 +-
+ 01_core/src/compiler/eval/rules/pdf.rs             |  4 +-
+ 01_core/src/compiler/eval/rules/realize.rs         |  4 +-
+ 01_core/src/compiler/eval/rules/set.rs             |  4 +-
+ 01_core/src/compiler/eval/rules/set/page.rs        |  4 +-
+ 01_core/src/compiler/eval/rules/set/text.rs        |  4 +-
+ 01_core/src/compiler/eval/rules/show.rs            |  4 +-
+ 01_core/src/compiler/eval/rules/textual.rs         |  2 +-
+ .../src/compiler/eval/rules/textual/matching.rs    |  4 +-
+ .../eval/rules/textual/matching/projection.rs      |  2 +-
+ 01_core/src/compiler/eval/rules/textual/space.rs   |  2 +-
+ 01_core/src/compiler/eval/selector_matching.rs     |  4 +-
+ .../src/compiler/eval/selector_matching/textual.rs |  2 +-
+ 01_core/src/compiler/eval/show_rule_termination.rs |  4 +-
+ 01_core/src/compiler/eval/syntax_diagnostics.rs    |  2 +-
+ 01_core/src/compiler/eval/table.rs                 |  2 +-
+ 01_core/src/compiler/eval/tests.rs                 |  4 +-
+ 01_core/src/compiler/introspect.rs                 |  4 +-
+ 01_core/src/compiler/introspect/bibliography.rs    |  4 +-
+ 01_core/src/compiler/introspect/classification.rs  |  4 +-
+ 01_core/src/compiler/introspect/convergence.rs     |  4 +-
+ 01_core/src/compiler/introspect/entrypoints.rs     |  4 +-
+ 01_core/src/compiler/introspect/extract_payload.rs |  4 +-
+ 01_core/src/compiler/introspect/fixpoint.rs        |  4 +-
+ 01_core/src/compiler/introspect/from_tags.rs       |  4 +-
+ .../introspect/from_tags/counter_updates.rs        |  2 +-
+ .../src/compiler/introspect/from_tags/displays.rs  |  2 +-
+ .../src/compiler/introspect/from_tags/equations.rs |  2 +-
+ .../src/compiler/introspect/from_tags/headings.rs  |  2 +-
+ .../compiler/introspect/from_tags/state_updates.rs |  2 +-
+ 01_core/src/compiler/introspect/heading.rs         |  4 +-
+ 01_core/src/compiler/introspect/labelled.rs        |  4 +-
+ 01_core/src/compiler/introspect/locatable.rs       |  2 +-
+ .../src/compiler/introspect/materialize_time.rs    |  4 +-
+ 01_core/src/compiler/introspect/outline_entries.rs |  4 +-
+ 01_core/src/compiler/introspect/parent_index.rs    |  4 +-
+ 01_core/src/compiler/introspect/populate.rs        |  4 +-
+ 01_core/src/compiler/introspect/queries.rs         |  4 +-
+ 01_core/src/compiler/introspect/walk.rs            |  4 +-
+ 01_core/src/compiler/lang/equation_supplement.rs   |  2 +-
+ 01_core/src/compiler/lang/figure_supplement.rs     |  2 +-
+ 01_core/src/compiler/lang/heading_supplement.rs    |  2 +-
+ 01_core/src/compiler/lang/mod.rs                   |  4 +-
+ 01_core/src/compiler/lang/outline_title.rs         |  2 +-
+ 01_core/src/compiler/lang/quotes.rs                |  4 +-
+ 01_core/src/compiler/layout/align.rs               |  4 +-
+ 01_core/src/compiler/layout/bib_csl.rs             |  4 +-
+ 01_core/src/compiler/layout/bib_csl/plan.rs        |  2 +-
+ 01_core/src/compiler/layout/bibliography.rs        |  4 +-
+ 01_core/src/compiler/layout/bidi_origin.rs         |  2 +-
+ 01_core/src/compiler/layout/block.rs               |  4 +-
+ 01_core/src/compiler/layout/boxed.rs               |  4 +-
+ 01_core/src/compiler/layout/break_selection.rs     |  4 +-
+ 01_core/src/compiler/layout/cell_tail_commit.rs    |  6 +-
+ 01_core/src/compiler/layout/checkpoint.rs          |  2 +-
+ 01_core/src/compiler/layout/cite.rs                |  4 +-
+ 01_core/src/compiler/layout/colbreak.rs            |  4 +-
+ 01_core/src/compiler/layout/columns.rs             |  4 +-
+ 01_core/src/compiler/layout/columns/flow.rs        |  2 +-
+ 01_core/src/compiler/layout/columns/segmented.rs   |  2 +-
+ 01_core/src/compiler/layout/columns/transitions.rs |  2 +-
+ 01_core/src/compiler/layout/context_block.rs       |  4 +-
+ 01_core/src/compiler/layout/convergence.rs         |  4 +-
+ 01_core/src/compiler/layout/counter_display.rs     |  4 +-
+ .../compiler/layout/counter_display_callback.rs    |  4 +-
+ 01_core/src/compiler/layout/counters.rs            |  4 +-
+ 01_core/src/compiler/layout/cursor.rs              |  4 +-
+ 01_core/src/compiler/layout/curve.rs               |  4 +-
+ 01_core/src/compiler/layout/decorations.rs         |  4 +-
+ 01_core/src/compiler/layout/divider.rs             |  4 +-
+ 01_core/src/compiler/layout/dynamic.rs             |  4 +-
+ 01_core/src/compiler/layout/enum_item.rs           |  4 +-
+ 01_core/src/compiler/layout/equation.rs            |  4 +-
+ 01_core/src/compiler/layout/figure.rs              |  4 +-
+ 01_core/src/compiler/layout/finish.rs              |  2 +-
+ 01_core/src/compiler/layout/flow_suffix.rs         |  4 +-
+ 01_core/src/compiler/layout/flush.rs               |  4 +-
+ 01_core/src/compiler/layout/footnote.rs            |  4 +-
+ 01_core/src/compiler/layout/footnote_flush.rs      | 10 +--
+ 01_core/src/compiler/layout/format_options.rs      |  4 +-
+ 01_core/src/compiler/layout/grid.rs                |  4 +-
+ 01_core/src/compiler/layout/grid/borders.rs        |  2 +-
+ 01_core/src/compiler/layout/grid/cell_body.rs      |  8 +--
+ 01_core/src/compiler/layout/grid/cell_emission.rs  |  4 +-
+ .../src/compiler/layout/grid/measurement_cache.rs  |  2 +-
+ 01_core/src/compiler/layout/grid/row_groups.rs     |  2 +-
+ 01_core/src/compiler/layout/grid/row_pagination.rs |  2 +-
+ 01_core/src/compiler/layout/grid/rules.rs          |  2 +-
+ 01_core/src/compiler/layout/grid/tracks.rs         |  4 +-
+ 01_core/src/compiler/layout/grid_cell.rs           |  4 +-
+ 01_core/src/compiler/layout/grid_footer.rs         |  4 +-
+ 01_core/src/compiler/layout/grid_header.rs         |  4 +-
+ 01_core/src/compiler/layout/grid_placement.rs      |  4 +-
+ 01_core/src/compiler/layout/h_space.rs             |  4 +-
+ 01_core/src/compiler/layout/heading.rs             |  4 +-
+ 01_core/src/compiler/layout/helpers.rs             |  4 +-
+ 01_core/src/compiler/layout/hide.rs                |  4 +-
+ 01_core/src/compiler/layout/html_frame.rs          |  4 +-
+ 01_core/src/compiler/layout/hyphenation.rs         |  4 +-
+ 01_core/src/compiler/layout/image.rs               |  4 +-
+ 01_core/src/compiler/layout/line_commit.rs         |  4 +-
+ 01_core/src/compiler/layout/linebreak.rs           |  4 +-
+ 01_core/src/compiler/layout/link.rs                |  4 +-
+ 01_core/src/compiler/layout/link_capture.rs        |  2 +-
+ 01_core/src/compiler/layout/list_item.rs           |  4 +-
+ 01_core/src/compiler/layout/measurement.rs         |  4 +-
+ 01_core/src/compiler/layout/metrics.rs             |  4 +-
+ 01_core/src/compiler/layout/mod.rs                 | 14 ++--
+ 01_core/src/compiler/layout/outline.rs             |  4 +-
+ 01_core/src/compiler/layout/outline_entry.rs       |  4 +-
+ 01_core/src/compiler/layout/pad.rs                 |  4 +-
+ 01_core/src/compiler/layout/page_canvas.rs         |  4 +-
+ 01_core/src/compiler/layout/page_commit.rs         |  4 +-
+ 01_core/src/compiler/layout/page_geometry.rs       |  4 +-
+ 01_core/src/compiler/layout/page_run.rs            |  4 +-
+ 01_core/src/compiler/layout/page_running.rs        |  4 +-
+ 01_core/src/compiler/layout/pagebreak.rs           |  4 +-
+ 01_core/src/compiler/layout/par_line_callbacks.rs  |  4 +-
+ 01_core/src/compiler/layout/paragraph.rs           |  4 +-
+ 01_core/src/compiler/layout/paragraph_emit.rs      |  4 +-
+ 01_core/src/compiler/layout/paragraph_hyphen.rs    |  4 +-
+ 01_core/src/compiler/layout/paragraph_indent.rs    |  2 +-
+ .../src/compiler/layout/paragraph_pagination.rs    |  2 +-
+ 01_core/src/compiler/layout/paragraph_plan.rs      |  2 +-
+ 01_core/src/compiler/layout/paragraph_prepare.rs   |  4 +-
+ 01_core/src/compiler/layout/paragraph_select.rs    |  2 +-
+ .../compiler/layout/paragraph_select_bounded.rs    |  2 +-
+ .../paragraph_select_bounded/justice_overflow.rs   |  2 +-
+ .../paragraph_select_bounded/vanilla_lower.rs      |  2 +-
+ .../compiler/layout/paragraph_select_forward.rs    |  2 +-
+ 01_core/src/compiler/layout/parbreak.rs            |  4 +-
+ 01_core/src/compiler/layout/pdf_artifact.rs        |  4 +-
+ 01_core/src/compiler/layout/pdf_attach.rs          |  4 +-
+ 01_core/src/compiler/layout/place.rs               |  6 +-
+ 01_core/src/compiler/layout/placement.rs           | 10 +--
+ 01_core/src/compiler/layout/position_marker.rs     |  2 +-
+ 01_core/src/compiler/layout/quote.rs               |  4 +-
+ 01_core/src/compiler/layout/raw.rs                 |  4 +-
+ 01_core/src/compiler/layout/realized.rs            |  2 +-
+ 01_core/src/compiler/layout/references.rs          |  4 +-
+ 01_core/src/compiler/layout/region_progress.rs     |  2 +-
+ 01_core/src/compiler/layout/repeat.rs              |  4 +-
+ 01_core/src/compiler/layout/sequence.rs            |  4 +-
+ .../layout/sequence/fractional_preflight.rs        |  2 +-
+ .../src/compiler/layout/sequence/inline_prefix.rs  |  2 +-
+ 01_core/src/compiler/layout/set_page.rs            |  2 +-
+ 01_core/src/compiler/layout/shape.rs               |  4 +-
+ 01_core/src/compiler/layout/slicing.rs             |  6 +-
+ 01_core/src/compiler/layout/smartquote.rs          |  4 +-
+ 01_core/src/compiler/layout/space.rs               |  4 +-
+ 01_core/src/compiler/layout/stack.rs               |  4 +-
+ 01_core/src/compiler/layout/state_display.rs       |  4 +-
+ 01_core/src/compiler/layout/style_scope.rs         |  4 +-
+ 01_core/src/compiler/layout/sub_frame.rs           |  8 +--
+ 01_core/src/compiler/layout/table.rs               |  4 +-
+ 01_core/src/compiler/layout/table_cell.rs          |  4 +-
+ 01_core/src/compiler/layout/table_footer.rs        |  4 +-
+ 01_core/src/compiler/layout/table_header.rs        |  4 +-
+ 01_core/src/compiler/layout/term_item.rs           |  4 +-
+ 01_core/src/compiler/layout/terms.rs               |  4 +-
+ 01_core/src/compiler/layout/tests.rs               | 10 +--
+ 01_core/src/compiler/layout/text.rs                |  4 +-
+ 01_core/src/compiler/layout/text/style.rs          |  2 +-
+ 01_core/src/compiler/layout/text_baseline.rs       |  2 +-
+ 01_core/src/compiler/layout/text_measure.rs        |  2 +-
+ 01_core/src/compiler/layout/text_tracking.rs       |  2 +-
+ 01_core/src/compiler/layout/tiling.rs              |  4 +-
+ 01_core/src/compiler/layout/title.rs               |  4 +-
+ 01_core/src/compiler/layout/transform.rs           |  4 +-
+ 01_core/src/compiler/layout/v_space.rs             |  4 +-
+ 01_core/src/compiler/layout/vanilla_defaults.rs    |  4 +-
+ 01_core/src/compiler/layout/word_layout.rs         |  2 +-
+ 01_core/src/compiler/layout/word_segment.rs        |  4 +-
+ 01_core/src/compiler/lexer/code.rs                 |  2 +-
+ 01_core/src/compiler/lexer/markup.rs               |  2 +-
+ 01_core/src/compiler/lexer/math.rs                 |  2 +-
+ 01_core/src/compiler/lexer/mod.rs                  |  4 +-
+ 01_core/src/compiler/lexer/scanner.rs              |  2 +-
+ 01_core/src/compiler/math/layout/accent.rs         |  4 +-
+ 01_core/src/compiler/math/layout/assembly.rs       |  2 +-
+ 01_core/src/compiler/math/layout/attach.rs         |  2 +-
+ 01_core/src/compiler/math/layout/callbacks.rs      |  2 +-
+ 01_core/src/compiler/math/layout/cancel.rs         |  4 +-
+ 01_core/src/compiler/math/layout/cases.rs          |  2 +-
+ 01_core/src/compiler/math/layout/delimited.rs      |  2 +-
+ .../src/compiler/math/layout/external_bridge.rs    |  2 +-
+ 01_core/src/compiler/math/layout/frac.rs           |  4 +-
+ .../src/compiler/math/layout/grid_composition.rs   |  2 +-
+ 01_core/src/compiler/math/layout/large_operator.rs |  2 +-
+ .../src/compiler/math/layout/line_decorations.rs   |  2 +-
+ ...{p1429_tests.rs => math_accent_layout_tests.rs} |  4 +-
+ .../{p1430_tests.rs => math_cases_layout_tests.rs} |  4 +-
+ .../{p1427_tests.rs => math_frac_layout_tests.rs}  |  4 +-
+ ...{p1425_tests.rs => math_limits_layout_tests.rs} |  4 +-
+ ...{p1431_tests.rs => math_matrix_layout_tests.rs} |  4 +-
+ .../{p1426_tests.rs => math_root_layout_tests.rs}  |  4 +-
+ 01_core/src/compiler/math/layout/matrix.rs         |  2 +-
+ 01_core/src/compiler/math/layout/mod.rs            | 16 ++---
+ 01_core/src/compiler/math/layout/node_wrappers.rs  |  2 +-
+ 01_core/src/compiler/math/layout/op.rs             |  4 +-
+ 01_core/src/compiler/math/layout/root.rs           |  2 +-
+ .../compiler/math/layout/sequence_composition.rs   |  2 +-
+ .../math/layout/source_transparency_tests.rs       |  2 +-
+ 01_core/src/compiler/math/layout/spacing.rs        |  2 +-
+ 01_core/src/compiler/math/layout/stretch.rs        |  4 +-
+ 01_core/src/compiler/math/layout/stretchy.rs       |  4 +-
+ .../src/compiler/math/layout/style_transform.rs    |  2 +-
+ 01_core/src/compiler/math/layout/tests.rs          |  8 +--
+ 01_core/src/compiler/math/layout/underline.rs      |  2 +-
+ 01_core/src/compiler/math/layout/underover.rs      |  2 +-
+ 01_core/src/compiler/math/layout/vec.rs            |  2 +-
+ 01_core/src/compiler/math/mod.rs                   |  4 +-
+ 01_core/src/compiler/math/symbols.rs               |  4 +-
+ 01_core/src/compiler/mod.rs                        |  4 +-
+ 01_core/src/compiler/parse/code.rs                 |  4 +-
+ 01_core/src/compiler/parse/markup.rs               |  4 +-
+ 01_core/src/compiler/parse/math.rs                 |  4 +-
+ 01_core/src/compiler/parse/mod.rs                  |  4 +-
+ 01_core/src/compiler/parse/parser.rs               |  2 +-
+ 01_core/src/compiler/parse/parser/checkpoints.rs   |  2 +-
+ 01_core/src/compiler/parse/parser/diagnostics.rs   |  2 +-
+ 01_core/src/compiler/parse/parser/state.rs         |  2 +-
+ 01_core/src/compiler/parse/patterns.rs             |  4 +-
+ 01_core/src/compiler/parse/rules.rs                |  4 +-
+ 01_core/src/compiler/realize/bare_math.rs          |  4 +-
+ .../src/compiler/realize/context_occurrences.rs    |  2 +-
+ 01_core/src/compiler/realize/mod.rs                |  4 +-
+ 01_core/src/compiler/realize/recipes.rs            |  2 +-
+ 01_core/src/compiler/realize/sequences.rs          |  2 +-
+ 01_core/src/compiler/realize/table_cells.rs        |  2 +-
+ 01_core/src/compiler/scopes.rs                     |  4 +-
+ 01_core/src/compiler/stdlib/assert.rs              |  4 +-
+ 01_core/src/compiler/stdlib/calc.rs                |  2 +-
+ 01_core/src/compiler/stdlib/calc/abs.rs            |  4 +-
+ 01_core/src/compiler/stdlib/calc/combinatorics.rs  |  4 +-
+ 01_core/src/compiler/stdlib/calc/erf.rs            |  4 +-
+ 01_core/src/compiler/stdlib/calc/extrema.rs        |  4 +-
+ 01_core/src/compiler/stdlib/calc/hyperbolic.rs     |  4 +-
+ 01_core/src/compiler/stdlib/calc/integer.rs        |  4 +-
+ 01_core/src/compiler/stdlib/calc/logarithms.rs     |  4 +-
+ 01_core/src/compiler/stdlib/calc/norm.rs           |  4 +-
+ 01_core/src/compiler/stdlib/calc/numeric.rs        |  4 +-
+ 01_core/src/compiler/stdlib/calc/power.rs          |  4 +-
+ 01_core/src/compiler/stdlib/calc/round.rs          |  4 +-
+ 01_core/src/compiler/stdlib/calc/trig.rs           |  4 +-
+ 01_core/src/compiler/stdlib/collections.rs         |  2 +-
+ .../src/compiler/stdlib/collections/arguments.rs   |  4 +-
+ .../compiler/stdlib/collections/array_access.rs    |  4 +-
+ .../compiler/stdlib/collections/array_aggregate.rs |  4 +-
+ .../compiler/stdlib/collections/array_predicate.rs |  4 +-
+ .../compiler/stdlib/collections/array_sequence.rs  |  4 +-
+ 01_core/src/compiler/stdlib/collections/bytes.rs   |  4 +-
+ .../src/compiler/stdlib/collections/dictionary.rs  |  4 +-
+ .../src/compiler/stdlib/collections/str_access.rs  |  4 +-
+ .../src/compiler/stdlib/collections/str_search.rs  |  4 +-
+ .../compiler/stdlib/collections/str_transform.rs   |  4 +-
+ .../src/compiler/stdlib/collections/validation.rs  |  4 +-
+ 01_core/src/compiler/stdlib/color.rs               |  8 +--
+ 01_core/src/compiler/stdlib/color/alpha.rs         |  4 +-
+ 01_core/src/compiler/stdlib/color/arguments.rs     |  4 +-
+ 01_core/src/compiler/stdlib/color/inspect.rs       |  4 +-
+ 01_core/src/compiler/stdlib/color/light.rs         |  4 +-
+ 01_core/src/compiler/stdlib/color/mix.rs           |  4 +-
+ 01_core/src/compiler/stdlib/color/palette.rs       |  4 +-
+ 01_core/src/compiler/stdlib/color/spot.rs          |  4 +-
+ 01_core/src/compiler/stdlib/color/transform.rs     |  4 +-
+ 01_core/src/compiler/stdlib/context.rs             |  2 +-
+ 01_core/src/compiler/stdlib/counter.rs             |  4 +-
+ 01_core/src/compiler/stdlib/counter/display.rs     |  2 +-
+ .../src/compiler/stdlib/counter/filtered_reads.rs  |  2 +-
+ 01_core/src/compiler/stdlib/emoji.rs               |  2 +-
+ 01_core/src/compiler/stdlib/eval.rs                |  4 +-
+ 01_core/src/compiler/stdlib/figure_image.rs        |  6 +-
+ 01_core/src/compiler/stdlib/format.rs              |  4 +-
+ 01_core/src/compiler/stdlib/foundations/cast.rs    |  2 +-
+ 01_core/src/compiler/stdlib/foundations/color.rs   |  4 +-
+ .../src/compiler/stdlib/foundations/datetime.rs    |  4 +-
+ 01_core/src/compiler/stdlib/foundations/float.rs   |  4 +-
+ 01_core/src/compiler/stdlib/foundations/int.rs     |  4 +-
+ 01_core/src/compiler/stdlib/foundations/mod.rs     |  4 +-
+ 01_core/src/compiler/stdlib/foundations/path.rs    |  2 +-
+ 01_core/src/compiler/stdlib/foundations/query.rs   |  4 +-
+ .../stdlib/foundations/regex_constructor.rs        |  2 +-
+ 01_core/src/compiler/stdlib/foundations/repr.rs    |  4 +-
+ .../src/compiler/stdlib/foundations/selector.rs    |  2 +-
+ 01_core/src/compiler/stdlib/foundations/str.rs     |  4 +-
+ 01_core/src/compiler/stdlib/foundations/ty.rs      |  2 +-
+ 01_core/src/compiler/stdlib/gradients.rs           |  4 +-
+ 01_core/src/compiler/stdlib/gradients/accessors.rs |  4 +-
+ 01_core/src/compiler/stdlib/gradients/conic.rs     |  4 +-
+ 01_core/src/compiler/stdlib/gradients/dispatch.rs  |  4 +-
+ 01_core/src/compiler/stdlib/gradients/linear.rs    |  4 +-
+ 01_core/src/compiler/stdlib/gradients/modifiers.rs |  4 +-
+ 01_core/src/compiler/stdlib/gradients/parsing.rs   |  4 +-
+ 01_core/src/compiler/stdlib/gradients/radial.rs    |  4 +-
+ 01_core/src/compiler/stdlib/gradients/sampling.rs  |  4 +-
+ 01_core/src/compiler/stdlib/html.rs                | 12 ++--
+ 01_core/src/compiler/stdlib/html/attr_cast.rs      |  4 +-
+ 01_core/src/compiler/stdlib/html/attr_specs.rs     |  4 +-
+ 01_core/src/compiler/stdlib/html/attr_values.rs    |  4 +-
+ 01_core/src/compiler/stdlib/html/elem.rs           |  4 +-
+ 01_core/src/compiler/stdlib/html/frame.rs          |  4 +-
+ 01_core/src/compiler/stdlib/html/global_attrs.rs   |  4 +-
+ ..._tests.rs => html_constructor_surface_tests.rs} |  4 +-
+ .../html/{p1424_tests.rs => html_frame_tests.rs}   |  4 +-
+ 01_core/src/compiler/stdlib/html/namespace.rs      |  4 +-
+ 01_core/src/compiler/stdlib/html/tag_attrs.rs      |  4 +-
+ 01_core/src/compiler/stdlib/html/typed_element.rs  |  4 +-
+ 01_core/src/compiler/stdlib/html/typed_tags.rs     |  4 +-
+ 01_core/src/compiler/stdlib/label.rs               |  2 +-
+ 01_core/src/compiler/stdlib/layout.rs              |  4 +-
+ 01_core/src/compiler/stdlib/layout/block.rs        |  4 +-
+ 01_core/src/compiler/stdlib/layout/box_elem.rs     |  4 +-
+ 01_core/src/compiler/stdlib/layout/casting.rs      |  4 +-
+ 01_core/src/compiler/stdlib/layout/columns.rs      |  4 +-
+ 01_core/src/compiler/stdlib/layout/grid.rs         |  4 +-
+ 01_core/src/compiler/stdlib/layout/hide.rs         |  4 +-
+ 01_core/src/compiler/stdlib/layout/measure.rs      |  4 +-
+ 01_core/src/compiler/stdlib/layout/pad.rs          |  4 +-
+ 01_core/src/compiler/stdlib/layout/page.rs         |  4 +-
+ 01_core/src/compiler/stdlib/layout/pagebreak.rs    |  4 +-
+ 01_core/src/compiler/stdlib/layout/place.rs        |  4 +-
+ 01_core/src/compiler/stdlib/layout/repeat.rs       |  4 +-
+ 01_core/src/compiler/stdlib/layout/spacing.rs      |  4 +-
+ 01_core/src/compiler/stdlib/layout/stack.rs        |  4 +-
+ 01_core/src/compiler/stdlib/layout/stroke.rs       |  4 +-
+ 01_core/src/compiler/stdlib/loading.rs             |  4 +-
+ 01_core/src/compiler/stdlib/loading/cbor.rs        |  4 +-
+ 01_core/src/compiler/stdlib/loading/csv.rs         |  4 +-
+ 01_core/src/compiler/stdlib/loading/encoding.rs    |  4 +-
+ 01_core/src/compiler/stdlib/loading/json.rs        |  4 +-
+ 01_core/src/compiler/stdlib/loading/json_encode.rs |  4 +-
+ 01_core/src/compiler/stdlib/loading/read.rs        |  4 +-
+ 01_core/src/compiler/stdlib/loading/toml.rs        |  4 +-
+ 01_core/src/compiler/stdlib/loading/toml_encode.rs |  4 +-
+ 01_core/src/compiler/stdlib/loading/xml.rs         |  4 +-
+ 01_core/src/compiler/stdlib/loading/yaml.rs        |  4 +-
+ 01_core/src/compiler/stdlib/loading/yaml_encode.rs |  4 +-
+ 01_core/src/compiler/stdlib/math_style.rs          |  4 +-
+ 01_core/src/compiler/stdlib/mod.rs                 |  4 +-
+ 01_core/src/compiler/stdlib/numbering.rs           |  2 +-
+ 01_core/src/compiler/stdlib/panic.rs               |  2 +-
+ 01_core/src/compiler/stdlib/pdf.rs                 |  2 +-
+ 01_core/src/compiler/stdlib/plugin.rs              |  2 +-
+ .../src/compiler/stdlib/primitives_constructors.rs |  2 +-
+ .../stdlib/primitives_constructors/array.rs        |  2 +-
+ .../stdlib/primitives_constructors/decimal.rs      |  2 +-
+ .../stdlib/primitives_constructors/duration.rs     |  2 +-
+ .../stdlib/primitives_constructors/version.rs      |  2 +-
+ 01_core/src/compiler/stdlib/ref.rs                 |  2 +-
+ 01_core/src/compiler/stdlib/registry/contextual.rs |  2 +-
+ 01_core/src/compiler/stdlib/registry/data.rs       |  2 +-
+ .../src/compiler/stdlib/registry/diagnostics.rs    |  2 +-
+ .../src/compiler/stdlib/registry/figure_image.rs   |  2 +-
+ 01_core/src/compiler/stdlib/registry/formats.rs    |  2 +-
+ .../src/compiler/stdlib/registry/foundations.rs    |  2 +-
+ 01_core/src/compiler/stdlib/registry/layout.rs     |  2 +-
+ 01_core/src/compiler/stdlib/registry/math.rs       |  2 +-
+ .../compiler/stdlib/registry/microbenchmarks.rs    |  2 +-
+ 01_core/src/compiler/stdlib/registry/mod.rs        |  2 +-
+ 01_core/src/compiler/stdlib/registry/modules.rs    |  2 +-
+ 01_core/src/compiler/stdlib/registry/shapes.rs     |  2 +-
+ 01_core/src/compiler/stdlib/registry/structural.rs |  2 +-
+ 01_core/src/compiler/stdlib/registry/table_grid.rs |  2 +-
+ 01_core/src/compiler/stdlib/registry/tests.rs      |  2 +-
+ 01_core/src/compiler/stdlib/registry/text.rs       |  2 +-
+ 01_core/src/compiler/stdlib/shapes.rs              |  6 +-
+ 01_core/src/compiler/stdlib/shapes/coordinates.rs  |  4 +-
+ 01_core/src/compiler/stdlib/shapes/curve.rs        |  4 +-
+ 01_core/src/compiler/stdlib/shapes/ellipse.rs      |  4 +-
+ 01_core/src/compiler/stdlib/shapes/line.rs         |  4 +-
+ 01_core/src/compiler/stdlib/shapes/paint.rs        |  4 +-
+ 01_core/src/compiler/stdlib/shapes/polygon.rs      |  4 +-
+ 01_core/src/compiler/stdlib/shapes/rect.rs         |  4 +-
+ 01_core/src/compiler/stdlib/state.rs               |  4 +-
+ 01_core/src/compiler/stdlib/state/resolve.rs       |  2 +-
+ .../src/compiler/stdlib/structural/bibliography.rs |  2 +-
+ 01_core/src/compiler/stdlib/structural/divider.rs  |  2 +-
+ 01_core/src/compiler/stdlib/structural/document.rs |  2 +-
+ 01_core/src/compiler/stdlib/structural/footnote.rs |  8 +--
+ 01_core/src/compiler/stdlib/structural/heading.rs  |  2 +-
+ 01_core/src/compiler/stdlib/structural/lists.rs    |  6 +-
+ 01_core/src/compiler/stdlib/structural/markup.rs   |  2 +-
+ 01_core/src/compiler/stdlib/structural/math.rs     | 12 ++--
+ 01_core/src/compiler/stdlib/structural/math/abs.rs |  2 +-
+ .../src/compiler/stdlib/structural/math/accent.rs  |  2 +-
+ .../compiler/stdlib/structural/math/annotations.rs |  2 +-
+ .../src/compiler/stdlib/structural/math/attach.rs  |  2 +-
+ .../src/compiler/stdlib/structural/math/binom.rs   |  2 +-
+ .../src/compiler/stdlib/structural/math/cancel.rs  |  2 +-
+ .../src/compiler/stdlib/structural/math/cases.rs   |  2 +-
+ .../src/compiler/stdlib/structural/math/casts.rs   |  2 +-
+ .../src/compiler/stdlib/structural/math/class.rs   |  2 +-
+ .../compiler/stdlib/structural/math/equation.rs    |  2 +-
+ .../src/compiler/stdlib/structural/math/frac.rs    |  2 +-
+ .../src/compiler/stdlib/structural/math/limits.rs  |  2 +-
+ 01_core/src/compiler/stdlib/structural/math/lr.rs  |  2 +-
+ .../math/{p1427_tests.rs => math_frac_tests.rs}    |  4 +-
+ .../math/{p1425_tests.rs => math_limits_tests.rs}  |  4 +-
+ .../math/{p1426_tests.rs => math_root_tests.rs}    |  4 +-
+ .../src/compiler/stdlib/structural/math/matrix.rs  |  2 +-
+ 01_core/src/compiler/stdlib/structural/math/mid.rs |  2 +-
+ .../src/compiler/stdlib/structural/math/norm.rs    |  2 +-
+ 01_core/src/compiler/stdlib/structural/math/op.rs  |  2 +-
+ .../compiler/stdlib/structural/math/overline.rs    |  2 +-
+ .../src/compiler/stdlib/structural/math/primes.rs  |  2 +-
+ .../src/compiler/stdlib/structural/math/root.rs    |  2 +-
+ .../src/compiler/stdlib/structural/math/round.rs   |  2 +-
+ .../src/compiler/stdlib/structural/math/stretch.rs |  2 +-
+ .../compiler/stdlib/structural/math/underline.rs   |  2 +-
+ .../compiler/stdlib/structural/math/underover.rs   |  2 +-
+ .../src/compiler/stdlib/structural/math/vector.rs  |  2 +-
+ .../{p1447_tests.rs => math_abs_tests.rs}          |  4 +-
+ .../{p1429_tests.rs => math_accent_tests.rs}       |  4 +-
+ .../{p1430_tests.rs => math_cases_tests.rs}        |  4 +-
+ .../{p1436_tests.rs => math_lr_tests.rs}           |  4 +-
+ .../{p1431_tests.rs => math_matrix_tests.rs}       |  4 +-
+ .../{p1437_tests.rs => math_mid_tests.rs}          |  4 +-
+ .../{p1438_tests.rs => math_norm_tests.rs}         |  4 +-
+ .../{p1439_tests.rs => math_overbrace_tests.rs}    |  4 +-
+ .../{p1440_tests.rs => math_overbracket_tests.rs}  |  4 +-
+ .../{p1441_tests.rs => math_overline_tests.rs}     |  4 +-
+ .../{p1442_tests.rs => math_overparen_tests.rs}    |  4 +-
+ .../{p1443_tests.rs => math_overshell_tests.rs}    |  4 +-
+ .../{p1444_tests.rs => math_primes_tests.rs}       |  4 +-
+ .../{p1445_tests.rs => math_round_tests.rs}        |  4 +-
+ .../{p1446_tests.rs => math_stretch_tests.rs}      |  4 +-
+ .../{p1448_tests.rs => math_underbrace_tests.rs}   |  4 +-
+ .../{p1449_tests.rs => math_underbracket_tests.rs} |  4 +-
+ .../{p1450_tests.rs => math_underparen_tests.rs}   |  4 +-
+ .../{p1451_tests.rs => math_undershell_tests.rs}   |  4 +-
+ 01_core/src/compiler/stdlib/structural/mod.rs      | 62 ++++++++---------
+ 01_core/src/compiler/stdlib/structural/outline.rs  |  4 +-
+ 01_core/src/compiler/stdlib/structural/par.rs      |  4 +-
+ 01_core/src/compiler/stdlib/structural/quote.rs    |  2 +-
+ .../src/compiler/stdlib/structural/table_grid.rs   |  4 +-
+ .../src/compiler/stdlib/structural/table_lines.rs  |  2 +-
+ 01_core/src/compiler/stdlib/structural/title.rs    |  2 +-
+ 01_core/src/compiler/stdlib/sym.rs                 |  2 +-
+ 01_core/src/compiler/stdlib/sys.rs                 |  4 +-
+ 01_core/src/compiler/stdlib/tests/arguments.rs     |  2 +-
+ 01_core/src/compiler/stdlib/tests/assertions.rs    |  2 +-
+ 01_core/src/compiler/stdlib/tests/bibliography.rs  |  2 +-
+ 01_core/src/compiler/stdlib/tests/calc.rs          |  2 +-
+ 01_core/src/compiler/stdlib/tests/color.rs         |  2 +-
+ 01_core/src/compiler/stdlib/tests/contextual.rs    |  2 +-
+ 01_core/src/compiler/stdlib/tests/eval.rs          |  2 +-
+ 01_core/src/compiler/stdlib/tests/figure_image.rs  |  2 +-
+ 01_core/src/compiler/stdlib/tests/footnote.rs      |  2 +-
+ 01_core/src/compiler/stdlib/tests/foundations.rs   |  2 +-
+ 01_core/src/compiler/stdlib/tests/gradients.rs     |  2 +-
+ 01_core/src/compiler/stdlib/tests/introspection.rs |  2 +-
+ .../src/compiler/stdlib/tests/layout_containers.rs |  2 +-
+ .../src/compiler/stdlib/tests/layout_context.rs    |  2 +-
+ .../src/compiler/stdlib/tests/layout_spacing.rs    |  2 +-
+ 01_core/src/compiler/stdlib/tests/math.rs          |  2 +-
+ 01_core/src/compiler/stdlib/tests/mod.rs           |  2 +-
+ 01_core/src/compiler/stdlib/tests/shapes.rs        |  4 +-
+ 01_core/src/compiler/stdlib/tests/stroke.rs        |  4 +-
+ 01_core/src/compiler/stdlib/tests/support.rs       |  2 +-
+ 01_core/src/compiler/stdlib/tests/symbols.rs       |  2 +-
+ 01_core/src/compiler/stdlib/tests/table_grid.rs    |  2 +-
+ 01_core/src/compiler/stdlib/tests/text.rs          |  2 +-
+ 01_core/src/compiler/stdlib/tests/transforms.rs    |  2 +-
+ 01_core/src/compiler/stdlib/text/case.rs           |  2 +-
+ 01_core/src/compiler/stdlib/text/constructor.rs    |  2 +-
+ 01_core/src/compiler/stdlib/text/deco.rs           |  2 +-
+ 01_core/src/compiler/stdlib/text/lorem.rs          |  2 +-
+ 01_core/src/compiler/stdlib/text/mod.rs            |  4 +-
+ 01_core/src/compiler/stdlib/text/shift.rs          |  4 +-
+ 01_core/src/compiler/stdlib/text/smallcaps.rs      |  4 +-
+ 01_core/src/compiler/stdlib/text/smartquote.rs     |  2 +-
+ 01_core/src/compiler/stdlib/transforms.rs          |  4 +-
+ 01_core/src/compiler/stdlib/visualize.rs           |  2 +-
+ 01_core/src/compiler/text_costs.rs                 |  2 +-
+ 01_core/src/contracts/mod.rs                       |  2 +-
+ 01_core/src/contracts/package_downloader.rs        |  2 +-
+ 01_core/src/contracts/plugin_host.rs               |  4 +-
+ 01_core/src/contracts/world.rs                     |  4 +-
+ 01_core/src/entities/args.rs                       |  2 +-
+ 01_core/src/entities/ast/code.rs                   |  4 +-
+ 01_core/src/entities/ast/expr.rs                   |  4 +-
+ 01_core/src/entities/ast/markup.rs                 |  4 +-
+ 01_core/src/entities/ast/math.rs                   |  4 +-
+ 01_core/src/entities/ast/mod.rs                    |  2 +-
+ 01_core/src/entities/axes.rs                       |  4 +-
+ 01_core/src/entities/bib_entry.rs                  |  2 +-
+ 01_core/src/entities/bib_store.rs                  |  2 +-
+ 01_core/src/entities/bidi_context.rs               |  2 +-
+ 01_core/src/entities/bytes.rs                      |  4 +-
+ 01_core/src/entities/citation_form.rs              |  2 +-
+ 01_core/src/entities/citation_style.rs             |  2 +-
+ 01_core/src/entities/color.rs                      |  4 +-
+ 01_core/src/entities/color/adjustments.rs          |  2 +-
+ 01_core/src/entities/color/conversion.rs           |  2 +-
+ 01_core/src/entities/color/mixing.rs               |  2 +-
+ 01_core/src/entities/compiler_features.rs          |  4 +-
+ 01_core/src/entities/content.rs                    |  2 +-
+ 01_core/src/entities/content/construction.rs       |  4 +-
+ .../src/entities/content/construction/layout.rs    |  2 +-
+ 01_core/src/entities/content/construction/math.rs  |  2 +-
+ .../entities/content/construction/references.rs    |  2 +-
+ .../src/entities/content/construction/tables.rs    |  2 +-
+ 01_core/src/entities/content/emptiness.rs          |  2 +-
+ 01_core/src/entities/content/equality.rs           |  2 +-
+ 01_core/src/entities/content/fields.rs             |  2 +-
+ 01_core/src/entities/content/identity.rs           |  2 +-
+ 01_core/src/entities/content/morphology.rs         |  2 +-
+ 01_core/src/entities/content/page_structure.rs     |  2 +-
+ 01_core/src/entities/content/plain_text.rs         |  2 +-
+ 01_core/src/entities/content/rust_hash.rs          |  2 +-
+ 01_core/src/entities/content/sequence.rs           |  2 +-
+ 01_core/src/entities/content/source.rs             |  2 +-
+ 01_core/src/entities/content/tests/mod.rs          |  2 +-
+ 01_core/src/entities/content/tests/morphology.rs   |  2 +-
+ 01_core/src/entities/content/tests/projections.rs  |  2 +-
+ .../src/entities/content/tests/representation.rs   |  2 +-
+ 01_core/src/entities/content/tests/sequence.rs     |  2 +-
+ 01_core/src/entities/content/tests/traversal.rs    |  2 +-
+ 01_core/src/entities/content/traversal.rs          |  4 +-
+ 01_core/src/entities/content_hash.rs               |  2 +-
+ 01_core/src/entities/corners.rs                    |  2 +-
+ 01_core/src/entities/counter.rs                    |  2 +-
+ 01_core/src/entities/counter_format.rs             |  6 +-
+ 01_core/src/entities/counter_registry.rs           |  2 +-
+ 01_core/src/entities/counter_state_legacy.rs       |  2 +-
+ 01_core/src/entities/counter_update.rs             |  2 +-
+ 01_core/src/entities/decimal.rs                    |  2 +-
+ 01_core/src/entities/dir.rs                        |  2 +-
+ 01_core/src/entities/document_format_options.rs    |  4 +-
+ 01_core/src/entities/document_info.rs              |  2 +-
+ 01_core/src/entities/duration.rs                   |  4 +-
+ 01_core/src/entities/element_info.rs               |  2 +-
+ 01_core/src/entities/element_kind.rs               |  2 +-
+ 01_core/src/entities/element_payload.rs            |  2 +-
+ 01_core/src/entities/element_registry.rs           |  2 +-
+ 01_core/src/entities/elements/align.rs             |  4 +-
+ 01_core/src/entities/elements/bibliography.rs      |  2 +-
+ 01_core/src/entities/elements/block.rs             |  2 +-
+ 01_core/src/entities/elements/boxed.rs             |  2 +-
+ 01_core/src/entities/elements/cite.rs              |  2 +-
+ 01_core/src/entities/elements/colbreak.rs          |  4 +-
+ 01_core/src/entities/elements/columns.rs           |  4 +-
+ 01_core/src/entities/elements/context_block.rs     |  4 +-
+ 01_core/src/entities/elements/counter_display.rs   |  4 +-
+ .../entities/elements/counter_display_callback.rs  |  2 +-
+ 01_core/src/entities/elements/counter_update.rs    |  2 +-
+ 01_core/src/entities/elements/curve.rs             |  2 +-
+ 01_core/src/entities/elements/divider.rs           |  4 +-
+ 01_core/src/entities/elements/dynamic.rs           |  4 +-
+ 01_core/src/entities/elements/emph.rs              |  4 +-
+ 01_core/src/entities/elements/enum_item.rs         |  2 +-
+ 01_core/src/entities/elements/equation.rs          |  2 +-
+ 01_core/src/entities/elements/figure.rs            |  2 +-
+ 01_core/src/entities/elements/figure_caption.rs    |  2 +-
+ 01_core/src/entities/elements/flush.rs             |  4 +-
+ 01_core/src/entities/elements/footnote.rs          |  2 +-
+ 01_core/src/entities/elements/footnote_entry.rs    |  2 +-
+ 01_core/src/entities/elements/grid.rs              |  2 +-
+ 01_core/src/entities/elements/grid_cell.rs         |  2 +-
+ 01_core/src/entities/elements/grid_footer.rs       |  4 +-
+ 01_core/src/entities/elements/grid_header.rs       |  4 +-
+ 01_core/src/entities/elements/grid_hline.rs        |  2 +-
+ 01_core/src/entities/elements/grid_vline.rs        |  2 +-
+ 01_core/src/entities/elements/h_space.rs           |  2 +-
+ 01_core/src/entities/elements/heading.rs           |  2 +-
+ 01_core/src/entities/elements/hide.rs              |  4 +-
+ 01_core/src/entities/elements/image.rs             |  2 +-
+ 01_core/src/entities/elements/label.rs             |  2 +-
+ 01_core/src/entities/elements/linebreak.rs         |  4 +-
+ 01_core/src/entities/elements/link.rs              |  2 +-
+ 01_core/src/entities/elements/list_item.rs         |  2 +-
+ 01_core/src/entities/elements/math_accent.rs       |  2 +-
+ ...9_math_accent_tests.rs => math_accent_tests.rs} |  4 +-
+ 01_core/src/entities/elements/math_align_point.rs  |  2 +-
+ 01_core/src/entities/elements/math_attach.rs       |  2 +-
+ 01_core/src/entities/elements/math_cancel.rs       |  2 +-
+ 01_core/src/entities/elements/math_cases.rs        |  2 +-
+ ...430_math_cases_tests.rs => math_cases_tests.rs} |  4 +-
+ .../src/entities/elements/math_class_override.rs   |  2 +-
+ 01_core/src/entities/elements/math_delimited.rs    |  2 +-
+ 01_core/src/entities/elements/math_frac.rs         |  2 +-
+ .../src/entities/elements/math_limits_override.rs  |  2 +-
+ 01_core/src/entities/elements/math_matrix.rs       |  4 +-
+ ...1_math_matrix_tests.rs => math_matrix_tests.rs} |  4 +-
+ 01_core/src/entities/elements/math_op.rs           |  2 +-
+ 01_core/src/entities/elements/math_root.rs         |  2 +-
+ 01_core/src/entities/elements/math_stretch.rs      |  2 +-
+ 01_core/src/entities/elements/math_styled.rs       |  2 +-
+ 01_core/src/entities/elements/math_underline.rs    |  2 +-
+ 01_core/src/entities/elements/math_underover.rs    |  2 +-
+ 01_core/src/entities/elements/math_vec.rs          |  2 +-
+ 01_core/src/entities/elements/metadata.rs          |  2 +-
+ 01_core/src/entities/elements/mod.rs               | 10 +--
+ 01_core/src/entities/elements/outline.rs           |  2 +-
+ 01_core/src/entities/elements/outline_entry.rs     |  2 +-
+ 01_core/src/entities/elements/overline.rs          |  2 +-
+ 01_core/src/entities/elements/pad.rs               |  4 +-
+ 01_core/src/entities/elements/page_run.rs          |  2 +-
+ 01_core/src/entities/elements/pagebreak.rs         |  2 +-
+ 01_core/src/entities/elements/pdf_artifact.rs      |  2 +-
+ 01_core/src/entities/elements/pdf_attach.rs        |  2 +-
+ 01_core/src/entities/elements/place.rs             |  2 +-
+ 01_core/src/entities/elements/quote.rs             |  2 +-
+ 01_core/src/entities/elements/raw.rs               |  2 +-
+ 01_core/src/entities/elements/ref.rs               |  2 +-
+ 01_core/src/entities/elements/repeat.rs            |  2 +-
+ 01_core/src/entities/elements/shape.rs             |  2 +-
+ 01_core/src/entities/elements/smartquote.rs        |  2 +-
+ 01_core/src/entities/elements/stack.rs             |  2 +-
+ 01_core/src/entities/elements/state.rs             |  4 +-
+ 01_core/src/entities/elements/state_display.rs     |  4 +-
+ 01_core/src/entities/elements/state_update.rs      |  2 +-
+ 01_core/src/entities/elements/strike.rs            |  2 +-
+ 01_core/src/entities/elements/strong.rs            |  4 +-
+ 01_core/src/entities/elements/table.rs             |  4 +-
+ 01_core/src/entities/elements/table_cell.rs        |  4 +-
+ 01_core/src/entities/elements/table_footer.rs      |  4 +-
+ 01_core/src/entities/elements/table_header.rs      |  4 +-
+ 01_core/src/entities/elements/table_hline.rs       |  2 +-
+ 01_core/src/entities/elements/table_vline.rs       |  2 +-
+ 01_core/src/entities/elements/term_item.rs         |  2 +-
+ 01_core/src/entities/elements/terms.rs             |  4 +-
+ 01_core/src/entities/elements/test_callout.rs      |  2 +-
+ 01_core/src/entities/elements/title.rs             |  4 +-
+ 01_core/src/entities/elements/transform.rs         |  4 +-
+ 01_core/src/entities/elements/underline.rs         |  2 +-
+ 01_core/src/entities/elements/v_space.rs           |  2 +-
+ 01_core/src/entities/engine.rs                     |  2 +-
+ 01_core/src/entities/enum_numbering.rs             |  2 +-
+ 01_core/src/entities/file_id.rs                    |  2 +-
+ 01_core/src/entities/font_book.rs                  |  4 +-
+ 01_core/src/entities/font_list.rs                  |  4 +-
+ 01_core/src/entities/font_variations.rs            |  2 +-
+ 01_core/src/entities/frame_paint.rs                |  4 +-
+ 01_core/src/entities/func.rs                       |  2 +-
+ 01_core/src/entities/geometry.rs                   |  2 +-
+ 01_core/src/entities/glyph_variants.rs             |  2 +-
+ 01_core/src/entities/gradient.rs                   |  2 +-
+ 01_core/src/entities/gradient/conic.rs             |  4 +-
+ 01_core/src/entities/gradient/interpolation.rs     |  4 +-
+ 01_core/src/entities/gradient/kind.rs              |  4 +-
+ 01_core/src/entities/gradient/linear.rs            |  4 +-
+ 01_core/src/entities/gradient/offsets.rs           |  4 +-
+ 01_core/src/entities/gradient/radial.rs            |  4 +-
+ 01_core/src/entities/html.rs                       |  2 +-
+ 01_core/src/entities/image_format.rs               |  2 +-
+ 01_core/src/entities/image_sizer.rs                |  2 +-
+ 01_core/src/entities/introspector.rs               |  2 +-
+ 01_core/src/entities/label.rs                      |  4 +-
+ 01_core/src/entities/label_kind.rs                 |  2 +-
+ 01_core/src/entities/label_registry.rs             |  2 +-
+ 01_core/src/entities/lang.rs                       |  2 +-
+ 01_core/src/entities/layout_types.rs               |  4 +-
+ 01_core/src/entities/layouter_runtime_state.rs     |  2 +-
+ .../{p1431_line_cap_tests.rs => line_cap_tests.rs} |  4 +-
+ 01_core/src/entities/list_marker.rs                |  2 +-
+ 01_core/src/entities/location.rs                   |  2 +-
+ 01_core/src/entities/locator.rs                    |  2 +-
+ 01_core/src/entities/math_class.rs                 |  2 +-
+ 01_core/src/entities/math_constants.rs             |  2 +-
+ 01_core/src/entities/math_style.rs                 |  2 +-
+ 01_core/src/entities/metadata_store.rs             |  2 +-
+ 01_core/src/entities/mod.rs                        |  6 +-
+ 01_core/src/entities/module.rs                     |  2 +-
+ 01_core/src/entities/numbering.rs                  |  2 +-
+ 01_core/src/entities/operators.rs                  |  4 +-
+ 01_core/src/entities/package_spec.rs               |  4 +-
+ 01_core/src/entities/page_canvas.rs                |  4 +-
+ 01_core/src/entities/page_geometry.rs              |  4 +-
+ 01_core/src/entities/page_running.rs               |  4 +-
+ 01_core/src/entities/page_store.rs                 |  4 +-
+ 01_core/src/entities/page_supplement.rs            |  4 +-
+ 01_core/src/entities/paint.rs                      |  2 +-
+ 01_core/src/entities/parity.rs                     |  2 +-
+ 01_core/src/entities/path.rs                       |  2 +-
+ 01_core/src/entities/plugin_func.rs                |  4 +-
+ 01_core/src/entities/position.rs                   |  2 +-
+ 01_core/src/entities/ptr_eq_arc.rs                 |  2 +-
+ 01_core/src/entities/regex.rs                      |  2 +-
+ 01_core/src/entities/region.rs                     |  2 +-
+ 01_core/src/entities/rel.rs                        |  2 +-
+ 01_core/src/entities/resolved_label_store.rs       |  2 +-
+ 01_core/src/entities/scope.rs                      |  2 +-
+ 01_core/src/entities/sealed_positions.rs           |  2 +-
+ 01_core/src/entities/selector.rs                   |  2 +-
+ 01_core/src/entities/shaped_glyph.rs               |  2 +-
+ 01_core/src/entities/show.rs                       |  2 +-
+ 01_core/src/entities/sides.rs                      |  2 +-
+ 01_core/src/entities/sink.rs                       |  2 +-
+ 01_core/src/entities/source.rs                     |  2 +-
+ 01_core/src/entities/source_result.rs              |  2 +-
+ 01_core/src/entities/span.rs                       |  4 +-
+ 01_core/src/entities/state.rs                      |  2 +-
+ 01_core/src/entities/state_registry.rs             |  2 +-
+ 01_core/src/entities/state_update.rs               |  4 +-
+ 01_core/src/entities/style.rs                      |  2 +-
+ 01_core/src/entities/style_chain.rs                |  2 +-
+ 01_core/src/entities/symbol.rs                     |  2 +-
+ 01_core/src/entities/syntax_kind.rs                |  4 +-
+ 01_core/src/entities/syntax_mode.rs                |  4 +-
+ 01_core/src/entities/syntax_node.rs                |  2 +-
+ 01_core/src/entities/syntax_node/errors.rs         |  2 +-
+ 01_core/src/entities/syntax_node/linked.rs         |  2 +-
+ 01_core/src/entities/syntax_node/representation.rs |  2 +-
+ 01_core/src/entities/syntax_set.rs                 |  4 +-
+ 01_core/src/entities/syntax_text.rs                |  4 +-
+ 01_core/src/entities/tag.rs                        |  2 +-
+ 01_core/src/entities/tiling.rs                     |  2 +-
+ 01_core/src/entities/value.rs                      |  4 +-
+ 01_core/src/entities/version.rs                    |  2 +-
+ 01_core/src/entities/world_types.rs                |  2 +-
+ 01_core/src/lib.rs                                 |  4 +-
+ 01_core/src/testing/math_oracle.rs                 |  2 +-
+ 01_core/src/testing/mod.rs                         |  2 +-
+ 01_core/src/utils.rs                               |  2 +-
+ ...tline_indented.rs => outline_entry_indented.rs} |  4 +-
+ 02_shell/src/cli.rs                                |  2 +-
+ 02_shell/src/duration.rs                           |  2 +-
+ 02_shell/src/fonts.rs                              |  2 +-
+ 02_shell/src/lib.rs                                |  2 +-
+ ...{p1361_duration.rs => duration_presentation.rs} |  4 +-
+ 03_infra/fixtures/p307b/MANIFEST.md                |  6 +-
+ 03_infra/src/embedded_fonts.rs                     |  2 +-
+ 03_infra/src/export/builder/fonts.rs               |  2 +-
+ 03_infra/src/export/builder/metadata.rs            |  2 +-
+ 03_infra/src/export/builder/resources.rs           |  2 +-
+ 03_infra/src/export/fonts.rs                       |  2 +-
+ 03_infra/src/export/gradients/mod.rs               |  2 +-
+ 03_infra/src/export/html.rs                        |  6 +-
+ ...0_ab_tests.rs => pretty_serialization_tests.rs} |  4 +-
+ .../{p1431_line_cap_tests.rs => line_cap_tests.rs} |  4 +-
+ 03_infra/src/export/mod.rs                         |  6 +-
+ 03_infra/src/export/pdf_defaults.rs                |  2 +-
+ 03_infra/src/export/render.rs                      |  2 +-
+ 03_infra/src/export/stream.rs                      |  2 +-
+ 03_infra/src/export/stream/draw.rs                 |  2 +-
+ 03_infra/src/export/stream/separator.rs            |  2 +-
+ 03_infra/src/export/stream/text_replacement.rs     |  2 +-
+ 03_infra/src/export/subset.rs                      |  2 +-
+ 03_infra/src/export/svg.rs                         |  6 +-
+ ...0_ab_tests.rs => pretty_serialization_tests.rs} |  4 +-
+ 03_infra/src/export/tests/mod.rs                   | 18 ++---
+ ...ge_labels_tests.rs => pdf_page_labels_tests.rs} |  4 +-
+ ..._pdf_spot_tests.rs => pdf_spot_colors_tests.rs} |  4 +-
+ ...sts.rs => pdfa4f_empty_embedded_files_tests.rs} |  4 +-
+ ..._af_tests.rs => pdfa_associated_files_tests.rs} |  4 +-
+ ...e_core_tests.rs => pdfa_core_metadata_tests.rs} |  4 +-
+ ...sts.rs => pdfa_icc_version_and_cidset_tests.rs} |  4 +-
+ ...tion_tests.rs => pdfua_identification_tests.rs} |  4 +-
+ ...structure_tests.rs => pdfua_structure_tests.rs} |  4 +-
+ 03_infra/src/fontdb.rs                             |  2 +-
+ 03_infra/src/fonts.rs                              |  2 +-
+ 03_infra/src/fonts/coverage.rs                     |  2 +-
+ 03_infra/src/image_sizer.rs                        |  4 +-
+ 03_infra/src/integration_tests.rs                  |  4 +-
+ 03_infra/src/layout.rs                             |  2 +-
+ 03_infra/src/layout_bidi.rs                        |  2 +-
+ 03_infra/src/lib.rs                                |  6 +-
+ 03_infra/src/package_downloader.rs                 |  2 +-
+ ...07b_snapshot_tests.rs => pdf_snapshot_tests.rs} |  4 +-
+ 03_infra/src/pipeline/html.rs                      |  2 +-
+ 03_infra/src/pipeline/paged.rs                     |  2 +-
+ 03_infra/src/pipeline/pdf.rs                       |  2 +-
+ 03_infra/src/pipeline/resources.rs                 |  2 +-
+ 03_infra/src/pipeline/svg.rs                       |  2 +-
+ 03_infra/src/pipeline/tests.rs                     |  2 +-
+ 03_infra/src/plugin_host.rs                        |  2 +-
+ 03_infra/src/project_init.rs                       |  2 +-
+ 03_infra/src/query_helpers.rs                      |  4 +-
+ 03_infra/src/shaper/reconciliation.rs              |  2 +-
+ 03_infra/src/shaper/tests.rs                       |  2 +-
+ 03_infra/src/shaper/traversal.rs                   |  2 +-
+ 03_infra/src/watch.rs                              |  4 +-
+ 03_infra/src/world.rs                              |  4 +-
+ 03_infra/src/world/cache.rs                        |  2 +-
+ 03_infra/src/world/font_session.rs                 |  2 +-
+ 03_infra/src/world/fonts.rs                        |  2 +-
+ 03_infra/src/world/packages.rs                     |  2 +-
+ 03_infra/src/world/paths.rs                        |  2 +-
+ 03_infra/src/world/source_session.rs               |  2 +-
+ 03_infra/src/world/tests.rs                        |  2 +-
+ 03_infra/src/world/world_impl.rs                   |  4 +-
+ ...ability_contract.rs => armed_watch_contract.rs} |  4 +-
+ .../tests/{p1424_html_frame.rs => html_frame.rs}   |  4 +-
+ ...th_frac.rs => math_fraction_public_controls.rs} |  4 +-
+ ... => math_fraction_representation_provenance.rs} |  4 +-
+ .../tests/{p1425_math_limits.rs => math_limits.rs} |  4 +-
+ .../tests/{p1426_math_root.rs => math_root.rs}     |  4 +-
+ .../{p1405_pdf_label.rs => pdf_semantic_label.rs}  |  4 +-
+ 03_infra/tests/support/wiring/cli.rs               |  4 +-
+ .../{p1465_format_html.rs => format_html.rs}       |  4 +-
+ ...p1464_format_pdf.rs => format_pdf_namespace.rs} |  4 +-
+ ...468_format_pdf_pages.rs => format_pdf_pages.rs} |  4 +-
+ ...rmat_pdf_standard.rs => format_pdf_standard.rs} |  4 +-
+ ...agged_pretty.rs => format_pdf_tagged_pretty.rs} |  4 +-
+ .../wiring/{p1463_format_png.rs => format_png.rs}  |  4 +-
+ .../wiring/{p1462_format_svg.rs => format_svg.rs}  |  4 +-
+ ...contract.rs => language_and_export_contract.rs} |  4 +-
+ ..._runtime.rs => math_cancel_callback_runtime.rs} |  4 +-
+ ...tract.rs => math_decoration_and_float_flush.rs} |  4 +-
+ ...50_svg_integrated.rs => svg_composite_graph.rs} |  4 +-
+ ...atch_contract.rs => watch_snapshot_contract.rs} |  4 +-
+ 04_wiring/src/main.rs                              |  4 +-
+ 04_wiring/tests/cli.rs                             |  2 +-
+ ...9_float_is_infinite.rs => float_is_infinite.rs} |  4 +-
+ .../tests/{p1465_format_html.rs => format_html.rs} |  6 +-
+ ...p1464_format_pdf.rs => format_pdf_namespace.rs} |  6 +-
+ ...468_format_pdf_pages.rs => format_pdf_pages.rs} |  6 +-
+ ...rmat_pdf_standard.rs => format_pdf_standard.rs} |  6 +-
+ ...agged_pretty.rs => format_pdf_tagged_pretty.rs} |  6 +-
+ .../tests/{p1463_format_png.rs => format_png.rs}   |  6 +-
+ .../tests/{p1462_format_svg.rs => format_svg.rs}   |  6 +-
+ ...contract.rs => language_and_export_contract.rs} |  6 +-
+ ..._runtime.rs => math_cancel_callback_runtime.rs} |  6 +-
+ ...tract.rs => math_decoration_and_float_flush.rs} |  6 +-
+ ....rs => smart_quotes_pdf_attachment_artifact.rs} |  0
+ CLAUDE.md                                          |  7 +-
+ CONTRIBUTING.md                                    |  2 +-
+ README.md                                          |  4 +-
+ crystalline.toml                                   |  2 +-
+ lab/tools/ci/check_mature_layout.py                | 46 +++++++++++--
+ lab/tools/ci/test_mature_layout.py                 | 77 +++++++++++++++++++--
+ lab/tools/workflows/l0-prompt-template.md          |  4 ++
+ 1847 files changed, 3837 insertions(+), 3593 deletions(-)

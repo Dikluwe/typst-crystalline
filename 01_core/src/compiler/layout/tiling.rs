@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/tiling.md
-//! @prompt-hash ad9b4b7f
+//! @prompt 00_nucleo/prompts/core/compiler/layout/tiling.md
+//! @prompt-hash 7903d601
 //! @layer L1
 
 use std::sync::Arc;

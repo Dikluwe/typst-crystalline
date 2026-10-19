@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/cell_tail_commit.md
-//! @prompt-hash c9f8c71f
+//! @prompt 00_nucleo/prompts/core/compiler/layout/cell_tail_commit.md
+//! @prompt-hash cf1a0a6a
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -81,7 +81,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // passa a apontar para a posição real em `current_items`
             // (soma o comprimento actual, capturado ANTES do merge,
             // já incluindo o fill do passo 1). Ver
-            // `00_nucleo/prompts/compiler/layout.md` §P908.
+            // `00_nucleo/prompts/core/compiler/layout/mod.md` §P908.
             let insertion_base = self.regions.current.current_items.len();
             for (mut path, count, align, content_w, origin_x, applied_x) in
                 tail.orphaned_align_x

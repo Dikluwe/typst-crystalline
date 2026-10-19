@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash 9524aa37
+//! @prompt 00_nucleo/prompts/core/compiler/layout/tests.md
+//! @prompt-hash 51aa9225
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -5258,7 +5258,7 @@ fn p772f_measure_content_constrained_block_largura_explicita_nao_colapsa() {
 // corpo. Corrigido tornando ambos "consumidores absolutos" de
 // `layout_sub_frame` (origin_x real + delta incremental de alinhamento, não
 // origin_x:0.0 + target_x inteiro). Ver
-// 00_nucleo/prompts/compiler/layout.md §"Contrato de composição de coordenadas"
+// 00_nucleo/prompts/core/compiler/layout/mod.md §"Contrato de composição de coordenadas"
 // e lab/results/construction/diagnostics/paridade-producao-p772g.md.
 
 #[test]
@@ -5377,7 +5377,7 @@ fn p772g_footnote_com_place_dentro_de_align_bate_com_vanilla_estrutura() {
 // de alinhamento grid vs per-célula corrigida para fold por eixo (era
 // `.or()` do `Align2D` inteiro, descartando o eixo do grid sempre que a
 // célula especificava qualquer eixo). Ver
-// 00_nucleo/prompts/compiler/layout.md §"Alinhamento efectivo per-célula" e
+// 00_nucleo/prompts/core/compiler/layout/mod.md §"Alinhamento efectivo per-célula" e
 // lab/results/construction/diagnostics/paridade-producao-p772j.md.
 
 #[test]
@@ -22572,7 +22572,7 @@ fn p908_layout_sub_frame_devolve_entradas_orfas_em_vez_de_descartar() {
 
 // ── P945 — entrada Display/Text + assembly com peças suficientes ─────
 //
-// Especificação: `00_nucleo/prompts/compiler/layout/equation.md` §P945 (a
+// Especificação: `00_nucleo/prompts/core/compiler/layout/equation.md` §P945 (a
 // entrada fixa `math_size: Display` em bloco / `Text` em inline),
 // `entities/layout_types.md` §P945 (tabela de factores de descida),
 // `compiler/math/layout/matrix.md`/`cases.md`/`assembly.md` §P945.

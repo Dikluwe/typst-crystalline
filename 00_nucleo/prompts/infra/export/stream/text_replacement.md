@@ -16,7 +16,7 @@ registra pin vanilla, estado, UTC, fonte, binários e comandos. Trinta quebras
 automáticas em oito controles têm identidade U+002D versus U+00AD, mas caixas
 coincidentes. `export/fonts.rs:146-154` extrai clusters por GID; identidade
 global por fonte/GID não distingue duas ocorrências do mesmo glifo.
-Contrato público em `00_nucleo/prompts/entities/layout_types.md` aprovado pelo dono.
+Contrato público em `00_nucleo/prompts/core/entities/layout_types.md` aprovado pelo dono.
 
 ## Responsabilidade e aceitação
 

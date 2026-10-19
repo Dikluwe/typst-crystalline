@@ -1,0 +1,292 @@
+[
+  {
+    "old": "01_core/src/entities/elements/mod.rs",
+    "new": "01_core/src/entities/elements/mod.rs",
+    "executable_diff": [
+      "-mod p1429_math_accent_tests;",
+      "-mod p1430_math_cases_tests;",
+      "-mod p1431_math_matrix_tests;",
+      "+mod math_accent_tests;",
+      "+mod math_cases_tests;",
+      "+mod math_matrix_tests;"
+    ]
+  },
+  {
+    "old": "03_infra/src/export/tests/mod.rs",
+    "new": "03_infra/src/export/tests/mod.rs",
+    "executable_diff": [
+      "-mod p1475_pdfa_conformance_core_tests;",
+      "+mod pdfa_core_metadata_tests;",
+      "-mod p1476_pdfa_attachments_af_tests;",
+      "+mod pdfa_associated_files_tests;",
+      "-mod p1477_pdfa_icc_version_and_cidset_tests;",
+      "+mod pdfa_icc_version_and_cidset_tests;",
+      "-mod p1478_pdfa4f_empty_embedded_files_tests;",
+      "+mod pdfa4f_empty_embedded_files_tests;",
+      "-mod p1480_pdfua_identification_tests;",
+      "+mod pdfua_identification_tests;",
+      "-mod p1481_pdfua_structure_tests;",
+      "+mod pdfua_structure_tests;",
+      "-mod p1483_pdf_spot_tests;",
+      "+mod pdf_spot_colors_tests;",
+      "-mod p1486_pdf_page_labels_tests;",
+      "+mod pdf_page_labels_tests;"
+    ]
+  },
+  {
+    "old": "01_core/src/compiler/stdlib/html.rs",
+    "new": "01_core/src/compiler/stdlib/html.rs",
+    "executable_diff": [
+      "-#[path = \"html/p1423_tests.rs\"]",
+      "-mod p1423_tests;",
+      "-#[path = \"html/p1424_tests.rs\"]",
+      "-mod p1424_tests;",
+      "+#[path = \"html/html_constructor_surface_tests.rs\"]",
+      "+mod html_constructor_surface_tests;",
+      "+#[path = \"html/html_frame_tests.rs\"]",
+      "+mod html_frame_tests;"
+    ]
+  },
+  {
+    "old": "01_core/src/compiler/eval/mod.rs",
+    "new": "01_core/src/compiler/eval/mod.rs",
+    "executable_diff": [
+      "-#[path = \"p1425_tests.rs\"]",
+      "-mod p1425_tests;",
+      "-#[path = \"p1426_tests.rs\"]",
+      "-mod p1426_tests;",
+      "-#[path = \"p1427_tests.rs\"]",
+      "-mod p1427_tests;",
+      "-#[path = \"p1429_observation_tests.rs\"]",
+      "-mod p1429_observation_tests;",
+      "-#[path = \"p1430_tests.rs\"]",
+      "-mod p1430_tests;",
+      "-mod p1431_tests;",
+      "+#[path = \"math_limits_override_observation_tests.rs\"]",
+      "+mod math_limits_override_observation_tests;",
+      "+#[path = \"math_root_evaluation_tests.rs\"]",
+      "+mod math_root_evaluation_tests;",
+      "+#[path = \"math_frac_evaluation_tests.rs\"]",
+      "+mod math_frac_evaluation_tests;",
+      "+#[path = \"math_accent_observation_tests.rs\"]",
+      "+mod math_accent_observation_tests;",
+      "+#[path = \"math_cases_evaluation_tests.rs\"]",
+      "+mod math_cases_evaluation_tests;",
+      "+mod math_matrix_evaluation_tests;"
+    ]
+  },
+  {
+    "old": "04_wiring/tests/p1462_format_svg.rs",
+    "new": "04_wiring/tests/format_svg.rs",
+    "executable_diff": [
+      "-#[path = \"../../03_infra/tests/support/wiring/p1462_format_svg.rs\"]",
+      "+#[path = \"../../03_infra/tests/support/wiring/format_svg.rs\"]"
+    ]
+  },
+  {
+    "old": "01_core/src/entities/mod.rs",
+    "new": "01_core/src/entities/mod.rs",
+    "executable_diff": [
+      "-mod p1431_line_cap_tests;",
+      "+mod line_cap_tests;"
+    ]
+  },
+  {
+    "old": "04_wiring/tests/p1465_format_html.rs",
+    "new": "04_wiring/tests/format_html.rs",
+    "executable_diff": [
+      "-#[path = \"../../03_infra/tests/support/wiring/p1465_format_html.rs\"]",
+      "+#[path = \"../../03_infra/tests/support/wiring/format_html.rs\"]"
+    ]
+  },
+  {
+    "old": "01_core/src/compiler/stdlib/structural/mod.rs",
+    "new": "01_core/src/compiler/stdlib/structural/mod.rs",
+    "executable_diff": [
+      "-#[path = \"p1429_tests.rs\"]",
+      "-mod p1429_tests;",
+      "-#[path = \"p1430_tests.rs\"]",
+      "-mod p1430_tests;",
+      "-#[path = \"p1431_tests.rs\"]",
+      "-mod p1431_tests;",
+      "-#[path = \"p1436_tests.rs\"]",
+      "-mod p1436_tests;",
+      "-#[path = \"p1437_tests.rs\"]",
+      "-mod p1437_tests;",
+      "-#[path = \"p1438_tests.rs\"]",
+      "-mod p1438_tests;",
+      "-#[path = \"p1439_tests.rs\"]",
+      "-mod p1439_tests;",
+      "-#[path = \"p1440_tests.rs\"]",
+      "-mod p1440_tests;",
+      "-#[path = \"p1441_tests.rs\"]",
+      "-mod p1441_tests;",
+      "-#[path = \"p1442_tests.rs\"]",
+      "-mod p1442_tests;",
+      "-mod p1443_tests;",
+      "-mod p1444_tests;",
+      "-mod p1445_tests;",
+      "-mod p1446_tests;",
+      "-mod p1447_tests;",
+      "-mod p1448_tests;",
+      "-mod p1449_tests;",
+      "-mod p1450_tests;",
+      "-mod p1451_tests;",
+      "+#[path = \"math_accent_tests.rs\"]",
+      "+mod math_accent_tests;",
+      "+#[path = \"math_cases_tests.rs\"]",
+      "+mod math_cases_tests;",
+      "+#[path = \"math_matrix_tests.rs\"]",
+      "+mod math_matrix_tests;",
+      "+#[path = \"math_lr_tests.rs\"]",
+      "+mod math_lr_tests;",
+      "+#[path = \"math_mid_tests.rs\"]",
+      "+mod math_mid_tests;",
+      "+#[path = \"math_norm_tests.rs\"]",
+      "+mod math_norm_tests;",
+      "+#[path = \"math_overbrace_tests.rs\"]",
+      "+mod math_overbrace_tests;",
+      "+#[path = \"math_overbracket_tests.rs\"]",
+      "+mod math_overbracket_tests;",
+      "+#[path = \"math_overline_tests.rs\"]",
+      "+mod math_overline_tests;",
+      "+#[path = \"math_overparen_tests.rs\"]",
+      "+mod math_overparen_tests;",
+      "+mod math_overshell_tests;",
+      "+mod math_primes_tests;",
+      "+mod math_round_tests;",
+      "+mod math_stretch_tests;",
+      "+mod math_abs_tests;",
+      "+mod math_underbrace_tests;",
+      "+mod math_underbracket_tests;",
+      "+mod math_underparen_tests;",
+      "+mod math_undershell_tests;"
+    ]
+  },
+  {
+    "old": "01_core/src/compiler/stdlib/structural/math.rs",
+    "new": "01_core/src/compiler/stdlib/structural/math.rs",
+    "executable_diff": [
+      "-mod p1425_tests;",
+      "-mod p1426_tests;",
+      "-mod p1427_tests;",
+      "+mod math_limits_tests;",
+      "+mod math_root_tests;",
+      "+mod math_frac_tests;"
+    ]
+  },
+  {
+    "old": "04_wiring/tests/p1293_contract.rs",
+    "new": "04_wiring/tests/language_and_export_contract.rs",
+    "executable_diff": [
+      "-#[path = \"../../03_infra/tests/support/wiring/p1293_contract.rs\"]",
+      "+#[path = \"../../03_infra/tests/support/wiring/language_and_export_contract.rs\"]"
+    ]
+  },
+  {
+    "old": "03_infra/src/export/mod.rs",
+    "new": "03_infra/src/export/mod.rs",
+    "executable_diff": [
+      "-mod p1431_line_cap_tests;",
+      "+mod line_cap_tests;"
+    ]
+  },
+  {
+    "old": "03_infra/src/export/svg.rs",
+    "new": "03_infra/src/export/svg.rs",
+    "executable_diff": [
+      "-mod p1360_ab_tests;",
+      "+mod pretty_serialization_tests;"
+    ]
+  },
+  {
+    "old": "03_infra/src/lib.rs",
+    "new": "03_infra/src/lib.rs",
+    "executable_diff": [
+      "-mod p307b_snapshot_tests;",
+      "+mod pdf_snapshot_tests;"
+    ]
+  },
+  {
+    "old": "04_wiring/tests/p1469_format_pdf_standard.rs",
+    "new": "04_wiring/tests/format_pdf_standard.rs",
+    "executable_diff": [
+      "-#[path = \"../../03_infra/tests/support/wiring/p1469_format_pdf_standard.rs\"]",
+      "+#[path = \"../../03_infra/tests/support/wiring/format_pdf_standard.rs\"]"
+    ]
+  },
+  {
+    "old": "04_wiring/tests/p1468_format_pdf_pages.rs",
+    "new": "04_wiring/tests/format_pdf_pages.rs",
+    "executable_diff": [
+      "-#[path = \"../../03_infra/tests/support/wiring/p1468_format_pdf_pages.rs\"]",
+      "+#[path = \"../../03_infra/tests/support/wiring/format_pdf_pages.rs\"]"
+    ]
+  },
+  {
+    "old": "04_wiring/tests/p1463_format_png.rs",
+    "new": "04_wiring/tests/format_png.rs",
+    "executable_diff": [
+      "-#[path = \"../../03_infra/tests/support/wiring/p1463_format_png.rs\"]",
+      "+#[path = \"../../03_infra/tests/support/wiring/format_png.rs\"]"
+    ]
+  },
+  {
+    "old": "04_wiring/tests/p1292_contract.rs",
+    "new": "04_wiring/tests/math_decoration_and_float_flush.rs",
+    "executable_diff": [
+      "-#[path = \"../../03_infra/tests/support/wiring/p1292_contract.rs\"]",
+      "+#[path = \"../../03_infra/tests/support/wiring/math_decoration_and_float_flush.rs\"]"
+    ]
+  },
+  {
+    "old": "03_infra/src/export/html.rs",
+    "new": "03_infra/src/export/html.rs",
+    "executable_diff": [
+      "-mod p1360_ab_tests;",
+      "+mod pretty_serialization_tests;"
+    ]
+  },
+  {
+    "old": "01_core/src/compiler/math/layout/mod.rs",
+    "new": "01_core/src/compiler/math/layout/mod.rs",
+    "executable_diff": [
+      "-mod p1425_tests;",
+      "-mod p1426_tests;",
+      "-mod p1427_tests;",
+      "-mod p1429_tests;",
+      "-mod p1430_tests;",
+      "-mod p1431_tests;",
+      "+mod math_limits_layout_tests;",
+      "+mod math_root_layout_tests;",
+      "+mod math_frac_layout_tests;",
+      "+mod math_accent_layout_tests;",
+      "+mod math_cases_layout_tests;",
+      "+mod math_matrix_layout_tests;"
+    ]
+  },
+  {
+    "old": "04_wiring/tests/p1464_format_pdf.rs",
+    "new": "04_wiring/tests/format_pdf_namespace.rs",
+    "executable_diff": [
+      "-#[path = \"../../03_infra/tests/support/wiring/p1464_format_pdf.rs\"]",
+      "+#[path = \"../../03_infra/tests/support/wiring/format_pdf_namespace.rs\"]"
+    ]
+  },
+  {
+    "old": "04_wiring/tests/p1291_callback_runtime.rs",
+    "new": "04_wiring/tests/math_cancel_callback_runtime.rs",
+    "executable_diff": [
+      "-#[path = \"../../03_infra/tests/support/wiring/p1291_callback_runtime.rs\"]",
+      "+#[path = \"../../03_infra/tests/support/wiring/math_cancel_callback_runtime.rs\"]"
+    ]
+  },
+  {
+    "old": "04_wiring/tests/p1467_format_pdf_tagged_pretty.rs",
+    "new": "04_wiring/tests/format_pdf_tagged_pretty.rs",
+    "executable_diff": [
+      "-#[path = \"../../03_infra/tests/support/wiring/p1467_format_pdf_tagged_pretty.rs\"]",
+      "+#[path = \"../../03_infra/tests/support/wiring/format_pdf_tagged_pretty.rs\"]"
+    ]
+  }
+]

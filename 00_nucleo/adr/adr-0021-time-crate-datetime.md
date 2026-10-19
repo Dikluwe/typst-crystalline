@@ -116,7 +116,7 @@ fn today(&self, offset: Option<i64>) -> Option<Datetime> {
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/world-types.md` | Actualizar — Datetime real com `time` |
+| `00_nucleo/prompts/core/entities/world_types.md` | Actualizar — Datetime real com `time` |
 
 ---
 

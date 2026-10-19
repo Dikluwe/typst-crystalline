@@ -1,5 +1,5 @@
 # L0 — Infrastructure end-to-end test harness
-Hash do Código: d3c17558
+Hash do Código: 6028f313
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
@@ -31,7 +31,7 @@ Geometric helpers accumulate ancestor affine transforms: Group translation, matr
 
 For the pinned no-text placement witnesses, check an empty page's requested PDF MediaBox, preserved cover-image clip and placed-text baseline against the independently observed vanilla geometry. Run the real World and production pipeline for font-demand controls. A no-font declaration with an isolated shape or image must not request the font book; a placed nontext body must meet the same condition without suppressing explicit font-family validation or text shaping. These assertions belong to this test harness; the productive owners remain responsible for their mechanisms. Record RED failures without weakening expectations to match current output.
 
-Use public color values (`red`, `blue`, `black`) in shape/rotation fixtures, not strings that trigger cast errors. `lab/corpus/legacy-sections/sec_22.typ` contains normal and inverted bracket pairs; observe base character, glyph identity and advance and require equivalent vertical variants when positional role changes. That witness protects `00_nucleo/prompts/compiler/math/layout/delimited.md` without requiring a particular MathDelimited representation.
+Use public color values (`red`, `blue`, `black`) in shape/rotation fixtures, not strings that trigger cast errors. `lab/corpus/legacy-sections/sec_22.typ` contains normal and inverted bracket pairs; observe base character, glyph identity and advance and require equivalent vertical variants when positional role changes. That witness protects `00_nucleo/prompts/core/compiler/math/layout/delimited.md` without requiring a particular MathDelimited representation.
 
 Bundle tests distinguish feature absence, out-of-target calls and the active target. Absent bundle feature must fail during eval with its exact gated diagnostic/hints, before layout/export. Active tests cover byte/UTF-8 assets, nested/normalized paths, duplicate asset/document paths, empty bundles, mixed PDF/SVG/PNG/HTML document entries, explicit/unknown formats, HTML without its feature and loose top-level content. Asset names/payloads are exact observables; document acceptance uses language/format structure. Do not accept an empty placeholder asset as data or leave outputs outside isolated temporary directories.
 
@@ -46,7 +46,7 @@ Retain existing integration cases and their owner boundaries; this prompt does n
 `03_infra/src/integration_tests.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
 `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
 
 ### Responsabilidade deste owner
@@ -207,7 +207,7 @@ Aceitação: RED→GREEN com mesmas palavras distribuídas 2+2 versus 3+1, prote
 Medição anterior: initial.json, before/resultados.json e red.log em
 `lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/` registram
 texto/caixas e a perda de SHY. O dono confirmou o contrato
-`00_nucleo/prompts/entities/layout_types.md`. A compilação de fixtures exaustivas
+`00_nucleo/prompts/core/entities/layout_types.md`. A compilação de fixtures exaustivas
 exige tratar a variante nova. Projeções visuais descem nos filhos; extractors
 textuais usam text uma vez. Expectativas de identidade discricionária passam a
 SHY, mantendo U+002D literal. Não relaxar caixas/seleção. A suíte de shaper

@@ -77,7 +77,7 @@ sem questão.
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/infra/system-world.md` | Actualizar quando activada — método `with_system_fonts` |
+| `00_nucleo/prompts/infra/world.md` | Actualizar quando activada — método `with_system_fonts` |
 
 ---
 

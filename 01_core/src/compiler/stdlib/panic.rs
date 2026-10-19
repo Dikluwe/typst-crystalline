@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/panic.md
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/panic.md
 //! @prompt-hash 306d3607
 //! @layer L1
 //! @updated 2026-06-22

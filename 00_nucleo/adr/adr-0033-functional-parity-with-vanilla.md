@@ -337,9 +337,9 @@ Cross-references P311b:
 - **P311a** — Diagnóstico (`diagnosticos/diagnostico-math-style-
   passo-311a.md`).
 - **P311b** — Materialização (6 sub-passos).
-- `00_nucleo/prompts/entities/math_style.md` — L0 dedicado para
+- `00_nucleo/prompts/core/entities/math_style.md` — L0 dedicado para
   `MathStyleKind` + `map_glyph`.
-- `00_nucleo/prompts/entities/content.md` §"Variant
+- `00_nucleo/prompts/core/entities/content.md` §"Variant
   `Content::MathStyled`" — drift que documenta variant 25º.
 - `00_nucleo/prompts/engine/stdlib.md` §"12 funções math style" — drift
   para registar funções nativas.

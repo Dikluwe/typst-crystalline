@@ -6,7 +6,7 @@ Hash do Código: b8867f4e
 
 ## Evidence and boundary
 
-`02_shell/src/duration.rs:14`, `:27` and `:45` implement `format_duration`, `WatchStatus::message` and `format_watch_line`; the public literal vector is exercised in `02_shell/tests/p1361_duration.rs:19`. The latter has its own owner, `00_nucleo/prompts/shell/tests/p1361-duration.md`. Status selection, time capture, channels, color, terminal clearing and diagnostic ordering belong to the caller, not this formatter.
+`02_shell/src/duration.rs:14`, `:27` and `:45` implement `format_duration`, `WatchStatus::message` and `format_watch_line`; the public literal vector is exercised in `02_shell/tests/duration_presentation.rs:19`. The latter has its own owner, `00_nucleo/prompts/shell/tests/duration_presentation.md`. Status selection, time capture, channels, color, terminal clearing and diagnostic ordering belong to the caller, not this formatter.
 
 The text is observable presentation. Display wrappers and arithmetic mechanics are implementation choices, provided the literal outputs and boundaries are preserved. Historical oracle/harness evidence is in `lab/results/construction/diagnostics/sanitization-shell-history.md`; it is not a global parity claim.
 

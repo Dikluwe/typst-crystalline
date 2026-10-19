@@ -1,5 +1,5 @@
 # L0 — infra/export/mod
-Hash do Código: e91c5bdb
+Hash do Código: c092762c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
@@ -51,7 +51,7 @@ routing, output validation or encoding algorithm belongs in this façade.
 - `00_nucleo/prompts/infra/export/builder.md`: PDF orchestration.
 - `00_nucleo/prompts/infra/export/stream.md`: borrowed PDF emission context.
 - `00_nucleo/prompts/infra/export/fonts.md`: font/Unicode helpers.
-- `00_nucleo/prompts/infra/export/font_subset.md`: subset adapter.
+- `00_nucleo/prompts/infra/export/subset.md`: subset adapter.
 - `00_nucleo/prompts/infra/export/images.md`: PDF image façade.
 - `00_nucleo/prompts/infra/export/gradients/mod.md`: gradient discovery.
 - `00_nucleo/prompts/infra/export/render.md`: raster.
@@ -295,3 +295,7 @@ O inventário validado em `lab/results/construction/diagnostics/clippy-locais-20
 Materializar somente as expectativas diretas nominais já justificadas neste owner: C074, C075, C082, C089. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
 
 Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
+
+## Owned test module declarations
+
+This consumer declares the following separately owned test modules: `line_cap_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.

@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-19T00:26:44.682823+00:00",
+  "command": [
+    "/repos/Antigravity/typst-crystalline/lab/target/linter/debug/crystalline-lint",
+    ".",
+    "--format",
+    "sarif"
+  ],
+  "exit": 1,
+  "state": "uncommitted working tree; migration-map.json and validation/validation-state.json.gz identify files and hashes"
+}

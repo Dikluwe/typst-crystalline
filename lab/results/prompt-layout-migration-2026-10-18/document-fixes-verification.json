@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-19T00:43:39.148828+00:00",
+  "commands_checked": 13,
+  "titles_checked": 103,
+  "unresolved": [],
+  "method": "Read back exact approved replacements; each documented package and test target resolves in current cargo metadata. Source assertions/body equality is recorded separately."
+}

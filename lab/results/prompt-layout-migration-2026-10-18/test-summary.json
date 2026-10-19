@@ -1,0 +1,21 @@
+{
+  "tests-domain-infra": {
+    "passed": 8904,
+    "failed": 0,
+    "ignored": 7,
+    "test_targets": 14
+  },
+  "tests-wiring": {
+    "passed": 224,
+    "failed": 0,
+    "ignored": 0,
+    "test_targets": 15
+  },
+  "doctests": {
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "test_targets": 3
+  },
+  "utc": "2026-10-19T00:43:39.123425+00:00"
+}

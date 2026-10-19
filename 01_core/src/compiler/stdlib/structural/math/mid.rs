@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math/mid.md
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/mid.md
 //! @prompt-hash 0dc0ed7d
 //! @layer L1
 //! @updated 2026-09-30

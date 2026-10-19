@@ -24,7 +24,7 @@ Preserve `layout_with_font(content: &Content, font_data: &[u8], font_size: f64) 
 
 For invalid bytes use the existing L1 `layout(content)` fallback, preserving its defaults and absence of a font-parse panic. Do not generalize the valid-font callback guard into a new public error return.
 
-Metrics are owned by `00_nucleo/prompts/infra/font_metrics.md`, byte metadata by `00_nucleo/prompts/infra/image-sizer.md`, and productive callback realization/stabilization by `00_nucleo/prompts/infra/pipeline/paged.md` and `00_nucleo/prompts/infra/pipeline/context_stabilization.md`.
+Metrics are owned by `00_nucleo/prompts/infra/font_metrics.md`, byte metadata by `00_nucleo/prompts/infra/image_sizer.md`, and productive callback realization/stabilization by `00_nucleo/prompts/infra/pipeline/paged.md` and `00_nucleo/prompts/infra/pipeline/context_stabilization.md`.
 
 ## Verification boundary
 

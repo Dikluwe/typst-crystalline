@@ -89,7 +89,7 @@ without breaking stable historical citations.
 
 ADR-0130 defines one prose identity format: the full repository-relative
 path including `00_nucleo/prompts/`, for example
-`00_nucleo/prompts/compiler/layout.md`. Neither `layout.md` nor
+`00_nucleo/prompts/core/compiler/layout/mod.md`. Neither `layout.md` nor
 `compiler/layout.md` is a canonical prompt identity. Relative Markdown link
 targets are allowed for navigation only; their visible prompt-path labels
 retain the canonical identity. Rust `@prompt` paths remain repository-relative

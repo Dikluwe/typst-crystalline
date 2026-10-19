@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/grid/cell_body.md
-//! @prompt-hash c73f1bba
+//! @prompt 00_nucleo/prompts/core/compiler/layout/grid/cell_body.md
+//! @prompt-hash e50b9420
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -117,7 +117,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         // especifica H). `.or()` do Align2D inteiro descartava o
         // eixo do grid sempre que a célula especificava qualquer
         // eixo — divergência real, não só mecânica. Ver
-        // 00_nucleo/prompts/compiler/layout.md §"Alinhamento efectivo
+        // 00_nucleo/prompts/core/compiler/layout/mod.md §"Alinhamento efectivo
         // per-célula".
         let effective_align = if prepared {
             cell_align
@@ -315,7 +315,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         // baseline, por isso a translação real usa `body_y + (ly
         // - local_start_y)`); a translação lógica usa `body_y`
         // directamente — NÃO `body_y - local_start_y`. Ver
-        // `00_nucleo/prompts/compiler/layout.md` §P908.
+        // `00_nucleo/prompts/core/compiler/layout/mod.md` §P908.
         let orphaned_align_y: Vec<_> = orphaned_align_y
             .into_iter()
             .map(|(path, count, align, content_h, origin_y, dy, applied_y)| {

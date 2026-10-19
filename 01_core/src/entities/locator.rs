@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/locator.md
+//! @prompt 00_nucleo/prompts/core/entities/locator.md
 //! @prompt-hash 2d43fb5c
 //! @layer L1
 //! @updated 2026-10-05

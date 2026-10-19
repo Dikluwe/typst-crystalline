@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/infra.md
-//! @prompt-hash 56bcb0ec
+//! @prompt 00_nucleo/prompts/infra/lib.md
+//! @prompt-hash 51c05649
 //! @layer L3
 //! @updated 2026-03-26
 
@@ -32,4 +32,4 @@ pub mod world;
 mod integration_tests;
 
 #[cfg(test)]
-mod p307b_snapshot_tests;
+mod pdf_snapshot_tests;

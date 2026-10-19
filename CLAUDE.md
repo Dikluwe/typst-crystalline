@@ -58,6 +58,10 @@ Organization rules:
 
 - `prompts/` is reserved for L0 specifications with direct correspondence to code produced in L1–L4.
 - L0 prompt ↔ productive consumer correspondence is strictly 1:1.
+- ADR-0131 makes owner paths deterministic: `prompts/{core,shell,infra,wiring}/`
+  plus the consumer-relative path, omitting only leading `src/` and replacing
+  `.rs` with `.md`. Preserve `tests/`, `mod`, `lib`, `main`, and `build`; source
+  and owner basenames describe responsibility, not execution-step numbers.
 - `prompts/_nuclei/**/*.toml` is a distinct L0 namespace using strict TOML 1.0, `tekt = 1`, `kind = "nucleus"`, `must`/`must-not`/`may` claims, a DAG, and full SHA-256 pins in consuming prompts.
 - Every Nucleus has one or more consuming prompts; an orphan Nucleus is V26.
 - Code never points directly to a Nucleus. A Nucleus never contains `Hash do Código`, a productive owner, or a consumer list.
@@ -95,7 +99,7 @@ Four provenance traps:
 
 1. **Version string is supporting evidence only.** `lab/typst-original` has no separate `.git`. The ratified build explicitly received `TYPST_COMMIT_SHA=bd5ebec285505889e8ff1d4f68804ab147a699f3`, Rust 1.92.0, the lockfile, one job, a 12 GiB ceiling, and zero swap. Its source was blob-compared with the tree above, keeping only the lockfile and local extractor as overlays. Executable `lab/typst-original/target/release/typst` has SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. Recipe, source/tree verification, resources, and full receipt are in `lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md` and its evidence under that directory. The P1489 binary is preserved locally as `lab/typst-original/target/release/typst-9f2b6e871-p1489`; its reports retain the original SHA. Identity requires commit, tree, recipe, and SHA-256, never only `--version`.
 2. **`lab/target/product/release/typst` is the Crystalline product binary.** `04_wiring` declares `[[bin]] name = "typst"`; its public version comes from `PARITY_VERSION` (`entities/version.rs`) and our HEAD. Confusing product and oracle was the P1024 error. The oracle is the verified build in the lab or an independently checked-out CI build with a verified receipt. `/usr/local/bin/typst` can replace it only after its bytes are proven identical to the current ratified build.
-3. **`sys.version` is a language surface.** Direct probe of new vanilla `bd5ebec2` returned `version(0, 15, 1)`. Crystalline retains this triplet; `PARITY_VERSION` did not change in the resync. A future change requires the ADR-0127 gate in `00_nucleo/prompts/entities/version.md`.
+3. **`sys.version` is a language surface.** Direct probe of new vanilla `bd5ebec2` returned `version(0, 15, 1)`. Crystalline retains this triplet; `PARITY_VERSION` did not change in the resync. A future change requires the ADR-0127 gate in `00_nucleo/prompts/core/entities/version.md`.
 4. **Crystalline `--version` can be stuck on an old HEAD.** Before P1033, `02_shell/build.rs` only declared `rerun-if-env-changed=TYPST_COMMIT_SHA`. P1033 fixed this with `cargo:rerun-if-changed=../.git/HEAD` and `../.git/refs`. Provenance still records HEAD and tree state; a version string alone does not prove the source used for a measurement.
 
 Never cite "0.15.0" or "0.15.1" as the target without confirming the pinned hash first.
@@ -176,6 +180,7 @@ The required shape is B: keep the core `match` lean, with bodies delegating to a
 | [ADR-0128](00_nucleo/adr/adr-0128-html-as-semantic-target.md) | HTML is a separate semantic target from paginated layout; feature and target are separate axes. |
 | [ADR-0129](00_nucleo/adr/adr-0129-l0-owners-and-shared-tekt-nuclei.md) | L0 prompt ↔ consumer is 1:1; shared invariants use pinned 1:N Tekt Nuclei validated by V26. |
 | [ADR-0130](00_nucleo/adr/adr-0130-canonical-l0-prompt-references.md) | L0 references use full canonical paths; `@prompt` headers identify the owner unambiguously. |
+| [ADR-0131](00_nucleo/adr/adr-0131-owner-aligned-prompt-paths.md) | Owner paths mirror the layer and source modules without leading `src/`; active filenames describe responsibility. |
 
 Do not follow revoked ADRs that are absent from the current table.
 

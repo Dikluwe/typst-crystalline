@@ -140,8 +140,8 @@ justificadas por valor de domínio).
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/entities/regex.md` | NOVO — wrapper L1 (P209D) |
-| `00_nucleo/prompts/entities/selector.md` | +variant `Regex(Regex)` em Interface; +query semantics stub (P209D) |
+| `00_nucleo/prompts/core/entities/regex.md` | NOVO — wrapper L1 (P209D) |
+| `00_nucleo/prompts/core/entities/selector.md` | +variant `Regex(Regex)` em Interface; +query semantics stub (P209D) |
 
 ---
 

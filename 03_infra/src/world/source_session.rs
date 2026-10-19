@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/infra/system-world/source_session.md
+//! @prompt 00_nucleo/prompts/infra/world/source_session.md
 //! @prompt-hash 338069f9
 //! @layer L3
 //! @updated 2026-10-08

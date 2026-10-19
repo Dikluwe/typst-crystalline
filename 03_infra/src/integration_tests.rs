@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash d5b4fd14
+//! @prompt-hash 3bc198bc
 //! @layer L3
 //! @updated 2026-10-06
 
@@ -3874,7 +3874,7 @@ mod integration {
 
     // ── P966 — default de itálico math em conteúdo de função de utilizador ──
     //
-    // Especificação: `00_nucleo/prompts/compiler/math/layout/_comum.md` §P966.
+    // Especificação: `00_nucleo/prompts/core/compiler/math/layout/mod.md` §P966.
     // `#let bra(x) = [⟨#x\|]` chamado como `bra(phi)` dentro de `$…$` chega
     // ao layout como `Content::Sequence` de markup (filhos `Text`/`MathText`)
     // e a folha `MathText("φ")` nunca recebia o default de itálico

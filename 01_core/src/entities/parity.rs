@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/parity.md
+//! @prompt 00_nucleo/prompts/core/entities/parity.md
 //! @prompt-hash fa23412e
 //! @layer L1
 //! @updated 2026-04-25

@@ -8,6 +8,10 @@
 
 The prompt’s canonical path is the owner path used by lineage metadata. A materializable prompt owns exactly one productive consumer; one consumer has exactly one owner. Put shared invariants in Tekt nuclei, pinned by their consuming prompts. A nucleus is not an owner and does not authorize code by itself.
 
+Derive that path under `00_nucleo/prompts/{core,shell,infra,wiring}/` from the
+consumer's module path: omit only a leading `src/`, preserve `tests/` and the
+actual basename, and replace `.rs` with `.md` (ADR-0131). Use semantic filenames.
+
 ---
 
 ## Context

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/calc/erf.md
-//! @prompt-hash 71ee891c
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/erf.md
+//! @prompt-hash ecdbfcf3
 //! @layer L1
 //! @updated 2026-09-30
 

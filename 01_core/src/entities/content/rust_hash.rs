@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/content/rust-hash.md
-//! @prompt-hash ce215c95
+//! @prompt 00_nucleo/prompts/core/entities/content/rust_hash.md
+//! @prompt-hash 76ba4276
 //! @layer L1
 //! @updated 2026-10-07
 

@@ -13,7 +13,7 @@ Layer: L3. Exclusive consumer: `03_infra/src/export/stream/separator.rs`.
 `:771` uses the local reflection envelope. The RED probes at
 `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/resultados.json`
 show A B C losing real spaces. The public carrier contract in
-`00_nucleo/prompts/entities/layout_types.md` was approved on 2026-09-28.
+`00_nucleo/prompts/core/entities/layout_types.md` was approved on 2026-09-28.
 This is language text loss, not a requirement for identical PDF bytes.
 
 ## Contract

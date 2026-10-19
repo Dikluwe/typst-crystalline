@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/gradient/interpolation.md
-//! @prompt-hash 330abaec
+//! @prompt 00_nucleo/prompts/core/entities/gradient/interpolation.md
+//! @prompt-hash 1286a18f
 //! @layer L1
 //! @updated 2026-09-30
 

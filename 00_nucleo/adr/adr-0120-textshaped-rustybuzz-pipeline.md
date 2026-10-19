@@ -376,6 +376,6 @@ ser deprecated e sua documentação descreve pré-shaping/fallback permanente.
 A remoção da anotação não autoriza eliminar shaping, fabricar glifos em L1,
 remover TextShaped ou alterar fallbacks. Não muda campos, assinaturas, API
 funcional, defaults ou fase. O owner materializável desta correção é
-`00_nucleo/prompts/entities/layout_types.md`; esta ADR não legitima outro
+`00_nucleo/prompts/core/entities/layout_types.md`; esta ADR não legitima outro
 consumer. As contagens e alegações históricas de P483/P484 não são uma nova
 medição de cobertura ou paridade.

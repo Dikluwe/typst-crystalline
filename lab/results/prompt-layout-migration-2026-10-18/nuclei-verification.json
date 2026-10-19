@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-19T00:26:39.076555+00:00",
+  "checkpoint": "d330c717eb06c86a560c4cf3d8d0ba40224609b9",
+  "files": 109,
+  "byte_changes": [],
+  "method": "Compare pre-migration SHA-256 path inventory against final files."
+}

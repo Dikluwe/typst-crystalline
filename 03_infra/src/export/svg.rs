@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash aa5fb88e
+//! @prompt-hash 00cab541
 //! @layer L3
 //! @updated 2026-09-28
 //! SVG facade and exhaustive renderer dispatcher.
@@ -28,9 +28,9 @@ mod glyphs;
 mod groups;
 mod images;
 mod navigation;
-#[cfg(test)]
-mod p1360_ab_tests;
 mod paints;
+#[cfg(test)]
+mod pretty_serialization_tests;
 mod serialization;
 #[cfg(test)]
 mod tests;

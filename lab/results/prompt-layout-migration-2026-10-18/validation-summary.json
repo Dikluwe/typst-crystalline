@@ -1,0 +1,66 @@
+{
+  "utc": "2026-10-19T00:46:17.085486+00:00",
+  "checkpoint": "d330c717eb06c86a560c4cf3d8d0ba40224609b9",
+  "state": "uncommitted working tree on codex/tekt-mature-layout",
+  "successful_frozen_jobs": [
+    "python-ci-tests",
+    "layout",
+    "strict-lineage",
+    "reverse-lineage",
+    "build",
+    "tests-domain-infra",
+    "tests-wiring",
+    "doctests",
+    "build-all-targets",
+    "clippy",
+    "fmt",
+    "rustdoc"
+  ],
+  "frozen_inputs": {
+    "utc": "2026-10-19T00:40:41.939637+00:00",
+    "changed_inputs": [],
+    "input_count": 2130,
+    "completed_jobs": 12,
+    "expected_jobs": 12
+  },
+  "tests": {
+    "tests-domain-infra": {
+      "passed": 8904,
+      "failed": 0,
+      "ignored": 7,
+      "test_targets": 14
+    },
+    "tests-wiring": {
+      "passed": 224,
+      "failed": 0,
+      "ignored": 0,
+      "test_targets": 15
+    },
+    "doctests": {
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0,
+      "test_targets": 3
+    },
+    "utc": "2026-10-19T00:43:39.123425+00:00"
+  },
+  "python_helper_tests": 34,
+  "strict_lineage_consumers": 991,
+  "nuclei_byte_identical": 109,
+  "source_files_renamed": 85,
+  "owner_paths_moved": 868,
+  "post_suite_documentation": "13 Cargo commands and103 first-line titles corrected; post-test-rust-proof.json establishes only105 leading forward-seal comment changes and zero other Rust byte changes. Final isolated source passes strict/reverse/layout/metadata checks.",
+  "isolated_snapshot_tree": "d43f1a7aab0f894f8228fb1bee17e9cb47f4d419",
+  "full_lint": "105 preexisting V16 errors; zero new or resolved findings after mapping file identities.",
+  "resource_configuration": {
+    "jobs": 1,
+    "MemoryMax": "12G",
+    "MemoryHigh": "8G",
+    "MemorySwapMax": 0
+  },
+  "limitations": [
+    "Local Linux checks only; remote CI, Windows/i686 and Docker were not run.",
+    "Cumulative L0 prose, incomplete English translation and numbered inline test identifiers remain separately scoped.",
+    "Historic fixture and evidence IDs are preserved."
+  ]
+}

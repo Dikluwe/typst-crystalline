@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/figure_image.md
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/figure_image.md
 //! @prompt-hash 5917eb50
 //! @layer L1
 //! @updated 2026-04-23
@@ -467,8 +467,8 @@ pub fn native_image(
 /// P1473 (Agente B) — contrato RED de `figure.caption` (escopo reduzido:
 /// construção sem síntese). Fonte:
 /// `lab/history/construction/records/00_nucleo/materialization/typst-passo-1473.md` +
-/// `00_nucleo/prompts/compiler/stdlib/figure_image.md` §P1473 +
-/// `00_nucleo/prompts/entities/elements/figure_caption.md`. Escrito sem ver
+/// `00_nucleo/prompts/core/compiler/stdlib/figure_image.md` §P1473 +
+/// `00_nucleo/prompts/core/entities/elements/figure_caption.md`. Escrito sem ver
 /// a implementação (isolamento Agente A/B).
 ///
 /// `Content::FigureCaption`/`FigureCaptionElem` ainda não existem neste

@@ -51,7 +51,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 `03_infra/src/pipeline/tests.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
 `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
 
 ### Responsabilidade deste owner
@@ -66,7 +66,7 @@ observáveis, incluindo os controles de adjacência e os invariantes pinados.
 Medição anterior: initial.json, before/resultados.json e red.log em
 `lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/` registram
 texto/caixas e a perda de SHY. O dono confirmou o contrato
-`00_nucleo/prompts/entities/layout_types.md`. A compilação de fixtures exaustivas
+`00_nucleo/prompts/core/entities/layout_types.md`. A compilação de fixtures exaustivas
 exige tratar a variante nova. Projeções visuais descem nos filhos; extractors
 textuais usam text uma vez. Expectativas de identidade discricionária passam a
 SHY, mantendo U+002D literal. Não relaxar caixas/seleção. A suíte de shaper

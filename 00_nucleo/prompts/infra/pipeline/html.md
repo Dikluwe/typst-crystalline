@@ -40,7 +40,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 
 ## Reaproveitamento do índice realizado — 2026-10-05
 
-A inspeção em `03_infra/src/pipeline/html.rs:102` revelou reconstrução do índice inicial já produzido pela realização. Consultar Module::realization_introspector segundo `00_nucleo/prompts/entities/module.md`, usando clone independente se disponível e o fallback vigente se ausente. Preservar feature/target, format options, preparação contextual e resolução de posições das ilhas html.frame. Não tratar o snapshot inicial como resultado dos contextos/posições finais. Revalidar HTML e frames por observáveis de linguagem.
+A inspeção em `03_infra/src/pipeline/html.rs:102` revelou reconstrução do índice inicial já produzido pela realização. Consultar Module::realization_introspector segundo `00_nucleo/prompts/core/entities/module.md`, usando clone independente se disponível e o fallback vigente se ausente. Preservar feature/target, format options, preparação contextual e resolução de posições das ilhas html.frame. Não tratar o snapshot inicial como resultado dos contextos/posições finais. Revalidar HTML e frames por observáveis de linguagem.
 
 
 ## Materialização do conjunto ratificado — 2026-10-05

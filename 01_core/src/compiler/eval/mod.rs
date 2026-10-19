@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 2a30f811
+//! @prompt 00_nucleo/prompts/core/compiler/eval/mod.md
+//! @prompt-hash 2ec23a58
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -1016,19 +1016,19 @@ fn make_stdlib_with_features(
 
 // ── Auxiliares para intercepção de counter(...).method() ──────────────────
 
-#[path = "p1425_tests.rs"]
-mod p1425_tests;
-#[path = "p1426_tests.rs"]
-mod p1426_tests;
-#[path = "p1427_tests.rs"]
-mod p1427_tests;
-#[path = "p1429_observation_tests.rs"]
-mod p1429_observation_tests;
+#[path = "math_accent_observation_tests.rs"]
+mod math_accent_observation_tests;
+#[path = "math_frac_evaluation_tests.rs"]
+mod math_frac_evaluation_tests;
+#[path = "math_limits_override_observation_tests.rs"]
+mod math_limits_override_observation_tests;
+#[path = "math_root_evaluation_tests.rs"]
+mod math_root_evaluation_tests;
 
-#[path = "p1430_tests.rs"]
-mod p1430_tests;
+#[path = "math_cases_evaluation_tests.rs"]
+mod math_cases_evaluation_tests;
 
-mod p1431_tests;
+mod math_matrix_evaluation_tests;
 // Extrai o nome do contador de uma expressão `counter(key)`.
 // extract_counter_key e eval_counter_method extraídos para eval/bindings.rs (Passo 96.1).
 

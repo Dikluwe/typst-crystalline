@@ -37,7 +37,7 @@ Preserve `typst INPUT [OUTPUT] ...` as implicit compile. The normalizer scans ar
 
 `command() -> clap::Command` returns the same derived tree used by parsing, including hidden commands, for completion generation.
 
-Public version derives from `PARITY_VERSION`, not the workspace crate version, and appends ` ({short_commit})`. Compile-time `TYPST_COMMIT_SHA` supplies the first eight bytes (or shorter full value); absent identity displays `unknown commit`. `build_commit() -> Option<&'static str>` preserves the complete compile-time identity. Build capture belongs to `00_nucleo/prompts/shell/build.md`; parity version belongs to `00_nucleo/prompts/entities/version.md`. No runtime Git lookup or assumption that a version string proves oracle provenance is permitted.
+Public version derives from `PARITY_VERSION`, not the workspace crate version, and appends ` ({short_commit})`. Compile-time `TYPST_COMMIT_SHA` supplies the first eight bytes (or shorter full value); absent identity displays `unknown commit`. `build_commit() -> Option<&'static str>` preserves the complete compile-time identity. Build capture belongs to `00_nucleo/prompts/shell/build.md`; parity version belongs to `00_nucleo/prompts/core/entities/version.md`. No runtime Git lookup or assumption that a version string proves oracle provenance is permitted.
 
 ## Global options and configuration
 
@@ -99,7 +99,7 @@ Range tokens accept N, A-B, A- and -B, with endpoint whitespace trimmed and posi
 
 Accept standard names exactly: `1.4`, `1.5`, `1.6`, `1.7`, `2.0`, `a-1b`, `a-1a`, `a-2b`, `a-2u`, `a-2a`, `a-3b`, `a-3u`, `a-3a`, `a-4`, `a-4f`, `a-4e`, `ua-1`. Unknown names exit 2. Preserve typed versions, archival/accessibility labels and raw order.
 
-PDF composition combines CLI overrides with document options: explicit CLI values precede document settings, which precede defaults. Preserve None/empty overrides so document settings remain observable. Modern tagged overrides legacy no-pdf-tags; absent both delegates to document/default. A nonempty standard override replaces the document's whole set rather than forming a union. With no document override, pretty is false, PNG PPI is 144, PDF version is 1.7 and automatic PDF tagging resolves true unless page selection or standard constraints require otherwise. Document-option precedence belongs to `00_nucleo/prompts/entities/document_format_options.md` and the format-specific pipeline owners, not L2.
+PDF composition combines CLI overrides with document options: explicit CLI values precede document settings, which precede defaults. Preserve None/empty overrides so document settings remain observable. Modern tagged overrides legacy no-pdf-tags; absent both delegates to document/default. A nonempty standard override replaces the document's whole set rather than forming a union. With no document override, pretty is false, PNG PPI is 144, PDF version is 1.7 and automatic PDF tagging resolves true unless page selection or standard constraints require otherwise. Document-option precedence belongs to `00_nucleo/prompts/core/entities/document_format_options.md` and the format-specific pipeline owners, not L2.
 
 For PDF, pages plus explicit tagged=true exits 1 before compilation with `error: cannot enable PDF tags when exporting a page range`. Page selection without an explicit tagging decision implies false. Accessible standards a-1a/a-2a/a-3a/ua-1 cannot resolve to untagged output; retain `error: cannot disable PDF tags when exporting a {name} document` and, when applicable, ` = hint: using --pages implies --pdf-tagged=false`. Conflict validation belongs to the domain standard resolver and productive composition, not clap.
 
@@ -109,19 +109,19 @@ This is a language/selection contract, not certification that every selected arc
 
 Compile alone accepts `--html-serialization crystalline|vanilla`, default crystalline. It selects the HTML escaping profile, not target or feature. The prior requirement limits effect to direct HTML output; current composition also forwards the choice to bundle HTML assets. That scope disagreement remains pending in the diagnostic, without granting a new default or changing either path. Vanilla selection is explicit; it is not a silent new default. Watch does not accept this option and carries Crystalline.
 
-Watch adds `--no-serve` and `--no-reload` (false by default), plus `--port PORT` (Option<u16>, absent None). Serving/reload/port search are owned by `00_nucleo/prompts/shell/watch.md` and cycle composition by `00_nucleo/prompts/wiring/watch.md`; L2 starts no server.
+Watch adds `--no-serve` and `--no-reload` (false by default), plus `--port PORT` (Option<u16>, absent None). Serving/reload/port search are owned by `00_nucleo/prompts/infra/watch.md` and cycle composition by `00_nucleo/prompts/wiring/watch.md`; L2 starts no server.
 
 `typst eval EXPRESSION [--in INPUT] [--format json|yaml|raw] [--pretty] [--features ...]`: expression is code text, format defaults json, pretty defaults false, input defaults None. Contextual input uses `--in`, not another positional; `--in -` lets L4 read stdin. Preserve ordinary JSON/Raw behavior with or without document context. No eval --target/root/font-path/sys-input options are accepted by this consumer.
 
 `typst query INPUT SELECTOR [--field FIELD] [--one] [--format json|yaml] [--pretty]`: JSON default, absent field None, one/pretty false. INPUT `-` selects stdin in L4. It has no features or --in argument. Its deprecation warning is emitted by L4 after compilation diagnostics or successful serialization. The pure query_deprecation_hint function provides the specific eval replacement; acquisition/selection/serialization failures retain their measured boundaries. The warning message stays `the `typst query` subcommand is deprecated` and the generated hint follows the ratified contract below.
 
-`typst fonts [--font-path DIR ...] [--ignore-system-fonts] [--variants]`: font-path handling is shared; include_system is the inverse of ignore-system-fonts, default true; variants false. Presentation belongs to `00_nucleo/prompts/shell/fonts-command.md`.
+`typst fonts [--font-path DIR ...] [--ignore-system-fonts] [--variants]`: font-path handling is shared; include_system is the inverse of ignore-system-fonts, default true; variants false. Presentation belongs to `00_nucleo/prompts/shell/fonts.md`.
 
 `typst completions SHELL` requires one of bash/elvish/fish/nushell/powershell/zsh. The typed public selector is `CompletionShell`; generation belongs to `00_nucleo/prompts/shell/completions.md`.
 
 `typst info [-f json|--format json] [--pretty]` has no format by default (human); pretty false and requires format, otherwise exit 2. No unsupported info format or feature selection is advertised. Presentation belongs to `00_nucleo/prompts/shell/info.md`.
 
-`typst init TEMPLATE [DIR]` carries template text, optional directory and selected cert path. Materialization belongs to `00_nucleo/prompts/shell/init.md`.
+`typst init TEMPLATE [DIR]` carries template text, optional directory and selected cert path. Materialization belongs to `00_nucleo/prompts/infra/project_init.md`.
 
 ## Public carriers and pure helpers
 
@@ -493,7 +493,7 @@ Medição antes da decisão: lab/results/construction/diagnostics/value-compacto
 before.json.gz e inventory.json congelam este consumer e cada ocorrência
 file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
 Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
-00_nucleo/prompts/entities/value.md; esta unidade apenas o consome e não
+00_nucleo/prompts/core/entities/value.md; esta unidade apenas o consome e não
 compartilha ownership. Nenhuma implementação/adaptação antes da confirmação
 do manifesto deste pacote.
 

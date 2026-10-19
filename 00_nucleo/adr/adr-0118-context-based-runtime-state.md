@@ -106,13 +106,13 @@ Adotar uma **arquitetura híbrida**: `state` e `counter` tornam-se valores de pr
    - `00_nucleo/prompts/engine/stdlib/counter.md`
    - `00_nucleo/prompts/engine/stdlib/context.md`
    - `00_nucleo/prompts/engine/stdlib/foundations.md` (native_state, native_counter)
-   - `00_nucleo/prompts/entities/value.md` (Value::State, Value::Counter)
-   - `00_nucleo/prompts/entities/content.md` (Content::ContextBlock)
-   - `00_nucleo/prompts/entities/element_kind.md` (ContextBlock)
-   - `00_nucleo/prompts/entities/element_payload.md` (ContextBlock)
+   - `00_nucleo/prompts/core/entities/value.md` (Value::State, Value::Counter)
+   - `00_nucleo/prompts/core/entities/content.md` (Content::ContextBlock)
+   - `00_nucleo/prompts/core/entities/element_kind.md` (ContextBlock)
+   - `00_nucleo/prompts/core/entities/element_payload.md` (ContextBlock)
    - `00_nucleo/prompts/engine/introspect.md` (walk arm ContextBlock)
    - `00_nucleo/prompts/infra/pipeline.md` (fase expand)
-   - `00_nucleo/prompts/infra/query-helpers.md` (fase expand)
+   - `00_nucleo/prompts/infra/query_helpers.md` (fase expand)
 2. Implementar L1 (entities, eval, stdlib).
 3. Implementar L3 (pipeline, query).
 4. Validar com bateria P490/P500 e testes unitários.

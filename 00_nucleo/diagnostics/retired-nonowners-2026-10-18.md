@@ -11,14 +11,14 @@ records destinations. No new product API, behavior, or consumer was introduced.
 Three process documents now live in `lab/tools/workflows`: module splitting
 audit, L0 audit, and the L0 template. They guide work but do not legitimize code.
 Five other documents are retained under
-[construction/retired-l0](../../lab/history/construction/retired-l0/):
+[construction/retired-l0](../../lab/history/construction/retired-l0):
 
 | Former prompt | Status and current authority |
 |---|---|
-| `compiler/show-regex.md` | Historical materialization; its Style rejection and whole-node/no-splitting restrictions were superseded by R3-T1. Current data/eval owners are `00_nucleo/prompts/entities/show.md` and `00_nucleo/prompts/compiler/eval/rules/show.md`. |
-| `compiler/stdlib/text/regex.md` | Historical redirect only. The current owner is `00_nucleo/prompts/compiler/stdlib/foundations/regex.md`. |
-| `compiler/style/font-dict.md` | Historical broad specification. Parsing is owned by `00_nucleo/prompts/compiler/eval/font_dict.md`; its owner covers named/legacy forms, output dictionaries, diagnostic preservation, spread/empty rejection and current signatures. Exact historical literals and render representation remain listed in the audit obligations below. The old render-selection scope-outs are not new requirements for this parser. |
-| `infra/package_version_resolution.md` | Non-owning reference. Initialization and remote lookup remain owned by `00_nucleo/prompts/shell/init.md` and `00_nucleo/prompts/infra/package_downloader.md`; package parsing belongs to `00_nucleo/prompts/entities/package-spec.md`. |
+| `compiler/show-regex.md` | Historical materialization; its Style rejection and whole-node/no-splitting restrictions were superseded by R3-T1. Current data/eval owners are `00_nucleo/prompts/core/entities/show.md` and `00_nucleo/prompts/core/compiler/eval/rules/show.md`. |
+| `compiler/stdlib/text/regex.md` | Historical redirect only. The current owner is `00_nucleo/prompts/core/compiler/stdlib/foundations/regex_constructor.md`. |
+| `compiler/style/font-dict.md` | Historical broad specification. Parsing is owned by `00_nucleo/prompts/core/compiler/eval/font_dict.md`; its owner covers named/legacy forms, output dictionaries, diagnostic preservation, spread/empty rejection and current signatures. Exact historical literals and render representation remain listed in the audit obligations below. The old render-selection scope-outs are not new requirements for this parser. |
+| `infra/package_version_resolution.md` | Non-owning reference. Initialization and remote lookup remain owned by `00_nucleo/prompts/infra/project_init.md` and `00_nucleo/prompts/infra/package_downloader.md`; package parsing belongs to `00_nucleo/prompts/core/entities/package_spec.md`. |
 | `package-spec-dto.md` | Unimplemented proposal with no exclusive consumer; the complete proposed DTO, conversions, errors, and test obligations are retained. Retirement does not declare the proposal implemented or rejected. |
 
 ## Open obligations

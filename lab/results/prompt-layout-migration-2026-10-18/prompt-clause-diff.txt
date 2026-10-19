@@ -1,0 +1,150 @@
+--- 00_nucleo/prompts/compiler/eval.md
+
++++ 00_nucleo/prompts/core/compiler/eval/mod.md
+
+@@ -829 +829,5 @@
+
+ da arena instala e retira esse estado por execução; EvalContext só o armazena.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `math_limits_override_observation_tests`, `math_root_evaluation_tests`, `math_frac_evaluation_tests`, `math_accent_observation_tests`, `math_cases_evaluation_tests`, `math_matrix_evaluation_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/compiler/math/layout/_comum.md
+
++++ 00_nucleo/prompts/core/compiler/math/layout/mod.md
+
+@@ -390 +390,5 @@
+
+ 5 passando/24 falhando. Nenhum novo contrato, fase, default ou API pública.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `math_limits_layout_tests`, `math_root_layout_tests`, `math_frac_layout_tests`, `math_accent_layout_tests`, `math_cases_layout_tests`, `math_matrix_layout_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/compiler/stdlib/html.md
+
++++ 00_nucleo/prompts/core/compiler/stdlib/html.md
+
+@@ -970,3 +970,3 @@
+
+ call-sites de teste internos a este ficheiro e 2 nos submódulos
+-`html/p1423_tests.rs`/`html/p1424_tests.rs` que ainda assumiam `Module`
++`html/html_constructor_surface_tests.rs`/`html/html_frame_tests.rs` que ainda assumiam `Module`
+ (quebravam a compilação de `cargo test`, não de `cargo build`), e um
+@@ -1054 +1054,5 @@
+
+ antigos por cópia nem publicar.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `html_constructor_surface_tests`, `html_frame_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/compiler/stdlib/structural/math.md
+
++++ 00_nucleo/prompts/core/compiler/stdlib/structural/math.md
+
+@@ -1089 +1089,5 @@
+
+ sem nova violação, sob MemoryMax12GiB/High10GiB/swap0/jobs1 sequenciais.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `math_limits_tests`, `math_root_tests`, `math_frac_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/compiler/stdlib/structural.md
+
++++ 00_nucleo/prompts/core/compiler/stdlib/structural/mod.md
+
+@@ -356 +356,5 @@
+
+ tentativa anterior são histórico e não substituem os gates da versão final.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `math_accent_tests`, `math_cases_tests`, `math_matrix_tests`, `math_lr_tests`, `math_mid_tests`, `math_norm_tests`, `math_overbrace_tests`, `math_overbracket_tests`, `math_overline_tests`, `math_overparen_tests`, `math_overshell_tests`, `math_primes_tests`, `math_round_tests`, `math_stretch_tests`, `math_abs_tests`, `math_underbrace_tests`, `math_underbracket_tests`, `math_underparen_tests`, `math_undershell_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/entities/elements/_comum.md
+
++++ 00_nucleo/prompts/core/entities/elements/mod.md
+
+@@ -90 +90,5 @@
+
+ mesma lista de testes, suíte core, build sem cfg(test), Clippy e arquitetura.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `math_accent_tests`, `math_cases_tests`, `math_matrix_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/entities/mod.md
+
++++ 00_nucleo/prompts/core/entities/mod.md
+
+@@ -13,3 +13,3 @@
+
+ reexport facade (`walk_frame_items`, `FrameVisitor` from `layout_types`) and
+-the private `p1431_line_cap_tests` module, gated by its own inner `#![cfg(test)]`.
++the private `line_cap_tests` module, gated by its own inner `#![cfg(test)]`.
+ 
+@@ -88 +88,5 @@
+
+ não altera igualdade da linguagem. Testes de compilação verificam a fronteira.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `line_cap_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/infra/export/html.md
+
++++ 00_nucleo/prompts/infra/export/html.md
+
+@@ -37 +37,5 @@
+
+ - `00_nucleo/prompts/infra/export/html/whitespace.md` owns `03_infra/src/export/html/whitespace.rs`.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `pretty_serialization_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/infra/export/mod.md
+
++++ 00_nucleo/prompts/infra/export/mod.md
+
+@@ -297 +297,5 @@
+
+ Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `line_cap_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/infra/export/svg.md
+
++++ 00_nucleo/prompts/infra/export/svg.md
+
+@@ -256 +256,5 @@
+
+ Este adendo materializa somente o escopo nominal e supersede seu estado pendente da auditoria. Fluxo contínuo ADR-0127: sem contrato externo, default, fase ou compatibilidade novos. L0 primeiro e resselo restrito. RED de too_many_arguments antes do código, GREEN sem novas supressões ou alteração de limiar; expectativas anteriores devem continuar satisfeitas. Conferir corpos e transporte de valores, preservar fixtures/esperados, sem testes que espelhem carriers. Executar controles existentes de Grid/Table/outline e SVG/tiling antes/depois, suíte workspace completa, build, Clippy all-targets, Rustdoc, formato, linhagem estrita/reversa e Tekt sem novos avisos, sob 12 GiB, swap zero e um job. Resultados não certificam paridade global ou conformidade PDF/UA.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `pretty_serialization_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/infra/export/tests/mod.md
+
++++ 00_nucleo/prompts/infra/export/tests/mod.md
+
+@@ -315 +315,5 @@
+
+ Fluxo contínuo ADR-0127: L0 antes do código e resselo restrito deste owner/consumer. Conferir cada argumento antigo contra o campo novo e equivalência do restante do arquivo após mascarar exclusivamente as chamadas migradas/import/hash. Reexecutar compilação all-targets, suíte workspace completa e gates da etapa com 12 GiB, swap zero e um job. Não alterar esperados para obter GREEN nem incluir testes que espelhem o carrier.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `pdfa_core_metadata_tests`, `pdfa_associated_files_tests`, `pdfa_icc_version_and_cidset_tests`, `pdfa4f_empty_embedded_files_tests`, `pdfua_identification_tests`, `pdfua_structure_tests`, `pdf_spot_colors_tests`, `pdf_page_labels_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+--- 00_nucleo/prompts/infra.md
+
++++ 00_nucleo/prompts/infra/lib.md
+
+@@ -23,3 +23,3 @@
+
+ 
+-A raiz também inclui `integration_tests` e `p307b_snapshot_tests` como módulos
++A raiz também inclui `integration_tests` e `pdf_snapshot_tests` como módulos
+ privados somente sob `#[cfg(test)]`.
+@@ -55 +55,5 @@
+
+ Shape consulta os runs do input completo para span original e não auto-detecta direção de fragmento; manter offsets de subruns por travessia sequencial, emitir subspan exato para cada TextShaped. Chave de cache existente já discrimina direção; não pôr contexto em TextStyle. Reconciliation usa base do input quando existe em vez de qualquer run RTL. Fallback None anterior permanece. Testes RED→GREEN da refutação de 456 789, overrides/neutral, extração sem controles auxiliares e medição bilateral.
++
++## Owned test module declarations
++
++This consumer declares the following separately owned test modules: `pdf_snapshot_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.

@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/color.md
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/color.md
 //! @prompt-hash f9e64263
 //! @layer L1
 //! @updated 2026-06-27
@@ -286,9 +286,9 @@ mod tests {
 /// P1473 (Agente B) — contrato RED de `color.spot` (escopo reduzido: sem
 /// `.tint()`, sem variante em `Color`). Fonte:
 /// `lab/history/construction/records/00_nucleo/materialization/typst-passo-1473.md` +
-/// `00_nucleo/prompts/compiler/stdlib/color.md` §P1473 +
-/// `00_nucleo/prompts/entities/color.md` §P1473 +
-/// `00_nucleo/prompts/entities/value.md` §P1473. Escrito sem ver a
+/// `00_nucleo/prompts/core/compiler/stdlib/color.md` §P1473 +
+/// `00_nucleo/prompts/core/entities/color.md` §P1473 +
+/// `00_nucleo/prompts/core/entities/value.md` §P1473. Escrito sem ver a
 /// implementação (isolamento Agente A/B).
 ///
 /// `Type::SpotColorant`/`Value::SpotColorant` (ou equivalente) ainda não

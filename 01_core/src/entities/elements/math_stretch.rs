@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/elements/math_stretch.md
+//! @prompt 00_nucleo/prompts/core/entities/elements/math_stretch.md
 //! @prompt-hash 8060d88a
 //! @layer L1
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash ae0a349d
+//! @prompt 00_nucleo/prompts/core/compiler/math/layout/mod.md
+//! @prompt-hash 6f849604
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -2215,16 +2215,16 @@ mod p1293_layout_owner_gap_tests {
 #[cfg(test)]
 mod tests;
 
-mod p1425_tests;
+mod math_limits_layout_tests;
 
-mod p1426_tests;
+mod math_root_layout_tests;
 
-mod p1427_tests;
+mod math_frac_layout_tests;
 
-mod p1429_tests;
+mod math_accent_layout_tests;
 
-mod p1430_tests;
+mod math_cases_layout_tests;
 
-mod p1431_tests;
+mod math_matrix_layout_tests;
 
 mod source_transparency_tests;

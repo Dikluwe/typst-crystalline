@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/place.md
-//! @prompt-hash b954d3bf
+//! @prompt 00_nucleo/prompts/core/compiler/layout/place.md
+//! @prompt-hash d6982ad1
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -319,7 +319,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // comprimento actual, capturado ANTES do merge). Como
         // `flush_pending_floats` corre sempre antes de
         // `apply_pending_align_fixups` na mesma `new_page()`/`finish()`
-        // (ver `00_nucleo/prompts/compiler/layout.md` §P908), a entrada
+        // (ver `00_nucleo/prompts/core/compiler/layout/mod.md` §P908), a entrada
         // resolve-se contra a página correcta sem sequenciamento novo.
         let saved_link_scopes = self.pause_link_items();
         let insertion_base = self.regions.current.current_items.len();

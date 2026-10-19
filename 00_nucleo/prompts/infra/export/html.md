@@ -1,5 +1,5 @@
 # L0 — html
-Hash do Código: 87bdc16f
+Hash do Código: 2e73a56f
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/html.rs`
@@ -29,9 +29,13 @@ Each child below owns its specific behavior; do not duplicate its specification.
 - `00_nucleo/prompts/infra/export/html/document.md` owns `03_infra/src/export/html/document.rs`.
 - `00_nucleo/prompts/infra/export/html/encoding.md` owns `03_infra/src/export/html/encoding.rs`.
 - `00_nucleo/prompts/infra/export/html/inline.md` owns `03_infra/src/export/html/inline.rs`.
-- `00_nucleo/prompts/infra/export/html/p1360_ab_tests.md` owns `03_infra/src/export/html/p1360_ab_tests.rs`.
+- `00_nucleo/prompts/infra/export/html/pretty_serialization_tests.md` owns `03_infra/src/export/html/pretty_serialization_tests.rs`.
 - `00_nucleo/prompts/infra/export/html/pretty.md` owns `03_infra/src/export/html/pretty.rs`.
 - `00_nucleo/prompts/infra/export/html/table.md` owns `03_infra/src/export/html/table.rs`.
 - `00_nucleo/prompts/infra/export/html/tags.md` owns `03_infra/src/export/html/tags.rs`.
 - `00_nucleo/prompts/infra/export/html/tests.md` owns `03_infra/src/export/html/tests.rs`.
 - `00_nucleo/prompts/infra/export/html/whitespace.md` owns `03_infra/src/export/html/whitespace.rs`.
+
+## Owned test module declarations
+
+This consumer declares the following separately owned test modules: `pretty_serialization_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.

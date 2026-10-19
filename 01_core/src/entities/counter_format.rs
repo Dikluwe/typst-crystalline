@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/counter_format.md
+//! @prompt 00_nucleo/prompts/core/entities/counter_format.md
 //! @prompt-hash 9a30261a
 //! @layer L1
 //! @updated 2026-06-24
@@ -43,7 +43,7 @@ pub fn count_numbering_tokens(pattern: &str) -> usize {
 /// - **mais tokens do que `values`** — a formatação pára no último valor
 ///   disponível e o sufixo é emitido a seguir: `[1]` + `"1.1"` → `"1"`.
 ///
-/// Ver `00_nucleo/prompts/entities/counter_format.md` §P1036.
+/// Ver `00_nucleo/prompts/core/entities/counter_format.md` §P1036.
 pub fn format_counter(values: &[usize], pattern: &str) -> Option<String> {
     if values.is_empty() {
         return None;
@@ -243,7 +243,7 @@ mod tests {
     // (`/usr/local/bin/typst`, md5 36da18895eeb5e0136c068a7634e3f82) com
     // `#numbering(pattern, ..numeros)` em 2026-08-13, e coincidem com
     // `compiler/stdlib/numbering.rs::format_pattern`, que já as satisfazia.
-    // Ver `00_nucleo/prompts/entities/counter_format.md` §P1036.
+    // Ver `00_nucleo/prompts/core/entities/counter_format.md` §P1036.
 
     #[test]
     fn valores_em_excesso_repetem_ultimo_token_com_prefixo() {

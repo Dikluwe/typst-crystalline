@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/loading/json_encode.md
-//! @prompt-hash ae49be62
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/loading/json_encode.md
+//! @prompt-hash b1e66126
 //! @layer L1
 //! @updated 2026-09-30
 

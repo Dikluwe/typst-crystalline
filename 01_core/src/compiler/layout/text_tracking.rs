@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/text_tracking.md
+//! @prompt 00_nucleo/prompts/core/compiler/layout/text_tracking.md
 //! @prompt-hash ffeaca5d
 //! @layer L1
 //! @updated 2026-09-29

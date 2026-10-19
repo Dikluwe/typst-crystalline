@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/placement.md
-//! @prompt-hash 30b9f2de
+//! @prompt 00_nucleo/prompts/core/compiler/layout/placement.md
+//! @prompt-hash 42300ecd
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -105,7 +105,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // P772g (encerra achado B de P772f) — origin_x real (não 0.0):
         // `layout_align` é um "consumidor absoluto" de `layout_sub_frame`
-        // (ver 00_nucleo/prompts/compiler/layout.md §"Contrato de composição
+        // (ver 00_nucleo/prompts/core/compiler/layout/mod.md §"Contrato de composição
         // de coordenadas"). Um `Content::Place` aninhado no corpo emite
         // coordenadas absolutas usando `regions.cell`/`cell_origin_x`; se
         // este sub-frame usasse origin_x=0.0 e depois somasse o `target_x`
@@ -198,7 +198,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // corrigido aqui por ser pequeno e usar um mecanismo já existente,
         // não uma nova aproximação. `measure_content` fica inalterado —
         // continua a servir `Content::Place`/`Content::Transform` (fora do
-        // âmbito de P772j; ver 00_nucleo/prompts/compiler/layout.md).
+        // âmbito de P772j; ver 00_nucleo/prompts/core/compiler/layout/mod.md).
         let sub_item_refs: Vec<&crate::entities::layout_types::FrameItem> =
             sub_items.iter().collect();
         let content_right_abs = self.metrics.line_content_right(&sub_item_refs);
@@ -328,7 +328,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // as quantidades lógicas sub-desloca por um ascender inteiro —
         // confirmado por teste (`p908_place_aninhado_em_align_sob_height_
         // auto_...`, erro de ~8.8pt = ascender de `DEFAULT_FONT_SIZE`).
-        // Ver `00_nucleo/prompts/compiler/layout.md` §P908.
+        // Ver `00_nucleo/prompts/core/compiler/layout/mod.md` §P908.
         let insertion_base = self.regions.current.current_items.len();
         for (mut path, count, align, content_w, origin_x, applied_x) in orphaned_align_x {
             path[0] += insertion_base;

@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/eval/math/native_decorations.md
+//! @prompt 00_nucleo/prompts/core/compiler/eval/math/native_decorations.md
 //! @prompt-hash 041b2900
 //! @layer L1
 //! @updated 2026-10-01

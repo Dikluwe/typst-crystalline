@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 66bb7aaa
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math.md
+//! @prompt-hash 496103dc
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -75,11 +75,11 @@ pub(in crate::compiler) use stretch::native_math_stretch;
 pub(in crate::compiler) use underline::native_math_underline;
 pub(in crate::compiler) use vector::native_math_vec;
 
-mod p1425_tests;
+mod math_limits_tests;
 
-mod p1426_tests;
+mod math_root_tests;
 
-mod p1427_tests;
+mod math_frac_tests;
 
 /// Constrói o módulo `math` como `Value::Module` com 41 operadores
 /// vanilla pré-definidos (paralelo `make_calc_module()` P283).
@@ -1170,7 +1170,7 @@ mod p1283_tests {
 /// ainda ausentes: `bold`, `cal`, `display`, `italic`, `sans`, `scr`,
 /// `sscript`, `upright`, `text`. Fonte: `lab/history/construction/records/00_nucleo/materialization/
 /// typst-passo-1472.md` + `00_nucleo/prompts/compiler/stdlib/structural/
-/// math.md` §P1472 + `00_nucleo/prompts/compiler/stdlib/math_style.md`
+/// math.md` §P1472 + `00_nucleo/prompts/core/compiler/stdlib/math_style.md`
 /// §P1472. Escrito sem ver a implementação (isolamento Agente A/B) — usa
 /// exclusivamente observáveis de língua (`Value`/`Func` `==`) e as nativas
 /// públicas já existentes como oráculo Rust, nunca reconstrução do código

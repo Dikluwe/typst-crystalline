@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/math_style.md
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/math_style.md
 //! @prompt-hash c49a71b4
 //! @layer L1
 //! @updated 2026-08-31
@@ -104,7 +104,7 @@ fn wrap_math_style(
         // `apply_math_style` (`compiler/math/layout/mod.rs`) só tem braço
         // para variantes math (`MathIdent`/`MathText`/`MathSequence`/
         // `MathMatrix`), não para `Content::Text` — ver nota em
-        // `00_nucleo/prompts/compiler/stdlib/math_style.md`.
+        // `00_nucleo/prompts/core/compiler/stdlib/math_style.md`.
         Some(Value::Str(s)) => Content::MathText(s.as_str().into()),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(

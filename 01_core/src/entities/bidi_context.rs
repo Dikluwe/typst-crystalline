@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/bidi_context.md
+//! @prompt 00_nucleo/prompts/core/entities/bidi_context.md
 //! @prompt-hash fea975be
 //! @layer L1
 

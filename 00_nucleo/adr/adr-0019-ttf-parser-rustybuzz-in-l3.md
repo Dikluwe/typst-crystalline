@@ -103,7 +103,7 @@ Se no futuro for necessária descoberta automática, ADR-0020 trata
 | Prompt | Natureza da mudança |
 |--------|---------------------|
 | `00_nucleo/prompts/infra/fonts.md` | Criar — FontSlot, carregamento lazy |
-| `00_nucleo/prompts/infra/system-world.md` | Actualizar — font_paths, FontSlot |
+| `00_nucleo/prompts/infra/world.md` | Actualizar — font_paths, FontSlot |
 
 ---
 

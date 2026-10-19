@@ -43,7 +43,7 @@ Estrutura do módulo:
 ```rust
 // 01_core/src/entities/math_class.rs
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/math-class.md
+//! @prompt 00_nucleo/prompts/core/entities/math_class.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-03-23
@@ -82,7 +82,7 @@ pub fn default_math_class(c: char) -> Option<MathClass> {
 ```
 
 Um prompt L0 é criado para este módulo:
-`00_nucleo/prompts/entities/math-class.md`
+`00_nucleo/prompts/core/entities/math_class.md`
 
 ---
 
@@ -107,9 +107,9 @@ Isto é um custo de manutenção explícito e aceite — a alternativa
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/entities/math-class.md` | Criar — novo módulo de entidade |
+| `00_nucleo/prompts/core/entities/math_class.md` | Criar — novo módulo de entidade |
 | `00_nucleo/prompts/engine/parse.md` | Actualizar import: `typst_utils::default_math_class` → `crate::entities::math_class::default_math_class` |
-| `00_nucleo/prompts/entities/mod.md` | Adicionar `math_class` à lista de módulos |
+| `00_nucleo/prompts/core/entities/mod.md` | Adicionar `math_class` à lista de módulos |
 
 ---
 

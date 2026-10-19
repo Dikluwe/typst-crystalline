@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/mod.md
-//! @prompt-hash c6672b8b
+//! @prompt 00_nucleo/prompts/core/entities/mod.md
+//! @prompt-hash 423549d1
 //! @layer L1
 //! @updated 2026-04-30
 
@@ -127,4 +127,4 @@ pub mod frame_visitor {
     pub use super::layout_types::{walk_frame_items, FrameVisitor};
 }
 
-mod p1431_line_cap_tests;
+mod line_cap_tests;

@@ -1,5 +1,5 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/lexer/math.md
+//! @prompt 00_nucleo/prompts/core/compiler/lexer/math.md
 //! @prompt-hash 1757277a
 //! @layer L1
 //! @updated 2026-04-23

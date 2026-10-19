@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/layout/html_frame.md
-//! @prompt-hash e4b741b5
+//! @prompt 00_nucleo/prompts/core/compiler/layout/html_frame.md
+//! @prompt-hash 72aa8c89
 //! @layer L1
 
 use crate::entities::elements::pdf_artifact::ArtifactKind;

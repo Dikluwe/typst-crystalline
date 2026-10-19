@@ -40,7 +40,7 @@ clippy_toml  = "clippy.toml"
 rustfmt_toml = "rustfmt.toml"
 contributing = "CONTRIBUTING.md"
 dockerfile   = "Dockerfile"
-p1286_contract = "04_wiring/tests/p1286_contract.rs" # teste black-box funcional, não consumer produtivo
+smart_quotes_pdf_attachment_artifact = "04_wiring/tests/smart_quotes_pdf_attachment_artifact.rs" # teste black-box funcional, não consumer produtivo
 
 # Rust module name → layer
 [module_layers]

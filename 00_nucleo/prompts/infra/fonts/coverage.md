@@ -11,7 +11,7 @@ Fontes primárias lidas: ttf-parser0.25.1, `src/tables/cmap/format4.rs:103–115
 
 ## Decisão e fronteira
 
-Usar segmentos nativos somente nas variantes4/12/13 aceitas pelo parser tipado. Manter classificação Unicode, ordem/terminação de subtabelas e todos os membros declarados do extrator existente. Bytes, validação e seleção do caminho são exclusivos desta unidade L3; união/codificação do conjunto é exclusivamente de `00_nucleo/prompts/entities/font_book.md`, via Coverage::from_ranges. Normalização neutra não importa ttf-parser em L1. Não inferir intenção upstream nem trocar a semântica por suporte aproximado de blocos Unicode.
+Usar segmentos nativos somente nas variantes4/12/13 aceitas pelo parser tipado. Manter classificação Unicode, ordem/terminação de subtabelas e todos os membros declarados do extrator existente. Bytes, validação e seleção do caminho são exclusivos desta unidade L3; união/codificação do conjunto é exclusivamente de `00_nucleo/prompts/core/entities/font_book.md`, via Coverage::from_ranges. Normalização neutra não importa ttf-parser em L1. Não inferir intenção upstream nem trocar a semântica por suporte aproximado de blocos Unicode.
 
 Não criar API pública, counters de telemetria, flags, imports de lab, unsafe, globals ou política nova de catálogo/caches. Parent `00_nucleo/prompts/infra/fonts.md` conserva o facade extract_coverage(&Face)->Coverage e delega ao filho privado. I/O/catalog/discovery/shaping/FontInfo permanecem com seus owners; o adapter só lê bytes já recebidos da Face.
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/stdlib/shapes.md
-//! @prompt-hash 4c119a9a
+//! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes.md
+//! @prompt-hash 981e9e63
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -242,7 +242,7 @@ mod tests {
 
 /// P1473 (Agente B) — contrato RED de `polygon.regular`. Fonte:
 /// `lab/history/construction/records/00_nucleo/materialization/typst-passo-1473.md` +
-/// `00_nucleo/prompts/compiler/stdlib/shapes.md` §P1473. Escrito sem ver a
+/// `00_nucleo/prompts/core/compiler/stdlib/shapes.md` §P1473. Escrito sem ver a
 /// implementação (isolamento Agente A/B) — usa `eval_expression` (avaliação
 /// de expressões Typst) como oráculo de observáveis de língua; a fórmula
 /// geométrica é reproduzida aqui em `f64` puro (transcrita byte-a-byte do

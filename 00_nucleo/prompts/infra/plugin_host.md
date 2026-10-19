@@ -17,7 +17,7 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pl
 
 ## Owned contract
 
-- Own WasmiPluginHost facade state, PluginEntry, new/Default, defensive lookup and the existing PluginHost delegation. Preserve public Send+Sync and the L1 contract at `00_nucleo/prompts/contracts/plugin_host.md`.
+- Own WasmiPluginHost facade state, PluginEntry, new/Default, defensive lookup and the existing PluginHost delegation. Preserve public Send+Sync and the L1 contract at `00_nucleo/prompts/core/contracts/plugin_host.md`.
 - new disables relaxed SIMD, initializes a private engine, AtomicU64 at 1 and Mutex map of shared entries. PluginEntry retains a shared compiled base and optional owned memory snapshot.
 - Delegate load/exports to loading and call/transition to execution; linker protocol and memory operations belong to their own children. Do not rebuild their algorithms in the facade, add a pool or change runtime/features.
 - Lookup clones the entry Arc or returns `plugin module not found`. This is defensive direct-Rust API behavior, not a new upstream language parity claim.

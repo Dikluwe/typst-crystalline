@@ -22,9 +22,9 @@ filename. This is the single canonical prose-reference format.
 
 Existing examples:
 
-- `00_nucleo/prompts/compiler/layout.md`
-- `00_nucleo/prompts/compiler/eval.md`
-- `00_nucleo/prompts/entities/content.md`
+- `00_nucleo/prompts/core/compiler/layout/mod.md`
+- `00_nucleo/prompts/core/compiler/eval/mod.md`
+- `00_nucleo/prompts/core/entities/content.md`
 - `00_nucleo/prompts/infra/export/stream.md`
 
 Do not use `layout.md`, `compiler/layout.md`, an absolute filesystem path,
@@ -35,6 +35,10 @@ label must retain the full repository-relative identity.
 This reconciles prose with the explicit repository-root convention already
 used in source headers. It does not rename or relocate a prompt, alter its
 hash, change its ownership, or authorize changes to its contract.
+
+The subsequent [ADR-0131](adr-0131-owner-aligned-prompt-paths.md) authorizes the
+layer/module directory convention and its path migration. The canonical
+repository-relative reference format defined here continues to apply.
 
 ## 3. Rust provenance annotations (L1–L4)
 
@@ -50,9 +54,9 @@ unchanged: the path is relative to the repository root and includes
 
 Existing source-to-owner examples:
 
-- `01_core/src/contracts/world.rs` → `//! @prompt 00_nucleo/prompts/contracts/world.md`
-- `01_core/src/compiler/layout/mod.rs` → `//! @prompt 00_nucleo/prompts/compiler/layout.md`
-- `01_core/src/entities/ast/code.rs` → `//! @prompt 00_nucleo/prompts/entities/ast/code.md`
+- `01_core/src/contracts/world.rs` → `//! @prompt 00_nucleo/prompts/core/contracts/world.md`
+- `01_core/src/compiler/layout/mod.rs` → `//! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md`
+- `01_core/src/entities/ast/code.rs` → `//! @prompt 00_nucleo/prompts/core/entities/ast/code.md`
 
 The annotation points to the consumer's owning prompt, not a shared Tekt
 nucleus; ADR-0129 governs ownership and nucleus pins.
