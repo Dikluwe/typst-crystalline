@@ -1,5 +1,5 @@
 # L0 — grid placement
-Hash do Código: 15c8bc9c
+Hash do Código: 4f162a5f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
@@ -62,3 +62,36 @@ The confirmed public gate requires RED→GREEN, suites/build/lint/restricted pre
 Declarative-default corrections follow continuous-flow ADR-0127 without public/external/default/phase change; private props/helpers remain in an already nonconstructible external carrier and lexical values stay unchanged. L0 first, restricted resealing and RED→GREEN; bilateral error/caret/effect controls with source/binaries/HEAD/UTC and real geometry, debug/release build/suites/lint. Preserve prior tree without commit/reset/global reseal. Certified subset: integers/autos, Color/None/Auto, uniform Stroke/None, alignment, Length/partial Length-or-Auto inset, Bool/Auto and existing typed schemas. Gradient/tiling/functions, per-side strokes, percentage inset/rich constructor casts, multipage groups/spans/PDF-UA, positional set/text and general Table defaults remain incomplete with measurement/L0 before expansion. Fallback warnings do not certify support; do not copy upstream defects.
 
 Observed-span getter requires RED before implementation, then GREEN with geometry/regressions; stroke fold requires RED→GREEN. Preserve existing language results/test expectations while deleting unused helper. Equivalent iteration maintenance adds no public contract/default/phase; do not add tests merely mirroring loops. Validate core suite including conflicts/spans/fixups/markers/differential selection, all targets/build/docs/Clippy/lineage with restricted resealing. Do not suppress warnings instead of correcting code.
+
+
+## V16-036 nominal boundary preservation
+
+### Measurement before decision
+
+Source audit at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:03:25.152301+00:00`;
+exact working-tree diffstat and source/L0 SHA-256 are retained in
+`lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-before.json`.
+Evidence: 01_core/src/compiler/layout/grid_placement.rs:65-83,98-121,143-275. The owning decision is `place / fields closure`.
+Observed: Only TableCell under TableDocumentOrder or GridCell under GridExplicitFirst supplies coordinates/spans/span; all other policy-content combinations are automatic unit cells.
+This is source-level evidence of existing behavior, not a new current-pin
+vanilla comparison or an inference about upstream intent.
+
+### Decision and refutation
+
+Wrong-policy cell variants are legitimate raw bodies, not another policy’s placement instructions. Raw Empty holes/text must remain unit-span and detached, while Table cells keep source-span errors. Need two complete policy partitions including guarded residuals, not an unguarded combined cell arm.
+Maintain an explicit exhaustive nominal partition at this decision, including
+guard-false residuals in their owning variant. Future variants must require
+a fresh classification at this site. No wildcard relocation, syntax bypass,
+suppression, new conversion, or public signature/default/phase change.
+This is continuous-flow internal maintenance under ADR-0127.
+Rendering, text, effects, placement and diagnostics are language obligations;
+compiler exhaustiveness is an internal maintenance proof under ADR-0107.
+Preservation controls must pass before and after the edit; structural RED→GREEN
+requires an attributable E0004 at this match after adding a sentinel only in a
+disposable copy of `Content`. Another match's error is insufficient.
+Any changed accepted/rejected case, lost content, repeated effect, fallback
+geometry or diagnostic refutes preservation. Broader parity limitations in
+this owner remain open.
+
+The current nominal complement (no outer cell-specific fields) is: `Source`, `ShowRecipe`, `Realized`, `Located`, `Empty`, `Text`, `Space`, `SpaceFromNewline`, `Parbreak`, `Sequence`, `HtmlElem`, `HtmlFrame`, `Par`, `Heading`, `Title`, `Strong`, `Emph`, `Raw`, `ListItem`, `EnumItem`, `Link`, `Equation`, `MathSequence`, `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathPrimes`, `MathRoot`, `MathStretch`, `MathDelimited`, `MathLr`, `MathMid`, `MathOverbrace`, `MathUnderbrace`, `MathUnderbracket`, `MathUnderparen`, `MathUndershell`, `MathOverbracket`, `MathOverparen`, `MathOvershell`, `MathAlignPoint`, `Linebreak`, `MathMatrix`, `MathCases`, `MathAccent`, `MathCancel`, `MathUnderline`, `MathOverline`, `MathVec`, `MathClassOverride`, `MathLimitsOverride`, `MathUnderover`, `MathOp`, `MathStyled`, `Label`, `Ref`, `CounterDisplay`, `CounterUpdate`, `Outline`, `OutlineEntry`, `Figure`, `FigureCaption`, `Image`, `Shape`, `Curve`, `Transform`, `Grid`, `GridHeader`, `GridFooter`, `SetPage`, `PageRun`, `Align`, `Place`, `Flush`, `Styled`, `Divider`, `Terms`, `TermItem`, `Quote`, `Document`, `Asset`, `SmartQuote`, `PdfAttach`, `PdfArtifact`, `Underline`, `Strike`, `Overline`, `SmallCaps`, `Pad`, `Hide`, `HSpace`, `VSpace`, `Pagebreak`, `Colbreak`, `Stack`, `Boxed`, `Block`, `Bibliography`, `Cite`, `Footnote`, `FootnoteEntry`, `TableHeader`, `TableFooter`, `GridHLine`, `GridVLine`, `TableHLine`, `TableVLine`, `Table`, `Repeat`, `Columns`, `Metadata`, `State`, `StateUpdate`, `StateDisplay`, `CounterDisplayCallback`, `ContextBlock`, `Dynamic`.
+Wrong-policy `TableCell` and `GridCell` are also raw unit cells; classify each policy within the corresponding cell arm.

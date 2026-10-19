@@ -1,0 +1,92 @@
+[
+  {
+    "id": "V16-029",
+    "file": "01_core/src/compiler/layout/grid/borders.rs",
+    "function": "cell_effective_stroke",
+    "anchor": "let cell_stroke = match cell",
+    "domain": "Content",
+    "line": 43,
+    "enclosing_fn_anchor": "fn cell_effective_stroke(",
+    "source_sha256": "953bb509d09052bfa0cf9356c6ff6571f18bbe1fc481b76e6518ccf8629312b3"
+  },
+  {
+    "id": "V16-030",
+    "file": "01_core/src/compiler/layout/grid/cell_body.rs",
+    "function": "emit_grid_cell_body",
+    "anchor": "let (cell_stroke, cell_fill, cell_align, cell_inset, _cell_breakable) = match cell",
+    "domain": "Content",
+    "line": 72,
+    "enclosing_fn_anchor": "fn emit_grid_cell_body(",
+    "source_sha256": "0a5bf8cdf460d08d143a75e53d7e6ff5b5528225ce8e16c0badf4d695eda867c"
+  },
+  {
+    "id": "V16-031",
+    "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+    "function": "simple_placement",
+    "anchor": "match content {",
+    "domain": "Content",
+    "line": 42,
+    "enclosing_fn_anchor": "fn simple_placement(",
+    "source_sha256": "e8d82503d326152e8403ef3b745b134f6045571dca592f7b0e6460315c8030f0"
+  },
+  {
+    "id": "V16-032",
+    "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+    "function": "token",
+    "anchor": "match content {",
+    "domain": "Content",
+    "line": 182,
+    "enclosing_fn_anchor": "fn token(",
+    "source_sha256": "e8d82503d326152e8403ef3b745b134f6045571dca592f7b0e6460315c8030f0"
+  },
+  {
+    "id": "V16-033",
+    "file": "01_core/src/compiler/layout/grid/tracks.rs",
+    "function": "resolve_grid_columns",
+    "anchor": "let cell_inset = match &cells[ci] {",
+    "domain": "Content",
+    "line": 77,
+    "enclosing_fn_anchor": "fn resolve_grid_columns(",
+    "source_sha256": "d0e001371742b6ce74665364dbc85c0ef56fcf70614305b4c470c8275100b113"
+  },
+  {
+    "id": "V16-034",
+    "file": "01_core/src/compiler/layout/grid/tracks.rs",
+    "function": "resolve_grid_rows",
+    "anchor": "let cell_inset = match item {",
+    "domain": "Content",
+    "line": 406,
+    "enclosing_fn_anchor": "fn resolve_grid_rows(",
+    "source_sha256": "d0e001371742b6ce74665364dbc85c0ef56fcf70614305b4c470c8275100b113"
+  },
+  {
+    "id": "V16-035",
+    "file": "01_core/src/compiler/layout/grid/tracks.rs",
+    "function": "measurement_visual",
+    "anchor": "Ok(match node {",
+    "domain": "Content",
+    "line": 697,
+    "enclosing_fn_anchor": "fn measurement_visual(",
+    "source_sha256": "d0e001371742b6ce74665364dbc85c0ef56fcf70614305b4c470c8275100b113"
+  },
+  {
+    "id": "V16-036",
+    "file": "01_core/src/compiler/layout/grid_placement.rs",
+    "function": "place",
+    "anchor": "let fields = |c: &Content| match c {",
+    "domain": "Content",
+    "line": 98,
+    "enclosing_fn_anchor": "fn place(",
+    "source_sha256": "6abf925ec87796054add99e21d049b9b26dbc6b3e23d855ba4211dbd167b8212"
+  },
+  {
+    "id": "V16-077",
+    "file": "01_core/src/entities/elements/table_cell.rs",
+    "function": "style_inset",
+    "anchor": "match value {",
+    "domain": "Value",
+    "line": 158,
+    "enclosing_fn_anchor": "fn style_inset(",
+    "source_sha256": "c3fa1c455b590bf170bd1157081b437c8e02af9e7eb6e9495c24c44738bef376"
+  }
+]

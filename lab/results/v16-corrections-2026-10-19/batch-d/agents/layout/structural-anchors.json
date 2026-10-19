@@ -1,0 +1,44 @@
+[
+  {
+    "id": "V16-039",
+    "file": "01_core/src/compiler/layout/line_commit.rs",
+    "function": "flush_line_with_outer_singleton",
+    "anchor": "match numbering {",
+    "domain": "Option<Value>"
+  },
+  {
+    "id": "V16-041",
+    "file": "01_core/src/compiler/layout/mod.rs",
+    "function": "layout_content_once",
+    "anchor": "match content {",
+    "domain": "Content"
+  },
+  {
+    "id": "V16-042",
+    "file": "01_core/src/compiler/layout/mod.rs",
+    "function": "layout_content_body",
+    "anchor": "match content {",
+    "domain": "Content"
+  },
+  {
+    "id": "V16-043",
+    "file": "01_core/src/compiler/layout/par_line_callbacks.rs",
+    "function": "apply_pending_par_line_fixups",
+    "anchor": "match (margin, align) {",
+    "domain": "HAlign \u00d7 HAlign"
+  },
+  {
+    "id": "V16-044",
+    "file": "01_core/src/compiler/layout/place.rs",
+    "function": "translate_deferred_float",
+    "anchor": "match f.alignment.h {",
+    "domain": "Option<HAlign>"
+  },
+  {
+    "id": "V16-045",
+    "file": "01_core/src/compiler/layout/references.rs",
+    "function": "default_supplement_for_key",
+    "anchor": "match key {",
+    "domain": "CounterKey / Selector / ElementKind"
+  }
+]

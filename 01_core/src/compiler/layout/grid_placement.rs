@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid_placement.md
-//! @prompt-hash 3e409803
+//! @prompt-hash 33ebbc3e
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -96,14 +96,139 @@ fn place(
     }
     let table = matches!(policy, PlacementPolicy::TableDocumentOrder);
     let fields = |c: &Content| match c {
-        Content::TableCell(e) if table => {
-            let (x, y, c, r) = e.placement();
-            (x, y, c, r, e.source_span)
+        Content::TableCell(e) => {
+            if table {
+                let (x, y, c, r) = e.placement();
+                (x, y, c, r, e.source_span)
+            } else {
+                (None, None, None, None, Span::detached())
+            }
         }
-        Content::GridCell(e) if !table => {
-            (e.x, e.y, e.colspan, e.rowspan, Span::detached())
+        Content::GridCell(e) => {
+            if table {
+                (None, None, None, None, Span::detached())
+            } else {
+                (e.x, e.y, e.colspan, e.rowspan, Span::detached())
+            }
         }
-        _ => (None, None, None, None, Span::detached()),
+        Content::Source(..)
+        | Content::ShowRecipe(..)
+        | Content::Realized(..)
+        | Content::Located(..)
+        | Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => (None, None, None, None, Span::detached()),
     };
     let mut ordered = cells.iter().collect::<Vec<_>>();
     if !table {
@@ -654,5 +779,88 @@ mod tests {
         let placed = place_cells(&cells, 2).unwrap();
         assert_eq!(placed[0].col, 0);
         assert_eq!(placed[0].row, 0);
+    }
+}
+
+#[cfg(test)]
+mod v16_d_boundaries {
+    use super::*;
+    use crate::entities::elements::grid_cell::GridCellElem;
+    use std::sync::Arc;
+    fn grid(x: Option<usize>, y: Option<usize>, span: Option<usize>) -> Content {
+        Content::GridCell(Arc::new(GridCellElem {
+            body: Content::text("grid"),
+            x,
+            y,
+            colspan: span,
+            rowspan: span,
+            stroke: None,
+            fill: None,
+            align: None,
+            inset: None,
+            breakable: None,
+        }))
+    }
+    #[test]
+    fn v16_d_wrong_policy_cells_are_raw_unit_origins() {
+        let wrong_grid = grid(Some(usize::MAX), Some(usize::MAX), Some(usize::MAX));
+        let wrong_table = Content::table_cell(
+            Content::text("table"),
+            Some(usize::MAX),
+            Some(usize::MAX),
+            Some(usize::MAX),
+            Some(usize::MAX),
+        );
+        for (wrong, policy) in [
+            (wrong_grid, PlacementPolicy::TableDocumentOrder),
+            (wrong_table, PlacementPolicy::GridExplicitFirst),
+        ] {
+            let placed = place(&[wrong, Content::text("next")], 2, 0, policy).unwrap();
+            assert_eq!(
+                (placed[0].row, placed[0].col, placed[0].colspan, placed[0].rowspan),
+                (0, 0, 1, 1)
+            );
+            assert_eq!((placed[1].row, placed[1].col), (0, 1));
+            assert!(!placed[0].body.plain_text().is_empty());
+        }
+    }
+    #[test]
+    fn v16_d_policies_keep_document_order_conflict_and_explicit_first_distinct() {
+        let grid_result =
+            place_cells(&[Content::text("auto"), grid(Some(0), Some(0), None)], 2)
+                .unwrap();
+        assert_eq!(grid_result[0].body.plain_text(), "grid");
+        assert_eq!((grid_result[1].row, grid_result[1].col), (0, 1));
+        let explicit =
+            Content::table_cell(Content::text("table"), Some(0), Some(0), None, None);
+        let errors =
+            place_table_cells(&[Content::text("auto"), explicit], 2, 0).unwrap_err();
+        assert_eq!(
+            errors[0].message.as_str(),
+            "attempted to place a second cell at column 0, row 0"
+        );
+        assert!(!errors[0].hints.is_empty());
+    }
+    #[test]
+    fn v16_d_matching_table_overflow_keeps_causal_span() {
+        let id = crate::entities::file_id::FileId::from_raw(
+            std::num::NonZeroU16::new(1).unwrap(),
+        );
+        let span = Span::from_range(id, 3..9);
+        let mut cell = match Content::table_cell(
+            Content::Empty,
+            Some(0),
+            Some(usize::MAX),
+            None,
+            Some(2),
+        ) {
+            Content::TableCell(cell) => cell.as_ref().clone(),
+            _ => unreachable!("table_cell constructor"),
+        };
+        cell.source_span = span;
+        let errors =
+            place_table_cells(&[Content::TableCell(Arc::new(cell))], 1, 0).unwrap_err();
+        assert_eq!(errors[0].span, span);
+        assert_eq!(errors[0].message.as_str(), "cell position too large");
     }
 }

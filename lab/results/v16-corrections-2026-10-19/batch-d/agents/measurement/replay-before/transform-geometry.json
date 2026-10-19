@@ -1,0 +1,50 @@
+{
+  "extracted_utc": "2026-10-19T16:12:45.443819+00:00",
+  "binary_and_source_receipt": "receipt.json",
+  "observations": [
+    {
+      "name": "transform-shape",
+      "binary": "product",
+      "green_boxes": [
+        [
+          0.0,
+          0.0,
+          44.64101616,
+          37.320508079999996
+        ]
+      ]
+    },
+    {
+      "name": "transform-shape",
+      "binary": "oracle",
+      "green_boxes": [
+        [
+          0.0,
+          0.0,
+          44.64101616,
+          37.320508079999996
+        ]
+      ]
+    },
+    {
+      "name": "transform-empty",
+      "binary": "product",
+      "green_boxes": []
+    },
+    {
+      "name": "transform-empty",
+      "binary": "oracle",
+      "green_boxes": []
+    },
+    {
+      "name": "transform-metadata",
+      "binary": "product",
+      "green_boxes": []
+    },
+    {
+      "name": "transform-metadata",
+      "binary": "oracle",
+      "green_boxes": []
+    }
+  ]
+}

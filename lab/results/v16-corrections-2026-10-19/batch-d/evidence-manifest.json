@@ -1,0 +1,3051 @@
+{
+  "utc": "2026-10-19T16:46:43.159674+00:00",
+  "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+  "files": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/README.md",
+      "sha256": "88399b5b41a2a20f780a8077c7d635978b217964b191638e2d4fd336763770fa",
+      "bytes": 11325
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/after.sarif.gz",
+      "sha256": "1fbb4b1471a6f690e5b219acfd10629cb62b96efac57a9d444ecfeb4e43597b0",
+      "bytes": 155743
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/after.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/alias-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/alias-100-product.pdf",
+      "sha256": "da1db56dd9f84c8340eeabcdfdb5ed2d77d5ab7a73913ebe0fcee910a65a3748",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/block-no-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/block-no-set-100-product.pdf",
+      "sha256": "5ec599926ea0bab2e3ae35b937d5bfb922b2d9d343c70c7a1f244644bfc9805d",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/cell-set-none-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/cell-set-none-100-product.pdf",
+      "sha256": "c2b887d760b5b6d5b3ca59677f2a246b1e3dfe246642a79393776307546b6a41",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/context-state-oracle.pdf",
+      "sha256": "4bd4b3486b6e1940e9a67da2b7e6ee5b60bf4d1a4f72704fa3ca319d0ee986e8",
+      "bytes": 6652
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/context-state-product.pdf",
+      "sha256": "97dc9b3dacca0f24e905ba0c9ff79b67ab8de39e0a281175d3b011870b479414",
+      "bytes": 6489
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/effects-once-oracle.pdf",
+      "sha256": "0b660f0e700ad51daa6853a4fd3555254d7ee2b1c085e2734f63a090c50908cb",
+      "bytes": 8138
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/effects-once-product.pdf",
+      "sha256": "30669630b0445279e6329b1bb97ef8a0bf57bc1605a1f02f4c6a97cbc48daff5",
+      "bytes": 8169
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/explicit-fill-100-oracle.pdf",
+      "sha256": "df17964799c2ae1de6d5b153ed91976b9c49cfdb15d31608a15067d09770b0ce",
+      "bytes": 29105
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/explicit-fill-100-product.pdf",
+      "sha256": "96b5b87f05b18161104b2705622270d623df645252863c42ff53646a094c7f56",
+      "bytes": 22870
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/grid-fixed-oracle.pdf",
+      "sha256": "ec87efb53aa1b3cab82779dd462a7fa6b5e3866496eeaa7e47ced1e7172e37aa",
+      "bytes": 7427
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/grid-fixed-product.pdf",
+      "sha256": "70f5a7589109d5a5042b542c95e5f3ca5e36b3556e47990617661a4581e99045",
+      "bytes": 6592
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/grid-literal-auto-oracle.pdf",
+      "sha256": "65455157e02a18efb94dea644c945a5335caf791d673c604df1439e10ecca7cb",
+      "bytes": 7430
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/grid-literal-auto-product.pdf",
+      "sha256": "b4e783778114a3eaa8b89531569417eaab92562669e3e5c34a46b6bcd2aabe30",
+      "bytes": 6594
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/grid-refused-space-oracle.pdf",
+      "sha256": "d1dc0bdd902d155f381ebd6a8228deba89d1eb1b78019e21e67bf4e6e9867da7",
+      "bytes": 9090
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/grid-refused-space-product.pdf",
+      "sha256": "a76bf7dea82cd6be0f8cfa0f5314848df424a3c6278209cfc64ea2f91938df16",
+      "bytes": 8346
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/grid-source-interpolation-oracle.pdf",
+      "sha256": "6b388c57be0ab5d98c6747c5da4521805405ca88f1aa001845b587fb7da4c1f0",
+      "bytes": 6707
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/grid-source-interpolation-product.pdf",
+      "sha256": "bd0f57cbc8542587d25307c0fcb34e0ac7ce205357c5d0553bcc63a57cda9518",
+      "bytes": 5850
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/inline-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/inline-set-100-product.pdf",
+      "sha256": "1ab281494c384891381b8223937a93f24019249c5f09c176971fce56651b226f",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/local-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/local-set-100-product.pdf",
+      "sha256": "ec66a3d4ca4c65f843225714283c2de70da82ed6b557daba27f6edb59fa26d60",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/no-fill-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/no-fill-100-product.pdf",
+      "sha256": "2c58008873be28607391628ba9d33b5944758da3371a13e59aa348f193354590",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/prepared-none-oracle.pdf",
+      "sha256": "10e67dd59d38fff590a407724d7395021d3bcccf023e8cb4b309adb14938e514",
+      "bytes": 6808
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/prepared-none-product.pdf",
+      "sha256": "285e38c81aec2c74a05a2f5561abcfa74de7cf82f8d6aa962c2f7c80d7bc3550",
+      "bytes": 6243
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/prepared-replaced-oracle.pdf",
+      "sha256": "8af0595ec1c963f4fe62c9c070903fae4e5b2544b08e4fd299a69f989f304cec",
+      "bytes": 5635
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/prepared-replaced-product.pdf",
+      "sha256": "f7a46fa40cf567e15980d27630aa98b8ea6b9119879d33d3d6c7a5753e2d744d",
+      "bytes": 5765
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/raw-defaults-oracle.pdf",
+      "sha256": "a4ed64faa31561883f004471cbb2ac093fca13873f1b4b4d0a291f03aec9a3d6",
+      "bytes": 6584
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/raw-defaults-product.pdf",
+      "sha256": "d9118faf383c6d573649ec097a4abaafb2267023d9c427278438aa0005c85147",
+      "bytes": 5585
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/receipt.json",
+      "sha256": "3762d90d4d41c439b0cc2fed3434412fb7a6315944229638b16c1b3c6be2a2e2",
+      "bytes": 921758
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/rect-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/rect-set-100-product.pdf",
+      "sha256": "6796142daf4f35e4bb9b5d939dcbddc1bb0bea304a83ed69a3d25c0d6e2b185a",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/text-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/text-set-100-product.pdf",
+      "sha256": "100b9512a3ab703c0d984da6f75ab703af156286dc60979237d58ee34ce2f0d0",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/anchors-final.json",
+      "sha256": "091a385f1557671242463b7fc90537ca334ee2dc744e6334783df875b8b595b2",
+      "bytes": 3176
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/anchors.json",
+      "sha256": "d4fb06515386270e8f6dfde7b1a6edd03d57d7a8a1381a74b92c2578c7e09550",
+      "bytes": 1780
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/audit.md",
+      "sha256": "f57cfda363e6e3e895fb1594332948722c4ad9eb6457330e9fbc66e32f2b4d66",
+      "bytes": 5890
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/alias-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/alias-100-product.pdf",
+      "sha256": "2cc69715cb9d299debf291a7a144333ffbc62524914ee75d79eb980581600e84",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/block-no-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/block-no-set-100-product.pdf",
+      "sha256": "6a206b0f2c66addce5fe3340dbb52f7d3fee239ee48cec07e20c723011edc59a",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/cell-set-none-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/cell-set-none-100-product.pdf",
+      "sha256": "618bf3cc486301d11c64daae4a7be2041fcc68e211428e4999f5784b28366385",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/context-state-oracle.pdf",
+      "sha256": "4bd4b3486b6e1940e9a67da2b7e6ee5b60bf4d1a4f72704fa3ca319d0ee986e8",
+      "bytes": 6652
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/context-state-product.pdf",
+      "sha256": "409403668b6a2a15cf278ebbc5d02becb5fdb4ed0d0ac8f053cf7a76f52d84db",
+      "bytes": 6489
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/effects-once-oracle.pdf",
+      "sha256": "0b660f0e700ad51daa6853a4fd3555254d7ee2b1c085e2734f63a090c50908cb",
+      "bytes": 8138
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/effects-once-product.pdf",
+      "sha256": "3604c3112abc4a1cefb34359a10f0d2bf73791d90cec125b9c5e622fbd433640",
+      "bytes": 8169
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/explicit-fill-100-oracle.pdf",
+      "sha256": "df17964799c2ae1de6d5b153ed91976b9c49cfdb15d31608a15067d09770b0ce",
+      "bytes": 29105
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/explicit-fill-100-product.pdf",
+      "sha256": "3ead084b79a7268ea828046a108b5ad9b50f836c09e44afe3ccb8452f4313cc0",
+      "bytes": 22870
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/grid-fixed-oracle.pdf",
+      "sha256": "ec87efb53aa1b3cab82779dd462a7fa6b5e3866496eeaa7e47ced1e7172e37aa",
+      "bytes": 7427
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/grid-fixed-product.pdf",
+      "sha256": "a99a9ce8bd70046a6f838465f4af7acde185666b8f23926f0903ccfb21a154c8",
+      "bytes": 6592
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/grid-literal-auto-oracle.pdf",
+      "sha256": "65455157e02a18efb94dea644c945a5335caf791d673c604df1439e10ecca7cb",
+      "bytes": 7430
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/grid-literal-auto-product.pdf",
+      "sha256": "24b40de7e75c8429956c345c320d6df0d33adf7170d0baaff215ef850afd57e8",
+      "bytes": 6594
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/grid-refused-space-oracle.pdf",
+      "sha256": "d1dc0bdd902d155f381ebd6a8228deba89d1eb1b78019e21e67bf4e6e9867da7",
+      "bytes": 9090
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/grid-refused-space-product.pdf",
+      "sha256": "7a879fef33ddf960e628ed035ebe50ca440954b05eff65777d767df9efc52ba6",
+      "bytes": 8346
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/grid-source-interpolation-oracle.pdf",
+      "sha256": "6b388c57be0ab5d98c6747c5da4521805405ca88f1aa001845b587fb7da4c1f0",
+      "bytes": 6707
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/grid-source-interpolation-product.pdf",
+      "sha256": "eb7cb0a2980402386c69011a03c19a96901c7533663845c469df9b5c4c211677",
+      "bytes": 5850
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/inline-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/inline-set-100-product.pdf",
+      "sha256": "cc3e23657f294f03ec80474b18b186b47335bb0e71a2385d8e29af504a498526",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/local-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/local-set-100-product.pdf",
+      "sha256": "af0b6daefd5bd8ec8e7d2e608a8dc833b36df6f89c5e52f77638553e4437a2d7",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/no-fill-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/no-fill-100-product.pdf",
+      "sha256": "4fd82a3ab043e7e67805e0cca1ef1d6d19b41e961ae578c788f7c117141b735e",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/prepared-none-oracle.pdf",
+      "sha256": "10e67dd59d38fff590a407724d7395021d3bcccf023e8cb4b309adb14938e514",
+      "bytes": 6808
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/prepared-none-product.pdf",
+      "sha256": "607f4701b25fc4d295a469140c16de06eb61a58638608fef787e2641952d5f10",
+      "bytes": 6243
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/prepared-replaced-oracle.pdf",
+      "sha256": "8af0595ec1c963f4fe62c9c070903fae4e5b2544b08e4fd299a69f989f304cec",
+      "bytes": 5635
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/prepared-replaced-product.pdf",
+      "sha256": "d6b7f3571e022feaf0616946c39def86379e66c61764db8a017ed5c9e189b282",
+      "bytes": 5765
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/raw-defaults-oracle.pdf",
+      "sha256": "a4ed64faa31561883f004471cbb2ac093fca13873f1b4b4d0a291f03aec9a3d6",
+      "bytes": 6584
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/raw-defaults-product.pdf",
+      "sha256": "080449e266b987c6721c29a66eb0082595067ecea28cf2afb6eb16107e54fc0f",
+      "bytes": 5585
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/receipt.json",
+      "sha256": "89befe7124f5543bc7f0c4b4d2beca43d1397466b988fb671758361dbe22ab13",
+      "bytes": 921922
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/rect-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/rect-set-100-product.pdf",
+      "sha256": "6e549d3e54af61b3ecba2707719d9869c379b1392e68b63f8405719bfec7c28c",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/text-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/text-set-100-product.pdf",
+      "sha256": "6417fdb38a1d490b98337eda50ed013b4a7e3d94e028564c2bf65d67a89e12cf",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/alias-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/alias-100-product.pdf",
+      "sha256": "39446d10c3a9d0c38a2cc3bbdc7dcb6a52d86aa8fda72b6c83e69502ac55f594",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/analysis.md",
+      "sha256": "6f09e8c0240da62e1a83b0b9b5e165c1bcb179c0a28334c31ca271c21a385b10",
+      "bytes": 2457
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/block-no-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/block-no-set-100-product.pdf",
+      "sha256": "ea47fbaf9ddbd3d3a349a8861d758d75c74efbf9f7796c002c3fab8bdae4fd80",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/cell-set-none-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/cell-set-none-100-product.pdf",
+      "sha256": "6d7096fe457e2590be9db54b1dbf6a8db2bc8a8a6c582680c41b5485baba88fa",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/comparison.json",
+      "sha256": "4ea9abe910b14c876c8a32b2921899ccd24e53f4fc23195bf6cf0460b4f10686",
+      "bytes": 4026
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/context-state-oracle.pdf",
+      "sha256": "4bd4b3486b6e1940e9a67da2b7e6ee5b60bf4d1a4f72704fa3ca319d0ee986e8",
+      "bytes": 6652
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/context-state-product.pdf",
+      "sha256": "8a507c4ecf30bf6a5792f61f83c3842ec40c0301b454deacfacee6b5543778a4",
+      "bytes": 6489
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/effects-once-oracle.pdf",
+      "sha256": "0b660f0e700ad51daa6853a4fd3555254d7ee2b1c085e2734f63a090c50908cb",
+      "bytes": 8138
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/effects-once-product.pdf",
+      "sha256": "d0980d78429844369b42cbf22011897bb34bd8beaadc6e31314f6e909eaea09f",
+      "bytes": 8169
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/explicit-fill-100-oracle.pdf",
+      "sha256": "df17964799c2ae1de6d5b153ed91976b9c49cfdb15d31608a15067d09770b0ce",
+      "bytes": 29105
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/explicit-fill-100-product.pdf",
+      "sha256": "19b072a2027f7128fd8764de89f366db1b28309c6bdeda0e9a9be51de87fb966",
+      "bytes": 22870
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/grid-fixed-oracle.pdf",
+      "sha256": "ec87efb53aa1b3cab82779dd462a7fa6b5e3866496eeaa7e47ced1e7172e37aa",
+      "bytes": 7427
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/grid-fixed-product.pdf",
+      "sha256": "9f7c199c4a919f1675107072ef64470d21cc8116d111f51fc7d8ec655d0bd4a6",
+      "bytes": 6592
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/grid-literal-auto-oracle.pdf",
+      "sha256": "65455157e02a18efb94dea644c945a5335caf791d673c604df1439e10ecca7cb",
+      "bytes": 7430
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/grid-literal-auto-product.pdf",
+      "sha256": "f452193e52bf8c357b3dc070fa40808af7da80d6d2e7b485123eaecd2e76316a",
+      "bytes": 6594
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/grid-refused-space-oracle.pdf",
+      "sha256": "d1dc0bdd902d155f381ebd6a8228deba89d1eb1b78019e21e67bf4e6e9867da7",
+      "bytes": 9090
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/grid-refused-space-product.pdf",
+      "sha256": "3c38970429cd6896d504cda68e3eb784bbf5e300d151019a6a276b8029dc6521",
+      "bytes": 8346
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/grid-source-interpolation-oracle.pdf",
+      "sha256": "6b388c57be0ab5d98c6747c5da4521805405ca88f1aa001845b587fb7da4c1f0",
+      "bytes": 6707
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/grid-source-interpolation-product.pdf",
+      "sha256": "93532c27a316d8ac2b6443ca14bebf76c143349837196c47d88336983af0495b",
+      "bytes": 5850
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/inline-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/inline-set-100-product.pdf",
+      "sha256": "5c2d4be73a4b0344e62521915e1d98dbc0f8df75595a1096cc7a353e61cda574",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/local-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/local-set-100-product.pdf",
+      "sha256": "6d0cf5d6bc3dae792de0e877e9fc759ba70e9eac0735bbb2a4af8ff0385551e3",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/no-fill-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/no-fill-100-product.pdf",
+      "sha256": "c506276a329df7f0312d860487bdc06411dc75fea103373ae20671965ba4049e",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/prepared-none-oracle.pdf",
+      "sha256": "10e67dd59d38fff590a407724d7395021d3bcccf023e8cb4b309adb14938e514",
+      "bytes": 6808
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/prepared-none-product.pdf",
+      "sha256": "711236061986bc66831e28b45bb3468fc310db44803870c1ebe9be8e7b32f488",
+      "bytes": 6243
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/prepared-replaced-oracle.pdf",
+      "sha256": "8af0595ec1c963f4fe62c9c070903fae4e5b2544b08e4fd299a69f989f304cec",
+      "bytes": 5635
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/prepared-replaced-product.pdf",
+      "sha256": "f882b6fd2706f6edec65a36282bf8ae55d5ed423503a673c1d8da2813743fff8",
+      "bytes": 5765
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/raw-defaults-oracle.pdf",
+      "sha256": "a4ed64faa31561883f004471cbb2ac093fca13873f1b4b4d0a291f03aec9a3d6",
+      "bytes": 6584
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/raw-defaults-product.pdf",
+      "sha256": "5691ed8c6e903a78d760654429b792d592ee0c03e21cff07b94072c2ae7b81a1",
+      "bytes": 5585
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/receipt.json",
+      "sha256": "8d01cfe635c5d0fba2137de875717e8eb83f180a27c3175ef178492e95767b4c",
+      "bytes": 659376
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/rect-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/rect-set-100-product.pdf",
+      "sha256": "3a7d9a201dcc774bc38bac0469b0399cffb59c58ddbe0e8419cbbcbce0658adc",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/text-set-100-oracle.pdf",
+      "sha256": "e6ee569bb524c54b34ad6660d5825be23108db30a1ea592d31df9aad5c181c86",
+      "bytes": 24040
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/text-set-100-product.pdf",
+      "sha256": "fc3d551d4cacd1909a23f45fc8d3b5c87b90bf3205db1c8ab3fcdeab21738cc1",
+      "bytes": 22188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/alias-100.typ",
+      "sha256": "77268ebabdf190ed8727e4f00dec5126b61d05642a467eaf8456b6a7fdbf4192",
+      "bytes": 163
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/block-no-set-100.typ",
+      "sha256": "f985f7820015ee7a5580d05d5689259ba563f8beecbfa6f0f1fd8a073b7c3751",
+      "bytes": 177
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/cell-set-none-100.typ",
+      "sha256": "f975a3265b13180567ecf7e8ef6ab002abe1cefe01746ca36d60d4bcb486c247",
+      "bytes": 205
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/context-state.typ",
+      "sha256": "5ad082d2d8d799bf06234ee604fb9797e766719a5abc3f194d8cb342a251b149",
+      "bytes": 264
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/effects-once.typ",
+      "sha256": "23d10d4b8a6f9157db127ddc33ee906a20c5b459c3ec74ca03d768e6847096bc",
+      "bytes": 268
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/explicit-fill-100.typ",
+      "sha256": "713b11ec5dd54011c99988a86214e4b99da0dbb72a62c453be5d572586432b9e",
+      "bytes": 184
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/grid-fixed.typ",
+      "sha256": "5febd0658e9989faf39208e68bfa5c97b1da5212dd8d758cafdbfc136a88fec2",
+      "bytes": 186
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/grid-literal-auto.typ",
+      "sha256": "9c9c7f8cd1b269a307afa82f6466deeb18abb0e95f3e8c114497ce87ac8187fd",
+      "bytes": 167
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/grid-refused-space.typ",
+      "sha256": "4bc44c7ffff9e8067cac6604784c1fba513b1b819090a1cfcfa2f53c94b97644",
+      "bytes": 168
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/grid-source-interpolation.typ",
+      "sha256": "a961766dbc59f137fcfa89c7c4157c833f479d8cde1c5e83c6914d6a4619d70a",
+      "bytes": 178
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/inline-set-100.typ",
+      "sha256": "89c95c86c36b46f6db6e6651b26a45b28a1936309950670264323f4038f53e77",
+      "bytes": 193
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/local-set-100.typ",
+      "sha256": "73f0f76523014f7732037a8a05be60470fe3f29a1eca0a8e910e52c933400580",
+      "bytes": 204
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/no-fill-100.typ",
+      "sha256": "e49845b43c9965a5e08337b6fa1f82ead30e7fc6e573371994c9835b9fd9fd67",
+      "bytes": 173
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/prepared-none.typ",
+      "sha256": "2523becde1802fc3c35ae7966bc2cfd44c467b1dd59a0d14aff16d8dd872e696",
+      "bytes": 216
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/prepared-replaced.typ",
+      "sha256": "5bce8927184059fb7e12f3a1ff6d89573eb416835e93141a7d18035b1d7654f4",
+      "bytes": 237
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/raw-defaults.typ",
+      "sha256": "37cdedf1f7f3050cb36ce49a951168b2367abc4c2c6681e937dc45326e9e24f9",
+      "bytes": 178
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/rect-set-100.typ",
+      "sha256": "748a40ea9a0af229f2ee912211ef66e3cfe4d148c24c6f9c3497bc4d44352cbe",
+      "bytes": 198
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/text-set-100.typ",
+      "sha256": "7631ace080e5d21c6cd8543f7ba8c1d1e9834ccb4b18a6c7bee39294d3c97a4e",
+      "bytes": 200
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/implement.py",
+      "sha256": "a3d078e9ef70e65aa3e9962c113f5cea069adb9a441a815729a0060d20497804",
+      "bytes": 4500
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/implementation-ready.json",
+      "sha256": "4b16c461914c9d083b802ec5c95c223559e51770161544a1270b72bd0ef9c3f7",
+      "bytes": 3688
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/layout-peer-review.json",
+      "sha256": "a0cde2470760c5b16fe2832f5bf85c4b81fec6d0941c768b22abe6ace3e7993e",
+      "bytes": 2018
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/note-review.json",
+      "sha256": "9707c3873cd48110cc14dc28f62ef10a77a726bf53856d64de4fd5bd9f870aff",
+      "bytes": 113838
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/note-review.md",
+      "sha256": "a63cd82cd6c9cb433fb0b06f3831fc614cb90f951e911416e82d5a743a945369",
+      "bytes": 4548
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-before.json",
+      "sha256": "6037f4a756b6196813b2dc108220dd2f4db2e416e3de60e936d460dd97f77028",
+      "bytes": 234240
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-ready.json",
+      "sha256": "6e79d6671d7380d60d38fafdff68cd82f23360d25d99b8dc5018faed50e642cb",
+      "bytes": 3131
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-strengthened-tests.json",
+      "sha256": "c2f12f066996cd1c4373b5fa4540f136945fa32cdc5d25c4a0cde5ca93f17118",
+      "bytes": 3759
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/replay-baseline-frozen.py",
+      "sha256": "0a88d0ff51e8acdcfab67b380f7bbdcda9551cf1dc20d0f4316aa4a099b5122e",
+      "bytes": 5846
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/replay.py",
+      "sha256": "edbba2382b452ccc6a4e13112d0cc54b29a72d044512f7c57de0d95c2173e17c",
+      "bytes": 6739
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/review_notes.py",
+      "sha256": "4f0759c9b81b33d48f2338ce59f8cb6cbcb64db15f3dabce33c0874ba1bde7ed",
+      "bytes": 5949
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/review_structural.py",
+      "sha256": "8129338b40573bd6ce22f5be9277fa30580c22707034ab5aa80937d59ba654d1",
+      "bytes": 11840
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/tests.json",
+      "sha256": "1f99790d1c2fcfeb1b533dd0e93d067aab5617a62c73ff7cf306a01db10d5358",
+      "bytes": 1168
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/audit-before.json",
+      "sha256": "5b2d5330b7ad77a2096d6a8c14e03ae710fc32972d32fdc69784b1cc046eef52",
+      "bytes": 1395
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/implementation-state.json",
+      "sha256": "4bafc6fd5a54d557dedc9a40207ca67293a8e38869b6029207411dab5232efed",
+      "bytes": 3426
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/measurement-peer-review.json",
+      "sha256": "c81fc3c7792dc4bd1f125fb54c9dd6e1eeb67b0468b34bec4e5a0da3a987c3fc",
+      "bytes": 4672
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/measurement-peer-review.md",
+      "sha256": "a0788684f94d6d1e8669db9186d203f95c2f58f373abd0f24ffea2a1eb291072",
+      "bytes": 4527
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/phase1-state.json",
+      "sha256": "22f42fdb378727b30b90feb2ba43829a0bc734a02841b0a65d3934161aeec12e",
+      "bytes": 3495
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/report.md",
+      "sha256": "2efa8845e36f77c96e7e1b265e42c297a71cbfaf3f05f0b2882b7dcdcbb9f650",
+      "bytes": 5951
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/selected-cases.json",
+      "sha256": "69ccc30f408cf22f06f448671f77961c39558d892d92584e8906880c6b2a233e",
+      "bytes": 51200
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/structural-anchors-final.json",
+      "sha256": "32b751277681ca87c89b7ffaee53ef36f977e7e23f69870ea75bf9eff75b7c08",
+      "bytes": 1726
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/structural-anchors.json",
+      "sha256": "5a98526bb90100bb2a4c9481ca3ce0fd3e92ca0fa128cb80937449d98609b21e",
+      "bytes": 1191
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/test-inventory.json",
+      "sha256": "8a8d13ad1bb7c211aca930d7b1db0f5ffe3b35967f9c1d7ea8b5b3036ea82075",
+      "bytes": 864
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-40pt.typ",
+      "sha256": "0999ef74c8e75090df66ecad02a4e8e2af4dc95310a7b1a56fd3d56c61d7a475",
+      "bytes": 244
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-auto.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-auto.typ",
+      "sha256": "895609e652dd88c22836a8d973963a3d991b5fc95891a219bdc5ddd57dfc63e4",
+      "bytes": 244
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/asset.png",
+      "sha256": "496c4ca068f5e62fc027760a9d269162180aaa58777b6e0437d4fbca8fc291be",
+      "bytes": 92
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-equation.oracle.svg",
+      "sha256": "971e3803b222f44f593220468a8ff023b2a16527ed51ea96e59425762e6ac04d",
+      "bytes": 3573
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-equation.product.svg",
+      "sha256": "671ad234b87c154f571908c669399d56208a6590d8d83662e08729441bd6836d",
+      "bytes": 3358
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-equation.typ",
+      "sha256": "bf496a2438ff82999c63d8ba4f5949ef14a80913db6d72f4b87d3dd9b8edb185",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-figure.oracle.svg",
+      "sha256": "d0bb9debd426689108f790aa74ae407b96f705f405f0c9a920bac3c18b701fe1",
+      "bytes": 496
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-figure.product.svg",
+      "sha256": "1e53ef87d162edf9de1499c9c3493f5ad76d3cfd20a221ffda6a5f3f124d65ff",
+      "bytes": 413
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-figure.typ",
+      "sha256": "ec9cdf55f5ef9c9dec03a38efc829dc576117fa46d8e27f9811820aa817226f3",
+      "bytes": 326
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-image.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-image.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-image.typ",
+      "sha256": "1c70165a9babfb342f32d8e70f2d3a669ca2da1d3e29845d8240ace0c22ef179",
+      "bytes": 306
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-shape.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-shape.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-shape.typ",
+      "sha256": "827db706a75427df70dd424c26fe55c729bfa814cfdee66c04fd50573ec6a353",
+      "bytes": 316
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-40pt.typ",
+      "sha256": "a3c6317ca2bae5b2b376715866e549d3fc2c4a8d71edd6045c6a95178bf13bfe",
+      "bytes": 193
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-auto.oracle.svg",
+      "sha256": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+      "bytes": 317
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-auto.product.svg",
+      "sha256": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+      "bytes": 256
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-auto.typ",
+      "sha256": "377aeb14b157e6b5391bec1fb9a9013287933d407ea4e263efb30b33a44a5555",
+      "bytes": 193
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-40pt.oracle.svg",
+      "sha256": "639036e75ccca74bf85b9421721c98841e767ac2f0bb54b12a2a3be07b211063",
+      "bytes": 3197
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-40pt.product.svg",
+      "sha256": "73e49c5cb907249ef7a647224cf65cbcbe1ba532944461acbaccc69543f29303",
+      "bytes": 2983
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-40pt.typ",
+      "sha256": "ddafa5d0e3f326c40f7965a2d72bf9ac8b168f20660f7dd9b9ca4769aee9dfda",
+      "bytes": 198
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-auto.oracle.svg",
+      "sha256": "7210ba657c2c815d4c895672c92c518fdff39159af247007f4a806a4394a06db",
+      "bytes": 3207
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-auto.product.svg",
+      "sha256": "a9b815c556b9d37f7d33b9b6fba0871f9a5bd8b5d5d9673e7dc8a65f5dd268e0",
+      "bytes": 2993
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-auto.typ",
+      "sha256": "ab2085c28c129c5dc871ec3241e48fa591d5c640c792257b821b49800f1068ed",
+      "bytes": 198
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-40pt.oracle.svg",
+      "sha256": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+      "bytes": 417
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-40pt.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-40pt.typ",
+      "sha256": "76c6aa31e80e2ad7b459f692e71a21c1a7c8466032a2cc2acad61f3ad3c783bf",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-auto.oracle.svg",
+      "sha256": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+      "bytes": 417
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-auto.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-auto.typ",
+      "sha256": "af1fc59439492908ff2d131be7e4c48e2e89ec99f5c61187361431ae34c22f7c",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-40pt.typ",
+      "sha256": "6fe622fe8ca02d0c3863b369a1c45b190873fe795e1d308dab35f2c606178a48",
+      "bytes": 225
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-auto.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-auto.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-auto.typ",
+      "sha256": "6b8e3a3506d82d52f6cee2380da4bd4b75b8ea7f378715959bc7ad3f9d535477",
+      "bytes": 225
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-40pt.typ",
+      "sha256": "72fa6dfd9d23c9bbdf3c31868ffad81d1789289cc29f76339a847886a57f4e41",
+      "bytes": 232
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-auto.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-auto.typ",
+      "sha256": "b168b33a66ad870104e9a12f1743c6b5a75b097f77ff899b5944b5c505bf484b",
+      "bytes": 232
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-40pt.typ",
+      "sha256": "78b3c45d2bf469810d9007ae6f51985c9727c83bb44148109d2736c7fb10eb38",
+      "bytes": 212
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-auto.oracle.svg",
+      "sha256": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+      "bytes": 317
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-auto.product.svg",
+      "sha256": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+      "bytes": 256
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-auto.typ",
+      "sha256": "29ac17234e6b685bd9fd9a4dcf4cce880f275cf62789ec0f4e9b452ac03c5da6",
+      "bytes": 212
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/receipt.json",
+      "sha256": "fb1a7d91762e8bc6e48da05bad77c52da10ebc649c58f18bd07018a74782d926",
+      "bytes": 104838
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/runner.py",
+      "sha256": "a021fad490d58eac9507c9b1ee511fdcb01c0755de3b6d06c34d02c03f32a481",
+      "bytes": 6778
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-40pt.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-40pt.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-40pt.typ",
+      "sha256": "376da8bc4efb66189b42507e2e448242a15d10f32b18762e3d8a08581d642b35",
+      "bytes": 242
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-auto.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-auto.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-auto.typ",
+      "sha256": "646b1b348e0fee159171f6083c136be759c1c46c54142c5c3268e2acfb5c662c",
+      "bytes": 242
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-40pt.typ",
+      "sha256": "d25087350b951859b92d95e0d28b9241d78b1c28cff4c12453470267652a9437",
+      "bytes": 248
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-auto.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-auto.typ",
+      "sha256": "e8bfd8f293bfeaa6a40c77f448c02e2ea035b6a3da6793a96db12a6187cf13e3",
+      "bytes": 248
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-40pt.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-40pt.product.svg",
+      "sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+      "bytes": 318
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-40pt.typ",
+      "sha256": "bf61d02bb2863071e7666a1fe6e41c340770159274662e8c9a0bb0f32370acb8",
+      "bytes": 287
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-auto.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-auto.product.svg",
+      "sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+      "bytes": 318
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-auto.typ",
+      "sha256": "d327342224d05f8d3286d2b875ca04878b5bb78865c2d24b7f7df881dd11a60c",
+      "bytes": 287
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-empty.oracle.svg",
+      "sha256": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+      "bytes": 250
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-empty.product.svg",
+      "sha256": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+      "bytes": 275
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-empty.typ",
+      "sha256": "a5dea7534ae7f5840942641080aa55eb74d195ad8a82826ba548f09ea87a9565",
+      "bytes": 77
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-metadata.oracle.svg",
+      "sha256": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+      "bytes": 250
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-metadata.product.svg",
+      "sha256": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+      "bytes": 275
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-metadata.typ",
+      "sha256": "158eba6d3e97c9b1fb18b1f3dfa63dac422ba90a03ed54aeea663711707bb132",
+      "bytes": 96
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-shape.oracle.svg",
+      "sha256": "e76578742072044dfdaa82f86b5ece184af269cbf3f1f0acce7d3b559618f764",
+      "bytes": 375
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-shape.product.svg",
+      "sha256": "9aa23121ce825f4d52a724902e634e4bde15a9d6b5bbd4565dd7b31d34ebf379",
+      "bytes": 336
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-shape.typ",
+      "sha256": "bbdf96588601e0c72a16b65dfb822f90cd6e23e6f48ce38000c979bbb75d4d9b",
+      "bytes": 126
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/anchors.json",
+      "sha256": "604d24f62e80686e9d9e2b770e64abcc657c71cc4e8f6a91582e14da7af44d60",
+      "bytes": 1468
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/align_image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/align_image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/align_image-40pt.typ",
+      "sha256": "0999ef74c8e75090df66ecad02a4e8e2af4dc95310a7b1a56fd3d56c61d7a475",
+      "bytes": 244
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/align_image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/align_image-auto.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/align_image-auto.typ",
+      "sha256": "895609e652dd88c22836a8d973963a3d991b5fc95891a219bdc5ddd57dfc63e4",
+      "bytes": 244
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/asset.png",
+      "sha256": "496c4ca068f5e62fc027760a9d269162180aaa58777b6e0437d4fbca8fc291be",
+      "bytes": 92
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-equation.oracle.svg",
+      "sha256": "971e3803b222f44f593220468a8ff023b2a16527ed51ea96e59425762e6ac04d",
+      "bytes": 3573
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-equation.product.svg",
+      "sha256": "671ad234b87c154f571908c669399d56208a6590d8d83662e08729441bd6836d",
+      "bytes": 3358
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-equation.typ",
+      "sha256": "bf496a2438ff82999c63d8ba4f5949ef14a80913db6d72f4b87d3dd9b8edb185",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-figure.oracle.svg",
+      "sha256": "d0bb9debd426689108f790aa74ae407b96f705f405f0c9a920bac3c18b701fe1",
+      "bytes": 496
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-figure.product.svg",
+      "sha256": "1e53ef87d162edf9de1499c9c3493f5ad76d3cfd20a221ffda6a5f3f124d65ff",
+      "bytes": 413
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-figure.typ",
+      "sha256": "ec9cdf55f5ef9c9dec03a38efc829dc576117fa46d8e27f9811820aa817226f3",
+      "bytes": 326
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-image.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-image.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-image.typ",
+      "sha256": "1c70165a9babfb342f32d8e70f2d3a669ca2da1d3e29845d8240ace0c22ef179",
+      "bytes": 306
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-shape.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-shape.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-shape.typ",
+      "sha256": "827db706a75427df70dd424c26fe55c729bfa814cfdee66c04fd50573ec6a353",
+      "bytes": 316
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/empty-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/empty-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/empty-40pt.typ",
+      "sha256": "a3c6317ca2bae5b2b376715866e549d3fc2c4a8d71edd6045c6a95178bf13bfe",
+      "bytes": 193
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/empty-auto.oracle.svg",
+      "sha256": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+      "bytes": 317
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/empty-auto.product.svg",
+      "sha256": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+      "bytes": 256
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/empty-auto.typ",
+      "sha256": "377aeb14b157e6b5391bec1fb9a9013287933d407ea4e263efb30b33a44a5555",
+      "bytes": 193
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/equation-40pt.oracle.svg",
+      "sha256": "639036e75ccca74bf85b9421721c98841e767ac2f0bb54b12a2a3be07b211063",
+      "bytes": 3197
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/equation-40pt.product.svg",
+      "sha256": "73e49c5cb907249ef7a647224cf65cbcbe1ba532944461acbaccc69543f29303",
+      "bytes": 2983
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/equation-40pt.typ",
+      "sha256": "ddafa5d0e3f326c40f7965a2d72bf9ac8b168f20660f7dd9b9ca4769aee9dfda",
+      "bytes": 198
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/equation-auto.oracle.svg",
+      "sha256": "7210ba657c2c815d4c895672c92c518fdff39159af247007f4a806a4394a06db",
+      "bytes": 3207
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/equation-auto.product.svg",
+      "sha256": "a9b815c556b9d37f7d33b9b6fba0871f9a5bd8b5d5d9673e7dc8a65f5dd268e0",
+      "bytes": 2993
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/equation-auto.typ",
+      "sha256": "ab2085c28c129c5dc871ec3241e48fa591d5c640c792257b821b49800f1068ed",
+      "bytes": 198
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/figure-40pt.oracle.svg",
+      "sha256": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+      "bytes": 417
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/figure-40pt.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/figure-40pt.typ",
+      "sha256": "76c6aa31e80e2ad7b459f692e71a21c1a7c8466032a2cc2acad61f3ad3c783bf",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/figure-auto.oracle.svg",
+      "sha256": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+      "bytes": 417
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/figure-auto.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/figure-auto.typ",
+      "sha256": "af1fc59439492908ff2d131be7e4c48e2e89ec99f5c61187361431ae34c22f7c",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/hide_shape-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/hide_shape-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/hide_shape-40pt.typ",
+      "sha256": "6fe622fe8ca02d0c3863b369a1c45b190873fe795e1d308dab35f2c606178a48",
+      "bytes": 225
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/hide_shape-auto.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/hide_shape-auto.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/hide_shape-auto.typ",
+      "sha256": "6b8e3a3506d82d52f6cee2380da4bd4b75b8ea7f378715959bc7ad3f9d535477",
+      "bytes": 225
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/image-40pt.typ",
+      "sha256": "72fa6dfd9d23c9bbdf3c31868ffad81d1789289cc29f76339a847886a57f4e41",
+      "bytes": 232
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/image-auto.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/image-auto.typ",
+      "sha256": "b168b33a66ad870104e9a12f1743c6b5a75b097f77ff899b5944b5c505bf484b",
+      "bytes": 232
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/metadata-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/metadata-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/metadata-40pt.typ",
+      "sha256": "78b3c45d2bf469810d9007ae6f51985c9727c83bb44148109d2736c7fb10eb38",
+      "bytes": 212
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/metadata-auto.oracle.svg",
+      "sha256": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+      "bytes": 317
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/metadata-auto.product.svg",
+      "sha256": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+      "bytes": 256
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/metadata-auto.typ",
+      "sha256": "29ac17234e6b685bd9fd9a4dcf4cce880f275cf62789ec0f4e9b452ac03c5da6",
+      "bytes": 212
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/receipt.json",
+      "sha256": "0d85514b786768f3fe7c9d97542cc691151daa12a06863555cfa618f02c6dae3",
+      "bytes": 104992
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/runner.py",
+      "sha256": "a021fad490d58eac9507c9b1ee511fdcb01c0755de3b6d06c34d02c03f32a481",
+      "bytes": 6778
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/shape-40pt.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/shape-40pt.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/shape-40pt.typ",
+      "sha256": "376da8bc4efb66189b42507e2e448242a15d10f32b18762e3d8a08581d642b35",
+      "bytes": 242
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/shape-auto.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/shape-auto.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/shape-auto.typ",
+      "sha256": "646b1b348e0fee159171f6083c136be759c1c46c54142c5c3268e2acfb5c662c",
+      "bytes": 242
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/styled_image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/styled_image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/styled_image-40pt.typ",
+      "sha256": "d25087350b951859b92d95e0d28b9241d78b1c28cff4c12453470267652a9437",
+      "bytes": 248
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/styled_image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/styled_image-auto.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/styled_image-auto.typ",
+      "sha256": "e8bfd8f293bfeaa6a40c77f448c02e2ea035b6a3da6793a96db12a6187cf13e3",
+      "bytes": 248
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/table-40pt.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/table-40pt.product.svg",
+      "sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+      "bytes": 318
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/table-40pt.typ",
+      "sha256": "bf61d02bb2863071e7666a1fe6e41c340770159274662e8c9a0bb0f32370acb8",
+      "bytes": 287
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/table-auto.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/table-auto.product.svg",
+      "sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+      "bytes": 318
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/table-auto.typ",
+      "sha256": "d327342224d05f8d3286d2b875ca04878b5bb78865c2d24b7f7df881dd11a60c",
+      "bytes": 287
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-empty.oracle.svg",
+      "sha256": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+      "bytes": 250
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-empty.product.svg",
+      "sha256": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+      "bytes": 275
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-empty.typ",
+      "sha256": "a5dea7534ae7f5840942641080aa55eb74d195ad8a82826ba548f09ea87a9565",
+      "bytes": 77
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-metadata.oracle.svg",
+      "sha256": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+      "bytes": 250
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-metadata.product.svg",
+      "sha256": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+      "bytes": 275
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-metadata.typ",
+      "sha256": "158eba6d3e97c9b1fb18b1f3dfa63dac422ba90a03ed54aeea663711707bb132",
+      "bytes": 96
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-shape.oracle.svg",
+      "sha256": "e76578742072044dfdaa82f86b5ece184af269cbf3f1f0acce7d3b559618f764",
+      "bytes": 375
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-shape.product.svg",
+      "sha256": "9aa23121ce825f4d52a724902e634e4bde15a9d6b5bbd4565dd7b31d34ebf379",
+      "bytes": 336
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-shape.typ",
+      "sha256": "bbdf96588601e0c72a16b65dfb822f90cd6e23e6f48ce38000c979bbb75d4d9b",
+      "bytes": 126
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay-review.json",
+      "sha256": "1c471de313bae241bc99fe26a5744a6f874de9bd4946d9c32363cd00c9d3d77c",
+      "bytes": 24006
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay-review.md",
+      "sha256": "7a404d6bd18b46ced8a440612d6bf3ba6c5ee18b60672a5297f23558485194fa",
+      "bytes": 3993
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/implementation.json",
+      "sha256": "24d8a00e6ac1ac34beadee61bf6b3790734dcc08673f24c3a59a7e3c1d026e91",
+      "bytes": 1800
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/phase1.json",
+      "sha256": "6d31ff147a4e8a0652cdb3c5d4dc4da4c81ff9359bc1a4c4f09406fc26f134f0",
+      "bytes": 3967
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/align_image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/align_image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/align_image-40pt.typ",
+      "sha256": "0999ef74c8e75090df66ecad02a4e8e2af4dc95310a7b1a56fd3d56c61d7a475",
+      "bytes": 244
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/align_image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/align_image-auto.product.svg",
+      "sha256": "3860289a74cc2f4c1d85a7e0e8d3913deef92e0729713667bad524db8a5b3e65",
+      "bytes": 629
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/align_image-auto.typ",
+      "sha256": "895609e652dd88c22836a8d973963a3d991b5fc95891a219bdc5ddd57dfc63e4",
+      "bytes": 244
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/asset.png",
+      "sha256": "496c4ca068f5e62fc027760a9d269162180aaa58777b6e0437d4fbca8fc291be",
+      "bytes": 92
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/asset.svg",
+      "sha256": "3c198e5018b3eeb917fb076fd0f4d7484b1bada92fdd8268d11cf97d7db8f2cb",
+      "bytes": 112
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-absolute-before.json",
+      "sha256": "d9073fb2625267d3d8b35965418cad53a75a30640660940530dd02d46fce18cc",
+      "bytes": 10752
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-auto.oracle.svg",
+      "sha256": "c0c003fda8873cb58a99e20628193f138ebd492ea23d97845bb369a12c3588d6",
+      "bytes": 468
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-auto.product.svg",
+      "sha256": "38d9b7e0c08d0f0a4e5069a4cfe39eba6331405080ee404a05547e354194899a",
+      "bytes": 429
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-auto.typ",
+      "sha256": "f26335e9fed29f7bbc3c9e6e305176fecbcad06a523a81e635569b2545839826",
+      "bytes": 98
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-before.json",
+      "sha256": "7708dfc921daf191ed4519be8b43eb3a31a51de50037373e8186f73cbcc5369e",
+      "bytes": 9316
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-bool.product.svg",
+      "sha256": "38d9b7e0c08d0f0a4e5069a4cfe39eba6331405080ee404a05547e354194899a",
+      "bytes": 429
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-bool.typ",
+      "sha256": "8c7e349bc10e71b65659d95a805a919498fe74acbad356295395ea51fa3a9743",
+      "bytes": 98
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.oracle.svg",
+      "sha256": "debadaaf8f026994b988715841b18ce145c3a2f54900ee717b9bc56d6177566a",
+      "bytes": 468
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.product.svg",
+      "sha256": "5bb80ba5b823e4ae11aa8bd22058ef0eed01dafaa449a3d0fb672771ae04ae6f",
+      "bytes": 427
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.typ",
+      "sha256": "5f702bf1b9f4e9a0d8cfcaadf3b6bd13ca83898f2f897216e4b51dc16b97b697",
+      "bytes": 97
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-float.product.svg",
+      "sha256": "150a4d837bb84e40edea509baf376fd0cdeddf3d792df35d041b0f5c84f48d2c",
+      "bytes": 429
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-float.typ",
+      "sha256": "16ff08c42a96afa931400145cba540acfe3b9bf72ee9baf56623b6840dcfcb0d",
+      "bytes": 98
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.oracle.svg",
+      "sha256": "b2088d4155292b881ffca37337fd39604d9c55673eb50737bd2a90c2b580155a",
+      "bytes": 469
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.product.svg",
+      "sha256": "38d9b7e0c08d0f0a4e5069a4cfe39eba6331405080ee404a05547e354194899a",
+      "bytes": 429
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.typ",
+      "sha256": "2009359733a994959d9391a28c4d266739df850fba139f2aa43983a7cd6ec4a3",
+      "bytes": 97
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/before.json",
+      "sha256": "6473600155a4be06a7f918e68b67f255390daead8fe8fc98085a2825dc3158e4",
+      "bytes": 57064
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/empty-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/empty-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/empty-40pt.typ",
+      "sha256": "a3c6317ca2bae5b2b376715866e549d3fc2c4a8d71edd6045c6a95178bf13bfe",
+      "bytes": 193
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/empty-auto.oracle.svg",
+      "sha256": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+      "bytes": 317
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/empty-auto.product.svg",
+      "sha256": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+      "bytes": 256
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/empty-auto.typ",
+      "sha256": "377aeb14b157e6b5391bec1fb9a9013287933d407ea4e263efb30b33a44a5555",
+      "bytes": 193
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/equation-40pt.oracle.svg",
+      "sha256": "639036e75ccca74bf85b9421721c98841e767ac2f0bb54b12a2a3be07b211063",
+      "bytes": 3197
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/equation-40pt.product.svg",
+      "sha256": "73e49c5cb907249ef7a647224cf65cbcbe1ba532944461acbaccc69543f29303",
+      "bytes": 2983
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/equation-40pt.typ",
+      "sha256": "ddafa5d0e3f326c40f7965a2d72bf9ac8b168f20660f7dd9b9ca4769aee9dfda",
+      "bytes": 198
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/equation-auto.oracle.svg",
+      "sha256": "7210ba657c2c815d4c895672c92c518fdff39159af247007f4a806a4394a06db",
+      "bytes": 3207
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/equation-auto.product.svg",
+      "sha256": "4283e3093d6f3979744c1a1e14305c6d46e13a641cf64f1fd41b1a75f2dd0e7f",
+      "bytes": 2982
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/equation-auto.typ",
+      "sha256": "ab2085c28c129c5dc871ec3241e48fa591d5c640c792257b821b49800f1068ed",
+      "bytes": 198
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/figure-40pt.oracle.svg",
+      "sha256": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+      "bytes": 417
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/figure-40pt.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/figure-40pt.typ",
+      "sha256": "76c6aa31e80e2ad7b459f692e71a21c1a7c8466032a2cc2acad61f3ad3c783bf",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/figure-auto.oracle.svg",
+      "sha256": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+      "bytes": 417
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/figure-auto.product.svg",
+      "sha256": "c9f32b1ee8fbd350b7f2cb78301e84f75ca2bd36f004a88433f29aee18bed14b",
+      "bytes": 313
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/figure-auto.typ",
+      "sha256": "af1fc59439492908ff2d131be7e4c48e2e89ec99f5c61187361431ae34c22f7c",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/geometry-before.json",
+      "sha256": "c3df551d7f7d1b85130f1e3cacf2ddb05ee900e0fb3e1e36f9ffa5ed0cd29b61",
+      "bytes": 8712
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/hide_shape-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/hide_shape-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/hide_shape-40pt.typ",
+      "sha256": "6fe622fe8ca02d0c3863b369a1c45b190873fe795e1d308dab35f2c606178a48",
+      "bytes": 225
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/hide_shape-auto.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/hide_shape-auto.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/hide_shape-auto.typ",
+      "sha256": "6b8e3a3506d82d52f6cee2380da4bd4b75b8ea7f378715959bc7ad3f9d535477",
+      "bytes": 225
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/image-40pt.typ",
+      "sha256": "72fa6dfd9d23c9bbdf3c31868ffad81d1789289cc29f76339a847886a57f4e41",
+      "bytes": 232
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/image-auto.product.svg",
+      "sha256": "3860289a74cc2f4c1d85a7e0e8d3913deef92e0729713667bad524db8a5b3e65",
+      "bytes": 629
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/image-auto.typ",
+      "sha256": "b168b33a66ad870104e9a12f1743c6b5a75b097f77ff899b5944b5c505bf484b",
+      "bytes": 232
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/inspect.py",
+      "sha256": "0c959505cac92ea591b8bf7b4da26dc9effaf3a8a57d1d159b79b8f856c21619",
+      "bytes": 704
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/metadata-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/metadata-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/metadata-40pt.typ",
+      "sha256": "78b3c45d2bf469810d9007ae6f51985c9727c83bb44148109d2736c7fb10eb38",
+      "bytes": 212
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/metadata-auto.oracle.svg",
+      "sha256": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+      "bytes": 317
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/metadata-auto.product.svg",
+      "sha256": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+      "bytes": 256
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/metadata-auto.typ",
+      "sha256": "29ac17234e6b685bd9fd9a4dcf4cce880f275cf62789ec0f4e9b452ac03c5da6",
+      "bytes": 212
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json",
+      "sha256": "9d779464ce9021fedb089c98cc6559797a57b01f9e47a3a34e839b749ec78fc2",
+      "bytes": 58083
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/run.py",
+      "sha256": "d7f7b906c8a7a9d0f85a53d7bcbf325703448e0d38a35e4810c8c4e78c688b00",
+      "bytes": 3542
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/shape-40pt.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/shape-40pt.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/shape-40pt.typ",
+      "sha256": "376da8bc4efb66189b42507e2e448242a15d10f32b18762e3d8a08581d642b35",
+      "bytes": 242
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/shape-auto.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/shape-auto.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/shape-auto.typ",
+      "sha256": "646b1b348e0fee159171f6083c136be759c1c46c54142c5c3268e2acfb5c662c",
+      "bytes": 242
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/styled_image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/styled_image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/styled_image-40pt.typ",
+      "sha256": "d25087350b951859b92d95e0d28b9241d78b1c28cff4c12453470267652a9437",
+      "bytes": 248
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/styled_image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/styled_image-auto.product.svg",
+      "sha256": "3860289a74cc2f4c1d85a7e0e8d3913deef92e0729713667bad524db8a5b3e65",
+      "bytes": 629
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/styled_image-auto.typ",
+      "sha256": "e8bfd8f293bfeaa6a40c77f448c02e2ea035b6a3da6793a96db12a6187cf13e3",
+      "bytes": 248
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/table-40pt.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/table-40pt.product.svg",
+      "sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+      "bytes": 318
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/table-40pt.typ",
+      "sha256": "bf61d02bb2863071e7666a1fe6e41c340770159274662e8c9a0bb0f32370acb8",
+      "bytes": 287
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/table-auto.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/table-auto.product.svg",
+      "sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+      "bytes": 318
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/table-auto.typ",
+      "sha256": "d327342224d05f8d3286d2b875ca04878b5bb78865c2d24b7f7df881dd11a60c",
+      "bytes": 287
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/transform-empty.oracle.svg",
+      "sha256": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+      "bytes": 250
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/transform-empty.product.svg",
+      "sha256": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+      "bytes": 275
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/transform-empty.typ",
+      "sha256": "a5dea7534ae7f5840942641080aa55eb74d195ad8a82826ba548f09ea87a9565",
+      "bytes": 77
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/transform-metadata.oracle.svg",
+      "sha256": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+      "bytes": 250
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/transform-metadata.product.svg",
+      "sha256": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+      "bytes": 275
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/transform-metadata.typ",
+      "sha256": "158eba6d3e97c9b1fb18b1f3dfa63dac422ba90a03ed54aeea663711707bb132",
+      "bytes": 96
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/transform-shape.oracle.svg",
+      "sha256": "e76578742072044dfdaa82f86b5ece184af269cbf3f1f0acce7d3b559618f764",
+      "bytes": 375
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/transform-shape.product.svg",
+      "sha256": "9aa23121ce825f4d52a724902e634e4bde15a9d6b5bbd4565dd7b31d34ebf379",
+      "bytes": 336
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/transform-shape.typ",
+      "sha256": "bbdf96588601e0c72a16b65dfb822f90cd6e23e6f48ce38000c979bbb75d4d9b",
+      "bytes": 126
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/align_image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/align_image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/align_image-40pt.typ",
+      "sha256": "0999ef74c8e75090df66ecad02a4e8e2af4dc95310a7b1a56fd3d56c61d7a475",
+      "bytes": 244
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/align_image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/align_image-auto.product.svg",
+      "sha256": "3860289a74cc2f4c1d85a7e0e8d3913deef92e0729713667bad524db8a5b3e65",
+      "bytes": 629
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/align_image-auto.typ",
+      "sha256": "895609e652dd88c22836a8d973963a3d991b5fc95891a219bdc5ddd57dfc63e4",
+      "bytes": 244
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/asset.png",
+      "sha256": "496c4ca068f5e62fc027760a9d269162180aaa58777b6e0437d4fbca8fc291be",
+      "bytes": 92
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-equation.oracle.svg",
+      "sha256": "971e3803b222f44f593220468a8ff023b2a16527ed51ea96e59425762e6ac04d",
+      "bytes": 3573
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-equation.product.svg",
+      "sha256": "671ad234b87c154f571908c669399d56208a6590d8d83662e08729441bd6836d",
+      "bytes": 3358
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-equation.typ",
+      "sha256": "bf496a2438ff82999c63d8ba4f5949ef14a80913db6d72f4b87d3dd9b8edb185",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-figure.oracle.svg",
+      "sha256": "d0bb9debd426689108f790aa74ae407b96f705f405f0c9a920bac3c18b701fe1",
+      "bytes": 496
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-figure.product.svg",
+      "sha256": "1e53ef87d162edf9de1499c9c3493f5ad76d3cfd20a221ffda6a5f3f124d65ff",
+      "bytes": 413
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-figure.typ",
+      "sha256": "ec9cdf55f5ef9c9dec03a38efc829dc576117fa46d8e27f9811820aa817226f3",
+      "bytes": 326
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-image.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-image.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-image.typ",
+      "sha256": "1c70165a9babfb342f32d8e70f2d3a669ca2da1d3e29845d8240ace0c22ef179",
+      "bytes": 306
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-shape.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-shape.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/effect-shape.typ",
+      "sha256": "827db706a75427df70dd424c26fe55c729bfa814cfdee66c04fd50573ec6a353",
+      "bytes": 316
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/empty-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/empty-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/empty-40pt.typ",
+      "sha256": "a3c6317ca2bae5b2b376715866e549d3fc2c4a8d71edd6045c6a95178bf13bfe",
+      "bytes": 193
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/empty-auto.oracle.svg",
+      "sha256": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+      "bytes": 317
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/empty-auto.product.svg",
+      "sha256": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+      "bytes": 256
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/empty-auto.typ",
+      "sha256": "377aeb14b157e6b5391bec1fb9a9013287933d407ea4e263efb30b33a44a5555",
+      "bytes": 193
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/equation-40pt.oracle.svg",
+      "sha256": "639036e75ccca74bf85b9421721c98841e767ac2f0bb54b12a2a3be07b211063",
+      "bytes": 3197
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/equation-40pt.product.svg",
+      "sha256": "73e49c5cb907249ef7a647224cf65cbcbe1ba532944461acbaccc69543f29303",
+      "bytes": 2983
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/equation-40pt.typ",
+      "sha256": "ddafa5d0e3f326c40f7965a2d72bf9ac8b168f20660f7dd9b9ca4769aee9dfda",
+      "bytes": 198
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/equation-auto.oracle.svg",
+      "sha256": "7210ba657c2c815d4c895672c92c518fdff39159af247007f4a806a4394a06db",
+      "bytes": 3207
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/equation-auto.product.svg",
+      "sha256": "4283e3093d6f3979744c1a1e14305c6d46e13a641cf64f1fd41b1a75f2dd0e7f",
+      "bytes": 2982
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/equation-auto.typ",
+      "sha256": "ab2085c28c129c5dc871ec3241e48fa591d5c640c792257b821b49800f1068ed",
+      "bytes": 198
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/figure-40pt.oracle.svg",
+      "sha256": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+      "bytes": 417
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/figure-40pt.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/figure-40pt.typ",
+      "sha256": "76c6aa31e80e2ad7b459f692e71a21c1a7c8466032a2cc2acad61f3ad3c783bf",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/figure-auto.oracle.svg",
+      "sha256": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+      "bytes": 417
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/figure-auto.product.svg",
+      "sha256": "c9f32b1ee8fbd350b7f2cb78301e84f75ca2bd36f004a88433f29aee18bed14b",
+      "bytes": 313
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/figure-auto.typ",
+      "sha256": "af1fc59439492908ff2d131be7e4c48e2e89ec99f5c61187361431ae34c22f7c",
+      "bytes": 274
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/hide_shape-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/hide_shape-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/hide_shape-40pt.typ",
+      "sha256": "6fe622fe8ca02d0c3863b369a1c45b190873fe795e1d308dab35f2c606178a48",
+      "bytes": 225
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/hide_shape-auto.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/hide_shape-auto.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/hide_shape-auto.typ",
+      "sha256": "6b8e3a3506d82d52f6cee2380da4bd4b75b8ea7f378715959bc7ad3f9d535477",
+      "bytes": 225
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/image-40pt.typ",
+      "sha256": "72fa6dfd9d23c9bbdf3c31868ffad81d1789289cc29f76339a847886a57f4e41",
+      "bytes": 232
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/image-auto.product.svg",
+      "sha256": "3860289a74cc2f4c1d85a7e0e8d3913deef92e0729713667bad524db8a5b3e65",
+      "bytes": 629
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/image-auto.typ",
+      "sha256": "b168b33a66ad870104e9a12f1743c6b5a75b097f77ff899b5944b5c505bf484b",
+      "bytes": 232
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/metadata-40pt.oracle.svg",
+      "sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "bytes": 343
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/metadata-40pt.product.svg",
+      "sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "bytes": 257
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/metadata-40pt.typ",
+      "sha256": "78b3c45d2bf469810d9007ae6f51985c9727c83bb44148109d2736c7fb10eb38",
+      "bytes": 212
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/metadata-auto.oracle.svg",
+      "sha256": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+      "bytes": 317
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/metadata-auto.product.svg",
+      "sha256": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+      "bytes": 256
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/metadata-auto.typ",
+      "sha256": "29ac17234e6b685bd9fd9a4dcf4cce880f275cf62789ec0f4e9b452ac03c5da6",
+      "bytes": 212
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/receipt.json",
+      "sha256": "29133d2201633139b4826299276357a7203635b7bbf7a0311c7d764e543f42a4",
+      "bytes": 76088
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/runner-before-hardening.py",
+      "sha256": "a0e56e6faf641c6150448afb106fda568928efd6a53208d206f939e30c2840a9",
+      "bytes": 4660
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/shape-40pt.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/shape-40pt.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/shape-40pt.typ",
+      "sha256": "376da8bc4efb66189b42507e2e448242a15d10f32b18762e3d8a08581d642b35",
+      "bytes": 242
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/shape-auto.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/shape-auto.product.svg",
+      "sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "bytes": 314
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/shape-auto.typ",
+      "sha256": "646b1b348e0fee159171f6083c136be759c1c46c54142c5c3268e2acfb5c662c",
+      "bytes": 242
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/styled_image-40pt.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/styled_image-40pt.product.svg",
+      "sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "bytes": 630
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/styled_image-40pt.typ",
+      "sha256": "d25087350b951859b92d95e0d28b9241d78b1c28cff4c12453470267652a9437",
+      "bytes": 248
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/styled_image-auto.oracle.svg",
+      "sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "bytes": 561
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/styled_image-auto.product.svg",
+      "sha256": "3860289a74cc2f4c1d85a7e0e8d3913deef92e0729713667bad524db8a5b3e65",
+      "bytes": 629
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/styled_image-auto.typ",
+      "sha256": "e8bfd8f293bfeaa6a40c77f448c02e2ea035b6a3da6793a96db12a6187cf13e3",
+      "bytes": 248
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/table-40pt.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/table-40pt.product.svg",
+      "sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+      "bytes": 318
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/table-40pt.typ",
+      "sha256": "bf61d02bb2863071e7666a1fe6e41c340770159274662e8c9a0bb0f32370acb8",
+      "bytes": 287
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/table-auto.oracle.svg",
+      "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "bytes": 410
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/table-auto.product.svg",
+      "sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+      "bytes": 318
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/table-auto.typ",
+      "sha256": "d327342224d05f8d3286d2b875ca04878b5bb78865c2d24b7f7df881dd11a60c",
+      "bytes": 287
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/transform-empty.oracle.svg",
+      "sha256": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+      "bytes": 250
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/transform-empty.product.svg",
+      "sha256": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+      "bytes": 275
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/transform-empty.typ",
+      "sha256": "a5dea7534ae7f5840942641080aa55eb74d195ad8a82826ba548f09ea87a9565",
+      "bytes": 77
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/transform-geometry.json",
+      "sha256": "aaf3e49f047c52f6a4bce4658c3071c0a433d0d2c80aa83ddc2d01e2873180c1",
+      "bytes": 931
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/transform-metadata.oracle.svg",
+      "sha256": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+      "bytes": 250
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/transform-metadata.product.svg",
+      "sha256": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+      "bytes": 275
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/transform-metadata.typ",
+      "sha256": "158eba6d3e97c9b1fb18b1f3dfa63dac422ba90a03ed54aeea663711707bb132",
+      "bytes": 96
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/transform-shape.oracle.svg",
+      "sha256": "e76578742072044dfdaa82f86b5ece184af269cbf3f1f0acce7d3b559618f764",
+      "bytes": 375
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/transform-shape.product.svg",
+      "sha256": "9aa23121ce825f4d52a724902e634e4bde15a9d6b5bbd4565dd7b31d34ebf379",
+      "bytes": 336
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay-before/transform-shape.typ",
+      "sha256": "bbdf96588601e0c72a16b65dfb822f90cd6e23e6f48ce38000c979bbb75d4d9b",
+      "bytes": 126
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay.py",
+      "sha256": "a021fad490d58eac9507c9b1ee511fdcb01c0755de3b6d06c34d02c03f32a481",
+      "bytes": 6778
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/report.md",
+      "sha256": "75ac48657d83a6c3d6b29d7b33727b22cf5a06194fbdb535a7d12678209d14e9",
+      "bytes": 6306
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-final/commands.json",
+      "sha256": "d76d6a94a2687e6db22a0c7d7bfa2314b79045267225aaa6324fe884461a6e77",
+      "bytes": 598
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-final/freeze.json",
+      "sha256": "5e9fb683c32618de0154e9a2ff477102f0bc0326132ca765d3baf2a1dc8a0dbf",
+      "bytes": 298
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-final/new-controls.log",
+      "sha256": "c0c7f036fee96adae86af37f33328dd7c26da12a46764a47cb9253287fdc864a",
+      "bytes": 5500
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-final/state.json.gz",
+      "sha256": "47f7c3593d670b566d50aca9347a909571533c743ebee7c1dfcfb1074a35c4f8",
+      "bytes": 101082
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-jobs.json",
+      "sha256": "24cee5b231674f758e447762bc939d9b1387e19af67637f4cbf4cd57ff9fff4c",
+      "bytes": 255
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-run/commands.json",
+      "sha256": "d53c9eb4e7caad0a10f04add4f79e6d29e176df2e43256d4d641bc308d4172eb",
+      "bytes": 599
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-run/freeze.json",
+      "sha256": "d62f6ef226876b684c1b8db02b3979e0cd74b6200ee0e4942f5e9832a4430e48",
+      "bytes": 298
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-run/new-controls.log",
+      "sha256": "aa3a173b5d6ad73f97317dd8c5b29cfbbf1f78f401d2f04fb8d593ab44c62cdc",
+      "bytes": 1301
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-run/state.json.gz",
+      "sha256": "ba53e1f56a946c0b97fd7464dcf95ce91c5aaded929688e1d353aa60ab1e8cc8",
+      "bytes": 101066
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-state.json.gz",
+      "sha256": "15e093d9fdd7da746668fb0f36e7b33a19b9b0983d5e761d1fe3e325e7e90334",
+      "bytes": 100532
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline-test-classification.json",
+      "sha256": "37513164fe05e3709ed7b86716d4755a24a944c5b2d75cd6aabde2d37a4778e8",
+      "bytes": 6485
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline.sarif.gz",
+      "sha256": "a02bf8a3dd452fafc4817b3069173b4dd24aa10158e2bef84996c11758222fe1",
+      "bytes": 147787
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/baseline.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-jobs.json",
+      "sha256": "313f20a8ab72bcd2e201181fed13ea898df5cefc2f70484f264f6fae794dcc8c",
+      "bytes": 1086
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/build.log",
+      "sha256": "d06f23c41a56cf2c462d03a266a1a812ed4814b3a021a986fbc595472d71d096",
+      "bytes": 381
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/commands.json",
+      "sha256": "62d5214e0002688ae41023792ae39320d82c061145ef8fd1581e7b710f88a4df",
+      "bytes": 2795
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/core-tests.log",
+      "sha256": "9d9db08c75da8764daccc3a988a576e8c28cdda642f021cda8a623949e3b57ee",
+      "bytes": 686641
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/freeze.json",
+      "sha256": "6defde1dece395056afbdf2fe9fc2a6c3c419b097b7aea604e8857d508744e55",
+      "bytes": 298
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/grid-replay.log",
+      "sha256": "8779314908108ea5ca5de1197005e679a7a565f09e8f00dd0866c04ef4b389be",
+      "bytes": 951
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/measurement-replay.log",
+      "sha256": "0950b26a2a82a5043553d39cb61b72d74af44ea062ebf105b28201b488ac5932",
+      "bytes": 7780
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/state.json.gz",
+      "sha256": "c495d19de432d2854c2ecdab47341801327ab0a0ea6f6aec4c65cba3b9244679",
+      "bytes": 101058
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/structural-green.log",
+      "sha256": "79f6c3527eabe9bd1ac81a361fc5a043aa05aabe99879dc0412e586e29e96446",
+      "bytes": 532
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/cases.json",
+      "sha256": "f09b8b0e80b438870afd2f9971431e95bcf7c315030d751b55a26b207f5a017f",
+      "bytes": 181939
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/closure-ledger.json",
+      "sha256": "501b8941faddbfbbd3584d7fdf88b7b880907798d7e624b144cef9afd16e78fa",
+      "bytes": 182261
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/lint-delta.json",
+      "sha256": "e55458baa5d2a78545d0b93a51a7e4dd16a91927aa214333e678f4e30d7b10d3",
+      "bytes": 123269
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/lint-state.json.gz",
+      "sha256": "cb0b55b74eaba0f6269289d1ae70d56dac1cf108e56efcebb01096f079e4abdc",
+      "bytes": 99722
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/new-test-execution.json",
+      "sha256": "695b25dee91a0bb6278ddb292f5d1d36ff23c73e9ab58b70635e9c43003e8a48",
+      "bytes": 4628
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/new-tests.json",
+      "sha256": "eb03b072e5dee3a2bebd8e3a7851e1c43cf8edd71318a8d0c21a51a6914ee4f4",
+      "bytes": 3916
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/open-obligations.json",
+      "sha256": "9665ad09a68d880509cd603df8ab7bc94086bf8c616449d059a02a31baa9df55",
+      "bytes": 25072
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/post-document-validation.json",
+      "sha256": "e321e0ac9af568e961ec5a3e996d0dba09105bfffdc8b884b135a3ed48f350b7",
+      "bytes": 2833
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/preimplementation-final.json",
+      "sha256": "335da11babe2cb441c480dce9c943f7edfa812325e2b9760a2ab9c6f1ae9f9e9",
+      "bytes": 7504
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/preimplementation-final.patch.gz",
+      "sha256": "ac20bd9a61a841855e7c3228bcc4b1155c652f37cd4f70bfcd1a9f5d3960a291",
+      "bytes": 29169
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/preimplementation.json",
+      "sha256": "52abee5af15b4b056af05f295dde21987a2b4aa78167a042c11179084a4a339f",
+      "bytes": 7500
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/preimplementation.patch.gz",
+      "sha256": "92523d271d63c48889137210127ab02bb6eda3d2366c399f387ebebaefa11323",
+      "bytes": 29216
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/preseal-ownership.log",
+      "sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "bytes": 24
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/preseal-parser-attempt.json",
+      "sha256": "3a7cfa2660e8beed54e2489608dde3481b5ffc921730b2307e48278525dd6e08",
+      "bytes": 764
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/reseal-receipts.json",
+      "sha256": "3dd976618d970c7fc2fa895e07de86dbd2f5409a547a41fe8341037762df028a",
+      "bytes": 19259
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/scope.json",
+      "sha256": "4a29a3112371bd8ee13971371705d372413174c7409e53405add92ba27fa6585",
+      "bytes": 2020
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/all-domains-mutations.json.gz",
+      "sha256": "393fa62457fbaa9d55fbcf69929599e8e74a44d2934319d202dd60636c55ca6f",
+      "bytes": 59362
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/all-domains.log",
+      "sha256": "c59b2b3c0034701c2d3aced5c3b36b2d01cc654480bb2504a790d11e6653975d",
+      "bytes": 1508208
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/freeze.json",
+      "sha256": "0a0a608dacb810709e6fb06cf4dcef245038b2ba0e66c02faf0d49e59c8b7506",
+      "bytes": 65
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/inputs.json.gz",
+      "sha256": "e5f9a3afa056a624b156b43fd4cbcc56f096cb7f02af309fbeb1efc16c825f54",
+      "bytes": 170535
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/new-new-mutations.json.gz",
+      "sha256": "efac5b93f0fdf807408d23bbf4f75c49f9654ce6446fa0aa8a232d95fbc509ba",
+      "bytes": 23305
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/new-new.log",
+      "sha256": "58b1c27cb545abc277d8d6b18295f70d957d24f9154b13b32728d4763aba8acd",
+      "bytes": 258392
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/new-old-mutations.json.gz",
+      "sha256": "b17017e724e3471772e89066446aa57d6e8ebd524a3434c2924a865e219a25a9",
+      "bytes": 23281
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/new-old.log",
+      "sha256": "528be41bd5cecdb8475c587bce7d883fe5490834d4e6c6fd0e5f62bccf35cccd",
+      "bytes": 258392
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/old-new-mutations.json.gz",
+      "sha256": "dc7711c26c298af79c1ff9af84e0e5a3f46a1e0cb3f59c98b13170fe1dcfd031",
+      "bytes": 23281
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/old-new.log",
+      "sha256": "2fb4544b4c936509418edf9d0a31d04e5906ca8550f49d149a767d6733af2506",
+      "bytes": 258392
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/original-sources.json.gz",
+      "sha256": "2e56bba7eb5096e64c221efb78d04fe79fbb12b7301bc356ff071dcee0345d07",
+      "bytes": 3084248
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline/results.json",
+      "sha256": "23ec5b816135b76768b86eb6e6d3b467fe0bfe8e3cc8e0aa473c70d48a968233",
+      "bytes": 14245
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline-jobs.json",
+      "sha256": "24c1111d5266ab1e3d4b025c96dececf33a9d26c9da359323501bfa6e9597e85",
+      "bytes": 270
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline-run/commands.json",
+      "sha256": "fd3d0c7a1f4caf114418b0d268a2811f63ccf11dfcbd4d5dbd0f6c16add2e437",
+      "bytes": 612
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline-run/freeze.json",
+      "sha256": "b181d1945cf3985255b8dcc6198bd286a116a403a3924f13a0f8e40c17f7afad",
+      "bytes": 298
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline-run/state.json.gz",
+      "sha256": "fd5245e34ae6a7c0adfe1b4048b370fb7774e53a2f3fa953e2a2c2eff7733f49",
+      "bytes": 49471
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-baseline-run/structural-baseline.log",
+      "sha256": "e1ef3aa8c9287a56ca5602fe70b4a5fa04cf1c5b1a7ada9c1ccf6d88f7691c82",
+      "bytes": 534
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/all-domains-mutations.json.gz",
+      "sha256": "3d9b125a4e72b8bfb656dc6c11114ea505f3d979d84554f2e9028d5ea9611fef",
+      "bytes": 59362
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/all-domains.log",
+      "sha256": "1a32ac63a812ab8aacc43dd3113596fbc8cd7a5e36ee69dea90f06e736582d71",
+      "bytes": 1618642
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/freeze.json",
+      "sha256": "1c427f092f6156fe8cae121eaf06351c31d2d11ffa0298a01c0107f855e35d62",
+      "bytes": 65
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/inputs.json.gz",
+      "sha256": "7c0b14706b6e569625e5f186600c7d8a97f37f988bb4b071fe7713997784bc34",
+      "bytes": 170528
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/new-new-mutations.json.gz",
+      "sha256": "1888327a5c84eecae5bbba1d9e8c9ca1f3bbeab420d828bba7f3f75303f3b59c",
+      "bytes": 24077
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/new-new.log",
+      "sha256": "7314ef3493f24bb154e49667889ba12973cacead9108e3ca3744397a9d1d42f1",
+      "bytes": 267664
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/new-old-mutations.json.gz",
+      "sha256": "0126461608b917d2993a16a55e9bfcc5afb771abd0e0cf01e0aa9c239668e886",
+      "bytes": 24050
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/new-old.log",
+      "sha256": "2711410b39174af0107a1c2921032c152e1e53caf02ffc4677a0133f6ba68c8c",
+      "bytes": 268094
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/old-new-mutations.json.gz",
+      "sha256": "760cc08e2aa706a05dbe301f7c79ba8ce66514b851681d005fdd2c849481d943",
+      "bytes": 24050
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/old-new.log",
+      "sha256": "1b4fa091434dfa097f37e38c04d52f81ce7bbd8e3494ad1ae9e0e5c5acf24141",
+      "bytes": 268094
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/original-sources.json.gz",
+      "sha256": "8e667443df2553a2e580c01f13b4f756035ed45550ab0a6060bbaa4d3c999ed3",
+      "bytes": 3103875
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-green/results.json",
+      "sha256": "7dd5aedf51ca056004971c6872f61ac34c6c7cb464a742d684e95cb6a169cbb7",
+      "bytes": 187184
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-targets.json",
+      "sha256": "7aa220bda3b3626427930e86b5b155c1cf83b166f157914ced3421b8f5df6359",
+      "bytes": 6271
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-witness-review.json",
+      "sha256": "ff69375af28b39f9213dcea2e3e454591d87d0fd1bd5b3a6c966baeab25445bc",
+      "bytes": 392201
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/structural-witness-review.md",
+      "sha256": "ff0156fdbc22e2a769396491ad6327a876ef96d90b0f7ad0198a831d7124e4ca",
+      "bytes": 4229
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/build-all-targets.log",
+      "sha256": "6f5f51b1b5b4174f2002043066c311bb6bd9fc34a9b356ff11a86b04aa81df53",
+      "bytes": 384
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/build.log",
+      "sha256": "52324171c931c9b0623cfaca491b8f59ecd04732584c7920bf0b3a3fc0d05961",
+      "bytes": 381
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/clippy.log",
+      "sha256": "2683174297d41c8474049a3652030802ab8b465be055a7d11929a6c03d1138e0",
+      "bytes": 2641
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/doctests.log",
+      "sha256": "cd3cea530170b0cd9c05f0e77721a3f8af261fdf34508a57e393c7e6c46cf525",
+      "bytes": 1095
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/layout.log",
+      "sha256": "ee2a7ec0883538f59a09bbcbe08b472b4750563be3770fe20a86d0812590c31e",
+      "bytes": 27
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/observer-environment.json",
+      "sha256": "0f35b26597c27716ee806b0d04f82aa94edf4749112b2196dca6ca4d20b1c868",
+      "bytes": 1802
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/python-ci-tests.log",
+      "sha256": "d1d2a1c408ce96dab61927db4acd9964e3eaf38bbefe215013fafe926011d6b3",
+      "bytes": 133
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/reverse-lineage.log",
+      "sha256": "2310cbec2df888da2924404da81dba3202dd4ea751d7f12e04484aa1d18ad434",
+      "bytes": 41
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/rustdoc.log",
+      "sha256": "2d9c093e4a584a977e4efaf8fbfd2c1deaf66d89471d98d5393c1e9a80519681",
+      "bytes": 732
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/strict-lineage.log",
+      "sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "bytes": 24
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/tests-domain-infra.log",
+      "sha256": "1340a823e4d785e2fae415e453c0d1e667878c7452edaf67af48e7718506c99e",
+      "bytes": 812650
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/tests-wiring.log",
+      "sha256": "a5c0c3930858ddcf65308c99ca01768005b7ea0d7a32cbea1fd9b297d0109697",
+      "bytes": 20242
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/validation-commands.json",
+      "sha256": "8ede430dbd36fd7120ebff01e7a62ea7fa2030d1074960db1443059b63b4f729",
+      "bytes": 7640
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/validation-freeze.json",
+      "sha256": "364aec033bf6eb577fff5f3dc54eb2aca694609b2841465953c5da5935cc6af2",
+      "bytes": 142
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation/validation-state.json.gz",
+      "sha256": "7e5b790dd0aacd7d2a9010de5a7784cc1a74dfbd5caf57fb3c46545e6004f731",
+      "bytes": 101522
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation-jobs.json",
+      "sha256": "7873f0e779680795773db86ab9a01106b5afeb96c0cfd1eb0536ca917ff937f9",
+      "bytes": 1130
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation-run/accepted-grid-replay.log",
+      "sha256": "d61b335cc06cc700b882edeb2b8e6b5245d495d546dff5a3f99943f79ddd34a8",
+      "bytes": 950
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation-run/accepted-measurement-replay.log",
+      "sha256": "0950b26a2a82a5043553d39cb61b72d74af44ea062ebf105b28201b488ac5932",
+      "bytes": 7780
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation-run/clean-product-packages.log",
+      "sha256": "83f753062e6bf10c34fee20f3e9835c5525e9f3ac680f85e5003c7e775006ccf",
+      "bytes": 37
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation-run/commands.json",
+      "sha256": "b4a2362fd3f3871ea80e53ba4e385da7dcf1b9aa4eccbb50dd14b50876329cbc",
+      "bytes": 2494
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation-run/freeze.json",
+      "sha256": "c0237c7e15832651706604baa191ae8a1a532594faf200c6fa7caa293713631f",
+      "bytes": 298
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation-run/full-validation.log",
+      "sha256": "31209f7178948adc80c1190953576057816e710855fe71380adafa01704a23ca",
+      "bytes": 1224
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/validation-run/state.json.gz",
+      "sha256": "96ce556ece4e8beb95bfc398859be1bb35185aba26a9f00e43d64341319926be",
+      "bytes": 101057
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/workers/batch_d_close.py",
+      "sha256": "9c71514a2b156e7e7f644b70118b03261f128bb211461304f731edd3894db0b6",
+      "bytes": 22847
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/workers/batch_d_compare_lint.py",
+      "sha256": "42763dac2463300e4a2b9611c36eb03393d82979001a906f443a8760a79a5ffa",
+      "bytes": 3601
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+      "sha256": "1102da3b5d5137cd1eb729e097502b7720d59b4038ee7d5e0548184ea65f6c81",
+      "bytes": 845
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/workers/batch_d_structural.py",
+      "sha256": "339255d63f1b51dd51a9495ee44ba16135d6f27e04607d828c8d2eac308dd6a7",
+      "bytes": 7421
+    }
+  ]
+}

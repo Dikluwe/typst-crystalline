@@ -1,0 +1,420 @@
+{
+  "utc": "2026-10-19T16:27:17.120149+00:00",
+  "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+  "diff_head_stat": " .../prompts/core/compiler/layout/grid/borders.md   |  34 +-\n .../prompts/core/compiler/layout/grid/cell_body.md |  34 +-\n .../core/compiler/layout/grid/measurement_cache.md |  67 ++-\n .../prompts/core/compiler/layout/grid/tracks.md    |  99 +++-\n .../prompts/core/compiler/layout/grid_placement.md |  35 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  33 +-\n 00_nucleo/prompts/core/compiler/layout/image.md    |  34 +-\n .../prompts/core/compiler/layout/line_commit.md    |  12 +-\n .../prompts/core/compiler/layout/measurement.md    |  76 +++-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  12 +-\n .../core/compiler/layout/par_line_callbacks.md     |  12 +-\n 00_nucleo/prompts/core/compiler/layout/place.md    |  12 +-\n .../prompts/core/compiler/layout/references.md     |  12 +-\n .../prompts/core/compiler/layout/text/style.md     |  33 +-\n .../prompts/core/entities/elements/table_cell.md   |  34 +-\n 01_core/src/compiler/layout/grid/borders.rs        | 146 +++++-\n 01_core/src/compiler/layout/grid/cell_body.rs      | 216 ++++++++-\n .../src/compiler/layout/grid/measurement_cache.rs  | 357 ++++++++++++++-\n 01_core/src/compiler/layout/grid/tracks.rs         | 502 ++++++++++++++++++++-\n 01_core/src/compiler/layout/grid_placement.rs      | 222 ++++++++-\n 01_core/src/compiler/layout/helpers.rs             | 159 ++++++-\n 01_core/src/compiler/layout/image.rs               |  82 +++-\n 01_core/src/compiler/layout/line_commit.rs         | 176 +++++++-\n 01_core/src/compiler/layout/measurement.rs         | 473 ++++++++++++++++++-\n 01_core/src/compiler/layout/mod.rs                 | 308 ++++++++++++-\n 01_core/src/compiler/layout/par_line_callbacks.rs  |  92 +++-\n 01_core/src/compiler/layout/place.rs               |  98 +++-\n 01_core/src/compiler/layout/references.rs          | 189 +++++++-\n 01_core/src/compiler/layout/text/style.rs          | 176 +++++++-\n 01_core/src/entities/elements/table_cell.rs        | 106 ++++-\n 30 files changed, 3769 insertions(+), 72 deletions(-)\n",
+  "status": "PASS_SCOPED_REPLAY_AUDIT",
+  "errors": [],
+  "method": "Read-only receipts/source/fixtures audit plus independent SVG coordinate extraction. No Cargo, compiler or PDF extraction subprocess was run; archived grid extraction results were compared directly.",
+  "evidence": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/candidate-replay/receipt.json",
+      "sha256": "89befe7124f5543bc7f0c4b4d2beca43d1397466b988fb671758361dbe22ab13"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/receipt.json",
+      "sha256": "0d85514b786768f3fe7c9d97542cc691151daa12a06863555cfa618f02c6dae3"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/state.json.gz",
+      "sha256": "c495d19de432d2854c2ecdab47341801327ab0a0ea6f6aec4c65cba3b9244679"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/commands.json",
+      "sha256": "62d5214e0002688ae41023792ae39320d82c061145ef8fd1581e7b710f88a4df"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/build.log",
+      "sha256": "d06f23c41a56cf2c462d03a266a1a812ed4814b3a021a986fbc595472d71d096"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/core-tests.log",
+      "sha256": "9d9db08c75da8764daccc3a988a576e8c28cdda642f021cda8a623949e3b57ee"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/replay.py",
+      "sha256": "edbba2382b452ccc6a4e13112d0cc54b29a72d044512f7c57de0d95c2173e17c"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/runner.py",
+      "sha256": "a021fad490d58eac9507c9b1ee511fdcb01c0755de3b6d06c34d02c03f32a481"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/receipt.json",
+      "sha256": "8d01cfe635c5d0fba2137de875717e8eb83f180a27c3175ef178492e95767b4c"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json",
+      "sha256": "9d779464ce9021fedb089c98cc6559797a57b01f9e47a3a34e839b749ec78fc2"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/geometry-before.json",
+      "sha256": "c3df551d7f7d1b85130f1e3cacf2ddb05ee900e0fb3e1e36f9ffa5ed0cd29b61"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/open-obligations.json",
+      "sha256": "9665ad09a68d880509cd603df8ab7bc94086bf8c616449d059a02a31baa9df55"
+    },
+    {
+      "path": ".cargo/config.toml",
+      "sha256": "30e4a9ae3cc2fc34eca24c0300732c4697db3b4ccb0b76c66e9ea4219cbc0c5f"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/workers/run_jobs.py",
+      "sha256": "01f15ee2d5f732f702627ebb7539f12a05cdfd1d767809d1efd507c324020464"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+      "sha256": "1102da3b5d5137cd1eb729e097502b7720d59b4038ee7d5e0548184ea65f6c81"
+    }
+  ],
+  "frozen_source_inputs_verified": 2126,
+  "product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "build_receipt_sha256": "c495d19de432d2854c2ecdab47341801327ab0a0ea6f6aec4c65cba3b9244679",
+  "scope_to_build_hashes_match": true,
+  "measurement_cases": 27,
+  "measurement_compile_runs": 54,
+  "width_repairs": [
+    {
+      "case": "image-auto",
+      "baseline_product_marker_x_pt": 0.0,
+      "candidate_product_marker_x_pt": 40.0,
+      "candidate_oracle_marker_x_pt": 40.0
+    },
+    {
+      "case": "align_image-auto",
+      "baseline_product_marker_x_pt": 0.0,
+      "candidate_product_marker_x_pt": 40.0,
+      "candidate_oracle_marker_x_pt": 40.0
+    },
+    {
+      "case": "styled_image-auto",
+      "baseline_product_marker_x_pt": 0.0,
+      "candidate_product_marker_x_pt": 40.0,
+      "candidate_oracle_marker_x_pt": 40.0
+    },
+    {
+      "case": "equation-auto",
+      "baseline_product_marker_x_pt": 0.0,
+      "candidate_product_marker_x_pt": 23.124444444,
+      "candidate_oracle_marker_x_pt": 23.124444444
+    },
+    {
+      "case": "figure-auto",
+      "baseline_product_marker_x_pt": 0.0,
+      "candidate_product_marker_x_pt": 40.0,
+      "candidate_oracle_marker_x_pt": 40.0
+    }
+  ],
+  "marker_policy": "Exactly one red marker in every non-transform output. Zero markers cannot pass even if both products omit them. Full ancestor transforms were independently applied. Shape transform requires one green shape; empty/metadata require zero.",
+  "body_presence_controls": {
+    "image-auto": {
+      "product": {
+        "red": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "green": [],
+        "images": [
+          {
+            "width": "40",
+            "height": "20",
+            "x": "0",
+            "y": "0"
+          }
+        ],
+        "uses": 0
+      },
+      "oracle": {
+        "red": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "green": [],
+        "images": [
+          {
+            "width": "40",
+            "height": "20",
+            "x": null,
+            "y": null
+          }
+        ],
+        "uses": 0
+      }
+    },
+    "figure-auto": {
+      "product": {
+        "red": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "green": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ],
+        "images": [],
+        "uses": 0
+      },
+      "oracle": {
+        "red": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "green": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ],
+        "images": [],
+        "uses": 0
+      }
+    },
+    "equation-auto": {
+      "product": {
+        "red": [
+          [
+            23.124444444,
+            0.0,
+            33.124444444000005,
+            10.0
+          ]
+        ],
+        "green": [],
+        "images": [],
+        "uses": 3
+      },
+      "oracle": {
+        "red": [
+          [
+            23.124444444,
+            0.0,
+            33.124444444000005,
+            10.0
+          ]
+        ],
+        "green": [],
+        "images": [],
+        "uses": 3
+      }
+    }
+  },
+  "measurement_effects": {
+    "effect-image": {
+      "both_compile_with_final_state_one_assertion": true,
+      "scope": "One state update embedded in the grid body; does not prove all callbacks execute exactly once."
+    },
+    "effect-shape": {
+      "both_compile_with_final_state_one_assertion": true,
+      "scope": "One state update embedded in the grid body; does not prove all callbacks execute exactly once."
+    },
+    "effect-equation": {
+      "both_compile_with_final_state_one_assertion": true,
+      "scope": "One state update embedded in the grid body; does not prove all callbacks execute exactly once."
+    },
+    "effect-figure": {
+      "both_compile_with_final_state_one_assertion": true,
+      "scope": "One state update embedded in the grid body; does not prove all callbacks execute exactly once."
+    }
+  },
+  "grid_cases": 18,
+  "grid_preservation": "Exact product layout_text/pages/word boxes and compile exit preserved in all archived fixtures; product diagnostics unchanged. This is conservation against product baseline, not upstream parity.",
+  "grid_effects_text": {
+    "product": "12.34     item-2\na/b       abc_def\nHITS: 4\n\f",
+    "oracle": " 12.34    item-2\n a/b      abc_def\n\nHITS: 4\n\f"
+  },
+  "grid_context_text": {
+    "product": " A\n B\nFINAL: 2\n\f",
+    "oracle": " A         1\n B         2\n\nFINAL: 2\n\f"
+  },
+  "candidate_artifact_sha256": {
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/shape-auto.product.svg": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/shape-auto.oracle.svg": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/shape-40pt.product.svg": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/shape-40pt.oracle.svg": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/image-auto.product.svg": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/image-auto.oracle.svg": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/image-40pt.product.svg": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/image-40pt.oracle.svg": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/equation-auto.product.svg": "a9b815c556b9d37f7d33b9b6fba0871f9a5bd8b5d5d9673e7dc8a65f5dd268e0",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/equation-auto.oracle.svg": "7210ba657c2c815d4c895672c92c518fdff39159af247007f4a806a4394a06db",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/equation-40pt.product.svg": "73e49c5cb907249ef7a647224cf65cbcbe1ba532944461acbaccc69543f29303",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/equation-40pt.oracle.svg": "639036e75ccca74bf85b9421721c98841e767ac2f0bb54b12a2a3be07b211063",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/table-auto.product.svg": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/table-auto.oracle.svg": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/table-40pt.product.svg": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/table-40pt.oracle.svg": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/figure-auto.product.svg": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/figure-auto.oracle.svg": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/figure-40pt.product.svg": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/figure-40pt.oracle.svg": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/empty-auto.product.svg": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/empty-auto.oracle.svg": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/empty-40pt.product.svg": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/empty-40pt.oracle.svg": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/metadata-auto.product.svg": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/metadata-auto.oracle.svg": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/metadata-40pt.product.svg": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/metadata-40pt.oracle.svg": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/align_image-auto.product.svg": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/align_image-auto.oracle.svg": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/align_image-40pt.product.svg": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/align_image-40pt.oracle.svg": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/hide_shape-auto.product.svg": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/hide_shape-auto.oracle.svg": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/hide_shape-40pt.product.svg": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/hide_shape-40pt.oracle.svg": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/styled_image-auto.product.svg": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/styled_image-auto.oracle.svg": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/styled_image-40pt.product.svg": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/styled_image-40pt.oracle.svg": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-shape.product.svg": "9aa23121ce825f4d52a724902e634e4bde15a9d6b5bbd4565dd7b31d34ebf379",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-shape.oracle.svg": "e76578742072044dfdaa82f86b5ece184af269cbf3f1f0acce7d3b559618f764",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-empty.product.svg": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-empty.oracle.svg": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-metadata.product.svg": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/transform-metadata.oracle.svg": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-image.product.svg": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-image.oracle.svg": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-shape.product.svg": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-shape.oracle.svg": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-equation.product.svg": "671ad234b87c154f571908c669399d56208a6590d8d83662e08729441bd6836d",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-equation.oracle.svg": "971e3803b222f44f593220468a8ff023b2a16527ed51ea96e59425762e6ac04d",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-figure.product.svg": "1e53ef87d162edf9de1499c9c3493f5ad76d3cfd20a221ffda6a5f3f124d65ff",
+    "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/candidate-replay/effect-figure.oracle.svg": "d0bb9debd426689108f790aa74ae407b96f705f405f0c9a920bac3c18b701fe1"
+  },
+  "limits": [
+    "Only scoped column-origin, transformed-shape and effect controls are certified; no full-page raster or language-wide parity claim.",
+    "The grid context-state fixture still omits intermediate 1 and 2 in product while retaining FINAL: 2. This remains D-OPEN-07.",
+    "Nested Table vertical origin and other measured differences remain in open-obligations.json.",
+    "Direct measurement replay does not exercise every permitted MathFrac/MathRoot or lexical style combination; unit/whole-suite evidence is separate.",
+    "The full candidate job sequence may continue structural validation; this audit covers completed build and two replay commands only."
+  ],
+  "completed_commands_snapshot": [
+    {
+      "name": "core-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-core",
+        "--lib",
+        "--",
+        "--test-threads=1"
+      ],
+      "utc_end": "2026-10-19T16:23:54.627860+00:00",
+      "exit": 0,
+      "seconds": 131.99759418598842,
+      "memory": {
+        "memory.max": "12884901888",
+        "memory.high": "8589934592",
+        "memory.swap.max": "0",
+        "memory.peak": "3484901376",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+      }
+    },
+    {
+      "name": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--workspace"
+      ],
+      "utc_end": "2026-10-19T16:24:29.121056+00:00",
+      "exit": 0,
+      "seconds": 34.492749483004445,
+      "memory": {
+        "memory.max": "12884901888",
+        "memory.high": "8589934592",
+        "memory.swap.max": "0",
+        "memory.peak": "3484901376",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+      }
+    },
+    {
+      "name": "grid-replay",
+      "command": [
+        "python3",
+        "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+        "grid",
+        "candidate-replay",
+        "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/state.json.gz"
+      ],
+      "utc_end": "2026-10-19T16:24:44.743288+00:00",
+      "exit": 0,
+      "seconds": 15.621748976001982,
+      "memory": {
+        "memory.max": "12884901888",
+        "memory.high": "8589934592",
+        "memory.swap.max": "0",
+        "memory.peak": "3484901376",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+      }
+    },
+    {
+      "name": "measurement-replay",
+      "command": [
+        "python3",
+        "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+        "measurement",
+        "candidate-replay",
+        "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/state.json.gz"
+      ],
+      "utc_end": "2026-10-19T16:25:02.757402+00:00",
+      "exit": 0,
+      "seconds": 18.01348284399137,
+      "memory": {
+        "memory.max": "12884901888",
+        "memory.high": "8589934592",
+        "memory.swap.max": "0",
+        "memory.peak": "3484901376",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+      }
+    },
+    {
+      "name": "structural-green",
+      "command": [
+        "python3",
+        "lab/results/v16-corrections-2026-10-19/workers/batch_d_structural.py",
+        "green"
+      ],
+      "utc_end": "2026-10-19T16:27:00.970475+00:00",
+      "exit": 0,
+      "seconds": 118.21252037200611,
+      "memory": {
+        "memory.max": "12884901888",
+        "memory.high": "8589934592",
+        "memory.swap.max": "0",
+        "memory.peak": "3484901376",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+      }
+    }
+  ],
+  "completed_commands_note": "commands.json is an append-only coordination receipt during the running candidate job. The evidence hash records its bytes at review time; completed command entries are preserved in this JSON snapshot."
+}

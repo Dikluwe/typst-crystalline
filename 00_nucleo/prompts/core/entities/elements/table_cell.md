@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/table_cell` — `TableCellElem`
-Hash do Código: 65edc838
+Hash do Código: 18794b95
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
@@ -473,3 +473,35 @@ Arc. Existing Element method/signature uses same implementation, no trait method
 Engine/Cell preparation in entity. Raw/resolved/standalone tests/paired gates
 mandatory. Shared pinned map-content-change nucleus owns absence proof; this owner
 retains algorithm/field/order/specific-preservation responsibility.
+
+
+## V16-077 nominal boundary preservation
+
+### Measurement before decision
+
+Source audit at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:03:25.152301+00:00`;
+exact working-tree diffstat and source/L0 SHA-256 are retained in
+`lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-before.json`.
+Evidence: 01_core/src/entities/elements/table_cell.rs:154-185: Length, validated partial Dict; side→axis→rest precedence; otherwise None; 01_core/src/compiler/eval/rules/set.rs:262-267: Auto handled separately, None triggers typed mismatch; compiler/realize/table_cells.rs:682 stores Option. The owning decision is `TableCellProperties::style_inset`.
+Observed: Top-level non-Length/non-Dict variants are unsupported by this private schema. Dict keys outside left/top/right/bottom/x/y/rest or non-Length values reject the whole dictionary. Missing sides remain None; Auto is caller-owned absence/reset, not an error here.
+This is source-level evidence of existing behavior, not a new current-pin
+vanilla comparison or an inference about upstream intent.
+
+### Decision and refutation
+
+Retain exact accepted schema, precedence and no partial success; explicitly classify the 37 other current Value categories as unsupported projection under this owner. Keep Auto caller handling. Do not add Ratio/Relative/function conversion or erase unknown dict entries to make cast succeed.
+Maintain an explicit exhaustive nominal partition at this decision, including
+guard-false residuals in their owning variant. Future variants must require
+a fresh classification at this site. No wildcard relocation, syntax bypass,
+suppression, new conversion, or public signature/default/phase change.
+This is continuous-flow internal maintenance under ADR-0127.
+Rendering, text, effects, placement and diagnostics are language obligations;
+compiler exhaustiveness is an internal maintenance proof under ADR-0107.
+Preservation controls must pass before and after the edit; structural RED→GREEN
+requires an attributable E0004 at this match after adding a sentinel only in a
+disposable copy of `Value`. Another match's error is insufficient.
+Any changed accepted/rejected case, lost content, repeated effect, fallback
+geometry or diagnostic refutes preservation. Broader parity limitations in
+this owner remain open.
+
+Current unsupported top-level categories are: `None`, `Bool`, `Int`, `Float`, `Str`, `Array`, `Module`, `Datetime`, `Func`, `Content`, `LocatedContent`, `Auto`, `Relative`, `Ratio`, `Angle`, `Color`, `Stroke`, `Fraction`, `Align`, `Location`, `Gradient`, `Regex`, `Tiling`, `Bytes`, `Decimal`, `Duration`, `Version`, `Selector`, `Symbol`, `Args`, `State`, `Counter`, `Label`, `Dir`, `Path`, `Type`, `SpotColorant`. `Auto` remains an explicit reset accepted by the set caller, not by this bounded projection.

@@ -1,0 +1,38 @@
+{
+  "utc": "2026-10-19T16:17:23.474568+00:00",
+  "files": {
+    "01_core/src/compiler/layout/helpers.rs": "e070dbd29cc208aa8abeb797088cb5bcf9ab45e160f84dad6068fcdb806f271c",
+    "01_core/src/compiler/layout/image.rs": "0ba490c142f178d75da97f1c5cb36e6caae110c9815a3514b673e13c38827c1a",
+    "01_core/src/compiler/layout/measurement.rs": "4a97c845f5d5cf75614d48194cac98475861905474b215d5780668bc191701fd",
+    "01_core/src/compiler/layout/text/style.rs": "b151ef9176775bc9fff58fc62277ffa60661fd28aae0ed5077b0e2ae525ab0ff"
+  },
+  "baseline": "../../baseline-final/new-controls.log",
+  "tests": {
+    "01_core/src/compiler/layout/helpers.rs": [
+      "v16_d_legacy_projection_preserves_generated_shape_and_true_absence"
+    ],
+    "01_core/src/compiler/layout/image.rs": [
+      "v16_d_image_axis_schema_keeps_intrinsic_and_fit_controls"
+    ],
+    "01_core/src/compiler/layout/measurement.rs": [
+      "v16_d_constrained_visible_measurement_preserves_emitter_state",
+      "v16_d_constrained_image_keeps_target_and_source_visual_transport",
+      "v16_d_math_measurement_rejects_hidden_callbacks_without_requests"
+    ],
+    "01_core/src/compiler/layout/text/style.rs": [
+      "v16_d_font_schema_preserves_names_order_fields_and_typed_style",
+      "v16_d_invalid_raw_font_entries_preserve_ambient_fallback"
+    ]
+  },
+  "new_anchor": {
+    "id": "D-new-certificate",
+    "path": "01_core/src/compiler/layout/measurement.rs",
+    "function": "callback_free_math_measurement",
+    "domain": "Content",
+    "scrutinee": "content",
+    "purpose": "positive certificate exact match requires sentinel E0004",
+    "anchor": "fn callback_free_math_measurement(content: &Content) -> bool",
+    "line": 54
+  },
+  "status": "implementation ready for coordinator review/format/build; no cargo or seals by agent"
+}

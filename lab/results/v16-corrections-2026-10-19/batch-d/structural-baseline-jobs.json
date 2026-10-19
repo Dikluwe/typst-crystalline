@@ -1,0 +1,11 @@
+[
+  {
+    "name": "structural-baseline",
+    "cwd": "/repos/Antigravity/typst-crystalline",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/workers/batch_d_structural.py",
+      "baseline"
+    ]
+  }
+]

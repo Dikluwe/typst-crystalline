@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/helpers.md
-//! @prompt-hash 521a7355
+//! @prompt-hash 61a57b1d
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -478,7 +478,120 @@ pub(crate) fn measure_content(content: &Content, available_w: f64) -> (f64, f64)
             }
             (max_w, total_h)
         }
-        _ => (0.0, 0.0), // neutro: N16[γ] — Content sem dimensão mensurável retorna (0.0, 0.0) (fallback de layout aberto)
+        Content::Empty | Content::Metadata(..) => (0.0, 0.0),
+        // Unsupported by this last-resort projection, not semantically empty.
+        Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => (0.0, 0.0),
     }
 }
 
@@ -742,5 +855,47 @@ mod realization_measurement_tests {
             })),
         }));
         assert_eq!(measure_content(&content, 100.0), (40.0, 20.0));
+    }
+}
+
+#[cfg(test)]
+mod v16_d_tests {
+    use super::*;
+    use crate::entities::content::{RealizedContent, SourceContent};
+    use crate::entities::elements::shape::ShapeElem;
+    use crate::entities::{span::Span, value::Value};
+    use std::sync::Arc;
+
+    #[test]
+    fn v16_d_legacy_projection_preserves_generated_shape_and_true_absence() {
+        let shape = Content::Shape(Arc::new(ShapeElem {
+            kind: ShapeKind::Line { dx: 40.0, dy: 20.0 },
+            width: None,
+            height: None,
+            fill: None,
+            stroke: None,
+            fill_rule: Default::default(),
+        }));
+        let generated = Content::Source(Arc::new(SourceContent {
+            span: Span::detached(),
+            body: Content::Realized(Arc::new(RealizedContent {
+                original: Content::text("consumed original contributes no extent"),
+                visual: shape,
+            })),
+        }));
+        let content = Content::sequence(vec![
+            Content::Empty,
+            Content::metadata(Value::Int(7)),
+            generated,
+        ]);
+        assert_eq!(measure_content(&content, 100.0), (40.0, 20.0));
+        assert_eq!(measure_content(&Content::Empty, 100.0), (0.0, 0.0));
+        assert_eq!(
+            measure_content(
+                &Content::metadata(Value::Content(Content::text("payload"))),
+                100.0
+            ),
+            (0.0, 0.0)
+        );
     }
 }

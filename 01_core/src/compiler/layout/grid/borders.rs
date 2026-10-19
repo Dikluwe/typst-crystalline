@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/borders.md
-//! @prompt-hash 2b729452
+//! @prompt-hash b1a481d1
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -46,7 +46,124 @@ pub(super) fn cell_effective_stroke(
         }
         Content::TableCell(e) => e.stroke.as_ref(),
         Content::GridCell(e) => e.stroke.as_ref(),
-        _ => None, // neutro: N16[β] — Content não-cell retorna None para stroke (sem override de célula)
+        Content::Source(..)
+        | Content::ShowRecipe(..)
+        | Content::Realized(..)
+        | Content::Located(..)
+        | Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => None,
     };
     cell_stroke.or(grid_stroke).cloned()
 }
@@ -452,6 +569,31 @@ mod d08b3c_tests {
                 ),
                 stroke
             );
+        }
+    }
+}
+
+#[cfg(test)]
+mod v16_d_boundaries {
+    use super::*;
+    #[test]
+    fn v16_d_raw_wrappers_inherit_without_borrowing_nested_cell_stroke() {
+        let grid = Stroke { thickness: 7.0, ..Stroke::default() };
+        let mut nested =
+            match Content::table_cell(Content::text("body"), None, None, None, None) {
+                Content::TableCell(cell) => cell.as_ref().clone(),
+                _ => unreachable!("table_cell constructor"),
+            };
+        nested.stroke = Some(Stroke { thickness: 2.0, ..Stroke::default() });
+        let nested = Content::TableCell(std::sync::Arc::new(nested));
+        assert_eq!(cell_effective_stroke(&nested, Some(&grid)).unwrap().thickness, 2.0);
+        for body in [
+            Content::Empty,
+            Content::text("body"),
+            Content::styled(nested, Default::default()),
+        ] {
+            assert_eq!(cell_effective_stroke(&body, Some(&grid)).unwrap().thickness, 7.0);
+            assert!(cell_effective_stroke(&body, None).is_none());
         }
     }
 }

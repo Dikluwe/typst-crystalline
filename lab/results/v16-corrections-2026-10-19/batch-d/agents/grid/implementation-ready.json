@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-19T16:17:15.149425+00:00",
+  "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+  "diffstat": " .../prompts/core/compiler/layout/grid/borders.md   |  34 +-\n .../prompts/core/compiler/layout/grid/cell_body.md |  34 +-\n .../core/compiler/layout/grid/measurement_cache.md |  67 ++-\n .../prompts/core/compiler/layout/grid/tracks.md    |  99 +++-\n .../prompts/core/compiler/layout/grid_placement.md |  35 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  33 +-\n 00_nucleo/prompts/core/compiler/layout/image.md    |  34 +-\n .../prompts/core/compiler/layout/line_commit.md    |  12 +-\n .../prompts/core/compiler/layout/measurement.md    |  76 +++-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  12 +-\n .../core/compiler/layout/par_line_callbacks.md     |  12 +-\n 00_nucleo/prompts/core/compiler/layout/place.md    |  12 +-\n .../prompts/core/compiler/layout/references.md     |  12 +-\n .../prompts/core/compiler/layout/text/style.md     |  33 +-\n .../prompts/core/entities/elements/table_cell.md   |  34 +-\n 01_core/src/compiler/layout/grid/borders.rs        | 146 +++++-\n 01_core/src/compiler/layout/grid/cell_body.rs      | 216 ++++++++-\n .../src/compiler/layout/grid/measurement_cache.rs  | 357 ++++++++++++++-\n 01_core/src/compiler/layout/grid/tracks.rs         | 502 ++++++++++++++++++++-\n 01_core/src/compiler/layout/grid_placement.rs      | 222 ++++++++-\n 01_core/src/compiler/layout/helpers.rs             | 159 ++++++-\n 01_core/src/compiler/layout/image.rs               |  82 +++-\n 01_core/src/compiler/layout/line_commit.rs         | 176 +++++++-\n 01_core/src/compiler/layout/measurement.rs         | 457 ++++++++++++++++++-\n 01_core/src/compiler/layout/mod.rs                 | 308 ++++++++++++-\n 01_core/src/compiler/layout/par_line_callbacks.rs  |  88 +++-\n 01_core/src/compiler/layout/place.rs               |  98 +++-\n 01_core/src/compiler/layout/references.rs          | 189 +++++++-\n 01_core/src/compiler/layout/text/style.rs          | 176 +++++++-\n 01_core/src/entities/elements/table_cell.rs        | 106 ++++-\n 30 files changed, 3749 insertions(+), 72 deletions(-)\n",
+  "sha256": {
+    "00_nucleo/prompts/core/compiler/layout/grid/borders.md": "f17dbc55703960f56ad48b8b0d729f6caa5e352d7b3ada22b634330fe70eb125",
+    "00_nucleo/prompts/core/compiler/layout/grid/cell_body.md": "ca6c166d984ddf09907c9990c8c3198a3940a89b2b3aed0ad66f59bbcbf230e6",
+    "00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md": "bbb08ab055b83d3bcd6f92261bc08a51593baa88b5e3e0565784ae1a77bae4d3",
+    "00_nucleo/prompts/core/compiler/layout/grid/tracks.md": "43920415ac34b698f1fafab972b46ed97355211b28bb4839f5f9c31d9c581c5a",
+    "00_nucleo/prompts/core/compiler/layout/grid_placement.md": "8496d003b7134433200f071d012d4e7e3cd8d8bce407027ac7c619814875f2b3",
+    "00_nucleo/prompts/core/entities/elements/table_cell.md": "15a66c5a5e9bd4923a11c541e987899dfa0c2fb6ea19c3c2441fdd41c098bec2",
+    "01_core/src/compiler/layout/grid/borders.rs": "953bb509d09052bfa0cf9356c6ff6571f18bbe1fc481b76e6518ccf8629312b3",
+    "01_core/src/compiler/layout/grid/cell_body.rs": "0a5bf8cdf460d08d143a75e53d7e6ff5b5528225ce8e16c0badf4d695eda867c",
+    "01_core/src/compiler/layout/grid/measurement_cache.rs": "e8d82503d326152e8403ef3b745b134f6045571dca592f7b0e6460315c8030f0",
+    "01_core/src/compiler/layout/grid/tracks.rs": "d0e001371742b6ce74665364dbc85c0ef56fcf70614305b4c470c8275100b113",
+    "01_core/src/compiler/layout/grid_placement.rs": "6abf925ec87796054add99e21d049b9b26dbc6b3e23d855ba4211dbd167b8212",
+    "01_core/src/entities/elements/table_cell.rs": "c3fa1c455b590bf170bd1157081b437c8e02af9e7eb6e9495c24c44738bef376"
+  }
+}

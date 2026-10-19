@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/cell_body.md
-//! @prompt-hash a839e62f
+//! @prompt-hash 80f99f81
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -100,7 +100,124 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                 e.inset.as_ref(),
                 e.breakable.as_ref().copied(),
             ),
-            _ => (None, None, None, None, None), // neutro: N16[β] — Content não-cell retorna tupla de Nones para stroke/fill/align/inset/breakable
+            Content::Source(..)
+            | Content::ShowRecipe(..)
+            | Content::Realized(..)
+            | Content::Located(..)
+            | Content::Empty
+            | Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => (None, None, None, None, None),
         };
 
         // Precedência `.or()` uniforme P230 + P232 + P235.
@@ -677,4 +794,99 @@ mod smoke {
     }
     #[test]
     fn modulo_compila_e_carrega() {}
+}
+
+#[cfg(test)]
+mod v16_d_boundaries {
+
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        elements::table_cell::{TableCellResolved, TableCellStage},
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+    fn prepared(visual: Content) -> Content {
+        let mut cell =
+            match Content::table_cell(Content::text("HIDDEN"), None, None, None, None) {
+                Content::TableCell(cell) => cell.as_ref().clone(),
+                _ => unreachable!("table_cell constructor"),
+            };
+        cell.resolved = Some(Arc::new(TableCellResolved {
+            x: 0,
+            y: 0,
+            colspan: 1,
+            rowspan: 1,
+            fill: None,
+            stroke: None,
+            align: None,
+            inset: Sides::uniform(Length::pt(17.0)),
+            breakable: true,
+            visual,
+            stage: TableCellStage::Complete,
+            guards: vec![],
+        }));
+        Content::TableCell(Arc::new(cell))
+    }
+
+    #[test]
+    fn v16_d_raw_inherits_fill_inset_but_prepared_none_does_not() {
+        let intr = TagIntrospector::empty();
+        for (body, prepared_body) in [
+            (Content::text("Visible"), false),
+            (prepared(Content::text("Visible")), true),
+        ] {
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                12.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            let saved_x = l.regions.current.cursor_x;
+            let saved_y = l.regions.current.cursor_y;
+            let saved_style = l.style.clone();
+            let saved_bbox = l.parent_bbox;
+            let mut cache =
+                measurement_cache::MeasuredCells::new(&l, std::slice::from_ref(&body), 1);
+            let placed = PlacedCell { body, row: 0, col: 0, colspan: 1, rowspan: 1 };
+            let red = Color::rgb(255, 0, 0);
+            l.emit_grid_cell_body(
+                &mut cache,
+                &placed,
+                20.0,
+                0.0,
+                &[10.0],
+                &[200.0],
+                &[100.0],
+                &[TrackSizing::Auto],
+                Sides::uniform(Length::pt(7.0)),
+                None,
+                Some(&red),
+            );
+            let items = &l.regions.current.current_items;
+            let fills = items
+                .iter()
+                .filter(|item| matches!(item, FrameItem::Shape { fill: Some(_), .. }))
+                .count();
+            assert_eq!(fills, usize::from(!prepared_body));
+            let (text, x) = items
+                .iter()
+                .find_map(|item| match item {
+                    FrameItem::Text { text, pos, .. } => Some((text.as_str(), pos.x.0)),
+                    _ => None,
+                })
+                .expect("the visible body must be emitted");
+            assert_eq!(text, "Visible");
+            assert!((x - if prepared_body { 10.0 } else { 17.0 }).abs() < 1e-8);
+            assert_eq!(l.regions.current.cursor_x, saved_x);
+            assert_eq!(l.regions.current.cursor_y, saved_y);
+            assert_eq!(l.style, saved_style);
+            assert_eq!(l.parent_bbox, saved_bbox);
+            assert!(l.regions.cell.is_none());
+            assert!(l.cell_origin_x.is_none());
+            assert!(l.cell_origin_y.is_none());
+        }
+    }
 }

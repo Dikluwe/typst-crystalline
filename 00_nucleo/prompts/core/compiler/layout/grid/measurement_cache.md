@@ -1,5 +1,5 @@
 # L0 — grid/measurement_cache
-Hash do Código: 1904537e
+Hash do Código: 110ebc9c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -60,3 +60,68 @@ Local-key Styled experiment requires owner RED→GREEN allowed/refused wrappers,
 Require RED→GREEN, suites/build/lint/restricted preservation and D08A/B2, D05/D06/D07/query collections. Accept real language/effects/geometry, not byte equality or whitespace normalization to close render. General Table defaults/fields (table-root-equality), rich style functions/paint/strokes/insets, rich lines/gutters, multipage spans and PDF/UA are not certified. Preserve extra legacy D08B2 casts, syntax/flags and global nonlocatable policy.
 
 V17: run unchanged existing functional controls before code; actual structural RED 28/GREEN zero V17. No helper hiding conjunction/suppression/linter change. Check success/fallback/error/short-circuit/effects and restricted reseal; full build/workspace suite/Clippy all-targets warnings and unfulfilled expectations as errors/fmt/strict Rustdoc/strict-reverse V1/V5/V15/V26/SARIF no new warnings under 12GiB/zero swap/one job. No unmeasured memory/performance/global-parity claim.
+
+
+## V16-031 nominal boundary preservation
+
+### Measurement before decision
+
+Source audit at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:03:25.152301+00:00`;
+exact working-tree diffstat and source/L0 SHA-256 are retained in
+`lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-before.json`.
+Evidence: 01_core/src/compiler/layout/grid/measurement_cache.rs:40-61,150-169,185-266; 01_core/src/entities/content/source.rs:11. The owning decision is `simple_placement`.
+Observed: Cells are simple only with unit spans/no explicit coords; every other outer Content currently returns true.
+This is source-level evidence of existing behavior, not a new current-pin
+vanilla comparison or an inference about upstream intent.
+
+### Decision and refutation
+
+True means absence of outer placement fields only, not cache eligibility. token/capture/take separately refuse context, arbitrary wrappers and non-single-leaf products. Source is stripped transparently; Styled is not stripped here. Do not promote this true into a generic purity certificate.
+Maintain an explicit exhaustive nominal partition at this decision, including
+guard-false residuals in their owning variant. Future variants must require
+a fresh classification at this site. No wildcard relocation, syntax bypass,
+suppression, new conversion, or public signature/default/phase change.
+This is continuous-flow internal maintenance under ADR-0127.
+Rendering, text, effects, placement and diagnostics are language obligations;
+compiler exhaustiveness is an internal maintenance proof under ADR-0107.
+Preservation controls must pass before and after the edit; structural RED→GREEN
+requires an attributable E0004 at this match after adding a sentinel only in a
+disposable copy of `Content`. Another match's error is insufficient.
+Any changed accepted/rejected case, lost content, repeated effect, fallback
+geometry or diagnostic refutes preservation. Broader parity limitations in
+this owner remain open.
+
+
+The current nominal complement (placement-field-neutral only) is: `Source`, `ShowRecipe`, `Realized`, `Located`, `Empty`, `Text`, `Space`, `SpaceFromNewline`, `Parbreak`, `Sequence`, `HtmlElem`, `HtmlFrame`, `Par`, `Heading`, `Title`, `Strong`, `Emph`, `Raw`, `ListItem`, `EnumItem`, `Link`, `Equation`, `MathSequence`, `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathPrimes`, `MathRoot`, `MathStretch`, `MathDelimited`, `MathLr`, `MathMid`, `MathOverbrace`, `MathUnderbrace`, `MathUnderbracket`, `MathUnderparen`, `MathUndershell`, `MathOverbracket`, `MathOverparen`, `MathOvershell`, `MathAlignPoint`, `Linebreak`, `MathMatrix`, `MathCases`, `MathAccent`, `MathCancel`, `MathUnderline`, `MathOverline`, `MathVec`, `MathClassOverride`, `MathLimitsOverride`, `MathUnderover`, `MathOp`, `MathStyled`, `Label`, `Ref`, `CounterDisplay`, `CounterUpdate`, `Outline`, `OutlineEntry`, `Figure`, `FigureCaption`, `Image`, `Shape`, `Curve`, `Transform`, `Grid`, `GridHeader`, `GridFooter`, `SetPage`, `PageRun`, `Align`, `Place`, `Flush`, `Styled`, `Divider`, `Terms`, `TermItem`, `Quote`, `Document`, `Asset`, `SmartQuote`, `PdfAttach`, `PdfArtifact`, `Underline`, `Strike`, `Overline`, `SmallCaps`, `Pad`, `Hide`, `HSpace`, `VSpace`, `Pagebreak`, `Colbreak`, `Stack`, `Boxed`, `Block`, `Bibliography`, `Cite`, `Footnote`, `FootnoteEntry`, `TableHeader`, `TableFooter`, `GridHLine`, `GridVLine`, `TableHLine`, `TableVLine`, `Table`, `Repeat`, `Columns`, `Metadata`, `State`, `StateUpdate`, `StateDisplay`, `CounterDisplayCallback`, `ContextBlock`, `Dynamic`.
+
+## V16-032 nominal boundary preservation
+
+### Measurement before decision
+
+Source audit at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:03:25.152301+00:00`;
+exact working-tree diffstat and source/L0 SHA-256 are retained in
+`lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-before.json`.
+Evidence: 01_core/src/compiler/layout/grid/measurement_cache.rs:63-102,104-146,185-266. The owning decision is `token`.
+Observed: None refuses cached-product reuse; it does not suppress layout. Miss returns to normal cell sublayout.
+This is source-level evidence of existing behavior, not a new current-pin
+vanilla comparison or an inference about upstream intent.
+
+### Decision and refutation
+
+The positive certificate is intentionally tiny: one graphic ASCII Text through exact admitted wrappers. The complement includes actual semantic/locatable/callback/style contexts that cannot safely reuse a measured product. Styled guard failure must remain refusal, not recursive fallback.
+Maintain an explicit exhaustive nominal partition at this decision, including
+guard-false residuals in their owning variant. Future variants must require
+a fresh classification at this site. No wildcard relocation, syntax bypass,
+suppression, new conversion, or public signature/default/phase change.
+This is continuous-flow internal maintenance under ADR-0127.
+Rendering, text, effects, placement and diagnostics are language obligations;
+compiler exhaustiveness is an internal maintenance proof under ADR-0107.
+Preservation controls must pass before and after the edit; structural RED→GREEN
+requires an attributable E0004 at this match after adding a sentinel only in a
+disposable copy of `Content`. Another match's error is insufficient.
+Any changed accepted/rejected case, lost content, repeated effect, fallback
+geometry or diagnostic refutes preservation. Broader parity limitations in
+this owner remain open.
+
+The current nominal complement (cache refusal) is: `Source`, `ShowRecipe`, `Realized`, `Located`, `Empty`, `Space`, `SpaceFromNewline`, `Parbreak`, `HtmlElem`, `HtmlFrame`, `Par`, `Heading`, `Title`, `Strong`, `Emph`, `Raw`, `ListItem`, `EnumItem`, `Link`, `Equation`, `MathSequence`, `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathPrimes`, `MathRoot`, `MathStretch`, `MathDelimited`, `MathLr`, `MathMid`, `MathOverbrace`, `MathUnderbrace`, `MathUnderbracket`, `MathUnderparen`, `MathUndershell`, `MathOverbracket`, `MathOverparen`, `MathOvershell`, `MathAlignPoint`, `Linebreak`, `MathMatrix`, `MathCases`, `MathAccent`, `MathCancel`, `MathUnderline`, `MathOverline`, `MathVec`, `MathClassOverride`, `MathLimitsOverride`, `MathUnderover`, `MathOp`, `MathStyled`, `Label`, `Ref`, `CounterDisplay`, `CounterUpdate`, `Outline`, `OutlineEntry`, `Figure`, `FigureCaption`, `Image`, `Shape`, `Curve`, `Transform`, `Grid`, `GridHeader`, `GridFooter`, `SetPage`, `PageRun`, `Align`, `Place`, `Flush`, `Divider`, `Terms`, `TermItem`, `Quote`, `Document`, `Asset`, `SmartQuote`, `PdfAttach`, `PdfArtifact`, `Underline`, `Strike`, `Overline`, `SmallCaps`, `Pad`, `Hide`, `HSpace`, `VSpace`, `Pagebreak`, `Colbreak`, `Stack`, `Boxed`, `Block`, `Bibliography`, `Cite`, `Footnote`, `FootnoteEntry`, `TableHeader`, `TableFooter`, `GridHLine`, `GridVLine`, `TableHLine`, `TableVLine`, `Table`, `Repeat`, `Columns`, `Metadata`, `State`, `StateUpdate`, `StateDisplay`, `CounterDisplayCallback`, `ContextBlock`, `Dynamic`.
+`Styled` with a failed local-cell-only guard also refuses reuse; keep this residual inside the Styled arm.

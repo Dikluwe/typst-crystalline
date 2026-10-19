@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/table_cell.md
-//! @prompt-hash 5f630f31
+//! @prompt-hash 36fba78f
 //! @layer L1
 //! @updated 2026-10-10
 //!
@@ -181,7 +181,43 @@ impl TableCellProperties {
                     get("bottom", "y"),
                 ))
             }
-            _ => None,
+            Value::None
+            | Value::Bool(..)
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Str(..)
+            | Value::Array(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Auto
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..) => None,
         }
     }
 }
@@ -719,5 +755,71 @@ mod tests {
         v.colspan = Some(3);
         v.presence.colspan = true;
         assert_ne!(h(&ex()), h(&v));
+    }
+}
+
+#[cfg(test)]
+mod v16_d_inset_boundaries {
+    use super::*;
+    use crate::entities::value::Value;
+    fn dict(entries: &[(&str, Value)]) -> Value {
+        Value::Dict(
+            entries
+                .iter()
+                .map(|(key, value)| ((*key).into(), value.clone()))
+                .collect(),
+        )
+    }
+    #[test]
+    fn v16_d_inset_precedence_and_partial_absence_are_preserved() {
+        let pt = |n| Value::Length(Length::pt(n));
+        assert_eq!(
+            TableCellProperties::style_inset(&pt(3.0)),
+            Some(Sides::uniform(Some(Length::pt(3.0))))
+        );
+        let value = dict(&[
+            ("rest", pt(1.0)),
+            ("x", pt(2.0)),
+            ("y", pt(3.0)),
+            ("left", pt(4.0)),
+            ("bottom", pt(5.0)),
+        ]);
+        assert_eq!(
+            TableCellProperties::style_inset(&value),
+            Some(Sides::new(
+                Some(Length::pt(4.0)),
+                Some(Length::pt(3.0)),
+                Some(Length::pt(2.0)),
+                Some(Length::pt(5.0))
+            ))
+        );
+        assert_eq!(
+            TableCellProperties::style_inset(&dict(&[])),
+            Some(Sides::uniform(None))
+        );
+        assert_eq!(
+            TableCellProperties::style_inset(&dict(&[("left", pt(4.0))])),
+            Some(Sides::new(Some(Length::pt(4.0)), None, None, None))
+        );
+    }
+    #[test]
+    fn v16_d_inset_rejection_is_atomic_and_does_not_expand_casts() {
+        for value in [
+            Value::Ratio(crate::entities::layout_types::Ratio(0.5)),
+            Value::Auto,
+            Value::None,
+            Value::Int(2),
+            Value::Float(2.0),
+            Value::Str("2pt".into()),
+            Value::Content(Content::text("2pt")),
+            dict(&[
+                ("left", Value::Length(Length::pt(2.0))),
+                ("unknown", Value::Length(Length::pt(1.0))),
+            ]),
+            dict(&[("left", Value::Length(Length::pt(2.0))), ("right", Value::Auto)]),
+            dict(&[("rest", Value::Bool(false))]),
+        ] {
+            assert!(TableCellProperties::style_inset(&value).is_none(), "{value:?}");
+        }
     }
 }

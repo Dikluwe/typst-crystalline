@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/measurement.md
-//! @prompt-hash dbc0c9d4
+//! @prompt-hash 54c14d10
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -47,6 +47,141 @@ fn inline_flow(content: &Content) -> bool {
         return inline_flow(&e.body);
     }
     false
+}
+
+/// Positive certificate for the simple math subset measured in isolation.
+/// Inspect each root directly: generic visitors may skip transport roots.
+fn callback_free_math_measurement(content: &Content) -> bool {
+    match content {
+        Content::Empty
+        | Content::Text(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::Space
+        | Content::SpaceFromNewline => true,
+        Content::Source(e) => callback_free_math_measurement(&e.body),
+        Content::Located(e) => callback_free_math_measurement(&e.body),
+        Content::Realized(e) => callback_free_math_measurement(&e.visual),
+        Content::Sequence(children) | Content::MathSequence(children) => {
+            children.iter().all(callback_free_math_measurement)
+        }
+        Content::MathFrac(e) => {
+            callback_free_math_measurement(&e.num)
+                && callback_free_math_measurement(&e.den)
+        }
+        Content::MathRoot(e) => {
+            e.index.as_ref().is_none_or(callback_free_math_measurement)
+                && callback_free_math_measurement(&e.radicand)
+        }
+        Content::MathStyled(e) => callback_free_math_measurement(&e.body),
+        Content::Styled(e) => callback_free_math_measurement(&e.body),
+        Content::Strong(e) => callback_free_math_measurement(&e.body),
+        Content::Emph(e) => callback_free_math_measurement(&e.body),
+        // Effects, ambient-dependent content and unaudited math stay outside.
+        Content::ShowRecipe(..)
+        | Content::Parbreak
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => false,
+    }
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
@@ -148,6 +283,39 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Source(e) => self.measure_content_constrained(&e.body, max_width),
             Content::ShowRecipe(e) => {
                 self.measure_content_constrained(&e.body, max_width)
+            }
+            Content::Image(e) => {
+                let dims = super::image::calculate_dimensions(
+                    &e.data.0,
+                    e.width.as_deref(),
+                    e.height.as_deref(),
+                    &e.fit,
+                    &self.sizer,
+                );
+                (
+                    dims.target_width.unwrap_or(dims.width_pt),
+                    dims.target_height.unwrap_or(dims.height_pt),
+                )
+            }
+            Content::Equation(e) => {
+                if !e.block
+                    && max_width.is_finite()
+                    && max_width > 0.0
+                    && callback_free_math_measurement(&e.body)
+                {
+                    self.measure_inline_flow(content, max_width)
+                } else {
+                    // Contextual/block math requires ambient identity or callbacks.
+                    (0.0, 0.0)
+                }
+            }
+            Content::Figure(e) => {
+                if e.caption.is_none() {
+                    self.measure_content_constrained(&e.body, max_width)
+                } else {
+                    // Caption prefixes and numbering depend on emitting progress.
+                    (0.0, 0.0)
+                }
             }
             Content::Text(text) => {
                 let mut max_line_w = 0.0_f64;
@@ -423,7 +591,99 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 res
             }
 
-            _ => (0.0, 0.0), // neutro: N16[γ] — Content sem dimensão fixa explícita retorna (0.0, 0.0) (fallback de dimensão estática)
+            Content::Empty | Content::Metadata(..) => (0.0, 0.0),
+            // Unsupported approximations retain their value, not a zero-size promise.
+            Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::FigureCaption(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => (0.0, 0.0),
         }
     }
 }
@@ -596,5 +856,214 @@ mod inline_flow_regression {
         let (width, _) = l.measure_content_constrained(&body, 1000.0);
         assert!((width - expected).abs() < 1e-6, "width={width} expected={expected}");
         assert_eq!(l.regions.current.cursor_x, before);
+    }
+}
+
+#[cfg(test)]
+mod v16_d_tests {
+    use super::*;
+    use crate::entities::{
+        content::{RealizedContent, SourceContent},
+        elements::{equation::EquationElem, figure::FigureElem, shape::ShapeElem},
+        layout_types::Length,
+        ptr_eq_arc::PtrEqArc,
+        span::Span,
+        value::Value,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn equation(body: Content) -> Content {
+        Content::Equation(Arc::new(EquationElem::new(body, false)))
+    }
+    fn shape() -> Content {
+        Content::Shape(Arc::new(ShapeElem {
+            kind: ShapeKind::Rect,
+            width: Some(Box::new(Value::Length(Length::pt(40.0)))),
+            height: Some(Box::new(Value::Length(Length::pt(20.0)))),
+            fill: None,
+            stroke: None,
+            fill_rule: Default::default(),
+        }))
+    }
+    fn image() -> Content {
+        Content::image(
+            "test.png",
+            PtrEqArc(Arc::new(vec![])),
+            Some(Box::new(Value::Length(Length::pt(40.0)))),
+            Some(Box::new(Value::Length(Length::pt(20.0)))),
+            "cover",
+        )
+    }
+
+    #[test]
+    fn v16_d_constrained_visible_measurement_preserves_emitter_state() {
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        let math = equation(Content::MathIdent("x".into()));
+        for cell in [
+            image(),
+            Content::Figure(Arc::new(FigureElem {
+                body: shape(),
+                caption: None,
+                kind: None,
+            })),
+            math,
+        ] {
+            let before = l.locator.checkpoint();
+            let x = l.regions.current.cursor_x;
+            let y = l.regions.current.cursor_y;
+            let pages = l.pages.len();
+            let (width, height) = l.measure_content_constrained(&cell, 200.0);
+            assert!(
+                width > 0.0 && height > 0.0,
+                "visible cell lost its extent: {cell:?}"
+            );
+            assert_eq!(l.locator.checkpoint(), before);
+            assert_eq!(
+                (l.regions.current.cursor_x, l.regions.current.cursor_y, l.pages.len()),
+                (x, y, pages)
+            );
+            assert!(l.figure_progress.is_empty());
+            assert!(l.runtime.figure_page_numbers.is_empty());
+        }
+    }
+
+    #[test]
+    fn v16_d_constrained_image_keeps_target_and_source_visual_transport() {
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        let body = Content::Source(Arc::new(SourceContent {
+            span: Span::detached(),
+            body: Content::Realized(Arc::new(RealizedContent {
+                original: Content::text("consumed"),
+                visual: image(),
+            })),
+        }));
+        assert_eq!(l.measure_content_constrained(&body, 30.0), (40.0, 20.0));
+        for body in [Content::Empty, Content::metadata(Value::Content(shape()))] {
+            assert_eq!(l.measure_content_constrained(&body, 100.0), (0.0, 0.0));
+        }
+    }
+
+    #[test]
+    fn v16_d_math_measurement_rejects_hidden_callbacks_without_requests() {
+        use crate::compiler::math::layout::callbacks::MathCallbackPassState;
+        use crate::entities::{
+            elements::{
+                context_block::ContextBlockElem,
+                math_cancel::{MathCancelAngle, MathCancelElem},
+            },
+            func::Func,
+            rel::Rel,
+        };
+        let never =
+            Func::native("never", |_, _, _, _| panic!("measurement executed callback"));
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let pass = MathCallbackPassState::new(None);
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        l.math_callback_pass = Some(&pass);
+        let cancel = Content::MathCancel(Arc::new(MathCancelElem {
+            body: Content::MathIdent("x".into()),
+            length: Rel::from_percent(100.0),
+            inverted: false,
+            cross: false,
+            angle: MathCancelAngle::Func(never.clone()),
+            stroke: None,
+            background: false,
+            span: Span::detached(),
+            explicit: Default::default(),
+        }));
+        let context =
+            Content::ContextBlock(Arc::new(ContextBlockElem { id: 7, closure: never }));
+        let located =
+            Content::Located(Arc::new(crate::entities::content::LocatedContent {
+                location: crate::entities::locator::Locator::new().next(),
+                body: context.clone(),
+            }));
+        let realized = Content::Realized(Arc::new(RealizedContent {
+            original: Content::Empty,
+            visual: located,
+        }));
+        let recipe =
+            Content::ShowRecipe(Arc::new(crate::entities::content::ShowRecipeContent {
+                body: context.clone(),
+                textual: false,
+                context_id_floor: 0,
+                rules: Arc::from([]),
+                styles: l.chain.clone(),
+                guards: vec![],
+                file: crate::entities::file_id::FileId::from_raw(
+                    std::num::NonZeroU16::new(1).unwrap(),
+                ),
+            }));
+        let reference =
+            Content::Ref(Arc::new(crate::entities::elements::r#ref::RefElem {
+                name: "label".into(),
+                supplement: Some(context.clone()),
+                form: Default::default(),
+            }));
+        for hidden in [
+            cancel,
+            context.clone(),
+            Content::metadata(Value::Content(context)),
+            realized,
+            recipe,
+            reference,
+        ] {
+            let body = equation(Content::MathSequence(
+                vec![Content::MathIdent("x".into()), hidden].into(),
+            ));
+            let before = l.locator.checkpoint();
+            assert_eq!(l.measure_content_constrained(&body, 100.0), (0.0, 0.0));
+            assert_eq!(l.locator.checkpoint(), before);
+        }
+        assert_eq!(
+            l.measure_content_constrained(
+                &Content::Equation(Arc::new(EquationElem::new(
+                    Content::MathIdent("x".into()),
+                    true
+                ))),
+                100.0
+            ),
+            (0.0, 0.0)
+        );
+        let consumed_context = Content::ContextBlock(Arc::new(ContextBlockElem {
+            id: 8,
+            closure: Func::native("consumed", |_, _, _, _| {
+                panic!("consumed original evaluated")
+            }),
+        }));
+        let projected_math = equation(Content::Realized(Arc::new(RealizedContent {
+            original: consumed_context,
+            visual: Content::MathIdent("x".into()),
+        })));
+        assert!(l.measure_content_constrained(&projected_math, 100.0).0 > 0.0);
+        let before = l.locator.checkpoint();
+        assert!(
+            l.measure_content_constrained(
+                &equation(Content::MathIdent("x".into())),
+                100.0
+            )
+            .0 > 0.0
+        );
+        assert_eq!(l.locator.checkpoint(), before);
+        drop(l);
+        assert!(pass.finish_transcript().is_ok());
     }
 }

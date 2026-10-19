@@ -1,0 +1,50 @@
+[
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "--offline",
+      "--locked",
+      "--target-dir",
+      "lab/target/product",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-wiring"
+    ]
+  },
+  {
+    "name": "full-validation",
+    "command": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/batch-d/validation"
+    ]
+  },
+  {
+    "name": "accepted-grid-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+      "grid",
+      "accepted-replay",
+      "lab/results/v16-corrections-2026-10-19/batch-d/validation/validation-state.json.gz"
+    ]
+  },
+  {
+    "name": "accepted-measurement-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+      "measurement",
+      "accepted-replay",
+      "lab/results/v16-corrections-2026-10-19/batch-d/validation/validation-state.json.gz"
+    ]
+  }
+]

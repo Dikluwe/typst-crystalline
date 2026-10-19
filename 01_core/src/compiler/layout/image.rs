@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/image.md
-//! @prompt-hash 4e17da98
+//! @prompt-hash ac269d02
 //! @layer L1
 //! @updated 2026-09-27
 
@@ -130,7 +130,44 @@ fn extract_pt(val: &Value) -> Option<f64> {
     match val {
         Value::Float(f) => Some(*f),
         Value::Length(l) => Some(l.abs.to_pt()),
-        _ => None, // neutro: N16[β] — Value não-dimensionável retorna None na extracção de pontos (projeção de tipo)
+        // No axis in this bounded projection; source validation is caller-owned.
+        Value::None
+        | Value::Bool(..)
+        | Value::Int(..)
+        | Value::Str(..)
+        | Value::Array(..)
+        | Value::Dict(..)
+        | Value::Module(..)
+        | Value::Datetime(..)
+        | Value::Func(..)
+        | Value::Content(..)
+        | Value::LocatedContent(..)
+        | Value::Auto
+        | Value::Relative(..)
+        | Value::Ratio(..)
+        | Value::Angle(..)
+        | Value::Color(..)
+        | Value::Stroke(..)
+        | Value::Fraction(..)
+        | Value::Align(..)
+        | Value::Location(..)
+        | Value::Gradient(..)
+        | Value::Regex(..)
+        | Value::Tiling(..)
+        | Value::Bytes(..)
+        | Value::Decimal(..)
+        | Value::Duration(..)
+        | Value::Version(..)
+        | Value::Selector(..)
+        | Value::Symbol(..)
+        | Value::Args(..)
+        | Value::State(..)
+        | Value::Counter(..)
+        | Value::Label(..)
+        | Value::Dir(..)
+        | Value::Path(..)
+        | Value::Type(..)
+        | Value::SpotColorant(..) => None,
     }
 }
 
@@ -585,5 +622,46 @@ mod initial_nontext_block_regressions {
     #[test]
     fn ordinary_subframe_block_does_not_query_unused_typography() {
         check(NoTypography, None, true);
+    }
+}
+
+#[cfg(test)]
+mod v16_d_tests {
+    use super::*;
+    use crate::entities::image_sizer::NullImageSizer;
+
+    #[test]
+    fn v16_d_image_axis_schema_keeps_intrinsic_and_fit_controls() {
+        for invalid in [
+            Value::Auto,
+            Value::None,
+            Value::Bool(true),
+            Value::Int(30),
+            Value::Str("30pt".into()),
+            Value::Array(vec![]),
+            Value::Content(crate::entities::content::Content::Empty),
+        ] {
+            assert_eq!(extract_pt(&invalid), None);
+            let dims = calculate_dimensions(
+                &[],
+                Some(&invalid),
+                Some(&Value::Length(Length::pt(20.0))),
+                "cover",
+                &NullImageSizer,
+            );
+            assert_eq!((dims.width_pt, dims.height_pt), (20.0, 20.0));
+            assert!(dims.target_width.is_none());
+        }
+        assert_eq!(extract_pt(&Value::Float(30.0)), Some(30.0));
+        assert_eq!(extract_pt(&Value::Length(Length::pt(30.0))), Some(30.0));
+        let dims = calculate_dimensions(
+            &[],
+            Some(&Value::Length(Length::pt(40.0))),
+            Some(&Value::Length(Length::pt(20.0))),
+            "cover",
+            &NullImageSizer,
+        );
+        assert_eq!((dims.target_width, dims.target_height), (Some(40.0), Some(20.0)));
+        assert_eq!((dims.width_pt, dims.height_pt), (40.0, 40.0));
     }
 }

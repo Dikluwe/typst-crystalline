@@ -1,5 +1,5 @@
 # L0 — line commit
-Hash do Código: b7a1905c
+Hash do Código: f9eb931e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -93,3 +93,13 @@ Mixed-face refinement is private continuous-flow ADR-0127 without public/product
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+## V16 closed-domain evidence and correction
+
+Measured in the uncommitted working tree at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:02:56.055664+00:00`; exact changed-file diffstat and source/L0 SHA-256 are in `lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/audit-before.json`. `line_commit.rs:660–722` admits only `Some(Value::Str)` and `Some(Value::Func)` after segmented-pattern deferral; the overlay at 693–697 can replace the admitted value with outer `None` after increment. `line_commit.rs:723–843` consumes realized content and positions numbers; it never executes a callback.
+
+This is observed local source behavior, not a new bilateral result or inferred upstream intent. Identity, text, quote choice, geometry and supplement semantics are language obligations; the match representation is mechanics. A caller admitting a supposedly excluded payload, duplicate event, changed text/geometry/request or changed diagnostic refutes preservation.
+
+Keep the admitted numbering domain closed at the existing realization match: Str formats, Func records/resolves the request, outer None means overlay suppression. Name each present non-Str/non-Func Value payload as excluded with the existing no-number result; these payloads cannot reach this match through the current admission, so do not broaden counting. Deferred patterns bypass admission and remain coordinator-owned. Preserve page/document scope, physical baseline, callback request count, unresolved Pending behavior, and counter advancement under overlay suppression. A newly added Value must require review at this exact decision, even though admission is currently narrow.
+
+ADR-0127 classification: continuous-flow internal nominal coverage with no public signature, default, phase or compatibility change. Add behavior-preservation controls before implementation and require baseline/final controls plus disposable future-variant compile-negative evidence at the exact selected decision. Current runtime controls may already pass; the structural RED is failure to reject a future variant at that decision. No new suppression or open catchall is authorized.

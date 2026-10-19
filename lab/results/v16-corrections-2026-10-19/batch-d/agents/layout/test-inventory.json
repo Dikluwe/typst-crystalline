@@ -1,0 +1,20 @@
+{
+  "01_core/src/compiler/layout/line_commit.rs": [
+    "v16_d_line_numbering_admission_overlay_and_deferred_pattern_are_distinct",
+    "v16_d_line_callback_records_or_consumes_without_execution"
+  ],
+  "01_core/src/compiler/layout/mod.rs": [
+    "v16_d_source_and_located_keep_one_identity_before_following_occurrence",
+    "v16_d_quote_observer_preserves_wrapped_text_spaces_and_neutral_metadata"
+  ],
+  "01_core/src/compiler/layout/par_line_callbacks.rs": [
+    "v16_d_number_fixup_covers_both_alignment_axes_and_item_ranges"
+  ],
+  "01_core/src/compiler/layout/place.rs": [
+    "v16_d_float_optional_horizontal_alignment_preserves_geometry_and_metadata"
+  ],
+  "01_core/src/compiler/layout/references.rs": [
+    "v16_d_supplements_cover_every_kind_and_string_guard_residual",
+    "v16_d_filtered_native_and_composite_selectors_do_not_invent_supplements"
+  ]
+}

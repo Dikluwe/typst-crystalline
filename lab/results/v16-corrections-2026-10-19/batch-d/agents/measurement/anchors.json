@@ -1,0 +1,52 @@
+[
+  {
+    "id": "V16-037",
+    "path": "01_core/src/compiler/layout/helpers.rs",
+    "function": "measure_content",
+    "original_line": 481,
+    "domain": "Content",
+    "scrutinee": "content: &Content"
+  },
+  {
+    "id": "V16-038",
+    "path": "01_core/src/compiler/layout/image.rs",
+    "function": "extract_pt",
+    "original_line": 133,
+    "domain": "Value",
+    "scrutinee": "val: &Value"
+  },
+  {
+    "id": "V16-040",
+    "path": "01_core/src/compiler/layout/measurement.rs",
+    "function": "Layouter::measure_content_constrained",
+    "original_line": 426,
+    "domain": "Content",
+    "scrutinee": "content: &Content"
+  },
+  {
+    "id": "V16-046",
+    "path": "01_core/src/compiler/layout/text/style.rs",
+    "function": "effective_style",
+    "original_line": 89,
+    "domain": "Value",
+    "scrutinee": "text.font family element / dict.name Value"
+  },
+  {
+    "id": "V16-047",
+    "path": "01_core/src/compiler/layout/text/style.rs",
+    "function": "effective_style",
+    "original_line": 131,
+    "domain": "Value",
+    "scrutinee": "text.font family element / dict.name Value"
+  },
+  {
+    "id": "D-new-certificate",
+    "path": "01_core/src/compiler/layout/measurement.rs",
+    "function": "callback_free_math_measurement",
+    "domain": "Content",
+    "scrutinee": "content",
+    "purpose": "positive certificate exact match requires sentinel E0004",
+    "anchor": "fn callback_free_math_measurement(content: &Content) -> bool",
+    "line": 54
+  }
+]

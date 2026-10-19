@@ -1,0 +1,518 @@
+[
+  {
+    "name": "all-domains",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T16:04:12.441277+00:00",
+    "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-d-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-029",
+        "file": "01_core/src/compiler/layout/grid/borders.rs",
+        "baseline": {
+          "after": "fn cell_effective_stroke(",
+          "anchor": "match cell {"
+        },
+        "green": {
+          "after": "fn cell_effective_stroke(",
+          "anchor": "match cell {"
+        },
+        "line": 43,
+        "byte_start": 1641,
+        "byte_end": 1653,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-030",
+        "file": "01_core/src/compiler/layout/grid/cell_body.rs",
+        "baseline": {
+          "after": "fn emit_grid_cell_body(",
+          "anchor": "match cell\n"
+        },
+        "green": {
+          "after": "fn emit_grid_cell_body(",
+          "anchor": "match cell\n"
+        },
+        "line": 72,
+        "byte_start": 2702,
+        "byte_end": 2713,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-031",
+        "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+        "baseline": {
+          "after": "fn simple_placement(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn simple_placement(",
+          "anchor": "match content {"
+        },
+        "line": 42,
+        "byte_start": 937,
+        "byte_end": 952,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-032",
+        "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+        "baseline": {
+          "after": "fn token(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn token(",
+          "anchor": "match content {"
+        },
+        "line": 65,
+        "byte_start": 1694,
+        "byte_end": 1709,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-033",
+        "file": "01_core/src/compiler/layout/grid/tracks.rs",
+        "baseline": {
+          "after": "fn resolve_grid_columns(",
+          "anchor": "match &cells[ci] {"
+        },
+        "green": {
+          "after": "fn resolve_grid_columns(",
+          "anchor": "match &cells[ci] {"
+        },
+        "line": 77,
+        "byte_start": 3486,
+        "byte_end": 3504,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-034",
+        "file": "01_core/src/compiler/layout/grid/tracks.rs",
+        "baseline": {
+          "after": "fn resolve_grid_rows(",
+          "anchor": "match item {"
+        },
+        "green": {
+          "after": "fn resolve_grid_rows(",
+          "anchor": "match item {"
+        },
+        "line": 289,
+        "byte_start": 12504,
+        "byte_end": 12516,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-035",
+        "file": "01_core/src/compiler/layout/grid/tracks.rs",
+        "baseline": {
+          "after": "fn measurement_visual(",
+          "anchor": "match node {"
+        },
+        "green": {
+          "after": "fn measurement_visual(",
+          "anchor": "match node {"
+        },
+        "line": 463,
+        "byte_start": 20465,
+        "byte_end": 20477,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-036",
+        "file": "01_core/src/compiler/layout/grid_placement.rs",
+        "baseline": {
+          "after": "fn place(",
+          "anchor": "match c {"
+        },
+        "green": {
+          "after": "fn place(",
+          "anchor": "match c {"
+        },
+        "line": 98,
+        "byte_start": 3650,
+        "byte_end": 3659,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-037",
+        "file": "01_core/src/compiler/layout/helpers.rs",
+        "baseline": {
+          "after": "fn measure_content(content:",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn measure_content(content:",
+          "anchor": "match content {"
+        },
+        "line": 451,
+        "byte_start": 17364,
+        "byte_end": 17379,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-038",
+        "file": "01_core/src/compiler/layout/image.rs",
+        "baseline": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "green": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "line": 130,
+        "byte_start": 5073,
+        "byte_end": 5084,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-039",
+        "file": "01_core/src/compiler/layout/line_commit.rs",
+        "baseline": {
+          "after": "fn flush_line_with_outer_singleton(",
+          "anchor": "match numbering {"
+        },
+        "green": {
+          "after": "fn flush_line_with_outer_singleton(",
+          "anchor": "match numbering {"
+        },
+        "line": 704,
+        "byte_start": 31403,
+        "byte_end": 31420,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-040",
+        "file": "01_core/src/compiler/layout/measurement.rs",
+        "baseline": {
+          "after": "fn measure_content_constrained(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn measure_content_constrained(",
+          "anchor": "match content {"
+        },
+        "line": 143,
+        "byte_start": 5065,
+        "byte_end": 5080,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-041",
+        "file": "01_core/src/compiler/layout/mod.rs",
+        "baseline": {
+          "after": "fn layout_content_once(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn layout_content_once(",
+          "anchor": "match content {"
+        },
+        "line": 1227,
+        "byte_start": 61969,
+        "byte_end": 61984,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-042",
+        "file": "01_core/src/compiler/layout/mod.rs",
+        "baseline": {
+          "after": "fn layout_content_body(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn layout_content_body(",
+          "anchor": "match content {"
+        },
+        "line": 1268,
+        "byte_start": 63631,
+        "byte_end": 63646,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-043",
+        "file": "01_core/src/compiler/layout/par_line_callbacks.rs",
+        "baseline": {
+          "after": "fn apply_pending_par_line_fixups(",
+          "anchor": "match (margin, align) {"
+        },
+        "green": {
+          "after": "fn apply_pending_par_line_fixups(",
+          "anchor": "match (margin, align) {"
+        },
+        "line": 135,
+        "byte_start": 4536,
+        "byte_end": 4559,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-044",
+        "file": "01_core/src/compiler/layout/place.rs",
+        "baseline": {
+          "after": "fn translate_deferred_float(",
+          "anchor": "match f.alignment.h {"
+        },
+        "green": {
+          "after": "fn translate_deferred_float(",
+          "anchor": "match f.alignment.h {"
+        },
+        "line": 305,
+        "byte_start": 12348,
+        "byte_end": 12369,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-045",
+        "file": "01_core/src/compiler/layout/references.rs",
+        "baseline": {
+          "after": "fn default_supplement_for_key(",
+          "anchor": "match key {"
+        },
+        "green": {
+          "after": "fn default_supplement_for_key(",
+          "anchor": "match key {"
+        },
+        "line": 353,
+        "byte_start": 14300,
+        "byte_end": 14311,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-046",
+        "file": "01_core/src/compiler/layout/text/style.rs",
+        "baseline": {
+          "after": "fn effective_style<",
+          "anchor": "match name {"
+        },
+        "green": {
+          "after": "fn effective_style<",
+          "anchor": "match name {"
+        },
+        "line": 86,
+        "byte_start": 3690,
+        "byte_end": 3702,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-047",
+        "file": "01_core/src/compiler/layout/text/style.rs",
+        "baseline": {
+          "after": "fn effective_style<",
+          "anchor": "match v {"
+        },
+        "green": {
+          "after": "fn effective_style<",
+          "anchor": "match v {"
+        },
+        "line": 79,
+        "byte_start": 3214,
+        "byte_end": 3223,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-077",
+        "file": "01_core/src/entities/elements/table_cell.rs",
+        "baseline": {
+          "after": "fn style_inset(",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "fn style_inset(",
+          "anchor": "match value {"
+        },
+        "line": 158,
+        "byte_start": 4956,
+        "byte_end": 4969,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/entities/content.rs",
+      "01_core/src/entities/counter.rs",
+      "01_core/src/entities/element_kind.rs",
+      "01_core/src/entities/layout_types.rs",
+      "01_core/src/entities/selector.rs",
+      "01_core/src/entities/value.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T16:04:49.447554+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 268
+  },
+  {
+    "name": "new-old",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T16:04:49.731401+00:00",
+    "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-d-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-043",
+        "file": "01_core/src/compiler/layout/par_line_callbacks.rs",
+        "baseline": {
+          "after": "fn apply_pending_par_line_fixups(",
+          "anchor": "match (margin, align) {"
+        },
+        "green": {
+          "after": "fn apply_pending_par_line_fixups(",
+          "anchor": "match (margin, align) {"
+        },
+        "line": 135,
+        "byte_start": 4536,
+        "byte_end": 4559,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/compiler/layout/par_line_callbacks.rs",
+      "01_core/src/entities/layout_types.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T16:05:23.031356+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 15
+  },
+  {
+    "name": "old-new",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T16:05:23.227479+00:00",
+    "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-d-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-043",
+        "file": "01_core/src/compiler/layout/par_line_callbacks.rs",
+        "baseline": {
+          "after": "fn apply_pending_par_line_fixups(",
+          "anchor": "match (margin, align) {"
+        },
+        "green": {
+          "after": "fn apply_pending_par_line_fixups(",
+          "anchor": "match (margin, align) {"
+        },
+        "line": 135,
+        "byte_start": 4536,
+        "byte_end": 4559,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/compiler/layout/par_line_callbacks.rs",
+      "01_core/src/entities/layout_types.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T16:05:55.237710+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 15
+  },
+  {
+    "name": "new-new",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T16:05:55.513518+00:00",
+    "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-d-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-043",
+        "file": "01_core/src/compiler/layout/par_line_callbacks.rs",
+        "baseline": {
+          "after": "fn apply_pending_par_line_fixups(",
+          "anchor": "match (margin, align) {"
+        },
+        "green": {
+          "after": "fn apply_pending_par_line_fixups(",
+          "anchor": "match (margin, align) {"
+        },
+        "line": 135,
+        "byte_start": 4536,
+        "byte_end": 4559,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/compiler/layout/par_line_callbacks.rs",
+      "01_core/src/entities/layout_types.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T16:06:26.856551+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 15
+  }
+]

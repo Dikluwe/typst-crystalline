@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/tracks
-Hash do Código: cfa3da1f
+Hash do Código: 152caa93
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -53,3 +53,100 @@ Projection/rounding/composite refinements require bilateral geometry/glyph/line/
 Preserve exclusive ownership/static dispatch without I/O or a new signature/trait/flag or eval↔layout phase. Source-origin tests/C2/C/macro collections/builds/lineage are required before certification.
 
 Type-complexity correction preserves resolved public signatures/default/phase. An alias is allowed only with proved identical expansion; public/new-incompatible types need another gate. Nominal type_complexity exceptions apply only specifically justified items in their package, not module/impl/crate/global threshold or other required corrections. Use unchanged functional expected outputs; selected lint RED→GREEN includes unfulfilled_lint_expectations as error. Revalidate build/Clippy all-targets/full workspace suite/fmt/Rustdoc/lineage/restricted reseal without tests mirroring field names/aliases. One-column and explicit-override refinements do not certify legacy multicolumn mirroring/spans, broader rich cells or global parity.
+
+
+## V16-033 nominal boundary preservation
+
+### Measurement before decision
+
+Source audit at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:03:25.152301+00:00`;
+exact working-tree diffstat and source/L0 SHA-256 are retained in
+`lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-before.json`.
+Evidence: 01_core/src/compiler/layout/grid/tracks.rs:77-97; 01_core/src/compiler/layout/grid/cell_body.rs:18-45. The owning decision is `Layouter::resolve_grid_columns`.
+Observed: Non-cell inset None selects grid inset; a prepared TableCell with no surviving default uses zero inset rather than inherited grid inset.
+This is source-level evidence of existing behavior, not a new current-pin
+vanilla comparison or an inference about upstream intent.
+
+### Decision and refutation
+
+The complement has no outer cell-specific inset. Nested content still participates in measurement. The physical plan controls placement; do not invent metadata from the visual body or reexecute recipes.
+Maintain an explicit exhaustive nominal partition at this decision, including
+guard-false residuals in their owning variant. Future variants must require
+a fresh classification at this site. No wildcard relocation, syntax bypass,
+suppression, new conversion, or public signature/default/phase change.
+This is continuous-flow internal maintenance under ADR-0127.
+Rendering, text, effects, placement and diagnostics are language obligations;
+compiler exhaustiveness is an internal maintenance proof under ADR-0107.
+Preservation controls must pass before and after the edit; structural RED→GREEN
+requires an attributable E0004 at this match after adding a sentinel only in a
+disposable copy of `Content`. Another match's error is insufficient.
+Any changed accepted/rejected case, lost content, repeated effect, fallback
+geometry or diagnostic refutes preservation. Broader parity limitations in
+this owner remain open.
+
+
+The current nominal complement (no outer cell-specific fields) is: `Source`, `ShowRecipe`, `Realized`, `Located`, `Empty`, `Text`, `Space`, `SpaceFromNewline`, `Parbreak`, `Sequence`, `HtmlElem`, `HtmlFrame`, `Par`, `Heading`, `Title`, `Strong`, `Emph`, `Raw`, `ListItem`, `EnumItem`, `Link`, `Equation`, `MathSequence`, `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathPrimes`, `MathRoot`, `MathStretch`, `MathDelimited`, `MathLr`, `MathMid`, `MathOverbrace`, `MathUnderbrace`, `MathUnderbracket`, `MathUnderparen`, `MathUndershell`, `MathOverbracket`, `MathOverparen`, `MathOvershell`, `MathAlignPoint`, `Linebreak`, `MathMatrix`, `MathCases`, `MathAccent`, `MathCancel`, `MathUnderline`, `MathOverline`, `MathVec`, `MathClassOverride`, `MathLimitsOverride`, `MathUnderover`, `MathOp`, `MathStyled`, `Label`, `Ref`, `CounterDisplay`, `CounterUpdate`, `Outline`, `OutlineEntry`, `Figure`, `FigureCaption`, `Image`, `Shape`, `Curve`, `Transform`, `Grid`, `GridHeader`, `GridFooter`, `SetPage`, `PageRun`, `Align`, `Place`, `Flush`, `Styled`, `Divider`, `Terms`, `TermItem`, `Quote`, `Document`, `Asset`, `SmartQuote`, `PdfAttach`, `PdfArtifact`, `Underline`, `Strike`, `Overline`, `SmallCaps`, `Pad`, `Hide`, `HSpace`, `VSpace`, `Pagebreak`, `Colbreak`, `Stack`, `Boxed`, `Block`, `Bibliography`, `Cite`, `Footnote`, `FootnoteEntry`, `TableHeader`, `TableFooter`, `GridHLine`, `GridVLine`, `TableHLine`, `TableVLine`, `Table`, `Repeat`, `Columns`, `Metadata`, `State`, `StateUpdate`, `StateDisplay`, `CounterDisplayCallback`, `ContextBlock`, `Dynamic`.
+
+## V16-034 nominal boundary preservation
+
+### Measurement before decision
+
+Source audit at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:03:25.152301+00:00`;
+exact working-tree diffstat and source/L0 SHA-256 are retained in
+`lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-before.json`.
+Evidence: 01_core/src/compiler/layout/grid/tracks.rs:288-308; 01_core/src/compiler/layout/grid/cell_body.rs:18-45. The owning decision is `Layouter::resolve_grid_rows`.
+Observed: Non-cell inset None selects grid inset; a prepared TableCell with no surviving default uses zero inset rather than inherited grid inset.
+This is source-level evidence of existing behavior, not a new current-pin
+vanilla comparison or an inference about upstream intent.
+
+### Decision and refutation
+
+The complement has no outer cell-specific inset. Nested content still participates in measurement. The physical plan controls placement; do not invent metadata from the visual body or reexecute recipes.
+Maintain an explicit exhaustive nominal partition at this decision, including
+guard-false residuals in their owning variant. Future variants must require
+a fresh classification at this site. No wildcard relocation, syntax bypass,
+suppression, new conversion, or public signature/default/phase change.
+This is continuous-flow internal maintenance under ADR-0127.
+Rendering, text, effects, placement and diagnostics are language obligations;
+compiler exhaustiveness is an internal maintenance proof under ADR-0107.
+Preservation controls must pass before and after the edit; structural RED→GREEN
+requires an attributable E0004 at this match after adding a sentinel only in a
+disposable copy of `Content`. Another match's error is insufficient.
+Any changed accepted/rejected case, lost content, repeated effect, fallback
+geometry or diagnostic refutes preservation. Broader parity limitations in
+this owner remain open.
+
+
+The current nominal complement (no outer cell-specific fields) is: `Source`, `ShowRecipe`, `Realized`, `Located`, `Empty`, `Text`, `Space`, `SpaceFromNewline`, `Parbreak`, `Sequence`, `HtmlElem`, `HtmlFrame`, `Par`, `Heading`, `Title`, `Strong`, `Emph`, `Raw`, `ListItem`, `EnumItem`, `Link`, `Equation`, `MathSequence`, `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathPrimes`, `MathRoot`, `MathStretch`, `MathDelimited`, `MathLr`, `MathMid`, `MathOverbrace`, `MathUnderbrace`, `MathUnderbracket`, `MathUnderparen`, `MathUndershell`, `MathOverbracket`, `MathOverparen`, `MathOvershell`, `MathAlignPoint`, `Linebreak`, `MathMatrix`, `MathCases`, `MathAccent`, `MathCancel`, `MathUnderline`, `MathOverline`, `MathVec`, `MathClassOverride`, `MathLimitsOverride`, `MathUnderover`, `MathOp`, `MathStyled`, `Label`, `Ref`, `CounterDisplay`, `CounterUpdate`, `Outline`, `OutlineEntry`, `Figure`, `FigureCaption`, `Image`, `Shape`, `Curve`, `Transform`, `Grid`, `GridHeader`, `GridFooter`, `SetPage`, `PageRun`, `Align`, `Place`, `Flush`, `Styled`, `Divider`, `Terms`, `TermItem`, `Quote`, `Document`, `Asset`, `SmartQuote`, `PdfAttach`, `PdfArtifact`, `Underline`, `Strike`, `Overline`, `SmallCaps`, `Pad`, `Hide`, `HSpace`, `VSpace`, `Pagebreak`, `Colbreak`, `Stack`, `Boxed`, `Block`, `Bibliography`, `Cite`, `Footnote`, `FootnoteEntry`, `TableHeader`, `TableFooter`, `GridHLine`, `GridVLine`, `TableHLine`, `TableVLine`, `Table`, `Repeat`, `Columns`, `Metadata`, `State`, `StateUpdate`, `StateDisplay`, `CounterDisplayCallback`, `ContextBlock`, `Dynamic`.
+
+## V16-035 nominal boundary preservation
+
+### Measurement before decision
+
+Source audit at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:03:25.152301+00:00`;
+exact working-tree diffstat and source/L0 SHA-256 are retained in
+`lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-before.json`.
+Evidence: 01_core/src/compiler/layout/grid/tracks.rs:461-491; 01_core/src/entities/content/traversal.rs:678-695. The owning decision is `measurement_visual`.
+Observed: None means no replacement now: map_content_pre continues the ordinary recursive walk; it does not drop the node. Table returns itself atomically; staged TableCell projects visual, ShowRecipe projects body.
+This is source-level evidence of existing behavior, not a new current-pin
+vanilla comparison or an inference about upstream intent.
+
+### Decision and refutation
+
+Other variants must keep their existing reconstruction/traversal, especially Styled/Source and unstaged cells. Table is a deliberate recursion barrier so nested cells/coords are not extracted. A nominal no-replacement class preserves traversal, not zero measurement.
+Maintain an explicit exhaustive nominal partition at this decision, including
+guard-false residuals in their owning variant. Future variants must require
+a fresh classification at this site. No wildcard relocation, syntax bypass,
+suppression, new conversion, or public signature/default/phase change.
+This is continuous-flow internal maintenance under ADR-0127.
+Rendering, text, effects, placement and diagnostics are language obligations;
+compiler exhaustiveness is an internal maintenance proof under ADR-0107.
+Preservation controls must pass before and after the edit; structural RED→GREEN
+requires an attributable E0004 at this match after adding a sentinel only in a
+disposable copy of `Content`. Another match's error is insufficient.
+Any changed accepted/rejected case, lost content, repeated effect, fallback
+geometry or diagnostic refutes preservation. Broader parity limitations in
+this owner remain open.
+
+The current nominal complement (no replacement, continue traversal) is: `Source`, `Realized`, `Located`, `Empty`, `Text`, `Space`, `SpaceFromNewline`, `Parbreak`, `Sequence`, `HtmlElem`, `HtmlFrame`, `Par`, `Heading`, `Title`, `Strong`, `Emph`, `Raw`, `ListItem`, `EnumItem`, `Link`, `Equation`, `MathSequence`, `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathPrimes`, `MathRoot`, `MathStretch`, `MathDelimited`, `MathLr`, `MathMid`, `MathOverbrace`, `MathUnderbrace`, `MathUnderbracket`, `MathUnderparen`, `MathUndershell`, `MathOverbracket`, `MathOverparen`, `MathOvershell`, `MathAlignPoint`, `Linebreak`, `MathMatrix`, `MathCases`, `MathAccent`, `MathCancel`, `MathUnderline`, `MathOverline`, `MathVec`, `MathClassOverride`, `MathLimitsOverride`, `MathUnderover`, `MathOp`, `MathStyled`, `Label`, `Ref`, `CounterDisplay`, `CounterUpdate`, `Outline`, `OutlineEntry`, `Figure`, `FigureCaption`, `Image`, `Shape`, `Curve`, `Transform`, `Grid`, `GridHeader`, `GridFooter`, `GridCell`, `SetPage`, `PageRun`, `Align`, `Place`, `Flush`, `Styled`, `Divider`, `Terms`, `TermItem`, `Quote`, `Document`, `Asset`, `SmartQuote`, `PdfAttach`, `PdfArtifact`, `Underline`, `Strike`, `Overline`, `SmallCaps`, `Pad`, `Hide`, `HSpace`, `VSpace`, `Pagebreak`, `Colbreak`, `Stack`, `Boxed`, `Block`, `Bibliography`, `Cite`, `Footnote`, `FootnoteEntry`, `TableHeader`, `TableFooter`, `GridHLine`, `GridVLine`, `TableHLine`, `TableVLine`, `Repeat`, `Columns`, `Metadata`, `State`, `StateUpdate`, `StateDisplay`, `CounterDisplayCallback`, `ContextBlock`, `Dynamic`.
+An unstaged `TableCell` continues traversal; keep this residual inside its own arm.

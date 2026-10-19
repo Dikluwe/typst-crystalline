@@ -1,0 +1,104 @@
+[
+  {
+    "name": "core-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T16:23:54.627860+00:00",
+    "exit": 0,
+    "seconds": 131.99759418598842,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3484901376",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ],
+    "utc_end": "2026-10-19T16:24:29.121056+00:00",
+    "exit": 0,
+    "seconds": 34.492749483004445,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3484901376",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "grid-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+      "grid",
+      "candidate-replay",
+      "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/state.json.gz"
+    ],
+    "utc_end": "2026-10-19T16:24:44.743288+00:00",
+    "exit": 0,
+    "seconds": 15.621748976001982,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3484901376",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "measurement-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+      "measurement",
+      "candidate-replay",
+      "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/state.json.gz"
+    ],
+    "utc_end": "2026-10-19T16:25:02.757402+00:00",
+    "exit": 0,
+    "seconds": 18.01348284399137,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3484901376",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "structural-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_d_structural.py",
+      "green"
+    ],
+    "utc_end": "2026-10-19T16:27:00.970475+00:00",
+    "exit": 0,
+    "seconds": 118.21252037200611,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3484901376",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

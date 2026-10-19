@@ -1,0 +1,266 @@
+[
+  {
+    "id": "V16-029",
+    "file": "01_core/src/compiler/layout/grid/borders.rs",
+    "baseline": {
+      "after": "fn cell_effective_stroke(",
+      "anchor": "match cell {"
+    },
+    "green": {
+      "after": "fn cell_effective_stroke(",
+      "anchor": "match cell {"
+    }
+  },
+  {
+    "id": "V16-030",
+    "file": "01_core/src/compiler/layout/grid/cell_body.rs",
+    "baseline": {
+      "after": "fn emit_grid_cell_body(",
+      "anchor": "match cell\n"
+    },
+    "green": {
+      "after": "fn emit_grid_cell_body(",
+      "anchor": "match cell\n"
+    }
+  },
+  {
+    "id": "V16-031",
+    "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+    "baseline": {
+      "after": "fn simple_placement(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn simple_placement(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-032",
+    "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+    "baseline": {
+      "after": "fn token(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn token(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-033",
+    "file": "01_core/src/compiler/layout/grid/tracks.rs",
+    "baseline": {
+      "after": "fn resolve_grid_columns(",
+      "anchor": "match &cells[ci] {"
+    },
+    "green": {
+      "after": "fn resolve_grid_columns(",
+      "anchor": "match &cells[ci] {"
+    }
+  },
+  {
+    "id": "V16-034",
+    "file": "01_core/src/compiler/layout/grid/tracks.rs",
+    "baseline": {
+      "after": "fn resolve_grid_rows(",
+      "anchor": "match item {"
+    },
+    "green": {
+      "after": "fn resolve_grid_rows(",
+      "anchor": "match item {"
+    }
+  },
+  {
+    "id": "V16-035",
+    "file": "01_core/src/compiler/layout/grid/tracks.rs",
+    "baseline": {
+      "after": "fn measurement_visual(",
+      "anchor": "match node {"
+    },
+    "green": {
+      "after": "fn measurement_visual(",
+      "anchor": "match node {"
+    }
+  },
+  {
+    "id": "V16-036",
+    "file": "01_core/src/compiler/layout/grid_placement.rs",
+    "baseline": {
+      "after": "fn place(",
+      "anchor": "match c {"
+    },
+    "green": {
+      "after": "fn place(",
+      "anchor": "match c {"
+    }
+  },
+  {
+    "id": "V16-037",
+    "file": "01_core/src/compiler/layout/helpers.rs",
+    "baseline": {
+      "after": "fn measure_content(content:",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn measure_content(content:",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-038",
+    "file": "01_core/src/compiler/layout/image.rs",
+    "baseline": {
+      "after": "fn extract_pt(",
+      "anchor": "match val {"
+    },
+    "green": {
+      "after": "fn extract_pt(",
+      "anchor": "match val {"
+    }
+  },
+  {
+    "id": "V16-039",
+    "file": "01_core/src/compiler/layout/line_commit.rs",
+    "baseline": {
+      "after": "fn flush_line_with_outer_singleton(",
+      "anchor": "match numbering {"
+    },
+    "green": {
+      "after": "fn flush_line_with_outer_singleton(",
+      "anchor": "match numbering {"
+    }
+  },
+  {
+    "id": "V16-040",
+    "file": "01_core/src/compiler/layout/measurement.rs",
+    "baseline": {
+      "after": "fn measure_content_constrained(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn measure_content_constrained(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-041",
+    "file": "01_core/src/compiler/layout/mod.rs",
+    "baseline": {
+      "after": "fn layout_content_once(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn layout_content_once(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-042",
+    "file": "01_core/src/compiler/layout/mod.rs",
+    "baseline": {
+      "after": "fn layout_content_body(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn layout_content_body(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-043",
+    "file": "01_core/src/compiler/layout/par_line_callbacks.rs",
+    "baseline": {
+      "after": "fn apply_pending_par_line_fixups(",
+      "anchor": "match (margin, align) {"
+    },
+    "green": {
+      "after": "fn apply_pending_par_line_fixups(",
+      "anchor": "match (margin, align) {"
+    }
+  },
+  {
+    "id": "V16-044",
+    "file": "01_core/src/compiler/layout/place.rs",
+    "baseline": {
+      "after": "fn translate_deferred_float(",
+      "anchor": "match f.alignment.h {"
+    },
+    "green": {
+      "after": "fn translate_deferred_float(",
+      "anchor": "match f.alignment.h {"
+    }
+  },
+  {
+    "id": "V16-045",
+    "file": "01_core/src/compiler/layout/references.rs",
+    "baseline": {
+      "after": "fn default_supplement_for_key(",
+      "anchor": "match key {"
+    },
+    "green": {
+      "after": "fn default_supplement_for_key(",
+      "anchor": "match key {"
+    }
+  },
+  {
+    "id": "V16-046",
+    "file": "01_core/src/compiler/layout/text/style.rs",
+    "baseline": {
+      "after": "fn effective_style<",
+      "anchor": "match name {"
+    },
+    "green": {
+      "after": "fn effective_style<",
+      "anchor": "match name {"
+    }
+  },
+  {
+    "id": "V16-047",
+    "file": "01_core/src/compiler/layout/text/style.rs",
+    "baseline": {
+      "after": "fn effective_style<",
+      "anchor": "match v {"
+    },
+    "green": {
+      "after": "fn effective_style<",
+      "anchor": "match v {"
+    }
+  },
+  {
+    "id": "V16-077",
+    "file": "01_core/src/entities/elements/table_cell.rs",
+    "baseline": {
+      "after": "fn style_inset(",
+      "anchor": "match value {"
+    },
+    "green": {
+      "after": "fn style_inset(",
+      "anchor": "match value {"
+    }
+  },
+  {
+    "id": "V16-045-selector",
+    "file": "01_core/src/compiler/layout/references.rs",
+    "green": {
+      "after": "fn default_supplement_for_key(",
+      "anchor": "match selector {"
+    }
+  },
+  {
+    "id": "V16-045-kind",
+    "file": "01_core/src/compiler/layout/references.rs",
+    "green": {
+      "after": "fn default_supplement_for_key(",
+      "anchor": "match kind {"
+    }
+  },
+  {
+    "id": "V16-040-certificate",
+    "file": "01_core/src/compiler/layout/measurement.rs",
+    "green": {
+      "after": "fn callback_free_math_measurement(",
+      "anchor": "match content {"
+    }
+  }
+]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/text/style.md
-//! @prompt-hash 0ccd7ea6
+//! @prompt-hash c3166f6c
 //! @layer L1
 //! @updated 2026-09-28
 
@@ -86,7 +86,43 @@ pub(super) fn effective_style<M: FontMetrics, S: ImageSizer>(
                             let pattern = match name {
                                 Value::Str(s) => FontNamePattern::Literal(s.clone()),
                                 Value::Regex(re) => FontNamePattern::Regex(re.clone()),
-                                _ => return None, // neutro: N16[β] — Content não-textual retorna None na projecção de texto
+                                Value::None
+                                | Value::Bool(..)
+                                | Value::Int(..)
+                                | Value::Float(..)
+                                | Value::Array(..)
+                                | Value::Dict(..)
+                                | Value::Module(..)
+                                | Value::Datetime(..)
+                                | Value::Func(..)
+                                | Value::Content(..)
+                                | Value::LocatedContent(..)
+                                | Value::Auto
+                                | Value::Length(..)
+                                | Value::Relative(..)
+                                | Value::Ratio(..)
+                                | Value::Angle(..)
+                                | Value::Color(..)
+                                | Value::Stroke(..)
+                                | Value::Fraction(..)
+                                | Value::Align(..)
+                                | Value::Location(..)
+                                | Value::Gradient(..)
+                                | Value::Tiling(..)
+                                | Value::Bytes(..)
+                                | Value::Decimal(..)
+                                | Value::Duration(..)
+                                | Value::Version(..)
+                                | Value::Selector(..)
+                                | Value::Symbol(..)
+                                | Value::Args(..)
+                                | Value::State(..)
+                                | Value::Counter(..)
+                                | Value::Label(..)
+                                | Value::Dir(..)
+                                | Value::Path(..)
+                                | Value::Type(..)
+                                | Value::SpotColorant(..) => return None,
                             };
                             let variants: Vec<EcoString> = match dict.get("variants") {
                                 Some(Value::Array(arr)) => arr
@@ -128,7 +164,43 @@ pub(super) fn effective_style<M: FontMetrics, S: ImageSizer>(
                                 covers: None,
                             })
                         }
-                        _ => None, // neutro: N16[β] — Content não-textual retorna None na extracção de estilos de texto
+                        Value::None
+                        | Value::Bool(..)
+                        | Value::Int(..)
+                        | Value::Float(..)
+                        | Value::Array(..)
+                        | Value::Module(..)
+                        | Value::Datetime(..)
+                        | Value::Func(..)
+                        | Value::Content(..)
+                        | Value::LocatedContent(..)
+                        | Value::Auto
+                        | Value::Length(..)
+                        | Value::Relative(..)
+                        | Value::Ratio(..)
+                        | Value::Angle(..)
+                        | Value::Color(..)
+                        | Value::Stroke(..)
+                        | Value::Fraction(..)
+                        | Value::Align(..)
+                        | Value::Location(..)
+                        | Value::Gradient(..)
+                        | Value::Regex(..)
+                        | Value::Tiling(..)
+                        | Value::Bytes(..)
+                        | Value::Decimal(..)
+                        | Value::Duration(..)
+                        | Value::Version(..)
+                        | Value::Selector(..)
+                        | Value::Symbol(..)
+                        | Value::Args(..)
+                        | Value::State(..)
+                        | Value::Counter(..)
+                        | Value::Label(..)
+                        | Value::Dir(..)
+                        | Value::Path(..)
+                        | Value::Type(..)
+                        | Value::SpotColorant(..) => None,
                     }
                 })
                 .collect();
@@ -209,4 +281,102 @@ pub(super) fn effective_style<M: FontMetrics, S: ImageSizer>(
     }
 
     effective
+}
+
+#[cfg(test)]
+mod v16_d_tests {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::{
+        font_list::FontList,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        regex::Regex,
+    };
+    use comemo::Track;
+
+    fn family(name: Value) -> Value {
+        Value::Dict(
+            [
+                ("name".into(), name),
+                (
+                    "variants".into(),
+                    Value::Array(vec![
+                        Value::Str("Regular".into()),
+                        Value::Str("Bold".into()),
+                    ]),
+                ),
+                ("variant".into(), Value::Str("Book".into())),
+                ("weight".into(), Value::Str("450".into())),
+                ("style".into(), Value::Str("oblique".into())),
+            ]
+            .into_iter()
+            .collect(),
+        )
+    }
+
+    #[test]
+    fn v16_d_font_schema_preserves_names_order_fields_and_typed_style() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.style.bold = true;
+        l.style.math = true;
+        l.style.weight = Some(700);
+        l.chain = l.chain.push_custom(
+            "text.font",
+            Value::Array(vec![
+                Value::Int(17),
+                Value::Str("LITERAL".into()),
+                family(Value::Bool(false)),
+                family(Value::Str("second".into())),
+                family(Value::Regex(Regex::new("third.*").unwrap())),
+            ]),
+        );
+        let got = effective_style(&l);
+        let fams = got.font.as_ref().unwrap().as_slice();
+        assert_eq!(fams.len(), 3);
+        assert_eq!(fams[0].name.as_str(), Some("literal"));
+        assert_eq!(fams[1].name.as_str(), Some("second"));
+        assert!(fams[2].name.is_match("third family"));
+        for f in &fams[1..] {
+            assert_eq!(f.variants, vec!["Regular", "Bold"]);
+            assert_eq!(f.variant.as_deref(), Some("Book"));
+            assert_eq!(f.weight.as_deref(), Some("450"));
+            assert_eq!(f.style.as_deref(), Some("oblique"));
+        }
+        assert!(got.bold && got.math);
+        assert_eq!(got.weight, Some(700));
+        assert_eq!(got.size, l.style.size);
+    }
+
+    #[test]
+    fn v16_d_invalid_raw_font_entries_preserve_ambient_fallback() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.style.font = Some(FontList::single("ambient".into()));
+        for entry in [
+            Value::None,
+            Value::Content(crate::entities::content::Content::text("not a family")),
+            Value::Regex(Regex::new(".*").unwrap()),
+            family(Value::Int(1)),
+            Value::Dict(
+                [("name".into(), Value::Str("missing variants".into()))]
+                    .into_iter()
+                    .collect(),
+            ),
+        ] {
+            l.chain = l.chain.push_custom("text.font", Value::Array(vec![entry]));
+            assert_eq!(effective_style(&l).font, l.style.font);
+        }
+    }
 }

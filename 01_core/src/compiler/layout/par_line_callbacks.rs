@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md
-//! @prompt-hash 4efd6ec5
+//! @prompt-hash 226fb7f2
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -135,7 +135,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let delta = match (margin, align) {
                 (HAlign::Left, HAlign::Left | HAlign::Start) => -(max_width - width),
                 (HAlign::Right, HAlign::Right | HAlign::End) => max_width - width,
-                _ => 0.0,
+                (HAlign::Left, HAlign::Center | HAlign::Right | HAlign::End)
+                | (HAlign::Right, HAlign::Left | HAlign::Center | HAlign::Start)
+                | (
+                    HAlign::Center | HAlign::Start | HAlign::End,
+                    HAlign::Left
+                    | HAlign::Center
+                    | HAlign::Right
+                    | HAlign::Start
+                    | HAlign::End,
+                ) => 0.0,
             };
             if delta != 0.0 {
                 for item in items.iter_mut().skip(index).take(count) {
@@ -152,5 +161,84 @@ mod smoke {
     fn module_compila_e_carrega() {
         // Cobertura funcional: regressões P1414/P1415/P1417 na suíte central
         // de layout e nos consumers de columns/page commit.
+    }
+}
+
+#[cfg(test)]
+mod v16_d_tests {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{Point, Pt, TextStyle},
+    };
+    use comemo::Track;
+
+    #[test]
+    fn v16_d_number_fixup_covers_both_alignment_axes_and_item_ranges() {
+        let aligns =
+            [HAlign::Left, HAlign::Center, HAlign::Right, HAlign::Start, HAlign::End];
+        // Rows are margin; columns are alignment. A narrow number occupies
+        // the same regional slot as the wide number without moving neighbors.
+        let expected = [
+            [-12.0, 0.0, 0.0, -12.0, 0.0],
+            [0.0; 5],
+            [0.0, 0.0, 12.0, 0.0, 12.0],
+            [0.0; 5],
+            [0.0; 5],
+        ];
+        for (row, margin) in aligns.iter().enumerate() {
+            for (column, align) in aligns.iter().enumerate() {
+                let intr = TagIntrospector::empty();
+                let mut l = Layouter::new(
+                    FixedMetrics,
+                    NullImageSizer,
+                    11.0,
+                    (&intr as &dyn Introspector).track(),
+                );
+                let mut items: Vec<_> = [0u16, 1, 2, 3, 4]
+                    .into_iter()
+                    .map(|glyph_id| FrameItem::Glyph {
+                        pos: Point { x: Pt(50.0), y: Pt(30.0) },
+                        glyph_id,
+                        x_advance: Pt(8.0),
+                        size: Pt(11.0),
+                        style: TextStyle::regular(Pt(11.0)),
+                        base_char: 'x',
+                    })
+                    .collect();
+                l.pending_par_line_numbering =
+                    vec![(1, 2, 8.0, *margin, *align), (3, 1, 20.0, *margin, *align)];
+                l.apply_pending_par_line_fixups(&mut items);
+                for (index, item) in items.iter().enumerate() {
+                    let FrameItem::Glyph { pos, glyph_id, .. } = item else {
+                        panic!("glyph preserved")
+                    };
+                    let delta = if index == 1 || index == 2 {
+                        expected[row][column]
+                    } else {
+                        0.0
+                    };
+                    assert_eq!(
+                        pos.x.0,
+                        50.0 + delta,
+                        "margin={margin:?}, align={align:?}, item={index}"
+                    );
+                    assert_eq!(pos.y.0, 30.0);
+                    assert_eq!(*glyph_id, index as u16);
+                }
+                assert!(l.pending_par_line_numbering.is_empty());
+                l.apply_pending_par_line_fixups(&mut items);
+                let FrameItem::Glyph { pos, .. } = &items[1] else {
+                    panic!("glyph preserved")
+                };
+                assert_eq!(
+                    pos.x.0,
+                    50.0 + expected[row][column],
+                    "second call must not shift again"
+                );
+            }
+        }
     }
 }

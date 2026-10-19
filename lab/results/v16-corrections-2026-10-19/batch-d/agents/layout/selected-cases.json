@@ -1,0 +1,982 @@
+[
+  {
+    "id": "V16-039",
+    "batch": "D",
+    "status": "open; plan only",
+    "function": "flush_line_with_outer_singleton",
+    "classification": "guarded_optional_dispatch_missing_nominal_coverage",
+    "report": "layout-stdlib-analysis.md",
+    "analysis": {
+      "id": "V16-039",
+      "file": "01_core/src/compiler/layout/line_commit.rs",
+      "line": 720,
+      "column": 21,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/layout/line_commit.md",
+      "source_sha256": "10744b192cd9179e6c468370f64037e422d896168ba7e45ddb9168e2cbc197e6",
+      "l0_sha256": "d5d818ec929808fbee4f17750bff557599051c9d79210e0b20fb178d1e76166e",
+      "effective_prompt_seal": "1a259f13",
+      "partition": "layout-stdlib",
+      "function": "flush_line_with_outer_singleton",
+      "full_function_review": "01_core/src/compiler/layout/line_commit.rs:356-904",
+      "scrutinee": "numbering: Option<Value> after admission and overlay suppression",
+      "enum": "Value",
+      "enum_definition": "01_core/src/entities/value.rs:82-231",
+      "handled_variants": [
+        "Str",
+        "Func"
+      ],
+      "nominal_complement": [
+        "None",
+        "Bool",
+        "Int",
+        "Float",
+        "Array",
+        "Dict",
+        "Module",
+        "Datetime",
+        "Content",
+        "LocatedContent",
+        "Auto",
+        "Length",
+        "Relative",
+        "Ratio",
+        "Angle",
+        "Color",
+        "Stroke",
+        "Fraction",
+        "Align",
+        "Location",
+        "Gradient",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Decimal",
+        "Duration",
+        "Version",
+        "Selector",
+        "Symbol",
+        "Args",
+        "State",
+        "Counter",
+        "Label",
+        "Dir",
+        "Path",
+        "Type",
+        "SpotColorant"
+      ],
+      "guard_or_payload_residuals": [
+        "Outer None is reachable by overlay suppression",
+        "Some(complement) is locally unreachable at this match"
+      ],
+      "caller_and_guard_invariants": "Some Str/Func admitted at675-681; overlay may set None at693-697. Deferred patterns set None before admission and therefore bypass the block.",
+      "classification": "guarded_optional_dispatch_missing_nominal_coverage",
+      "observed_source_behavior": "Pattern formats a string; Func resolves/records a callback request; suppressed None produces no number. No Func runs in layout.",
+      "complement_rationale": "At this match, Some is Str/Func because of the preceding admission. Suppression can replace it with None after the counter is advanced. Other Some variants are impossible under current local assignments, not generic accepted no-number inputs.",
+      "proposed_causal_correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression. Model the outer None explicitly and the admitted Some payload with nominal decisions; preserve current no-number result for excluded present types without widening admission or fabricating a provisional number.",
+      "evidence": [
+        "01_core/src/compiler/layout/line_commit.rs:660-723,782-834"
+      ],
+      "l0_evidence": {
+        "owner": "00_nucleo/prompts/core/compiler/layout/line_commit.md",
+        "sha256": "d5d818ec929808fbee4f17750bff557599051c9d79210e0b20fb178d1e76166e",
+        "effective_seal": "1a259f13",
+        "clauses": [
+          "Number only material non-subframe lines after stable baseline/page; absent/none neutrality; Func request consumption without execution; overlay suppression."
+        ]
+      },
+      "tests_and_refuters": [
+        {
+          "status": "not_run",
+          "proposal": "Pattern and callback unresolved/resolved modes preserve page/baseline/scope and request count."
+        },
+        {
+          "status": "not_run",
+          "proposal": "Overlay suppression advances counting but emits no number; disabled/invalid custom values never enter admitted counting. A future Value variant must require a decision."
+        }
+      ],
+      "dependencies": [
+        "ParLineCallbackPass",
+        "segmented pattern consolidation",
+        "overlay and counter scope"
+      ],
+      "adr0127": {
+        "class": "continuous_flow_internal_nominal_coverage",
+        "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+      },
+      "unknowns": [
+        "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+      ],
+      "structural_future_variant_proof": {
+        "status": "not_run",
+        "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+      },
+      "gate_scope_note": "This diagnostic plans future L0-first work only; no mutation or test is performed here."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/layout/line_commit.rs:660-723,782-834"
+    ],
+    "l0_evidence": {
+      "owner": "00_nucleo/prompts/core/compiler/layout/line_commit.md",
+      "sha256": "d5d818ec929808fbee4f17750bff557599051c9d79210e0b20fb178d1e76166e",
+      "effective_seal": "1a259f13",
+      "clauses": [
+        "Number only material non-subframe lines after stable baseline/page; absent/none neutrality; Func request consumption without execution; overlay suppression."
+      ]
+    },
+    "correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression. Model the outer None explicitly and the admitted Some payload with nominal decisions; preserve current no-number result for excluded present types without widening admission or fabricating a provisional number.",
+    "proposed_tests": [
+      {
+        "status": "not_run",
+        "proposal": "Pattern and callback unresolved/resolved modes preserve page/baseline/scope and request count."
+      },
+      {
+        "status": "not_run",
+        "proposal": "Overlay suppression advances counting but emits no number; disabled/invalid custom values never enter admitted counting. A future Value variant must require a decision."
+      }
+    ],
+    "gate": {
+      "class": "continuous_flow_internal_nominal_coverage",
+      "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+    },
+    "uncertainty": [
+      "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+    ],
+    "structural_proof": {
+      "status": "not_run",
+      "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+    },
+    "dependencies": [
+      "ParLineCallbackPass",
+      "segmented pattern consolidation",
+      "overlay and counter scope"
+    ]
+  },
+  {
+    "id": "V16-041",
+    "batch": "D",
+    "status": "open; plan only",
+    "function": "Layouter::layout_content_once",
+    "classification": "forwarding_partition_missing_nominal_coverage",
+    "report": "layout-stdlib-analysis.md",
+    "analysis": {
+      "id": "V16-041",
+      "file": "01_core/src/compiler/layout/mod.rs",
+      "line": 1256,
+      "column": 13,
+      "message": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+      "source_sha256": "194246699b56e14509b3f7f0537d97ebbd0148e666efa9793e37581e0ef256e6",
+      "l0_sha256": "cd64e452a1a51bed7e4dec6983bb587e0e03face25e49f3ae184f7b766c59f81",
+      "effective_prompt_seal": "a1f48fb6",
+      "partition": "layout-stdlib",
+      "function": "Layouter::layout_content_once",
+      "full_function_review": "01_core/src/compiler/layout/mod.rs:1219-1263",
+      "scrutinee": "content before locator gate",
+      "enum": "Content",
+      "enum_definition": "01_core/src/entities/content.rs:233-1309",
+      "handled_variants": [
+        "Source",
+        "Located",
+        "Realized",
+        "ShowRecipe"
+      ],
+      "nominal_complement": [
+        "Empty",
+        "Text",
+        "Space",
+        "SpaceFromNewline",
+        "Parbreak",
+        "Sequence",
+        "HtmlElem",
+        "HtmlFrame",
+        "Par",
+        "Heading",
+        "Title",
+        "Strong",
+        "Emph",
+        "Raw",
+        "ListItem",
+        "EnumItem",
+        "Link",
+        "Equation",
+        "MathSequence",
+        "MathIdent",
+        "MathText",
+        "MathFrac",
+        "MathAttach",
+        "MathPrimes",
+        "MathRoot",
+        "MathStretch",
+        "MathDelimited",
+        "MathLr",
+        "MathMid",
+        "MathOverbrace",
+        "MathUnderbrace",
+        "MathUnderbracket",
+        "MathUnderparen",
+        "MathUndershell",
+        "MathOverbracket",
+        "MathOverparen",
+        "MathOvershell",
+        "MathAlignPoint",
+        "Linebreak",
+        "MathMatrix",
+        "MathCases",
+        "MathAccent",
+        "MathCancel",
+        "MathUnderline",
+        "MathOverline",
+        "MathVec",
+        "MathClassOverride",
+        "MathLimitsOverride",
+        "MathUnderover",
+        "MathOp",
+        "MathStyled",
+        "Label",
+        "Ref",
+        "CounterDisplay",
+        "CounterUpdate",
+        "Outline",
+        "OutlineEntry",
+        "Figure",
+        "FigureCaption",
+        "Image",
+        "Shape",
+        "Curve",
+        "Transform",
+        "Grid",
+        "GridHeader",
+        "GridFooter",
+        "GridCell",
+        "SetPage",
+        "PageRun",
+        "Align",
+        "Place",
+        "Flush",
+        "Styled",
+        "Divider",
+        "Terms",
+        "TermItem",
+        "Quote",
+        "Document",
+        "Asset",
+        "SmartQuote",
+        "PdfAttach",
+        "PdfArtifact",
+        "Underline",
+        "Strike",
+        "Overline",
+        "SmallCaps",
+        "Pad",
+        "Hide",
+        "HSpace",
+        "VSpace",
+        "Pagebreak",
+        "Colbreak",
+        "Stack",
+        "Boxed",
+        "Block",
+        "TableCell",
+        "Bibliography",
+        "Cite",
+        "Footnote",
+        "FootnoteEntry",
+        "TableHeader",
+        "TableFooter",
+        "GridHLine",
+        "GridVLine",
+        "TableHLine",
+        "TableVLine",
+        "Table",
+        "Repeat",
+        "Columns",
+        "Metadata",
+        "State",
+        "StateUpdate",
+        "StateDisplay",
+        "CounterDisplayCallback",
+        "ContextBlock",
+        "Dynamic"
+      ],
+      "guard_or_payload_residuals": [],
+      "caller_and_guard_invariants": "No additional caller restriction is assumed beyond the cited source.",
+      "classification": "forwarding_partition_missing_nominal_coverage",
+      "observed_source_behavior": "Four transport variants are routed specially and return; fallback continues to advance_locator_if_locatable then exhaustive layout_content_body.",
+      "complement_rationale": "Complement is not ignored: every normal/native leaf or container must pass through the canonical locator gate exactly once. Source/Located/Realized/ShowRecipe have distinct identity/phase semantics and must not be unified into a generic recursive wrapper.",
+      "proposed_causal_correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression.",
+      "evidence": [
+        "01_core/src/compiler/layout/mod.rs:1214-1279",
+        "01_core/src/compiler/layout/mod.rs:1150-1171"
+      ],
+      "l0_evidence": {
+        "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+        "sha256": "cd64e452a1a51bed7e4dec6983bb587e0e03face25e49f3ae184f7b766c59f81",
+        "effective_seal": "a1f48fb6",
+        "clauses": [
+          "Causal dispatcher and refinements: one canonical locatable gate, Source transparency, Located explicit identity, Realized static delegation, ShowRecipe body."
+        ]
+      },
+      "tests_and_refuters": [
+        {
+          "status": "not_run",
+          "proposal": "Raw locatable gets one Location/position; explicit Located retains identity without a new body Location; Realized consumed origin plus visual events remain causal."
+        },
+        {
+          "status": "not_run",
+          "proposal": "Source/ShowRecipe transparent emission, reserved explicit IDs, nested wrappers, context/rollback and no duplicate effects."
+        }
+      ],
+      "dependencies": [
+        "is_locatable",
+        "reserve_locations",
+        "realized::layout",
+        "layout_content_body"
+      ],
+      "adr0127": {
+        "class": "continuous_flow_internal_nominal_coverage",
+        "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+      },
+      "unknowns": [
+        "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+      ],
+      "structural_future_variant_proof": {
+        "status": "not_run",
+        "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+      },
+      "gate_scope_note": "This diagnostic plans future L0-first work only; no mutation or test is performed here."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/layout/mod.rs:1214-1279",
+      "01_core/src/compiler/layout/mod.rs:1150-1171"
+    ],
+    "l0_evidence": {
+      "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+      "sha256": "cd64e452a1a51bed7e4dec6983bb587e0e03face25e49f3ae184f7b766c59f81",
+      "effective_seal": "a1f48fb6",
+      "clauses": [
+        "Causal dispatcher and refinements: one canonical locatable gate, Source transparency, Located explicit identity, Realized static delegation, ShowRecipe body."
+      ]
+    },
+    "correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression.",
+    "proposed_tests": [
+      {
+        "status": "not_run",
+        "proposal": "Raw locatable gets one Location/position; explicit Located retains identity without a new body Location; Realized consumed origin plus visual events remain causal."
+      },
+      {
+        "status": "not_run",
+        "proposal": "Source/ShowRecipe transparent emission, reserved explicit IDs, nested wrappers, context/rollback and no duplicate effects."
+      }
+    ],
+    "gate": {
+      "class": "continuous_flow_internal_nominal_coverage",
+      "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+    },
+    "uncertainty": [
+      "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+    ],
+    "structural_proof": {
+      "status": "not_run",
+      "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+    },
+    "dependencies": [
+      "is_locatable",
+      "reserve_locations",
+      "realized::layout",
+      "layout_content_body"
+    ]
+  },
+  {
+    "id": "V16-042",
+    "batch": "D",
+    "status": "open; plan only",
+    "function": "Layouter::layout_content_body",
+    "classification": "side_observer_negative_partition",
+    "report": "layout-stdlib-analysis.md",
+    "analysis": {
+      "id": "V16-042",
+      "file": "01_core/src/compiler/layout/mod.rs",
+      "line": 1273,
+      "column": 13,
+      "message": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+      "source_sha256": "194246699b56e14509b3f7f0537d97ebbd0148e666efa9793e37581e0ef256e6",
+      "l0_sha256": "cd64e452a1a51bed7e4dec6983bb587e0e03face25e49f3ae184f7b766c59f81",
+      "effective_prompt_seal": "a1f48fb6",
+      "partition": "layout-stdlib",
+      "function": "Layouter::layout_content_body",
+      "full_function_review": "01_core/src/compiler/layout/mod.rs:1265-1752",
+      "scrutinee": "content in pre-dispatch SmartQuote observation",
+      "enum": "Content",
+      "enum_definition": "01_core/src/entities/content.rs:233-1309",
+      "handled_variants": [
+        "Text",
+        "Space",
+        "SpaceFromNewline"
+      ],
+      "nominal_complement": [
+        "Source",
+        "ShowRecipe",
+        "Realized",
+        "Located",
+        "Empty",
+        "Parbreak",
+        "Sequence",
+        "HtmlElem",
+        "HtmlFrame",
+        "Par",
+        "Heading",
+        "Title",
+        "Strong",
+        "Emph",
+        "Raw",
+        "ListItem",
+        "EnumItem",
+        "Link",
+        "Equation",
+        "MathSequence",
+        "MathIdent",
+        "MathText",
+        "MathFrac",
+        "MathAttach",
+        "MathPrimes",
+        "MathRoot",
+        "MathStretch",
+        "MathDelimited",
+        "MathLr",
+        "MathMid",
+        "MathOverbrace",
+        "MathUnderbrace",
+        "MathUnderbracket",
+        "MathUnderparen",
+        "MathUndershell",
+        "MathOverbracket",
+        "MathOverparen",
+        "MathOvershell",
+        "MathAlignPoint",
+        "Linebreak",
+        "MathMatrix",
+        "MathCases",
+        "MathAccent",
+        "MathCancel",
+        "MathUnderline",
+        "MathOverline",
+        "MathVec",
+        "MathClassOverride",
+        "MathLimitsOverride",
+        "MathUnderover",
+        "MathOp",
+        "MathStyled",
+        "Label",
+        "Ref",
+        "CounterDisplay",
+        "CounterUpdate",
+        "Outline",
+        "OutlineEntry",
+        "Figure",
+        "FigureCaption",
+        "Image",
+        "Shape",
+        "Curve",
+        "Transform",
+        "Grid",
+        "GridHeader",
+        "GridFooter",
+        "GridCell",
+        "SetPage",
+        "PageRun",
+        "Align",
+        "Place",
+        "Flush",
+        "Styled",
+        "Divider",
+        "Terms",
+        "TermItem",
+        "Quote",
+        "Document",
+        "Asset",
+        "SmartQuote",
+        "PdfAttach",
+        "PdfArtifact",
+        "Underline",
+        "Strike",
+        "Overline",
+        "SmallCaps",
+        "Pad",
+        "Hide",
+        "HSpace",
+        "VSpace",
+        "Pagebreak",
+        "Colbreak",
+        "Stack",
+        "Boxed",
+        "Block",
+        "TableCell",
+        "Bibliography",
+        "Cite",
+        "Footnote",
+        "FootnoteEntry",
+        "TableHeader",
+        "TableFooter",
+        "GridHLine",
+        "GridVLine",
+        "TableHLine",
+        "TableVLine",
+        "Table",
+        "Repeat",
+        "Columns",
+        "Metadata",
+        "State",
+        "StateUpdate",
+        "StateDisplay",
+        "CounterDisplayCallback",
+        "ContextBlock",
+        "Dynamic"
+      ],
+      "guard_or_payload_residuals": [],
+      "caller_and_guard_invariants": "No additional caller restriction is assumed beyond the cited source.",
+      "classification": "side_observer_negative_partition",
+      "observed_source_behavior": "Only direct text/separators update quote context in this prepass; all content is then processed by a separate exhaustive dispatch. Equation/Image/Boxed trigger object observation afterward.",
+      "complement_rationale": "Containers must let emitted descendants update context rather than observe a second synthetic text/object at the wrapper. No-op metadata must not become punctuation. The complement is not discarded layout. New text-bearing/object variants need a deliberate quote-context policy.",
+      "proposed_causal_correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression.",
+      "evidence": [
+        "01_core/src/compiler/layout/mod.rs:1265-1279,1747-1751"
+      ],
+      "l0_evidence": {
+        "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+        "sha256": "cd64e452a1a51bed7e4dec6983bb587e0e03face25e49f3ae184f7b766c59f81",
+        "effective_seal": "a1f48fb6",
+        "clauses": [
+          "SmartQuoteContext: observe logically emitted text/separators/inline objects causally; descendants share flow; checkpoint restore; sublayout sees object."
+        ]
+      },
+      "tests_and_refuters": [
+        {
+          "status": "not_run",
+          "proposal": "Markup/programmatic quotes across Styled/Strong/Emph and text/space/newline preserve one causal context."
+        },
+        {
+          "status": "not_run",
+          "proposal": "Equation/Image/Boxed update object context at the existing post-dispatch point; independent sublayout, rollback, empty metadata and nested wrappers do not consume context twice."
+        }
+      ],
+      "dependencies": [
+        "SmartQuoteContext",
+        "smartquote::layout",
+        "child static dispatch",
+        "checkpoint"
+      ],
+      "adr0127": {
+        "class": "continuous_flow_internal_nominal_coverage",
+        "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+      },
+      "unknowns": [
+        "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+      ],
+      "structural_future_variant_proof": {
+        "status": "not_run",
+        "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+      },
+      "gate_scope_note": "This diagnostic plans future L0-first work only; no mutation or test is performed here."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/layout/mod.rs:1265-1279,1747-1751"
+    ],
+    "l0_evidence": {
+      "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+      "sha256": "cd64e452a1a51bed7e4dec6983bb587e0e03face25e49f3ae184f7b766c59f81",
+      "effective_seal": "a1f48fb6",
+      "clauses": [
+        "SmartQuoteContext: observe logically emitted text/separators/inline objects causally; descendants share flow; checkpoint restore; sublayout sees object."
+      ]
+    },
+    "correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression.",
+    "proposed_tests": [
+      {
+        "status": "not_run",
+        "proposal": "Markup/programmatic quotes across Styled/Strong/Emph and text/space/newline preserve one causal context."
+      },
+      {
+        "status": "not_run",
+        "proposal": "Equation/Image/Boxed update object context at the existing post-dispatch point; independent sublayout, rollback, empty metadata and nested wrappers do not consume context twice."
+      }
+    ],
+    "gate": {
+      "class": "continuous_flow_internal_nominal_coverage",
+      "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+    },
+    "uncertainty": [
+      "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+    ],
+    "structural_proof": {
+      "status": "not_run",
+      "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+    },
+    "dependencies": [
+      "SmartQuoteContext",
+      "smartquote::layout",
+      "child static dispatch",
+      "checkpoint"
+    ]
+  },
+  {
+    "id": "V16-043",
+    "batch": "D",
+    "status": "open; plan only",
+    "function": "Layouter::apply_pending_par_line_fixups",
+    "classification": "finite_product_negative_partition",
+    "report": "layout-stdlib-analysis.md",
+    "analysis": {
+      "id": "V16-043",
+      "file": "01_core/src/compiler/layout/par_line_callbacks.rs",
+      "line": 138,
+      "column": 17,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `0.0` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md",
+      "source_sha256": "ed4467522b9321b2a106edb176d64062cb2de4f53639a4ac352b0292be14e4d6",
+      "l0_sha256": "41428537723f4aca46d3008e91c835d98de391cbbae245b8b1d07e1e176704e4",
+      "effective_prompt_seal": "4efd6ec5",
+      "partition": "layout-stdlib",
+      "function": "Layouter::apply_pending_par_line_fixups",
+      "full_function_review": "01_core/src/compiler/layout/par_line_callbacks.rs:130-146",
+      "scrutinee": "(margin, align): (HAlign,HAlign)",
+      "enum": "HAlign",
+      "enum_definition": "01_core/src/entities/layout_types.rs:567-573",
+      "handled_variants": [
+        "Left",
+        "Right"
+      ],
+      "nominal_complement": [
+        "Center",
+        "Start",
+        "End"
+      ],
+      "guard_or_payload_residuals": [
+        "Product complement is all25 HAlign pairs except (Left,Left),(Left,Start),(Right,Right),(Right,End); exact list supplied in product_domains below."
+      ],
+      "caller_and_guard_invariants": "line_commit normalizes configured/last-column margins to Left or Right; align can be any present HAlign. Existing item position is already correct for its own width.",
+      "classification": "finite_product_negative_partition",
+      "observed_source_behavior": "Only Left margin with Left/Start moves left by max_width-width; Right margin with Right/End moves right. All remaining pairs retain their original placement.",
+      "complement_rationale": "This is a product enum, not one missing HAlign arm. Current producer stores only physical Left/Right margins; Center/Start/End margin states are unreachable there but retain legacy zero behavior for manual/internal inputs. Center and opposite-edge alignments already have correct per-item placement and need no width-difference correction.",
+      "proposed_causal_correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression. Use a closed product partition (four shifted pairs and the enumerated unchanged pairs). Do not generalize right/left shifts by direction or turn invalid internal state into a new panic.",
+      "evidence": [
+        "01_core/src/compiler/layout/par_line_callbacks.rs:130-146",
+        "01_core/src/compiler/layout/line_commit.rs:788-835"
+      ],
+      "l0_evidence": {
+        "owner": "00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md",
+        "sha256": "41428537723f4aca46d3008e91c835d98de391cbbae245b8b1d07e1e176704e4",
+        "effective_seal": "4efd6ec5",
+        "clauses": [
+          "Final region-local maximum-number-width fixup; line_commit owns physical page/counter/margin selection."
+        ]
+      },
+      "tests_and_refuters": [
+        {
+          "status": "not_run",
+          "proposal": "Differing number widths cover Left\u00d7Left/Start, Right\u00d7Right/End and unchanged Center/opposite alignment."
+        },
+        {
+          "status": "not_run",
+          "proposal": "Verify producer-normalized margin domain; retain no-shift behavior for manual complement pairs and all item indices/counts/order."
+        }
+      ],
+      "dependencies": [
+        "line_commit pending-number producer"
+      ],
+      "adr0127": {
+        "class": "continuous_flow_internal_nominal_coverage",
+        "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+      },
+      "unknowns": [
+        "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+      ],
+      "product_domain_ref": "product_domains.par_line_fixup",
+      "structural_future_variant_proof": {
+        "status": "not_run",
+        "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+      },
+      "gate_scope_note": "This diagnostic plans future L0-first work only; no mutation or test is performed here."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/layout/par_line_callbacks.rs:130-146",
+      "01_core/src/compiler/layout/line_commit.rs:788-835"
+    ],
+    "l0_evidence": {
+      "owner": "00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md",
+      "sha256": "41428537723f4aca46d3008e91c835d98de391cbbae245b8b1d07e1e176704e4",
+      "effective_seal": "4efd6ec5",
+      "clauses": [
+        "Final region-local maximum-number-width fixup; line_commit owns physical page/counter/margin selection."
+      ]
+    },
+    "correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression. Use a closed product partition (four shifted pairs and the enumerated unchanged pairs). Do not generalize right/left shifts by direction or turn invalid internal state into a new panic.",
+    "proposed_tests": [
+      {
+        "status": "not_run",
+        "proposal": "Differing number widths cover Left\u00d7Left/Start, Right\u00d7Right/End and unchanged Center/opposite alignment."
+      },
+      {
+        "status": "not_run",
+        "proposal": "Verify producer-normalized margin domain; retain no-shift behavior for manual complement pairs and all item indices/counts/order."
+      }
+    ],
+    "gate": {
+      "class": "continuous_flow_internal_nominal_coverage",
+      "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+    },
+    "uncertainty": [
+      "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+    ],
+    "structural_proof": {
+      "status": "not_run",
+      "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+    },
+    "dependencies": [
+      "line_commit pending-number producer"
+    ]
+  },
+  {
+    "id": "V16-044",
+    "batch": "D",
+    "status": "open; plan only",
+    "function": "Layouter::translate_deferred_float",
+    "classification": "finite_optional_negative_partition",
+    "report": "layout-stdlib-analysis.md",
+    "analysis": {
+      "id": "V16-044",
+      "file": "01_core/src/compiler/layout/place.rs",
+      "line": 309,
+      "column": 13,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `0.0` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/layout/place.md",
+      "source_sha256": "6c9392aa1a03a78c111a1661360efcfd6c49223e9dfa7bd662216630502563b0",
+      "l0_sha256": "f0f44d8823bb65a5923b89cf1f8916876d009f7867b6b0122aed2a3b451ad0be",
+      "effective_prompt_seal": "726933c5",
+      "partition": "layout-stdlib",
+      "function": "Layouter::translate_deferred_float",
+      "full_function_review": "01_core/src/compiler/layout/place.rs:289-521",
+      "scrutinee": "f.alignment.h: Option<HAlign>",
+      "enum": "HAlign",
+      "enum_definition": "01_core/src/entities/layout_types.rs:567-573",
+      "handled_variants": [
+        "Center",
+        "Right",
+        "End"
+      ],
+      "nominal_complement": [
+        "Left",
+        "Start"
+      ],
+      "guard_or_payload_residuals": [
+        "Outer None ->0",
+        "Some Left/Start ->0"
+      ],
+      "caller_and_guard_invariants": "No additional caller restriction is assumed beyond the cited source.",
+      "classification": "finite_optional_negative_partition",
+      "observed_source_behavior": "Some Center centers, Some Right/End uses remaining width; None/Some Left/Some Start return zero, then offset is clamped nonnegative.",
+      "complement_rationale": "This is complete present horizontal domain behavior, not unhandled Content. Preserve physical Start/End legacy behavior; resolving RTL differently is a separate geometry decision. The fallback must name None and Left/Start rather than accept future alignments.",
+      "proposed_causal_correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression.",
+      "evidence": [
+        "01_core/src/compiler/layout/place.rs:289-310,324-520"
+      ],
+      "l0_evidence": {
+        "owner": "00_nucleo/prompts/core/compiler/layout/place.md",
+        "sha256": "f0f44d8823bb65a5923b89cf1f8916876d009f7867b6b0122aed2a3b451ad0be",
+        "effective_seal": "726933c5",
+        "clauses": [
+          "Place adapter float fitting/reservation/final emission; current DeferredFloat excludes dx/dy/scope; reference frame shared with orphan/decor metadata."
+        ]
+      },
+      "tests_and_refuters": [
+        {
+          "status": "not_run",
+          "proposal": "All six Option<HAlign> states, body wider/narrower than region, negative free space, top/bottom float and orphan/decor/link translations."
+        },
+        {
+          "status": "not_run",
+          "proposal": "No changed dx/dy/scope support, bidi certificate, clip policy or universal RTL claim from this local repair."
+        }
+      ],
+      "dependencies": [
+        "DeferredFloat",
+        "float admission",
+        "current coordinate-origin contract"
+      ],
+      "adr0127": {
+        "class": "continuous_flow_internal_nominal_coverage",
+        "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+      },
+      "unknowns": [
+        "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+      ],
+      "structural_future_variant_proof": {
+        "status": "not_run",
+        "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+      },
+      "gate_scope_note": "This diagnostic plans future L0-first work only; no mutation or test is performed here."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/layout/place.rs:289-310,324-520"
+    ],
+    "l0_evidence": {
+      "owner": "00_nucleo/prompts/core/compiler/layout/place.md",
+      "sha256": "f0f44d8823bb65a5923b89cf1f8916876d009f7867b6b0122aed2a3b451ad0be",
+      "effective_seal": "726933c5",
+      "clauses": [
+        "Place adapter float fitting/reservation/final emission; current DeferredFloat excludes dx/dy/scope; reference frame shared with orphan/decor metadata."
+      ]
+    },
+    "correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression.",
+    "proposed_tests": [
+      {
+        "status": "not_run",
+        "proposal": "All six Option<HAlign> states, body wider/narrower than region, negative free space, top/bottom float and orphan/decor/link translations."
+      },
+      {
+        "status": "not_run",
+        "proposal": "No changed dx/dy/scope support, bidi certificate, clip policy or universal RTL claim from this local repair."
+      }
+    ],
+    "gate": {
+      "class": "continuous_flow_internal_nominal_coverage",
+      "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+    },
+    "uncertainty": [
+      "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+    ],
+    "structural_proof": {
+      "status": "not_run",
+      "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+    },
+    "dependencies": [
+      "DeferredFloat",
+      "float admission",
+      "current coordinate-origin contract"
+    ]
+  },
+  {
+    "id": "V16-045",
+    "batch": "D",
+    "status": "open; plan only",
+    "function": "default_supplement_for_key",
+    "classification": "guarded_semantic_default_missing_nominal_coverage",
+    "report": "layout-stdlib-analysis.md",
+    "analysis": {
+      "id": "V16-045",
+      "file": "01_core/src/compiler/layout/references.rs",
+      "line": 369,
+      "column": 9,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/layout/references.md",
+      "source_sha256": "99c01197cb0972f75a2749546508946a80a613a2e8b9ab406d0bf866e9691e13",
+      "l0_sha256": "e82643f595d841b5937ef7c2b59b84fe86c236a66276b34fe50be1d16f7288f9",
+      "effective_prompt_seal": "fb1a0c78",
+      "partition": "layout-stdlib",
+      "function": "default_supplement_for_key",
+      "full_function_review": "01_core/src/compiler/layout/references.rs:349-371",
+      "scrutinee": "key: &CounterKey plus nested Selector/Kind and string prefix",
+      "enum": "CounterKey",
+      "enum_definition": "01_core/src/entities/counter.rs:22-26",
+      "handled_variants": [
+        "Selector",
+        "Str"
+      ],
+      "nominal_complement": [
+        "Page"
+      ],
+      "guard_or_payload_residuals": [
+        "Str not starting figure: ->None",
+        "Selector::Kind other than Heading/Equation/Table ->None",
+        "All non-Kind Selector variants ->None",
+        "Page ->None"
+      ],
+      "caller_and_guard_invariants": "No additional caller restriction is assumed beyond the cited source.",
+      "classification": "guarded_semantic_default_missing_nominal_coverage",
+      "observed_source_behavior": "Heading/Equation/Table Kind selectors and figure:* string keys receive language supplements; other keys receive no implicit supplement.",
+      "complement_rationale": "A user counter string is not automatically a figure/kind; Page and arbitrary filtered/native selectors cannot be assigned a default label from appearance. Explicit supplements and causal realized Equation/Heading prefixes take precedence in callers. Classify nested Selector and ElementKind complements as well as Page/Str residuals.",
+      "proposed_causal_correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression. Retain language-owner delegation and explicit-none distinction. Do not synthesize labels for every element/native selector or add bilingual catalogs.",
+      "evidence": [
+        "01_core/src/compiler/layout/references.rs:278-315,349-371",
+        "01_core/src/entities/counter.rs:22-26",
+        "01_core/src/entities/selector.rs:27-69"
+      ],
+      "l0_evidence": {
+        "owner": "00_nucleo/prompts/core/compiler/layout/references.md",
+        "sha256": "e82643f595d841b5937ef7c2b59b84fe86c236a66276b34fe50be1d16f7288f9",
+        "effective_seal": "fb1a0c78",
+        "clauses": [
+          "References: explicit/empty supplement wins; causal Equation, Figure language delegation, Heading suffix extraction/current-style fallback; no new catalogs."
+        ]
+      },
+      "tests_and_refuters": [
+        {
+          "status": "not_run",
+          "proposal": "Heading causal prefix versus style fallback, equation realized supplement, table/figure language and explicit empty supplement precedence."
+        },
+        {
+          "status": "not_run",
+          "proposal": "User key/page/native/filtered/boolean selector keys retain no invented implicit label; NBSP joins exactly once when nonempty."
+        }
+      ],
+      "dependencies": [
+        "language supplement owner",
+        "introspector causal fields",
+        "counter-key encoding"
+      ],
+      "adr0127": {
+        "class": "continuous_flow_internal_nominal_coverage",
+        "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+      },
+      "unknowns": [
+        "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+      ],
+      "structural_future_variant_proof": {
+        "status": "not_run",
+        "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+      },
+      "gate_scope_note": "This diagnostic plans future L0-first work only; no mutation or test is performed here."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/layout/references.rs:278-315,349-371",
+      "01_core/src/entities/counter.rs:22-26",
+      "01_core/src/entities/selector.rs:27-69"
+    ],
+    "l0_evidence": {
+      "owner": "00_nucleo/prompts/core/compiler/layout/references.md",
+      "sha256": "e82643f595d841b5937ef7c2b59b84fe86c236a66276b34fe50be1d16f7288f9",
+      "effective_seal": "fb1a0c78",
+      "clauses": [
+        "References: explicit/empty supplement wins; causal Equation, Figure language delegation, Heading suffix extraction/current-style fallback; no new catalogs."
+      ]
+    },
+    "correction": "After the semantic partition below is recorded in this owner L0, replace the open fallback with an exhaustive nominal decision over the present variants, preserving the existing operation for each class. This is justified negative/forwarding classification, not blind wildcard expansion. Keep guards and their false branches visible; future variants must require a new decision. Do not evade the match through if-let, matches!, another helper or a suppression. Retain language-owner delegation and explicit-none distinction. Do not synthesize labels for every element/native selector or add bilingual catalogs.",
+    "proposed_tests": [
+      {
+        "status": "not_run",
+        "proposal": "Heading causal prefix versus style fallback, equation realized supplement, table/figure language and explicit empty supplement precedence."
+      },
+      {
+        "status": "not_run",
+        "proposal": "User key/page/native/filtered/boolean selector keys retain no invented implicit label; NBSP joins exactly once when nonempty."
+      }
+    ],
+    "gate": {
+      "class": "continuous_flow_internal_nominal_coverage",
+      "condition": "Update the current owning L0 first. Preserve every existing public signature, accepted/rejected language case, default, phase, effect and diagnostic; then run meaningful functional controls plus structural future-variant compile-negative checks. No approval or implementation is performed by this diagnostic."
+    },
+    "uncertainty": [
+      "No new bilateral probe was run. Static source inspection is not a claim of current vanilla parity."
+    ],
+    "structural_proof": {
+      "status": "not_run",
+      "proposal": "In a disposable copy only, add a sentinel variant to the relevant closed enum and require attributable E0004 at this selected match after nominal correction. Generic compile failure or E0004 elsewhere is insufficient. For nested/product/Option domains, mutate the inner enum and verify the exact decision site; cfg(test) finders require the test compilation route."
+    },
+    "dependencies": [
+      "language supplement owner",
+      "introspector causal fields",
+      "counter-key encoding"
+    ]
+  }
+]

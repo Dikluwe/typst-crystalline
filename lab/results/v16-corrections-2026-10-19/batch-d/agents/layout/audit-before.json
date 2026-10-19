@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-19T16:02:56.055664+00:00",
+  "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+  "tree": "uncommitted working tree",
+  "diffstat": "",
+  "sha256": {
+    "01_core/src/compiler/layout/line_commit.rs": "10744b192cd9179e6c468370f64037e422d896168ba7e45ddb9168e2cbc197e6",
+    "01_core/src/compiler/layout/mod.rs": "194246699b56e14509b3f7f0537d97ebbd0148e666efa9793e37581e0ef256e6",
+    "01_core/src/compiler/layout/par_line_callbacks.rs": "ed4467522b9321b2a106edb176d64062cb2de4f53639a4ac352b0292be14e4d6",
+    "01_core/src/compiler/layout/place.rs": "6c9392aa1a03a78c111a1661360efcfd6c49223e9dfa7bd662216630502563b0",
+    "01_core/src/compiler/layout/references.rs": "99c01197cb0972f75a2749546508946a80a613a2e8b9ab406d0bf866e9691e13",
+    "00_nucleo/prompts/core/compiler/layout/line_commit.md": "d5d818ec929808fbee4f17750bff557599051c9d79210e0b20fb178d1e76166e",
+    "00_nucleo/prompts/core/compiler/layout/mod.md": "cd64e452a1a51bed7e4dec6983bb587e0e03face25e49f3ae184f7b766c59f81",
+    "00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md": "41428537723f4aca46d3008e91c835d98de391cbbae245b8b1d07e1e176704e4",
+    "00_nucleo/prompts/core/compiler/layout/place.md": "f0f44d8823bb65a5923b89cf1f8916876d009f7867b6b0122aed2a3b451ad0be",
+    "00_nucleo/prompts/core/compiler/layout/references.md": "e82643f595d841b5937ef7c2b59b84fe86c236a66276b34fe50be1d16f7288f9"
+  }
+}

@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/borders
-Hash do Código: b4ea069b
+Hash do Código: 8dfb9ce5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -33,3 +33,35 @@ Keep declarative Stroke while choosing/coalescing borders. Only after closing a 
 RED→GREEN endpoint tests cover distinct horizontal/vertical thicknesses and preserved empty suppression; bilateral paint has no corner gap or text/position regression. Stroke folds require real SVG colors/thickness in physical units and default/None/replacement controls; paint requires substituted-product/known-None RED→GREEN and actual visual SVG regression. Builds/suites/lint/preservation remain required. Fixed-row alignment and earlier metric residues are not inferred solved.
 
 Apply the pinned nucleus. Ratification supersedes older clauses awaiting approval or requiring declarative Paint/Stroke inside Shape only within the approved contract. Preserve all other existing behavior. L0 comes first, followed by RED→GREEN; explicitly migrate fixtures/consumers without a total From<Paint> conversion, PartialEq on carriers or a solid fallback merely to obtain a green build. Do not raise the old limit or move layout into L3. Validate fill/stroke transport, resources, clipping, affine Parent, native targets, Solid/Gradient controls, page semantics and the complete suite/build/doc/fmt/lineage. Prepared transport, native target integration and verification (historical T1c/T2/T3) are complete only together; a broken or partial intermediate state does not certify production. The remaining historical T4 scope and publication remain outside this package.
+
+
+## V16-029 nominal boundary preservation
+
+### Measurement before decision
+
+Source audit at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:03:25.152301+00:00`;
+exact working-tree diffstat and source/L0 SHA-256 are retained in
+`lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/phase1-before.json`.
+Evidence: 01_core/src/compiler/layout/grid/borders.rs:43-51; 01_core/src/compiler/layout/grid/borders.rs:191,239-241. The owning decision is `cell_effective_stroke`.
+Observed: Non-cell means no cell-specific stroke, then grid_stroke is inherited; prepared TableCell returns resolved.stroke directly, including known None.
+This is source-level evidence of existing behavior, not a new current-pin
+vanilla comparison or an inference about upstream intent.
+
+### Decision and refutation
+
+All non-cell bodies may occupy a raw grid cell but have no outer cell override. They are not skipped from rendering. TableCell resolved/unresolved branches are both covered; the guard cannot fall into raw inheritance.
+Maintain an explicit exhaustive nominal partition at this decision, including
+guard-false residuals in their owning variant. Future variants must require
+a fresh classification at this site. No wildcard relocation, syntax bypass,
+suppression, new conversion, or public signature/default/phase change.
+This is continuous-flow internal maintenance under ADR-0127.
+Rendering, text, effects, placement and diagnostics are language obligations;
+compiler exhaustiveness is an internal maintenance proof under ADR-0107.
+Preservation controls must pass before and after the edit; structural RED→GREEN
+requires an attributable E0004 at this match after adding a sentinel only in a
+disposable copy of `Content`. Another match's error is insufficient.
+Any changed accepted/rejected case, lost content, repeated effect, fallback
+geometry or diagnostic refutes preservation. Broader parity limitations in
+this owner remain open.
+
+The current nominal complement (no outer cell-specific fields) is: `Source`, `ShowRecipe`, `Realized`, `Located`, `Empty`, `Text`, `Space`, `SpaceFromNewline`, `Parbreak`, `Sequence`, `HtmlElem`, `HtmlFrame`, `Par`, `Heading`, `Title`, `Strong`, `Emph`, `Raw`, `ListItem`, `EnumItem`, `Link`, `Equation`, `MathSequence`, `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathPrimes`, `MathRoot`, `MathStretch`, `MathDelimited`, `MathLr`, `MathMid`, `MathOverbrace`, `MathUnderbrace`, `MathUnderbracket`, `MathUnderparen`, `MathUndershell`, `MathOverbracket`, `MathOverparen`, `MathOvershell`, `MathAlignPoint`, `Linebreak`, `MathMatrix`, `MathCases`, `MathAccent`, `MathCancel`, `MathUnderline`, `MathOverline`, `MathVec`, `MathClassOverride`, `MathLimitsOverride`, `MathUnderover`, `MathOp`, `MathStyled`, `Label`, `Ref`, `CounterDisplay`, `CounterUpdate`, `Outline`, `OutlineEntry`, `Figure`, `FigureCaption`, `Image`, `Shape`, `Curve`, `Transform`, `Grid`, `GridHeader`, `GridFooter`, `SetPage`, `PageRun`, `Align`, `Place`, `Flush`, `Styled`, `Divider`, `Terms`, `TermItem`, `Quote`, `Document`, `Asset`, `SmartQuote`, `PdfAttach`, `PdfArtifact`, `Underline`, `Strike`, `Overline`, `SmallCaps`, `Pad`, `Hide`, `HSpace`, `VSpace`, `Pagebreak`, `Colbreak`, `Stack`, `Boxed`, `Block`, `Bibliography`, `Cite`, `Footnote`, `FootnoteEntry`, `TableHeader`, `TableFooter`, `GridHLine`, `GridVLine`, `TableHLine`, `TableVLine`, `Table`, `Repeat`, `Columns`, `Metadata`, `State`, `StateUpdate`, `StateDisplay`, `CounterDisplayCallback`, `ContextBlock`, `Dynamic`.

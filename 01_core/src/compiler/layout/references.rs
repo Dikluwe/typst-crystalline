@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/references.md
-//! @prompt-hash fb1a0c78
+//! @prompt-hash cf7b41e5
 //! @layer L1
 //! @updated 2026-09-18
 
@@ -351,22 +351,59 @@ fn default_supplement_for_key(
     lang: Option<&crate::entities::lang::Lang>,
 ) -> Option<Content> {
     match key {
-        CounterKey::Selector(Selector::Kind(ElementKind::Heading)) => {
-            Some(Content::text(heading_supplement_for_lang(lang)))
-        }
+        CounterKey::Selector(selector) => match selector {
+            Selector::Kind(kind) => match kind {
+                ElementKind::Heading => {
+                    Some(Content::text(heading_supplement_for_lang(lang)))
+                }
+                ElementKind::Equation => {
+                    let is_pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
+                    Some(Content::text(if is_pt { "Equação" } else { "Equation" }))
+                }
+                ElementKind::Table => {
+                    let is_pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
+                    Some(Content::text(if is_pt { "Tabela" } else { "Table" }))
+                }
+                // These kinds have no implicit reference supplement.
+                ElementKind::Figure
+                | ElementKind::Citation
+                | ElementKind::Metadata
+                | ElementKind::State
+                | ElementKind::StateUpdate
+                | ElementKind::Outline
+                | ElementKind::OutlineEntry
+                | ElementKind::Bibliography
+                | ElementKind::CounterUpdate
+                | ElementKind::List
+                | ElementKind::Enum
+                | ElementKind::Par
+                | ElementKind::Link
+                | ElementKind::Raw
+                | ElementKind::Quote
+                | ElementKind::Footnote
+                | ElementKind::StateDisplay
+                | ElementKind::CounterDisplay
+                | ElementKind::ContextBlock => None,
+            },
+            // Filtered/composite/native selectors do not imply a kind label.
+            Selector::NativeElement(..)
+            | Selector::Element { .. }
+            | Selector::Label(..)
+            | Selector::Location(..)
+            | Selector::And(..)
+            | Selector::Or(..)
+            | Selector::Regex(..)
+            | Selector::Where { .. }
+            | Selector::Within { .. }
+            | Selector::Before { .. }
+            | Selector::After { .. } => None,
+        },
         CounterKey::Str(s) if s.starts_with("figure:") => {
             let kind = s.strip_prefix("figure:").unwrap_or("image");
             Some(Content::text(figure_supplement_for_lang(kind, lang)))
         }
-        CounterKey::Selector(Selector::Kind(ElementKind::Equation)) => {
-            let is_pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
-            Some(Content::text(if is_pt { "Equação" } else { "Equation" }))
-        }
-        CounterKey::Selector(Selector::Kind(ElementKind::Table)) => {
-            let is_pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
-            Some(Content::text(if is_pt { "Tabela" } else { "Table" }))
-        }
-        _ => None, // neutro: N16[β] — Content sem referência cruzada retorna None
+        // The string guard's false branch and page counters stay unlabeled.
+        CounterKey::Str(_) | CounterKey::Page => None,
     }
 }
 
@@ -412,6 +449,132 @@ mod tests {
                 .expect("heading counter has a default supplement")
                 .plain_text();
             assert_eq!(actual, expected, "lang={language}");
+        }
+    }
+}
+
+#[cfg(test)]
+mod v16_d_tests {
+    use super::*;
+    use crate::entities::{
+        func::Func, label::Label, locator::Locator, regex::Regex, value::Value,
+    };
+
+    #[test]
+    fn v16_d_supplements_cover_every_kind_and_string_guard_residual() {
+        let cases = [
+            (ElementKind::Heading, Some("Section")),
+            (ElementKind::Equation, Some("Equation")),
+            (ElementKind::Table, Some("Table")),
+            (ElementKind::Figure, None),
+            (ElementKind::Citation, None),
+            (ElementKind::Metadata, None),
+            (ElementKind::State, None),
+            (ElementKind::StateUpdate, None),
+            (ElementKind::Outline, None),
+            (ElementKind::OutlineEntry, None),
+            (ElementKind::Bibliography, None),
+            (ElementKind::CounterUpdate, None),
+            (ElementKind::List, None),
+            (ElementKind::Enum, None),
+            (ElementKind::Par, None),
+            (ElementKind::Link, None),
+            (ElementKind::Raw, None),
+            (ElementKind::Quote, None),
+            (ElementKind::Footnote, None),
+            (ElementKind::StateDisplay, None),
+            (ElementKind::CounterDisplay, None),
+            (ElementKind::ContextBlock, None),
+        ];
+        for (kind, expected) in cases {
+            let actual = default_supplement_for_key(
+                &CounterKey::Selector(Selector::Kind(kind)),
+                None,
+            );
+            assert_eq!(
+                actual.map(|c| c.plain_text()),
+                expected.map(str::to_string),
+                "{kind:?}"
+            );
+        }
+        for (language, equation, table) in
+            [("pt", "Equação", "Tabela"), ("de", "Equation", "Table")]
+        {
+            let lang: crate::entities::lang::Lang = language.parse().unwrap();
+            for (kind, expected) in
+                [(ElementKind::Equation, equation), (ElementKind::Table, table)]
+            {
+                assert_eq!(
+                    default_supplement_for_key(
+                        &CounterKey::Selector(Selector::Kind(kind)),
+                        Some(&lang)
+                    )
+                    .unwrap()
+                    .plain_text(),
+                    expected
+                );
+            }
+        }
+        for key in [
+            CounterKey::Page,
+            CounterKey::Str("".into()),
+            CounterKey::Str("figure".into()),
+            CounterKey::Str("user".into()),
+            CounterKey::Str("xfigure:image".into()),
+        ] {
+            assert!(default_supplement_for_key(&key, None).is_none(), "{key:?}");
+        }
+        // Empty/unknown suffixes are still figure-prefixed keys, not the
+        // guard-false class, and retain the language owner's fallback.
+        for suffix in ["", "image", "table", "raw", "unknown"] {
+            let key = CounterKey::Str(format!("figure:{suffix}").into());
+            assert_eq!(
+                default_supplement_for_key(&key, None).unwrap().plain_text(),
+                figure_supplement_for_lang(suffix, None)
+            );
+        }
+    }
+
+    #[test]
+    fn v16_d_filtered_native_and_composite_selectors_do_not_invent_supplements() {
+        let native = Func::native("v16_d_never_run", |_, _, _, _| {
+            panic!("supplement executes no function")
+        });
+        let heading = Selector::Kind(ElementKind::Heading);
+        let selectors = [
+            Selector::NativeElement(native.clone()),
+            Selector::Element { function: native, fields: Default::default() },
+            Selector::Label(Label("heading".into())),
+            Selector::Location(Locator::new().next()),
+            Selector::And(vec![heading.clone()].into()),
+            Selector::Or(vec![heading.clone()].into()),
+            Selector::Regex(Regex::new("heading").unwrap()),
+            Selector::Where {
+                base: Box::new(heading.clone()),
+                field: "level".into(),
+                value: Box::new(Value::Int(1)),
+            },
+            Selector::Within {
+                base: Box::new(heading.clone()),
+                ancestor: Box::new(heading.clone()),
+            },
+            Selector::Before {
+                base: Box::new(heading.clone()),
+                end: Box::new(heading.clone()),
+                inclusive: true,
+            },
+            Selector::After {
+                base: Box::new(heading.clone()),
+                start: Box::new(heading),
+                inclusive: false,
+            },
+        ];
+        for selector in selectors {
+            assert!(
+                default_supplement_for_key(&CounterKey::Selector(selector.clone()), None)
+                    .is_none(),
+                "{selector:?}"
+            );
         }
     }
 }

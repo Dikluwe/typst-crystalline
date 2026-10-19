@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/line_commit.md
-//! @prompt-hash 1a259f13
+//! @prompt-hash 3ae73754
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -701,12 +701,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     Callback(crate::entities::content::Content),
                 }
 
+                use crate::entities::value::Value;
+
                 let realized = match numbering {
-                    Some(crate::entities::value::Value::Str(pattern)) => {
+                    Some(Value::Str(pattern)) => {
                         format_counter(&[self.par_line_counter], pattern.as_str())
                             .map(RealizedLineNumber::Pattern)
                     }
-                    Some(crate::entities::value::Value::Func(func)) => {
+                    Some(Value::Func(func)) => {
                         let request = super::ParLineCallbackRequest {
                             span: func.diagnostic_span(),
                             func,
@@ -717,7 +719,49 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             .and_then(|pass| pass.resolve_or_record(request))
                             .map(RealizedLineNumber::Callback)
                     }
-                    _ => None,
+                    // Overlay suppression is reachable after counting.
+                    None => None,
+                    // Admission above excludes these payloads; preserve the
+                    // no-number result without admitting them to counting.
+                    Some(
+                        Value::None
+                        | Value::Bool(..)
+                        | Value::Int(..)
+                        | Value::Float(..)
+                        | Value::Array(..)
+                        | Value::Dict(..)
+                        | Value::Module(..)
+                        | Value::Datetime(..)
+                        | Value::Content(..)
+                        | Value::LocatedContent(..)
+                        | Value::Auto
+                        | Value::Length(..)
+                        | Value::Relative(..)
+                        | Value::Ratio(..)
+                        | Value::Angle(..)
+                        | Value::Color(..)
+                        | Value::Stroke(..)
+                        | Value::Fraction(..)
+                        | Value::Align(..)
+                        | Value::Location(..)
+                        | Value::Gradient(..)
+                        | Value::Regex(..)
+                        | Value::Tiling(..)
+                        | Value::Bytes(..)
+                        | Value::Decimal(..)
+                        | Value::Duration(..)
+                        | Value::Version(..)
+                        | Value::Selector(..)
+                        | Value::Symbol(..)
+                        | Value::Args(..)
+                        | Value::State(..)
+                        | Value::Counter(..)
+                        | Value::Label(..)
+                        | Value::Dir(..)
+                        | Value::Path(..)
+                        | Value::Type(..)
+                        | Value::SpotColorant(..),
+                    ) => None,
                 };
 
                 if let Some(realized) = realized {
@@ -1253,5 +1297,129 @@ mod face_edge_regressions {
             .push(text(TextStyle::regular(Pt(10.0)), 7.0));
         l.flush_line();
         assert_eq!(ys(&l), vec![7.0]);
+    }
+}
+
+#[cfg(test)]
+mod v16_d_tests {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, Layouter, SegmentedParLineOverlay};
+    use crate::entities::{
+        content::Content,
+        func::Func,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        value::Value,
+    };
+    use comemo::Track;
+
+    #[test]
+    fn v16_d_line_numbering_admission_overlay_and_deferred_pattern_are_distinct() {
+        for (
+            numbering,
+            overlay,
+            deferred,
+            expected_count,
+            expected_numbers,
+            expected_candidates,
+        ) in [
+            (None, false, false, 0, 0, 0),
+            (Some(Value::None), false, false, 0, 0, 0),
+            (Some(Value::Int(1)), false, false, 0, 0, 0),
+            (Some(Value::Content(Content::text("wrong"))), false, false, 0, 0, 0),
+            (Some(Value::Str("1".into())), false, false, 1, 1, 0),
+            (Some(Value::Str("1".into())), true, false, 1, 0, 0),
+            (Some(Value::Str("1".into())), false, true, 0, 0, 1),
+        ] {
+            let intr = TagIntrospector::empty();
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            if let Some(value) = numbering {
+                l.chain = l.chain.push_custom("par.line.numbering", value);
+            }
+            l.defer_segmented_par_line_patterns = deferred;
+            if overlay {
+                l.segmented_par_line_overlay = Some(SegmentedParLineOverlay {
+                    suppress_through: 1,
+                    start_x_shift: 0.0,
+                    end_x_shift: 0.0,
+                });
+            }
+            l.layout_content(&Content::text("BODY"));
+            l.flush_line();
+            assert_eq!(l.par_line_counter, expected_count);
+            assert_eq!(l.pending_par_line_numbering.len(), expected_numbers);
+            assert_eq!(l.pending_segmented_par_line_patterns.len(), expected_candidates);
+            assert!(l.regions.current.current_items.iter().any(|item|
+                matches!(item, FrameItem::Text { text, .. } if text.as_str() == "BODY")));
+        }
+    }
+
+    #[test]
+    fn v16_d_line_callback_records_or_consumes_without_execution() {
+        use crate::compiler::layout::par_line_callbacks::{
+            ParLineCallbackPassState, ParLineCallbackRequest, ParLineCallbackResolution,
+            SealedParLineCallbacks,
+        };
+        let func = Func::native("v16_d_never_execute", |_, _, _, _| {
+            panic!("layout must not execute callbacks")
+        });
+        let chain = crate::entities::style_chain::StyleChain::empty()
+            .push_custom("par.line.numbering", Value::Func(func.clone()));
+        for resolved in [false, true] {
+            let intr = TagIntrospector::empty();
+            let store = SealedParLineCallbacks::new(vec![ParLineCallbackResolution {
+                request: ParLineCallbackRequest {
+                    func: func.clone(),
+                    number: 1,
+                    span: func.diagnostic_span(),
+                    styles: chain.clone(),
+                },
+                content: Content::text("NUMBER"),
+            }]);
+            let pass = ParLineCallbackPassState::new(resolved.then_some(&store));
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            l.chain = chain.clone();
+            l.par_line_callback_pass = Some(&pass);
+            l.layout_content(&Content::text("BODY"));
+            l.flush_line();
+            assert_eq!(l.par_line_counter, 1);
+            assert_eq!(l.pending_par_line_numbering.len(), usize::from(resolved));
+            let mut body_baseline = None;
+            let mut number_baseline = None;
+            for item in &l.regions.current.current_items {
+                if let FrameItem::Text { pos, text, .. } = item {
+                    if text.as_str() == "BODY" {
+                        body_baseline = Some(pos.y);
+                    }
+                    if text.as_str() == "NUMBER" {
+                        number_baseline = Some(pos.y);
+                    }
+                }
+            }
+            assert!(body_baseline.is_some());
+            assert_eq!(number_baseline, if resolved { body_baseline } else { None });
+            drop(l);
+            let result = pass.finish();
+            if resolved {
+                assert!(result.is_ok());
+            } else {
+                let requests = result.unwrap_err();
+                assert_eq!(requests.len(), 1);
+                assert_eq!(requests[0].number, 1);
+                assert_eq!(requests[0].func, func);
+                assert_eq!(requests[0].span, func.diagnostic_span());
+                assert_eq!(requests[0].styles.collapse(), chain.collapse());
+            }
+        }
     }
 }

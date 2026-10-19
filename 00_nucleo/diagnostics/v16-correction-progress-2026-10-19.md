@@ -1,7 +1,7 @@
 # V16 correction progress
 
-Status: batches A, B and C validated and closed. The other
-64 V16 findings remain open in the [cause-correction plan](v16-cause-correction-plan-2026-10-19.md).
+Status: batches A, B, C and D validated and closed. The other
+44 V16 findings remain open in the [cause-correction plan](v16-cause-correction-plan-2026-10-19.md).
 This diagnostic is not a new L0 contract or a claim of complete Typst parity.
 
 ## Batch A: evidence before closure
@@ -158,9 +158,70 @@ rich-value display and ambiguous native identities remain explicit
 Their required behavior and acceptance criteria are preserved; this batch does
 not certify those cases or weaken their contracts.
 
+## Batch D: grid, layout and constrained measurement
+
+The baseline is commit `a9f03073809fa15ff11d86c532f2c803ee892e47` on the same
+branch. The pinned scan ended at `2026-10-19T16:19:05.400082+00:00` on the
+uncommitted implementation: **64 → 44 V16 errors**, exactly IDs 029–047 and 077
+removed across fifteen exclusive source/L0 pairs. No new error or warning
+appears; diagnostics outside these consumers are identical. Exact changed-file
+stat, UTC and hashes are in the
+[lint receipt](../../lab/results/v16-corrections-2026-10-19/batch-d/lint-state.json.gz).
+V19 changes from 1,195 to 1,222 and V20 from 878 to 876. The
+[independent note review](../../lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/note-review.md)
+separates line moves, equivalent Value-path spelling and substantive changes.
+No V19 content disappeared; nested supplement patterns became separate finite
+decisions with independent evolution checks. All notes remain enabled.
+
+Three agents updated owning prompts first and cross-reviewed disjoint changes.
+Grid fixes preserve raw/prepared inheritance, cache refusal, nested-table
+barriers, placement policy and atomic inset rejection. Layout fixes preserve
+occurrence identity, quote observation, line-number requests, alignment and
+supplement behavior. Constrained measurement now preserves image target bounds,
+captionless figure body extent and certified simple inline math extent through
+existing isolated layout. A direct recursive certificate rejects hidden effects
+and unaudited math before measurement. Public contracts, defaults, phases,
+dependencies and Nuclei remain unchanged.
+
+The [27 new tests](../../lab/results/v16-corrections-2026-10-19/batch-d/new-tests.json)
+include three observed semantic RED failures and 24 preservation controls.
+All pass in the final fresh full run. Eighteen bilateral grid cases preserve
+baseline product behavior; 27 measurement cases pass the scoped geometry and
+single-effect checks against the ratified oracle. Image and captionless figure
+Auto-column origins recover from zero to 40pt, and the simple equation from
+zero to 23.124444444pt in the recorded sources. These are scoped occupied-space
+measurements, not complete render or language parity. Independent reviewers
+verified actual SVG geometry/body presence, source/build links and the comparator
+failure conditions.
+
+Actual enum-extension experiments produce 23 exact decision witnesses plus
+three isolated HAlign tuple witnesses. The
+[independent structural audit](../../lab/results/v16-corrections-2026-10-19/batch-d/structural-witness-review.md)
+reparses compiler logs and archived mutations, verifying absence at the twenty
+original baseline sites and the three tuple classes. Unrelated compiler errors
+never count as proof.
+
+All twelve integrated gates completed at **2026-10-19T16:40:10.165167+00:00**,
+with 2,131 unchanged frozen inputs. Cleaning the four product packages before
+validation separated mutation-workspace caches from the actual checkout.
+Paths, strict direct/reverse lineage, ownership/Nuclei, builds, domain/infra/wiring
+tests, doctests, all targets including lab benches, Clippy, formatting and Rustdoc
+passed. Both accepted replays completed at `2026-10-19T16:40:40.910463+00:00`.
+The [evidence report](../../lab/results/v16-corrections-2026-10-19/batch-d/README.md)
+and [closure ledger](../../lab/results/v16-corrections-2026-10-19/batch-d/closure-ledger.json)
+bind every selected ID to the validated sources, owners and seals.
+
+The full linter still exits 1 for the remaining 44 V16 errors. Captioned figures,
+block/contextual/uncertified math, relative image axes and source diagnostics,
+SVG image input, nested-table vertical origin and contextual-cell output remain
+[explicit open obligations](../../lab/results/v16-corrections-2026-10-19/batch-d/open-obligations.json).
+Their required behavior and refuters are retained; unsupported approximations
+are not ratified as zero language extent. No suppression or weaker contract was
+used to close this batch.
+
 ## Remaining obligations and organizational result
 
-Batches D–G remain open. The mathematical parser's old grouping comment differs
+Batches E–G remain open. The mathematical parser's old grouping comment differs
 from the observed tree for `a^b'_c^d`; batch A preserved the observed tree and
 recorded the intent question separately. It does not ratify that comment or close
 parity through Rust exhaustiveness. Three callback font formats still lack

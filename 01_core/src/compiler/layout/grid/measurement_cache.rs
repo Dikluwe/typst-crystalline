@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md
-//! @prompt-hash 2947ebae
+//! @prompt-hash f2c18885
 //! @layer L1
 //! @updated 2026-10-09
 
@@ -56,15 +56,136 @@ fn simple_placement(content: &Content) -> bool {
                 && e.colspan.unwrap_or(1) == 1
                 && e.rowspan.unwrap_or(1) == 1
         }
-        _ => true, // Raw carriers have no explicit placement fields.
+        Content::Source(..)
+        | Content::ShowRecipe(..)
+        | Content::Realized(..)
+        | Content::Located(..)
+        | Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => true,
     }
 }
 
 fn token(content: &Content) -> Option<&ecow::EcoString> {
     let content = content.source_body();
     match content {
-        Content::Styled(styled) if local_cell_transport_only(&styled.styles) => {
-            token(&styled.body)
+        Content::Styled(styled) => {
+            if local_cell_transport_only(&styled.styles) {
+                token(&styled.body)
+            } else {
+                None
+            }
         }
         Content::Text(text) => {
             if !text.is_empty() && text.bytes().all(|b| b.is_ascii_graphic()) {
@@ -97,7 +218,121 @@ fn token(content: &Content) -> Option<&ecow::EcoString> {
                 None
             }
         }
-        _ => None, // No locatable, style scope, context, callback or unknown carrier.
+        Content::Source(..)
+        | Content::ShowRecipe(..)
+        | Content::Realized(..)
+        | Content::Located(..)
+        | Content::Empty
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => None,
     }
 }
 
@@ -510,5 +745,117 @@ mod tests {
         );
         let c = MeasuredCells::new(&l, &[Content::text("a/b"), special], 2);
         assert!(c.entries.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod v16_d_boundaries {
+    use super::*;
+    use crate::compiler::layout::{sub_frame::SubLayoutRegion, FixedMetrics};
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        style::Styles,
+        value::Value,
+    };
+    use comemo::Track;
+    #[test]
+    fn v16_d_placement_neutral_is_not_cache_permission_and_fallback_keeps_text() {
+        let intr = TagIntrospector::empty();
+        let visible = |items: &[FrameItem]| {
+            items
+                .iter()
+                .map(|item| match item {
+                    FrameItem::Text { text, pos, style, .. } => {
+                        (text.to_string(), pos.x.0, pos.y.0, style.clone())
+                    }
+                    FrameItem::TextSeparator { pos, style, .. } => {
+                        (" ".to_string(), pos.x.0, pos.y.0, style.clone())
+                    }
+                    other => panic!("unexpected visible product: {other:?}"),
+                })
+                .collect::<Vec<_>>()
+        };
+        for (body, expected) in [
+            (Content::styled(Content::text("Visible"), Styles::default()), "Visible"),
+            (
+                Content::sequence(vec![
+                    Content::text("Two"),
+                    Content::Space,
+                    Content::text("Words"),
+                ]),
+                "Two Words",
+            ),
+        ] {
+            assert!(simple_placement(&body));
+            assert!(token(&body).is_none());
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                12.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            let mut cache = MeasuredCells::new(&l, std::slice::from_ref(&body), 1);
+            let region = || SubLayoutRegion {
+                origin_x: 50.0,
+                width: 200.0,
+                height: None,
+                align_rtl: true,
+                unconstrained_height: true,
+            };
+            let product = l.layout_sub_frame(&body, region());
+            assert!(product.0 > 0.0);
+            assert!(!product.1.is_empty());
+            let height = product.0;
+            let measured = visible(&product.1);
+            assert_eq!(
+                measured.iter().map(|item| item.0.as_str()).collect::<String>(),
+                expected
+            );
+            cache.capture(&l, 0, &body, 50.0, 200.0, product);
+            assert!(cache.entries[0].is_none());
+            let placed = PlacedCell { body, row: 0, col: 0, colspan: 1, rowspan: 1 };
+            assert!(cache.take(&mut l, &placed, 50.0, 200.0).is_none());
+            let fallback = l.layout_sub_frame(&placed.body, region());
+            assert_eq!(fallback.0, height);
+            let emitted = visible(&fallback.1);
+            assert_eq!(
+                emitted.iter().map(|item| item.0.as_str()).collect::<String>(),
+                expected
+            );
+            assert_eq!(
+                emitted, measured,
+                "fallback preserves text geometry and effective style"
+            );
+        }
+    }
+    #[test]
+    fn v16_d_styled_guard_false_cannot_recurse_and_source_is_only_transparency() {
+        let id = crate::entities::file_id::FileId::from_raw(
+            std::num::NonZeroU16::new(1).unwrap(),
+        );
+        let span = crate::entities::span::Span::from_range(id, 1..6);
+        let body = Content::text("Token").with_source_span(span);
+        assert_eq!(token(&body).map(|s| s.as_str()), Some("Token"));
+        assert_eq!(body.source_span(), span);
+        let admitted = Styles::new().push_custom("cell.fill", Value::None);
+        assert_eq!(
+            token(&Content::styled(body.clone(), admitted)).map(|s| s.as_str()),
+            Some("Token")
+        );
+        for styles in [
+            Styles::default(),
+            Styles::new()
+                .push_custom("cell.fill", Value::None)
+                .push_custom("eval.table.local.extra", Value::Bool(true)),
+            Styles::new().push_custom(
+                "text.tracking",
+                Value::Length(crate::entities::layout_types::Length::pt(1.0)),
+            ),
+        ] {
+            let wrapped = Content::styled(body.clone(), styles).with_source_span(span);
+            assert!(simple_placement(&wrapped));
+            assert!(token(&wrapped).is_none());
+        }
     }
 }

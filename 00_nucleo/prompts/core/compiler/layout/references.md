@@ -1,5 +1,5 @@
 # L0 — references
-Hash do Código: f1150194
+Hash do Código: 76cedf37
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
@@ -43,3 +43,13 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 L0 precedes RED→GREEN on coordinates, no fictitious paint/height, identity/order/visual clones/rollback; revalidate HTML, geometry, context/queries and full suite.
 
 Require RED→GREEN for breaks before/within body; preserve prefix/suffix, regions, destinations/bounds, rich body/nesting/columns, deferred content and context/rollback, with no private boundaries in output. Revalidate no-break controls, suite, build and lineage.
+
+## V16 closed-domain evidence and correction
+
+Measured in the uncommitted working tree at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:02:56.055664+00:00`; exact changed-file diffstat and source/L0 SHA-256 are in `lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/audit-before.json`. `references.rs:278–315` gives explicit supplements (including empty Content) and causal heading/equation fields precedence. `references.rs:349–371` recognizes Heading/Equation/Table kind selectors and figure:-prefixed strings only. `counter.rs:22–26`, `selector.rs:27–69` and `element_kind.rs:16–97` expose independently closed nested domains.
+
+This is observed local source behavior, not a new bilateral result or inferred upstream intent. Identity, text, quote choice, geometry and supplement semantics are language obligations; the match representation is mechanics. A caller admitting a supposedly excluded payload, duplicate event, changed text/geometry/request or changed diagnostic refutes preservation.
+
+Close default_supplement_for_key across CounterKey, Selector and ElementKind at the current decision. Heading delegates its language owner; Equation/Table preserve existing language choice; a Str starting figure: delegates figure_supplement_for_lang for its exact suffix, including empty/unknown suffixes. Str without that prefix and Page receive no implicit supplement. Kind(Figure, Citation, Metadata, State, StateUpdate, Outline, OutlineEntry, Bibliography, CounterUpdate, List, Enum, Par, Link, Raw, Quote, Footnote, StateDisplay, CounterDisplay, ContextBlock) receive none. NativeElement, Element, Label, Location, And, Or, Regex, Where, Within, Before and After selectors receive none regardless of their payload; even a filter around Heading is not an unfiltered Heading key. Keep the prefix guard and its false branch visible. Do not invent labels, add language tables, erase explicit-empty precedence or alter the one-NBSP join. New variants at any nested domain require a decision at this match.
+
+ADR-0127 classification: continuous-flow internal nominal coverage with no public signature, default, phase or compatibility change. Add behavior-preservation controls before implementation and require baseline/final controls plus disposable future-variant compile-negative evidence at the exact selected decision. Current runtime controls may already pass; the structural RED is failure to reject a future variant at that decision. No new suppression or open catchall is authorized.

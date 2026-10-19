@@ -1,0 +1,54 @@
+[
+  {
+    "name": "core-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ]
+  },
+  {
+    "name": "grid-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+      "grid",
+      "candidate-replay",
+      "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/state.json.gz"
+    ]
+  },
+  {
+    "name": "measurement-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+      "measurement",
+      "candidate-replay",
+      "lab/results/v16-corrections-2026-10-19/batch-d/candidate-run/state.json.gz"
+    ]
+  },
+  {
+    "name": "structural-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_d_structural.py",
+      "green"
+    ]
+  }
+]

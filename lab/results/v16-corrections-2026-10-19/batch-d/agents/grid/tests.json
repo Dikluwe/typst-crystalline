@@ -1,0 +1,26 @@
+{
+  "01_core/src/compiler/layout/grid/borders.rs": [
+    "v16_d_raw_wrappers_inherit_without_borrowing_nested_cell_stroke"
+  ],
+  "01_core/src/compiler/layout/grid/cell_body.rs": [
+    "v16_d_raw_inherits_fill_inset_but_prepared_none_does_not"
+  ],
+  "01_core/src/compiler/layout/grid/measurement_cache.rs": [
+    "v16_d_placement_neutral_is_not_cache_permission_and_fallback_keeps_text",
+    "v16_d_styled_guard_false_cannot_recurse_and_source_is_only_transparency"
+  ],
+  "01_core/src/compiler/layout/grid/tracks.rs": [
+    "v16_d_track_inheritance_keeps_raw_inset_and_replaced_plan_zero_inset",
+    "v16_d_measurement_projection_keeps_styles_origins_and_unstaged_cells",
+    "v16_d_nested_table_is_a_measurement_projection_barrier"
+  ],
+  "01_core/src/compiler/layout/grid_placement.rs": [
+    "v16_d_wrong_policy_cells_are_raw_unit_origins",
+    "v16_d_policies_keep_document_order_conflict_and_explicit_first_distinct",
+    "v16_d_matching_table_overflow_keeps_causal_span"
+  ],
+  "01_core/src/entities/elements/table_cell.rs": [
+    "v16_d_inset_precedence_and_partial_absence_are_preserved",
+    "v16_d_inset_rejection_is_atomic_and_does_not_expand_casts"
+  ]
+}

@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "batch": "D",
+  "status": "open obligations; no global parity or debt closure claimed",
+  "provenance": {
+    "utc": "2026-10-19T16:23:44.656601+00:00",
+    "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+    "branch": "codex/tekt-mature-layout",
+    "tree_state": "uncommitted working tree",
+    "git_diff_head_stat": " .../prompts/core/compiler/layout/grid/borders.md   |  34 +-\n .../prompts/core/compiler/layout/grid/cell_body.md |  34 +-\n .../core/compiler/layout/grid/measurement_cache.md |  67 ++-\n .../prompts/core/compiler/layout/grid/tracks.md    |  99 +++-\n .../prompts/core/compiler/layout/grid_placement.md |  35 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  33 +-\n 00_nucleo/prompts/core/compiler/layout/image.md    |  34 +-\n .../prompts/core/compiler/layout/line_commit.md    |  12 +-\n .../prompts/core/compiler/layout/measurement.md    |  76 +++-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  12 +-\n .../core/compiler/layout/par_line_callbacks.md     |  12 +-\n 00_nucleo/prompts/core/compiler/layout/place.md    |  12 +-\n .../prompts/core/compiler/layout/references.md     |  12 +-\n .../prompts/core/compiler/layout/text/style.md     |  33 +-\n .../prompts/core/entities/elements/table_cell.md   |  34 +-\n 01_core/src/compiler/layout/grid/borders.rs        | 146 +++++-\n 01_core/src/compiler/layout/grid/cell_body.rs      | 216 ++++++++-\n .../src/compiler/layout/grid/measurement_cache.rs  | 357 ++++++++++++++-\n 01_core/src/compiler/layout/grid/tracks.rs         | 502 ++++++++++++++++++++-\n 01_core/src/compiler/layout/grid_placement.rs      | 222 ++++++++-\n 01_core/src/compiler/layout/helpers.rs             | 159 ++++++-\n 01_core/src/compiler/layout/image.rs               |  82 +++-\n 01_core/src/compiler/layout/line_commit.rs         | 176 +++++++-\n 01_core/src/compiler/layout/measurement.rs         | 473 ++++++++++++++++++-\n 01_core/src/compiler/layout/mod.rs                 | 308 ++++++++++++-\n 01_core/src/compiler/layout/par_line_callbacks.rs  |  92 +++-\n 01_core/src/compiler/layout/place.rs               |  98 +++-\n 01_core/src/compiler/layout/references.rs          | 189 +++++++-\n 01_core/src/compiler/layout/text/style.rs          | 176 +++++++-\n 01_core/src/entities/elements/table_cell.rs        | 106 ++++-\n 30 files changed, 3769 insertions(+), 72 deletions(-)\n",
+    "git_status_short": " M 00_nucleo/prompts/core/compiler/layout/grid/borders.md\n M 00_nucleo/prompts/core/compiler/layout/grid/cell_body.md\n M 00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md\n M 00_nucleo/prompts/core/compiler/layout/grid/tracks.md\n M 00_nucleo/prompts/core/compiler/layout/grid_placement.md\n M 00_nucleo/prompts/core/compiler/layout/helpers.md\n M 00_nucleo/prompts/core/compiler/layout/image.md\n M 00_nucleo/prompts/core/compiler/layout/line_commit.md\n M 00_nucleo/prompts/core/compiler/layout/measurement.md\n M 00_nucleo/prompts/core/compiler/layout/mod.md\n M 00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md\n M 00_nucleo/prompts/core/compiler/layout/place.md\n M 00_nucleo/prompts/core/compiler/layout/references.md\n M 00_nucleo/prompts/core/compiler/layout/text/style.md\n M 00_nucleo/prompts/core/entities/elements/table_cell.md\n M 01_core/src/compiler/layout/grid/borders.rs\n M 01_core/src/compiler/layout/grid/cell_body.rs\n M 01_core/src/compiler/layout/grid/measurement_cache.rs\n M 01_core/src/compiler/layout/grid/tracks.rs\n M 01_core/src/compiler/layout/grid_placement.rs\n M 01_core/src/compiler/layout/helpers.rs\n M 01_core/src/compiler/layout/image.rs\n M 01_core/src/compiler/layout/line_commit.rs\n M 01_core/src/compiler/layout/measurement.rs\n M 01_core/src/compiler/layout/mod.rs\n M 01_core/src/compiler/layout/par_line_callbacks.rs\n M 01_core/src/compiler/layout/place.rs\n M 01_core/src/compiler/layout/references.rs\n M 01_core/src/compiler/layout/text/style.rs\n M 01_core/src/entities/elements/table_cell.rs\n",
+    "record_action": "Read archived evidence and write this diagnostic only. No source/L0 edits, cargo invocation or new compiler measurement.",
+    "measurement_provenance_rule": "Record-generation state is not the state of the archived binary measurements. Each evidence receipt retains its own exact UTC, source state, commands and binary identity; the batch C binary source provenance remains distinct from concurrent batch D edits."
+  },
+  "ratified_oracle": {
+    "commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+    "tree": "cac836c07e4dec2a89219370428292393a3216b5",
+    "binary_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  },
+  "closure_boundary": "Selected V16 coverage and scoped Image/simple inline Equation/captionless Figure repairs do not certify the remaining language cases. Unsupported approximation is never accepted as semantic zero. Current candidate validation is separate and ongoing.",
+  "obligations": [
+    {
+      "id": "D-OPEN-01",
+      "title": "Captioned and numbered Figure constrained measurement",
+      "status": "open_source_audited_limit",
+      "required_behavior": "A captioned figure must reserve its rendered body and caption extent with the actual lexical style, prefix, numbering and spacing. Measurement must not repeat figure progress, callbacks or other document effects.",
+      "measured_or_source_observed": "The scoped dispatcher repairs Figure only when caption is absent. Existing figure layout constructs progress-dependent numbering and supplement prefixes before drawing body and caption. Captioned figures retain the unsupported approximation in this measurement dispatcher.",
+      "why_outside_batch_d_closure": "The scoped RED probes cover caption:none. An isolated empty runtime cannot establish the ambient figure index or prefix; adding independent body-plus-caption arithmetic would not reproduce the owning layout contract.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/report.md",
+          "sha256": "75ac48657d83a6c3d6b29d7b33727b22cf5a06194fbdb535a7d12678209d14e9"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json",
+          "sha256": "9d779464ce9021fedb089c98cc6559797a57b01f9e47a3a34e839b749ec78fc2",
+          "selector": "runs where name is figure-auto or figure-40pt"
+        }
+      ],
+      "proposed_refuter_or_resolution_test": "Add source-to-Auto-grid probes with caption shorter and longer than body, numbering:none, multiple numbered figures, lexical font changes and explicit caption styling. Verify next-column origin, caption text, prefix/index and spacing against the pinned oracle; assert original locator, request stores and figure-progress state are unchanged during measurement.",
+      "limits_of_current_evidence": "No bilateral captioned-figure width measurement was executed in this subtask. Do not infer the magnitude or universality of a caption failure from the captionless baseline."
+    },
+    {
+      "id": "D-OPEN-02",
+      "title": "Block, contextual and uncertified mathematical measurement",
+      "status": "open_source_audited_limit",
+      "required_behavior": "Accepted mathematical content must reserve the extent of its final rendered result, including block alignment/numbering and context or callback results, without executing callbacks twice or allocating emitting identities during speculative measurement.",
+      "measured_or_source_observed": "Only inline Equation with finite positive budget and a direct recursive certificate for the explicitly accepted simple-math families uses isolated physical measurement. Block Equation, effect-bearing descendants and other uncertified mathematical composites retain the prior approximation. Tests reject hidden MathCancel function angles, ContextBlock, metadata Content, Ref supplements and ShowRecipe.",
+      "why_outside_batch_d_closure": "Ambient introspection, block numbering/alignment and callback transcript identity are not supplied by the isolated instance. The positive certificate is deliberately narrower than the full mathematical language.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/report.md",
+          "sha256": "75ac48657d83a6c3d6b29d7b33727b22cf5a06194fbdb535a7d12678209d14e9"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/implementation.json",
+          "sha256": "24d8a00e6ac1ac34beadee61bf6b3790734dcc08673f24c3a59a7e3c1d026e91"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json",
+          "sha256": "9d779464ce9021fedb089c98cc6559797a57b01f9e47a3a34e839b749ec78fc2",
+          "selector": "equation-auto measures ordinary x + y only"
+        }
+      ],
+      "proposed_refuter_or_resolution_test": "Build a source matrix for numbered/unnumbered display math, unsupported callback-free composites, context-produced math and math.cancel angle callbacks. Compare occupied grid extent and actual math geometry with the pinned oracle. Observe callback requests, stable locations and effect counts before/after measurement; allow broader certification only after every relevant descendant and embedded function field is audited.",
+      "limits_of_current_evidence": "Negative certificate tests establish non-execution and retained fallback, not that unsupported equations have zero language extent. The ordinary inline x+y result does not certify other mathematical families."
+    },
+    {
+      "id": "D-OPEN-03",
+      "title": "Image font-relative and region-relative dimensions",
+      "status": "open_measured_language_difference",
+      "required_behavior": "An image axis expressed in em or a relative length must resolve against the active font size or the appropriate containing region, preserving aspect/fit and occupied target dimensions.",
+      "measured_or_source_observed": "For the archived 10pt font and 200pt-wide zero-margin page, width:2em compiles in both products but emits image dimensions 0x0pt in product versus 20x10pt in oracle. width:50% emits 40x20pt in product versus 100x50pt in oracle. width:auto retains 40x20pt in both.",
+      "why_outside_batch_d_closure": "The selected extract_pt operation remains an explicitly bounded Float/absolute-Length projection. Its public calculator has no font/region argument. Batch D fixes grid measurement using that existing calculator, not resolution or validation of source axes.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-absolute-before.json",
+          "sha256": "d9073fb2625267d3d8b35965418cad53a75a30640660940530dd02d46fce18cc",
+          "selector": "runs em, ratio and auto; includes exact source, argv, UTC and source state"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.product.svg",
+          "sha256": "5bb80ba5b823e4ae11aa8bd22058ef0eed01dafaa449a3d0fb672771ae04ae6f"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.oracle.svg",
+          "sha256": "debadaaf8f026994b988715841b18ce145c3a2f54900ee717b9bc56d6177566a"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.product.svg",
+          "sha256": "38d9b7e0c08d0f0a4e5069a4cfe39eba6331405080ee404a05547e354194899a"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.oracle.svg",
+          "sha256": "b2088d4155292b881ffca37337fd39604d9c55673eb50737bd2a90c2b580155a"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json",
+          "sha256": "9d779464ce9021fedb089c98cc6559797a57b01f9e47a3a34e839b749ec78fc2",
+          "selector": "binary identity and build recipe"
+        }
+      ],
+      "proposed_refuter_or_resolution_test": "Add RED probes for width/height in em, percent and affine percent+length under nested font and region changes. Verify emitted image and occupied target dimensions, one-axis aspect preservation and two-axis cover/contain/stretch. Resolve through an existing owner without changing public contracts, or classify and approve any required public contract change first.",
+      "limits_of_current_evidence": "axis-before.json used relative paths and failed at the product sandbox root; only axis-absolute-before.json is semantic evidence. The evidence covers the archived inputs, not every relative-dimension combination."
+    },
+    {
+      "id": "D-OPEN-04",
+      "title": "Image source-axis type diagnostics",
+      "status": "open_measured_language_difference",
+      "required_behavior": "Image width/height must accept the language-supported axis types and reject invalid source types with the appropriate diagnostic and source span; internal numeric representations must not silently become additional source syntax.",
+      "measured_or_source_observed": "Absolute-path probes show width:true and width:20.0 compile in product while the pinned oracle rejects them. The stdlib image writer forwards axis Values without the typed validation that would reject these source cases.",
+      "why_outside_batch_d_closure": "The selected image match classifies its private projection. Correcting source argument validation belongs to the stdlib writer and requires diagnostic/span tests; treating all unsupported Values as impossible would conceal the measured acceptance difference.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-absolute-before.json",
+          "sha256": "d9073fb2625267d3d8b35965418cad53a75a30640660940530dd02d46fce18cc",
+          "selector": "runs bool and float, including stderr"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/report.md",
+          "sha256": "75ac48657d83a6c3d6b29d7b33727b22cf5a06194fbdb535a7d12678209d14e9"
+        }
+      ],
+      "proposed_refuter_or_resolution_test": "Add width/height invalid-type tests through the public image constructor with boolean, float, integer, string, content and containers, plus supported auto and relative-length controls. Check errors and exact value spans rather than merely nonzero exit; retain internal calculator controls where Float is a legitimate internal representation.",
+      "limits_of_current_evidence": "Only boolean and float source cases were measured bilaterally here. Other invalid-type categories are proposed tests, not reported measurements."
+    },
+    {
+      "id": "D-OPEN-05",
+      "title": "SVG image input support",
+      "status": "open_measured_acceptance_difference",
+      "required_behavior": "Determine and satisfy the repository-approved language support for SVG image input, including image dimension and output behavior; unsupported input must not be reported as a measured successful image case.",
+      "measured_or_source_observed": "Initial image/align-image/styled-image fixtures using the archived SVG asset are rejected by product with SVG images are not supported yet; the pinned oracle compiles them. The subsequent PNG fixture successfully exercises the scoped measurement repair.",
+      "why_outside_batch_d_closure": "Image decoding/input-format support is separate from the selected layout projection and constrained-measurement sites. No SVG decoder or input-format change was made.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/before.json",
+          "sha256": "6473600155a4be06a7f918e68b67f255390daead8fe8fc98085a2825dc3158e4",
+          "selector": "initial SVG-input run source bytes, stderr, binary SHA and source state"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/asset.svg",
+          "sha256": "3c198e5018b3eeb917fb076fd0f4d7484b1bada92fdd8268d11cf97d7db8f2cb"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json",
+          "sha256": "9d779464ce9021fedb089c98cc6559797a57b01f9e47a3a34e839b749ec78fc2",
+          "selector": "successful PNG controls"
+        }
+      ],
+      "proposed_refuter_or_resolution_test": "Audit the SVG input owner and its approved scope; add a minimal SVG source image and dimensions/fit controls through source compilation. Once supported, verify correct image content and geometry against the pinned oracle and retain malformed-input diagnostics.",
+      "limits_of_current_evidence": "This records an acceptance difference, not evidence that the decoder architecture should copy upstream or that the entire SVG format is currently promised by this owner."
+    },
+    {
+      "id": "D-OPEN-06",
+      "title": "Nested Table body vertical origin",
+      "status": "open_measured_geometry_difference",
+      "required_behavior": "Nested table content must retain the correct causal vertical position in its containing grid while reserving its width; matching a following column origin does not certify the table body origin.",
+      "measured_or_source_observed": "The archived table-auto SVG has the green product rectangle at y=-6.58pt versus y=0pt in oracle. Both next-column markers start at x=40pt. The matching width therefore leaves a vertical geometry difference open.",
+      "why_outside_batch_d_closure": "Batch D uses existing nested-Table physical measurement and changes selected nominal decisions without modifying table/subframe origin policy. The width repair probes deliberately do not convert matching x into full geometry acceptance.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json",
+          "sha256": "9d779464ce9021fedb089c98cc6559797a57b01f9e47a3a34e839b749ec78fc2",
+          "selector": "table-auto source, argv, UTC and binary/state provenance"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/table-auto.product.svg",
+          "sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/table-auto.oracle.svg",
+          "sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/geometry-before.json",
+          "sha256": "c3df551d7f7d1b85130f1e3cacf2ddb05ee900e0fb3e1e36f9ffa5ed0cd29b61",
+          "selector": "next-column x only"
+        }
+      ],
+      "proposed_refuter_or_resolution_test": "Add nested-table Auto/fixed-grid controls at page start and after text, with shapes and text, and verify global body bounds plus row/column origins. Trace the baseline/cap-height transformation through the owning table/subframe path and require a causal RED-to-GREEN test without altering established external dimensions.",
+      "limits_of_current_evidence": "The observation is from this fixed-column nested-table shape fixture. Root cause and prevalence have not been established, and no blanket table-parity defect is inferred."
+    },
+    {
+      "id": "D-OPEN-07",
+      "title": "Missing intermediate contextual cell values",
+      "status": "open_measured_visible_content_difference",
+      "required_behavior": "The contextual table cells must display the values corresponding to their document positions, while updates remain single-effect operations and the final state remains correct.",
+      "measured_or_source_observed": "context-state baseline compiles in both products and displays FINAL: 2. Oracle also displays intermediate 1 and 2 in the cells; product extraction contains A and B but omits those intermediate values. The original PDFs and exact extracted text/word data are retained.",
+      "why_outside_batch_d_closure": "The grid changes preserve cache eligibility, projection and existing emission behavior. The baseline shows a preexisting context-realization/emission difference; matching the final state alone does not establish intermediate visible content or full semantic parity.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/analysis.md",
+          "sha256": "6f09e8c0240da62e1a83b0b9b5e165c1bcb179c0a28334c31ca271c21a385b10"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/receipt.json",
+          "sha256": "8d01cfe635c5d0fba2137de875717e8eb83f180a27c3175ef178492e95767b4c",
+          "selector": "context-state; includes source and binary/build provenance"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/comparison.json",
+          "sha256": "4ea9abe910b14c876c8a32b2921899ccd24e53f4fc23195bf6cf0460b4f10686",
+          "selector": "context-state"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/fixtures/context-state.typ",
+          "sha256": "5ad082d2d8d799bf06234ee604fb9797e766719a5abc3f194d8cb342a251b149"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/context-state-product.pdf",
+          "sha256": "8a507c4ecf30bf6a5792f61f83c3842ec40c0301b454deacfacee6b5543778a4"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/context-state-oracle.pdf",
+          "sha256": "4bd4b3486b6e1940e9a67da2b7e6ee5b60bf4d1a4f72704fa3ca319d0ee986e8"
+        }
+      ],
+      "proposed_refuter_or_resolution_test": "Add a source-to-output test requiring cell-position values 1 then 2 and final value 2, with labels or explicit cell boundaries to identify each occurrence. Verify visual/PDF content and source-linked positions, update counts, stable locations and cache-hit/refusal paths; retain the effects-once HITS: 4 control independently.",
+      "limits_of_current_evidence": "Baseline PDF extraction documents the missing values, but the cause has not been isolated to a specific owner. The final count is not evidence that contextual rendering is correct."
+    },
+    {
+      "id": "D-OPEN-08",
+      "title": "Other retained grid extraction and geometry differences",
+      "status": "open_observations_require_classification",
+      "required_behavior": "Retain exact observed text/geometry differences until they are classified at the language level. Do not normalize them into parity or label serializer/extraction mechanics as a language defect without visual/semantic evidence.",
+      "measured_or_source_observed": "The grid comparison records a maximum word-box delta of approximately 0.13pt for grid-refused-space; explicit-fill-100 has the same extracted word sequence but different layout text; effects-once reports HITS: 4 in both but differing extraction order/vertical layout. Other small coordinate differences remain in the comparison receipt.",
+      "why_outside_batch_d_closure": "These observations were not the causal RED targets for the scoped width corrections. Product-preservation replay and exact comparison retention do not certify upstream parity or prove all extraction differences are visible language errors.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/analysis.md",
+          "sha256": "6f09e8c0240da62e1a83b0b9b5e165c1bcb179c0a28334c31ca271c21a385b10"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/comparison.json",
+          "sha256": "4ea9abe910b14c876c8a32b2921899ccd24e53f4fc23195bf6cf0460b4f10686",
+          "selector": "grid-refused-space, explicit-fill-100, effects-once"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/cli-baseline/receipt.json",
+          "sha256": "8d01cfe635c5d0fba2137de875717e8eb83f180a27c3175ef178492e95767b4c"
+        }
+      ],
+      "proposed_refuter_or_resolution_test": "Inspect the retained PDFs and source-linked glyph/word geometry. Reduce each discrepancy to a specific source fixture and distinguish visible placement/content from extraction-order mechanics. Require a language-level reproduction before assigning an implementation fix; retain the raw differences regardless.",
+      "limits_of_current_evidence": "No significance threshold or root cause was established here; the numerical deltas alone do not prove a language defect. No performance result is inferred from the selected 100-cell corpus."
+    }
+  ]
+}

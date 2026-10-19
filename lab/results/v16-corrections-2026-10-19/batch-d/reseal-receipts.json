@@ -1,0 +1,258 @@
+[
+  {
+    "utc": "2026-10-19T16:11:43.476800+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/layout/grid_placement.rs",
+        "before": "aee18e569ee07905f01e027198c7d441f38b852d278ac2a195aba299373cdc72",
+        "after": "5ca7d8396949e862f55469b60acad6a8baaf0f1c99890d7c097d2e938e0313a8"
+      },
+      {
+        "file": "01_core/src/compiler/layout/helpers.rs",
+        "before": "fb0aed4744c136ec3f2a7b5e1fdafcc289e3518564ab1d5ca4fd72f02640e307",
+        "after": "8c2343ddd0130e89817760a0ca11d0213ba7801b924565eb72aac4a2aa99095b"
+      },
+      {
+        "file": "01_core/src/compiler/layout/image.rs",
+        "before": "5e96f45f7d044df1aebff649d3d1d836b36f3c40e860f77631e732c2e0144ce1",
+        "after": "baba370f1ad5942e31309d486b995d0b96afc2f07351d825a0b1e8dd251589e5"
+      },
+      {
+        "file": "01_core/src/compiler/layout/line_commit.rs",
+        "before": "0217385ebf2ef08d8650edfb46fcd0a2476be82e7247061d0b6a0daa169eaea4",
+        "after": "5b31b0c9de3477aa11b7527c296f1b9e268fe7b8e57fb66b6d70ce2b25ab9a42"
+      },
+      {
+        "file": "01_core/src/compiler/layout/measurement.rs",
+        "before": "61091ca420b70c138d160287c855d6a9c566677ecfd8b8b014b7a8b5b998e04c",
+        "after": "4c816fad06f872257ad5133b5f4ebf662b24faee7e30b4ab7440f8a2e7303642"
+      },
+      {
+        "file": "01_core/src/compiler/layout/mod.rs",
+        "before": "e2e1f27931ddba81f29855cc106ea73ab7e9a871cc3fb604521a643c497f297a",
+        "after": "88d666980b2196492bfcf9d5e9c22f974c1229261a28ace1adab7435fdce2e29"
+      },
+      {
+        "file": "01_core/src/compiler/layout/par_line_callbacks.rs",
+        "before": "3e2301118a37c0f2dc8b1ec994706fa2a38680c77beea233451e28601ac32a70",
+        "after": "876cc34f43cc127205745dd8ca92b6ffe07f72071f9eacdd5b19cb5b2588fa6c"
+      },
+      {
+        "file": "01_core/src/compiler/layout/place.rs",
+        "before": "9e5ad22e0f4b9dea7f0daaf4a65b8977c3a8724925aa5de14b619be9f38e64ac",
+        "after": "ec6706b5d100b3be0964a02968b0ba21bca1303dc6647834d53fec98968e8a8c"
+      },
+      {
+        "file": "01_core/src/compiler/layout/references.rs",
+        "before": "adacf207da07fd5acfc77a96f4ce1dc013a8b9b0b1c4eb99bfaee71389f6b550",
+        "after": "1ffcb8b4a4b47f394dd1184f14260d64431041ab4c6af6d57bb1ac1560d8d331"
+      },
+      {
+        "file": "01_core/src/compiler/layout/text/style.rs",
+        "before": "dc143ec65d2ef611a9098ee9500968ccaa1462543f26f4511982a7dfb0f7e8dc",
+        "after": "103e06f366e1b42b830c84f80afe77be3a30813441e47d5213894fb50d26c6ec"
+      },
+      {
+        "file": "01_core/src/compiler/layout/grid/borders.rs",
+        "before": "0571a0ab02b5d1256f5eeb06c9af5da72050b14fab9045eaf61bf80fd1c37a47",
+        "after": "4d622fe6c942a4ef044d25e0ae0cfffc8bd940100babd2f88df108077b6d49d3"
+      },
+      {
+        "file": "01_core/src/compiler/layout/grid/cell_body.rs",
+        "before": "ea7f6bb0c63c1096acf8810b5e2c7a7a80d8b1a61d985cfe4f426f290866318b",
+        "after": "d23168394f8e1dc6dd3bb042a1096162bb86725c10cbde5984c7db4b531bf15d"
+      },
+      {
+        "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+        "before": "b13568b8d087058a75f752bf99b37fca9adf88dd568d146e18383991035c69ba",
+        "after": "3bc47227727f6d9160467f69390e22459fc0d2fb391d6285128a87d99d1049b6"
+      },
+      {
+        "file": "01_core/src/compiler/layout/grid/tracks.rs",
+        "before": "1a63533000a3e1499ee08a93a299a0e8227fc6cb25c88ab2663554b900b8a2bb",
+        "after": "64789da7f3e460cd13b8f3ad1855d8a47760aa0c7806af48290e20c51104806f"
+      },
+      {
+        "file": "01_core/src/entities/elements/table_cell.rs",
+        "before": "97f19efdd718a0ffbf261d5ada1c694814cf5a35265b6ec7ac06118577fd00ec",
+        "after": "e4a88e555d94a47370d55ffd792a28e4248cdd59cbd389c35ac3c81f9de59797"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/grid_placement.md",
+        "before": "0d29321d0b8333808f81ad54510468ae54cf614392ad0b9c029d6f20cfe43ca0",
+        "after": "8496d003b7134433200f071d012d4e7e3cd8d8bce407027ac7c619814875f2b3"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/helpers.md",
+        "before": "c12fee6c7546d7640dc2b84498c215f7dc67ad0b623e3d2af0b4f283b5e05095",
+        "after": "368b71f23835a4dfbaf0256436840609b20d4d05d7c8bac0cd7796f55434c90b"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/image.md",
+        "before": "4e870ef05b6590aa289e52bd41143b5cc7f9e2350d47a1542bdb2b8884ba43cd",
+        "after": "fc21eea1ab8f3dedbdfd4d9d7c1299da6cfa4ded3b3c387742656b97afd0035e"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/line_commit.md",
+        "before": "4b273fb862e8454f64b91bbac5dc2aebf609dec9dff599744a4af3c66f96c79d",
+        "after": "8ce0d7f705fcf102b40220416c6d8aabf147824e39d2728ff2887c0452040b1a"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+        "before": "65f0ea79cc5810fc758687994b578ac6cd7f996f1a8740636b6da69aafbd6303",
+        "after": "dcafb2c4f57c03497659eedaa690800d81cc0f91a57c46ddaaef1ce637ee40ba"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/mod.md",
+        "before": "6440a3aa3d6231e3d093077549560e06f8d5994ea870d81f3d2f1e72bc78ef36",
+        "after": "8783778747c681d4ea6e7a087614d6061187ddf2a2602676c183b8ccf1512c58"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md",
+        "before": "9270f34061120b8cca6395c9b8c2d3cbe3d54badb66009e5e41de19cf45eb8aa",
+        "after": "9c71a62869e258bda3e0f3ad8ad944d6e3c62ef3818436319809ae73c6ec208f"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/place.md",
+        "before": "bd34e5863e3211e1e2cb8fc5f2f4ea82d2f55827204d282785ad4d174e5a96a8",
+        "after": "84991269077ee1cdd482127a1e5be058cc8ea7f302e5d4a7ff0c22d07af165b8"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/references.md",
+        "before": "3c0f9ac1dc6ba2f11a5a2d861b1b690e8355d5f9c1fac7f5590aa8bd819d18f7",
+        "after": "723bd246106659d1ce007f7d9205e9649e6658b0ef1c2403e62baf87c926abe2"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/grid/borders.md",
+        "before": "55ba3c749e9c88275a50cf4c90a2c989cbde237b0d06e7079507f75d5a623463",
+        "after": "f17dbc55703960f56ad48b8b0d729f6caa5e352d7b3ada22b634330fe70eb125"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/grid/cell_body.md",
+        "before": "5c25431941a4167088829b2a92d2a323006e944550338a21c26449349dc99ced",
+        "after": "ca6c166d984ddf09907c9990c8c3198a3940a89b2b3aed0ad66f59bbcbf230e6"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md",
+        "before": "340af81fe70dc23c7ab26dd017410d5787d8866740ab9fb21866eb5a458746c6",
+        "after": "bbb08ab055b83d3bcd6f92261bc08a51593baa88b5e3e0565784ae1a77bae4d3"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/grid/tracks.md",
+        "before": "6f8df46d71ed891249cd8cb542a2d611a064aaf6cee67e9bae4158eed20bd83e",
+        "after": "43920415ac34b698f1fafab972b46ed97355211b28bb4839f5f9c31d9c581c5a"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/text/style.md",
+        "before": "3ba805e9a95f28d6a98aabb94578c03b84e181fa7f0a9b9da47a3bb6f8fda455",
+        "after": "1b932b59b781c2f950b0053495e991206fd890acda0a8e8ad651ddb1de9db9f6"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/elements/table_cell.md",
+        "before": "990a4c184b44b15640c68ea23c342c53da5a5cd75af0b8b40ccc8f2d9d2f2459",
+        "after": "15a66c5a5e9bd4923a11c541e987899dfa0c2fb6ea19c3c2441fdd41c098bec2"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/layout/grid/borders.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/borders.md hash-a=b1a481d1 hash-b=df7c3e37\nApplied ./01_core/src/compiler/layout/grid/cell_body.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/cell_body.md hash-a=80f99f81 hash-b=a6e2fff3\nApplied ./01_core/src/compiler/layout/grid/measurement_cache.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md hash-a=f2c18885 hash-b=ac057d26\nApplied ./01_core/src/compiler/layout/grid/tracks.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/tracks.md hash-a=b8a97882 hash-b=f1af5bcf\nApplied ./01_core/src/compiler/layout/grid_placement.rs prompt=00_nucleo/prompts/core/compiler/layout/grid_placement.md hash-a=33ebbc3e hash-b=5b6c5295\nApplied ./01_core/src/compiler/layout/helpers.rs prompt=00_nucleo/prompts/core/compiler/layout/helpers.md hash-a=61a57b1d hash-b=74a2174b\nApplied ./01_core/src/compiler/layout/image.rs prompt=00_nucleo/prompts/core/compiler/layout/image.md hash-a=ac269d02 hash-b=2dbe133d\nApplied ./01_core/src/compiler/layout/line_commit.rs prompt=00_nucleo/prompts/core/compiler/layout/line_commit.md hash-a=3ae73754 hash-b=727e5f67\nApplied ./01_core/src/compiler/layout/measurement.rs prompt=00_nucleo/prompts/core/compiler/layout/measurement.md hash-a=54c14d10 hash-b=6588ce07\nApplied ./01_core/src/compiler/layout/mod.rs prompt=00_nucleo/prompts/core/compiler/layout/mod.md hash-a=d644f28e hash-b=86e86799\nApplied ./01_core/src/compiler/layout/par_line_callbacks.rs prompt=00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md hash-a=226fb7f2 hash-b=ce86fcee\nApplied ./01_core/src/compiler/layout/place.rs prompt=00_nucleo/prompts/core/compiler/layout/place.md hash-a=503210b6 hash-b=d8c35c4d\nApplied ./01_core/src/compiler/layout/references.rs prompt=00_nucleo/prompts/core/compiler/layout/references.md hash-a=cf7b41e5 hash-b=32e598c7\nApplied ./01_core/src/compiler/layout/text/style.rs prompt=00_nucleo/prompts/core/compiler/layout/text/style.md hash-a=c3166f6c hash-b=5e559992\nApplied ./01_core/src/entities/elements/table_cell.rs prompt=00_nucleo/prompts/core/entities/elements/table_cell.md hash-a=36fba78f hash-b=83a97195\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T16:13:32.493893+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+        "before": "dcafb2c4f57c03497659eedaa690800d81cc0f91a57c46ddaaef1ce637ee40ba",
+        "after": "51238f6d963053c5f1b43ed2493207fe52709647348ce8d6c3c40e7dae388d4b"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/mod.md",
+        "before": "8783778747c681d4ea6e7a087614d6061187ddf2a2602676c183b8ccf1512c58",
+        "after": "894c22372dca6cf79578015380f0fa6b85ba942ae2bc3b01904eb176c97351d7"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/layout/grid/borders.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/borders.md hash-a=b1a481d1 hash-b=df7c3e37\nApplied ./01_core/src/compiler/layout/grid/cell_body.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/cell_body.md hash-a=80f99f81 hash-b=a6e2fff3\nApplied ./01_core/src/compiler/layout/grid/measurement_cache.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md hash-a=f2c18885 hash-b=ac057d26\nApplied ./01_core/src/compiler/layout/grid/tracks.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/tracks.md hash-a=b8a97882 hash-b=f1af5bcf\nApplied ./01_core/src/compiler/layout/grid_placement.rs prompt=00_nucleo/prompts/core/compiler/layout/grid_placement.md hash-a=33ebbc3e hash-b=5b6c5295\nApplied ./01_core/src/compiler/layout/helpers.rs prompt=00_nucleo/prompts/core/compiler/layout/helpers.md hash-a=61a57b1d hash-b=74a2174b\nApplied ./01_core/src/compiler/layout/image.rs prompt=00_nucleo/prompts/core/compiler/layout/image.md hash-a=ac269d02 hash-b=2dbe133d\nApplied ./01_core/src/compiler/layout/line_commit.rs prompt=00_nucleo/prompts/core/compiler/layout/line_commit.md hash-a=3ae73754 hash-b=727e5f67\nApplied ./01_core/src/compiler/layout/measurement.rs prompt=00_nucleo/prompts/core/compiler/layout/measurement.md hash-a=54c14d10 hash-b=12966ed7\nApplied ./01_core/src/compiler/layout/mod.rs prompt=00_nucleo/prompts/core/compiler/layout/mod.md hash-a=d644f28e hash-b=ec0875e2\nApplied ./01_core/src/compiler/layout/par_line_callbacks.rs prompt=00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md hash-a=226fb7f2 hash-b=ce86fcee\nApplied ./01_core/src/compiler/layout/place.rs prompt=00_nucleo/prompts/core/compiler/layout/place.md hash-a=503210b6 hash-b=d8c35c4d\nApplied ./01_core/src/compiler/layout/references.rs prompt=00_nucleo/prompts/core/compiler/layout/references.md hash-a=cf7b41e5 hash-b=32e598c7\nApplied ./01_core/src/compiler/layout/text/style.rs prompt=00_nucleo/prompts/core/compiler/layout/text/style.md hash-a=c3166f6c hash-b=5e559992\nApplied ./01_core/src/entities/elements/table_cell.rs prompt=00_nucleo/prompts/core/entities/elements/table_cell.md hash-a=36fba78f hash-b=83a97195\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T16:18:36.073459+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/grid_placement.md",
+        "before": "8496d003b7134433200f071d012d4e7e3cd8d8bce407027ac7c619814875f2b3",
+        "after": "eec44b46ccc6cda2b90bbfa0a86f6b181b540cc738950096ee4ebb0c66e20ca7"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/helpers.md",
+        "before": "368b71f23835a4dfbaf0256436840609b20d4d05d7c8bac0cd7796f55434c90b",
+        "after": "a901e6e70e4dfeee24c1fb8172df45be30665119ab6df39a6d9f5882eb462ae9"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/image.md",
+        "before": "fc21eea1ab8f3dedbdfd4d9d7c1299da6cfa4ded3b3c387742656b97afd0035e",
+        "after": "eb3243f2aeb8f8d08eb2ede965bb70f8eb1a1859633115ecbea7eb0bbbf9eb90"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/line_commit.md",
+        "before": "8ce0d7f705fcf102b40220416c6d8aabf147824e39d2728ff2887c0452040b1a",
+        "after": "d9042ec158d025781092eea114bef9ae536bb8f4ea7f936bc9d16ee49c4c55b4"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+        "before": "51238f6d963053c5f1b43ed2493207fe52709647348ce8d6c3c40e7dae388d4b",
+        "after": "148f198548bb4f44b66a373ba74049a4bfff1544d540bcdc236dae2f18fc0727"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/mod.md",
+        "before": "894c22372dca6cf79578015380f0fa6b85ba942ae2bc3b01904eb176c97351d7",
+        "after": "611d51e002a593584e1132e0e86299436581e9bdd67e4ca3cf467b66211df0b8"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md",
+        "before": "9c71a62869e258bda3e0f3ad8ad944d6e3c62ef3818436319809ae73c6ec208f",
+        "after": "4d5706900d86593456eb5a083558bc5fb3f5a832e340297814ceff8dbf0a0acf"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/place.md",
+        "before": "84991269077ee1cdd482127a1e5be058cc8ea7f302e5d4a7ff0c22d07af165b8",
+        "after": "579e85ee70a8f8ce11692316256853c9e17f3a1016218460c67ff7ecf10b530f"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/references.md",
+        "before": "723bd246106659d1ce007f7d9205e9649e6658b0ef1c2403e62baf87c926abe2",
+        "after": "eb7adaa0f3b24e914142ba235a494bd66d4fe42ba8c4abcb6b776a7d9fdd3f0e"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/grid/borders.md",
+        "before": "f17dbc55703960f56ad48b8b0d729f6caa5e352d7b3ada22b634330fe70eb125",
+        "after": "3d815d7388d64938cb620faccbf4c9655f84e31dbbd66f740c397c2d8f19c494"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/grid/cell_body.md",
+        "before": "ca6c166d984ddf09907c9990c8c3198a3940a89b2b3aed0ad66f59bbcbf230e6",
+        "after": "16479e8c3dd91cef7b759433eae32b243d9be2470c713aeee5240dc2c289adb9"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md",
+        "before": "bbb08ab055b83d3bcd6f92261bc08a51593baa88b5e3e0565784ae1a77bae4d3",
+        "after": "b7cc36bca84fa27536c71dd66eef9c191cc592ece27b68f5ccbcd4c6179fd157"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/grid/tracks.md",
+        "before": "43920415ac34b698f1fafab972b46ed97355211b28bb4839f5f9c31d9c581c5a",
+        "after": "eebc36967fea9cc6785f4805eb4fe9db8e1af4ba3c2a827002bb52df3dc12670"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/text/style.md",
+        "before": "1b932b59b781c2f950b0053495e991206fd890acda0a8e8ad651ddb1de9db9f6",
+        "after": "263975116d3475f4b106318671f859c1d54b7e88fea2681d128b841e7b96a0a6"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/elements/table_cell.md",
+        "before": "15a66c5a5e9bd4923a11c541e987899dfa0c2fb6ea19c3c2441fdd41c098bec2",
+        "after": "2aafcd662b225a36522d777a069c42454672497f5fb7d5233087cc9c0ca48ce6"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/layout/grid/borders.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/borders.md hash-a=b1a481d1 hash-b=8dfb9ce5\nApplied ./01_core/src/compiler/layout/grid/cell_body.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/cell_body.md hash-a=80f99f81 hash-b=5e60a7c3\nApplied ./01_core/src/compiler/layout/grid/measurement_cache.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md hash-a=f2c18885 hash-b=110ebc9c\nApplied ./01_core/src/compiler/layout/grid/tracks.rs prompt=00_nucleo/prompts/core/compiler/layout/grid/tracks.md hash-a=b8a97882 hash-b=152caa93\nApplied ./01_core/src/compiler/layout/grid_placement.rs prompt=00_nucleo/prompts/core/compiler/layout/grid_placement.md hash-a=33ebbc3e hash-b=4f162a5f\nApplied ./01_core/src/compiler/layout/helpers.rs prompt=00_nucleo/prompts/core/compiler/layout/helpers.md hash-a=61a57b1d hash-b=03a04b58\nApplied ./01_core/src/compiler/layout/image.rs prompt=00_nucleo/prompts/core/compiler/layout/image.md hash-a=ac269d02 hash-b=26ee757d\nApplied ./01_core/src/compiler/layout/line_commit.rs prompt=00_nucleo/prompts/core/compiler/layout/line_commit.md hash-a=3ae73754 hash-b=f9eb931e\nApplied ./01_core/src/compiler/layout/measurement.rs prompt=00_nucleo/prompts/core/compiler/layout/measurement.md hash-a=54c14d10 hash-b=ff383ee1\nApplied ./01_core/src/compiler/layout/mod.rs prompt=00_nucleo/prompts/core/compiler/layout/mod.md hash-a=d644f28e hash-b=ed7c9822\nApplied ./01_core/src/compiler/layout/par_line_callbacks.rs prompt=00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md hash-a=226fb7f2 hash-b=398b3d11\nApplied ./01_core/src/compiler/layout/place.rs prompt=00_nucleo/prompts/core/compiler/layout/place.md hash-a=503210b6 hash-b=2d2290bc\nApplied ./01_core/src/compiler/layout/references.rs prompt=00_nucleo/prompts/core/compiler/layout/references.md hash-a=cf7b41e5 hash-b=76cedf37\nApplied ./01_core/src/compiler/layout/text/style.rs prompt=00_nucleo/prompts/core/compiler/layout/text/style.md hash-a=c3166f6c hash-b=e917cbea\nApplied ./01_core/src/entities/elements/table_cell.rs prompt=00_nucleo/prompts/core/entities/elements/table_cell.md hash-a=36fba78f hash-b=18794b95\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  }
+]

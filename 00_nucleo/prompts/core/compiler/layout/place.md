@@ -1,5 +1,5 @@
 # L0 — place
-Hash do Código: 168bf9d3
+Hash do Código: 2d2290bc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -91,3 +91,13 @@ Local-origin and causal-end corrections follow internal ADR-0127: L0 first, RED�
 Geometric body origin and postcommitted-flow anchor are distinct. Certified-anchor scope (historical B1) covers line/shape/Block/Align/Grid/Raw/VSpace, not the whole system. Local surviving Block region/clipping (historical B2a) does not complete Block fragmentation/dimensions/outset or metadata/decorator integration (historical B2b), nor late inline Box/Transform baseline and uncertified Heading/List/Stack/Equation/Columns producers (historical B3). Those remain explicit completion boundaries; do not certify universal Place while open. Initial statements that tiling awaited approval are superseded only within the recorded transport approval, not native production certification.
 
 L0 comes first, with RED→GREEN and restricted resealing. Preserve geometry/text in source→PDF/SVG controls and revalidate suite/build/doc/check/fmt/lineage. This metadata migration neither replaces Shape.fill/stroke with FramePaint nor implements PDF/SVG/raster patterns. Prepared paint transport, native exporter integration and verification (historical T1c/T2/T3) remain explicitly open and already authorized. Build success does not establish tiling parity or production readiness.
+
+## V16 closed-domain evidence and correction
+
+Measured in the uncommitted working tree at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:02:56.055664+00:00`; exact changed-file diffstat and source/L0 SHA-256 are in `lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/audit-before.json`. `place.rs:289–311` projects Option<HAlign> to horizontal free-space placement, clamping only after projection; `place.rs:324–520` applies its target to items, orphan paths and decorations. DeferredFloat at `mod.rs:798–843` has no dx/dy/scope fields.
+
+This is observed local source behavior, not a new bilateral result or inferred upstream intent. Identity, text, quote choice, geometry and supplement semantics are language obligations; the match representation is mechanics. A caller admitting a supposedly excluded payload, duplicate event, changed text/geometry/request or changed diagnostic refutes preservation.
+
+Close the existing optional horizontal decision explicitly: Some(Center) uses half the available-minus-body width, Some(Right/End) uses all of it, and None/Some(Left/Start) uses zero. Retain the nonnegative clamp and physical Start/End interpretation, including bodies wider than the region. Do not certify RTL resolution, dx/dy/scope or clipping beyond existing contracts. Translate body, orphan alignment coordinates and active decoration segments in the same frame, retaining insertion indices and lexical links. A new HAlign must fail exhaustiveness inside Some at this exact match.
+
+ADR-0127 classification: continuous-flow internal nominal coverage with no public signature, default, phase or compatibility change. Add behavior-preservation controls before implementation and require baseline/final controls plus disposable future-variant compile-negative evidence at the exact selected decision. Current runtime controls may already pass; the structural RED is failure to reject a future variant at that decision. No new suppression or open catchall is authorized.

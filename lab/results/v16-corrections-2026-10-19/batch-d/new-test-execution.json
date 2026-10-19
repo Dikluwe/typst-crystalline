@@ -1,0 +1,121 @@
+{
+  "utc": "2026-10-19T16:45:49.334114+00:00",
+  "log": "validation/tests-domain-infra.log",
+  "log_sha256": "1340a823e4d785e2fae415e453c0d1e667878c7452edaf67af48e7718506c99e",
+  "new_tests_observed_passing": [
+    {
+      "file": "01_core/src/compiler/layout/grid/borders.rs",
+      "name": "v16_d_raw_wrappers_inherit_without_borrowing_nested_cell_stroke"
+    },
+    {
+      "file": "01_core/src/compiler/layout/grid/cell_body.rs",
+      "name": "v16_d_raw_inherits_fill_inset_but_prepared_none_does_not"
+    },
+    {
+      "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+      "name": "v16_d_placement_neutral_is_not_cache_permission_and_fallback_keeps_text"
+    },
+    {
+      "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+      "name": "v16_d_styled_guard_false_cannot_recurse_and_source_is_only_transparency"
+    },
+    {
+      "file": "01_core/src/compiler/layout/grid/tracks.rs",
+      "name": "v16_d_track_inheritance_keeps_raw_inset_and_replaced_plan_zero_inset"
+    },
+    {
+      "file": "01_core/src/compiler/layout/grid/tracks.rs",
+      "name": "v16_d_measurement_projection_keeps_styles_origins_and_unstaged_cells"
+    },
+    {
+      "file": "01_core/src/compiler/layout/grid/tracks.rs",
+      "name": "v16_d_nested_table_is_a_measurement_projection_barrier"
+    },
+    {
+      "file": "01_core/src/compiler/layout/grid_placement.rs",
+      "name": "v16_d_wrong_policy_cells_are_raw_unit_origins"
+    },
+    {
+      "file": "01_core/src/compiler/layout/grid_placement.rs",
+      "name": "v16_d_policies_keep_document_order_conflict_and_explicit_first_distinct"
+    },
+    {
+      "file": "01_core/src/compiler/layout/grid_placement.rs",
+      "name": "v16_d_matching_table_overflow_keeps_causal_span"
+    },
+    {
+      "file": "01_core/src/compiler/layout/helpers.rs",
+      "name": "v16_d_legacy_projection_preserves_generated_shape_and_true_absence"
+    },
+    {
+      "file": "01_core/src/compiler/layout/image.rs",
+      "name": "v16_d_image_axis_schema_keeps_intrinsic_and_fit_controls"
+    },
+    {
+      "file": "01_core/src/compiler/layout/line_commit.rs",
+      "name": "v16_d_line_numbering_admission_overlay_and_deferred_pattern_are_distinct"
+    },
+    {
+      "file": "01_core/src/compiler/layout/line_commit.rs",
+      "name": "v16_d_line_callback_records_or_consumes_without_execution"
+    },
+    {
+      "file": "01_core/src/compiler/layout/measurement.rs",
+      "name": "v16_d_constrained_visible_measurement_preserves_emitter_state"
+    },
+    {
+      "file": "01_core/src/compiler/layout/measurement.rs",
+      "name": "v16_d_constrained_image_keeps_target_and_source_visual_transport"
+    },
+    {
+      "file": "01_core/src/compiler/layout/measurement.rs",
+      "name": "v16_d_math_measurement_rejects_hidden_callbacks_without_requests"
+    },
+    {
+      "file": "01_core/src/compiler/layout/mod.rs",
+      "name": "v16_d_source_and_located_keep_one_identity_before_following_occurrence"
+    },
+    {
+      "file": "01_core/src/compiler/layout/mod.rs",
+      "name": "v16_d_quote_observer_preserves_wrapped_text_spaces_and_neutral_metadata"
+    },
+    {
+      "file": "01_core/src/compiler/layout/par_line_callbacks.rs",
+      "name": "v16_d_number_fixup_covers_both_alignment_axes_and_item_ranges"
+    },
+    {
+      "file": "01_core/src/compiler/layout/place.rs",
+      "name": "v16_d_float_optional_horizontal_alignment_preserves_geometry_and_metadata"
+    },
+    {
+      "file": "01_core/src/compiler/layout/references.rs",
+      "name": "v16_d_supplements_cover_every_kind_and_string_guard_residual"
+    },
+    {
+      "file": "01_core/src/compiler/layout/references.rs",
+      "name": "v16_d_filtered_native_and_composite_selectors_do_not_invent_supplements"
+    },
+    {
+      "file": "01_core/src/compiler/layout/text/style.rs",
+      "name": "v16_d_font_schema_preserves_names_order_fields_and_typed_style"
+    },
+    {
+      "file": "01_core/src/compiler/layout/text/style.rs",
+      "name": "v16_d_invalid_raw_font_entries_preserve_ambient_fallback"
+    },
+    {
+      "file": "01_core/src/entities/elements/table_cell.rs",
+      "name": "v16_d_inset_precedence_and_partial_absence_are_preserved"
+    },
+    {
+      "file": "01_core/src/entities/elements/table_cell.rs",
+      "name": "v16_d_inset_rejection_is_atomic_and_does_not_expand_casts"
+    }
+  ],
+  "baseline_semantic_red": [
+    "v16_d_constrained_image_keeps_target_and_source_visual_transport",
+    "v16_d_constrained_visible_measurement_preserves_emitter_state",
+    "v16_d_math_measurement_rejects_hidden_callbacks_without_requests"
+  ],
+  "baseline_preservation_count": 24
+}

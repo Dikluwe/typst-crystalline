@@ -1,0 +1,65 @@
+[
+  {
+    "id": "V16-029",
+    "file": "01_core/src/compiler/layout/grid/borders.rs",
+    "function": "cell_effective_stroke",
+    "anchor": "let cell_stroke = match cell",
+    "domain": "Content"
+  },
+  {
+    "id": "V16-030",
+    "file": "01_core/src/compiler/layout/grid/cell_body.rs",
+    "function": "emit_grid_cell_body",
+    "anchor": "let (cell_stroke, cell_fill, cell_align, cell_inset, _cell_breakable) = match cell",
+    "domain": "Content"
+  },
+  {
+    "id": "V16-031",
+    "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+    "function": "simple_placement",
+    "anchor": "match content {",
+    "domain": "Content"
+  },
+  {
+    "id": "V16-032",
+    "file": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+    "function": "token",
+    "anchor": "match content {",
+    "domain": "Content"
+  },
+  {
+    "id": "V16-033",
+    "file": "01_core/src/compiler/layout/grid/tracks.rs",
+    "function": "resolve_grid_columns",
+    "anchor": "let cell_inset = match &cells[ci] {",
+    "domain": "Content"
+  },
+  {
+    "id": "V16-034",
+    "file": "01_core/src/compiler/layout/grid/tracks.rs",
+    "function": "resolve_grid_rows",
+    "anchor": "let cell_inset = match item {",
+    "domain": "Content"
+  },
+  {
+    "id": "V16-035",
+    "file": "01_core/src/compiler/layout/grid/tracks.rs",
+    "function": "measurement_visual",
+    "anchor": "Ok(match node {",
+    "domain": "Content"
+  },
+  {
+    "id": "V16-036",
+    "file": "01_core/src/compiler/layout/grid_placement.rs",
+    "function": "place",
+    "anchor": "let fields = |c: &Content| match c {",
+    "domain": "Content"
+  },
+  {
+    "id": "V16-077",
+    "file": "01_core/src/entities/elements/table_cell.rs",
+    "function": "style_inset",
+    "anchor": "match value {",
+    "domain": "Value"
+  }
+]

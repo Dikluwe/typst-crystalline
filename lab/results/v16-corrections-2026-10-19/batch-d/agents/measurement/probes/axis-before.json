@@ -1,0 +1,162 @@
+[
+  {
+    "name": "em",
+    "binary": "product",
+    "argv": [
+      "lab/target/product/debug/typst",
+      "compile",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.typ",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.product.svg"
+    ],
+    "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(size:10pt)\n#image(\"asset.png\",width:2em)",
+    "source_sha256": "5f702bf1b9f4e9a0d8cfcaadf3b6bd13ca83898f2f897216e4b51dc16b97b697",
+    "exit": 1,
+    "stderr": "error: image(): n\u00e3o foi poss\u00edvel ler: current file is outside its sandbox root\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.typ:3:6\n  \u2502\n3 \u2502 #image(\"asset.png\",width:2em)\n  \u2502       ^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+    "utc": "2026-10-19T16:05:20.663298+00:00",
+    "output": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.product.svg"
+  },
+  {
+    "name": "em",
+    "binary": "oracle",
+    "argv": [
+      "lab/typst-original/target/release/typst",
+      "compile",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.typ",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.oracle.svg"
+    ],
+    "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(size:10pt)\n#image(\"asset.png\",width:2em)",
+    "source_sha256": "5f702bf1b9f4e9a0d8cfcaadf3b6bd13ca83898f2f897216e4b51dc16b97b697",
+    "exit": 0,
+    "stderr": "",
+    "utc": "2026-10-19T16:05:20.671244+00:00",
+    "output": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-em.oracle.svg"
+  },
+  {
+    "name": "ratio",
+    "binary": "product",
+    "argv": [
+      "lab/target/product/debug/typst",
+      "compile",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.typ",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.product.svg"
+    ],
+    "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(size:10pt)\n#image(\"asset.png\",width:50%)",
+    "source_sha256": "2009359733a994959d9391a28c4d266739df850fba139f2aa43983a7cd6ec4a3",
+    "exit": 1,
+    "stderr": "error: image(): n\u00e3o foi poss\u00edvel ler: current file is outside its sandbox root\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.typ:3:6\n  \u2502\n3 \u2502 #image(\"asset.png\",width:50%)\n  \u2502       ^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+    "utc": "2026-10-19T16:05:20.686817+00:00",
+    "output": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.product.svg"
+  },
+  {
+    "name": "ratio",
+    "binary": "oracle",
+    "argv": [
+      "lab/typst-original/target/release/typst",
+      "compile",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.typ",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.oracle.svg"
+    ],
+    "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(size:10pt)\n#image(\"asset.png\",width:50%)",
+    "source_sha256": "2009359733a994959d9391a28c4d266739df850fba139f2aa43983a7cd6ec4a3",
+    "exit": 0,
+    "stderr": "",
+    "utc": "2026-10-19T16:05:20.693900+00:00",
+    "output": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-ratio.oracle.svg"
+  },
+  {
+    "name": "bool",
+    "binary": "product",
+    "argv": [
+      "lab/target/product/debug/typst",
+      "compile",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-bool.typ",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-bool.product.svg"
+    ],
+    "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(size:10pt)\n#image(\"asset.png\",width:true)",
+    "source_sha256": "8c7e349bc10e71b65659d95a805a919498fe74acbad356295395ea51fa3a9743",
+    "exit": 1,
+    "stderr": "error: image(): n\u00e3o foi poss\u00edvel ler: current file is outside its sandbox root\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-bool.typ:3:6\n  \u2502\n3 \u2502 #image(\"asset.png\",width:true)\n  \u2502       ^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+    "utc": "2026-10-19T16:05:20.708823+00:00",
+    "output": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-bool.product.svg"
+  },
+  {
+    "name": "bool",
+    "binary": "oracle",
+    "argv": [
+      "lab/typst-original/target/release/typst",
+      "compile",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-bool.typ",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-bool.oracle.svg"
+    ],
+    "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(size:10pt)\n#image(\"asset.png\",width:true)",
+    "source_sha256": "8c7e349bc10e71b65659d95a805a919498fe74acbad356295395ea51fa3a9743",
+    "exit": 1,
+    "stderr": "error: expected relative length or auto, found boolean\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-bool.typ:3:25\n  \u2502\n3 \u2502 #image(\"asset.png\",width:true)\n  \u2502                          ^^^^\n\n",
+    "utc": "2026-10-19T16:05:20.715242+00:00",
+    "output": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-bool.oracle.svg"
+  },
+  {
+    "name": "auto",
+    "binary": "product",
+    "argv": [
+      "lab/target/product/debug/typst",
+      "compile",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-auto.typ",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-auto.product.svg"
+    ],
+    "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(size:10pt)\n#image(\"asset.png\",width:auto)",
+    "source_sha256": "f26335e9fed29f7bbc3c9e6e305176fecbcad06a523a81e635569b2545839826",
+    "exit": 1,
+    "stderr": "error: image(): n\u00e3o foi poss\u00edvel ler: current file is outside its sandbox root\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-auto.typ:3:6\n  \u2502\n3 \u2502 #image(\"asset.png\",width:auto)\n  \u2502       ^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+    "utc": "2026-10-19T16:05:20.729910+00:00",
+    "output": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-auto.product.svg"
+  },
+  {
+    "name": "auto",
+    "binary": "oracle",
+    "argv": [
+      "lab/typst-original/target/release/typst",
+      "compile",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-auto.typ",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-auto.oracle.svg"
+    ],
+    "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(size:10pt)\n#image(\"asset.png\",width:auto)",
+    "source_sha256": "f26335e9fed29f7bbc3c9e6e305176fecbcad06a523a81e635569b2545839826",
+    "exit": 0,
+    "stderr": "",
+    "utc": "2026-10-19T16:05:20.738258+00:00",
+    "output": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-auto.oracle.svg"
+  },
+  {
+    "name": "float",
+    "binary": "product",
+    "argv": [
+      "lab/target/product/debug/typst",
+      "compile",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-float.typ",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-float.product.svg"
+    ],
+    "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(size:10pt)\n#image(\"asset.png\",width:20.0)",
+    "source_sha256": "16ff08c42a96afa931400145cba540acfe3b9bf72ee9baf56623b6840dcfcb0d",
+    "exit": 1,
+    "stderr": "error: image(): n\u00e3o foi poss\u00edvel ler: current file is outside its sandbox root\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-float.typ:3:6\n  \u2502\n3 \u2502 #image(\"asset.png\",width:20.0)\n  \u2502       ^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+    "utc": "2026-10-19T16:05:20.753225+00:00",
+    "output": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-float.product.svg"
+  },
+  {
+    "name": "float",
+    "binary": "oracle",
+    "argv": [
+      "lab/typst-original/target/release/typst",
+      "compile",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-float.typ",
+      "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-float.oracle.svg"
+    ],
+    "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(size:10pt)\n#image(\"asset.png\",width:20.0)",
+    "source_sha256": "16ff08c42a96afa931400145cba540acfe3b9bf72ee9baf56623b6840dcfcb0d",
+    "exit": 1,
+    "stderr": "error: expected relative length or auto, found float\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-float.typ:3:25\n  \u2502\n3 \u2502 #image(\"asset.png\",width:20.0)\n  \u2502                          ^^^^\n\n",
+    "utc": "2026-10-19T16:05:20.759457+00:00",
+    "output": "lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/axis-float.oracle.svg"
+  }
+]

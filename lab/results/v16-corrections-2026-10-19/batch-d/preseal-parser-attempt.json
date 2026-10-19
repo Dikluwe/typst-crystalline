@@ -1,0 +1,10 @@
+{
+  "utc_recorded": "2026-10-19T16:11:52.616228+00:00",
+  "status": "rejected preseal parse before any seal write",
+  "file": "01_core/src/compiler/layout/grid/tracks.rs",
+  "observed_diagnostic": "Syntax error detected in AST [PARSE] at tracks.rs:583",
+  "cause": "New test binding &raw parsed ambiguously by pinned linter; binding renamed unprepared_cell without any logic or linter change.",
+  "repaired_text_sha256": "64789da7f3e460cd13b8f3ad1855d8a47760aa0c7806af48290e20c51104806f",
+  "reconstructed_syntax_example_sha256": "c196dc292abc479b191e95c77aef15353912f8c7330ed37881380421dcb447b9",
+  "provenance_limit": "The reconstruction uses the later resealed header; it is not a hash of the original failed whole-file state and is not acceptance evidence."
+}

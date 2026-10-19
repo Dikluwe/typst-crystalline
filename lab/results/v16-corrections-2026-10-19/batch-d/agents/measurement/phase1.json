@@ -1,0 +1,37 @@
+{
+  "utc": "2026-10-19T16:08:01.549659+00:00",
+  "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+  "diffstat": " .../prompts/core/compiler/layout/grid/borders.md   | 32 +++++++\n .../prompts/core/compiler/layout/grid/cell_body.md | 32 +++++++\n .../core/compiler/layout/grid/measurement_cache.md | 65 +++++++++++++++\n .../prompts/core/compiler/layout/grid/tracks.md    | 97 ++++++++++++++++++++++\n .../prompts/core/compiler/layout/grid_placement.md | 33 ++++++++\n 00_nucleo/prompts/core/compiler/layout/helpers.md  | 31 +++++++\n 00_nucleo/prompts/core/compiler/layout/image.md    | 32 +++++++\n .../prompts/core/compiler/layout/line_commit.md    | 10 +++\n .../prompts/core/compiler/layout/measurement.md    | 55 ++++++++++++\n 00_nucleo/prompts/core/compiler/layout/mod.md      | 10 +++\n .../core/compiler/layout/par_line_callbacks.md     | 10 +++\n 00_nucleo/prompts/core/compiler/layout/place.md    | 10 +++\n .../prompts/core/compiler/layout/references.md     | 10 +++\n .../prompts/core/compiler/layout/text/style.md     | 31 +++++++\n .../prompts/core/entities/elements/table_cell.md   | 32 +++++++\n 01_core/src/compiler/layout/grid/borders.rs        | 21 +++++\n 01_core/src/compiler/layout/grid/cell_body.rs      | 54 ++++++++++++\n .../src/compiler/layout/grid/measurement_cache.rs  | 42 ++++++++++\n 01_core/src/compiler/layout/grid/tracks.rs         | 77 +++++++++++++++++\n 01_core/src/compiler/layout/grid_placement.rs      | 48 +++++++++++\n 01_core/src/compiler/layout/helpers.rs             | 29 +++++++\n 01_core/src/compiler/layout/image.rs               | 21 +++++\n 01_core/src/compiler/layout/line_commit.rs         | 89 ++++++++++++++++++++\n 01_core/src/compiler/layout/measurement.rs         | 80 ++++++++++++++++++\n 01_core/src/compiler/layout/mod.rs                 | 57 +++++++++++++\n 01_core/src/compiler/layout/par_line_callbacks.rs  | 54 ++++++++++++\n 01_core/src/compiler/layout/place.rs               | 60 +++++++++++++\n 01_core/src/compiler/layout/references.rs          | 69 +++++++++++++++\n 01_core/src/compiler/layout/text/style.rs          | 57 +++++++++++++\n 01_core/src/entities/elements/table_cell.rs        | 25 ++++++\n 30 files changed, 1273 insertions(+)\n",
+  "files": {
+    "01_core/src/compiler/layout/helpers.rs": "fb0aed4744c136ec3f2a7b5e1fdafcc289e3518564ab1d5ca4fd72f02640e307",
+    "01_core/src/compiler/layout/image.rs": "5e96f45f7d044df1aebff649d3d1d836b36f3c40e860f77631e732c2e0144ce1",
+    "01_core/src/compiler/layout/measurement.rs": "61091ca420b70c138d160287c855d6a9c566677ecfd8b8b014b7a8b5b998e04c",
+    "01_core/src/compiler/layout/text/style.rs": "dc143ec65d2ef611a9098ee9500968ccaa1462543f26f4511982a7dfb0f7e8dc"
+  },
+  "tests": {
+    "01_core/src/compiler/layout/helpers.rs": [
+      "v16_d_legacy_projection_preserves_generated_shape_and_true_absence"
+    ],
+    "01_core/src/compiler/layout/image.rs": [
+      "v16_d_image_axis_schema_keeps_intrinsic_and_fit_controls"
+    ],
+    "01_core/src/compiler/layout/measurement.rs": [
+      "v16_d_auto_columns_reserve_image_figure_and_equation_extent",
+      "v16_d_constrained_image_keeps_target_and_source_visual_transport",
+      "v16_d_math_measurement_rejects_hidden_callbacks_without_requests"
+    ],
+    "01_core/src/compiler/layout/text/style.rs": [
+      "v16_d_font_schema_preserves_names_order_fields_and_typed_style",
+      "v16_d_invalid_raw_font_entries_preserve_ambient_fallback"
+    ]
+  },
+  "baseline_status": "not run; coordinator owns cargo",
+  "product_binary_build_receipts": [
+    "lab/results/v16-corrections-2026-10-19/batch-c/validation/validation-state.json.gz",
+    "lab/results/v16-corrections-2026-10-19/batch-c/validation/build.log",
+    "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/receipt.json"
+  ],
+  "binary_source_commit": "a9f030738 (coordinator verified exact committed sources tested in batch C)",
+  "freeze_utc": "2026-10-19T16:11:39.842842+00:00",
+  "test_count": 7
+}

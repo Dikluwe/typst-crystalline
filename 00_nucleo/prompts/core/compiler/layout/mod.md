@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: 0c417c6c
+Hash do Código: ed7c9822
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -141,3 +141,13 @@ Prefix controls require RED→GREEN same actual prefix/body page, continuation i
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+## V16 closed-domain evidence and correction
+
+Measured in the uncommitted working tree at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:02:56.055664+00:00`; exact changed-file diffstat and source/L0 SHA-256 are in `lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/audit-before.json`. `mod.rs:1219–1263` separates Source/Located/Realized/ShowRecipe before the canonical location gate. `mod.rs:1265–1275` observes Text and the two space forms before exhaustive body dispatch. `mod.rs:1179–1196` publishes the ordinary occurrence identity; direct Located instead observes its explicit ID and dispatches its body without a new ID.
+
+This is observed local source behavior, not a new bilateral result or inferred upstream intent. Identity, text, quote choice, geometry and supplement semantics are language obligations; the match representation is mechanics. A caller admitting a supposedly excluded payload, duplicate event, changed text/geometry/request or changed diagnostic refutes preservation.
+
+At layout_content_once keep four distinct transport behaviors: Source recurses transparently; Located reserves/observes its explicit identity and invokes body dispatch; Realized delegates causal-original/visual handling; ShowRecipe delegates its body. Explicitly enumerate all other present Content variants as forwarding to the existing locator gate and body dispatch, not as ignored content. At the quote observer, Text observes its string and Space/SpaceFromNewline observe a single logical space. Explicitly classify every other present Content variant as having no additional event at this observer: wrappers let descendants speak, neutral metadata stays neutral, and object/quote/break policies remain in their existing delegates. Neither match may hide future Content variants behind an open remainder, move the decision to another helper or replace it with an if-let. Preserve location reservation, one causal occurrence, quote event ordering, static form-B delegation and rollback. New Content variants require independent identity and quote-observation decisions.
+
+ADR-0127 classification: continuous-flow internal nominal coverage with no public signature, default, phase or compatibility change. Add behavior-preservation controls before implementation and require baseline/final controls plus disposable future-variant compile-negative evidence at the exact selected decision. Current runtime controls may already pass; the structural RED is failure to reject a future variant at that decision. No new suppression or open catchall is authorized.

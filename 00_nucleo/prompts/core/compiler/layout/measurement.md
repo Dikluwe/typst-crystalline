@@ -1,5 +1,5 @@
 # L0 — measurement
-Hash do Código: d71bde6f
+Hash do Código: ff383ee1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -55,3 +55,77 @@ Require RED→GREEN for one/multiple-word/wrap cases, bilateral Auto geometry be
 Preserve exclusive ownership/static dispatch without I/O or a new signature/trait/flag or eval↔layout phase. Source-origin tests/C2/C/macro collections/builds/lineage are required before certification.
 
 Inline-result nucleus fixes result versus restored-state distinction. P1491 must pass unchanged with checkpoint/layout suite. Nonfractional Box dimension correction requires RED→GREEN and unchanged grid/preflight expected outputs; fractional composition remains excluded.
+
+
+## Batch D V16 measurement (2026-10-19)
+
+Evidence precedes the decisions below. The exact HEAD, uncommitted file list,
+UTC, source bytes, argv, source/output/binary SHA-256 and pinned oracle recipe
+are recorded in `lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json`.
+The oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+SVG geometry is evidence of occupied layout space, not a byte-equality contract.
+These observations establish behavior; they do not infer upstream intent.
+`measurement.rs:138-426` omits Image, Equation and Figure. Caller
+`grid/tracks.rs:94-125` already uses real subframes for nested Table/Raw and
+composed visuals; single Image/Equation/Figure reach this dispatcher. The pinned
+Auto-grid probes measure next-column x = 0 versus 40pt for Image and captionless
+Figure, and 0 versus 23.124444444pt for `$x + y$`. Shape and nested Table are
+40pt in both products; Empty/Metadata are zero. Fixed 40pt controls preserve
+40pt in both. Align/Styled image wrappers repeat the zero-width loss. Therefore
+these three demonstrated omissions cannot be ratified as neutral fallbacks.
+`equation.rs:105-138` derives layout through the math engine and carries callbacks;
+`figure.rs:31-94` updates figure progress/prefix before drawing caption.
+
+### Decision, bounded correction and refuters
+
+Add Image measurement using the existing image dimension calculator and injected
+sizer, returning the requested target rectangle when present (cover ink is not
+the occupied width), otherwise calculated dimensions. Do not clamp a declared
+fixed image size merely because its grid budget is smaller.
+
+Measure inline Equation through the existing isolated subframe measurement path only
+when its body has a positive certificate for callback-free math content. The
+certificate explicitly accepts Empty, Text, MathIdent, MathText, Space,
+SpaceFromNewline, Sequence/MathSequence, MathFrac, MathRoot, MathStyled, Styled,
+Strong, Emph and transparent Source/Located/Realized transport, recursively audits
+children, and rejects MathCancel (its angle may contain a function), Metadata
+(including Content payload), Ref, all delayed/context/state/counter/dynamic
+families, and every other unapproved family. It must not execute a callback or
+attach the emitter runtime/locator/request stores. Preserve current width budget,
+chain, TextStyle and injected metrics; keep the existing math style/provenance
+route, without an independent math formula or shared mutable cache.
+
+For Figure with no caption, delegate to constrained measurement of its body.
+Captioned and numbered-caption measurement remains open: body-plus-caption
+arithmetic would omit the existing prefix/index/spacing semantics. No arbitrary
+emission or figure-progress replay is authorized. Reject unsupported contextual
+Equation measurement before emission; retain the prior approximation and report
+it as debt, not semantic zero. A callback-bearing descendant admitted by the
+certificate, a changed emitter locator/state/request store, or source next-column
+geometry still collapsed to zero refutes the repair.
+
+Replace the fallback with exhaustive nominal current Content coverage, separating
+true nonvisual absence from unsupported visual approximations. Future variants
+must require a decision at both dispatcher and certificate. Existing Text,
+Sequence, Box/Block, styles, relative and fractional paths remain unchanged.
+ADR-0127 continuous parity correction applies with tests before implementation.
+
+
+The certificate uses direct recursive matching at each node, not a traversal
+visitor with implicit wrapper-skipping rules. Its one exhaustive Content match
+must expose ShowRecipe before projecting anything. Source and Located recurse
+into body; Realized recurses into visual only, never its consumed original;
+Sequence/MathSequence inspect every child; MathFrac inspects num and den;
+MathRoot inspects optional index and radicand; lexical/math styles inspect body.
+Every other current variant, including other mathematical composites, is outside
+this deliberately narrow certificate. None is thereby declared semantically zero.
+The source `$x + y$` motivates this accepted subset; expanding it requires a new
+callback/geometry audit rather than generic full-layout permission.
+
+Block Equation remains an unsupported approximation in this dispatcher: its
+numbering/prefix and region alignment depend on the ambient introspector and
+cannot be reconstructed with an empty isolated runtime. This restriction is
+explicit debt, not a promise of zero language extent. Nested callback transport,
+Ref supplements, ShowRecipe, and block Equation are negative acceptance controls.

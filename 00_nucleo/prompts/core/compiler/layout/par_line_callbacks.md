@@ -1,5 +1,5 @@
 # L0 — par line callbacks
-Hash do Código: 50f3503f
+Hash do Código: 398b3d11
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -35,3 +35,13 @@ The representation change follows continuous flow under ADR-0127: only crate-pri
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
 The private-size RED→GREEN gate and Clippy large_enum_variant must establish three selected spans before the change, then resolve one through code and two through satisfied expectations. Preserve fixtures/expected outputs and existing outline controls (including the eight historical P1405 cases), context/replay, callbacks and pipeline. Validate the full workspace/build/Clippy/expectations/Rustdoc/fmt/lineage with no new Tekt warnings, under 12 GiB, zero swap and one job.
+
+## V16 closed-domain evidence and correction
+
+Measured in the uncommitted working tree at HEAD `a9f03073809fa15ff11d86c532f2c803ee892e47`, UTC `2026-10-19T16:02:56.055664+00:00`; exact changed-file diffstat and source/L0 SHA-256 are in `lab/results/v16-corrections-2026-10-19/batch-d/agents/layout/audit-before.json`. `par_line_callbacks.rs:130–146` computes the regional maximum width and shifts only Left×Left/Start and Right×Right/End. `line_commit.rs:788–835` normalizes produced margins to physical Left/Right, while alignment retains every HAlign. Manual other margins are still representable in the private buffer.
+
+This is observed local source behavior, not a new bilateral result or inferred upstream intent. Identity, text, quote choice, geometry and supplement semantics are language obligations; the match representation is mechanics. A caller admitting a supposedly excluded payload, duplicate event, changed text/geometry/request or changed diagnostic refutes preservation.
+
+The width fixup is a closed HAlign×HAlign product. Left×Left/Start shifts by negative width difference; Right×Right/End shifts by positive difference. Left×Center/Right/End and Right×Left/Center/Start keep zero shift because their individual placement is already final. Center/Start/End margins paired with each present alignment retain the existing zero shift for manually supplied internal states; do not introduce a panic or direction reinterpretation. Every axis must be nominally closed, including these manually reachable complements. Preserve item index/count ranges, order, unaffected surrounding items and the drained pending buffer. Future variants on either axis require a decision at this match, not merely at a different HAlign use.
+
+ADR-0127 classification: continuous-flow internal nominal coverage with no public signature, default, phase or compatibility change. Add behavior-preservation controls before implementation and require baseline/final controls plus disposable future-variant compile-negative evidence at the exact selected decision. Current runtime controls may already pass; the structural RED is failure to reject a future variant at that decision. No new suppression or open catchall is authorized.

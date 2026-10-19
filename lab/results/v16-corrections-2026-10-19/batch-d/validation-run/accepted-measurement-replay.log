@@ -1,0 +1,517 @@
+{
+  "frozen": true,
+  "checks": [
+    {
+      "name": "shape-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "shape-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "image-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "image-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "equation-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          23.124444444,
+          0.0,
+          33.124444444000005,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          23.124444444,
+          0.0,
+          33.124444444000005,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "equation-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "table-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "table-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "figure-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "figure-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "empty-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          0.0,
+          0.0,
+          10.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          0.0,
+          0.0,
+          10.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "empty-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "metadata-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          0.0,
+          0.0,
+          10.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          0.0,
+          0.0,
+          10.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "metadata-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "align_image-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "align_image-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "hide_shape-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "hide_shape-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "styled_image-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "styled_image-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "transform-shape",
+      "pass": true,
+      "product_green": [
+        [
+          0.0,
+          0.0,
+          44.64101616,
+          37.320508079999996
+        ]
+      ],
+      "oracle_green": [
+        [
+          0.0,
+          0.0,
+          44.64101616,
+          37.320508079999996
+        ]
+      ]
+    },
+    {
+      "name": "transform-empty",
+      "pass": true,
+      "product_green": [],
+      "oracle_green": []
+    },
+    {
+      "name": "transform-metadata",
+      "pass": true,
+      "product_green": [],
+      "oracle_green": []
+    },
+    {
+      "name": "effect-image",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "effect-shape",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "effect-equation",
+      "pass": true,
+      "product_marker": [
+        [
+          25.436888889,
+          0.0,
+          35.436888889,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          25.436888889,
+          0.0,
+          35.436888889,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "effect-figure",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    }
+  ]
+}

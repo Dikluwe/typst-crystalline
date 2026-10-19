@@ -1,5 +1,5 @@
 # L0 — image
-Hash do Código: 7faecd9d
+Hash do Código: 26ee757d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
@@ -77,3 +77,35 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 Composed-position correction follows ADR-0127 with no public API/field/flag/default/phase change. L0 precedes RED→GREEN for coordinates, no fictitious paint/height, identity/order/visual clones/rollback; revalidate HTML, geometry, context/queries and complete suite.
 
 This internal parity correction under ADR-0127 adds no public contract/default/phase. L0 precedes RED→GREEN/restricted resealing. Causal width is only part of the ongoing block-region/width/transport correction: Auto height/backing, late alignment, fractions, fragmentation, outset and PDF Parent retain their own criteria. Testing a carrier alone does not approve render. Preserve full bilateral controls/refuters, suite/build/doc/fmt/lineage/inventories.
+
+
+## Batch D V16 measurement (2026-10-19)
+
+Evidence precedes the decisions below. The exact HEAD, uncommitted file list,
+UTC, source bytes, argv, source/output/binary SHA-256 and pinned oracle recipe
+are recorded in `lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json`.
+The oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+SVG geometry is evidence of occupied layout space, not a byte-equality contract.
+These observations establish behavior; they do not infer upstream intent.
+`image.rs:139-144` accepts Float and the absolute component of Length;
+`compiler/stdlib/figure_image.rs:431-432` forwards arbitrary axis Values without
+typed validation. Thus unsupported values are reachable, not impossible. The
+additional `axis-absolute-before.json` preserves source and diagnostics: boolean
+and Float axes compile in product but are rejected by the oracle. Relative/em
+axes have separate geometry debt; the current public calculator lacks region
+and font-size inputs. This audit does not turn that debt into accepted language.
+`calculate_dimensions` remains the owner of DPI, EXIF, intrinsic fallback and fit.
+
+### Decision and refuters
+
+At extract_pt, explicitly classify every current Value variant: Float and Length
+retain existing projection; all other types retain None at this private bounded
+projection. Auto means no explicit axis; other unsupported values are not a
+proof of valid source syntax. Do not broaden this helper, silently coerce types,
+or change a public signature to discharge V16. Axis source validation and
+font/region-relative resolution remain open debts; a caller resolving them into
+supported values would refute the claimed loss. Preserve target-vs-image bounds,
+clip behavior and fit/aspect/DPI/orientation. Future Value variants must force a
+new decision at this exact match. ADR-0127 continuous internal flow applies.

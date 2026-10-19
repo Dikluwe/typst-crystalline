@@ -1,0 +1,460 @@
+[
+  {
+    "case": "shape-auto",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "shape-auto",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "shape-40pt",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "shape-40pt",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "image-auto",
+    "binary": "product",
+    "marker_x": 0.0,
+    "element": {
+      "x": "0",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "image-auto",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "image-40pt",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "image-40pt",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "equation-auto",
+    "binary": "product",
+    "marker_x": 0.0,
+    "element": {
+      "x": "0",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "equation-auto",
+    "binary": "oracle",
+    "marker_x": 23.124444444,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(23.124444444)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "equation-40pt",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "equation-40pt",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "table-auto",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "table-auto",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "table-40pt",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "table-40pt",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "figure-auto",
+    "binary": "product",
+    "marker_x": 0.0,
+    "element": {
+      "x": "0",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "figure-auto",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "figure-40pt",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "figure-40pt",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "empty-auto",
+    "binary": "product",
+    "marker_x": 0.0,
+    "element": {
+      "x": "0",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "empty-auto",
+    "binary": "oracle",
+    "marker_x": 0.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "empty-40pt",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "empty-40pt",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "metadata-auto",
+    "binary": "product",
+    "marker_x": 0.0,
+    "element": {
+      "x": "0",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "metadata-auto",
+    "binary": "oracle",
+    "marker_x": 0.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "metadata-40pt",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "metadata-40pt",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "align_image-auto",
+    "binary": "product",
+    "marker_x": 0.0,
+    "element": {
+      "x": "0",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "align_image-auto",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "align_image-40pt",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "align_image-40pt",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "hide_shape-auto",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "hide_shape-auto",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "hide_shape-40pt",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "hide_shape-40pt",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "styled_image-auto",
+    "binary": "product",
+    "marker_x": 0.0,
+    "element": {
+      "x": "0",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "styled_image-auto",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  },
+  {
+    "case": "styled_image-40pt",
+    "binary": "product",
+    "marker_x": 40.0,
+    "element": {
+      "x": "40",
+      "y": "0",
+      "width": "10",
+      "height": "10",
+      "fill": "#ff0000"
+    }
+  },
+  {
+    "case": "styled_image-40pt",
+    "binary": "oracle",
+    "marker_x": 40.0,
+    "element": {
+      "fill": "#ff0000",
+      "fill-rule": "nonzero",
+      "transform": "translate(40)",
+      "d": "M 0 0v 10h 10v -10Z "
+    }
+  }
+]

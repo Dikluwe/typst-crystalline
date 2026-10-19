@@ -1,0 +1,90 @@
+[
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "--offline",
+      "--locked",
+      "--target-dir",
+      "lab/target/product",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-wiring"
+    ],
+    "utc_end": "2026-10-19T16:27:23.293177+00:00",
+    "exit": 0,
+    "seconds": 0.7052239309996367,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "47087616",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "full-validation",
+    "command": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/batch-d/validation"
+    ],
+    "utc_end": "2026-10-19T16:40:10.340444+00:00",
+    "exit": 0,
+    "seconds": 767.0467151349876,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "5353857024",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "accepted-grid-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+      "grid",
+      "accepted-replay",
+      "lab/results/v16-corrections-2026-10-19/batch-d/validation/validation-state.json.gz"
+    ],
+    "utc_end": "2026-10-19T16:40:24.469018+00:00",
+    "exit": 0,
+    "seconds": 14.128068521007663,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "5353857024",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "accepted-measurement-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_d_replays.py",
+      "measurement",
+      "accepted-replay",
+      "lab/results/v16-corrections-2026-10-19/batch-d/validation/validation-state.json.gz"
+    ],
+    "utc_end": "2026-10-19T16:40:40.910463+00:00",
+    "exit": 0,
+    "seconds": 16.44084773301438,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "5353857024",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

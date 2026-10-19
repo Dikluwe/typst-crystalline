@@ -1,0 +1,146 @@
+{
+  "alias-100": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 2.0000000006348273e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "block-no-set-100": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 2.0000000006348273e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "cell-set-none-100": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 2.0000000006348273e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "explicit-fill-100": {
+    "same_word_sequence": true,
+    "same_layout_text": false,
+    "word_box_max_delta_pt": 2.0000000006348273e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "inline-set-100": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 2.0000000006348273e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "local-set-100": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 2.0000000006348273e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "no-fill-100": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 2.0000000006348273e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "rect-set-100": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 2.0000000006348273e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "text-set-100": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 2.0000000006348273e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "grid-literal-auto": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 0.0,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "grid-refused-space": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 0.129999999999999,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "grid-source-interpolation": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 0.0,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "grid-fixed": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 0.0,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "raw-defaults": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 1.9999999999242846e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "prepared-none": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 1.9999999999242846e-05,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "prepared-replaced": {
+    "same_word_sequence": true,
+    "same_layout_text": true,
+    "word_box_max_delta_pt": 0.0,
+    "same_page_sizes": true,
+    "product_text": null,
+    "oracle_text": null
+  },
+  "effects-once": {
+    "same_word_sequence": false,
+    "same_layout_text": false,
+    "word_box_max_delta_pt": null,
+    "same_page_sizes": true,
+    "product_text": "12.34     item-2\na/b       abc_def\nHITS: 4\n\f",
+    "oracle_text": " 12.34    item-2\n a/b      abc_def\n\nHITS: 4\n\f"
+  },
+  "context-state": {
+    "same_word_sequence": false,
+    "same_layout_text": false,
+    "word_box_max_delta_pt": null,
+    "same_page_sizes": true,
+    "product_text": " A\n B\nFINAL: 2\n\f",
+    "oracle_text": " A         1\n B         2\n\nFINAL: 2\n\f"
+  }
+}

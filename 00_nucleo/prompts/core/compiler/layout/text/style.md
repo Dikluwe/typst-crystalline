@@ -1,5 +1,5 @@
 # L0 — Effective inline text style
-Hash do Código: a4e0e21d
+Hash do Código: e917cbea
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
@@ -21,3 +21,34 @@ Use the already-resolved Pt size from active style; remove dead abs-only custom 
 ## Approval, acceptance and remaining scope
 
 The human ratified full text size (TS1) and both public contracts in proposal manifest `771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba` on 2026-10-17. Implementation/tests S1–S16 operate under 12GiB/zero swap; no release/merge/push. Reseal only after implementation and valid graph. RG1 remains independent. The approved cross-owner public changes are boundary criteria, not extra ownership of those consumers; language equality remains separately unresolved.
+
+
+## Batch D V16 measurement (2026-10-19)
+
+Evidence precedes the decisions below. The exact HEAD, uncommitted file list,
+UTC, source bytes, argv, source/output/binary SHA-256 and pinned oracle recipe
+are recorded in `lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json`.
+The oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+SVG geometry is evidence of occupied layout space, not a byte-equality contract.
+These observations establish behavior; they do not infer upstream intent.
+`text/style.rs:71-137` decodes literal family entries and dictionaries with
+name Str/Regex plus required variants array; malformed entries are skipped.
+`eval/rules/set/text.rs:220-315,423` and `eval/font_dict.rs:30-240` normalize valid
+source schemas to that transport. `FontList::new` returns None for an empty
+result and effective style then retains the ambient font. Direct custom chains
+can contain invalid Values; source validation is not a proof they are impossible.
+
+### Decision and refuters
+
+At the two selected matches, explicitly distinguish Str/Regex dictionary names
+from all invalid name variants, and Str/Dict family entries from all invalid
+entries. Keep order, required variants and optional variant/weight/style fields,
+custom-font precedence, and every unrelated TextStyle field. Do not select fonts,
+reparse source or diagnose malformed raw transport here. Missing/invalid entries
+retain existing filtering; an empty decoded list retains ambient font. The
+misleading comments describing these schemas as nontext Content projections must
+be removed. A valid writer emitting another name/entry kind refutes this schema;
+the writer's validation remains outside this owner. Each new Value variant must
+force a decision at both exact matches. ADR-0127 continuous internal flow applies.

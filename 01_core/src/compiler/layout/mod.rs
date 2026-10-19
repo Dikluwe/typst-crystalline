@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
-//! @prompt-hash a1f48fb6
+//! @prompt-hash d644f28e
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -1253,7 +1253,123 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.layout_content(&e.body);
                 return;
             }
-            _ => {}
+            // All ordinary occurrences continue through the canonical locator gate.
+            Content::Empty
+            | Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => {}
         }
         // P185C: gating Locator atómico no topo, antes do match.
         // Avança em sincronia com walk de introspect; current_location
@@ -1270,7 +1386,124 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Space | Content::SpaceFromNewline => {
                 self.smartquote_context.observe_text(" ")
             }
-            _ => {}
+            // No extra quote event here: descendants and feature adapters own their events.
+            Content::Source(..)
+            | Content::ShowRecipe(..)
+            | Content::Realized(..)
+            | Content::Located(..)
+            | Content::Empty
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => {}
         }
         match content {
             Content::Source(_)
@@ -1958,3 +2191,72 @@ pub fn layout_with_introspector_and_metrics_and_callbacks_from<
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod v16_d_tests {
+    use super::*;
+    use crate::entities::{
+        content::{LocatedContent, SourceContent},
+        introspector::{Introspector, TagIntrospector},
+        locator::Locator,
+        span::Span,
+        value::Value,
+    };
+    use comemo::Track;
+
+    #[test]
+    fn v16_d_source_and_located_keep_one_identity_before_following_occurrence() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let mut ids = Locator::new();
+        let explicit = ids.next();
+        let expected_next = ids.next();
+        let wrapped = Content::Source(Arc::new(SourceContent {
+            span: Span::detached(),
+            body: Content::Located(Arc::new(LocatedContent {
+                location: explicit,
+                body: Content::metadata(Value::Int(7)),
+            })),
+        }));
+        l.layout_content_once(&wrapped);
+        assert_eq!(l.current_location, Some(explicit));
+        l.layout_content_once(&Content::text("BODY"));
+        assert_eq!(l.current_location, Some(explicit), "text must not allocate identity");
+        l.layout_content_once(&Content::metadata(Value::Int(8)));
+        assert_eq!(
+            l.current_location,
+            Some(expected_next),
+            "explicit body must not allocate a duplicate ID"
+        );
+        let doc = l.finish();
+        assert_eq!(doc.plain_text(), "BODY");
+    }
+
+    #[test]
+    fn v16_d_quote_observer_preserves_wrapped_text_spaces_and_neutral_metadata() {
+        for space in [Content::Space, Content::SpaceFromNewline] {
+            let content = Content::sequence(vec![
+                Content::Source(Arc::new(SourceContent {
+                    span: Span::detached(),
+                    body: Content::text("6"),
+                })),
+                Content::metadata(Value::Int(9)),
+                Content::smartquote(false),
+                space,
+                Content::smartquote(true),
+                Content::text("A"),
+                Content::Empty,
+                Content::smartquote(true),
+            ]);
+            assert_eq!(
+                layout(&content).plain_text().split_whitespace().collect::<String>(),
+                "6′“A”"
+            );
+        }
+    }
+}

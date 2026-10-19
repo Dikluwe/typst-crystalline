@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-19T16:17:19.980739+00:00",
+  "head": "a9f03073809fa15ff11d86c532f2c803ee892e47",
+  "tree": "uncommitted working tree",
+  "diffstat": " .../prompts/core/compiler/layout/grid/borders.md   |  34 +-\n .../prompts/core/compiler/layout/grid/cell_body.md |  34 +-\n .../core/compiler/layout/grid/measurement_cache.md |  67 ++-\n .../prompts/core/compiler/layout/grid/tracks.md    |  99 +++-\n .../prompts/core/compiler/layout/grid_placement.md |  35 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  33 +-\n 00_nucleo/prompts/core/compiler/layout/image.md    |  34 +-\n .../prompts/core/compiler/layout/line_commit.md    |  12 +-\n .../prompts/core/compiler/layout/measurement.md    |  76 +++-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  12 +-\n .../core/compiler/layout/par_line_callbacks.md     |  12 +-\n 00_nucleo/prompts/core/compiler/layout/place.md    |  12 +-\n .../prompts/core/compiler/layout/references.md     |  12 +-\n .../prompts/core/compiler/layout/text/style.md     |  33 +-\n .../prompts/core/entities/elements/table_cell.md   |  34 +-\n 01_core/src/compiler/layout/grid/borders.rs        | 146 +++++-\n 01_core/src/compiler/layout/grid/cell_body.rs      | 216 ++++++++-\n .../src/compiler/layout/grid/measurement_cache.rs  | 357 ++++++++++++++-\n 01_core/src/compiler/layout/grid/tracks.rs         | 502 ++++++++++++++++++++-\n 01_core/src/compiler/layout/grid_placement.rs      | 222 ++++++++-\n 01_core/src/compiler/layout/helpers.rs             | 159 ++++++-\n 01_core/src/compiler/layout/image.rs               |  82 +++-\n 01_core/src/compiler/layout/line_commit.rs         | 176 +++++++-\n 01_core/src/compiler/layout/measurement.rs         | 457 ++++++++++++++++++-\n 01_core/src/compiler/layout/mod.rs                 | 308 ++++++++++++-\n 01_core/src/compiler/layout/par_line_callbacks.rs  |  88 +++-\n 01_core/src/compiler/layout/place.rs               |  98 +++-\n 01_core/src/compiler/layout/references.rs          | 189 +++++++-\n 01_core/src/compiler/layout/text/style.rs          | 176 +++++++-\n 01_core/src/entities/elements/table_cell.rs        | 106 ++++-\n 30 files changed, 3749 insertions(+), 72 deletions(-)\n",
+  "sha256": {
+    "01_core/src/compiler/layout/line_commit.rs": "31038d553ed83114c4ef66289d8625b8749e00bf25699f54f8376fc98df85165",
+    "01_core/src/compiler/layout/mod.rs": "e6dcb9ee79571269d653e30059922f8df10ea90f1e695adb3c82f573394a1718",
+    "01_core/src/compiler/layout/par_line_callbacks.rs": "bcfa0fad81fb68aa18b58a4058d385ea16cc3c90a9f6b02819526182c467eab9",
+    "01_core/src/compiler/layout/place.rs": "772b380f5dfd21e6f563b82233d8302cacdb66798231278312d26ca2a0484dd2",
+    "01_core/src/compiler/layout/references.rs": "3585dcfa343276500caedfe51392db1e21e3afd9fe2f43d7b8b9f88c2a669616",
+    "00_nucleo/prompts/core/compiler/layout/line_commit.md": "8ce0d7f705fcf102b40220416c6d8aabf147824e39d2728ff2887c0452040b1a",
+    "00_nucleo/prompts/core/compiler/layout/mod.md": "894c22372dca6cf79578015380f0fa6b85ba942ae2bc3b01904eb176c97351d7",
+    "00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md": "9c71a62869e258bda3e0f3ad8ad944d6e3c62ef3818436319809ae73c6ec208f",
+    "00_nucleo/prompts/core/compiler/layout/place.md": "84991269077ee1cdd482127a1e5be058cc8ea7f302e5d4a7ff0c22d07af165b8",
+    "00_nucleo/prompts/core/compiler/layout/references.md": "723bd246106659d1ce007f7d9205e9649e6658b0ef1c2403e62baf87c926abe2"
+  }
+}

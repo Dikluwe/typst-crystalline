@@ -1,5 +1,5 @@
 # L0 — helpers
-Hash do Código: f43bdd37
+Hash do Código: 03a04b58
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -81,3 +81,34 @@ Preserve exclusive ownership/static dispatch without I/O or a new signature/trai
 Revalidate build/check for every workspace target, core suite, test inventory, Clippy and lineage; do not remove expectations to pass.
 
 L0 comes first, with RED→GREEN and restricted resealing. Preserve geometry/text in source→PDF/SVG controls and revalidate suite/build/doc/check/fmt/lineage. This metadata migration neither replaces Shape.fill/stroke with FramePaint nor implements PDF/SVG/raster patterns. Prepared paint transport, native exporter integration and verification (historical T1c/T2/T3) remain explicitly open and already authorized. Build success does not establish tiling parity or production readiness.
+
+
+## Batch D V16 measurement (2026-10-19)
+
+Evidence precedes the decisions below. The exact HEAD, uncommitted file list,
+UTC, source bytes, argv, source/output/binary SHA-256 and pinned oracle recipe
+are recorded in `lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/probes/png-before.json`.
+The oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+SVG geometry is evidence of occupied layout space, not a byte-equality contract.
+These observations establish behavior; they do not infer upstream intent.
+`transform.rs:45-67` first lays out the body and calls this narrow helper only
+when both produced width and height are zero. `helpers.rs:450-483` projects
+Source/ShowRecipe/Located bodies and Realized.visual, measures Shape/Sequence,
+and returns zero otherwise. The pinned shape/empty/metadata transform sources
+compile in both products; shape extent exists and empty/metadata do not paint.
+
+### Decision and refuters
+
+Retain this bounded fallback, with exhaustive nominal Content coverage at its
+existing match. Empty and nonvisual markers are genuine zero contributions;
+text, math, image, other containers and unknown visual families are unsupported
+approximations here, not assertions that their language extent is zero. The
+real-layout-first caller is the reason this is not a general measurement API.
+Keep positive transport branches and original-consumption semantics unchanged.
+A source transform whose body paints but reaches this fallback and loses its
+extent refutes this classification and requires a causal repair. Preserve the
+existing narrow approximation until that evidence exists; do not rerun recipes,
+callbacks or allocate a location in this helper. Future Content variants must
+force a decision at this exact match. ADR-0127 continuous internal flow applies.

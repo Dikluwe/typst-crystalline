@@ -1,0 +1,9 @@
+2026-10-19T16:04:12.443181+00:00 all-domains START
+2026-10-19T16:04:49.448021+00:00 all-domains END 101 selected 0 other 0
+2026-10-19T16:04:49.733385+00:00 new-old START
+2026-10-19T16:05:23.031942+00:00 new-old END 101 selected 0 other 0
+2026-10-19T16:05:23.230012+00:00 old-new START
+2026-10-19T16:05:55.238268+00:00 old-new END 101 selected 0 other 0
+2026-10-19T16:05:55.515420+00:00 new-new START
+2026-10-19T16:06:26.857124+00:00 new-new END 101 selected 0 other 0
+PASS baseline selected decisions and isolated HAlign pair classes

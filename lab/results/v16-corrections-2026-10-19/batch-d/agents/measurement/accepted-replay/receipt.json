@@ -1,0 +1,2378 @@
+{
+  "before": {
+    "utc": "2026-10-19T16:40:24.529675+00:00",
+    "head": "a9f03073809fa15ff11d86c532f2c803ee892e47\n",
+    "status": " M 00_nucleo/prompts/core/compiler/layout/grid/borders.md\n M 00_nucleo/prompts/core/compiler/layout/grid/cell_body.md\n M 00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md\n M 00_nucleo/prompts/core/compiler/layout/grid/tracks.md\n M 00_nucleo/prompts/core/compiler/layout/grid_placement.md\n M 00_nucleo/prompts/core/compiler/layout/helpers.md\n M 00_nucleo/prompts/core/compiler/layout/image.md\n M 00_nucleo/prompts/core/compiler/layout/line_commit.md\n M 00_nucleo/prompts/core/compiler/layout/measurement.md\n M 00_nucleo/prompts/core/compiler/layout/mod.md\n M 00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md\n M 00_nucleo/prompts/core/compiler/layout/place.md\n M 00_nucleo/prompts/core/compiler/layout/references.md\n M 00_nucleo/prompts/core/compiler/layout/text/style.md\n M 00_nucleo/prompts/core/entities/elements/table_cell.md\n M 01_core/src/compiler/layout/grid/borders.rs\n M 01_core/src/compiler/layout/grid/cell_body.rs\n M 01_core/src/compiler/layout/grid/measurement_cache.rs\n M 01_core/src/compiler/layout/grid/tracks.rs\n M 01_core/src/compiler/layout/grid_placement.rs\n M 01_core/src/compiler/layout/helpers.rs\n M 01_core/src/compiler/layout/image.rs\n M 01_core/src/compiler/layout/line_commit.rs\n M 01_core/src/compiler/layout/measurement.rs\n M 01_core/src/compiler/layout/mod.rs\n M 01_core/src/compiler/layout/par_line_callbacks.rs\n M 01_core/src/compiler/layout/place.rs\n M 01_core/src/compiler/layout/references.rs\n M 01_core/src/compiler/layout/text/style.rs\n M 01_core/src/entities/elements/table_cell.rs\n",
+    "diffstat": " .../prompts/core/compiler/layout/grid/borders.md   |  34 +-\n .../prompts/core/compiler/layout/grid/cell_body.md |  34 +-\n .../core/compiler/layout/grid/measurement_cache.md |  67 ++-\n .../prompts/core/compiler/layout/grid/tracks.md    |  99 +++-\n .../prompts/core/compiler/layout/grid_placement.md |  35 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  33 +-\n 00_nucleo/prompts/core/compiler/layout/image.md    |  34 +-\n .../prompts/core/compiler/layout/line_commit.md    |  12 +-\n .../prompts/core/compiler/layout/measurement.md    |  76 +++-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  12 +-\n .../core/compiler/layout/par_line_callbacks.md     |  12 +-\n 00_nucleo/prompts/core/compiler/layout/place.md    |  12 +-\n .../prompts/core/compiler/layout/references.md     |  12 +-\n .../prompts/core/compiler/layout/text/style.md     |  33 +-\n .../prompts/core/entities/elements/table_cell.md   |  34 +-\n 01_core/src/compiler/layout/grid/borders.rs        | 146 +++++-\n 01_core/src/compiler/layout/grid/cell_body.rs      | 216 ++++++++-\n .../src/compiler/layout/grid/measurement_cache.rs  | 357 ++++++++++++++-\n 01_core/src/compiler/layout/grid/tracks.rs         | 502 ++++++++++++++++++++-\n 01_core/src/compiler/layout/grid_placement.rs      | 222 ++++++++-\n 01_core/src/compiler/layout/helpers.rs             | 159 ++++++-\n 01_core/src/compiler/layout/image.rs               |  82 +++-\n 01_core/src/compiler/layout/line_commit.rs         | 176 +++++++-\n 01_core/src/compiler/layout/measurement.rs         | 473 ++++++++++++++++++-\n 01_core/src/compiler/layout/mod.rs                 | 308 ++++++++++++-\n 01_core/src/compiler/layout/par_line_callbacks.rs  |  92 +++-\n 01_core/src/compiler/layout/place.rs               |  98 +++-\n 01_core/src/compiler/layout/references.rs          | 189 +++++++-\n 01_core/src/compiler/layout/text/style.rs          | 176 +++++++-\n 01_core/src/entities/elements/table_cell.rs        | 106 ++++-\n 30 files changed, 3769 insertions(+), 72 deletions(-)\n"
+  },
+  "scope_before": {
+    "00_nucleo/prompts/core/compiler/layout/grid/borders.md": "3d815d7388d64938cb620faccbf4c9655f84e31dbbd66f740c397c2d8f19c494",
+    "00_nucleo/prompts/core/compiler/layout/grid/cell_body.md": "16479e8c3dd91cef7b759433eae32b243d9be2470c713aeee5240dc2c289adb9",
+    "00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md": "b7cc36bca84fa27536c71dd66eef9c191cc592ece27b68f5ccbcd4c6179fd157",
+    "00_nucleo/prompts/core/compiler/layout/grid/tracks.md": "eebc36967fea9cc6785f4805eb4fe9db8e1af4ba3c2a827002bb52df3dc12670",
+    "00_nucleo/prompts/core/compiler/layout/grid_placement.md": "eec44b46ccc6cda2b90bbfa0a86f6b181b540cc738950096ee4ebb0c66e20ca7",
+    "00_nucleo/prompts/core/compiler/layout/helpers.md": "a901e6e70e4dfeee24c1fb8172df45be30665119ab6df39a6d9f5882eb462ae9",
+    "00_nucleo/prompts/core/compiler/layout/image.md": "eb3243f2aeb8f8d08eb2ede965bb70f8eb1a1859633115ecbea7eb0bbbf9eb90",
+    "00_nucleo/prompts/core/compiler/layout/line_commit.md": "d9042ec158d025781092eea114bef9ae536bb8f4ea7f936bc9d16ee49c4c55b4",
+    "00_nucleo/prompts/core/compiler/layout/measurement.md": "148f198548bb4f44b66a373ba74049a4bfff1544d540bcdc236dae2f18fc0727",
+    "00_nucleo/prompts/core/compiler/layout/mod.md": "611d51e002a593584e1132e0e86299436581e9bdd67e4ca3cf467b66211df0b8",
+    "00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md": "4d5706900d86593456eb5a083558bc5fb3f5a832e340297814ceff8dbf0a0acf",
+    "00_nucleo/prompts/core/compiler/layout/place.md": "579e85ee70a8f8ce11692316256853c9e17f3a1016218460c67ff7ecf10b530f",
+    "00_nucleo/prompts/core/compiler/layout/references.md": "eb7adaa0f3b24e914142ba235a494bd66d4fe42ba8c4abcb6b776a7d9fdd3f0e",
+    "00_nucleo/prompts/core/compiler/layout/text/style.md": "263975116d3475f4b106318671f859c1d54b7e88fea2681d128b841e7b96a0a6",
+    "00_nucleo/prompts/core/entities/elements/table_cell.md": "2aafcd662b225a36522d777a069c42454672497f5fb7d5233087cc9c0ca48ce6",
+    "01_core/src/compiler/layout/equation.rs": "62e1dda61c0cdd3a819f2492ac4c71eb7ef84c435218d2bdee16ed8a17500de0",
+    "01_core/src/compiler/layout/figure.rs": "643698bd6651f997607226a373107797b0b2c9ff3b2254c2ecbcf9d20475adc7",
+    "01_core/src/compiler/layout/grid/borders.rs": "953bb509d09052bfa0cf9356c6ff6571f18bbe1fc481b76e6518ccf8629312b3",
+    "01_core/src/compiler/layout/grid/cell_body.rs": "0a5bf8cdf460d08d143a75e53d7e6ff5b5528225ce8e16c0badf4d695eda867c",
+    "01_core/src/compiler/layout/grid/measurement_cache.rs": "e8d82503d326152e8403ef3b745b134f6045571dca592f7b0e6460315c8030f0",
+    "01_core/src/compiler/layout/grid/tracks.rs": "d0e001371742b6ce74665364dbc85c0ef56fcf70614305b4c470c8275100b113",
+    "01_core/src/compiler/layout/grid_placement.rs": "6abf925ec87796054add99e21d049b9b26dbc6b3e23d855ba4211dbd167b8212",
+    "01_core/src/compiler/layout/helpers.rs": "e070dbd29cc208aa8abeb797088cb5bcf9ab45e160f84dad6068fcdb806f271c",
+    "01_core/src/compiler/layout/image.rs": "0ba490c142f178d75da97f1c5cb36e6caae110c9815a3514b673e13c38827c1a",
+    "01_core/src/compiler/layout/line_commit.rs": "31038d553ed83114c4ef66289d8625b8749e00bf25699f54f8376fc98df85165",
+    "01_core/src/compiler/layout/measurement.rs": "bc77edbfff74f9a1c1191c54b9a2af8d00124bb2d47fece2b06a24e2f35c0377",
+    "01_core/src/compiler/layout/mod.rs": "e6dcb9ee79571269d653e30059922f8df10ea90f1e695adb3c82f573394a1718",
+    "01_core/src/compiler/layout/par_line_callbacks.rs": "05ff910eb7814f3373a6557839003683239319c3efa72bec7673bcfb3a66107c",
+    "01_core/src/compiler/layout/place.rs": "772b380f5dfd21e6f563b82233d8302cacdb66798231278312d26ca2a0484dd2",
+    "01_core/src/compiler/layout/references.rs": "3585dcfa343276500caedfe51392db1e21e3afd9fe2f43d7b8b9f88c2a669616",
+    "01_core/src/compiler/layout/sub_frame.rs": "bd595333be9fd4d7283febfb2fb3fcc438c4d2b89f911f4c441caad159f802c2",
+    "01_core/src/compiler/layout/text/style.rs": "b151ef9176775bc9fff58fc62277ffa60661fd28aae0ed5077b0e2ae525ab0ff",
+    "01_core/src/compiler/layout/transform.rs": "8e527ac345389ed05ed6c71c429ab8074db9a48cf8623b10201e0cb5f42f1617",
+    "01_core/src/entities/content.rs": "692abb6fe3082460209ff85a2f65dfe9ae483504acf43d6e29929c173f457a36",
+    "01_core/src/entities/elements/table_cell.rs": "c3fa1c455b590bf170bd1157081b437c8e02af9e7eb6e9495c24c44738bef376",
+    "01_core/src/entities/value.rs": "a16dc7f800d27006b5740e798a7555f09e7098bc13c82c4eb20edec8d9c7a2d3"
+  },
+  "runs": [
+    {
+      "name": "shape-auto",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,rect(width:40pt,height:20pt,fill:green,stroke:none),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "646b1b348e0fee159171f6083c136be759c1c46c54142c5c3268e2acfb5c662c",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-auto.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:24.815398+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-auto.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "shape-auto",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,rect(width:40pt,height:20pt,fill:green,stroke:none),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "646b1b348e0fee159171f6083c136be759c1c46c54142c5c3268e2acfb5c662c",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-auto.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:25.363436+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-auto.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "shape-40pt",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,rect(width:40pt,height:20pt,fill:green,stroke:none),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "376da8bc4efb66189b42507e2e448242a15d10f32b18762e3d8a08581d642b35",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-40pt.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:25.480279+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-40pt.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "shape-40pt",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,rect(width:40pt,height:20pt,fill:green,stroke:none),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "376da8bc4efb66189b42507e2e448242a15d10f32b18762e3d8a08581d642b35",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-40pt.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:26.022269+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/shape-40pt.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "image-auto",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,image(\"asset.png\",width:40pt,height:20pt),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "b168b33a66ad870104e9a12f1743c6b5a75b097f77ff899b5944b5c505bf484b",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-auto.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:26.138309+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-auto.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "image-auto",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,image(\"asset.png\",width:40pt,height:20pt),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "b168b33a66ad870104e9a12f1743c6b5a75b097f77ff899b5944b5c505bf484b",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-auto.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:26.692353+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-auto.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "image-40pt",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,image(\"asset.png\",width:40pt,height:20pt),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "72fa6dfd9d23c9bbdf3c31868ffad81d1789289cc29f76339a847886a57f4e41",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-40pt.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:26.810262+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-40pt.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "image-40pt",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,image(\"asset.png\",width:40pt,height:20pt),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "72fa6dfd9d23c9bbdf3c31868ffad81d1789289cc29f76339a847886a57f4e41",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-40pt.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:27.370258+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/image-40pt.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "equation-auto",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,$x + y$,rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "ab2085c28c129c5dc871ec3241e48fa591d5c640c792257b821b49800f1068ed",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-auto.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:27.489505+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-auto.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "a9b815c556b9d37f7d33b9b6fba0871f9a5bd8b5d5d9673e7dc8a65f5dd268e0",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            23.124444444,
+            0.0,
+            33.124444444000005,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "equation-auto",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,$x + y$,rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "ab2085c28c129c5dc871ec3241e48fa591d5c640c792257b821b49800f1068ed",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-auto.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:28.057446+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-auto.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "7210ba657c2c815d4c895672c92c518fdff39159af247007f4a806a4394a06db",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            23.124444444,
+            0.0,
+            33.124444444000005,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "equation-40pt",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,$x + y$,rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "ddafa5d0e3f326c40f7965a2d72bf9ac8b168f20660f7dd9b9ca4769aee9dfda",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-40pt.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:28.176194+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-40pt.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "73e49c5cb907249ef7a647224cf65cbcbe1ba532944461acbaccc69543f29303",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "equation-40pt",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,$x + y$,rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "ddafa5d0e3f326c40f7965a2d72bf9ac8b168f20660f7dd9b9ca4769aee9dfda",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-40pt.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:28.737631+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/equation-40pt.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "639036e75ccca74bf85b9421721c98841e767ac2f0bb54b12a2a3be07b211063",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "table-auto",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,table(columns:(40pt,),inset:0pt,stroke:none,rect(width:40pt,height:20pt,fill:green,stroke:none)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "d327342224d05f8d3286d2b875ca04878b5bb78865c2d24b7f7df881dd11a60c",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-auto.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:28.855515+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-auto.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            -6.58,
+            40.0,
+            13.42
+          ]
+        ]
+      }
+    },
+    {
+      "name": "table-auto",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,table(columns:(40pt,),inset:0pt,stroke:none,rect(width:40pt,height:20pt,fill:green,stroke:none)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "d327342224d05f8d3286d2b875ca04878b5bb78865c2d24b7f7df881dd11a60c",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-auto.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:29.409815+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-auto.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "table-40pt",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,table(columns:(40pt,),inset:0pt,stroke:none,rect(width:40pt,height:20pt,fill:green,stroke:none)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "bf61d02bb2863071e7666a1fe6e41c340770159274662e8c9a0bb0f32370acb8",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-40pt.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:29.525911+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-40pt.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "b37496d3a0e4b131f0ae29d272ccb501e92537278f54a9f16b1b5dee2dec1f05",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            -6.58,
+            40.0,
+            13.42
+          ]
+        ]
+      }
+    },
+    {
+      "name": "table-40pt",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,table(columns:(40pt,),inset:0pt,stroke:none,rect(width:40pt,height:20pt,fill:green,stroke:none)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "bf61d02bb2863071e7666a1fe6e41c340770159274662e8c9a0bb0f32370acb8",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-40pt.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:30.075008+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/table-40pt.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "figure-auto",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,figure(rect(width:40pt,height:20pt,fill:green,stroke:none),caption:none,kind:image),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "af1fc59439492908ff2d131be7e4c48e2e89ec99f5c61187361431ae34c22f7c",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-auto.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:30.193995+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-auto.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "figure-auto",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,figure(rect(width:40pt,height:20pt,fill:green,stroke:none),caption:none,kind:image),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "af1fc59439492908ff2d131be7e4c48e2e89ec99f5c61187361431ae34c22f7c",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-auto.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:30.736120+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-auto.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "figure-40pt",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,figure(rect(width:40pt,height:20pt,fill:green,stroke:none),caption:none,kind:image),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "76c6aa31e80e2ad7b459f692e71a21c1a7c8466032a2cc2acad61f3ad3c783bf",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-40pt.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:30.854392+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-40pt.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "figure-40pt",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,figure(rect(width:40pt,height:20pt,fill:green,stroke:none),caption:none,kind:image),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "76c6aa31e80e2ad7b459f692e71a21c1a7c8466032a2cc2acad61f3ad3c783bf",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-40pt.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:31.399882+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/figure-40pt.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "448ec3c75d14c52b2425e88924e9d1f32258ad837f3c6398dc4b3701ce25bdbb",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "empty-auto",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,[],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "377aeb14b157e6b5391bec1fb9a9013287933d407ea4e263efb30b33a44a5555",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-auto.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:31.517943+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-auto.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            0.0,
+            0.0,
+            10.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "empty-auto",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,[],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "377aeb14b157e6b5391bec1fb9a9013287933d407ea4e263efb30b33a44a5555",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-auto.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:32.062378+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-auto.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            0.0,
+            0.0,
+            10.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "empty-40pt",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,[],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "a3c6317ca2bae5b2b376715866e549d3fc2c4a8d71edd6045c6a95178bf13bfe",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-40pt.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:32.180288+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-40pt.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "empty-40pt",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,[],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "a3c6317ca2bae5b2b376715866e549d3fc2c4a8d71edd6045c6a95178bf13bfe",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-40pt.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:32.730947+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/empty-40pt.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "metadata-auto",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,metadata(\"invisible\"),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "29ac17234e6b685bd9fd9a4dcf4cce880f275cf62789ec0f4e9b452ac03c5da6",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-auto.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:32.851894+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-auto.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "5e23013f0732ecf8ed59e18d361f45e1fd1122083e9d869316110a2ee4c4a6e5",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            0.0,
+            0.0,
+            10.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "metadata-auto",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,metadata(\"invisible\"),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "29ac17234e6b685bd9fd9a4dcf4cce880f275cf62789ec0f4e9b452ac03c5da6",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-auto.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:33.409006+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-auto.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "969c5081f148d766eb7bde2313c200f2cdc3136fa6e367a91b8cfdfa5c9e153d",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            0.0,
+            0.0,
+            10.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "metadata-40pt",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,metadata(\"invisible\"),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "78b3c45d2bf469810d9007ae6f51985c9727c83bb44148109d2736c7fb10eb38",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-40pt.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:33.529773+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-40pt.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "metadata-40pt",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,metadata(\"invisible\"),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "78b3c45d2bf469810d9007ae6f51985c9727c83bb44148109d2736c7fb10eb38",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-40pt.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:34.075459+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/metadata-40pt.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "align_image-auto",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,align(left,image(\"asset.png\",width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "895609e652dd88c22836a8d973963a3d991b5fc95891a219bdc5ddd57dfc63e4",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-auto.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:34.194363+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-auto.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "align_image-auto",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,align(left,image(\"asset.png\",width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "895609e652dd88c22836a8d973963a3d991b5fc95891a219bdc5ddd57dfc63e4",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-auto.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:34.746636+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-auto.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "align_image-40pt",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,align(left,image(\"asset.png\",width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "0999ef74c8e75090df66ecad02a4e8e2af4dc95310a7b1a56fd3d56c61d7a475",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-40pt.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:34.867070+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-40pt.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "align_image-40pt",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,align(left,image(\"asset.png\",width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "0999ef74c8e75090df66ecad02a4e8e2af4dc95310a7b1a56fd3d56c61d7a475",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-40pt.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:35.418048+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/align_image-40pt.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "hide_shape-auto",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,hide(rect(width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "6b8e3a3506d82d52f6cee2380da4bd4b75b8ea7f378715959bc7ad3f9d535477",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-auto.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:35.534506+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-auto.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "hide_shape-auto",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,hide(rect(width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "6b8e3a3506d82d52f6cee2380da4bd4b75b8ea7f378715959bc7ad3f9d535477",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-auto.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:36.081288+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-auto.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "hide_shape-40pt",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,hide(rect(width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "6fe622fe8ca02d0c3863b369a1c45b190873fe795e1d308dab35f2c606178a48",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-40pt.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:36.199663+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-40pt.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "f6dcbd12491cbeeb1a4d26ea89e811396e8b25275a7ad64e38f5b09db5713292",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "hide_shape-40pt",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,hide(rect(width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "6fe622fe8ca02d0c3863b369a1c45b190873fe795e1d308dab35f2c606178a48",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-40pt.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:36.741798+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/hide_shape-40pt.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "99ecf818858646ab0f34216dc6d22224504150c71cb0427bffa2d65023f19982",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "styled_image-auto",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,text(size:12pt,image(\"asset.png\",width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "e8bfd8f293bfeaa6a40c77f448c02e2ea035b6a3da6793a96db12a6187cf13e3",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-auto.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:36.859365+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-auto.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "styled_image-auto",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(auto,10pt),gutter:0pt,text(size:12pt,image(\"asset.png\",width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "e8bfd8f293bfeaa6a40c77f448c02e2ea035b6a3da6793a96db12a6187cf13e3",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-auto.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:37.408991+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-auto.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "styled_image-40pt",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,text(size:12pt,image(\"asset.png\",width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "d25087350b951859b92d95e0d28b9241d78b1c28cff4c12453470267652a9437",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-40pt.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:37.526850+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-40pt.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "styled_image-40pt",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#set text(font:\"Libertinus Serif\",size:10pt)\n#grid(columns:(40pt,10pt),gutter:0pt,text(size:12pt,image(\"asset.png\",width:40pt,height:20pt)),rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n",
+      "source_sha256": "d25087350b951859b92d95e0d28b9241d78b1c28cff4c12453470267652a9437",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-40pt.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-40pt.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:38.073968+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/styled_image-40pt.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "transform-shape",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#rotate(30deg,reflow:true,rect(width:40pt,height:20pt,fill:green,stroke:none))\n",
+      "source_sha256": "bbdf96588601e0c72a16b65dfb822f90cd6e23e6f48ce38000c979bbb75d4d9b",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-shape.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-shape.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:38.190861+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-shape.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "9aa23121ce825f4d52a724902e634e4bde15a9d6b5bbd4565dd7b31d34ebf379",
+      "colored_boxes": {
+        "#ff0000": [],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            44.64101616,
+            37.320508079999996
+          ]
+        ]
+      }
+    },
+    {
+      "name": "transform-shape",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#rotate(30deg,reflow:true,rect(width:40pt,height:20pt,fill:green,stroke:none))\n",
+      "source_sha256": "bbdf96588601e0c72a16b65dfb822f90cd6e23e6f48ce38000c979bbb75d4d9b",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-shape.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-shape.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:38.204901+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-shape.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "e76578742072044dfdaa82f86b5ece184af269cbf3f1f0acce7d3b559618f764",
+      "colored_boxes": {
+        "#ff0000": [],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            44.64101616,
+            37.320508079999996
+          ]
+        ]
+      }
+    },
+    {
+      "name": "transform-empty",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#rotate(30deg,reflow:true,[])\n",
+      "source_sha256": "a5dea7534ae7f5840942641080aa55eb74d195ad8a82826ba548f09ea87a9565",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-empty.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-empty.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:38.211532+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-empty.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+      "colored_boxes": {
+        "#ff0000": [],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "transform-empty",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#rotate(30deg,reflow:true,[])\n",
+      "source_sha256": "a5dea7534ae7f5840942641080aa55eb74d195ad8a82826ba548f09ea87a9565",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-empty.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-empty.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:38.225342+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-empty.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+      "colored_boxes": {
+        "#ff0000": [],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "transform-metadata",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#rotate(30deg,reflow:true,metadata(\"invisible\"))\n",
+      "source_sha256": "158eba6d3e97c9b1fb18b1f3dfa63dac422ba90a03ed54aeea663711707bb132",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-metadata.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-metadata.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:38.231657+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-metadata.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "5bb6038b009981eccaf30f5f5bf127bd95d397bc24f2211e7eb8d25c16961830",
+      "colored_boxes": {
+        "#ff0000": [],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "transform-metadata",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#rotate(30deg,reflow:true,metadata(\"invisible\"))\n",
+      "source_sha256": "158eba6d3e97c9b1fb18b1f3dfa63dac422ba90a03ed54aeea663711707bb132",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-metadata.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-metadata.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:38.245448+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/transform-metadata.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "da30e1da0374d777e132d45825fb321c6047191c45e7533993067b67cfdedac0",
+      "colored_boxes": {
+        "#ff0000": [],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "effect-image",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#let tally=state(\"effect-image\",0)\n#grid(columns:(auto,10pt),gutter:0pt,[#tally.update(n=>n+1)#image(\"asset.png\",width:40pt,height:20pt)],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n#context assert(tally.final()==1,message:\"effect repeated\")\n",
+      "source_sha256": "1c70165a9babfb342f32d8e70f2d3a669ca2da1d3e29845d8240ace0c22ef179",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-image.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-image.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:38.251881+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-image.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "67887d6554bdb2863cc7169758ed914970ade18d563084074e4b8efa64226c8c",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "effect-image",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#let tally=state(\"effect-image\",0)\n#grid(columns:(auto,10pt),gutter:0pt,[#tally.update(n=>n+1)#image(\"asset.png\",width:40pt,height:20pt)],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n#context assert(tally.final()==1,message:\"effect repeated\")\n",
+      "source_sha256": "1c70165a9babfb342f32d8e70f2d3a669ca2da1d3e29845d8240ace0c22ef179",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-image.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-image.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:38.799644+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-image.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "9fff69f7f6d025282b07da76e8167fa8e1ecbfbfbe31167d51061c2583eeda7a",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "effect-shape",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#let tally=state(\"effect-shape\",0)\n#grid(columns:(auto,10pt),gutter:0pt,[#tally.update(n=>n+1)#rect(width:40pt,height:20pt,fill:green,stroke:none)],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n#context assert(tally.final()==1,message:\"effect repeated\")\n",
+      "source_sha256": "827db706a75427df70dd424c26fe55c729bfa814cfdee66c04fd50573ec6a353",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-shape.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-shape.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:38.807367+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-shape.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "5a34d5f85adca953e33f3cb9d5b91da686605d387961c81fdd3f5dca9a0770b0",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "effect-shape",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#let tally=state(\"effect-shape\",0)\n#grid(columns:(auto,10pt),gutter:0pt,[#tally.update(n=>n+1)#rect(width:40pt,height:20pt,fill:green,stroke:none)],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n#context assert(tally.final()==1,message:\"effect repeated\")\n",
+      "source_sha256": "827db706a75427df70dd424c26fe55c729bfa814cfdee66c04fd50573ec6a353",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-shape.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-shape.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:39.351294+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-shape.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "20c6e2b4996d7da91fa3041471ef1a4d734a313d45170ac2b849e550494d4448",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": [
+          [
+            0.0,
+            0.0,
+            40.0,
+            20.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "effect-equation",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#let tally=state(\"effect-equation\",0)\n#grid(columns:(auto,10pt),gutter:0pt,[#tally.update(n=>n+1)$x + y$],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n#context assert(tally.final()==1,message:\"effect repeated\")\n",
+      "source_sha256": "bf496a2438ff82999c63d8ba4f5949ef14a80913db6d72f4b87d3dd9b8edb185",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-equation.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-equation.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:39.358660+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-equation.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "671ad234b87c154f571908c669399d56208a6590d8d83662e08729441bd6836d",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            25.436888889,
+            0.0,
+            35.436888889,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "effect-equation",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#let tally=state(\"effect-equation\",0)\n#grid(columns:(auto,10pt),gutter:0pt,[#tally.update(n=>n+1)$x + y$],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n#context assert(tally.final()==1,message:\"effect repeated\")\n",
+      "source_sha256": "bf496a2438ff82999c63d8ba4f5949ef14a80913db6d72f4b87d3dd9b8edb185",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-equation.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-equation.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:39.935216+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-equation.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "971e3803b222f44f593220468a8ff023b2a16527ed51ea96e59425762e6ac04d",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            25.436888889,
+            0.0,
+            35.436888889,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "effect-figure",
+      "binary": "product",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#let tally=state(\"effect-figure\",0)\n#grid(columns:(auto,10pt),gutter:0pt,[#tally.update(n=>n+1)#figure(rect(width:40pt,height:20pt),caption:none,kind:image)],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n#context assert(tally.final()==1,message:\"effect repeated\")\n",
+      "source_sha256": "ec9cdf55f5ef9c9dec03a38efc829dc576117fa46d8e27f9811820aa817226f3",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-figure.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-figure.product.svg"
+      ],
+      "utc": "2026-10-19T16:40:40.058001+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-figure.product.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "1e53ef87d162edf9de1499c9c3493f5ad76d3cfd20a221ffda6a5f3f124d65ff",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    },
+    {
+      "name": "effect-figure",
+      "binary": "oracle",
+      "source": "#set page(width:200pt,height:150pt,margin:0pt)\n#let tally=state(\"effect-figure\",0)\n#grid(columns:(auto,10pt),gutter:0pt,[#tally.update(n=>n+1)#figure(rect(width:40pt,height:20pt),caption:none,kind:image)],rect(width:10pt,height:10pt,fill:rgb(\"ff0000\"),stroke:none))\n#context assert(tally.final()==1,message:\"effect repeated\")\n",
+      "source_sha256": "ec9cdf55f5ef9c9dec03a38efc829dc576117fa46d8e27f9811820aa817226f3",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-figure.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-figure.oracle.svg"
+      ],
+      "utc": "2026-10-19T16:40:40.604831+00:00",
+      "timeout_seconds": 60,
+      "output": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/accepted-replay/effect-figure.oracle.svg",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "output_sha256": "d0bb9debd426689108f790aa74ae407b96f705f405f0c9a920bac3c18b701fe1",
+      "colored_boxes": {
+        "#ff0000": [
+          [
+            40.0,
+            0.0,
+            50.0,
+            10.0
+          ]
+        ],
+        "#2ecc40": []
+      }
+    }
+  ],
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "recipe": "lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md",
+  "build_receipt": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/validation/validation-state.json.gz",
+    "sha256": "7e5b790dd0aacd7d2a9010de5a7784cc1a74dfbd5caf57fb3c46545e6004f731"
+  },
+  "runner": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/measurement/replay.py",
+    "sha256": "a021fad490d58eac9507c9b1ee511fdcb01c0755de3b6d06c34d02c03f32a481"
+  },
+  "binaries": {
+    "product": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+      "sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d"
+    },
+    "oracle": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    }
+  },
+  "asset_sha256": "496c4ca068f5e62fc027760a9d269162180aaa58777b6e0437d4fbca8fc291be",
+  "after": {
+    "utc": "2026-10-19T16:40:40.612482+00:00",
+    "head": "a9f03073809fa15ff11d86c532f2c803ee892e47\n",
+    "status": " M 00_nucleo/prompts/core/compiler/layout/grid/borders.md\n M 00_nucleo/prompts/core/compiler/layout/grid/cell_body.md\n M 00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md\n M 00_nucleo/prompts/core/compiler/layout/grid/tracks.md\n M 00_nucleo/prompts/core/compiler/layout/grid_placement.md\n M 00_nucleo/prompts/core/compiler/layout/helpers.md\n M 00_nucleo/prompts/core/compiler/layout/image.md\n M 00_nucleo/prompts/core/compiler/layout/line_commit.md\n M 00_nucleo/prompts/core/compiler/layout/measurement.md\n M 00_nucleo/prompts/core/compiler/layout/mod.md\n M 00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md\n M 00_nucleo/prompts/core/compiler/layout/place.md\n M 00_nucleo/prompts/core/compiler/layout/references.md\n M 00_nucleo/prompts/core/compiler/layout/text/style.md\n M 00_nucleo/prompts/core/entities/elements/table_cell.md\n M 01_core/src/compiler/layout/grid/borders.rs\n M 01_core/src/compiler/layout/grid/cell_body.rs\n M 01_core/src/compiler/layout/grid/measurement_cache.rs\n M 01_core/src/compiler/layout/grid/tracks.rs\n M 01_core/src/compiler/layout/grid_placement.rs\n M 01_core/src/compiler/layout/helpers.rs\n M 01_core/src/compiler/layout/image.rs\n M 01_core/src/compiler/layout/line_commit.rs\n M 01_core/src/compiler/layout/measurement.rs\n M 01_core/src/compiler/layout/mod.rs\n M 01_core/src/compiler/layout/par_line_callbacks.rs\n M 01_core/src/compiler/layout/place.rs\n M 01_core/src/compiler/layout/references.rs\n M 01_core/src/compiler/layout/text/style.rs\n M 01_core/src/entities/elements/table_cell.rs\n",
+    "diffstat": " .../prompts/core/compiler/layout/grid/borders.md   |  34 +-\n .../prompts/core/compiler/layout/grid/cell_body.md |  34 +-\n .../core/compiler/layout/grid/measurement_cache.md |  67 ++-\n .../prompts/core/compiler/layout/grid/tracks.md    |  99 +++-\n .../prompts/core/compiler/layout/grid_placement.md |  35 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  33 +-\n 00_nucleo/prompts/core/compiler/layout/image.md    |  34 +-\n .../prompts/core/compiler/layout/line_commit.md    |  12 +-\n .../prompts/core/compiler/layout/measurement.md    |  76 +++-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  12 +-\n .../core/compiler/layout/par_line_callbacks.md     |  12 +-\n 00_nucleo/prompts/core/compiler/layout/place.md    |  12 +-\n .../prompts/core/compiler/layout/references.md     |  12 +-\n .../prompts/core/compiler/layout/text/style.md     |  33 +-\n .../prompts/core/entities/elements/table_cell.md   |  34 +-\n 01_core/src/compiler/layout/grid/borders.rs        | 146 +++++-\n 01_core/src/compiler/layout/grid/cell_body.rs      | 216 ++++++++-\n .../src/compiler/layout/grid/measurement_cache.rs  | 357 ++++++++++++++-\n 01_core/src/compiler/layout/grid/tracks.rs         | 502 ++++++++++++++++++++-\n 01_core/src/compiler/layout/grid_placement.rs      | 222 ++++++++-\n 01_core/src/compiler/layout/helpers.rs             | 159 ++++++-\n 01_core/src/compiler/layout/image.rs               |  82 +++-\n 01_core/src/compiler/layout/line_commit.rs         | 176 +++++++-\n 01_core/src/compiler/layout/measurement.rs         | 473 ++++++++++++++++++-\n 01_core/src/compiler/layout/mod.rs                 | 308 ++++++++++++-\n 01_core/src/compiler/layout/par_line_callbacks.rs  |  92 +++-\n 01_core/src/compiler/layout/place.rs               |  98 +++-\n 01_core/src/compiler/layout/references.rs          | 189 +++++++-\n 01_core/src/compiler/layout/text/style.rs          | 176 +++++++-\n 01_core/src/entities/elements/table_cell.rs        | 106 ++++-\n 30 files changed, 3769 insertions(+), 72 deletions(-)\n"
+  },
+  "scope_after": {
+    "00_nucleo/prompts/core/compiler/layout/grid/borders.md": "3d815d7388d64938cb620faccbf4c9655f84e31dbbd66f740c397c2d8f19c494",
+    "00_nucleo/prompts/core/compiler/layout/grid/cell_body.md": "16479e8c3dd91cef7b759433eae32b243d9be2470c713aeee5240dc2c289adb9",
+    "00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md": "b7cc36bca84fa27536c71dd66eef9c191cc592ece27b68f5ccbcd4c6179fd157",
+    "00_nucleo/prompts/core/compiler/layout/grid/tracks.md": "eebc36967fea9cc6785f4805eb4fe9db8e1af4ba3c2a827002bb52df3dc12670",
+    "00_nucleo/prompts/core/compiler/layout/grid_placement.md": "eec44b46ccc6cda2b90bbfa0a86f6b181b540cc738950096ee4ebb0c66e20ca7",
+    "00_nucleo/prompts/core/compiler/layout/helpers.md": "a901e6e70e4dfeee24c1fb8172df45be30665119ab6df39a6d9f5882eb462ae9",
+    "00_nucleo/prompts/core/compiler/layout/image.md": "eb3243f2aeb8f8d08eb2ede965bb70f8eb1a1859633115ecbea7eb0bbbf9eb90",
+    "00_nucleo/prompts/core/compiler/layout/line_commit.md": "d9042ec158d025781092eea114bef9ae536bb8f4ea7f936bc9d16ee49c4c55b4",
+    "00_nucleo/prompts/core/compiler/layout/measurement.md": "148f198548bb4f44b66a373ba74049a4bfff1544d540bcdc236dae2f18fc0727",
+    "00_nucleo/prompts/core/compiler/layout/mod.md": "611d51e002a593584e1132e0e86299436581e9bdd67e4ca3cf467b66211df0b8",
+    "00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md": "4d5706900d86593456eb5a083558bc5fb3f5a832e340297814ceff8dbf0a0acf",
+    "00_nucleo/prompts/core/compiler/layout/place.md": "579e85ee70a8f8ce11692316256853c9e17f3a1016218460c67ff7ecf10b530f",
+    "00_nucleo/prompts/core/compiler/layout/references.md": "eb7adaa0f3b24e914142ba235a494bd66d4fe42ba8c4abcb6b776a7d9fdd3f0e",
+    "00_nucleo/prompts/core/compiler/layout/text/style.md": "263975116d3475f4b106318671f859c1d54b7e88fea2681d128b841e7b96a0a6",
+    "00_nucleo/prompts/core/entities/elements/table_cell.md": "2aafcd662b225a36522d777a069c42454672497f5fb7d5233087cc9c0ca48ce6",
+    "01_core/src/compiler/layout/equation.rs": "62e1dda61c0cdd3a819f2492ac4c71eb7ef84c435218d2bdee16ed8a17500de0",
+    "01_core/src/compiler/layout/figure.rs": "643698bd6651f997607226a373107797b0b2c9ff3b2254c2ecbcf9d20475adc7",
+    "01_core/src/compiler/layout/grid/borders.rs": "953bb509d09052bfa0cf9356c6ff6571f18bbe1fc481b76e6518ccf8629312b3",
+    "01_core/src/compiler/layout/grid/cell_body.rs": "0a5bf8cdf460d08d143a75e53d7e6ff5b5528225ce8e16c0badf4d695eda867c",
+    "01_core/src/compiler/layout/grid/measurement_cache.rs": "e8d82503d326152e8403ef3b745b134f6045571dca592f7b0e6460315c8030f0",
+    "01_core/src/compiler/layout/grid/tracks.rs": "d0e001371742b6ce74665364dbc85c0ef56fcf70614305b4c470c8275100b113",
+    "01_core/src/compiler/layout/grid_placement.rs": "6abf925ec87796054add99e21d049b9b26dbc6b3e23d855ba4211dbd167b8212",
+    "01_core/src/compiler/layout/helpers.rs": "e070dbd29cc208aa8abeb797088cb5bcf9ab45e160f84dad6068fcdb806f271c",
+    "01_core/src/compiler/layout/image.rs": "0ba490c142f178d75da97f1c5cb36e6caae110c9815a3514b673e13c38827c1a",
+    "01_core/src/compiler/layout/line_commit.rs": "31038d553ed83114c4ef66289d8625b8749e00bf25699f54f8376fc98df85165",
+    "01_core/src/compiler/layout/measurement.rs": "bc77edbfff74f9a1c1191c54b9a2af8d00124bb2d47fece2b06a24e2f35c0377",
+    "01_core/src/compiler/layout/mod.rs": "e6dcb9ee79571269d653e30059922f8df10ea90f1e695adb3c82f573394a1718",
+    "01_core/src/compiler/layout/par_line_callbacks.rs": "05ff910eb7814f3373a6557839003683239319c3efa72bec7673bcfb3a66107c",
+    "01_core/src/compiler/layout/place.rs": "772b380f5dfd21e6f563b82233d8302cacdb66798231278312d26ca2a0484dd2",
+    "01_core/src/compiler/layout/references.rs": "3585dcfa343276500caedfe51392db1e21e3afd9fe2f43d7b8b9f88c2a669616",
+    "01_core/src/compiler/layout/sub_frame.rs": "bd595333be9fd4d7283febfb2fb3fcc438c4d2b89f911f4c441caad159f802c2",
+    "01_core/src/compiler/layout/text/style.rs": "b151ef9176775bc9fff58fc62277ffa60661fd28aae0ed5077b0e2ae525ab0ff",
+    "01_core/src/compiler/layout/transform.rs": "8e527ac345389ed05ed6c71c429ab8074db9a48cf8623b10201e0cb5f42f1617",
+    "01_core/src/entities/content.rs": "692abb6fe3082460209ff85a2f65dfe9ae483504acf43d6e29929c173f457a36",
+    "01_core/src/entities/elements/table_cell.rs": "c3fa1c455b590bf170bd1157081b437c8e02af9e7eb6e9495c24c44738bef376",
+    "01_core/src/entities/value.rs": "a16dc7f800d27006b5740e798a7555f09e7098bc13c82c4eb20edec8d9c7a2d3"
+  },
+  "binary_hashes_after": {
+    "product": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  },
+  "build_receipt_hash_after": "7e5b790dd0aacd7d2a9010de5a7784cc1a74dfbd5caf57fb3c46545e6004f731",
+  "frozen": true,
+  "checks": [
+    {
+      "name": "shape-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "shape-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "image-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "image-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "equation-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          23.124444444,
+          0.0,
+          33.124444444000005,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          23.124444444,
+          0.0,
+          33.124444444000005,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "equation-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "table-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "table-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "figure-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "figure-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "empty-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          0.0,
+          0.0,
+          10.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          0.0,
+          0.0,
+          10.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "empty-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "metadata-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          0.0,
+          0.0,
+          10.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          0.0,
+          0.0,
+          10.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "metadata-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "align_image-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "align_image-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "hide_shape-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "hide_shape-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "styled_image-auto",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "styled_image-40pt",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "transform-shape",
+      "pass": true,
+      "product_green": [
+        [
+          0.0,
+          0.0,
+          44.64101616,
+          37.320508079999996
+        ]
+      ],
+      "oracle_green": [
+        [
+          0.0,
+          0.0,
+          44.64101616,
+          37.320508079999996
+        ]
+      ]
+    },
+    {
+      "name": "transform-empty",
+      "pass": true,
+      "product_green": [],
+      "oracle_green": []
+    },
+    {
+      "name": "transform-metadata",
+      "pass": true,
+      "product_green": [],
+      "oracle_green": []
+    },
+    {
+      "name": "effect-image",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "effect-shape",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "effect-equation",
+      "pass": true,
+      "product_marker": [
+        [
+          25.436888889,
+          0.0,
+          35.436888889,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          25.436888889,
+          0.0,
+          35.436888889,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "effect-figure",
+      "pass": true,
+      "product_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ],
+      "oracle_marker": [
+        [
+          40.0,
+          0.0,
+          50.0,
+          10.0
+        ]
+      ]
+    }
+  ]
+}

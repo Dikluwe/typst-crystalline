@@ -1,0 +1,19 @@
+alias-100 {'product': 0, 'oracle': 0}
+block-no-set-100 {'product': 0, 'oracle': 0}
+cell-set-none-100 {'product': 0, 'oracle': 0}
+explicit-fill-100 {'product': 0, 'oracle': 0}
+inline-set-100 {'product': 0, 'oracle': 0}
+local-set-100 {'product': 0, 'oracle': 0}
+no-fill-100 {'product': 0, 'oracle': 0}
+rect-set-100 {'product': 0, 'oracle': 0}
+text-set-100 {'product': 0, 'oracle': 0}
+grid-literal-auto {'product': 0, 'oracle': 0}
+grid-refused-space {'product': 0, 'oracle': 0}
+grid-source-interpolation {'product': 0, 'oracle': 0}
+grid-fixed {'product': 0, 'oracle': 0}
+raw-defaults {'product': 0, 'oracle': 0}
+prepared-none {'product': 0, 'oracle': 0}
+prepared-replaced {'product': 0, 'oracle': 0}
+effects-once {'product': 0, 'oracle': 0}
+context-state {'product': 0, 'oracle': 0}
+{"receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-d/agents/grid/accepted-replay/receipt.json", "pass": true, "failures": []}

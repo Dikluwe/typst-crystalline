@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/place.md
-//! @prompt-hash 726933c5
+//! @prompt-hash 503210b6
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -306,7 +306,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // rationale: P1064 Classe 1A — centragem horizontal de container ((avail_w - body_w) / 2.0)
             Some(HAlign::Center) => (avail_w - f.body_width) / 2.0,
             Some(HAlign::Right) | Some(HAlign::End) => avail_w - f.body_width,
-            _ => 0.0, // None / Left / Start default. // neutro: N16[α] — alignment None/Left/Start: x_offset = 0.0 (esgotamento de enum horizontal)
+            None | Some(HAlign::Left | HAlign::Start) => 0.0,
         };
         let target_x = margin + x_offset.max(0.0);
 
@@ -526,5 +526,99 @@ mod p1504_tests {
     #[test]
     fn emissao_diferida_pertence_a_place() {
         assert!(include_str!("place.rs").contains("fn deferred_frame_origin_y"));
+    }
+}
+
+#[cfg(test)]
+mod v16_d_tests {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{HAlign, Point, TextStyle},
+    };
+    use comemo::Track;
+
+    #[test]
+    fn v16_d_float_optional_horizontal_alignment_preserves_geometry_and_metadata() {
+        let cases = [
+            (None, 0.0),
+            (Some(HAlign::Left), 0.0),
+            (Some(HAlign::Start), 0.0),
+            (Some(HAlign::Center), 30.0),
+            (Some(HAlign::Right), 60.0),
+            (Some(HAlign::End), 60.0),
+        ];
+        for (h, narrow_offset) in cases {
+            for width in [40.0, 160.0] {
+                for v in [VAlign::Top, VAlign::Bottom] {
+                    let intr = TagIntrospector::empty();
+                    let mut l = Layouter::new(
+                        FixedMetrics,
+                        NullImageSizer,
+                        11.0,
+                        (&intr as &dyn Introspector).track(),
+                    );
+                    l.decoration_lines_collector = Some(Vec::new());
+                    let body_item = FrameItem::Text {
+                        pos: Point { x: Pt(0.0), y: Pt(8.0) },
+                        text: "FLOAT".into(),
+                        style: TextStyle::regular(Pt(11.0)),
+                        bidi: None,
+                    };
+                    // A preceding item verifies orphan indices are rebased.
+                    l.regions.current.current_items.push(body_item.clone());
+                    let f = DeferredFloat {
+                        alignment: Align2D { h, v: Some(v) },
+                        body_items: vec![body_item],
+                        body_height: 12.0,
+                        body_width: width,
+                        clearance: 3.0,
+                        deco_segments: vec![super::super::DecoSegment {
+                            start_x: Pt(1.0),
+                            end_x: Pt(5.0),
+                            baseline_y: Pt(8.0),
+                        }],
+                        orphaned_align_x: vec![(
+                            vec![0],
+                            1,
+                            Align2D { h: Some(HAlign::Center), v: None },
+                            width,
+                            2.0,
+                            3.0,
+                        )],
+                        orphaned_align_y: vec![(
+                            vec![0],
+                            1,
+                            Align2D { h: None, v: Some(VAlign::Bottom) },
+                            12.0,
+                            4.0,
+                            5.0,
+                            6.0,
+                        )],
+                    };
+                    l.translate_deferred_float(&f, 70.0, 10.0, 100.0);
+                    let x = 10.0 + if width == 40.0 { narrow_offset } else { 0.0 };
+                    let FrameItem::Text { pos, text, .. } =
+                        &l.regions.current.current_items[1]
+                    else {
+                        panic!("float text survives")
+                    };
+                    assert_eq!(pos.x.0, x, "h={h:?}, width={width}, v={v:?}");
+                    assert_eq!(text.as_str(), "FLOAT");
+                    let decor = &l.decoration_lines_collector.as_ref().unwrap()[0];
+                    assert_eq!(decor.start_x.0, x + 1.0);
+                    assert_eq!(decor.end_x.0, x + 5.0);
+                    assert_eq!(decor.baseline_y, pos.y);
+                    let orphan_x = &l.pending_align_centering[0];
+                    assert_eq!(orphan_x.0, vec![1]);
+                    assert_eq!((orphan_x.4, orphan_x.5), (x + 2.0, x + 3.0));
+                    let orphan_y = &l.pending_align_v_centering[0];
+                    assert_eq!(orphan_y.0, vec![1]);
+                    assert_eq!((orphan_y.4, orphan_y.5, orphan_y.6), (74.0, 5.0, 76.0));
+                }
+            }
+        }
     }
 }
