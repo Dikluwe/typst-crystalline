@@ -1,5 +1,5 @@
 # L0 — sub frame
-Hash do Código: e5b62f28
+Hash do Código: 4a2f1a76
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -98,3 +98,30 @@ Internal continuous-flow ADR-0127 maintenance introduces no enum/field, trait me
 Before code, run new FrameVisitor control and workspace suite with unchanged expected outputs, and establish structural RED for 70 family warnings through AST reading. Afterwards require zero covered-family V16 and no new warning, retaining external V16 as pending. For productive core matches reached by cargo check -p typst-core, use a disposable copy with a sentinel FrameItem variant to measure absent E0004 barriers before/present after. The probe covers only compiled sites, not cfg(test) helpers or L3 blocked by dependency. Across the whole package replay patterns/guards/bodies, verify unchanged enum/signatures, real build/tests and no stub bodies.
 
 Revalidate full workspace suite, cargo build, Clippy workspace/all-targets -D warnings and -D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes, strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/configuration during commands. Heavy commands run sequentially with MemoryMax12GiB/MemorySwapMax 0/CARGO_BUILD_JOBS1. Structural cleanup does not establish new global parity, memory gain or measured AI benefit.
+
+
+## Ratified Circle constructor origin
+
+### Evidence and approval before implementation
+
+At HEAD `954d13185e26a1ed90f6d7c60f6ba27760ca9889`, the source/owner audit in
+`lab/results/v16-corrections-2026-10-19/circle-origin/l0-before.json` freezes
+UTC, exact diffstat and hashes. The approved proposal
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/review.md`
+(SHA-256 `5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8`)
+binds the baseline equality and rejected full-Length candidate receipts.
+`stdlib/shapes/ellipse.rs:92-104` erased the em component;
+`entities/elements/shape.rs:21-29` used one geometry carrier for both constructors.
+Those observations concern language identity and geometry, not mandatory upstream
+Rust structure. The explicit user approval is recorded in
+`lab/results/v16-corrections-2026-10-19/circle-origin/approval-receipt.json`;
+it satisfies ADR-0127 section 2 for exactly this public type/field and migration.
+
+### Exclusive approved responsibility
+
+Migrate this consumer's existing generic ShapeElem literals to explicit
+`ShapeOrigin::Geometry`, preserving every other field, fixture, expectation,
+argument, algorithm and output. Equal axes or Ellipse kind do not infer Circle.
+This is only the required migration for the approved field, not a new geometry
+behavior or permission to materialize any unrelated pending proposal. Full-target
+compilation and existing tests must retain all current observations/tolerances.

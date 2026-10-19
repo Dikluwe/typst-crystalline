@@ -1,0 +1,10 @@
+[
+  {
+    "name": "structural-final-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/structural.py",
+      "green-final"
+    ]
+  }
+]

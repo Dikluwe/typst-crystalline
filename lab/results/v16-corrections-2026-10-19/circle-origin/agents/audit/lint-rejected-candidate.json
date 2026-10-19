@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-19T22:14:30.071835+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "diff_head_stat": " .../core/compiler/eval/observation/elements.md     |  30 +-\n 00_nucleo/prompts/core/compiler/layout/boxed.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/shape.md    |  31 +-\n .../prompts/core/compiler/layout/sub_frame.md      |  29 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  29 +-\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   |  28 +\n .../prompts/core/compiler/stdlib/shapes/curve.md   |  29 +-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  64 ++-\n .../prompts/core/compiler/stdlib/shapes/polygon.md |  29 +-\n .../core/entities/content/construction/layout.md   |  29 +-\n 00_nucleo/prompts/core/entities/elements/shape.md  |  42 +-\n 01_core/src/compiler/eval/observation/elements.rs  |  62 ++-\n 01_core/src/compiler/layout/boxed.rs               |   3 +-\n 01_core/src/compiler/layout/helpers.rs             |   4 +-\n 01_core/src/compiler/layout/measurement.rs         |   3 +-\n 01_core/src/compiler/layout/shape.rs               |   4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |   3 +-\n 01_core/src/compiler/layout/tests.rs               |   3 +-\n 01_core/src/compiler/stdlib/shapes.rs              |   2 +-\n 01_core/src/compiler/stdlib/shapes/curve.rs        |   3 +-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 612 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/shapes/polygon.rs      |   4 +-\n .../src/entities/content/construction/layout.rs    |   3 +-\n 01_core/src/entities/elements/shape.rs             |  13 +-\n 26 files changed, 1106 insertions(+), 40 deletions(-)\n",
+  "baseline_sarif_sha256": "1848c48a368d5cdf3b97ed410da3cd35b01cbd8187b4b41225e744c91d746744",
+  "after_sarif_sha256": "eb2e33b922cce7f3c457dcf9ac35cb1994bc9147e7cfb3bb5ff7f551e2ea6029",
+  "lint_state_sha256": "e8eb30d6838d4650c7049d8a5c2324bf2d68ebf05a77e0800101e0b3066050b7",
+  "passed": false,
+  "reason": "V16-065 fixed but new test FrameItem wildcard silently ignores future domain variants; count remains21. Preserve failed state and repair nominal test domain instead of suppressing.",
+  "new_violation": [
+    {
+      "level": "error",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/ellipse.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 417
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio"
+      },
+      "ruleId": "V16"
+    }
+  ]
+}

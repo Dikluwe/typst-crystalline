@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/observation/elements.md
-//! @prompt-hash 7ed1b433
+//! @prompt-hash 6acf3a4f
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -88,9 +88,24 @@ impl ObservationEq for crate::entities::elements::footnote_entry::FootnoteEntryE
             .and(self.indent.observation_relation(&other.indent))
     }
 }
+impl ObservationEq for crate::entities::elements::shape::ShapeOrigin {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        match self {
+            Self::Geometry => match other {
+                Self::Geometry => ObservationRelation::Same,
+                Self::Circle => ObservationRelation::Different,
+            },
+            Self::Circle => match other {
+                Self::Geometry => ObservationRelation::Different,
+                Self::Circle => ObservationRelation::Same,
+            },
+        }
+    }
+}
 impl ObservationEq for crate::entities::elements::shape::ShapeElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            origin: _,
             kind: _,
             width: _,
             height: _,
@@ -99,6 +114,7 @@ impl ObservationEq for crate::entities::elements::shape::ShapeElem {
             fill_rule: _,
         } = self;
         ObservationRelation::Same
+            .and(self.origin.observation_relation(&other.origin))
             .and(self.kind.observation_relation(&other.kind))
             .and(self.width.observation_relation(&other.width))
             .and(self.height.observation_relation(&other.height))
@@ -1336,5 +1352,53 @@ mod raw_presence_tests {
                 );
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod circle_origin_tests {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::elements::shape::ShapeOrigin;
+    use crate::entities::geometry::ShapeKind;
+    use crate::entities::layout_types::Length;
+    use crate::entities::value::Value;
+
+    #[test]
+    fn circle_origin_observation_compares_constructor_identity_and_existing_fields() {
+        let Content::Shape(geometry) = Content::shape(
+            ShapeKind::Ellipse,
+            Some(Box::new(Value::Length(Length::pt(4.0)))),
+            Some(Box::new(Value::Length(Length::pt(4.0)))),
+            None,
+            None,
+        ) else {
+            panic!("shape")
+        };
+        assert_eq!(
+            geometry.as_ref().observation_relation(&geometry.as_ref().clone()),
+            ObservationRelation::Same
+        );
+        let mut circle = geometry.as_ref().clone();
+        circle.origin = ShapeOrigin::Circle;
+        assert_eq!(
+            circle.observation_relation(&circle.clone()),
+            ObservationRelation::Same
+        );
+        assert_eq!(
+            circle.observation_relation(geometry.as_ref()),
+            ObservationRelation::Different
+        );
+        assert_eq!(
+            geometry.as_ref().observation_relation(&circle),
+            ObservationRelation::Different
+        );
+        let mut different_radius = circle.clone();
+        different_radius.width = Some(Box::new(Value::Length(Length::pt(6.0))));
+        different_radius.height = different_radius.width.clone();
+        assert_eq!(
+            circle.observation_relation(&different_radius),
+            ObservationRelation::Different
+        );
     }
 }

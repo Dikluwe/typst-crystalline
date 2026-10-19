@@ -1,0 +1,103 @@
+{
+  "utc": "2026-10-19T21:55:08.992018+00:00",
+  "phase": "pre-API semantic tests, no production edits",
+  "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+  "sha256": "7d3a9d5099535448ef67f269e3e7b5fc3c91763c797d51d1f5d98c496827d1a7",
+  "test_count": 14,
+  "tests": [
+    {
+      "name": "circle_origin_rejects_malformed_radius_at_causal_value_span",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_radius_diagnostic_uses_latest_occurrence_and_fallback_span",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_radius_error_precedes_paint_error",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_name_validation_still_precedes_radius",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_em_radius_reaches_actual_layout_at_occurrence_font",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_mixed_radius_paints_at_each_font_through_block_and_box",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_preserves_absolute_and_numeric_geometry",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_preserves_absolute_language_identity_boundaries",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_preserves_em_language_identity_boundary",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_distinguishes_numeric_ellipse_and_em_or_mixed_radii",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_language_identity_survives_containers_membership_and_wrappers",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_retains_explicit_auto_zero_and_omission_debt",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_preserves_signed_and_nonfinite_point_extensions",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_preserves_fill_stroke_and_absence",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prediction_only": true,
+      "expected_baseline": "PASS_preservation"
+    }
+  ],
+  "archived_six_mapping": {
+    "batch_f_circle_rejects_invalid_radius_at_value_span": "circle_origin_rejects_malformed_radius_at_causal_value_span",
+    "batch_f_circle_em_radius_reaches_actual_layout_at_occurrence_font": "circle_origin_em_radius_reaches_actual_layout_at_occurrence_font",
+    "batch_f_circle_preserves_absolute_and_numeric_geometry": "circle_origin_preserves_absolute_and_numeric_geometry",
+    "batch_f_circle_radius_error_precedes_paint_error": "circle_origin_radius_error_precedes_paint_error",
+    "batch_f_circle_preserves_absolute_language_identity_boundaries": "circle_origin_preserves_absolute_language_identity_boundaries",
+    "batch_f_circle_preserves_em_language_identity_boundary": "circle_origin_preserves_em_language_identity_boundary"
+  },
+  "actual_baseline_status": "pending parent run; predictions never count as evidence",
+  "diagnostic_evidence": "batch-f/agents/geometry/accepted-replay/receipt.json cases[circle-radius-057].results.oracle.stderr: expected length or auto, found none"
+}

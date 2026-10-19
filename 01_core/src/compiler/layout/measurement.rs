@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/measurement.md
-//! @prompt-hash 54c14d10
+//! @prompt-hash 519d275c
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -878,6 +878,7 @@ mod v16_d_tests {
     }
     fn shape() -> Content {
         Content::Shape(Arc::new(ShapeElem {
+            origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             kind: ShapeKind::Rect,
             width: Some(Box::new(Value::Length(Length::pt(40.0)))),
             height: Some(Box::new(Value::Length(Length::pt(20.0)))),

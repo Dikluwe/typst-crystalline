@@ -1,0 +1,28 @@
+{
+  "utc": "2026-10-19T22:22:28.397054+00:00",
+  "log": "lab/results/v16-corrections-2026-10-19/circle-origin/label-red-run/label-cardinality-red.log",
+  "log_sha256": "e38f5c404a953ef07012d1979f499b004946215098a7ac058419e5dfa5e6a5fa",
+  "counts": {
+    "semantic_failures": 2,
+    "preservation_passed": 1
+  },
+  "tests": [
+    {
+      "name": "circle_origin_label_selector_returns_all_distinct_matching_occurrences",
+      "prediction": "FAIL_semantic",
+      "observed": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_label_selector_preserves_causal_order_and_deduplicates_aliases",
+      "prediction": "FAIL_semantic",
+      "observed": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_label_single_lookup_keeps_first_registered_location",
+      "prediction": "PASS_preservation",
+      "observed": "PASS_preservation"
+    }
+  ],
+  "semantic_evidence": "Compiled test executable; both failures assert expected multi-location vectors against singleton first result. Existing query_by_label first-insertion test passes.",
+  "complement_26_status": "Compiled but not executed by this test filter; await GREEN23."
+}

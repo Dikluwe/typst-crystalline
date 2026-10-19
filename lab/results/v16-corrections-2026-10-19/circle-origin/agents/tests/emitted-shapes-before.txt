@@ -1,0 +1,4 @@
+                FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                    emitted_shapes(items, out)
+                }
+                _ => {}

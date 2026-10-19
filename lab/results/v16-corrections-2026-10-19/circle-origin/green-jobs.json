@@ -1,0 +1,25 @@
+[
+  {
+    "name": "all-circle-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "circle_origin_",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "structural-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/structural.py",
+      "green"
+    ]
+  }
+]

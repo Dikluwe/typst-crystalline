@@ -1,0 +1,286 @@
+{
+  "utc": "2026-10-19T22:45:35.448898+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "state": "uncommitted working tree; validated inputs are unchanged",
+  "diff_head_stat": " .../core/compiler/eval/observation/elements.md     |  30 +-\n .../prompts/core/compiler/introspect/queries.md    |  47 +-\n 00_nucleo/prompts/core/compiler/layout/boxed.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/shape.md    |  31 +-\n .../prompts/core/compiler/layout/sub_frame.md      |  29 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  29 +-\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   |  28 +\n .../prompts/core/compiler/stdlib/shapes/curve.md   |  29 +-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  84 ++-\n .../prompts/core/compiler/stdlib/shapes/polygon.md |  29 +-\n .../core/entities/content/construction/layout.md   |  29 +-\n 00_nucleo/prompts/core/entities/elements/shape.md  |  42 +-\n 01_core/src/compiler/eval/observation/elements.rs  |  66 +-\n 01_core/src/compiler/introspect/queries.rs         |  76 ++-\n 01_core/src/compiler/layout/boxed.rs               |   3 +-\n 01_core/src/compiler/layout/helpers.rs             |   4 +-\n 01_core/src/compiler/layout/measurement.rs         |   3 +-\n 01_core/src/compiler/layout/shape.rs               |   4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |   3 +-\n 01_core/src/compiler/layout/tests.rs               |   3 +-\n 01_core/src/compiler/stdlib/shapes.rs              |   2 +-\n 01_core/src/compiler/stdlib/shapes/curve.rs        |   3 +-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 725 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/shapes/polygon.rs      |   4 +-\n .../src/entities/content/construction/layout.rs    |   3 +-\n 01_core/src/entities/elements/shape.rs             |  13 +-\n 28 files changed, 1360 insertions(+), 46 deletions(-)\n",
+  "closed_ids": [
+    "V16-065"
+  ],
+  "remaining_v16": 20,
+  "batch_f_repaired": 17,
+  "batch_f_pending": [
+    "V16-055"
+  ],
+  "source_owner_pairs": [
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+      "owner": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+      "source_sha256": "6d18d7083caf7dd636ea774bfd77e2666eb5e6320560f706f894991f353dd1cb",
+      "owner_sha256": "4e616fa8202fc516d552ba12fb0cae2a4d7825dc5c04a193c278f92c15718e55",
+      "prompt_seal": "6acf3a4f",
+      "code_seal": "64c72434"
+    },
+    {
+      "source": "01_core/src/compiler/layout/boxed.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/boxed.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/boxed.md",
+      "source_sha256": "6680549fb47bce65e829d633b04269fe6ec8a24556271caf57bf0b1295bf7bde",
+      "owner_sha256": "e11644ca1cb29a2c0970a20c4f5c041f6ae6215ac2eadc6980f3500ba60e8838",
+      "prompt_seal": "68005e6e",
+      "code_seal": "cf5d1723"
+    },
+    {
+      "source": "01_core/src/compiler/layout/helpers.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/helpers.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/helpers.md",
+      "source_sha256": "1866f6c30f5c3df2bf6f98dd6f643299f9853ccfdc853abf3c920c52ee46f386",
+      "owner_sha256": "64115674eff5135142d762cb0d746d6993d187e4155c29306e36bfff3545a0c1",
+      "prompt_seal": "70d7de76",
+      "code_seal": "9f46e160"
+    },
+    {
+      "source": "01_core/src/compiler/layout/measurement.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+      "source_sha256": "2eb4d3e904f8fc630d5454495388752f4435c2d51d8c01b419cd014a2adf0dd0",
+      "owner_sha256": "87aa1aed7a79c2026412d828299b747fa60d9b5f8829bf0ec3d0fd7bb0a39b37",
+      "prompt_seal": "519d275c",
+      "code_seal": "4bb33bae"
+    },
+    {
+      "source": "01_core/src/compiler/layout/shape.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/shape.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/shape.md",
+      "source_sha256": "160aa5ca662674cf6a22532f687289edd0173cb57430f01b23df821c589481d5",
+      "owner_sha256": "f3ff2d553b93d63a3328d95e5265e6293c15336f4179c3335ff9453da6987ecf",
+      "prompt_seal": "a0b1e89c",
+      "code_seal": "4c5e184c"
+    },
+    {
+      "source": "01_core/src/compiler/layout/sub_frame.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/sub_frame.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/sub_frame.md",
+      "source_sha256": "e3b1d912aa81017472eedb160a6d5b0b6075fa1212ce80338050db84301dcd84",
+      "owner_sha256": "c9a24a1b9e44b4349fd650acc3f8091c7d3c715fbe6a21e0e608f6b8a83e34a9",
+      "prompt_seal": "c5bfdbc7",
+      "code_seal": "4a2f1a76"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/tests.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/tests.md",
+      "source_sha256": "622c881183abed9a486c41b99c29d973e8ebf4bb6ae5cda798e717596cce9e3f",
+      "owner_sha256": "953262660112dd8cc72404439a8709905855210f97f2e90f29af0a908ad93821",
+      "prompt_seal": "0340e733",
+      "code_seal": "469cbece"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/stdlib/shapes.md",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes.md",
+      "source_sha256": "29df22cb314af94814ba77541e9fa5d2618d80b2a434051800e9c1096ea5b025",
+      "owner_sha256": "2e7e1d9fc517ba1e14c151b5efe601539cbdab75e16e9157d76af6cc3169aff5",
+      "prompt_seal": "a99e1154",
+      "code_seal": "327466fd"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/curve.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md",
+      "source_sha256": "73ca737de27209ecec99018711e693a47f9c699eacc4e31d3b47c92fff732a5c",
+      "owner_sha256": "8977aca7439fd5c87f16b8cb048bc35903c71d1e44d8a0ed3e13246160aac172",
+      "prompt_seal": "7afb23a9",
+      "code_seal": "3701c302"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+      "source_sha256": "3d2f3e9c5f38d17a27d4d6f8e344cd86512c379d4e1cefee6f505c17b37facf1",
+      "owner_sha256": "249eade598b2c672acd25cedb2bef8642490e26cd94a34c64d7a2c67ba5b6859",
+      "prompt_seal": "c09d3f29",
+      "code_seal": "123fd5b4"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/polygon.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md",
+      "source_sha256": "f2131bbc816a0f442779e9adbc39aaecc5121c874388fc58076ba19783461028",
+      "owner_sha256": "8ecc54de845fc8baaa3981bc8856b0091a8937f2af149388940859df8e14edea",
+      "prompt_seal": "0c54c459",
+      "code_seal": "a5cac0a4"
+    },
+    {
+      "source": "01_core/src/entities/content/construction/layout.rs",
+      "prompt": "00_nucleo/prompts/core/entities/content/construction/layout.md",
+      "owner": "00_nucleo/prompts/core/entities/content/construction/layout.md",
+      "source_sha256": "716e625b9e92537996fbb19be1aba819184e48740453950b548681f3fc063c52",
+      "owner_sha256": "46564aeaa7418bf289a14761fd917f667b8e4ce49217ebb4634299ec367dd7e7",
+      "prompt_seal": "c1029e06",
+      "code_seal": "1cf58eb0"
+    },
+    {
+      "source": "01_core/src/entities/elements/shape.rs",
+      "prompt": "00_nucleo/prompts/core/entities/elements/shape.md",
+      "owner": "00_nucleo/prompts/core/entities/elements/shape.md",
+      "source_sha256": "b5a3cf544331db953a6530631b867d548cea1be1e2db0052f3fb8fd73430833a",
+      "owner_sha256": "ae78918eb35986725bdec06481be97861bd67e3e585fc2b444b4ce3d2b2fbd35",
+      "prompt_seal": "94fd05d7",
+      "code_seal": "a94e0899"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/queries.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+      "source_sha256": "35b8e90374ce3ecb56e45b06d57282ed534af8f536c9be067ec5e0310569939b",
+      "owner_sha256": "c36be9d18d02bae48f2cc660992c93845db38bbe8aaa98e7647a6eb04e67e53f",
+      "prompt_seal": "a867e6a4",
+      "code_seal": "90dbb102"
+    }
+  ],
+  "full_gates": 12,
+  "new_tests_observed_in_full_suite": [
+    {
+      "name": "circle_origin_observation_compares_constructor_identity_and_existing_fields",
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "line": 1368
+    },
+    {
+      "name": "circle_origin_rejects_malformed_radius_at_causal_value_span",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 317
+    },
+    {
+      "name": "circle_origin_radius_diagnostic_uses_latest_occurrence_and_fallback_span",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 344
+    },
+    {
+      "name": "circle_origin_radius_error_precedes_paint_error",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 365
+    },
+    {
+      "name": "circle_origin_name_validation_still_precedes_radius",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 373
+    },
+    {
+      "name": "circle_origin_em_radius_reaches_actual_layout_at_occurrence_font",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 384
+    },
+    {
+      "name": "circle_origin_mixed_radius_paints_at_each_font_through_block_and_box",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 431
+    },
+    {
+      "name": "circle_origin_preserves_absolute_and_numeric_geometry",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 475
+    },
+    {
+      "name": "circle_origin_preserves_absolute_language_identity_boundaries",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 490
+    },
+    {
+      "name": "circle_origin_preserves_em_language_identity_boundary",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 501
+    },
+    {
+      "name": "circle_origin_distinguishes_numeric_ellipse_and_em_or_mixed_radii",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 510
+    },
+    {
+      "name": "circle_origin_language_identity_survives_containers_membership_and_wrappers",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 526
+    },
+    {
+      "name": "circle_origin_retains_explicit_auto_zero_and_omission_debt",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 574
+    },
+    {
+      "name": "circle_origin_preserves_signed_and_nonfinite_point_extensions",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 595
+    },
+    {
+      "name": "circle_origin_preserves_fill_stroke_and_absence",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 618
+    },
+    {
+      "name": "circle_origin_native_and_generic_constructor_invariants",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 642
+    },
+    {
+      "name": "circle_origin_terminal_maps_and_clone_retain_origin",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 691
+    },
+    {
+      "name": "circle_origin_structural_relation_and_hash_include_only_changed_origin",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 720
+    },
+    {
+      "name": "circle_origin_corrects_float_ellipse_alias_in_language_compositions",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 750
+    },
+    {
+      "name": "circle_origin_rejects_remaining_value_classes_at_causal_span",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 796
+    },
+    {
+      "name": "circle_origin_label_selector_returns_all_distinct_matching_occurrences",
+      "source": "01_core/src/compiler/introspect/queries.rs",
+      "line": 498
+    },
+    {
+      "name": "circle_origin_label_selector_preserves_causal_order_and_deduplicates_aliases",
+      "source": "01_core/src/compiler/introspect/queries.rs",
+      "line": 521
+    },
+    {
+      "name": "circle_origin_label_single_lookup_keeps_first_registered_location",
+      "source": "01_core/src/compiler/introspect/queries.rs",
+      "line": 540
+    }
+  ],
+  "replays": {
+    "accepted-replay": {
+      "count": 224,
+      "sha256": "220ef52714de0542a6db061137d72f33ba49caf228fc365b2e66b50db54d73fc",
+      "utc_end": "2026-10-19T22:43:04.079156+00:00"
+    },
+    "accepted-paint": {
+      "count": 6,
+      "sha256": "9dbf76e0685c77d6a0edb744291cfde555d2c04b584202067a4c747c4ea363c7",
+      "utc_end": "2026-10-19T22:43:07.789529+00:00"
+    },
+    "accepted-label-controls": {
+      "count": 18,
+      "sha256": "c873b0d6f137cc6bbaf840ada5e4851d6af794ccb4e322e886f99f9890913ca1",
+      "utc_end": "2026-10-19T22:45:22.703913+00:00"
+    }
+  },
+  "product_sha256": "e114a4889a17292590a6a3c2ed0feeafd13dff970215740624fdf9aae0e8ef78",
+  "validation_end": "2026-10-19T22:42:48.099173+00:00",
+  "input_count": 2132,
+  "audit_sha256": {
+    "agents/audit/source-review.json": "f21e10db48f5f09469da7b0c51aedfab79cb41f53306c87103e5b16a8f491bb4",
+    "agents/audit/lint-review.json": "bdc3740b99d13b47452c6cbeb613e48f28de478a30c644ae3485fdad6bebf1a3",
+    "agents/tests/structural-review.json": "be9015da8e20148c8f31656e90756d989b2201f45a29a4c5b7ea1e10d3112bb7"
+  },
+  "limits": "Scoped Circle and Label corrections; Auto/default sizing and broader Circle surfaces remain debt. Full linter still exits 1 for 20 open V16 findings."
+}

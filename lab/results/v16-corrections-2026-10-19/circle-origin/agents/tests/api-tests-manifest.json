@@ -1,0 +1,36 @@
+{
+  "utc": "2026-10-19T22:04:08.585105+00:00",
+  "tests": [
+    {
+      "name": "circle_origin_native_and_generic_constructor_invariants",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "classification": "post-API invariant control"
+    },
+    {
+      "name": "circle_origin_terminal_maps_and_clone_retain_origin",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "classification": "post-API invariant control"
+    },
+    {
+      "name": "circle_origin_structural_relation_and_hash_include_only_changed_origin",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "classification": "post-API invariant control"
+    },
+    {
+      "name": "circle_origin_observation_compares_constructor_identity_and_existing_fields",
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "classification": "post-API invariant control"
+    },
+    {
+      "name": "circle_origin_corrects_float_ellipse_alias_in_language_compositions",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "classification": "post-API language supplement; accidental Float ellipse equality already measured by frozen baseline CLI corpus"
+    },
+    {
+      "name": "circle_origin_rejects_remaining_value_classes_at_causal_span",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "classification": "post-API malformed-class complement;26remaininginvalidvariants, same rejectioncause demonstrated in RED"
+    }
+  ],
+  "status": "API controls added after confirmed semantic RED and implementation; absentAPI compilefailure not counted as RED"
+}

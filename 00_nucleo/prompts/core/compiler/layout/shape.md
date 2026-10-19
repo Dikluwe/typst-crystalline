@@ -1,5 +1,5 @@
 # L0 — shape block behaviour
-Hash do Código: 617c99a2
+Hash do Código: 4c5e184c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
@@ -77,3 +77,32 @@ This internal parity correction under ADR-0127 adds no public contract/default/p
 Prepared fill/stroke tests use counted Image body once per occurrence, no grid and target-area-independent preparation cost. Preserve true render controls rather than carrier-only proof.
 
 Apply the pinned nucleus.Ratification supersedes older clauses awaiting approval or requiring declarative Paint/Stroke inside Shape only within the approved contract. Preserve all other existing behavior. L0 comes first, followed by RED→GREEN; explicitly migrate fixtures/consumers without a total From<Paint> conversion, PartialEq on carriers or a solid fallback merely to obtain a green build. Do not raise the old limit or move layout into L3. Validate fill/stroke transport, resources, clipping, affine Parent, native targets, Solid/Gradient controls, page semantics and the complete suite/build/doc/fmt/lineage. Prepared transport, native target integration and verification (historical T1c/T2/T3) are complete only together; a broken or partial intermediate state does not certify production. The remaining historical T4 scope and publication remain outside this package.
+
+
+## Ratified Circle constructor origin
+
+### Evidence and approval before implementation
+
+At HEAD `954d13185e26a1ed90f6d7c60f6ba27760ca9889`, the source/owner audit in
+`lab/results/v16-corrections-2026-10-19/circle-origin/l0-before.json` freezes
+UTC, exact diffstat and hashes. The approved proposal
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/review.md`
+(SHA-256 `5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8`)
+binds the baseline equality and rejected full-Length candidate receipts.
+`stdlib/shapes/ellipse.rs:92-104` erased the em component;
+`entities/elements/shape.rs:21-29` used one geometry carrier for both constructors.
+Those observations concern language identity and geometry, not mandatory upstream
+Rust structure. The explicit user approval is recorded in
+`lab/results/v16-corrections-2026-10-19/circle-origin/approval-receipt.json`;
+it satisfies ADR-0127 section 2 for exactly this public type/field and migration.
+
+### Exclusive approved responsibility
+
+Preserve existing full-Length dimension resolution against each occurrence's
+effective font and existing ShapeKind dispatch/flow/paint behavior. Origin is
+semantic data, never a new render dispatch or geometry parameter. Migrate generic
+ShapeElem fixtures to Geometry. The rejected candidate recorded actual 2em
+geometry at two font sizes; repeat logical/paint bounds for explicit2pt/2em/mixed
+radii, reused aliases and Block/Box nesting through the actual layout path.
+Only explicit Circle radius conversion/constructor identity moves out of prior
+blanket Circle debt. Auto/default and unrelated Circle surfaces remain open.

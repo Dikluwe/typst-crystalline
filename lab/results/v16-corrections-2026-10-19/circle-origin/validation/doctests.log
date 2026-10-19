@@ -1,0 +1,26 @@
+   Compiling tinytemplate v1.2.1
+   Compiling criterion v0.5.1
+    Finished `test` profile [unoptimized] target(s) in 2.96s
+   Doc-tests typst_core
+
+running 5 tests
+test 01_core/src/compiler/layout/mod.rs - compiler::layout::layout_with_introspector (line 2013) ... ok
+test 01_core/src/entities/frame_paint.rs - entities::frame_paint::FramePaint (line 17) - compile fail ... ok
+test 01_core/src/entities/frame_paint.rs - entities::frame_paint::FramePaint (line 24) - compile fail ... ok
+test 01_core/src/entities/introspector.rs - entities::introspector::TagIntrospector::inject_pages (line 608) ... ok
+test 01_core/src/entities/introspector.rs - entities::introspector::TagIntrospector::inject_positions (line 570) ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.51s
+
+   Doc-tests typst_infra
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests typst_shell
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

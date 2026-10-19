@@ -1,0 +1,124 @@
+{
+  "base_head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "approval_receipt": "lab/results/v16-corrections-2026-10-19/circle-origin/approval-receipt.json",
+  "pairs": [
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+      "owner": "00_nucleo/prompts/core/compiler/eval/observation/elements.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/boxed.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/boxed.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/boxed.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/helpers.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/helpers.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/helpers.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/measurement.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/measurement.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/shape.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/shape.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/shape.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/sub_frame.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/sub_frame.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/sub_frame.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/layout/tests.md",
+      "owner": "00_nucleo/prompts/core/compiler/layout/tests.md"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/stdlib/shapes.md",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes.md"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/curve.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/polygon.rs",
+      "prompt": "00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md"
+    },
+    {
+      "source": "01_core/src/entities/content/construction/layout.rs",
+      "prompt": "00_nucleo/prompts/core/entities/content/construction/layout.md",
+      "owner": "00_nucleo/prompts/core/entities/content/construction/layout.md"
+    },
+    {
+      "source": "01_core/src/entities/elements/shape.rs",
+      "prompt": "00_nucleo/prompts/core/entities/elements/shape.md",
+      "owner": "00_nucleo/prompts/core/entities/elements/shape.md"
+    }
+  ],
+  "sources": [
+    "01_core/src/compiler/eval/observation/elements.rs",
+    "01_core/src/compiler/layout/boxed.rs",
+    "01_core/src/compiler/layout/helpers.rs",
+    "01_core/src/compiler/layout/measurement.rs",
+    "01_core/src/compiler/layout/shape.rs",
+    "01_core/src/compiler/layout/sub_frame.rs",
+    "01_core/src/compiler/layout/tests.rs",
+    "01_core/src/compiler/stdlib/shapes.rs",
+    "01_core/src/compiler/stdlib/shapes/curve.rs",
+    "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+    "01_core/src/compiler/stdlib/shapes/polygon.rs",
+    "01_core/src/entities/content/construction/layout.rs",
+    "01_core/src/entities/elements/shape.rs"
+  ],
+  "prompts": [
+    "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+    "00_nucleo/prompts/core/compiler/layout/boxed.md",
+    "00_nucleo/prompts/core/compiler/layout/helpers.md",
+    "00_nucleo/prompts/core/compiler/layout/measurement.md",
+    "00_nucleo/prompts/core/compiler/layout/shape.md",
+    "00_nucleo/prompts/core/compiler/layout/sub_frame.md",
+    "00_nucleo/prompts/core/compiler/layout/tests.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md",
+    "00_nucleo/prompts/core/entities/content/construction/layout.md",
+    "00_nucleo/prompts/core/entities/elements/shape.md"
+  ],
+  "review_only_preserved_owners": [
+    "00_nucleo/prompts/core/entities/content/equality.md",
+    "00_nucleo/prompts/core/entities/content/morphology.md",
+    "00_nucleo/prompts/core/entities/content/identity.md",
+    "00_nucleo/prompts/core/entities/content/rust_hash.md",
+    "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+    "00_nucleo/prompts/core/compiler/eval/repr/content.md"
+  ],
+  "owners": [
+    "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+    "00_nucleo/prompts/core/compiler/layout/boxed.md",
+    "00_nucleo/prompts/core/compiler/layout/helpers.md",
+    "00_nucleo/prompts/core/compiler/layout/measurement.md",
+    "00_nucleo/prompts/core/compiler/layout/shape.md",
+    "00_nucleo/prompts/core/compiler/layout/sub_frame.md",
+    "00_nucleo/prompts/core/compiler/layout/tests.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md",
+    "00_nucleo/prompts/core/entities/content/construction/layout.md",
+    "00_nucleo/prompts/core/entities/elements/shape.md"
+  ]
+}

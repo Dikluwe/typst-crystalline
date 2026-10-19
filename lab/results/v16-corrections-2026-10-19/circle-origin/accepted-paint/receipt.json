@@ -1,0 +1,617 @@
+{
+  "utc_start": "2026-10-19T22:43:04.748413+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "diff_head_stat": " .../core/compiler/eval/observation/elements.md     |  30 +-\n .../prompts/core/compiler/introspect/queries.md    |  47 +-\n 00_nucleo/prompts/core/compiler/layout/boxed.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/shape.md    |  31 +-\n .../prompts/core/compiler/layout/sub_frame.md      |  29 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  29 +-\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   |  28 +\n .../prompts/core/compiler/stdlib/shapes/curve.md   |  29 +-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  84 ++-\n .../prompts/core/compiler/stdlib/shapes/polygon.md |  29 +-\n .../core/entities/content/construction/layout.md   |  29 +-\n 00_nucleo/prompts/core/entities/elements/shape.md  |  42 +-\n 01_core/src/compiler/eval/observation/elements.rs  |  66 +-\n 01_core/src/compiler/introspect/queries.rs         |  76 ++-\n 01_core/src/compiler/layout/boxed.rs               |   3 +-\n 01_core/src/compiler/layout/helpers.rs             |   4 +-\n 01_core/src/compiler/layout/measurement.rs         |   3 +-\n 01_core/src/compiler/layout/shape.rs               |   4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |   3 +-\n 01_core/src/compiler/layout/tests.rs               |   3 +-\n 01_core/src/compiler/stdlib/shapes.rs              |   2 +-\n 01_core/src/compiler/stdlib/shapes/curve.rs        |   3 +-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 725 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/shapes/polygon.rs      |   4 +-\n .../src/entities/content/construction/layout.rs    |   3 +-\n 01_core/src/entities/elements/shape.rs             |  13 +-\n 28 files changed, 1360 insertions(+), 46 deletions(-)\n",
+  "baseline": false,
+  "baseline_source_note": null,
+  "manifest_sha256": "b000a4403c7f8c4ac757dfa8d2549eacee7ad355f2805936dad42dcea04cf2b8",
+  "runner_sha256": "dd3eba73b3796880f62a930afd1711371f97e9fcbfaca74f03950639710c18cf",
+  "build_receipt": {
+    "path": "lab/results/v16-corrections-2026-10-19/circle-origin/accepted-build-receipt.json",
+    "sha256": "c9e954d4ef473fb44607edd651dd9354b4b665bd9757f689c231bffc0ff45347"
+  },
+  "rasterizer": {
+    "path": "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+    "sha256": "34653f7c5e91a990c2c06db8e73a69248b021d8d45317d0377ebc0f079bc5cf7"
+  },
+  "binaries": {
+    "product": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+      "sha256": "e114a4889a17292590a6a3c2ed0feeafd13dff970215740624fdf9aae0e8ef78"
+    },
+    "oracle": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    }
+  },
+  "cases": [
+    {
+      "name": "pt-10",
+      "source_sha256": "be4abd5b3e858982934f06270eb214adb88a56bc9e97f1757a7816b65978c754",
+      "utc": "2026-10-19T22:43:05.004758+00:00",
+      "results": {
+        "product": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-10.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-10-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-10-product.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-10-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "851cba89e3a999aac0d85a4064cfcf04f54f7cbb362badf4d3f2b281908cdd9d",
+          "png_sha256": "7dd7e4ca785639c38a435b2b4ca15faeac18aef3276b74680ac84e6fd55424d9",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              100,
+              100
+            ],
+            "width_px": 24,
+            "height_px": 24,
+            "red_pixels": 52,
+            "blue_pixels": 391
+          },
+          "expected_ink_diameter_px": 24,
+          "passed": true
+        },
+        "oracle": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-10.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-10-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-10-oracle.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-10-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "6b281098739c3a39115bc78ebc45c7cb3bed63a61d1ca33c00b6c0a5a0c88e0e",
+          "png_sha256": "5bc4936fd06eaa278bf51bce694a8fba44c75b24f36b6e2775599bd013bdd863",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              100,
+              100
+            ],
+            "width_px": 24,
+            "height_px": 24,
+            "red_pixels": 52,
+            "blue_pixels": 391
+          },
+          "expected_ink_diameter_px": 24,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "pt-20",
+      "source_sha256": "5097d592495a56e0143f7f2a58e5b10dc506bd6b8de96c5f7c9a8570ade3733e",
+      "utc": "2026-10-19T22:43:05.373664+00:00",
+      "results": {
+        "product": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-20.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-20-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-20-product.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-20-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "851cba89e3a999aac0d85a4064cfcf04f54f7cbb362badf4d3f2b281908cdd9d",
+          "png_sha256": "7dd7e4ca785639c38a435b2b4ca15faeac18aef3276b74680ac84e6fd55424d9",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              100,
+              100
+            ],
+            "width_px": 24,
+            "height_px": 24,
+            "red_pixels": 52,
+            "blue_pixels": 391
+          },
+          "expected_ink_diameter_px": 24,
+          "passed": true
+        },
+        "oracle": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-20.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-20-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-20-oracle.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/pt-20-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "6b281098739c3a39115bc78ebc45c7cb3bed63a61d1ca33c00b6c0a5a0c88e0e",
+          "png_sha256": "5bc4936fd06eaa278bf51bce694a8fba44c75b24f36b6e2775599bd013bdd863",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              100,
+              100
+            ],
+            "width_px": 24,
+            "height_px": 24,
+            "red_pixels": 52,
+            "blue_pixels": 391
+          },
+          "expected_ink_diameter_px": 24,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "em-root-10",
+      "source_sha256": "9ebe0e12b68635d88aff77c05deb395ecde7269f04b0a425e5721581d590dd31",
+      "utc": "2026-10-19T22:43:05.727141+00:00",
+      "results": {
+        "product": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-root-10.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-root-10-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-root-10-product.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-root-10-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "8200f54219d83ef5cb028662bfc60ad2fa307a58ef262d19b04486a2f56d826d",
+          "png_sha256": "06fd5576e85c16c8e3ebade6e4b6dcb6c1c67d632eeacd766422753630a2b8d7",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              244,
+              244
+            ],
+            "width_px": 168,
+            "height_px": 168,
+            "red_pixels": 18117,
+            "blue_pixels": 3922
+          },
+          "expected_ink_diameter_px": 168,
+          "passed": true
+        },
+        "oracle": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-root-10.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-root-10-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-root-10-oracle.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-root-10-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "5ae8fc1d551c6cbf5bc38594f7221a173bf968da7fe8cb452367f1ff316542de",
+          "png_sha256": "96528b560476a9a034d5c008a1aa12fcf1f1f1cefe8098ef850b390d10e452d1",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              244,
+              244
+            ],
+            "width_px": 168,
+            "height_px": 168,
+            "red_pixels": 18105,
+            "blue_pixels": 3921
+          },
+          "expected_ink_diameter_px": 168,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "em-box-20",
+      "source_sha256": "a8c678803ce25af3fba190349d25a5e19bfe98abbd481cac5a3036ea95409622",
+      "utc": "2026-10-19T22:43:06.104716+00:00",
+      "results": {
+        "product": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-box-20.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-box-20-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-box-20-product.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-box-20-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "6f228cc48c104eb080ec54b9a9ef6bac2d2fc870c335d0f8d34fca5fac249c16",
+          "png_sha256": "ccd4a28fa9803f8a1e715d59bd816a278c2b7d1dc4670327fa5845d9a0ed7f23",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              404,
+              404
+            ],
+            "width_px": 328,
+            "height_px": 328,
+            "red_pixels": 76366,
+            "blue_pixels": 7848
+          },
+          "expected_ink_diameter_px": 328,
+          "passed": true
+        },
+        "oracle": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-box-20.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-box-20-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-box-20-oracle.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/em-box-20-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "898c8b5f87600f53676f92eda0f96c486097266b9a6a6ea544b94f51ff347724",
+          "png_sha256": "3582f92cc6ead30a1073d2707d81bf3187b2cb004d8e302b8e8246fab790faeb",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              404,
+              404
+            ],
+            "width_px": 328,
+            "height_px": 328,
+            "red_pixels": 76329,
+            "blue_pixels": 7849
+          },
+          "expected_ink_diameter_px": 328,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "mixed-block-10",
+      "source_sha256": "ba46930e7ed3d10e44eee0d27d3952c58ae903a4bf188a7b7ee497c20e466521",
+      "utc": "2026-10-19T22:43:07.073528+00:00",
+      "results": {
+        "product": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-block-10.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-block-10-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-block-10-product.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-block-10-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "389143c0e97d5b25bfb9cac57babc6e71750a2854b8ad07995a12dfdb52bdfac",
+          "png_sha256": "8c0bcca4d18bfc790de0a3f7eb2b8362a5b09b082f73bc55608261deaeb6cdd4",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              180,
+              180
+            ],
+            "width_px": 104,
+            "height_px": 104,
+            "red_pixels": 6052,
+            "blue_pixels": 2362
+          },
+          "expected_ink_diameter_px": 104,
+          "passed": true
+        },
+        "oracle": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-block-10.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-block-10-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-block-10-oracle.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-block-10-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "d3ddb534e5f46ae299b91d3816657a20ab1d818e4d6e4ff05dbf31190c12e957",
+          "png_sha256": "47a2f637a83ad604d83a9ff687c6421d31bb799acb52bfcb71ae2fe6ee17c29d",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              180,
+              180
+            ],
+            "width_px": 104,
+            "height_px": 104,
+            "red_pixels": 6052,
+            "blue_pixels": 2364
+          },
+          "expected_ink_diameter_px": 104,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "mixed-root-20",
+      "source_sha256": "8844fc5558ca2b8764c163e66731dbfed03780100623ea6a02e64066fdbc59f5",
+      "utc": "2026-10-19T22:43:07.433697+00:00",
+      "results": {
+        "product": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-root-20.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-root-20-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-root-20-product.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-root-20-product.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "dc7c2eb316fcdb6ac0aee9260126cf7af713368d15f708bf41888318be86a5a3",
+          "png_sha256": "7dc8fbf43a2c4e2568eb18000b1ce13008161df5d749f5cfae2591572c23dc46",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              260,
+              260
+            ],
+            "width_px": 184,
+            "height_px": 184,
+            "red_pixels": 22118,
+            "blue_pixels": 4309
+          },
+          "expected_ink_diameter_px": 184,
+          "passed": true
+        },
+        "oracle": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+              "compile",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-root-20.typ",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-root-20-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "raster": {
+            "argv": [
+              "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+              "--dpi-x",
+              "288",
+              "--dpi-y",
+              "288",
+              "--output",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-root-20-oracle.png",
+              "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint/mixed-root-20-oracle.svg"
+            ],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "svg_sha256": "db8ab43ab8fdfa95b9f62e61c7d25d4207bfc648fda477b458debd884ec44952",
+          "png_sha256": "1b57ee8afe9e9902ae09250ba937d4607cc1b257185d6ab91f6272e9e39bb4b3",
+          "ink": {
+            "bbox": [
+              76,
+              76,
+              260,
+              260
+            ],
+            "width_px": 184,
+            "height_px": 184,
+            "red_pixels": 22114,
+            "blue_pixels": 4303
+          },
+          "expected_ink_diameter_px": 184,
+          "passed": true
+        }
+      },
+      "passed": true
+    }
+  ],
+  "validation_state": {
+    "path": "lab/results/v16-corrections-2026-10-19/circle-origin/validation/validation-state.json.gz",
+    "sha256": "6fa22985e8f73d62acd6e3bf00ff768ef68f9ec8f0fd09f9b35a4364e2d8c17d"
+  },
+  "utc_end": "2026-10-19T22:43:07.789529+00:00",
+  "diff_head_stat_after": " .../core/compiler/eval/observation/elements.md     |  30 +-\n .../prompts/core/compiler/introspect/queries.md    |  47 +-\n 00_nucleo/prompts/core/compiler/layout/boxed.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/shape.md    |  31 +-\n .../prompts/core/compiler/layout/sub_frame.md      |  29 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  29 +-\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   |  28 +\n .../prompts/core/compiler/stdlib/shapes/curve.md   |  29 +-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  84 ++-\n .../prompts/core/compiler/stdlib/shapes/polygon.md |  29 +-\n .../core/entities/content/construction/layout.md   |  29 +-\n 00_nucleo/prompts/core/entities/elements/shape.md  |  42 +-\n 01_core/src/compiler/eval/observation/elements.rs  |  66 +-\n 01_core/src/compiler/introspect/queries.rs         |  76 ++-\n 01_core/src/compiler/layout/boxed.rs               |   3 +-\n 01_core/src/compiler/layout/helpers.rs             |   4 +-\n 01_core/src/compiler/layout/measurement.rs         |   3 +-\n 01_core/src/compiler/layout/shape.rs               |   4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |   3 +-\n 01_core/src/compiler/layout/tests.rs               |   3 +-\n 01_core/src/compiler/stdlib/shapes.rs              |   2 +-\n 01_core/src/compiler/stdlib/shapes/curve.rs        |   3 +-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 725 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/shapes/polygon.rs      |   4 +-\n .../src/entities/content/construction/layout.rs    |   3 +-\n 01_core/src/entities/elements/shape.rs             |  13 +-\n 28 files changed, 1360 insertions(+), 46 deletions(-)\n",
+  "changed_inputs": [],
+  "binary_sha256_after": {
+    "product": "e114a4889a17292590a6a3c2ed0feeafd13dff970215740624fdf9aae0e8ef78",
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  },
+  "passed": true
+}

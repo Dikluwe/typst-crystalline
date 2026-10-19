@@ -1,0 +1,9 @@
+{
+  "status": "staged only; wait parent source-freeze release",
+  "source_sha256_at_staging": "0c6ede9eb3a053071c009765a93ffd1e3d511c7208f073c85039136ddf7400b7",
+  "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+  "additional_test": "circle_origin_rejects_remaining_value_classes_at_causal_span",
+  "class_count": 26,
+  "helper_policy": "Preserve bounded existing observation: emitted Ellipse dimensions/fill/stroke, Group/Link recursion. Explicitly ignore all other FrameItem variants including opaque Semantic/TextReplacement carriers. This helper does not claim observation below those carriers. No lint suppression or expansion of claimed coverage.",
+  "original_semantic_tests": "unchanged"
+}

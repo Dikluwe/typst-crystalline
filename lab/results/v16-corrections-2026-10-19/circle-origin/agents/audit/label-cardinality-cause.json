@@ -1,0 +1,30 @@
+{
+  "utc": "2026-10-19T22:17:51.602457+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "diff_head_stat": " .../core/compiler/eval/observation/elements.md     |  30 +-\n 00_nucleo/prompts/core/compiler/layout/boxed.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/shape.md    |  31 +-\n .../prompts/core/compiler/layout/sub_frame.md      |  29 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  29 +-\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   |  28 +\n .../prompts/core/compiler/stdlib/shapes/curve.md   |  29 +-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  84 ++-\n .../prompts/core/compiler/stdlib/shapes/polygon.md |  29 +-\n .../core/entities/content/construction/layout.md   |  29 +-\n 00_nucleo/prompts/core/entities/elements/shape.md  |  42 +-\n 01_core/src/compiler/eval/observation/elements.rs  |  62 +-\n 01_core/src/compiler/layout/boxed.rs               |   3 +-\n 01_core/src/compiler/layout/helpers.rs             |   4 +-\n 01_core/src/compiler/layout/measurement.rs         |   3 +-\n 01_core/src/compiler/layout/shape.rs               |   4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |   3 +-\n 01_core/src/compiler/layout/tests.rs               |   3 +-\n 01_core/src/compiler/stdlib/shapes.rs              |   2 +-\n 01_core/src/compiler/stdlib/shapes/curve.rs        |   3 +-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 682 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/shapes/polygon.rs      |   4 +-\n .../src/entities/content/construction/layout.rs    |   3 +-\n 01_core/src/entities/elements/shape.rs             |  13 +-\n 26 files changed, 1196 insertions(+), 40 deletions(-)\n",
+  "receipt_sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e",
+  "binary_stable": true,
+  "classification": "Measured preexisting label-selector cardinality defect, independent of Circle and Context cache. Internal language parity correction needs owner L0 first; no additional public contract.",
+  "observations": [
+    "Two direct metadata values without Context returned only first for repeated label; pinned oracle returned both.",
+    "Shared and distinct Circle, generic Rect and text all lose second value only through repeated-label selector.",
+    "Different labels queried as metadata return correct40pt and80pt, proving Circle radius late resolution in both occurrences."
+  ],
+  "cause": {
+    "source": "01_core/src/compiler/introspect/queries.rs",
+    "sha256": "6e28412fb1e356511db4c60c97385a1ab41366f59bd12f970bbd528796d21111",
+    "line": 129,
+    "finding": "Selector::Label calls query_by_label whose compatibility contract returns first only; LabelRegistry already has complete lookup_all index."
+  },
+  "l0": {
+    "source": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+    "sha256": "1035c451358b111abc1be6357f7fc045fd97e6cd6853c309e79ed7914b527c7e",
+    "finding": "Selectors preserve causal order and Location identity; no current single-result restriction."
+  },
+  "limits": [
+    "Keep query_by_label legacy first-result contract and public signatures unchanged.",
+    "Do not modify frozen224case policy or unrelated Context timing/style/default mechanics.",
+    "Legacy query_helpers::query_elements remains outside this compiled CLI path; no need to broaden this correction.",
+    "Combined-scope set-text context control has unrelated style semantics and is exploratory, not new acceptance."
+  ]
+}

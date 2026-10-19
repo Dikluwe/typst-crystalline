@@ -1,0 +1,45 @@
+[
+  {
+    "name": "all-circle-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "circle_origin_",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T22:25:03.340981+00:00",
+    "exit": 0,
+    "seconds": 90.34916910801257,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3716141056",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "structural-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/structural.py",
+      "green"
+    ],
+    "utc_end": "2026-10-19T22:25:34.215444+00:00",
+    "exit": 0,
+    "seconds": 30.873871807998512,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3716141056",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

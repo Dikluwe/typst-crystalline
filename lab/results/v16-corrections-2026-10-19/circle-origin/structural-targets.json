@@ -1,0 +1,46 @@
+[
+  {
+    "id": "V16-065",
+    "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+    "baseline": {
+      "after": "fn extract_pt(",
+      "anchor": "match val {"
+    },
+    "green": {
+      "after": "fn radius_length(",
+      "anchor": "match value {"
+    }
+  },
+  {
+    "id": "ShapeOrigin-self",
+    "file": "01_core/src/compiler/eval/observation/elements.rs",
+    "green": {
+      "after": "impl ObservationEq for crate::entities::elements::shape::ShapeOrigin {",
+      "anchor": "match self {"
+    }
+  },
+  {
+    "id": "ShapeOrigin-geometry-other",
+    "file": "01_core/src/compiler/eval/observation/elements.rs",
+    "green": {
+      "after": "impl ObservationEq for crate::entities::elements::shape::ShapeOrigin {",
+      "anchor": "match other {"
+    }
+  },
+  {
+    "id": "ShapeOrigin-circle-other",
+    "file": "01_core/src/compiler/eval/observation/elements.rs",
+    "green": {
+      "after": "Self::Circle => match other {",
+      "anchor": "match other {"
+    }
+  },
+  {
+    "id": "Circle-test-observer-FrameItem",
+    "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+    "green": {
+      "after": "fn emitted_shapes(",
+      "anchor": "match item {"
+    }
+  }
+]

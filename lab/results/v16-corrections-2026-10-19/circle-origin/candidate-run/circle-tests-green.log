@@ -1,0 +1,27 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 32s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 19 tests
+test compiler::eval::observation::elements::circle_origin_tests::circle_origin_observation_compares_constructor_identity_and_existing_fields ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_corrects_float_ellipse_alias_in_language_compositions ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_distinguishes_numeric_ellipse_and_em_or_mixed_radii ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_em_radius_reaches_actual_layout_at_occurrence_font ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_language_identity_survives_containers_membership_and_wrappers ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_mixed_radius_paints_at_each_font_through_block_and_box ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_name_validation_still_precedes_radius ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_native_and_generic_constructor_invariants ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_preserves_absolute_and_numeric_geometry ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_preserves_absolute_language_identity_boundaries ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_preserves_em_language_identity_boundary ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_preserves_fill_stroke_and_absence ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_preserves_signed_and_nonfinite_point_extensions ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_radius_diagnostic_uses_latest_occurrence_and_fallback_span ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_radius_error_precedes_paint_error ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_rejects_malformed_radius_at_causal_value_span ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_retains_explicit_auto_zero_and_omission_debt ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_structural_relation_and_hash_include_only_changed_origin ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_terminal_maps_and_clone_retain_origin ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 7595 filtered out; finished in 0.01s
+

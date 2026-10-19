@@ -1,0 +1,132 @@
+[
+  {
+    "name": "structural-final-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/structural.py",
+      "green-final"
+    ],
+    "utc_end": "2026-10-19T22:28:58.658839+00:00",
+    "exit": 0,
+    "seconds": 35.965238728997065,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "2184085504",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ],
+    "utc_end": "2026-10-19T22:28:59.150779+00:00",
+    "exit": 0,
+    "seconds": 0.49142674799077213,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "2184085504",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "full-validation",
+    "command": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/validation"
+    ],
+    "utc_end": "2026-10-19T22:42:48.354100+00:00",
+    "exit": 0,
+    "seconds": 829.2027495899965,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "6885351424",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "accepted-build-receipt",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/build_receipt.py",
+      "accepted"
+    ],
+    "utc_end": "2026-10-19T22:42:48.717457+00:00",
+    "exit": 0,
+    "seconds": 0.3628207720030332,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "6885351424",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "accepted-language-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/replay.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/accepted-build-receipt.json",
+      "--validation-state",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/validation/validation-state.json.gz",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/accepted-replay"
+    ],
+    "utc_end": "2026-10-19T22:43:04.427142+00:00",
+    "exit": 0,
+    "seconds": 15.692978591992869,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "6885351424",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "accepted-paint-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/paint.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/accepted-build-receipt.json",
+      "--validation-state",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/validation/validation-state.json.gz",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint"
+    ],
+    "utc_end": "2026-10-19T22:43:08.112029+00:00",
+    "exit": 0,
+    "seconds": 3.684270537996781,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "6885351424",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

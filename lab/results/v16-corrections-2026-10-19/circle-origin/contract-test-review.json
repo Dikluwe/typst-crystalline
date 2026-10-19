@@ -1,0 +1,72 @@
+{
+  "utc": "2026-10-19T22:14:11.471762+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "source_sha256": {
+    "01_core/src/compiler/stdlib/shapes/ellipse.rs": "0c6ede9eb3a053071c009765a93ffd1e3d511c7208f073c85039136ddf7400b7",
+    "01_core/src/compiler/eval/observation/elements.rs": "5cfae88d98bdf36d0ee4a22e6c799dc2b4e6796f00558cefe8d3f179e52af251"
+  },
+  "tests_reviewed": {
+    "pre_api_semantic": 14,
+    "post_api": 5
+  },
+  "findings": [
+    {
+      "severity": "validation_gap",
+      "status": "reported_to_parent",
+      "detail": "Only nine of 35 invalid Value variants directly execute malformed-radius branch; future-variant E0004 and grouped-arm entry do not execute remaining alternatives. Add real values for remaining 26 with exact errors and causal span before claiming complete nominal complement coverage.",
+      "covered": [
+        "None",
+        "Bool",
+        "Str",
+        "Array",
+        "Dict",
+        "Ratio",
+        "Relative",
+        "Fraction",
+        "Content"
+      ],
+      "missing": [
+        "Module",
+        "Datetime",
+        "Func",
+        "LocatedContent",
+        "Angle",
+        "Color",
+        "Stroke",
+        "Align",
+        "Location",
+        "Gradient",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Decimal",
+        "Duration",
+        "Version",
+        "Selector",
+        "Symbol",
+        "Args",
+        "State",
+        "Counter",
+        "Label",
+        "Dir",
+        "Path",
+        "Type",
+        "SpotColorant"
+      ]
+    },
+    {
+      "severity": "measurement_limit",
+      "detail": "emitted_shapes sees local ellipse dimensions and stroke thickness, not composed affine paint bounds. Independent frozen six-case paint corpus is needed for proposal paint-bounds acceptance."
+    }
+  ],
+  "positive_review": [
+    "Language tests call values_eq and binary Eq/Neq, containers/membership and Source/Strong/Emph/Styled, rather than Rust equality alone.",
+    "Float numeric Ellipse alias supplement closes initial Int-carrier-only weakness.",
+    "Auto remains equal to numeric/Length zero and distinct from omission; baseline debt remains explicit.",
+    "Causal-span latest occurrence/fallback and name/radius/paint precedence are asserted.",
+    "Actual layout measures repeated font-dependent aliases, mixed Length and Block/Box paths.",
+    "API tests preserve public constructor signatures, native Circle/Ellipse-kind invariant, Geometry generic route, clone/terminal maps, structural origin and unchanged kind-driven render.",
+    "Observation test distinguishes both cross-origin directions and same-origin changed dimensions. Existing other-field comparisons remain in unchanged source."
+  ],
+  "implementation_contract_review": "No unapproved public field/type/signature/default/phase introduced beyond exact ShapeOrigin and ShapeElem.origin. Radius semantic delta and malformed rejection are approved; other consumers mechanical as separately audited. No source or L0 edits during review."
+}

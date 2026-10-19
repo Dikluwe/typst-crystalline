@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md
-//! @prompt-hash 62a0eedf
+//! @prompt-hash 7afb23a9
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -342,6 +342,7 @@ pub fn native_curve(
         if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
+        origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
         kind: ShapeKind::Path(path_items),
         width,
         height,

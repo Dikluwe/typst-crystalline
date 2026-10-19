@@ -1,0 +1,88 @@
+[
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ]
+  },
+  {
+    "name": "circle-tests-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "circle_origin_",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "product-build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ]
+  },
+  {
+    "name": "candidate-build-receipt",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/build_receipt.py",
+      "candidate"
+    ]
+  },
+  {
+    "name": "candidate-language-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/replay.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/candidate-build-receipt.json",
+      "--validation-state",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/candidate-run/state.json.gz",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/candidate-replay"
+    ]
+  },
+  {
+    "name": "candidate-paint-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/paint.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/candidate-build-receipt.json",
+      "--validation-state",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/candidate-run/state.json.gz",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/candidate-paint"
+    ]
+  },
+  {
+    "name": "structural-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/structural.py",
+      "green"
+    ]
+  }
+]

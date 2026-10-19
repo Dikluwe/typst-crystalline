@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md
-//! @prompt-hash 85aad8be
+//! @prompt-hash 0c54c459
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -91,6 +91,7 @@ pub fn native_polygon(
         if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
+        origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
         kind: ShapeKind::Path(path_items),
         width,
         height,
@@ -253,6 +254,7 @@ pub fn native_polygon_regular(
         if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
+        origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
         kind: ShapeKind::Path(path_items),
         width,
         height,

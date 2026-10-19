@@ -1,0 +1,106 @@
+{
+  "utc": "2026-10-19T21:54:41.114943+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "sites": [
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "line": 91,
+      "context": "    }\n}\nimpl ObservationEq for crate::entities::elements::shape::ShapeElem {\n    fn observation_relation(&self, other: &Self) -> ObservationRelation {\n        let Self {\n            kind: _,\n            width: _,\n            height: _,\n            fill: _,\n            stroke: _,\n            fill_rule: _,\n        } = self;\n        ObservationRelation::Same\n            .and(self.kind.observation_relation(&other.kind))\n            .and(self.width.observation_relation(&other.width))\n            .and(self.height.observation_relation(&other.height))\n            .and(self.fill.observation_relation(&other.fill))"
+    },
+    {
+      "source": "01_core/src/compiler/layout/boxed.rs",
+      "line": 774,
+      "context": "    }\n    fn shape(width: f64, height: f64) -> Content {\n        Content::Shape(Arc::new(ShapeElem {\n            kind: ShapeKind::Rect,\n            width: Some(Box::new(Value::Length(Length::pt(width)))),\n            height: Some(Box::new(Value::Length(Length::pt(height)))),\n            fill: Some(Paint::Solid(Color::rgb(255, 0, 0))),\n            stroke: None,\n            fill_rule: Default::default(),\n        }))\n    }\n    #[derive(Default, Debug)]\n    struct Geometry {\n        text: Vec<(String, Point)>,\n        shapes: Vec<(Point, f64, f64)>,\n        clips: Vec<(Point, f64, f64, ShapeKind<Pt>)>,\n    }"
+    },
+    {
+      "source": "01_core/src/compiler/layout/helpers.rs",
+      "line": 842,
+      "context": "        use crate::entities::locator::Locator;\n        use std::sync::Arc;\n        let shape = Content::Shape(Arc::new(ShapeElem {\n            kind: ShapeKind::Line { dx: 40.0, dy: 20.0 },\n            width: None,\n            height: None,\n            fill: None,\n            stroke: None,\n            fill_rule: Default::default(),\n        }));\n        let content = Content::Located(Arc::new(LocatedContent {\n            location: Locator::new().next(),\n            body: Content::Realized(Arc::new(RealizedContent {\n                original: Content::text(\"Consumed\"),\n                visual: shape,\n            })),\n        }));"
+    },
+    {
+      "source": "01_core/src/compiler/layout/helpers.rs",
+      "line": 871,
+      "context": "    #[test]\n    fn v16_d_legacy_projection_preserves_generated_shape_and_true_absence() {\n        let shape = Content::Shape(Arc::new(ShapeElem {\n            kind: ShapeKind::Line { dx: 40.0, dy: 20.0 },\n            width: None,\n            height: None,\n            fill: None,\n            stroke: None,\n            fill_rule: Default::default(),\n        }));\n        let generated = Content::Source(Arc::new(SourceContent {\n            span: Span::detached(),\n            body: Content::Realized(Arc::new(RealizedContent {\n                original: Content::text(\"consumed original contributes no extent\"),\n                visual: shape,\n            })),\n        }));"
+    },
+    {
+      "source": "01_core/src/compiler/layout/measurement.rs",
+      "line": 880,
+      "context": "    }\n    fn shape() -> Content {\n        Content::Shape(Arc::new(ShapeElem {\n            kind: ShapeKind::Rect,\n            width: Some(Box::new(Value::Length(Length::pt(40.0)))),\n            height: Some(Box::new(Value::Length(Length::pt(20.0)))),\n            fill: None,\n            stroke: None,\n            fill_rule: Default::default(),\n        }))\n    }\n    fn image() -> Content {\n        Content::image(\n            \"test.png\",\n            PtrEqArc(Arc::new(vec![])),\n            Some(Box::new(Value::Length(Length::pt(40.0)))),\n            Some(Box::new(Value::Length(Length::pt(20.0)))),"
+    },
+    {
+      "source": "01_core/src/compiler/layout/shape.rs",
+      "line": 106,
+      "context": "            tile.size = Some(Size { width: Pt(8.0), height: Pt(6.0) });\n            let paint = Paint::Tiling(tile);\n            let elem = ShapeElem {\n                kind: ShapeKind::Rect,\n                width: Some(Box::new(Value::Length(Length::pt(width)))),\n                height: Some(Box::new(Value::Length(Length::pt(20.0)))),\n                fill: Some(paint.clone()),\n                stroke: Some(Stroke { paint, thickness: 3.0, ..Default::default() }),\n                fill_rule: crate::entities::geometry::FillRule::EvenOdd,\n            };\n            layout(&mut layouter, &elem);\n            assert_eq!(\n                layouter.sizer.0.get(),\n                2,\n                \"each paint occurrence must prepare its cell exactly once\"\n            );\n            assert!(layouter.layout_errors.is_empty());"
+    },
+    {
+      "source": "01_core/src/compiler/layout/shape.rs",
+      "line": 316,
+      "context": "        layouter.initial_baseline_pending = !subframe;\n        let origin = layouter.regions.current.cursor_y.0;\n        let elem = crate::entities::elements::shape::ShapeElem {\n            kind: crate::entities::geometry::ShapeKind::Rect,\n            width: Some(Box::new(crate::entities::value::Value::Float(80.0))),\n            height: Some(Box::new(crate::entities::value::Value::Float(40.0))),\n            fill: None,\n            stroke: None,\n            fill_rule: Default::default(),\n        };\n        super::layout(&mut layouter, &elem);\n        let y = match &layouter.regions.current.current_items[0] {\n            FrameItem::Shape { pos, .. } => pos.y.0,\n            other => panic!(\"unexpected first block {other:?}\"),\n        };\n        assert!((y - origin).abs() < 1e-9, \"block top {y} != physical origin {origin}\");\n        assert!(!layouter.initial_baseline_pending);"
+    },
+    {
+      "source": "01_core/src/compiler/layout/sub_frame.rs",
+      "line": 643,
+      "context": "    fn bounded_subframe_retains_oversized_shape_without_parent_page() {\n        check_isolation(\n            Content::Shape(Arc::new(ShapeElem {\n                kind: ShapeKind::Rect,\n                width: Some(Box::new(Value::Length(Length::pt(14.0)))),\n                height: Some(Box::new(Value::Length(Length::pt(10.0)))),\n                fill: None,\n                stroke: None,\n                fill_rule: Default::default(),\n            })),\n            \"\",\n            1,\n        );\n    }\n\n    #[test]\n    fn bounded_subframe_retains_overflowing_lines_without_parent_pages() {"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 25226,
+      "context": "    }\n    fn shape() -> Content {\n        Content::Shape(Arc::new(ShapeElem {\n            kind: ShapeKind::Rect,\n            width: Some(Box::new(Value::Length(Length::pt(8.0)))),\n            height: Some(Box::new(Value::Length(Length::pt(6.0)))),\n            fill: Some(Paint::Solid(Color::rgb(255, 0, 0))),\n            stroke: None,\n            fill_rule: Default::default(),\n        }))\n    }\n    fn container(boxed: bool, clip: bool, body: Content) -> Content {\n        let mut content = if boxed {\n            Content::boxed(\n                body,\n                Some(Length::pt(60.0)),\n                Some(Length::pt(40.0)),"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/curve.rs",
+      "line": 344,
+      "context": "        if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };\n\n    Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {\n        kind: ShapeKind::Path(path_items),\n        width,\n        height,\n        fill,\n        stroke,\n        fill_rule,\n    }))))\n}\n\n/// `curve.move(point)` \u2192 `Content::Curve` com segmento `Move`.\npub fn native_curve_move(\n    _ctx: &mut EvalContext,\n    args: &Args,\n    _world: &dyn crate::contracts::world::World,"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/polygon.rs",
+      "line": 93,
+      "context": "        if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };\n\n    Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {\n        kind: ShapeKind::Path(path_items),\n        width,\n        height,\n        fill,\n        stroke,\n        fill_rule,\n    }))))\n}\n\n// \u2500\u2500 P1473 \u2014 `polygon.regular(fill?, stroke?, size?, vertices?)` \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n/// `polygon.regular(fill?, stroke?, size?, vertices?)` \u2014 constructor\n/// qualificado que gera um pol\u00edgono regular circunscrito num c\u00edrculo de\n/// di\u00e2metro `size` (default `1em`), com `vertices` lados (default `3`, `u64`)."
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/polygon.rs",
+      "line": 255,
+      "context": "        if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };\n\n    Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {\n        kind: ShapeKind::Path(path_items),\n        width,\n        height,\n        fill,\n        stroke,\n        fill_rule: FillRule::NonZero,\n    }))))\n}\n\n#[cfg(test)]\nmod tests {\n    use super::super::atomization_test_support::call;\n    use super::*;\n"
+    },
+    {
+      "source": "01_core/src/entities/content/construction/layout.rs",
+      "line": 96,
+      "context": "            other => other,\n        };\n        Self::Shape(Arc::new(ShapeElem {\n            kind,\n            width,\n            height,\n            fill,\n            stroke,\n            fill_rule: crate::entities::geometry::FillRule::NonZero,\n        }))\n    }\n\n    /// `hide(body)` \u2014 Passo 156C (ADR-0061 Fase 1).\n    pub fn hide(body: Content) -> Self {\n        Self::Hide(Arc::new(HideElem { body }))\n    }\n"
+    },
+    {
+      "source": "01_core/src/entities/elements/shape.rs",
+      "line": 22,
+      "context": "/// `fill`/`stroke` cosm\u00e9ticos.\n#[derive(Debug, Clone, PartialEq)]\npub struct ShapeElem {\n    pub kind: ShapeKind,\n    pub width: Option<Box<Value>>,\n    pub height: Option<Box<Value>>,\n    pub fill: Option<Paint>,\n    pub stroke: Option<Stroke>,\n    pub fill_rule: FillRule,\n}\n\n// `Hash` manual via `Debug` (paridade `content_hash`): `Value` (width/height)\n// carrega `f64`; `Color`/`Stroke` idem. Ressalva `-0.0` vs `0.0` aceit\u00e1vel\n// (`\u2026Elem` n\u00e3o s\u00e3o chaves de mapa).\nimpl std::hash::Hash for ShapeElem {\n    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {\n        format!(\"{self:?}\").hash(state);"
+    },
+    {
+      "source": "01_core/src/entities/elements/shape.rs",
+      "line": 34,
+      "context": "// carrega `f64`; `Color`/`Stroke` idem. Ressalva `-0.0` vs `0.0` aceit\u00e1vel\n// (`\u2026Elem` n\u00e3o s\u00e3o chaves de mapa).\nimpl std::hash::Hash for ShapeElem {\n    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {\n        format!(\"{self:?}\").hash(state);\n    }\n}\n\nimpl Element for ShapeElem {\n    fn plain_text(&self) -> String {\n        // Geometria sem texto.\n        String::new()\n    }\n\n    fn map_content<F>(&self, _transform: &mut F) -> SourceResult<Content>\n    where\n        F: FnMut(&Content) -> SourceResult<Option<Content>>,"
+    },
+    {
+      "source": "01_core/src/entities/elements/shape.rs",
+      "line": 40,
+      "context": "}\n\nimpl Element for ShapeElem {\n    fn plain_text(&self) -> String {\n        // Geometria sem texto.\n        String::new()\n    }\n\n    fn map_content<F>(&self, _transform: &mut F) -> SourceResult<Content>\n    where\n        F: FnMut(&Content) -> SourceResult<Option<Content>>,\n    {\n        Ok(Content::Shape(Arc::new(self.clone())))\n    }\n\n    fn map_text<F>(&self, _transform: &mut F) -> Content\n    where"
+    },
+    {
+      "source": "01_core/src/entities/elements/shape.rs",
+      "line": 67,
+      "context": "    use std::hash::{Hash, Hasher};\n\n    fn ex() -> ShapeElem {\n        ShapeElem {\n            kind: ShapeKind::Rect,\n            width: None,\n            height: None,\n            fill: None,\n            stroke: None,\n            fill_rule: FillRule::NonZero,\n        }\n    }\n\n    #[test]\n    fn plain_text_vazio() {\n        assert_eq!(ex().plain_text(), \"\");\n    }"
+    },
+    {
+      "source": "01_core/src/entities/elements/shape.rs",
+      "line": 68,
+      "context": "\n    fn ex() -> ShapeElem {\n        ShapeElem {\n            kind: ShapeKind::Rect,\n            width: None,\n            height: None,\n            fill: None,\n            stroke: None,\n            fill_rule: FillRule::NonZero,\n        }\n    }\n\n    #[test]\n    fn plain_text_vazio() {\n        assert_eq!(ex().plain_text(), \"\");\n    }\n"
+    },
+    {
+      "source": "01_core/src/entities/elements/shape.rs",
+      "line": 99,
+      "context": "        assert_ne!(\n            ex(),\n            ShapeElem {\n                kind: ShapeKind::Ellipse,\n                width: None,\n                height: None,\n                fill: None,\n                stroke: None,\n                fill_rule: FillRule::NonZero,\n            }\n        );\n    }\n\n    fn h(e: &ShapeElem) -> u64 {\n        let mut s = DefaultHasher::new();\n        e.hash(&mut s);\n        s.finish()"
+    },
+    {
+      "source": "01_core/src/entities/elements/shape.rs",
+      "line": 118,
+      "context": "    #[test]\n    fn payload_diferente_produz_hash_diferente() {\n        let outro = ShapeElem {\n            kind: ShapeKind::Rect,\n            width: Some(Box::new(Value::Int(5))),\n            height: None,\n            fill: None,\n            stroke: None,\n            fill_rule: FillRule::NonZero,\n        };\n        assert_ne!(h(&ex()), h(&outro));\n    }\n}"
+    }
+  ]
+}

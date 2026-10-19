@@ -1,0 +1,3 @@
+{
+  "reason": "Valid intermediate lint before one extra Geometry/Geometry observer assertion. No productive behavior changed; final lint remeasures final sealed source state."
+}

@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-19T21:58:19.344189+00:00",
+  "paint_manifest_sha256": "b000a4403c7f8c4ac757dfa8d2549eacee7ad355f2805936dad42dcea04cf2b8",
+  "baseline_receipt_sha256": "92c288fc0bf9df09e7edd05f51ad63c49348df2855c3e5864e2065d68ab9f0c9",
+  "baseline_red_cases": [
+    "em-root-10",
+    "em-box-20",
+    "mixed-block-10",
+    "mixed-root-20"
+  ],
+  "baseline_preserved_cases": [
+    "pt-10",
+    "pt-20"
+  ],
+  "oracle_cases_passed": 6,
+  "reason": "Expected ink diameter = explicit radius resolved at occurrence font \u00d72 +2pt centered stroke; fixed4px/pt, \u00b12px tolerance decided before measurement. Zero/mixed baseline collapse fails four cases. All six pinned oracle measurements satisfy the fixed bounds."
+}

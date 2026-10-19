@@ -1,0 +1,72 @@
+[
+  {
+    "name": "structural-final-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/structural.py",
+      "green-final"
+    ]
+  },
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ]
+  },
+  {
+    "name": "full-validation",
+    "command": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/validation"
+    ]
+  },
+  {
+    "name": "accepted-build-receipt",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/build_receipt.py",
+      "accepted"
+    ]
+  },
+  {
+    "name": "accepted-language-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/replay.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/accepted-build-receipt.json",
+      "--validation-state",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/validation/validation-state.json.gz",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/accepted-replay"
+    ]
+  },
+  {
+    "name": "accepted-paint-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/paint.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/accepted-build-receipt.json",
+      "--validation-state",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/validation/validation-state.json.gz",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/accepted-paint"
+    ]
+  }
+]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/helpers.md
-//! @prompt-hash 61a57b1d
+//! @prompt-hash 70d7de76
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -840,6 +840,7 @@ mod realization_measurement_tests {
         use crate::entities::locator::Locator;
         use std::sync::Arc;
         let shape = Content::Shape(Arc::new(ShapeElem {
+            origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             kind: ShapeKind::Line { dx: 40.0, dy: 20.0 },
             width: None,
             height: None,
@@ -869,6 +870,7 @@ mod v16_d_tests {
     #[test]
     fn v16_d_legacy_projection_preserves_generated_shape_and_true_absence() {
         let shape = Content::Shape(Arc::new(ShapeElem {
+            origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             kind: ShapeKind::Line { dx: 40.0, dy: 20.0 },
             width: None,
             height: None,

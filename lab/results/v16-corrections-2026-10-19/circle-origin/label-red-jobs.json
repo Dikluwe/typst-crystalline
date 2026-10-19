@@ -1,0 +1,18 @@
+[
+  {
+    "name": "label-cardinality-red",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "circle_origin_label_",
+      "--",
+      "--test-threads=1"
+    ],
+    "expected_exit": 101
+  }
+]

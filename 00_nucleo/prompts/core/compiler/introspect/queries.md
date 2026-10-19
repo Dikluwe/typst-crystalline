@@ -1,5 +1,5 @@
 # L0 — introspect/queries
-Hash do Código: faf3cc35
+Hash do Código: 90dbb102
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/realization-order.toml sha256:958649ea9ebdd471f101874ff8cf94feb995ee037c43eb6e2f1d1ad19a151ef3
@@ -98,3 +98,48 @@ universal parity claim. Atomic promotion, language RED before code, static/safe
 Rust, 1:1/V26 before restricted owner resealing, build/core suite/linter remain
 required. Revalidate bare/where/alias, true/false equality, direct/composed
 query/counter, homonymous function and partial/closure; preserve D05/D07/query.
+
+
+## Complete label-selector occurrences
+
+### Evidence before decision
+
+The frozen Circle replay failed `circle-control-geometry-shared-occurrences`:
+only the first 40pt measurement was returned instead of both 40pt and 80pt.
+`lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json`
+binds exact HEAD, dirty diffstat, UTC, source/binary hashes, commands and outputs.
+Its direct-metadata control loses the second value even without Context or
+Circle, while unique-tag controls distinguish occurrence production from
+label selection. These language observations refute attributing the missing
+result to Circle geometry, closure caching or its new semantic origin.
+
+At the audited source, `01_core/src/compiler/introspect/queries.rs:129` delegates
+Selector::Label to the first-only query_by_label. The existing multi-label
+registry already exposes all registered Locations; its add preserves duplicate
+pairs. `00_nucleo/prompts/core/entities/introspector.md:145` retains the separate
+query_by_label compatibility projection, while allowing the later compiler-owned
+selector contract. The realization-order nucleus requires recorded causal order
+and deduplication of prepared identities, not sorting by raw Location integers.
+`lab/results/v16-corrections-2026-10-19/circle-origin/label-query-before.json`
+and its source archive preserve the audited owner/consumer before this decision.
+
+### Exclusive correction and acceptance
+
+For Selector::Label, collect every Location from LabelRegistry::lookup_all, sort
+by the existing causal order key, and deduplicate identical Location identities.
+Distinct occurrences remain distinct even when their content or label is equal.
+Unknown labels return empty. Preserve query_by_label's first-insertion lookup
+and Option<Location> signature, label_count/registry behavior, all other selector
+branches and existing composition/boundary semantics. Perform no callback,
+layout, cache invalidation, re-evaluation or new occurrence allocation.
+
+This narrowly supersedes the historical first-only Label selector staging and
+the parent catalog's preservation clause for that branch. It does not change
+public APIs, defaults, pipeline phases or authorization of unrelated selectors.
+Use ADR-0127 continuous parity flow: L0 before independent semantic RED, then
+implementation and restricted reseal. Test duplicate labels, nonnumeric causal
+order, repeated prepared identities, unknown labels, preserved first-only trait
+lookup and current composition/boundary behavior. Re-run the unchanged frozen
+Circle replay, including both occurrence-font measurements, plus introspection
+and full suites, paths, direct/reverse lineage and exact lint delta. Never change
+the frozen replay policy to accept the lost second occurrence.

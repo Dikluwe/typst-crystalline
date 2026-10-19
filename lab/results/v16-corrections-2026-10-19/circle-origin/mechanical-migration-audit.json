@@ -1,0 +1,57 @@
+{
+  "utc": "2026-10-19T22:09:25.790992+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "checks": [
+    {
+      "source": "01_core/src/compiler/layout/boxed.rs",
+      "only_lineage_and_geometry_initialization": true,
+      "geometry_literals": 1
+    },
+    {
+      "source": "01_core/src/compiler/layout/helpers.rs",
+      "only_lineage_and_geometry_initialization": true,
+      "geometry_literals": 2
+    },
+    {
+      "source": "01_core/src/compiler/layout/measurement.rs",
+      "only_lineage_and_geometry_initialization": true,
+      "geometry_literals": 1
+    },
+    {
+      "source": "01_core/src/compiler/layout/shape.rs",
+      "only_lineage_and_geometry_initialization": true,
+      "geometry_literals": 2
+    },
+    {
+      "source": "01_core/src/compiler/layout/sub_frame.rs",
+      "only_lineage_and_geometry_initialization": true,
+      "geometry_literals": 1
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "only_lineage_and_geometry_initialization": true,
+      "geometry_literals": 1
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes.rs",
+      "only_lineage_and_geometry_initialization": true,
+      "geometry_literals": 0
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/curve.rs",
+      "only_lineage_and_geometry_initialization": true,
+      "geometry_literals": 1
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/polygon.rs",
+      "only_lineage_and_geometry_initialization": true,
+      "geometry_literals": 2
+    },
+    {
+      "source": "01_core/src/entities/content/construction/layout.rs",
+      "only_lineage_and_geometry_initialization": true,
+      "geometry_literals": 1
+    }
+  ],
+  "all_passed": true
+}

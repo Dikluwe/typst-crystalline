@@ -1,0 +1,14 @@
+[
+  {
+    "id": "V16-065",
+    "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+    "baseline": {
+      "after": "fn extract_pt(",
+      "anchor": "match val {"
+    },
+    "green": {
+      "after": "fn radius_length(",
+      "anchor": "match value {"
+    }
+  }
+]

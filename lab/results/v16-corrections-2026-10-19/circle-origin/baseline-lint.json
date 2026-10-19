@@ -1,0 +1,23 @@
+{
+  "utc_start": "2026-10-19T21:55:51.856861+00:00",
+  "utc_end": "2026-10-19T21:55:57.600772+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/circle-origin-baseline-scan",
+  "command": [
+    "/repos/Antigravity/typst-crystalline/lab/target/linter/debug/crystalline-lint",
+    ".",
+    "--format",
+    "sarif"
+  ],
+  "exit": 1,
+  "linter_sha256": "421d0797e7ae1a5102e9c5bcd87b488fea70a1997394c38765a03239fe579121",
+  "source_snapshot_sha256": "9982d53cb910d46757af02ef22e02821175d37d19bb0d627ef22dbed477a2bbd",
+  "additional_reference_inputs": {
+    "lab/typst-original/crates/typst-library/src/visualize/line.rs": "5816aaffa4a339799fec9e69f6a87b31953a7401b3bcb711b6bc83beac9d84ba",
+    "lab/typst-original/crates/typst-library/src/text/raw.rs": "620697b43119f5e27e5dd2bb5928d333133a8c9c8ea537cac458cbcd71fdb7e2",
+    "lab/typst-original/crates/typst-layout/src/math/accent.rs": "3c8e7260ce50cae8d24d62acedec307bd5c87464e5031caa98bb96ffde15fc0b",
+    "lab/typst-original/crates/typst-layout/src/math/run.rs": "a234e73ce8c6b6b95b91490c54e850e87c350eefd54147ca41da7f24f4ffc893",
+    "lab/typst-original/crates/typst-library/src/model/par.rs": "7500c9b972c5abdb3dff37e427f6d7e16bef6199b738256d5bd3a82249765123"
+  },
+  "method": "Fresh full lint of exact frozen baseline, including oracle source citations; exact final Batch F findings reproduced."
+}

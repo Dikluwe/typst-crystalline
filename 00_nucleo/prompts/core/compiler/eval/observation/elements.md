@@ -1,5 +1,5 @@
 # L0 — compiler/eval/observation/elements
-Hash do Código: e0ab26b9
+Hash do Código: 64c72434
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/observation-relation.toml sha256:6f6d86b0ee72d314a84d86b12f9524b2959e075b29f99fcf6d2de9f30a4b338a
@@ -326,3 +326,31 @@ Conservative Transform comparison distinguishes variant/presence/every typed
 value before body observation. Matrix compares all coefficients. Do not equate
 operations via final matrix. RED→GREEN/dependent revalidation; build closes no
 X1–X5.
+
+
+## Ratified Circle constructor origin
+
+### Evidence and approval before implementation
+
+At HEAD `954d13185e26a1ed90f6d7c60f6ba27760ca9889`, the source/owner audit in
+`lab/results/v16-corrections-2026-10-19/circle-origin/l0-before.json` freezes
+UTC, exact diffstat and hashes. The approved proposal
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/review.md`
+(SHA-256 `5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8`)
+binds the baseline equality and rejected full-Length candidate receipts.
+`stdlib/shapes/ellipse.rs:92-104` erased the em component;
+`entities/elements/shape.rs:21-29` used one geometry carrier for both constructors.
+Those observations concern language identity and geometry, not mandatory upstream
+Rust structure. The explicit user approval is recorded in
+`lab/results/v16-corrections-2026-10-19/circle-origin/approval-receipt.json`;
+it satisfies ADR-0127 section 2 for exactly this public type/field and migration.
+
+### Exclusive approved responsibility
+
+Exhaustively destructure ShapeElem including origin and retain comparison of
+every existing field. Implement conservative ShapeOrigin observation nominally:
+Geometry/Geometry and Circle/Circle are Same, cross variants are Different.
+Both sides must be exhaustive so a new variant requires an explicit decision.
+No geometry, callbacks, textual name or language Hash/PartialEq shortcut proves
+reuse. Require same/cross-origin controls with equal other fields and unchanged
+existing field-sensitive behavior.

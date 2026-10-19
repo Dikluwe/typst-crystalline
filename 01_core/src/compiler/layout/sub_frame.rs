@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sub_frame.md
-//! @prompt-hash 124dadd5
+//! @prompt-hash c5bfdbc7
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -641,6 +641,7 @@ mod overflow_isolation {
     fn bounded_subframe_retains_oversized_shape_without_parent_page() {
         check_isolation(
             Content::Shape(Arc::new(ShapeElem {
+                origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
                 kind: ShapeKind::Rect,
                 width: Some(Box::new(Value::Length(Length::pt(14.0)))),
                 height: Some(Box::new(Value::Length(Length::pt(10.0)))),

@@ -1,0 +1,123 @@
+{
+  "utc": "2026-10-19T22:25:40.939514+00:00",
+  "tests": [
+    {
+      "name": "circle_origin_observation_compares_constructor_identity_and_existing_fields",
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "line": 1368
+    },
+    {
+      "name": "circle_origin_rejects_malformed_radius_at_causal_value_span",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 317
+    },
+    {
+      "name": "circle_origin_radius_diagnostic_uses_latest_occurrence_and_fallback_span",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 344
+    },
+    {
+      "name": "circle_origin_radius_error_precedes_paint_error",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 365
+    },
+    {
+      "name": "circle_origin_name_validation_still_precedes_radius",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 373
+    },
+    {
+      "name": "circle_origin_em_radius_reaches_actual_layout_at_occurrence_font",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 384
+    },
+    {
+      "name": "circle_origin_mixed_radius_paints_at_each_font_through_block_and_box",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 431
+    },
+    {
+      "name": "circle_origin_preserves_absolute_and_numeric_geometry",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 475
+    },
+    {
+      "name": "circle_origin_preserves_absolute_language_identity_boundaries",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 490
+    },
+    {
+      "name": "circle_origin_preserves_em_language_identity_boundary",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 501
+    },
+    {
+      "name": "circle_origin_distinguishes_numeric_ellipse_and_em_or_mixed_radii",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 510
+    },
+    {
+      "name": "circle_origin_language_identity_survives_containers_membership_and_wrappers",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 526
+    },
+    {
+      "name": "circle_origin_retains_explicit_auto_zero_and_omission_debt",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 574
+    },
+    {
+      "name": "circle_origin_preserves_signed_and_nonfinite_point_extensions",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 595
+    },
+    {
+      "name": "circle_origin_preserves_fill_stroke_and_absence",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 618
+    },
+    {
+      "name": "circle_origin_native_and_generic_constructor_invariants",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 642
+    },
+    {
+      "name": "circle_origin_terminal_maps_and_clone_retain_origin",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 691
+    },
+    {
+      "name": "circle_origin_structural_relation_and_hash_include_only_changed_origin",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 720
+    },
+    {
+      "name": "circle_origin_corrects_float_ellipse_alias_in_language_compositions",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 750
+    },
+    {
+      "name": "circle_origin_rejects_remaining_value_classes_at_causal_span",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "line": 796
+    },
+    {
+      "name": "circle_origin_label_selector_returns_all_distinct_matching_occurrences",
+      "source": "01_core/src/compiler/introspect/queries.rs",
+      "line": 498
+    },
+    {
+      "name": "circle_origin_label_selector_preserves_causal_order_and_deduplicates_aliases",
+      "source": "01_core/src/compiler/introspect/queries.rs",
+      "line": 521
+    },
+    {
+      "name": "circle_origin_label_single_lookup_keeps_first_registered_location",
+      "source": "01_core/src/compiler/introspect/queries.rs",
+      "line": 540
+    }
+  ],
+  "focused_log_sha256": "ac055a615a1bb25c2f0dbd397bd86b755e00038d02c24d9c6f4ad1857d71a72d",
+  "observed_green": 23,
+  "classification": "14 original semantic controls (6 RED,8 preservation),5 initial post-API controls,1 invalid-domain complement,3 Label controls (2 RED,1 preservation). Full suite pending."
+}

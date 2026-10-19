@@ -1,0 +1,60 @@
+[
+  {
+    "name": "all-domains",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T21:59:06.527393+00:00",
+    "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/circle-origin-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-065",
+        "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+        "baseline": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "green": {
+          "after": "fn radius_length(",
+          "anchor": "match value {"
+        },
+        "line": 85,
+        "byte_start": 2468,
+        "byte_end": 2479,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/entities/value.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T21:59:34.328754+00:00",
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3782184960",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 73
+  }
+]

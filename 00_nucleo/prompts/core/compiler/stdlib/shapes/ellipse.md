@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/ellipse
-Hash do Código: 6e95aad8
+Hash do Código: 123fd5b4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/shapes/optional-stroke.toml sha256:016cad80570d8133fcb275e6e0f693e088dc921e4d6d907a51888898ae8b00ce
@@ -35,3 +35,85 @@ per-side strokes, signatures, dimensions or radius. Test None with/without fill
 and omission without fill, RED→GREEN. This ADR-0127 internal parity correction
 adds no API/phase/default, unsafe code or dependency. Revalidate PDF/raster and
 macro controls against the qualified ratified pin.
+
+
+## Ratified Circle constructor origin
+
+### Evidence and approval before implementation
+
+At HEAD `954d13185e26a1ed90f6d7c60f6ba27760ca9889`, the source/owner audit in
+`lab/results/v16-corrections-2026-10-19/circle-origin/l0-before.json` freezes
+UTC, exact diffstat and hashes. The approved proposal
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/review.md`
+(SHA-256 `5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8`)
+binds the baseline equality and rejected full-Length candidate receipts.
+`stdlib/shapes/ellipse.rs:92-104` erased the em component;
+`entities/elements/shape.rs:21-29` used one geometry carrier for both constructors.
+Those observations concern language identity and geometry, not mandatory upstream
+Rust structure. The explicit user approval is recorded in
+`lab/results/v16-corrections-2026-10-19/circle-origin/approval-receipt.json`;
+it satisfies ADR-0127 section 2 for exactly this public type/field and migration.
+
+### Exclusive approved responsibility
+
+Construct native Circle directly with origin ShapeOrigin::Circle and kind
+ShapeKind::Ellipse using the current public fields, without mutating a shared Arc.
+Ellipse retains the generic Geometry constructor route. Keep names/native
+signatures, name validation before radius and radius before paint/stroke parsing.
+Keep the pinned optional-stroke nucleus and all existing paint/default rules.
+
+For explicit Float/Int radius, retain the point-number extension via Length::pt.
+For explicit Length, preserve absolute and em components. Double the full Length
+and store canonical Value::Length in equal width/height. Do not resolve fonts in
+eval. Same-circle numeric/float/Length equivalence remains; mixed absolute/em
+radii stay distinguishable. Preserve negative and nonfinite numeric/Length
+behavior without clamping. Explicit Auto becomes Value::Length(Length::ZERO),
+retaining zero diameter and equality with radius 0, 0.0 and 0pt. Omission keeps
+None dimensions and remains distinct from explicit Auto. This is explicit retained
+default debt, not correct Auto sizing or authority to hardcode an oracle diameter.
+
+Reject every other current Value variant with the measured diagnostic
+`expected length or auto, found {type}` at the last named radius occurrence value span, falling back to its argument
+span and then args.span when each more specific anchor is detached. Keep the decision
+nominally exhaustive, with Auto an explicit debt branch; a real future Value
+variant must require a new decision. Ratio and Relative are rejected radius
+classes. No silent malformed-to-zero conversion or lint suppression.
+
+Circle and generic Ellipse differ even with equal final dimensions or numeric
+carriers. The approved accidental equalities to correct are Circle versus generic
+numeric Ellipse and collapsed em radii; do not remove the numeric radius extension.
+Verify numeric/Length equivalence, pt/em/numeric Circle-versus-Ellipse, mixed radii,
+aliases, arrays, dictionaries, membership and Source/semantic wrappers. Preserve
+zero/negative/paint/stroke/default controls and exact malformed/name precedence.
+Actual logical geometry and paint bounds must measure radius2em as diameter40pt
+at text10pt and80pt at text20pt, radius2pt as4pt, mixed scaling, reuse under two
+occurrence font sizes and existing Block/Box nesting. Retain all archived six
+Circle refuters; any unapproved matching-case regression refutes implementation.
+
+This narrowly supersedes the earlier absolute-only radius/fallback and unchanged
+radius clauses. It does not implement Circle func/fields/selectors/show/set/body/
+inset/outset/width-height syntax or complete defaults. Their pending obligations
+remain visible. Retain the frozen replay corpus; only approved case-specific
+expectations change. Require RED before code, focused/full tests, builds, strict
+Clippy/Rustdoc/fmt, paths, direct/reverse lineage, V15/V26, source freeze and exact
+V16/V19 delta against recorded binaries/HEAD/UTC.
+
+
+### Complete rejection witnesses and bounded frame observer
+
+The independent review in
+`lab/results/v16-corrections-2026-10-19/circle-origin/contract-test-review.json`
+found that the first controls execute only nine of the 35 rejected Value
+variants. Exercise all 35 with real typed values, exact literal type diagnostics
+and the same causal span; no unsafe or placeholder payload can stand in for a
+variant. The additional controls complement, rather than replace, the original
+semantic RED, frozen bilateral corpus and future-variant E0004 proof.
+
+The local emitted_shapes test observer deliberately collects only Ellipse frame
+leaves and recurses through Group and Link. Replace its wildcard by the explicit
+remaining FrameItem variants, retaining that traversal and ignoring non-Ellipse
+Shape leaves. Semantic and TextReplacement remain opaque in this bounded helper;
+claim no descendant coverage for those carriers. Exact local dimensions/paint
+presence/stroke observations remain unchanged. The separate frozen paint corpus
+owns physical output bounds and cannot be replaced by this helper or its internal
+representation. Do not broaden productive geometry or weaken expected results.

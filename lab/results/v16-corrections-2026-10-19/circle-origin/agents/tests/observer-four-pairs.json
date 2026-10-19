@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-19T22:27:10.190050+00:00",
+  "source": "01_core/src/compiler/eval/observation/elements.rs",
+  "before_sha256": "5cfae88d98bdf36d0ee4a22e6c799dc2b4e6796f00558cefe8d3f179e52af251",
+  "after_sha256": "6d18d7083caf7dd636ea774bfd77e2666eb5e6320560f706f894991f353dd1cb",
+  "change": "one Geometry/Geometry assertion on cloned underlying ShapeElem, no Arc identity shortcut",
+  "count": "23 test functions unchanged",
+  "four_pairs": [
+    "Geometry/Geometry Same",
+    "Geometry/Circle Different",
+    "Circle/Geometry Different",
+    "Circle/Circle Same"
+  ],
+  "validation": "pending parent focused validation; this record does not claim execution"
+}

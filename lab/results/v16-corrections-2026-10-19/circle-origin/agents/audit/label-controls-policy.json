@@ -1,0 +1,781 @@
+{
+  "utc": "2026-10-19T22:28:50.084158+00:00",
+  "cases": [
+    {
+      "name": "shared-circle",
+      "source": "#let c = circle(radius:2em)\n#set text(size:10pt)\n#context [#metadata(measure(c)) <probe>]\n#set text(size:20pt)\n#context [#metadata(measure(c)) <probe>]\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          }
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      }
+    },
+    {
+      "name": "distinct-circle",
+      "source": "#let c = circle(radius:2em)\n#set text(size:10pt)\n#context [#metadata(measure(circle(radius:2em))) <probe>]\n#set text(size:20pt)\n#context [#metadata(measure(circle(radius:2em))) <probe>]\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          }
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      }
+    },
+    {
+      "name": "shared-rect",
+      "source": "#let c = rect(width:4em,height:4em)\n#set text(size:10pt)\n#context [#metadata(measure(c)) <probe>]\n#set text(size:20pt)\n#context [#metadata(measure(c)) <probe>]\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          }
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      }
+    },
+    {
+      "name": "shared-text",
+      "source": "#let c = [X]\n#set text(size:10pt)\n#context [#metadata(measure(c)) <probe>]\n#set text(size:20pt)\n#context [#metadata(measure(c)) <probe>]\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "6.6pt",
+            "height": "6.58pt",
+            "baseline": "6.58pt"
+          }
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "6.6pt",
+            "height": "6.58pt",
+            "baseline": "6.58pt"
+          },
+          {
+            "width": "13.2pt",
+            "height": "13.16pt",
+            "baseline": "13.16pt"
+          }
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "6.6pt",
+            "height": "6.58pt",
+            "baseline": "6.58pt"
+          },
+          {
+            "width": "13.2pt",
+            "height": "13.16pt",
+            "baseline": "13.16pt"
+          }
+        ]
+      }
+    },
+    {
+      "name": "direct-metadata",
+      "source": "#metadata(40) <probe>\n#metadata(80) <probe>\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40,
+          80
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40,
+          80
+        ]
+      }
+    },
+    {
+      "name": "two-context-constants",
+      "source": "#context [#metadata(40) <probe>]\n#context [#metadata(80) <probe>]\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40,
+          80
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40,
+          80
+        ]
+      }
+    },
+    {
+      "name": "same-context-constants",
+      "source": "#context [#metadata(40) <probe>]\n#context [#metadata(40) <probe>]\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40,
+          40
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40,
+          40
+        ]
+      }
+    },
+    {
+      "name": "same-context-countereffect",
+      "source": "#context [#metadata(here().position()) <probe>]\n#v(20pt)\n#context [#metadata(here().position()) <probe>]\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair cardinality with exact values independently measured through metadata selector; preserve unrelated position/Context-style debt",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "page": 1,
+            "x": "0pt",
+            "y": "0pt"
+          }
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "page": 1,
+            "x": "70.87pt",
+            "y": "90.87pt"
+          },
+          {
+            "page": 1,
+            "x": "70.87pt",
+            "y": "90.87pt"
+          }
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "page": 1,
+            "x": "0pt",
+            "y": "0pt"
+          },
+          {
+            "page": 1,
+            "x": "0pt",
+            "y": "0pt"
+          }
+        ]
+      }
+    },
+    {
+      "name": "shared-circle-unique-tags",
+      "source": "#let c = circle(radius:2em)\n#set text(size:10pt)\n#context [#metadata(measure(c)) <a>]\n#set text(size:20pt)\n#context [#metadata(measure(c)) <b>]\n",
+      "selector": "metadata",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "preserve exact existing behavior; unrelated diagnosis/lookup/warning debt excluded",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      }
+    },
+    {
+      "name": "shared-circle-different-body",
+      "source": "#let c = circle(radius:2em)\n#set text(size:10pt)\n#context [#metadata((tag:1, value:measure(c))) <probe>]\n#set text(size:20pt)\n#context [#metadata(measure(c)) <probe>]\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "tag": 1,
+            "value": {
+              "width": "40pt",
+              "height": "40pt",
+              "baseline": "40pt"
+            }
+          }
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "tag": 1,
+            "value": {
+              "width": "40pt",
+              "height": "40pt",
+              "baseline": "40pt"
+            }
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "tag": 1,
+            "value": {
+              "width": "40pt",
+              "height": "40pt",
+              "baseline": "40pt"
+            }
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      }
+    },
+    {
+      "name": "combined-scope",
+      "source": "#let c = circle(radius:2em)\n#context [#set text(size:10pt)\n#metadata(measure(c)) <probe>\n#set text(size:20pt)\n#metadata(measure(c)) <probe>]\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair cardinality with exact values independently measured through metadata selector; preserve unrelated position/Context-style debt",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          }
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "44pt",
+            "height": "44pt",
+            "baseline": "44pt"
+          },
+          {
+            "width": "44pt",
+            "height": "44pt",
+            "baseline": "44pt"
+          }
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      }
+    },
+    {
+      "name": "shared-circle-blocks",
+      "source": "#let c=circle(radius:2em)\n#block[#set text(size:10pt)\n#context [#metadata(measure(c)) <probe>]]\n#block[#set text(size:20pt)\n#context [#metadata(measure(c)) <probe>]]\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/receipt.json",
+        "sha256": "53002aae21cc182add9ec5a87ccdd6990828942519697793127eaaea9af16b1e"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          }
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "40pt",
+            "height": "40pt",
+            "baseline": "40pt"
+          },
+          {
+            "width": "80pt",
+            "height": "80pt",
+            "baseline": "80pt"
+          }
+        ]
+      }
+    },
+    {
+      "name": "repeated-label-same-element",
+      "source": "#metadata(40) <probe> <probe>\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/receipt.json",
+        "sha256": "a240763c479d08533673a0163042b1dec9032f311cf50d2e275bd66d6f7a044d"
+      },
+      "rule": "preserve exact existing behavior; unrelated diagnosis/lookup/warning debt excluded",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: content labelled multiple times\n  \u250c\u2500 <probe-document>:1:1\n  \u2502\n1 \u2502 #metadata(40) <probe> <probe>\n  \u2502  ^^^^^^^^^^^^\n  \u2502\n  = hint: only the last label is used, the rest are ignored\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40
+        ]
+      }
+    },
+    {
+      "name": "equal-values-distinct-elements",
+      "source": "#metadata(40) <probe>\n#metadata(40) <probe>\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/receipt.json",
+        "sha256": "a240763c479d08533673a0163042b1dec9032f311cf50d2e275bd66d6f7a044d"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40,
+          40
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40,
+          40
+        ]
+      }
+    },
+    {
+      "name": "interleaved-source-order",
+      "source": "#metadata(30) <probe>\n#metadata(1) <other>\n#metadata(20) <probe>\n#metadata(10) <probe>\n",
+      "selector": "<probe>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/receipt.json",
+        "sha256": "a240763c479d08533673a0163042b1dec9032f311cf50d2e275bd66d6f7a044d"
+      },
+      "rule": "repair Label-selector cardinality/order using exact pinned oracle observation",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          30
+        ]
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          30,
+          20,
+          10
+        ]
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          30,
+          20,
+          10
+        ]
+      }
+    },
+    {
+      "name": "duplicate-label-or",
+      "source": "#metadata(40) <probe>\n#metadata(80) <probe>\n",
+      "selector": "selector(<probe>).or(<probe>)",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/receipt.json",
+        "sha256": "a240763c479d08533673a0163042b1dec9032f311cf50d2e275bd66d6f7a044d"
+      },
+      "rule": "preserve exact existing behavior; unrelated diagnosis/lookup/warning debt excluded",
+      "baseline": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: failed to evaluate selector: selector(): argumento inv\u00e1lido (label)\n"
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(selector(<probe>).or(<probe>)).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40,
+          80
+        ]
+      },
+      "expected": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: failed to evaluate selector: selector(): argumento inv\u00e1lido (label)\n"
+      }
+    },
+    {
+      "name": "duplicate-label-and",
+      "source": "#metadata(40) <probe>\n#metadata(80) <probe>\n",
+      "selector": "selector(<probe>).and(metadata)",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/receipt.json",
+        "sha256": "a240763c479d08533673a0163042b1dec9032f311cf50d2e275bd66d6f7a044d"
+      },
+      "rule": "preserve exact existing behavior; unrelated diagnosis/lookup/warning debt excluded",
+      "baseline": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: failed to evaluate selector: selector(): argumento inv\u00e1lido (label)\n"
+      },
+      "oracle": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(selector(<probe>).and(metadata)).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          40,
+          80
+        ]
+      },
+      "expected": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: failed to evaluate selector: selector(): argumento inv\u00e1lido (label)\n"
+      }
+    },
+    {
+      "name": "singlelookup-locate",
+      "source": "#metadata(40) <probe>\n#metadata(80) <probe>\n#context [#metadata(locate(<probe>)) <result>]\n",
+      "selector": "<result>",
+      "baseline_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/receipt.json",
+        "sha256": "a240763c479d08533673a0163042b1dec9032f311cf50d2e275bd66d6f7a044d"
+      },
+      "rule": "preserve exact existing behavior; unrelated diagnosis/lookup/warning debt excluded",
+      "baseline": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<result>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          "location(..)"
+        ]
+      },
+      "oracle": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: label `<probe>` occurs multiple times in the document\n  \u250c\u2500 <probe-document>:3:20\n  \u2502\n3 \u2502 #context [#metadata(locate(<probe>)) <result>]\n  \u2502                     ^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<result>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "expected": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<result>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          "location(..)"
+        ]
+      }
+    }
+  ],
+  "independent_values_sha256": "8f866201bce90d6bc9dbf14f845ca5a64a7ce93598fe5e7d04a6d4d578198a1b",
+  "scope": "Only measured Label cardinality/causal-order prerequisite. The original224Circle policies remain unchanged."
+}

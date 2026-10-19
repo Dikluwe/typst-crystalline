@@ -1,0 +1,12 @@
+                FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                    emitted_shapes(items, out)
+                }
+                FrameItem::TextReplacement { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => {}

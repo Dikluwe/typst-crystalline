@@ -1,0 +1,115 @@
+[
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ],
+    "utc_end": "2026-10-19T22:13:37.795098+00:00",
+    "exit": 0,
+    "seconds": 0.5375508069992065,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "46338048",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "circle-tests-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "circle_origin_",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T22:15:09.882185+00:00",
+    "exit": 0,
+    "seconds": 92.08655963500496,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3487633408",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "product-build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ],
+    "utc_end": "2026-10-19T22:15:45.009457+00:00",
+    "exit": 0,
+    "seconds": 35.12678628100548,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3487633408",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "candidate-build-receipt",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/build_receipt.py",
+      "candidate"
+    ],
+    "utc_end": "2026-10-19T22:15:45.256548+00:00",
+    "exit": 0,
+    "seconds": 0.24637831600557547,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3487633408",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "candidate-language-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/replay.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/candidate-build-receipt.json",
+      "--validation-state",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/candidate-run/state.json.gz",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/circle-origin/candidate-replay"
+    ],
+    "utc_end": "2026-10-19T22:16:01.051092+00:00",
+    "exit": 1,
+    "seconds": 15.793936379996012,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3487633408",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "utc": "2026-10-19T22:19:05.099265+00:00",
+  "source": "01_core/src/compiler/introspect/queries.rs",
+  "source_sha256": "acf096ef866b90bd8ea0cccfefc0b66c217e85d24bf68c87dc26000f748678f0",
+  "l0_sha256": "764699872957966b279a2e97e69940e6c38d9d3e49d3b6b0ad3c681b36348f93",
+  "tests": [
+    {
+      "name": "circle_origin_label_selector_returns_all_distinct_matching_occurrences",
+      "prediction_only": true,
+      "expected_baseline": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_label_selector_preserves_causal_order_and_deduplicates_aliases",
+      "prediction_only": true,
+      "expected_baseline": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_label_single_lookup_keeps_first_registered_location",
+      "prediction_only": true,
+      "expected_baseline": "PASS_preservation"
+    }
+  ],
+  "implementation_status": "productive body unchanged; parent RED required",
+  "evidence": "agents/audit/label-selector-controls/receipt.json and context-investigation; no and/or/locate scope expansion"
+}

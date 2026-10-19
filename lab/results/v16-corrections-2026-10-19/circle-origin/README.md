@@ -1,0 +1,94 @@
+# Circle origin and explicit radius: validated correction
+
+V16-065 is closed on `codex/tekt-mature-layout`. Batch F now has 17 validated
+repairs and one pending item, Figure V16-055. The full pinned linter reports
+**21 → 20 V16 errors**; this is not an overall zero-violation or full-parity claim.
+
+## Approval, cause and implementation
+
+The user explicitly approved `ShapeOrigin` and required `ShapeElem.origin`.
+[Approval](approval.json) binds proposal SHA-256
+`5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8`.
+The baseline is `954d13185e26a1ed90f6d7c60f6ba27760ca9889`; every measurement
+records its dirty-tree stat, UTC and input/executable hashes. The baseline binary
+is the prior validated build whose 2132 source/config inputs were verified equal
+to this clean baseline, not a claimed rebuild at this HEAD. Its original build
+provenance remains in [the baseline receipt](baseline-build-receipt.json).
+
+Circle previously discarded the em component of radius. Retaining full Length
+alone was already refuted by language equality regressions. Native Circle now
+constructs origin Circle with kind Ellipse; generic constructors and literals
+use Geometry. Origin participates in structural equality/hash and conservative
+observation and survives clones/maps. Rendering still dispatches on ShapeKind.
+Int/Float retain their point-number extension; explicit Length retains abs/em
+until layout and stores the full doubled Length. Malformed radius values are
+rejected exhaustively at their causal value/argument span, before paint parsing.
+Existing name precedence, fill/stroke and signed/nonfinite controls remain.
+
+The frozen shared-occurrence replay exposed an additional Label-selector defect:
+both Context measurements existed, but the selector returned only the first.
+[Independent probes](agents/audit/label-cardinality-cause.json) reproduced it
+without Circle or Context. The compiler-owned Label query now returns all matches
+in causal order and deduplicates only identical Locations. The separate
+query_by_label first-result API is unchanged. This measured internal parity
+correction followed ADR-0127 continuous flow, its own L0 and semantic RED.
+No Context, pipeline-phase or additional public API change was needed.
+
+## Validation
+
+Three agents separated implementation/contracts, independent tests, and audit.
+Owning L0s preceded code; [scope](scope.json) contains fourteen exclusive pairs.
+The original thirteen-pair Circle scope is preserved separately.
+
+- The original fourteen tests produced six semantic RED failures and eight
+  preservation passes. Label added two semantic RED failures and one preservation
+  pass. Six additional post-API/domain controls complete **23 new tests**, all
+  observed passing in the final full suite, including all 35 rejected Value
+  classes and all four ShapeOrigin observation pairs.
+- Real copied-workspace enum extensions yield **five exact primary E0004
+  witnesses** for Value, ShapeOrigin and the bounded test observer's FrameItem.
+  [Independent raw-byte review](agents/tests/structural-review.json) verifies
+  these and baseline absence; unrelated errors do not count as witnesses.
+- All **twelve integrated gates** finished at `2026-10-19T22:42:48.099173+00:00` with **2132 unchanged
+  inputs**: CI/path checks, strict forward/reverse lineage, V15/V26, workspace
+  build/tests, wiring, doctests, all targets/benches, Clippy, fmt and Rustdoc.
+  Product packages were cleaned after copied-workspace probes.
+- **224 frozen language cases**, **6 exported-ink cases**, and **18 additional
+  Label controls** pass their unchanged case-specific policies. Paint measures
+  saturated fill/stroke bounds after SVG rasterization at 288 dpi, with a fixed
+  2-pixel (0.5pt) tolerance; it does not compare output bytes.
+
+[Commands](validation/validation-commands.json),
+[frozen state](validation/validation-state.json.gz),
+[accepted binary](accepted-build-receipt.json),
+[language replay](accepted-replay/receipt.json),
+[paint replay](accepted-paint/receipt.json), and
+[Label replay](accepted-label-controls/receipt.json) bind these results.
+The oracle remains commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+Build/test resource limits were one Cargo job, 12 GiB maximum, 8 GiB high and zero swap.
+
+## Alerts, failed attempts and remaining obligations
+
+The pinned linter and scan scope are unchanged. Its full scan still exits 1 for
+the other twenty V16 errors. [Independent comparison](agents/audit/lint-review.json)
+finds exactly V16-065 removed, no new error/warning, and identical diagnostics
+outside the fourteen consumers. V19 changes 1259 → 1262; V20 remains 877.
+Every prior note is retained. Three new grouping notes remain enabled: the 35
+invalid Value alternatives are exercised; the bounded frame observer does not
+claim runtime coverage of every recursive/ignored wrapper alternative.
+
+The first candidate passed 19 tests but failed the shared-occurrence replay
+(223/224), and its test observer introduced a new wildcard V16. Both attempts
+remain archived. Repairs made the observer nominally exhaustive and fixed Label
+cardinality; no frozen acceptance policy, old expectation or severity was weakened.
+Original batch F history is unchanged.
+
+Explicit Auto still means canonical zero and differs from omission; complete
+automatic/default sizing remains debt. Circle func/fields/reflection, native
+selectors/show/set, body/inset/outset and width/height syntax remain out of scope.
+Other shape identities, unrelated selector(label)/locate behavior, contextual
+style debt and Figure V16-055 remain visible in their existing obligations.
+The public required field needs migration in external Rust struct literals.
+The [closure ledger](closure-ledger.json) binds all accepted source/owner hashes.

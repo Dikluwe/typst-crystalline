@@ -1,0 +1,4 @@
+{
+  "utc": "2026-10-19T22:18:28.632085+00:00",
+  "reason": "Original Circle V16 removed, new V16 in test observer emitted_shapes wildcard; 21 total. Complete candidate lint preserved before nominal observer repair."
+}

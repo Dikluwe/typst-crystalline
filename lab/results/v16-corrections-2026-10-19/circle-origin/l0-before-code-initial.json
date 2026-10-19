@@ -1,0 +1,37 @@
+{
+  "utc": "2026-10-19T21:54:04.530324+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "diff_head_stat": " .../core/compiler/eval/observation/elements.md     | 28 ++++++++++\n 00_nucleo/prompts/core/compiler/layout/boxed.md    | 27 ++++++++++\n 00_nucleo/prompts/core/compiler/layout/helpers.md  | 27 ++++++++++\n .../prompts/core/compiler/layout/measurement.md    | 27 ++++++++++\n 00_nucleo/prompts/core/compiler/layout/shape.md    | 29 ++++++++++\n .../prompts/core/compiler/layout/sub_frame.md      | 27 ++++++++++\n 00_nucleo/prompts/core/compiler/layout/tests.md    | 27 ++++++++++\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   | 28 ++++++++++\n .../prompts/core/compiler/stdlib/shapes/curve.md   | 27 ++++++++++\n .../prompts/core/compiler/stdlib/shapes/ellipse.md | 62 ++++++++++++++++++++++\n .../prompts/core/compiler/stdlib/shapes/polygon.md | 27 ++++++++++\n .../core/entities/content/construction/layout.md   | 27 ++++++++++\n 00_nucleo/prompts/core/entities/elements/shape.md  | 40 +++++++++++++-\n 13 files changed, 401 insertions(+), 2 deletions(-)\n",
+  "owner_sha256": {
+    "00_nucleo/prompts/core/compiler/eval/observation/elements.md": "ab515bd711ee6c4249acb47db09b526d98c4f5f4f0472b78e61a0352098b8ec4",
+    "00_nucleo/prompts/core/compiler/layout/boxed.md": "5f7f0b447febd50ede8753f59a66947a053cac8eeb89d954a84635cfcccc704a",
+    "00_nucleo/prompts/core/compiler/layout/helpers.md": "a47d1436a66da1020d29869fccdc639fc93c4855e89a31ab9d73bde8da1fe385",
+    "00_nucleo/prompts/core/compiler/layout/measurement.md": "ceb9dd8b82d228870415679eb44a6332e5ec7fddfe493858335270a280f95d25",
+    "00_nucleo/prompts/core/compiler/layout/shape.md": "56e19992b1eaa860e43c98a382a0c3b80965c20e6e93e3213bab8deda00efdf1",
+    "00_nucleo/prompts/core/compiler/layout/sub_frame.md": "666a0fb6058ad3a2bd26e7105cc104df2d4394a3423b6e31e8269eea2bd05faf",
+    "00_nucleo/prompts/core/compiler/layout/tests.md": "662c1d4ece2d87b11d29c5ce148b65b4a50a283083b3a7aa75821966b7cce3bc",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes.md": "2e7e1d9fc517ba1e14c151b5efe601539cbdab75e16e9157d76af6cc3169aff5",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md": "d14b0142a748839f335e374c05af4a7446c916ffee08dbf817a0a7f87efc1a38",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md": "3e3071060bc9a1a3ca142dae73bfa5be9324f986f919f4ac8ab7dc1ef2de90dc",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md": "12f7aaefd960f2891a3df4a975849ade358d5de678117375a7285c8d4597f461",
+    "00_nucleo/prompts/core/entities/content/construction/layout.md": "c2b344f884dd5e4f92e0d07af1b6c2a17c3a090b8d141e5501e74ac19715f1d7",
+    "00_nucleo/prompts/core/entities/elements/shape.md": "0c92cec651c3d3874a25af8067437dda0a4d4d4d300577f027591918339fadea"
+  },
+  "source_sha256": {
+    "01_core/src/compiler/eval/observation/elements.rs": "95571a725ba40187cc4c4d400943e540824eef849e2e714af42ba3804dbfcf76",
+    "01_core/src/compiler/layout/boxed.rs": "922a88965ea3fa8f66c377a3a2aeb137114df64df273c274893b68188372cb86",
+    "01_core/src/compiler/layout/helpers.rs": "e070dbd29cc208aa8abeb797088cb5bcf9ab45e160f84dad6068fcdb806f271c",
+    "01_core/src/compiler/layout/measurement.rs": "bc77edbfff74f9a1c1191c54b9a2af8d00124bb2d47fece2b06a24e2f35c0377",
+    "01_core/src/compiler/layout/shape.rs": "02388c48f516e824830554f85c3392b9bb248d91ce18c041fdea01818ffbc026",
+    "01_core/src/compiler/layout/sub_frame.rs": "bd595333be9fd4d7283febfb2fb3fcc438c4d2b89f911f4c441caad159f802c2",
+    "01_core/src/compiler/layout/tests.rs": "1d042c973122153a7fae351a3f48c50a9dc78850a2b7d3b59baf8c3c2be783b8",
+    "01_core/src/compiler/stdlib/shapes.rs": "51bc76c740d6cbb1461d255bf24018e26259482d4cb8c7012ba79bba574dbdfa",
+    "01_core/src/compiler/stdlib/shapes/curve.rs": "b28623474a83b5b1d9e722347a6ed18ffa75f024fccef4996fd7dfefee3d3e73",
+    "01_core/src/compiler/stdlib/shapes/ellipse.rs": "72803caa979acf261d9af8af1e7b991e04bb063a07d72cad785985c0fcb194a8",
+    "01_core/src/compiler/stdlib/shapes/polygon.rs": "82d37cb5f70864e3e86dd2030c1583ce2bbeb26c3c3b9248154b52d4109d4c06",
+    "01_core/src/entities/content/construction/layout.rs": "31820e378fbd8004c876dafcaf79925ef392ec74e30d9f987f0f2bc7cd56ef53",
+    "01_core/src/entities/elements/shape.rs": "24de72e73bb05377ae9477a2f1408e1ab475706057eb2d1373f0c78100fe3e22"
+  },
+  "source_unchanged": true,
+  "scope_sha256": "d675cd3b9a6524e93ab142bdabda1aa91adea0455960a9fdb80d4b3a94dc7a2f"
+}

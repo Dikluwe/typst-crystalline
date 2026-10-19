@@ -1,5 +1,5 @@
 # L0 — helpers
-Hash do Código: 03a04b58
+Hash do Código: 9f46e160
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -112,3 +112,30 @@ extent refutes this classification and requires a causal repair. Preserve the
 existing narrow approximation until that evidence exists; do not rerun recipes,
 callbacks or allocate a location in this helper. Future Content variants must
 force a decision at this exact match. ADR-0127 continuous internal flow applies.
+
+
+## Ratified Circle constructor origin
+
+### Evidence and approval before implementation
+
+At HEAD `954d13185e26a1ed90f6d7c60f6ba27760ca9889`, the source/owner audit in
+`lab/results/v16-corrections-2026-10-19/circle-origin/l0-before.json` freezes
+UTC, exact diffstat and hashes. The approved proposal
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/review.md`
+(SHA-256 `5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8`)
+binds the baseline equality and rejected full-Length candidate receipts.
+`stdlib/shapes/ellipse.rs:92-104` erased the em component;
+`entities/elements/shape.rs:21-29` used one geometry carrier for both constructors.
+Those observations concern language identity and geometry, not mandatory upstream
+Rust structure. The explicit user approval is recorded in
+`lab/results/v16-corrections-2026-10-19/circle-origin/approval-receipt.json`;
+it satisfies ADR-0127 section 2 for exactly this public type/field and migration.
+
+### Exclusive approved responsibility
+
+Migrate this consumer's existing generic ShapeElem literals to explicit
+`ShapeOrigin::Geometry`, preserving every other field, fixture, expectation,
+argument, algorithm and output. Equal axes or Ellipse kind do not infer Circle.
+This is only the required migration for the approved field, not a new geometry
+behavior or permission to materialize any unrelated pending proposal. Full-target
+compilation and existing tests must retain all current observations/tolerances.

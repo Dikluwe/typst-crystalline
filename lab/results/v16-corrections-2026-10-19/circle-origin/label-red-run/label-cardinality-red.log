@@ -1,0 +1,34 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 32s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 3 tests
+test compiler::introspect::queries::circle_origin_label_tests::circle_origin_label_selector_preserves_causal_order_and_deduplicates_aliases ... FAILED
+test compiler::introspect::queries::circle_origin_label_tests::circle_origin_label_selector_returns_all_distinct_matching_occurrences ... FAILED
+test compiler::introspect::queries::circle_origin_label_tests::circle_origin_label_single_lookup_keeps_first_registered_location ... ok
+
+failures:
+
+---- compiler::introspect::queries::circle_origin_label_tests::circle_origin_label_selector_preserves_causal_order_and_deduplicates_aliases stdout ----
+
+thread 'compiler::introspect::queries::circle_origin_label_tests::circle_origin_label_selector_preserves_causal_order_and_deduplicates_aliases' (1893463) panicked at 01_core/src/compiler/introspect/queries.rs:536:9:
+assertion `left == right` failed
+  left: [Location(0)]
+ right: [Location(1), Location(2), Location(0)]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::introspect::queries::circle_origin_label_tests::circle_origin_label_selector_returns_all_distinct_matching_occurrences stdout ----
+
+thread 'compiler::introspect::queries::circle_origin_label_tests::circle_origin_label_selector_returns_all_distinct_matching_occurrences' (1893464) panicked at 01_core/src/compiler/introspect/queries.rs:515:9:
+assertion `left == right` failed
+  left: [Location(0)]
+ right: [Location(0), Location(2)]
+
+
+failures:
+    compiler::introspect::queries::circle_origin_label_tests::circle_origin_label_selector_preserves_causal_order_and_deduplicates_aliases
+    compiler::introspect::queries::circle_origin_label_tests::circle_origin_label_selector_returns_all_distinct_matching_occurrences
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 7615 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p typst-core --lib`

@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-19T22:03:41.825152+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "diff_head_stat": " .../core/compiler/eval/observation/elements.md     |  28 ++\n 00_nucleo/prompts/core/compiler/layout/boxed.md    |  27 ++\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  27 ++\n .../prompts/core/compiler/layout/measurement.md    |  27 ++\n 00_nucleo/prompts/core/compiler/layout/shape.md    |  29 ++\n .../prompts/core/compiler/layout/sub_frame.md      |  27 ++\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  27 ++\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   |  28 ++\n .../prompts/core/compiler/stdlib/shapes/curve.md   |  27 ++\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  64 ++-\n .../prompts/core/compiler/stdlib/shapes/polygon.md |  27 ++\n .../core/entities/content/construction/layout.md   |  27 ++\n 00_nucleo/prompts/core/entities/elements/shape.md  |  40 +-\n 01_core/src/compiler/eval/observation/elements.rs  |  18 +-\n 01_core/src/compiler/layout/boxed.rs               |   3 +-\n 01_core/src/compiler/layout/helpers.rs             |   4 +-\n 01_core/src/compiler/layout/measurement.rs         |   3 +-\n 01_core/src/compiler/layout/shape.rs               |   4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |   3 +-\n 01_core/src/compiler/layout/tests.rs               |   3 +-\n 01_core/src/compiler/stdlib/shapes.rs              |   2 +-\n 01_core/src/compiler/stdlib/shapes/curve.rs        |   3 +-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 458 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/shapes/polygon.rs      |   4 +-\n .../src/entities/content/construction/layout.rs    |   3 +-\n 01_core/src/entities/elements/shape.rs             |  13 +-\n 26 files changed, 897 insertions(+), 29 deletions(-)\n",
+  "source_sha256": {
+    "01_core/src/compiler/eval/observation/elements.rs": "6b5035c8229e8a650c38f526e74cdf138a44ffa5540321d31a656ab2af55a3dd",
+    "01_core/src/compiler/layout/boxed.rs": "6680549fb47bce65e829d633b04269fe6ec8a24556271caf57bf0b1295bf7bde",
+    "01_core/src/compiler/layout/helpers.rs": "1866f6c30f5c3df2bf6f98dd6f643299f9853ccfdc853abf3c920c52ee46f386",
+    "01_core/src/compiler/layout/measurement.rs": "2eb4d3e904f8fc630d5454495388752f4435c2d51d8c01b419cd014a2adf0dd0",
+    "01_core/src/compiler/layout/shape.rs": "160aa5ca662674cf6a22532f687289edd0173cb57430f01b23df821c589481d5",
+    "01_core/src/compiler/layout/sub_frame.rs": "e3b1d912aa81017472eedb160a6d5b0b6075fa1212ce80338050db84301dcd84",
+    "01_core/src/compiler/layout/tests.rs": "622c881183abed9a486c41b99c29d973e8ebf4bb6ae5cda798e717596cce9e3f",
+    "01_core/src/compiler/stdlib/shapes.rs": "29df22cb314af94814ba77541e9fa5d2618d80b2a434051800e9c1096ea5b025",
+    "01_core/src/compiler/stdlib/shapes/curve.rs": "73ca737de27209ecec99018711e693a47f9c699eacc4e31d3b47c92fff732a5c",
+    "01_core/src/compiler/stdlib/shapes/ellipse.rs": "0f2a040b1fb74d8e59396b3243d7259ac58dee7d0d5ac1e699be2c025c2743e3",
+    "01_core/src/compiler/stdlib/shapes/polygon.rs": "f2131bbc816a0f442779e9adbc39aaecc5121c874388fc58076ba19783461028",
+    "01_core/src/entities/content/construction/layout.rs": "716e625b9e92537996fbb19be1aba819184e48740453950b548681f3fc063c52",
+    "01_core/src/entities/elements/shape.rs": "b5a3cf544331db953a6530631b867d548cea1be1e2db0052f3fb8fd73430833a"
+  },
+  "implementation_scope": "Approved ShapeOrigin contract, all existing ShapeElem literals Geometry, native Circle Circle, canonical full Length radius and Auto zero, exhaustive type rejection and conservative observation. No Cargo run by implementation agent.",
+  "precondition": "Parent confirmed red-run/circle-semantic-red.log: 6 semantic failures, 8 preservation passes before authorization."
+}

@@ -1,0 +1,76 @@
+   Compiling syntect v5.3.0
+   Compiling criterion v0.5.1
+   Compiling two-face v0.4.5
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 35s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 14 tests
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_distinguishes_numeric_ellipse_and_em_or_mixed_radii ... FAILED
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_em_radius_reaches_actual_layout_at_occurrence_font ... FAILED
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_language_identity_survives_containers_membership_and_wrappers ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_mixed_radius_paints_at_each_font_through_block_and_box ... FAILED
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_name_validation_still_precedes_radius ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_preserves_absolute_and_numeric_geometry ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_preserves_absolute_language_identity_boundaries ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_preserves_em_language_identity_boundary ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_preserves_fill_stroke_and_absence ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_preserves_signed_and_nonfinite_point_extensions ... ok
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_radius_diagnostic_uses_latest_occurrence_and_fallback_span ... FAILED
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_radius_error_precedes_paint_error ... FAILED
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_rejects_malformed_radius_at_causal_value_span ... FAILED
+test compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_retains_explicit_auto_zero_and_omission_debt ... ok
+
+failures:
+
+---- compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_distinguishes_numeric_ellipse_and_em_or_mixed_radii stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_distinguishes_numeric_ellipse_and_em_or_mixed_radii' (1861619) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:250:9:
+assertion `left == right` failed
+  left: true
+ right: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_em_radius_reaches_actual_layout_at_occurrence_font stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_em_radius_reaches_actual_layout_at_occurrence_font' (1861620) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:340:13:
+assertion `left == right` failed
+  left: (0.0, 0.0, 0.0)
+ right: (40.0, 40.0, 40.0)
+
+---- compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_mixed_radius_paints_at_each_font_through_block_and_box stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_mixed_radius_paints_at_each_font_through_block_and_box' (1861622) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:407:13:
+assertion `left == right` failed: route 0
+  left: [(4.0, 4.0, true, 2.0), (4.0, 4.0, true, 2.0)]
+ right: [(34.0, 34.0, true, 2.0), (64.0, 64.0, true, 2.0)]
+
+---- compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_radius_diagnostic_uses_latest_occurrence_and_fallback_span stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_radius_diagnostic_uses_latest_occurrence_and_fallback_span' (1861629) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:261:53:
+called `Result::unwrap_err()` on an `Ok` value: Content(shape)
+
+---- compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_radius_error_precedes_paint_error stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_radius_error_precedes_paint_error' (1861630) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:262:9:
+assertion `left == right` failed
+  left: [SourceDiagnostic { severity: Error, span: Span(422212473454594), message: "expected color, gradient, tiling, or none, found bool", hints: [], trace: [] }]
+ right: [SourceDiagnostic { severity: Error, span: Span(422212507009030), message: "expected length or auto, found boolean", hints: [], trace: [] }]
+
+---- compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_rejects_malformed_radius_at_causal_value_span stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_rejects_malformed_radius_at_causal_value_span' (1861631) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:261:53:
+called `Result::unwrap_err()` on an `Ok` value: Content(shape)
+
+
+failures:
+    compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_distinguishes_numeric_ellipse_and_em_or_mixed_radii
+    compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_em_radius_reaches_actual_layout_at_occurrence_font
+    compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_mixed_radius_paints_at_each_font_through_block_and_box
+    compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_radius_diagnostic_uses_latest_occurrence_and_fallback_span
+    compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_radius_error_precedes_paint_error
+    compiler::stdlib::shapes::ellipse::circle_origin_tests::circle_origin_rejects_malformed_radius_at_causal_value_span
+
+test result: FAILED. 8 passed; 6 failed; 0 ignored; 0 measured; 7595 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p typst-core --lib`

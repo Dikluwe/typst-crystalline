@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/shape.md
-//! @prompt-hash f3b97965
+//! @prompt-hash a0b1e89c
 //! @layer L1
 //! @updated 2026-09-27
 //!
@@ -104,6 +104,7 @@ mod prepared_paint_regressions {
             tile.size = Some(Size { width: Pt(8.0), height: Pt(6.0) });
             let paint = Paint::Tiling(tile);
             let elem = ShapeElem {
+                origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
                 kind: ShapeKind::Rect,
                 width: Some(Box::new(Value::Length(Length::pt(width)))),
                 height: Some(Box::new(Value::Length(Length::pt(20.0)))),
@@ -314,6 +315,7 @@ mod initial_nontext_block_regressions {
         layouter.initial_baseline_pending = !subframe;
         let origin = layouter.regions.current.cursor_y.0;
         let elem = crate::entities::elements::shape::ShapeElem {
+            origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             kind: crate::entities::geometry::ShapeKind::Rect,
             width: Some(Box::new(crate::entities::value::Value::Float(80.0))),
             height: Some(Box::new(crate::entities::value::Value::Float(40.0))),

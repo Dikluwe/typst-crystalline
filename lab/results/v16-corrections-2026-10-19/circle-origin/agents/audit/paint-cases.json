@@ -1,0 +1,51 @@
+{
+  "utc": "2026-10-19T21:58:02.578068+00:00",
+  "dpi": 288,
+  "pixels_per_pt": 4,
+  "tolerance_px": 2,
+  "policy": "Combined saturated red-fill/blue-stroke ink AABB must equal explicit diameter plus full centered stroke, each axis within 2 pixels (0.5pt). Both fill and stroke colors must occur. Same tolerance and threshold for both binaries; no image-byte comparison or per-output fitted threshold. Generous page margin prevents negative-edge clipping.",
+  "cases": [
+    {
+      "name": "pt-10",
+      "source": "#set page(width:160pt,height:160pt,margin:20pt)\n#set text(size:10pt)\n#circle(radius:2pt,fill:rgb(\"#ff0000\"),stroke:2pt+rgb(\"#0000ff\"))\n",
+      "logical_diameter_pt": 4,
+      "stroke_width_pt": 2,
+      "expected_ink_diameter_px": 24
+    },
+    {
+      "name": "pt-20",
+      "source": "#set page(width:160pt,height:160pt,margin:20pt)\n#set text(size:20pt)\n#circle(radius:2pt,fill:rgb(\"#ff0000\"),stroke:2pt+rgb(\"#0000ff\"))\n",
+      "logical_diameter_pt": 4,
+      "stroke_width_pt": 2,
+      "expected_ink_diameter_px": 24
+    },
+    {
+      "name": "em-root-10",
+      "source": "#set page(width:160pt,height:160pt,margin:20pt)\n#set text(size:10pt)\n#circle(radius:2em,fill:rgb(\"#ff0000\"),stroke:2pt+rgb(\"#0000ff\"))\n",
+      "logical_diameter_pt": 40,
+      "stroke_width_pt": 2,
+      "expected_ink_diameter_px": 168
+    },
+    {
+      "name": "em-box-20",
+      "source": "#set page(width:160pt,height:160pt,margin:20pt)\n#set text(size:20pt)\n#box(circle(radius:2em,fill:rgb(\"#ff0000\"),stroke:2pt+rgb(\"#0000ff\")))\n",
+      "logical_diameter_pt": 80,
+      "stroke_width_pt": 2,
+      "expected_ink_diameter_px": 328
+    },
+    {
+      "name": "mixed-block-10",
+      "source": "#set page(width:160pt,height:160pt,margin:20pt)\n#set text(size:10pt)\n#block(circle(radius:1em+2pt,fill:rgb(\"#ff0000\"),stroke:2pt+rgb(\"#0000ff\")))\n",
+      "logical_diameter_pt": 24,
+      "stroke_width_pt": 2,
+      "expected_ink_diameter_px": 104
+    },
+    {
+      "name": "mixed-root-20",
+      "source": "#set page(width:160pt,height:160pt,margin:20pt)\n#set text(size:20pt)\n#circle(radius:1em+2pt,fill:rgb(\"#ff0000\"),stroke:2pt+rgb(\"#0000ff\"))\n",
+      "logical_diameter_pt": 44,
+      "stroke_width_pt": 2,
+      "expected_ink_diameter_px": 184
+    }
+  ]
+}

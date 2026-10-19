@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/shape.md
-//! @prompt-hash 91aa1503
+//! @prompt-hash 94fd05d7
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -16,10 +16,18 @@ use crate::entities::paint::Paint;
 use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
 
+/// Semantic constructor family, independent of rendered geometry.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ShapeOrigin {
+    Geometry,
+    Circle,
+}
+
 /// Forma geométrica. `width`/`height` em `Value` (resolvidos em layout);
 /// `fill`/`stroke` cosméticos.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ShapeElem {
+    pub origin: ShapeOrigin,
     pub kind: ShapeKind,
     pub width: Option<Box<Value>>,
     pub height: Option<Box<Value>>,
@@ -66,6 +74,7 @@ mod tests {
 
     fn ex() -> ShapeElem {
         ShapeElem {
+            origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             kind: ShapeKind::Rect,
             width: None,
             height: None,
@@ -97,6 +106,7 @@ mod tests {
         assert_ne!(
             ex(),
             ShapeElem {
+                origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
                 kind: ShapeKind::Ellipse,
                 width: None,
                 height: None,
@@ -116,6 +126,7 @@ mod tests {
     #[test]
     fn payload_diferente_produz_hash_diferente() {
         let outro = ShapeElem {
+            origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             kind: ShapeKind::Rect,
             width: Some(Box::new(Value::Int(5))),
             height: None,

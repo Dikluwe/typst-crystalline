@@ -1,0 +1,216 @@
+[
+  {
+    "utc": "2026-10-19T21:56:29.948928+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/layout/boxed.rs",
+        "before": "922a88965ea3fa8f66c377a3a2aeb137114df64df273c274893b68188372cb86",
+        "after": "2fbd4e1b2855f19aba4933d5272c9f6c3582aa1415353965e73cbb67422be4cb"
+      },
+      {
+        "file": "01_core/src/compiler/layout/helpers.rs",
+        "before": "e070dbd29cc208aa8abeb797088cb5bcf9ab45e160f84dad6068fcdb806f271c",
+        "after": "ce7c265acecd1ede0ec94bc91490ef27f9271b51779822c10661db279398f73f"
+      },
+      {
+        "file": "01_core/src/compiler/layout/measurement.rs",
+        "before": "bc77edbfff74f9a1c1191c54b9a2af8d00124bb2d47fece2b06a24e2f35c0377",
+        "after": "28222004a204463e0663244b45f79a1c6e4e5c2e3479fe0c25b56fdb5a05b391"
+      },
+      {
+        "file": "01_core/src/compiler/layout/shape.rs",
+        "before": "02388c48f516e824830554f85c3392b9bb248d91ce18c041fdea01818ffbc026",
+        "after": "0adbd15b701b2a2e2739045fdfd4485f23c489c9b605b10f934dce6d21986a4f"
+      },
+      {
+        "file": "01_core/src/compiler/layout/sub_frame.rs",
+        "before": "bd595333be9fd4d7283febfb2fb3fcc438c4d2b89f911f4c441caad159f802c2",
+        "after": "a111727bf24bd613a94244e5d18b23aa1116747809f4f10155ca151731f53122"
+      },
+      {
+        "file": "01_core/src/compiler/layout/tests.rs",
+        "before": "1d042c973122153a7fae351a3f48c50a9dc78850a2b7d3b59baf8c3c2be783b8",
+        "after": "b7e636c133cb626dff13381e839638007aa4a3c79a69277e06975cff38d5910b"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/shapes.rs",
+        "before": "51bc76c740d6cbb1461d255bf24018e26259482d4cb8c7012ba79bba574dbdfa",
+        "after": "29df22cb314af94814ba77541e9fa5d2618d80b2a434051800e9c1096ea5b025"
+      },
+      {
+        "file": "01_core/src/compiler/eval/observation/elements.rs",
+        "before": "95571a725ba40187cc4c4d400943e540824eef849e2e714af42ba3804dbfcf76",
+        "after": "0666c1a61392e5158f2331a294c0684c14b3062ffb83d68ae836d6d936ed2c14"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/shapes/curve.rs",
+        "before": "b28623474a83b5b1d9e722347a6ed18ffa75f024fccef4996fd7dfefee3d3e73",
+        "after": "e0fcd082664aefb0ccdde4f486b019ccc2c71ccf7f95b6c86eb8e695b0fcd61d"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+        "before": "5e62f1f9ba52c57025065b6a84a56a0aeecf6ed52f63740ff076d0d1e455cc4b",
+        "after": "30486a0a3bbbe3ebe6cbbed7f4f0cb57ed5b97fa9401349247100c746b657da7"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/shapes/polygon.rs",
+        "before": "82d37cb5f70864e3e86dd2030c1583ce2bbeb26c3c3b9248154b52d4109d4c06",
+        "after": "8da32d5e7cdb9f3ad8f9b230f750aa6de5435e352eaf9899dfd56143fa95a1e7"
+      },
+      {
+        "file": "01_core/src/entities/elements/shape.rs",
+        "before": "24de72e73bb05377ae9477a2f1408e1ab475706057eb2d1373f0c78100fe3e22",
+        "after": "e71e3c652999eb06ce811ba885002276e54adeb83af70e13accabc365c0cd6e3"
+      },
+      {
+        "file": "01_core/src/entities/content/construction/layout.rs",
+        "before": "31820e378fbd8004c876dafcaf79925ef392ec74e30d9f987f0f2bc7cd56ef53",
+        "after": "a63b7a50f93924dd90739c9398a74fe7d6543bf0d87367dc734c916c17f122d2"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+        "before": "186e8d3c14a6f2fe386816e25f2380a931bc1dbb4c427ba7d79600e3d1d08206",
+        "after": "ea9414333ab59e85ef5ae79948a54f2dc925bea67f79ea1cc869235fcc467b94"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/observation/elements.rs prompt=00_nucleo/prompts/core/compiler/eval/observation/elements.md hash-a=6acf3a4f hash-b=e0ab26b9\nApplied ./01_core/src/compiler/layout/boxed.rs prompt=00_nucleo/prompts/core/compiler/layout/boxed.md hash-a=68005e6e hash-b=e1cbb84f\nApplied ./01_core/src/compiler/layout/helpers.rs prompt=00_nucleo/prompts/core/compiler/layout/helpers.md hash-a=70d7de76 hash-b=03a04b58\nApplied ./01_core/src/compiler/layout/measurement.rs prompt=00_nucleo/prompts/core/compiler/layout/measurement.md hash-a=519d275c hash-b=ff383ee1\nApplied ./01_core/src/compiler/layout/shape.rs prompt=00_nucleo/prompts/core/compiler/layout/shape.md hash-a=a0b1e89c hash-b=617c99a2\nApplied ./01_core/src/compiler/layout/sub_frame.rs prompt=00_nucleo/prompts/core/compiler/layout/sub_frame.md hash-a=c5bfdbc7 hash-b=e5b62f28\nApplied ./01_core/src/compiler/layout/tests.rs prompt=00_nucleo/prompts/core/compiler/layout/tests.md hash-a=0340e733 hash-b=db1b7d5b\nApplied ./01_core/src/compiler/stdlib/shapes/curve.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md hash-a=7afb23a9 hash-b=e3b3e7b2\nApplied ./01_core/src/compiler/stdlib/shapes/ellipse.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md hash-a=13425a99 hash-b=adbf334c\nApplied ./01_core/src/compiler/stdlib/shapes/polygon.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md hash-a=0c54c459 hash-b=8c5790ff\nApplied ./01_core/src/compiler/stdlib/shapes.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes.md hash-a=a99e1154 hash-b=327466fd\nApplied ./01_core/src/entities/content/construction/layout.rs prompt=00_nucleo/prompts/core/entities/content/construction/layout.md hash-a=c1029e06 hash-b=3b6810b1\nApplied ./01_core/src/entities/elements/shape.rs prompt=00_nucleo/prompts/core/entities/elements/shape.md hash-a=94fd05d7 hash-b=182f8864\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T22:13:18.812565+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/boxed.md",
+        "before": "5f7f0b447febd50ede8753f59a66947a053cac8eeb89d954a84635cfcccc704a",
+        "after": "e11644ca1cb29a2c0970a20c4f5c041f6ae6215ac2eadc6980f3500ba60e8838"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/helpers.md",
+        "before": "a47d1436a66da1020d29869fccdc639fc93c4855e89a31ab9d73bde8da1fe385",
+        "after": "64115674eff5135142d762cb0d746d6993d187e4155c29306e36bfff3545a0c1"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+        "before": "ceb9dd8b82d228870415679eb44a6332e5ec7fddfe493858335270a280f95d25",
+        "after": "87aa1aed7a79c2026412d828299b747fa60d9b5f8829bf0ec3d0fd7bb0a39b37"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/shape.md",
+        "before": "56e19992b1eaa860e43c98a382a0c3b80965c20e6e93e3213bab8deda00efdf1",
+        "after": "f3ff2d553b93d63a3328d95e5265e6293c15336f4179c3335ff9453da6987ecf"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/sub_frame.md",
+        "before": "666a0fb6058ad3a2bd26e7105cc104df2d4394a3423b6e31e8269eea2bd05faf",
+        "after": "c9a24a1b9e44b4349fd650acc3f8091c7d3c715fbe6a21e0e608f6b8a83e34a9"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/layout/tests.md",
+        "before": "662c1d4ece2d87b11d29c5ce148b65b4a50a283083b3a7aa75821966b7cce3bc",
+        "after": "953262660112dd8cc72404439a8709905855210f97f2e90f29af0a908ad93821"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+        "before": "ab515bd711ee6c4249acb47db09b526d98c4f5f4f0472b78e61a0352098b8ec4",
+        "after": "1d2c100728aeccdccde8b9d44dc26d67a189dec2de789a85491eb0d3dba88551"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md",
+        "before": "d14b0142a748839f335e374c05af4a7446c916ffee08dbf817a0a7f87efc1a38",
+        "after": "8977aca7439fd5c87f16b8cb048bc35903c71d1e44d8a0ed3e13246160aac172"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+        "before": "ea9414333ab59e85ef5ae79948a54f2dc925bea67f79ea1cc869235fcc467b94",
+        "after": "03abd63168d5a30c8bbac20df424005a730b4a68012cdbf05578fea3f98f1e1e"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md",
+        "before": "12f7aaefd960f2891a3df4a975849ade358d5de678117375a7285c8d4597f461",
+        "after": "8ecc54de845fc8baaa3981bc8856b0091a8937f2af149388940859df8e14edea"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/elements/shape.md",
+        "before": "0c92cec651c3d3874a25af8067437dda0a4d4d4d300577f027591918339fadea",
+        "after": "ae78918eb35986725bdec06481be97861bd67e3e585fc2b444b4ce3d2b2fbd35"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/content/construction/layout.md",
+        "before": "c2b344f884dd5e4f92e0d07af1b6c2a17c3a090b8d141e5501e74ac19715f1d7",
+        "after": "46564aeaa7418bf289a14761fd917f667b8e4ce49217ebb4634299ec367dd7e7"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/observation/elements.rs prompt=00_nucleo/prompts/core/compiler/eval/observation/elements.md hash-a=6acf3a4f hash-b=b12f2d8d\nApplied ./01_core/src/compiler/layout/boxed.rs prompt=00_nucleo/prompts/core/compiler/layout/boxed.md hash-a=68005e6e hash-b=cf5d1723\nApplied ./01_core/src/compiler/layout/helpers.rs prompt=00_nucleo/prompts/core/compiler/layout/helpers.md hash-a=70d7de76 hash-b=9f46e160\nApplied ./01_core/src/compiler/layout/measurement.rs prompt=00_nucleo/prompts/core/compiler/layout/measurement.md hash-a=519d275c hash-b=4bb33bae\nApplied ./01_core/src/compiler/layout/shape.rs prompt=00_nucleo/prompts/core/compiler/layout/shape.md hash-a=a0b1e89c hash-b=4c5e184c\nApplied ./01_core/src/compiler/layout/sub_frame.rs prompt=00_nucleo/prompts/core/compiler/layout/sub_frame.md hash-a=c5bfdbc7 hash-b=4a2f1a76\nApplied ./01_core/src/compiler/layout/tests.rs prompt=00_nucleo/prompts/core/compiler/layout/tests.md hash-a=0340e733 hash-b=469cbece\nApplied ./01_core/src/compiler/stdlib/shapes/curve.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md hash-a=7afb23a9 hash-b=3701c302\nApplied ./01_core/src/compiler/stdlib/shapes/ellipse.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md hash-a=13425a99 hash-b=989a29bc\nApplied ./01_core/src/compiler/stdlib/shapes/polygon.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md hash-a=0c54c459 hash-b=a5cac0a4\nApplied ./01_core/src/compiler/stdlib/shapes.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes.md hash-a=a99e1154 hash-b=327466fd\nApplied ./01_core/src/entities/content/construction/layout.rs prompt=00_nucleo/prompts/core/entities/content/construction/layout.md hash-a=c1029e06 hash-b=1cf58eb0\nApplied ./01_core/src/entities/elements/shape.rs prompt=00_nucleo/prompts/core/entities/elements/shape.md hash-a=94fd05d7 hash-b=a94e0899\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T22:17:00.661743+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+        "before": "0c6ede9eb3a053071c009765a93ffd1e3d511c7208f073c85039136ddf7400b7",
+        "after": "90530076093dbbe65dbe59ecf6af3d99c3644dbbd01d5c824272c1a9597547ff"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/observation/elements.rs prompt=00_nucleo/prompts/core/compiler/eval/observation/elements.md hash-a=6acf3a4f hash-b=b12f2d8d\nApplied ./01_core/src/compiler/layout/boxed.rs prompt=00_nucleo/prompts/core/compiler/layout/boxed.md hash-a=68005e6e hash-b=cf5d1723\nApplied ./01_core/src/compiler/layout/helpers.rs prompt=00_nucleo/prompts/core/compiler/layout/helpers.md hash-a=70d7de76 hash-b=9f46e160\nApplied ./01_core/src/compiler/layout/measurement.rs prompt=00_nucleo/prompts/core/compiler/layout/measurement.md hash-a=519d275c hash-b=4bb33bae\nApplied ./01_core/src/compiler/layout/shape.rs prompt=00_nucleo/prompts/core/compiler/layout/shape.md hash-a=a0b1e89c hash-b=4c5e184c\nApplied ./01_core/src/compiler/layout/sub_frame.rs prompt=00_nucleo/prompts/core/compiler/layout/sub_frame.md hash-a=c5bfdbc7 hash-b=4a2f1a76\nApplied ./01_core/src/compiler/layout/tests.rs prompt=00_nucleo/prompts/core/compiler/layout/tests.md hash-a=0340e733 hash-b=469cbece\nApplied ./01_core/src/compiler/stdlib/shapes/curve.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md hash-a=7afb23a9 hash-b=3701c302\nApplied ./01_core/src/compiler/stdlib/shapes/ellipse.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md hash-a=c09d3f29 hash-b=989a29bc\nApplied ./01_core/src/compiler/stdlib/shapes/polygon.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md hash-a=0c54c459 hash-b=a5cac0a4\nApplied ./01_core/src/compiler/stdlib/shapes.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes.md hash-a=a99e1154 hash-b=327466fd\nApplied ./01_core/src/entities/content/construction/layout.rs prompt=00_nucleo/prompts/core/entities/content/construction/layout.md hash-a=c1029e06 hash-b=1cf58eb0\nApplied ./01_core/src/entities/elements/shape.rs prompt=00_nucleo/prompts/core/entities/elements/shape.md hash-a=94fd05d7 hash-b=a94e0899\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T22:19:22.721726+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/introspect/queries.rs",
+        "before": "acf096ef866b90bd8ea0cccfefc0b66c217e85d24bf68c87dc26000f748678f0",
+        "after": "7e59e760e0f1bb6a82dab79335d7501c3636b828bda2b6adda209b063b9adf6a"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+        "before": "764699872957966b279a2e97e69940e6c38d9d3e49d3b6b0ad3c681b36348f93",
+        "after": "cecc13b8c2cda0d6d5c3adc05b7677ccede1692eacd7dbc6100fa232e15a1dc8"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+        "before": "b4dbf1c3e78d13e850eb3b0928094040d487a23d834c5bff2cc48ff28be7869a",
+        "after": "249eade598b2c672acd25cedb2bef8642490e26cd94a34c64d7a2c67ba5b6859"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/observation/elements.rs prompt=00_nucleo/prompts/core/compiler/eval/observation/elements.md hash-a=6acf3a4f hash-b=b12f2d8d\nApplied ./01_core/src/compiler/introspect/queries.rs prompt=00_nucleo/prompts/core/compiler/introspect/queries.md hash-a=a867e6a4 hash-b=563c7786\nApplied ./01_core/src/compiler/layout/boxed.rs prompt=00_nucleo/prompts/core/compiler/layout/boxed.md hash-a=68005e6e hash-b=cf5d1723\nApplied ./01_core/src/compiler/layout/helpers.rs prompt=00_nucleo/prompts/core/compiler/layout/helpers.md hash-a=70d7de76 hash-b=9f46e160\nApplied ./01_core/src/compiler/layout/measurement.rs prompt=00_nucleo/prompts/core/compiler/layout/measurement.md hash-a=519d275c hash-b=4bb33bae\nApplied ./01_core/src/compiler/layout/shape.rs prompt=00_nucleo/prompts/core/compiler/layout/shape.md hash-a=a0b1e89c hash-b=4c5e184c\nApplied ./01_core/src/compiler/layout/sub_frame.rs prompt=00_nucleo/prompts/core/compiler/layout/sub_frame.md hash-a=c5bfdbc7 hash-b=4a2f1a76\nApplied ./01_core/src/compiler/layout/tests.rs prompt=00_nucleo/prompts/core/compiler/layout/tests.md hash-a=0340e733 hash-b=469cbece\nApplied ./01_core/src/compiler/stdlib/shapes/curve.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md hash-a=7afb23a9 hash-b=3701c302\nApplied ./01_core/src/compiler/stdlib/shapes/ellipse.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md hash-a=c09d3f29 hash-b=123fd5b4\nApplied ./01_core/src/compiler/stdlib/shapes/polygon.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md hash-a=0c54c459 hash-b=a5cac0a4\nApplied ./01_core/src/compiler/stdlib/shapes.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes.md hash-a=a99e1154 hash-b=327466fd\nApplied ./01_core/src/entities/content/construction/layout.rs prompt=00_nucleo/prompts/core/entities/content/construction/layout.md hash-a=c1029e06 hash-b=1cf58eb0\nApplied ./01_core/src/entities/elements/shape.rs prompt=00_nucleo/prompts/core/entities/elements/shape.md hash-a=94fd05d7 hash-b=a94e0899\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T22:20:03.617017+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+        "before": "cecc13b8c2cda0d6d5c3adc05b7677ccede1692eacd7dbc6100fa232e15a1dc8",
+        "after": "cce3fabcabfe0def1cdd28943e4457766319343a805afb7a87e571a0d0d30f08"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/observation/elements.rs prompt=00_nucleo/prompts/core/compiler/eval/observation/elements.md hash-a=6acf3a4f hash-b=b12f2d8d\nApplied ./01_core/src/compiler/introspect/queries.rs prompt=00_nucleo/prompts/core/compiler/introspect/queries.md hash-a=a867e6a4 hash-b=1ecae5d7\nApplied ./01_core/src/compiler/layout/boxed.rs prompt=00_nucleo/prompts/core/compiler/layout/boxed.md hash-a=68005e6e hash-b=cf5d1723\nApplied ./01_core/src/compiler/layout/helpers.rs prompt=00_nucleo/prompts/core/compiler/layout/helpers.md hash-a=70d7de76 hash-b=9f46e160\nApplied ./01_core/src/compiler/layout/measurement.rs prompt=00_nucleo/prompts/core/compiler/layout/measurement.md hash-a=519d275c hash-b=4bb33bae\nApplied ./01_core/src/compiler/layout/shape.rs prompt=00_nucleo/prompts/core/compiler/layout/shape.md hash-a=a0b1e89c hash-b=4c5e184c\nApplied ./01_core/src/compiler/layout/sub_frame.rs prompt=00_nucleo/prompts/core/compiler/layout/sub_frame.md hash-a=c5bfdbc7 hash-b=4a2f1a76\nApplied ./01_core/src/compiler/layout/tests.rs prompt=00_nucleo/prompts/core/compiler/layout/tests.md hash-a=0340e733 hash-b=469cbece\nApplied ./01_core/src/compiler/stdlib/shapes/curve.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md hash-a=7afb23a9 hash-b=3701c302\nApplied ./01_core/src/compiler/stdlib/shapes/ellipse.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md hash-a=c09d3f29 hash-b=123fd5b4\nApplied ./01_core/src/compiler/stdlib/shapes/polygon.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md hash-a=0c54c459 hash-b=a5cac0a4\nApplied ./01_core/src/compiler/stdlib/shapes.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes.md hash-a=a99e1154 hash-b=327466fd\nApplied ./01_core/src/entities/content/construction/layout.rs prompt=00_nucleo/prompts/core/entities/content/construction/layout.md hash-a=c1029e06 hash-b=1cf58eb0\nApplied ./01_core/src/entities/elements/shape.rs prompt=00_nucleo/prompts/core/entities/elements/shape.md hash-a=94fd05d7 hash-b=a94e0899\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T22:23:03.619814+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+        "before": "cce3fabcabfe0def1cdd28943e4457766319343a805afb7a87e571a0d0d30f08",
+        "after": "c36be9d18d02bae48f2cc660992c93845db38bbe8aaa98e7647a6eb04e67e53f"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/observation/elements.rs prompt=00_nucleo/prompts/core/compiler/eval/observation/elements.md hash-a=6acf3a4f hash-b=b12f2d8d\nApplied ./01_core/src/compiler/introspect/queries.rs prompt=00_nucleo/prompts/core/compiler/introspect/queries.md hash-a=a867e6a4 hash-b=90dbb102\nApplied ./01_core/src/compiler/layout/boxed.rs prompt=00_nucleo/prompts/core/compiler/layout/boxed.md hash-a=68005e6e hash-b=cf5d1723\nApplied ./01_core/src/compiler/layout/helpers.rs prompt=00_nucleo/prompts/core/compiler/layout/helpers.md hash-a=70d7de76 hash-b=9f46e160\nApplied ./01_core/src/compiler/layout/measurement.rs prompt=00_nucleo/prompts/core/compiler/layout/measurement.md hash-a=519d275c hash-b=4bb33bae\nApplied ./01_core/src/compiler/layout/shape.rs prompt=00_nucleo/prompts/core/compiler/layout/shape.md hash-a=a0b1e89c hash-b=4c5e184c\nApplied ./01_core/src/compiler/layout/sub_frame.rs prompt=00_nucleo/prompts/core/compiler/layout/sub_frame.md hash-a=c5bfdbc7 hash-b=4a2f1a76\nApplied ./01_core/src/compiler/layout/tests.rs prompt=00_nucleo/prompts/core/compiler/layout/tests.md hash-a=0340e733 hash-b=469cbece\nApplied ./01_core/src/compiler/stdlib/shapes/curve.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md hash-a=7afb23a9 hash-b=3701c302\nApplied ./01_core/src/compiler/stdlib/shapes/ellipse.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md hash-a=c09d3f29 hash-b=123fd5b4\nApplied ./01_core/src/compiler/stdlib/shapes/polygon.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md hash-a=0c54c459 hash-b=a5cac0a4\nApplied ./01_core/src/compiler/stdlib/shapes.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes.md hash-a=a99e1154 hash-b=327466fd\nApplied ./01_core/src/entities/content/construction/layout.rs prompt=00_nucleo/prompts/core/entities/content/construction/layout.md hash-a=c1029e06 hash-b=1cf58eb0\nApplied ./01_core/src/entities/elements/shape.rs prompt=00_nucleo/prompts/core/entities/elements/shape.md hash-a=94fd05d7 hash-b=a94e0899\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T22:27:54.637993+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+        "before": "1d2c100728aeccdccde8b9d44dc26d67a189dec2de789a85491eb0d3dba88551",
+        "after": "4e616fa8202fc516d552ba12fb0cae2a4d7825dc5c04a193c278f92c15718e55"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/observation/elements.rs prompt=00_nucleo/prompts/core/compiler/eval/observation/elements.md hash-a=6acf3a4f hash-b=64c72434\nApplied ./01_core/src/compiler/introspect/queries.rs prompt=00_nucleo/prompts/core/compiler/introspect/queries.md hash-a=a867e6a4 hash-b=90dbb102\nApplied ./01_core/src/compiler/layout/boxed.rs prompt=00_nucleo/prompts/core/compiler/layout/boxed.md hash-a=68005e6e hash-b=cf5d1723\nApplied ./01_core/src/compiler/layout/helpers.rs prompt=00_nucleo/prompts/core/compiler/layout/helpers.md hash-a=70d7de76 hash-b=9f46e160\nApplied ./01_core/src/compiler/layout/measurement.rs prompt=00_nucleo/prompts/core/compiler/layout/measurement.md hash-a=519d275c hash-b=4bb33bae\nApplied ./01_core/src/compiler/layout/shape.rs prompt=00_nucleo/prompts/core/compiler/layout/shape.md hash-a=a0b1e89c hash-b=4c5e184c\nApplied ./01_core/src/compiler/layout/sub_frame.rs prompt=00_nucleo/prompts/core/compiler/layout/sub_frame.md hash-a=c5bfdbc7 hash-b=4a2f1a76\nApplied ./01_core/src/compiler/layout/tests.rs prompt=00_nucleo/prompts/core/compiler/layout/tests.md hash-a=0340e733 hash-b=469cbece\nApplied ./01_core/src/compiler/stdlib/shapes/curve.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md hash-a=7afb23a9 hash-b=3701c302\nApplied ./01_core/src/compiler/stdlib/shapes/ellipse.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md hash-a=c09d3f29 hash-b=123fd5b4\nApplied ./01_core/src/compiler/stdlib/shapes/polygon.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md hash-a=0c54c459 hash-b=a5cac0a4\nApplied ./01_core/src/compiler/stdlib/shapes.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes.md hash-a=a99e1154 hash-b=327466fd\nApplied ./01_core/src/entities/content/construction/layout.rs prompt=00_nucleo/prompts/core/entities/content/construction/layout.md hash-a=c1029e06 hash-b=1cf58eb0\nApplied ./01_core/src/entities/elements/shape.rs prompt=00_nucleo/prompts/core/entities/elements/shape.md hash-a=94fd05d7 hash-b=a94e0899\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  }
+]

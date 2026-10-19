@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-19T22:15:45.108488+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "state_note": "uncommitted working tree; exact changes and frozen inputs in state",
+  "state": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/candidate-run/state.json.gz",
+    "sha256": "f29563026ef1bb13b507a7cee1656bb192bb422f1082bcff134661b634f72fea"
+  },
+  "commands": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/candidate-build-commands.json",
+    "sha256": "11fe1568cca680050b43e8d5fe98064e4dd34c14d60ec1dcbd06b651db1ed53a"
+  },
+  "product": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+    "sha256": "aa58eed63ba913754abf55610cfa5ca8d14e57bdc54287c7057000d20e46a41e"
+  },
+  "config_inputs": {
+    "Cargo.toml": "ac1643d4437b863811c666e412f4025b1083638c6af818af2339531fa6ccc55d",
+    "Cargo.lock": "34cff9a703194976a68d50f2584cca74b19838e1b342f5f662dfcebc6d1e52a0",
+    "crystalline.toml": "cf69161975032c9938c62d72cbe0b00af51c7d02c83020947b57ced9a446e1a5",
+    ".cargo/config.toml": "30e4a9ae3cc2fc34eca24c0300732c4697db3b4ccb0b76c66e9ea4219cbc0c5f",
+    "rust-toolchain.toml": "b0679f65f3abbfc3719b40235d03822bd1fe610fe4492eeabef48ff27a594e7d"
+  }
+}

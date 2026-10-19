@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/boxed.md
-//! @prompt-hash 5e2885af
+//! @prompt-hash 68005e6e
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -772,6 +772,7 @@ mod composition_regressions {
     }
     fn shape(width: f64, height: f64) -> Content {
         Content::Shape(Arc::new(ShapeElem {
+            origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             kind: ShapeKind::Rect,
             width: Some(Box::new(Value::Length(Length::pt(width)))),
             height: Some(Box::new(Value::Length(Length::pt(height)))),

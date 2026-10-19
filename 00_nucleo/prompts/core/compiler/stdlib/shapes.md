@@ -31,3 +31,31 @@ polygon.regular is a qualified member of the existing polygon Func namespace, na
 Preserve façade tests/reexports/child 1:1 pins and independent expected values/tolerances. Rect/Ellipse/Circle/Square basic dims/fill/stroke/omission/unknown; line legacy negative/end start/length angle/precedence/nonzero negative origin/logical max box; Polygon closed vertices/numeric rejection/percent scope-out/default paint; Curve tuple+Content concatenation/quad formula/smooth versus straight/fill-rule/errors; regular 3→4 coordinates/default 1em/zero 1-2/negative float/extra/unknown/qualified identity/deterministic points. Actual geometric/paint output—not representation/group counts or mirrored implementation formula alone—governs; original independent regular oracle remains historically measured, later controls need meaningful language refutation.
 
 No new public ShapeKind/Value/Content/phase/default/compatibility from form-B extraction. Rich per-side Stroke/relative Polygon-curve coordinates/complete Square defaults/ratio Line/current unmeasured geometry remain scoped gaps with own measured carriers/gates; cannot mask by dropping Paint/Stroke. L0 before RED→GREEN/full L1/shapes suites/build/crystalline-lint/strict lineage/restricted reseal, no unmeasured speed claim or exporter implementation authority from façade.
+
+
+## Ratified Circle constructor origin
+
+### Evidence and approval before implementation
+
+At HEAD `954d13185e26a1ed90f6d7c60f6ba27760ca9889`, the source/owner audit in
+`lab/results/v16-corrections-2026-10-19/circle-origin/l0-before.json` freezes
+UTC, exact diffstat and hashes. The approved proposal
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/review.md`
+(SHA-256 `5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8`)
+binds the baseline equality and rejected full-Length candidate receipts.
+`stdlib/shapes/ellipse.rs:92-104` erased the em component;
+`entities/elements/shape.rs:21-29` used one geometry carrier for both constructors.
+Those observations concern language identity and geometry, not mandatory upstream
+Rust structure. The explicit user approval is recorded in
+`lab/results/v16-corrections-2026-10-19/circle-origin/approval-receipt.json`;
+it satisfies ADR-0127 section 2 for exactly this public type/field and migration.
+
+### Exclusive approved responsibility
+
+Keep the facade's signatures/reexports/tests and all unrelated geometric
+contracts. Native Circle now has distinct typed constructor origin while sharing
+ShapeKind::Ellipse rendering with generic Ellipse. Its child owner specifies
+canonical full-Length radius, preserved numeric extension and explicit Auto debt.
+The historical no-new-public-field/compatibility exclusion is superseded only by
+the approved ShapeOrigin type and ShapeElem.origin migration. Do not infer complete
+Circle reflection/default/selector/body support or other Shape identities.

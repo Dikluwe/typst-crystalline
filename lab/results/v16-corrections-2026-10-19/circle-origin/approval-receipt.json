@@ -1,0 +1,9 @@
+{
+  "utc_recorded": "2026-10-19T21:54:04.432346+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "user_approval": "Aprovo a proposta de Circle com ShapeOrigin e ShapeElem.origin. Pode implementar com os agentes na mesma branch, sem enfraquecer os contratos Tekt. Valide os testes, os caminhos e a linhagem.",
+  "proposal": "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/review.md",
+  "proposal_sha256": "5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8",
+  "adr_gate": "ADR-0127 section 2 items 1 and 4",
+  "scope": "Exact approved proposal only; no default sizing or Figure change."
+}

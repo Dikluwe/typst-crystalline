@@ -1,0 +1,222 @@
+{
+  "utc_start": "2026-10-19T22:18:28.991300+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "diff_head_stat": " .../core/compiler/eval/observation/elements.md     |  30 +-\n 00_nucleo/prompts/core/compiler/layout/boxed.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/shape.md    |  31 +-\n .../prompts/core/compiler/layout/sub_frame.md      |  29 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  29 +-\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   |  28 +\n .../prompts/core/compiler/stdlib/shapes/curve.md   |  29 +-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  84 ++-\n .../prompts/core/compiler/stdlib/shapes/polygon.md |  29 +-\n .../core/entities/content/construction/layout.md   |  29 +-\n 00_nucleo/prompts/core/entities/elements/shape.md  |  42 +-\n 01_core/src/compiler/eval/observation/elements.rs  |  62 +-\n 01_core/src/compiler/layout/boxed.rs               |   3 +-\n 01_core/src/compiler/layout/helpers.rs             |   4 +-\n 01_core/src/compiler/layout/measurement.rs         |   3 +-\n 01_core/src/compiler/layout/shape.rs               |   4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |   3 +-\n 01_core/src/compiler/layout/tests.rs               |   3 +-\n 01_core/src/compiler/stdlib/shapes.rs              |   2 +-\n 01_core/src/compiler/stdlib/shapes/curve.rs        |   3 +-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 682 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/shapes/polygon.rs      |   4 +-\n .../src/entities/content/construction/layout.rs    |   3 +-\n 01_core/src/entities/elements/shape.rs             |  13 +-\n 26 files changed, 1196 insertions(+), 40 deletions(-)\n",
+  "binaries": {
+    "product": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+      "sha256": "aa58eed63ba913754abf55610cfa5ca8d14e57bdc54287c7057000d20e46a41e"
+    },
+    "oracle": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    }
+  },
+  "build_receipt_sha256": "ed362286a9947e08ffe2a13b377661a89811329fdd988e56bda7a56686d32b6b",
+  "cases": [
+    {
+      "name": "repeated-label-same-element",
+      "source": "#metadata(40) <probe> <probe>\n",
+      "source_sha256": "c64edf8c5f88e3110d1050170764d3090947d79b7cdf8674c4b899189ae85ce2",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/repeated-label-same-element.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[40]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/repeated-label-same-element.typ` instead\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/repeated-label-same-element.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[40]\n",
+          "stderr": "warning: content labelled multiple times\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/repeated-label-same-element.typ:1:1\n  \u2502\n1 \u2502 #metadata(40) <probe> <probe>\n  \u2502  ^^^^^^^^^^^^\n  \u2502\n  = hint: only the last label is used, the rest are ignored\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/repeated-label-same-element.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "equal-values-distinct-elements",
+      "source": "#metadata(40) <probe>\n#metadata(40) <probe>\n",
+      "source_sha256": "70295ed626bff6db1ddf293473c162b55ba58db521f82a7e77e1efad20e47b45",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/equal-values-distinct-elements.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[40]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/equal-values-distinct-elements.typ` instead\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/equal-values-distinct-elements.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[40,40]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/equal-values-distinct-elements.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "interleaved-source-order",
+      "source": "#metadata(30) <probe>\n#metadata(1) <other>\n#metadata(20) <probe>\n#metadata(10) <probe>\n",
+      "source_sha256": "f2a1ead4a82ec0fdfeb1a5f1ccd8556db27a5dc1353548308f64425ea247540a",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/interleaved-source-order.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[30]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/interleaved-source-order.typ` instead\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/interleaved-source-order.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[30,20,10]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/interleaved-source-order.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "duplicate-label-or",
+      "source": "#metadata(40) <probe>\n#metadata(80) <probe>\n",
+      "source_sha256": "477a625dae8f76589e75752dc1ae885f3f8b585c2999991e8aa48213288f1e05",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/duplicate-label-or.typ",
+            "selector(<probe>).or(<probe>)",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: failed to evaluate selector: selector(): argumento inv\u00e1lido (label)\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/duplicate-label-or.typ",
+            "selector(<probe>).or(<probe>)",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[40,80]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(selector(<probe>).or(<probe>)).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/duplicate-label-or.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "duplicate-label-and",
+      "source": "#metadata(40) <probe>\n#metadata(80) <probe>\n",
+      "source_sha256": "477a625dae8f76589e75752dc1ae885f3f8b585c2999991e8aa48213288f1e05",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/duplicate-label-and.typ",
+            "selector(<probe>).and(metadata)",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: failed to evaluate selector: selector(): argumento inv\u00e1lido (label)\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/duplicate-label-and.typ",
+            "selector(<probe>).and(metadata)",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[40,80]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(selector(<probe>).and(metadata)).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/duplicate-label-and.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "singlelookup-locate",
+      "source": "#metadata(40) <probe>\n#metadata(80) <probe>\n#context [#metadata(locate(<probe>)) <result>]\n",
+      "source_sha256": "46afd308d52abf3b240b8f422c1d7ce164d2c3b1d7fde69892120dea4ded793e",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/singlelookup-locate.typ",
+            "<result>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[\"location(..)\"]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<result>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/singlelookup-locate.typ` instead\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/singlelookup-locate.typ",
+            "<result>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: label `<probe>` occurs multiple times in the document\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/singlelookup-locate.typ:3:20\n  \u2502\n3 \u2502 #context [#metadata(locate(<probe>)) <result>]\n  \u2502                     ^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<result>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/label-selector-controls/singlelookup-locate.typ` instead\n\n"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T22:18:29.399183+00:00",
+  "diff_head_stat_after": " .../core/compiler/eval/observation/elements.md     |  30 +-\n 00_nucleo/prompts/core/compiler/layout/boxed.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/shape.md    |  31 +-\n .../prompts/core/compiler/layout/sub_frame.md      |  29 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  29 +-\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   |  28 +\n .../prompts/core/compiler/stdlib/shapes/curve.md   |  29 +-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  84 ++-\n .../prompts/core/compiler/stdlib/shapes/polygon.md |  29 +-\n .../core/entities/content/construction/layout.md   |  29 +-\n 00_nucleo/prompts/core/entities/elements/shape.md  |  42 +-\n 01_core/src/compiler/eval/observation/elements.rs  |  62 +-\n 01_core/src/compiler/layout/boxed.rs               |   3 +-\n 01_core/src/compiler/layout/helpers.rs             |   4 +-\n 01_core/src/compiler/layout/measurement.rs         |   3 +-\n 01_core/src/compiler/layout/shape.rs               |   4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |   3 +-\n 01_core/src/compiler/layout/tests.rs               |   3 +-\n 01_core/src/compiler/stdlib/shapes.rs              |   2 +-\n 01_core/src/compiler/stdlib/shapes/curve.rs        |   3 +-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 682 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/shapes/polygon.rs      |   4 +-\n .../src/entities/content/construction/layout.rs    |   3 +-\n 01_core/src/entities/elements/shape.rs             |  13 +-\n 26 files changed, 1196 insertions(+), 40 deletions(-)\n",
+  "binary_sha256_after": {
+    "product": "aa58eed63ba913754abf55610cfa5ca8d14e57bdc54287c7057000d20e46a41e",
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  }
+}

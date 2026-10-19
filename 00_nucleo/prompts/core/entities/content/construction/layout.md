@@ -1,5 +1,5 @@
 # L0 — entities/content/construction/layout
-Hash do Código: 3b6810b1
+Hash do Código: 1cf58eb0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
@@ -47,3 +47,30 @@ For the lint-only slice, L0 precedes metadata/restricted reseal; removing added 
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content/construction/layout.md` preserves the original evidence and chronology.
+
+
+## Ratified Circle constructor origin
+
+### Evidence and approval before implementation
+
+At HEAD `954d13185e26a1ed90f6d7c60f6ba27760ca9889`, the source/owner audit in
+`lab/results/v16-corrections-2026-10-19/circle-origin/l0-before.json` freezes
+UTC, exact diffstat and hashes. The approved proposal
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/review.md`
+(SHA-256 `5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8`)
+binds the baseline equality and rejected full-Length candidate receipts.
+`stdlib/shapes/ellipse.rs:92-104` erased the em component;
+`entities/elements/shape.rs:21-29` used one geometry carrier for both constructors.
+Those observations concern language identity and geometry, not mandatory upstream
+Rust structure. The explicit user approval is recorded in
+`lab/results/v16-corrections-2026-10-19/circle-origin/approval-receipt.json`;
+it satisfies ADR-0127 section 2 for exactly this public type/field and migration.
+
+### Exclusive approved responsibility
+
+Keep Content::shape and shape_with_radius public signatures and all existing
+arguments/defaults, including radius-to-RoundedRect behavior. Initialize
+`ShapeOrigin::Geometry` in their ShapeElem, including an Ellipse kind with equal
+axes. Never infer Circle from kind, dimensions or paint. Origin is no new render
+parameter. All other constructors retain their current contracts. Require generic
+Ellipse/Rect/RoundedRect controls and full dependent migration validation.

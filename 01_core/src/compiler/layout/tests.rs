@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/tests.md
-//! @prompt-hash 0d436e32
+//! @prompt-hash 0340e733
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -25224,6 +25224,7 @@ mod paint_root_transport {
     }
     fn shape() -> Content {
         Content::Shape(Arc::new(ShapeElem {
+            origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             kind: ShapeKind::Rect,
             width: Some(Box::new(Value::Length(Length::pt(8.0)))),
             height: Some(Box::new(Value::Length(Length::pt(6.0)))),

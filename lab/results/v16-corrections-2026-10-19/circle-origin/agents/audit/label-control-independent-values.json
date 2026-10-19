@@ -1,0 +1,85 @@
+{
+  "utc_start": "2026-10-19T22:28:18.074655+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "diff_head_stat": " .../core/compiler/eval/observation/elements.md     |  30 +-\n .../prompts/core/compiler/introspect/queries.md    |  47 +-\n 00_nucleo/prompts/core/compiler/layout/boxed.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  29 +-\n 00_nucleo/prompts/core/compiler/layout/shape.md    |  31 +-\n .../prompts/core/compiler/layout/sub_frame.md      |  29 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  29 +-\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   |  28 +\n .../prompts/core/compiler/stdlib/shapes/curve.md   |  29 +-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  84 ++-\n .../prompts/core/compiler/stdlib/shapes/polygon.md |  29 +-\n .../core/entities/content/construction/layout.md   |  29 +-\n 00_nucleo/prompts/core/entities/elements/shape.md  |  42 +-\n 01_core/src/compiler/eval/observation/elements.rs  |  66 +-\n 01_core/src/compiler/introspect/queries.rs         |  76 ++-\n 01_core/src/compiler/layout/boxed.rs               |   3 +-\n 01_core/src/compiler/layout/helpers.rs             |   4 +-\n 01_core/src/compiler/layout/measurement.rs         |   3 +-\n 01_core/src/compiler/layout/shape.rs               |   4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |   3 +-\n 01_core/src/compiler/layout/tests.rs               |   3 +-\n 01_core/src/compiler/stdlib/shapes.rs              |   2 +-\n 01_core/src/compiler/stdlib/shapes/curve.rs        |   3 +-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 725 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/shapes/polygon.rs      |   4 +-\n .../src/entities/content/construction/layout.rs    |   3 +-\n 01_core/src/entities/elements/shape.rs             |  13 +-\n 28 files changed, 1360 insertions(+), 46 deletions(-)\n",
+  "build_receipt_sha256": "ed362286a9947e08ffe2a13b377661a89811329fdd988e56bda7a56686d32b6b",
+  "binaries": {
+    "product": {
+      "sha256": "aa58eed63ba913754abf55610cfa5ca8d14e57bdc54287c7057000d20e46a41e"
+    },
+    "oracle": {
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    }
+  },
+  "cases": [
+    {
+      "name": "same-context-countereffect",
+      "source_sha256": "5cc80438c5848c606129de7c95954d76492b52cf54e1804406473f39a76aa8ed",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/same-context-countereffect.typ",
+            "metadata",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"page\":1,\"x\":\"0pt\",\"y\":\"0pt\"},{\"page\":1,\"x\":\"0pt\",\"y\":\"0pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/same-context-countereffect.typ` instead\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/same-context-countereffect.typ",
+            "metadata",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"page\":1,\"x\":\"70.87pt\",\"y\":\"90.87pt\"},{\"page\":1,\"x\":\"70.87pt\",\"y\":\"90.87pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/same-context-countereffect.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "combined-scope",
+      "source_sha256": "9d5e10886eff6e497fde2f76ffc3f52dd07217899dab236f47e7102fb94db3b6",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/combined-scope.typ",
+            "metadata",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"40pt\",\"height\":\"40pt\",\"baseline\":\"40pt\"},{\"width\":\"80pt\",\"height\":\"80pt\",\"baseline\":\"80pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/combined-scope.typ` instead\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/combined-scope.typ",
+            "metadata",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"44pt\",\"height\":\"44pt\",\"baseline\":\"44pt\"},{\"width\":\"44pt\",\"height\":\"44pt\",\"baseline\":\"44pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/context-investigation/combined-scope.typ` instead\n\n"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T22:28:19.210336+00:00",
+  "binary_sha256_after": {
+    "product": "aa58eed63ba913754abf55610cfa5ca8d14e57bdc54287c7057000d20e46a41e",
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  }
+}

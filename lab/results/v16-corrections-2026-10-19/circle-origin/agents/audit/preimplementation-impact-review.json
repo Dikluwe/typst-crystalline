@@ -1,0 +1,65 @@
+{
+  "utc": "2026-10-19T21:56:06.970852+00:00",
+  "head": "954d13185e26a1ed90f6d7c60f6ba27760ca9889",
+  "diff_head_stat": " .../core/compiler/eval/observation/elements.md     |  28 +++\n 00_nucleo/prompts/core/compiler/layout/boxed.md    |  27 +++\n 00_nucleo/prompts/core/compiler/layout/helpers.md  |  27 +++\n .../prompts/core/compiler/layout/measurement.md    |  27 +++\n 00_nucleo/prompts/core/compiler/layout/shape.md    |  29 +++\n .../prompts/core/compiler/layout/sub_frame.md      |  27 +++\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  27 +++\n 00_nucleo/prompts/core/compiler/stdlib/shapes.md   |  28 +++\n .../prompts/core/compiler/stdlib/shapes/curve.md   |  27 +++\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  62 ++++++\n .../prompts/core/compiler/stdlib/shapes/polygon.md |  27 +++\n .../core/entities/content/construction/layout.md   |  27 +++\n 00_nucleo/prompts/core/entities/elements/shape.md  |  40 +++-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 231 +++++++++++++++++++++\n 14 files changed, 632 insertions(+), 2 deletions(-)\n",
+  "literal_definition_or_impl_files": [
+    {
+      "path": "01_core/src/entities/content/construction/layout.rs",
+      "sha256": "31820e378fbd8004c876dafcaf79925ef392ec74e30d9f987f0f2bc7cd56ef53"
+    },
+    {
+      "path": "01_core/src/entities/elements/shape.rs",
+      "sha256": "24de72e73bb05377ae9477a2f1408e1ab475706057eb2d1373f0c78100fe3e22"
+    },
+    {
+      "path": "01_core/src/compiler/eval/observation/elements.rs",
+      "sha256": "95571a725ba40187cc4c4d400943e540824eef849e2e714af42ba3804dbfcf76"
+    },
+    {
+      "path": "01_core/src/compiler/layout/boxed.rs",
+      "sha256": "922a88965ea3fa8f66c377a3a2aeb137114df64df273c274893b68188372cb86"
+    },
+    {
+      "path": "01_core/src/compiler/layout/helpers.rs",
+      "sha256": "e070dbd29cc208aa8abeb797088cb5bcf9ab45e160f84dad6068fcdb806f271c"
+    },
+    {
+      "path": "01_core/src/compiler/layout/measurement.rs",
+      "sha256": "bc77edbfff74f9a1c1191c54b9a2af8d00124bb2d47fece2b06a24e2f35c0377"
+    },
+    {
+      "path": "01_core/src/compiler/layout/shape.rs",
+      "sha256": "02388c48f516e824830554f85c3392b9bb248d91ce18c041fdea01818ffbc026"
+    },
+    {
+      "path": "01_core/src/compiler/layout/sub_frame.rs",
+      "sha256": "bd595333be9fd4d7283febfb2fb3fcc438c4d2b89f911f4c441caad159f802c2"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/shapes/polygon.rs",
+      "sha256": "82d37cb5f70864e3e86dd2030c1583ce2bbeb26c3c3b9248154b52d4109d4c06"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/shapes/curve.rs",
+      "sha256": "b28623474a83b5b1d9e722347a6ed18ffa75f024fccef4996fd7dfefee3d3e73"
+    },
+    {
+      "path": "01_core/src/compiler/layout/tests.rs",
+      "sha256": "1d042c973122153a7fae351a3f48c50a9dc78850a2b7d3b59baf8c3c2be783b8"
+    }
+  ],
+  "method": "rg ShapeElem literal/definition/impl inventory over all four productive layers. Not a count of literals; complete compiler checking remains required.",
+  "findings": [
+    "Generic Content::shape delegates to shape_with_radius; preserve signatures and RoundedRect rewrite while initializing Geometry.",
+    "Native circle must create Circle origin explicitly; generic ellipse and other constructors must remain Geometry.",
+    "Element terminal map_content/map_text clone the complete ShapeElem; derived PartialEq and Debug-based Hash naturally include the required field.",
+    "Content::Shape equality delegates to ShapeElem; morph_canon preserves Shape and comparison-only project clones it. No special-case language algorithm is required.",
+    "Content compact hash intentionally collides across unequal Shape values and remains unchanged; this is not identity evidence.",
+    "Conservative ObservationEq currently exhaustively destructures every field; new origin must be included and compared nominally.",
+    "Direct literals found only in expected L1 modules; most layout literals are test fixtures, productive polygon/curve and generic construction are Geometry."
+  ],
+  "fresh_replay_manifest": {
+    "path": "lab/results/v16-corrections-2026-10-19/circle-origin/agents/audit/cases.json",
+    "sha256": "8d95ef237e4569c5f86f01705cff76a06afec9df5ae210a710b99885bcb42b77"
+  }
+}

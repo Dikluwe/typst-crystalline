@@ -1,7 +1,7 @@
 # V16 correction progress
 
-Status: batches A–E are closed; batch F has 16 validated repairs and two
-explicit pending items. The remaining 21 V16 findings remain open in the [cause-correction plan](v16-cause-correction-plan-2026-10-19.md).
+Status: batches A–E are closed; batch F has 17 validated repairs and one
+explicit pending item (Figure V16-055). The remaining 20 V16 findings remain open in the [cause-correction plan](v16-cause-correction-plan-2026-10-19.md).
 This diagnostic is not a new L0 contract or a claim of complete Typst parity.
 
 ## Batch A: evidence before closure
@@ -315,17 +315,55 @@ bind the accepted results to their exact source/L0 and executable identities.
 Figure055 needs a coherent typed-kind, selection/finalization and counter-demand
 contract. The [readiness analysis](../../lab/results/v16-corrections-2026-10-19/batch-f/fg1-proposal/readiness.md)
 and [lifecycle refutation](../../lab/results/v16-corrections-2026-10-19/batch-f/fg1-proposal/counter-lifecycle-followup.md)
-explain why the current draft is not ready for approval. Circle065 has an
+explain why the current draft is not ready for approval. At that checkpoint, Circle065 had an
 [independently reviewed proposal](../../lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/review.md)
-for typed constructor origin and full explicit radius. It awaits ADR-0127
-approval for the public entity change; its source/L0 remain identical to baseline.
+for typed constructor origin and full explicit radius, pending ADR-0127 approval.
+The approved follow-up below supersedes that pending status; the original batch F
+receipts remain unchanged.
 [Open obligations](../../lab/results/v16-corrections-2026-10-19/batch-f/open-obligations.json)
 retain Auto/default, relative-dimension and native-constructor gaps. The full
 linter still exits 1 for 21 V16 errors; no suppression or weaker contract was used.
 
+## Circle follow-up: approved origin and full explicit radius
+
+The user approved ShapeOrigin and ShapeElem.origin after the original batch F
+checkpoint. Baseline HEAD is `954d13185e26a1ed90f6d7c60f6ba27760ca9889` on the
+same branch. Native Circle now retains constructor identity and full abs/em
+radius through the existing layout resolver; generic shapes retain Geometry
+origin. Numeric/Length equivalence, fill/stroke and explicit Auto-as-zero debt
+remain. Malformed values are rejected by an exhaustive decision with causal spans.
+
+The frozen shared-occurrence replay additionally exposed Label-selector
+first-only projection. Independent controls reproduced it without Circle or
+Context. Its compiler-owned branch now preserves all distinct causal occurrences,
+while query_by_label keeps its first-result API. This internal parity repair had
+its own L0 and semantic RED; no Context or phase change was introduced.
+
+The full pinned scan at `2026-10-19T22:28:29.489373+00:00` reports **21 → 20 V16**,
+exactly V16-065 removed, no new error or warning and identical diagnostics outside
+fourteen source/owner pairs. V19 is 1262 and V20 is 877; all prior notes and the
+three new grouping reminders remain visible. The bounded test observer's complete
+runtime alternative coverage is not claimed. State, hashes and independent review
+are in [the follow-up report](../../lab/results/v16-corrections-2026-10-19/circle-origin/README.md).
+
+All **23 new tests** pass in the fresh full suite: eight observed semantic REDs,
+nine preservation controls and six additional post-API/domain controls. Five
+exact compiler witnesses passed independent raw-span review. All twelve integrated
+gates finished at **2026-10-19T22:42:48.099173+00:00**, with **2132 unchanged inputs**. Paths, strict
+direct/reverse lineage, V15/V26, builds, tests, Clippy, formatting and Rustdoc pass.
+The 224 frozen language cases, six exported-ink controls and eighteen Label
+controls pass their case-specific policies against the ratified oracle. The first
+223/224 replay and observer-lint failure remain preserved, with no weaker expected
+result or suppression. Accepted source/owner hashes are in
+[the closure ledger](../../lab/results/v16-corrections-2026-10-19/circle-origin/closure-ledger.json).
+
+Batch F now has 17 repairs and Figure V16-055 pending. Auto/default sizing,
+Circle reflection/selectors/show/set and the other explicitly deferred surfaces
+remain obligations; this is not complete Circle or language parity.
+
 ## Remaining obligations and organizational result
 
-The two pending F items and batch G remain open. The mathematical parser's old grouping comment differs
+The pending Figure item in F and batch G remain open. The mathematical parser's old grouping comment differs
 from the observed tree for `a^b'_c^d`; batch A preserved the observed tree and
 recorded the intent question separately. It does not ratify that comment or close
 parity through Rust exhaustiveness. Three callback font formats still lack

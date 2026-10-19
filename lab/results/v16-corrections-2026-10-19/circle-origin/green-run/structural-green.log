@@ -1,0 +1,3 @@
+2026-10-19T22:25:05.705086+00:00 all-domains START
+2026-10-19T22:25:34.198097+00:00 all-domains END 101 selected 5 other 0
+PASS green actual Value/ShapeOrigin/FrameItem exhaustiveness at exact primary spans

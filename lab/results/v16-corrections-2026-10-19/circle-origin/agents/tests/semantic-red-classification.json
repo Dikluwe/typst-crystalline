@@ -1,0 +1,82 @@
+{
+  "utc": "2026-10-19T22:04:08.487357+00:00",
+  "log": "lab/results/v16-corrections-2026-10-19/circle-origin/red-run/circle-semantic-red.log",
+  "log_sha256": "2463aee9e3858b0f806b5c55c7d2cfaca40417d03d289add29f9e8b3f1204075",
+  "counts": {
+    "semantic_failures": 6,
+    "preserved": 8
+  },
+  "tests": [
+    {
+      "name": "circle_origin_rejects_malformed_radius_at_causal_value_span",
+      "predicted": "FAIL_semantic",
+      "observed": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_radius_diagnostic_uses_latest_occurrence_and_fallback_span",
+      "predicted": "FAIL_semantic",
+      "observed": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_radius_error_precedes_paint_error",
+      "predicted": "FAIL_semantic",
+      "observed": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_name_validation_still_precedes_radius",
+      "predicted": "PASS_preservation",
+      "observed": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_em_radius_reaches_actual_layout_at_occurrence_font",
+      "predicted": "FAIL_semantic",
+      "observed": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_mixed_radius_paints_at_each_font_through_block_and_box",
+      "predicted": "FAIL_semantic",
+      "observed": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_preserves_absolute_and_numeric_geometry",
+      "predicted": "PASS_preservation",
+      "observed": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_preserves_absolute_language_identity_boundaries",
+      "predicted": "PASS_preservation",
+      "observed": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_preserves_em_language_identity_boundary",
+      "predicted": "PASS_preservation",
+      "observed": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_distinguishes_numeric_ellipse_and_em_or_mixed_radii",
+      "predicted": "FAIL_semantic",
+      "observed": "FAIL_semantic"
+    },
+    {
+      "name": "circle_origin_language_identity_survives_containers_membership_and_wrappers",
+      "predicted": "FAIL_semantic",
+      "observed": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_retains_explicit_auto_zero_and_omission_debt",
+      "predicted": "PASS_preservation",
+      "observed": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_preserves_signed_and_nonfinite_point_extensions",
+      "predicted": "PASS_preservation",
+      "observed": "PASS_preservation"
+    },
+    {
+      "name": "circle_origin_preserves_fill_stroke_and_absence",
+      "predicted": "PASS_preservation",
+      "observed": "PASS_preservation"
+    }
+  ],
+  "prediction_correction": "Container/membership/wrappers used Ellipse Int(4), already unequal to Circle Float(4) before correction; preserves this boundary. The approved accidental numeric equality uses Ellipse Float(4.0), separately measured in frozen CLI corpus. No test was removed or weakened."
+}

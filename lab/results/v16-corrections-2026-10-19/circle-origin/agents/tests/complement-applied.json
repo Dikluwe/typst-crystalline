@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-19T22:17:25.339315+00:00",
+  "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+  "before_sha256": "90530076093dbbe65dbe59ecf6af3d99c3644dbbd01d5c824272c1a9597547ff",
+  "after_sha256": "ed4491293034eff153d7d2b85910a69a28f2d1d141612cf07b844f05d3f2b220",
+  "l0_sha256": "b4dbf1c3e78d13e850eb3b0928094040d487a23d834c5bff2cc48ff28be7869a",
+  "mutation": "bounded FrameItem observer now nominally exhaustive; added26 remaining invalid Value fixtures with exactdiagnostics/span",
+  "test_name": "circle_origin_rejects_remaining_value_classes_at_causal_span",
+  "total_circle_origin_tests": 20,
+  "frozen_for_parent_validation": true
+}

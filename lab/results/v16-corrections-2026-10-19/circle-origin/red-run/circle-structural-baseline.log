@@ -1,0 +1,3 @@
+2026-10-19T21:59:06.529368+00:00 all-domains START
+2026-10-19T21:59:34.329252+00:00 all-domains END 101 selected 0 other 0
+PASS baseline actual Value/ShapeOrigin exhaustiveness at exact primary spans

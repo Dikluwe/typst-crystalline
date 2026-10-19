@@ -1,0 +1,28 @@
+[
+  {
+    "name": "label-cardinality-red",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "circle_origin_label_",
+      "--",
+      "--test-threads=1"
+    ],
+    "expected_exit": 101,
+    "utc_end": "2026-10-19T22:21:49.394986+00:00",
+    "exit": 101,
+    "seconds": 92.29264013400825,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3743444992",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]
