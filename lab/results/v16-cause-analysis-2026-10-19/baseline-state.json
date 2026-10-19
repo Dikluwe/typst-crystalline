@@ -1,0 +1,17 @@
+{
+  "utc_start": "2026-10-19T10:03:25.131622+00:00",
+  "head": "23bcda80d8348b08e5199312fddeec8ece2eb0a5",
+  "branch": "codex/tekt-mature-layout",
+  "status": "",
+  "diff_head_stat": "",
+  "linter_commit": "12797073972e375d9ab078cf6750c8b30b71e2b9",
+  "linter_sha256": "421d0797e7ae1a5102e9c5bcd87b488fea70a1997394c38765a03239fe579121",
+  "command": [
+    "lab/target/linter/debug/crystalline-lint",
+    ".",
+    "--format",
+    "sarif"
+  ],
+  "exit": 1,
+  "utc_end": "2026-10-19T10:03:30.887833+00:00"
+}

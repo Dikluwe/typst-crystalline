@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-19T10:05:21.678236+00:00",
+  "head": "23bcda80d8348b08e5199312fddeec8ece2eb0a5",
+  "current_vs_previous_added": 0,
+  "current_vs_previous_removed": 0,
+  "v16_occurrences": 105,
+  "owners": 81,
+  "by_layer": {
+    "01_core": 82,
+    "02_shell": 3,
+    "03_infra": 20
+  },
+  "full_lint_counts": {
+    "V16:error": 105,
+    "V19:note": 1140,
+    "V20:note": 879
+  },
+  "strict_lineage_exit": 0
+}

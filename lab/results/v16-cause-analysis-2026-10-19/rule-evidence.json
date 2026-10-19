@@ -1,0 +1,25 @@
+{
+  "files": [
+    {
+      "path": "lab/scratch/tekt-linter-pinned/01_core/rules/wildcard_saturation.rs",
+      "sha256": "d46ef5f9b639391de7dc94034d9b169478496aee4d544f49417d8f3010fabf0e"
+    },
+    {
+      "path": "lab/scratch/tekt-linter-pinned/tests/wildcard_saturation_v16_assessment.rs",
+      "sha256": "d59a3b2345ae3fd2feca763d1778c3e96a0c97b8c2af8ddbaaf8e8630e4c6f34"
+    },
+    {
+      "path": "lab/scratch/tekt-linter-pinned/00_nucleo/prompts/rules/wildcard-saturation.md",
+      "sha256": "b85273bb3bbfdf5f5d3cc2721d818b85fe47c92df87d7030958b93eddc0c19dd"
+    },
+    {
+      "path": "crystalline.toml",
+      "sha256": "cf69161975032c9938c62d72cbe0b00af51c7d02c83020947b57ced9a446e1a5"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/value.md",
+      "sha256": "2263e73b5d2e7dd431ec55d506701e2c8209acc1a3b8040e06820225817f5716"
+    }
+  ],
+  "note": "Read-only inspection. The linter uses syntactic candidate-enum proxies, not Rust type analysis. Exception annotations do not silence the principal V16. See rule lines 46-85 and 178-189; assessment test active_exception_never_silences_principal; current Value owner structural mutation precedent."
+}
