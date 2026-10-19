@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-19T12:18:32.630378+00:00",
+  "command": [
+    "python3",
+    "lab/tools/ci/check_mature_layout.py"
+  ],
+  "exit": 0,
+  "report_sha256": "5251374a72be6b34f2bb78587d915e5e0eecaac0b28332209f7ca489454436fe",
+  "log_sha256": "ee2a7ec0883538f59a09bbcbe08b472b4750563be3770fe20a86d0812590c31e",
+  "head": "059d1a0ffa9523dbe21af6860a215acaeef55d73",
+  "diff_head_stat": " .../v16-correction-progress-2026-10-19.md          |  62 ++-\n .../compiler/eval/math_cases_evaluation_tests.md   |  95 ++++-\n .../compiler/eval/math_frac_evaluation_tests.md    |  95 ++++-\n .../compiler/eval/math_matrix_evaluation_tests.md  |  95 ++++-\n .../compiler/eval/math_root_evaluation_tests.md    |  97 ++++-\n 00_nucleo/prompts/core/compiler/eval/rules.md      |  40 +-\n .../core/entities/content/tests/traversal.md       |  32 +-\n .../prompts/core/entities/content/traversal.md     |  43 +-\n 00_nucleo/prompts/infra/integration_tests.md       |  81 +++-\n .../compiler/eval/math_cases_evaluation_tests.rs   | 209 ++++++++-\n .../compiler/eval/math_frac_evaluation_tests.rs    | 203 ++++++++-\n .../compiler/eval/math_matrix_evaluation_tests.rs  | 204 ++++++++-\n .../compiler/eval/math_root_evaluation_tests.rs    | 207 ++++++++-\n 01_core/src/compiler/eval/rules.rs                 | 202 ++++++++-\n 01_core/src/entities/content/tests/traversal.rs    | 142 ++++++-\n 01_core/src/entities/content/traversal.rs          | 470 ++++++++++++++++++++-\n 03_infra/src/integration_tests.rs                  | 255 ++++++++++-\n 17 files changed, 2486 insertions(+), 46 deletions(-)\n"
+}

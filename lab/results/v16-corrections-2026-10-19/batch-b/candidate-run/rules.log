@@ -1,0 +1,62 @@
+    Finished `test` profile [unoptimized] target(s) in 0.13s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 55 tests
+test compiler::eval::rules::tests::p1467_duplicate_pretty_is_rejected ... ok
+test compiler::eval::rules::tests::p1467_duplicate_tagged_is_rejected ... ok
+test compiler::eval::rules::tests::p1467_each_field_defined_alone_does_not_touch_the_other ... ok
+test compiler::eval::rules::tests::p1467_empty_rule_inserts_no_keys ... ok
+test compiler::eval::rules::tests::p1467_generic_unsupported_target_warning_is_not_emitted_for_pdf ... ok
+test compiler::eval::rules::tests::p1467_positional_argument_is_rejected ... ok
+test compiler::eval::rules::tests::p1467_pretty_true_and_false_insert_bool ... ok
+test compiler::eval::rules::tests::p1467_pretty_wrong_type_has_boolean_only_message ... ok
+test compiler::eval::rules::tests::p1467_svg_png_html_set_rules_are_not_regressed ... ok
+test compiler::eval::rules::tests::p1467_tagged_and_pretty_together_use_independent_keys ... ok
+test compiler::eval::rules::tests::p1467_tagged_auto_inserts_value_auto ... ok
+test compiler::eval::rules::tests::p1467_tagged_false_inserts_value_bool_false ... ok
+test compiler::eval::rules::tests::p1467_tagged_true_inserts_value_bool_true ... ok
+test compiler::eval::rules::tests::p1467_tagged_wrong_type_has_auto_aware_message ... ok
+test compiler::eval::rules::tests::p1467_unknown_named_argument_is_rejected ... ok
+test compiler::eval::rules::tests::p1468_pages_array_element_type_message_differs_from_top_level ... ok
+test compiler::eval::rules::tests::p1468_pages_array_empty_inserts_value_array_empty ... ok
+test compiler::eval::rules::tests::p1468_pages_array_mixed_inserts_value_array ... ok
+test compiler::eval::rules::tests::p1468_pages_auto_top_level_type_is_rejected ... ok
+test compiler::eval::rules::tests::p1468_pages_dict_closed_inserts_value_dict ... ok
+test compiler::eval::rules::tests::p1468_pages_dict_empty_is_rejected ... ok
+test compiler::eval::rules::tests::p1468_pages_dict_extra_key_is_rejected ... ok
+test compiler::eval::rules::tests::p1468_pages_dict_from_greater_than_to_is_rejected ... ok
+test compiler::eval::rules::tests::p1468_pages_dict_open_at_end_inserts_value_dict ... ok
+test compiler::eval::rules::tests::p1468_pages_dict_open_at_start_inserts_value_dict ... ok
+test compiler::eval::rules::tests::p1468_pages_duplicate_is_rejected ... ok
+test compiler::eval::rules::tests::p1468_pages_empty_rule_inserts_no_pages_key ... ok
+test compiler::eval::rules::tests::p1468_pages_float_top_level_type_is_rejected ... ok
+test compiler::eval::rules::tests::p1468_pages_integer_inserts_value_int ... ok
+test compiler::eval::rules::tests::p1468_pages_is_independent_of_tagged_and_pretty ... ok
+test compiler::eval::rules::tests::p1468_pages_negative_is_rejected ... ok
+test compiler::eval::rules::tests::p1468_pages_none_inserts_value_none_distinct_from_absent ... ok
+test compiler::eval::rules::tests::p1468_pages_string_top_level_type_is_rejected ... ok
+test compiler::eval::rules::tests::p1468_pages_zero_is_rejected ... ok
+test compiler::eval::rules::tests::p1468_svg_png_html_set_rules_are_not_regressed_by_pages ... ok
+test compiler::eval::rules::tests::p1469_standard_absent_inserts_no_standard_key ... ok
+test compiler::eval::rules::tests::p1469_standard_array_element_invalid_uses_list_without_array_or_found ... ok
+test compiler::eval::rules::tests::p1469_standard_array_with_multiple_compatible_names_inserts_value_array ... ok
+test compiler::eval::rules::tests::p1469_standard_boolean_is_rejected_with_found_boolean_suffix ... ok
+test compiler::eval::rules::tests::p1469_standard_conflict_no_overlapping_range_between_validators_fails ... ok
+test compiler::eval::rules::tests::p1469_standard_conflict_two_accessibility_uses_exact_message ... ok
+test compiler::eval::rules::tests::p1469_standard_conflict_two_archival_uses_exact_message ... ok
+test compiler::eval::rules::tests::p1469_standard_conflict_two_versions_uses_exact_message ... ok
+test compiler::eval::rules::tests::p1469_standard_conflict_version_out_of_range_uses_exact_message_and_hint ... ok
+test compiler::eval::rules::tests::p1469_standard_duplicate_named_is_rejected ... ok
+test compiler::eval::rules::tests::p1469_standard_each_of_seventeen_names_inserts_value_array_of_one_string ... ok
+test compiler::eval::rules::tests::p1469_standard_empty_array_inserts_value_array_empty ... ok
+test compiler::eval::rules::tests::p1469_standard_integer_is_rejected_with_found_integer_suffix ... ok
+test compiler::eval::rules::tests::p1469_standard_is_independent_of_tagged_pretty_and_pages ... ok
+test compiler::eval::rules::tests::p1469_standard_none_is_rejected_with_found_none_suffix ... ok
+test compiler::eval::rules::tests::p1469_standard_unrecognized_string_is_rejected_without_found_suffix ... ok
+test compiler::eval::rules::tests::p1469_svg_png_html_set_rules_are_not_regressed_by_standard ... ok
+test compiler::eval::rules::tests::v16_b_custom_observer_keeps_opaque_decoy_and_supported_sibling_distinct ... ok
+test compiler::eval::rules::tests::v16_b_custom_observer_leaves_preserve_existing_accumulator ... ok
+test compiler::eval::rules::tests::v16_b_custom_observer_preserves_precedence_and_encounter_order ... ok
+
+test result: ok. 55 passed; 0 failed; 0 ignored; 0 measured; 7383 filtered out; finished in 0.37s
+

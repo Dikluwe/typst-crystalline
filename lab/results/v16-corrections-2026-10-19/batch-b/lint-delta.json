@@ -1,0 +1,570 @@
+{
+  "utc": "2026-10-19T11:58:06.809650+00:00",
+  "closed_ids": [
+    "V16-013",
+    "V16-014",
+    "V16-015",
+    "V16-016",
+    "V16-025",
+    "V16-075",
+    "V16-076",
+    "V16-091"
+  ],
+  "remaining_v16": 83,
+  "counts_before": {
+    "V16:error": 91,
+    "V19:note": 1157,
+    "V20:note": 878
+  },
+  "counts_after": {
+    "V16:error": 83,
+    "V19:note": 1166,
+    "V20:note": 878
+  },
+  "removed_notes": [
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 4882
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Content::Sequence(xs) | Content::MathSequence(xs)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 5295
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 11; guard: ausente; padr\u00e3o: `typst_core::entities::layout_types::FrameItem::TextReplacement {\n                    ..\n                }\n                | typst_core::entities::layout_types::FrameItem::TextSeparator {\n                    ..\n                }\n                | typst_core::entities::layout_types::FrameItem::Semantic { .. }\n                | typst_core::entities::layout_types::FrameItem::Text { .. }\n                | typst_core::entities::layout_types::FrameItem::TextShaped { .. }\n                | typst_core::entities::layout_types::FrameItem::Line { .. }\n                | typst_core::entities::layout_types::FrameItem::Glyph { .. }\n                | typst_core::entities::layout_types::FrameItem::Image { .. }\n                | typst_core::entities::layout_types::FrameItem::Shape { .. }\n                | typst_core::entities::layout_types::FrameItem::Group { .. }\n                | typst_core::entities::layout_types::FrameItem::Link { .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5450
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5456
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 8; guard: ausente; padr\u00e3o: `FI::TextReplacement { .. }\n                        | FI::TextSeparator { .. }\n                        | FI::Semantic { .. }\n                        | FI::Line { .. }\n                        | FI::Image { .. }\n                        | FI::Shape { .. }\n                        | FI::Group { .. }\n                        | FI::Link { .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5537
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5543
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 8; guard: ausente; padr\u00e3o: `FI::TextReplacement { .. }\n                        | FI::TextSeparator { .. }\n                        | FI::Semantic { .. }\n                        | FI::Line { .. }\n                        | FI::Image { .. }\n                        | FI::Shape { .. }\n                        | FI::Group { .. }\n                        | FI::Link { .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5593
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: presente; padr\u00e3o: `FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5601
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 11; guard: ausente; padr\u00e3o: `FI::TextReplacement { .. }\n                        | FI::TextSeparator { .. }\n                        | FI::Semantic { .. }\n                        | FI::Text { .. }\n                        | FI::TextShaped { .. }\n                        | FI::Line { .. }\n                        | FI::Glyph { .. }\n                        | FI::Image { .. }\n                        | FI::Shape { .. }\n                        | FI::Group { .. }\n                        | FI::Link { .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 5958
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: presente; padr\u00e3o: `FrameItem::TextShaped { pos, text, .. }\n                | FrameItem::Text { pos, text, .. }`."
+      },
+      "ruleId": "V19"
+    }
+  ],
+  "added_notes": [
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/eval/math_cases_evaluation_tests.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 76
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 114; guard: ausente; padr\u00e3o: `Content::Source(_)\n        | Content::ShowRecipe(_)\n        | Content::Realized(_)\n        | Content::Located(_)\n        | Content::Empty\n        | Content::Text(_)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::HtmlElem(_)\n        | Content::HtmlFrame(_)\n        | Content::Par { .. }\n        | Content::Heading(_)\n        | Content::Title(_)\n        | Content::Strong(_)\n        | Content::Emph(_)\n        | Content::Raw(_)\n        | Content::ListItem(_)\n        | Content::EnumItem(_)\n        | Content::Link(_)\n        | Content::MathIdent(_)\n        | Content::MathText(_)\n        | Content::MathFrac(_)\n        | Content::MathAttach(_)\n        | Content::MathPrimes(_)\n        | Content::MathRoot(_)\n        | Content::MathStretch(_)\n        | Content::MathLr(_)\n        | Content::MathMid(_)\n        | Content::MathOverbrace(_)\n        | Content::MathUnderbrace(_)\n        | Content::MathUnderbracket(_)\n        | Content::MathUnderparen(_)\n        | Content::MathUndershell(_)\n        | Content::MathOverbracket(_)\n        | Content::MathOverparen(_)\n        | Content::MathOvershell(_)\n        | Content::MathAlignPoint(_)\n        | Content::Linebreak(_)\n        | Content::MathMatrix(_)\n        | Content::MathAccent(_)\n        | Content::MathCancel(_)\n        | Content::MathUnderline(_)\n        | Content::MathOverline(_)\n        | Content::MathVec(_)\n        | Content::MathClassOverride(_)\n        | Content::MathLimitsOverride(_)\n        | Content::MathUnderover(_)\n        | Content::MathOp(_)\n        | Content::MathStyled(_)\n        | Content::Label(_)\n        | Content::Ref(_)\n        | Content::CounterDisplay(_)\n        | Content::CounterUpdate(_)\n        | Content::Outline(_)\n        | Content::OutlineEntry(_)\n        | Content::Figure(_)\n        | Content::FigureCaption(_)\n        | Content::Image(_)\n        | Content::Shape(_)\n        | Content::Curve(_)\n        | Content::Transform(_)\n        | Content::Grid(_)\n        | Content::GridHeader(_)\n        | Content::GridFooter(_)\n        | Content::GridCell(_)\n        | Content::SetPage(_)\n        | Content::PageRun(_)\n        | Content::Align(_)\n        | Content::Place(_)\n        | Content::Flush(_)\n        | Content::Divider(_)\n        | Content::Terms(_)\n        | Content::TermItem(_)\n        | Content::Quote(_)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(_)\n        | Content::PdfAttach(_)\n        | Content::PdfArtifact(_)\n        | Content::Underline(_)\n        | Content::Strike(_)\n        | Content::Overline(_)\n        | Content::SmallCaps { .. }\n        | Content::Pad(_)\n        | Content::Hide(_)\n        | Content::HSpace(_)\n        | Content::VSpace(_)\n        | Content::Pagebreak(_)\n        | Content::Colbreak(_)\n        | Content::Stack(_)\n        | Content::Boxed(_)\n        | Content::Block(_)\n        | Content::TableCell(_)\n        | Content::Bibliography(_)\n        | Content::Cite(_)\n        | Content::Footnote(_)\n        | Content::FootnoteEntry(_)\n        | Content::TableHeader(_)\n        | Content::TableFooter(_)\n        | Content::GridHLine(_)\n        | Content::GridVLine(_)\n        | Content::TableHLine(_)\n        | Content::TableVLine(_)\n        | Content::Table(_)\n        | Content::Repeat(_)\n        | Content::Columns(_)\n        | Content::Metadata(_)\n        | Content::State(_)\n        | Content::StateUpdate(_)\n        | Content::StateDisplay(_)\n        | Content::CounterDisplayCallback(_)\n        | Content::ContextBlock(_)\n        | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/eval/math_frac_evaluation_tests.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 74
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 114; guard: ausente; padr\u00e3o: `Content::Source(_)\n        | Content::ShowRecipe(_)\n        | Content::Realized(_)\n        | Content::Located(_)\n        | Content::Empty\n        | Content::Text(_)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::HtmlElem(_)\n        | Content::HtmlFrame(_)\n        | Content::Par { .. }\n        | Content::Heading(_)\n        | Content::Title(_)\n        | Content::Strong(_)\n        | Content::Emph(_)\n        | Content::Raw(_)\n        | Content::ListItem(_)\n        | Content::EnumItem(_)\n        | Content::Link(_)\n        | Content::MathIdent(_)\n        | Content::MathText(_)\n        | Content::MathAttach(_)\n        | Content::MathPrimes(_)\n        | Content::MathRoot(_)\n        | Content::MathStretch(_)\n        | Content::MathLr(_)\n        | Content::MathMid(_)\n        | Content::MathOverbrace(_)\n        | Content::MathUnderbrace(_)\n        | Content::MathUnderbracket(_)\n        | Content::MathUnderparen(_)\n        | Content::MathUndershell(_)\n        | Content::MathOverbracket(_)\n        | Content::MathOverparen(_)\n        | Content::MathOvershell(_)\n        | Content::MathAlignPoint(_)\n        | Content::Linebreak(_)\n        | Content::MathMatrix(_)\n        | Content::MathCases(_)\n        | Content::MathAccent(_)\n        | Content::MathCancel(_)\n        | Content::MathUnderline(_)\n        | Content::MathOverline(_)\n        | Content::MathVec(_)\n        | Content::MathClassOverride(_)\n        | Content::MathLimitsOverride(_)\n        | Content::MathUnderover(_)\n        | Content::MathOp(_)\n        | Content::MathStyled(_)\n        | Content::Label(_)\n        | Content::Ref(_)\n        | Content::CounterDisplay(_)\n        | Content::CounterUpdate(_)\n        | Content::Outline(_)\n        | Content::OutlineEntry(_)\n        | Content::Figure(_)\n        | Content::FigureCaption(_)\n        | Content::Image(_)\n        | Content::Shape(_)\n        | Content::Curve(_)\n        | Content::Transform(_)\n        | Content::Grid(_)\n        | Content::GridHeader(_)\n        | Content::GridFooter(_)\n        | Content::GridCell(_)\n        | Content::SetPage(_)\n        | Content::PageRun(_)\n        | Content::Align(_)\n        | Content::Place(_)\n        | Content::Flush(_)\n        | Content::Divider(_)\n        | Content::Terms(_)\n        | Content::TermItem(_)\n        | Content::Quote(_)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(_)\n        | Content::PdfAttach(_)\n        | Content::PdfArtifact(_)\n        | Content::Underline(_)\n        | Content::Strike(_)\n        | Content::Overline(_)\n        | Content::SmallCaps { .. }\n        | Content::Pad(_)\n        | Content::Hide(_)\n        | Content::HSpace(_)\n        | Content::VSpace(_)\n        | Content::Pagebreak(_)\n        | Content::Colbreak(_)\n        | Content::Stack(_)\n        | Content::Boxed(_)\n        | Content::Block(_)\n        | Content::TableCell(_)\n        | Content::Bibliography(_)\n        | Content::Cite(_)\n        | Content::Footnote(_)\n        | Content::FootnoteEntry(_)\n        | Content::TableHeader(_)\n        | Content::TableFooter(_)\n        | Content::GridHLine(_)\n        | Content::GridVLine(_)\n        | Content::TableHLine(_)\n        | Content::TableVLine(_)\n        | Content::Table(_)\n        | Content::Repeat(_)\n        | Content::Columns(_)\n        | Content::Metadata(_)\n        | Content::State(_)\n        | Content::StateUpdate(_)\n        | Content::StateDisplay(_)\n        | Content::CounterDisplayCallback(_)\n        | Content::ContextBlock(_)\n        | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/eval/math_matrix_evaluation_tests.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 71
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 114; guard: ausente; padr\u00e3o: `Content::Source(_)\n        | Content::ShowRecipe(_)\n        | Content::Realized(_)\n        | Content::Located(_)\n        | Content::Empty\n        | Content::Text(_)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::HtmlElem(_)\n        | Content::HtmlFrame(_)\n        | Content::Par { .. }\n        | Content::Heading(_)\n        | Content::Title(_)\n        | Content::Strong(_)\n        | Content::Emph(_)\n        | Content::Raw(_)\n        | Content::ListItem(_)\n        | Content::EnumItem(_)\n        | Content::Link(_)\n        | Content::MathIdent(_)\n        | Content::MathText(_)\n        | Content::MathFrac(_)\n        | Content::MathAttach(_)\n        | Content::MathPrimes(_)\n        | Content::MathRoot(_)\n        | Content::MathStretch(_)\n        | Content::MathLr(_)\n        | Content::MathMid(_)\n        | Content::MathOverbrace(_)\n        | Content::MathUnderbrace(_)\n        | Content::MathUnderbracket(_)\n        | Content::MathUnderparen(_)\n        | Content::MathUndershell(_)\n        | Content::MathOverbracket(_)\n        | Content::MathOverparen(_)\n        | Content::MathOvershell(_)\n        | Content::MathAlignPoint(_)\n        | Content::Linebreak(_)\n        | Content::MathCases(_)\n        | Content::MathAccent(_)\n        | Content::MathCancel(_)\n        | Content::MathUnderline(_)\n        | Content::MathOverline(_)\n        | Content::MathVec(_)\n        | Content::MathClassOverride(_)\n        | Content::MathLimitsOverride(_)\n        | Content::MathUnderover(_)\n        | Content::MathOp(_)\n        | Content::MathStyled(_)\n        | Content::Label(_)\n        | Content::Ref(_)\n        | Content::CounterDisplay(_)\n        | Content::CounterUpdate(_)\n        | Content::Outline(_)\n        | Content::OutlineEntry(_)\n        | Content::Figure(_)\n        | Content::FigureCaption(_)\n        | Content::Image(_)\n        | Content::Shape(_)\n        | Content::Curve(_)\n        | Content::Transform(_)\n        | Content::Grid(_)\n        | Content::GridHeader(_)\n        | Content::GridFooter(_)\n        | Content::GridCell(_)\n        | Content::SetPage(_)\n        | Content::PageRun(_)\n        | Content::Align(_)\n        | Content::Place(_)\n        | Content::Flush(_)\n        | Content::Divider(_)\n        | Content::Terms(_)\n        | Content::TermItem(_)\n        | Content::Quote(_)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(_)\n        | Content::PdfAttach(_)\n        | Content::PdfArtifact(_)\n        | Content::Underline(_)\n        | Content::Strike(_)\n        | Content::Overline(_)\n        | Content::SmallCaps { .. }\n        | Content::Pad(_)\n        | Content::Hide(_)\n        | Content::HSpace(_)\n        | Content::VSpace(_)\n        | Content::Pagebreak(_)\n        | Content::Colbreak(_)\n        | Content::Stack(_)\n        | Content::Boxed(_)\n        | Content::Block(_)\n        | Content::TableCell(_)\n        | Content::Bibliography(_)\n        | Content::Cite(_)\n        | Content::Footnote(_)\n        | Content::FootnoteEntry(_)\n        | Content::TableHeader(_)\n        | Content::TableFooter(_)\n        | Content::GridHLine(_)\n        | Content::GridVLine(_)\n        | Content::TableHLine(_)\n        | Content::TableVLine(_)\n        | Content::Table(_)\n        | Content::Repeat(_)\n        | Content::Columns(_)\n        | Content::Metadata(_)\n        | Content::State(_)\n        | Content::StateUpdate(_)\n        | Content::StateDisplay(_)\n        | Content::CounterDisplayCallback(_)\n        | Content::ContextBlock(_)\n        | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/eval/math_root_evaluation_tests.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 73
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 116; guard: ausente; padr\u00e3o: `Content::Source(_)\n        | Content::ShowRecipe(_)\n        | Content::Realized(_)\n        | Content::Located(_)\n        | Content::Empty\n        | Content::Text(_)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::HtmlElem(_)\n        | Content::HtmlFrame(_)\n        | Content::Par { .. }\n        | Content::Heading(_)\n        | Content::Title(_)\n        | Content::Strong(_)\n        | Content::Emph(_)\n        | Content::Raw(_)\n        | Content::ListItem(_)\n        | Content::EnumItem(_)\n        | Content::Link(_)\n        | Content::MathIdent(_)\n        | Content::MathText(_)\n        | Content::MathFrac(_)\n        | Content::MathAttach(_)\n        | Content::MathPrimes(_)\n        | Content::MathStretch(_)\n        | Content::MathDelimited(_)\n        | Content::MathLr(_)\n        | Content::MathMid(_)\n        | Content::MathOverbrace(_)\n        | Content::MathUnderbrace(_)\n        | Content::MathUnderbracket(_)\n        | Content::MathUnderparen(_)\n        | Content::MathUndershell(_)\n        | Content::MathOverbracket(_)\n        | Content::MathOverparen(_)\n        | Content::MathOvershell(_)\n        | Content::MathAlignPoint(_)\n        | Content::Linebreak(_)\n        | Content::MathMatrix(_)\n        | Content::MathCases(_)\n        | Content::MathAccent(_)\n        | Content::MathCancel(_)\n        | Content::MathUnderline(_)\n        | Content::MathOverline(_)\n        | Content::MathVec(_)\n        | Content::MathClassOverride(_)\n        | Content::MathLimitsOverride(_)\n        | Content::MathUnderover(_)\n        | Content::MathOp(_)\n        | Content::MathStyled(_)\n        | Content::Label(_)\n        | Content::Ref(_)\n        | Content::CounterDisplay(_)\n        | Content::CounterUpdate(_)\n        | Content::Outline(_)\n        | Content::OutlineEntry(_)\n        | Content::Figure(_)\n        | Content::FigureCaption(_)\n        | Content::Image(_)\n        | Content::Shape(_)\n        | Content::Curve(_)\n        | Content::Transform(_)\n        | Content::Grid(_)\n        | Content::GridHeader(_)\n        | Content::GridFooter(_)\n        | Content::GridCell(_)\n        | Content::SetPage(_)\n        | Content::PageRun(_)\n        | Content::Align(_)\n        | Content::Place(_)\n        | Content::Flush(_)\n        | Content::Styled(_)\n        | Content::Divider(_)\n        | Content::Terms(_)\n        | Content::TermItem(_)\n        | Content::Quote(_)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(_)\n        | Content::PdfAttach(_)\n        | Content::PdfArtifact(_)\n        | Content::Underline(_)\n        | Content::Strike(_)\n        | Content::Overline(_)\n        | Content::SmallCaps { .. }\n        | Content::Pad(_)\n        | Content::Hide(_)\n        | Content::HSpace(_)\n        | Content::VSpace(_)\n        | Content::Pagebreak(_)\n        | Content::Colbreak(_)\n        | Content::Stack(_)\n        | Content::Boxed(_)\n        | Content::Block(_)\n        | Content::TableCell(_)\n        | Content::Bibliography(_)\n        | Content::Cite(_)\n        | Content::Footnote(_)\n        | Content::FootnoteEntry(_)\n        | Content::TableHeader(_)\n        | Content::TableFooter(_)\n        | Content::GridHLine(_)\n        | Content::GridVLine(_)\n        | Content::TableHLine(_)\n        | Content::TableVLine(_)\n        | Content::Table(_)\n        | Content::Repeat(_)\n        | Content::Columns(_)\n        | Content::Metadata(_)\n        | Content::State(_)\n        | Content::StateUpdate(_)\n        | Content::StateDisplay(_)\n        | Content::CounterDisplayCallback(_)\n        | Content::ContextBlock(_)\n        | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/eval/rules.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 338
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 118; guard: ausente; padr\u00e3o: `Content::Source(_)\n            | Content::ShowRecipe(_)\n            | Content::Realized(_)\n            | Content::Located(_)\n            | Content::Empty\n            | Content::Text(_)\n            | Content::Space\n            | Content::SpaceFromNewline\n            | Content::Parbreak\n            | Content::HtmlElem(_)\n            | Content::HtmlFrame(_)\n            | Content::Par { .. }\n            | Content::Heading(_)\n            | Content::Title(_)\n            | Content::Strong(_)\n            | Content::Emph(_)\n            | Content::Raw(_)\n            | Content::ListItem(_)\n            | Content::EnumItem(_)\n            | Content::Link(_)\n            | Content::Equation(_)\n            | Content::MathSequence(_)\n            | Content::MathIdent(_)\n            | Content::MathText(_)\n            | Content::MathFrac(_)\n            | Content::MathAttach(_)\n            | Content::MathPrimes(_)\n            | Content::MathRoot(_)\n            | Content::MathStretch(_)\n            | Content::MathDelimited(_)\n            | Content::MathLr(_)\n            | Content::MathMid(_)\n            | Content::MathOverbrace(_)\n            | Content::MathUnderbrace(_)\n            | Content::MathUnderbracket(_)\n            | Content::MathUnderparen(_)\n            | Content::MathUndershell(_)\n            | Content::MathOverbracket(_)\n            | Content::MathOverparen(_)\n            | Content::MathOvershell(_)\n            | Content::MathAlignPoint(_)\n            | Content::Linebreak(_)\n            | Content::MathMatrix(_)\n            | Content::MathCases(_)\n            | Content::MathAccent(_)\n            | Content::MathCancel(_)\n            | Content::MathUnderline(_)\n            | Content::MathOverline(_)\n            | Content::MathVec(_)\n            | Content::MathClassOverride(_)\n            | Content::MathLimitsOverride(_)\n            | Content::MathUnderover(_)\n            | Content::MathOp(_)\n            | Content::MathStyled(_)\n            | Content::Label(_)\n            | Content::Ref(_)\n            | Content::CounterDisplay(_)\n            | Content::CounterUpdate(_)\n            | Content::Outline(_)\n            | Content::OutlineEntry(_)\n            | Content::Figure(_)\n            | Content::FigureCaption(_)\n            | Content::Image(_)\n            | Content::Shape(_)\n            | Content::Curve(_)\n            | Content::Transform(_)\n            | Content::Grid(_)\n            | Content::GridHeader(_)\n            | Content::GridFooter(_)\n            | Content::GridCell(_)\n            | Content::SetPage(_)\n            | Content::PageRun(_)\n            | Content::Align(_)\n            | Content::Place(_)\n            | Content::Flush(_)\n            | Content::Divider(_)\n            | Content::Terms(_)\n            | Content::TermItem(_)\n            | Content::Quote(_)\n            | Content::Document { .. }\n            | Content::Asset { .. }\n            | Content::SmartQuote(_)\n            | Content::PdfAttach(_)\n            | Content::PdfArtifact(_)\n            | Content::Underline(_)\n            | Content::Strike(_)\n            | Content::Overline(_)\n            | Content::SmallCaps { .. }\n            | Content::Pad(_)\n            | Content::Hide(_)\n            | Content::HSpace(_)\n            | Content::VSpace(_)\n            | Content::Pagebreak(_)\n            | Content::Colbreak(_)\n            | Content::Stack(_)\n            | Content::Boxed(_)\n            | Content::Block(_)\n            | Content::TableCell(_)\n            | Content::Bibliography(_)\n            | Content::Cite(_)\n            | Content::Footnote(_)\n            | Content::FootnoteEntry(_)\n            | Content::TableHeader(_)\n            | Content::TableFooter(_)\n            | Content::GridHLine(_)\n            | Content::GridVLine(_)\n            | Content::TableHLine(_)\n            | Content::TableVLine(_)\n            | Content::Table(_)\n            | Content::Repeat(_)\n            | Content::Columns(_)\n            | Content::Metadata(_)\n            | Content::State(_)\n            | Content::StateUpdate(_)\n            | Content::StateDisplay(_)\n            | Content::CounterDisplayCallback(_)\n            | Content::ContextBlock(_)\n            | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/entities/content/tests/traversal.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 97
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 118; guard: ausente; padr\u00e3o: `Content::Source(_)\n            | Content::ShowRecipe(_)\n            | Content::Realized(_)\n            | Content::Located(_)\n            | Content::Empty\n            | Content::Space\n            | Content::SpaceFromNewline\n            | Content::Parbreak\n            | Content::Sequence(_)\n            | Content::HtmlElem(_)\n            | Content::HtmlFrame(_)\n            | Content::Par { .. }\n            | Content::Heading(_)\n            | Content::Title(_)\n            | Content::Emph(_)\n            | Content::Raw(_)\n            | Content::ListItem(_)\n            | Content::EnumItem(_)\n            | Content::Link(_)\n            | Content::Equation(_)\n            | Content::MathSequence(_)\n            | Content::MathIdent(_)\n            | Content::MathText(_)\n            | Content::MathFrac(_)\n            | Content::MathAttach(_)\n            | Content::MathPrimes(_)\n            | Content::MathRoot(_)\n            | Content::MathStretch(_)\n            | Content::MathDelimited(_)\n            | Content::MathLr(_)\n            | Content::MathMid(_)\n            | Content::MathOverbrace(_)\n            | Content::MathUnderbrace(_)\n            | Content::MathUnderbracket(_)\n            | Content::MathUnderparen(_)\n            | Content::MathUndershell(_)\n            | Content::MathOverbracket(_)\n            | Content::MathOverparen(_)\n            | Content::MathOvershell(_)\n            | Content::MathAlignPoint(_)\n            | Content::Linebreak(_)\n            | Content::MathMatrix(_)\n            | Content::MathCases(_)\n            | Content::MathAccent(_)\n            | Content::MathCancel(_)\n            | Content::MathUnderline(_)\n            | Content::MathOverline(_)\n            | Content::MathVec(_)\n            | Content::MathClassOverride(_)\n            | Content::MathLimitsOverride(_)\n            | Content::MathUnderover(_)\n            | Content::MathOp(_)\n            | Content::MathStyled(_)\n            | Content::Label(_)\n            | Content::Ref(_)\n            | Content::CounterDisplay(_)\n            | Content::CounterUpdate(_)\n            | Content::Outline(_)\n            | Content::OutlineEntry(_)\n            | Content::Figure(_)\n            | Content::FigureCaption(_)\n            | Content::Image(_)\n            | Content::Shape(_)\n            | Content::Curve(_)\n            | Content::Transform(_)\n            | Content::Grid(_)\n            | Content::GridHeader(_)\n            | Content::GridFooter(_)\n            | Content::GridCell(_)\n            | Content::SetPage(_)\n            | Content::PageRun(_)\n            | Content::Align(_)\n            | Content::Place(_)\n            | Content::Flush(_)\n            | Content::Styled(_)\n            | Content::Divider(_)\n            | Content::Terms(_)\n            | Content::TermItem(_)\n            | Content::Quote(_)\n            | Content::Document { .. }\n            | Content::Asset { .. }\n            | Content::SmartQuote(_)\n            | Content::PdfAttach(_)\n            | Content::PdfArtifact(_)\n            | Content::Underline(_)\n            | Content::Strike(_)\n            | Content::Overline(_)\n            | Content::SmallCaps { .. }\n            | Content::Pad(_)\n            | Content::Hide(_)\n            | Content::HSpace(_)\n            | Content::VSpace(_)\n            | Content::Pagebreak(_)\n            | Content::Colbreak(_)\n            | Content::Stack(_)\n            | Content::Boxed(_)\n            | Content::Block(_)\n            | Content::TableCell(_)\n            | Content::Bibliography(_)\n            | Content::Cite(_)\n            | Content::Footnote(_)\n            | Content::FootnoteEntry(_)\n            | Content::TableHeader(_)\n            | Content::TableFooter(_)\n            | Content::GridHLine(_)\n            | Content::GridVLine(_)\n            | Content::TableHLine(_)\n            | Content::TableVLine(_)\n            | Content::Table(_)\n            | Content::Repeat(_)\n            | Content::Columns(_)\n            | Content::Metadata(_)\n            | Content::State(_)\n            | Content::StateUpdate(_)\n            | Content::StateDisplay(_)\n            | Content::CounterDisplayCallback(_)\n            | Content::ContextBlock(_)\n            | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/entities/content/traversal.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 2288
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 206; guard: ausente; padr\u00e3o: `(\n                Content::Source(_)\n                | Content::ShowRecipe(_)\n                | Content::Realized(_)\n                | Content::Located(_)\n                | Content::Empty\n                | Content::Text(_)\n                | Content::Space\n                | Content::SpaceFromNewline\n                | Content::Parbreak\n                | Content::Sequence(_)\n                | Content::HtmlElem(_)\n                | Content::HtmlFrame(_)\n                | Content::Par { .. }\n                | Content::Heading(_)\n                | Content::Title(_)\n                | Content::Raw(_)\n                | Content::ListItem(_)\n                | Content::EnumItem(_)\n                | Content::Link(_)\n                | Content::MathSequence(_)\n                | Content::MathIdent(_)\n                | Content::MathText(_)\n                | Content::Linebreak(_)\n                | Content::Label(_)\n                | Content::Ref(_)\n                | Content::CounterDisplay(_)\n                | Content::CounterUpdate(_)\n                | Content::Outline(_)\n                | Content::OutlineEntry(_)\n                | Content::Figure(_)\n                | Content::FigureCaption(_)\n                | Content::Image(_)\n                | Content::Shape(_)\n                | Content::Curve(_)\n                | Content::Transform(_)\n                | Content::Grid(_)\n                | Content::GridHeader(_)\n                | Content::GridFooter(_)\n                | Content::GridCell(_)\n                | Content::SetPage(_)\n                | Content::PageRun(_)\n                | Content::Align(_)\n                | Content::Place(_)\n                | Content::Flush(_)\n                | Content::Styled(_)\n                | Content::Divider(_)\n                | Content::Terms(_)\n                | Content::TermItem(_)\n                | Content::Quote(_)\n                | Content::Document { .. }\n                | Content::Asset { .. }\n                | Content::SmartQuote(_)\n                | Content::PdfAttach(_)\n                | Content::PdfArtifact(_)\n                | Content::Underline(_)\n                | Content::Strike(_)\n                | Content::Overline(_)\n                | Content::SmallCaps { .. }\n                | Content::Pad(_)\n                | Content::Hide(_)\n                | Content::HSpace(_)\n                | Content::VSpace(_)\n                | Content::Pagebreak(_)\n                | Content::Colbreak(_)\n                | Content::Stack(_)\n                | Content::TableCell(_)\n                | Content::Bibliography(_)\n                | Content::Cite(_)\n                | Content::Footnote(_)\n                | Content::FootnoteEntry(_)\n                | Content::TableHeader(_)\n                | Content::TableFooter(_)\n                | Content::GridHLine(_)\n                | Content::GridVLine(_)\n                | Content::TableHLine(_)\n                | Content::TableVLine(_)\n                | Content::Table(_)\n                | Content::Repeat(_)\n                | Content::Columns(_)\n                | Content::Metadata(_)\n                | Content::State(_)\n                | Content::StateUpdate(_)\n                | Content::StateDisplay(_)\n                | Content::CounterDisplayCallback(_)\n                | Content::ContextBlock(_)\n                | Content::Dynamic(_),\n                Content::Source(_)\n                | Content::ShowRecipe(_)\n                | Content::Realized(_)\n                | Content::Located(_)\n                | Content::Empty\n                | Content::Text(_)\n                | Content::Space\n                | Content::SpaceFromNewline\n                | Content::Parbreak\n                | Content::Sequence(_)\n                | Content::HtmlElem(_)\n                | Content::HtmlFrame(_)\n                | Content::Par { .. }\n                | Content::Heading(_)\n                | Content::Title(_)\n                | Content::Strong(_)\n                | Content::Emph(_)\n                | Content::Raw(_)\n                | Content::ListItem(_)\n                | Content::EnumItem(_)\n                | Content::Link(_)\n                | Content::Equation(_)\n                | Content::MathSequence(_)\n                | Content::MathIdent(_)\n                | Content::MathText(_)\n                | Content::MathFrac(_)\n                | Content::MathAttach(_)\n                | Content::MathPrimes(_)\n                | Content::MathRoot(_)\n                | Content::MathStretch(_)\n                | Content::MathDelimited(_)\n                | Content::MathLr(_)\n                | Content::MathMid(_)\n                | Content::MathOverbrace(_)\n                | Content::MathUnderbrace(_)\n                | Content::MathUnderbracket(_)\n                | Content::MathUnderparen(_)\n                | Content::MathUndershell(_)\n                | Content::MathOverbracket(_)\n                | Content::MathOverparen(_)\n                | Content::MathOvershell(_)\n                | Content::MathAlignPoint(_)\n                | Content::Linebreak(_)\n                | Content::MathMatrix(_)\n                | Content::MathCases(_)\n                | Content::MathAccent(_)\n                | Content::MathCancel(_)\n                | Content::MathUnderline(_)\n                | Content::MathOverline(_)\n                | Content::MathVec(_)\n                | Content::MathClassOverride(_)\n                | Content::MathLimitsOverride(_)\n                | Content::MathUnderover(_)\n                | Content::MathOp(_)\n                | Content::MathStyled(_)\n                | Content::Label(_)\n                | Content::Ref(_)\n                | Content::CounterDisplay(_)\n                | Content::CounterUpdate(_)\n                | Content::Outline(_)\n                | Content::OutlineEntry(_)\n                | Content::Figure(_)\n                | Content::FigureCaption(_)\n                | Content::Image(_)\n                | Content::Shape(_)\n                | Content::Curve(_)\n                | Content::Transform(_)\n                | Content::Grid(_)\n                | Content::GridHeader(_)\n                | Content::GridFooter(_)\n                | Content::GridCell(_)\n                | Content::SetPage(_)\n                | Content::PageRun(_)\n                | Content::Align(_)\n                | Content::Place(_)\n                | Content::Flush(_)\n                | Content::Styled(_)\n                | Content::Divider(_)\n                | Content::Terms(_)\n                | Content::TermItem(_)\n                | Content::Quote(_)\n                | Content::Document { .. }\n                | Content::Asset { .. }\n                | Content::SmartQuote(_)\n                | Content::PdfAttach(_)\n                | Content::PdfArtifact(_)\n                | Content::Underline(_)\n                | Content::Strike(_)\n                | Content::Overline(_)\n                | Content::SmallCaps { .. }\n                | Content::Pad(_)\n                | Content::Hide(_)\n                | Content::HSpace(_)\n                | Content::VSpace(_)\n                | Content::Pagebreak(_)\n                | Content::Colbreak(_)\n                | Content::Stack(_)\n                | Content::Boxed(_)\n                | Content::Block(_)\n                | Content::TableCell(_)\n                | Content::Bibliography(_)\n                | Content::Cite(_)\n                | Content::Footnote(_)\n                | Content::FootnoteEntry(_)\n                | Content::TableHeader(_)\n                | Content::TableFooter(_)\n                | Content::GridHLine(_)\n                | Content::GridVLine(_)\n                | Content::TableHLine(_)\n                | Content::TableVLine(_)\n                | Content::Table(_)\n                | Content::Repeat(_)\n                | Content::Columns(_)\n                | Content::Metadata(_)\n                | Content::State(_)\n                | Content::StateUpdate(_)\n                | Content::StateDisplay(_)\n                | Content::CounterDisplayCallback(_)\n                | Content::ContextBlock(_)\n                | Content::Dynamic(_),\n            )`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/entities/content/traversal.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 2498
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 154; guard: ausente; padr\u00e3o: `(\n                Content::Block(_)\n                | Content::Boxed(_)\n                | Content::Strong(_)\n                | Content::Emph(_)\n                | Content::Equation(_)\n                | Content::MathAccent(_)\n                | Content::MathAlignPoint(_)\n                | Content::MathPrimes(_)\n                | Content::MathAttach(_)\n                | Content::MathCancel(_)\n                | Content::MathCases(_)\n                | Content::MathClassOverride(_)\n                | Content::MathDelimited(_)\n                | Content::MathLr(_)\n                | Content::MathMid(_)\n                | Content::MathFrac(_)\n                | Content::MathLimitsOverride(_)\n                | Content::MathMatrix(_)\n                | Content::MathOp(_)\n                | Content::MathRoot(_)\n                | Content::MathStretch(_)\n                | Content::MathStyled(_)\n                | Content::MathUnderline(_)\n                | Content::MathOverline(_)\n                | Content::MathOvershell(_)\n                | Content::MathOverparen(_)\n                | Content::MathOverbracket(_)\n                | Content::MathOverbrace(_)\n                | Content::MathUnderbrace(_)\n                | Content::MathUnderbracket(_)\n                | Content::MathUnderparen(_)\n                | Content::MathUndershell(_)\n                | Content::MathUnderover(_)\n                | Content::MathVec(_),\n                Content::Source(_)\n                | Content::ShowRecipe(_)\n                | Content::Realized(_)\n                | Content::Located(_)\n                | Content::Empty\n                | Content::Text(_)\n                | Content::Space\n                | Content::SpaceFromNewline\n                | Content::Parbreak\n                | Content::Sequence(_)\n                | Content::HtmlElem(_)\n                | Content::HtmlFrame(_)\n                | Content::Par { .. }\n                | Content::Heading(_)\n                | Content::Title(_)\n                | Content::Strong(_)\n                | Content::Emph(_)\n                | Content::Raw(_)\n                | Content::ListItem(_)\n                | Content::EnumItem(_)\n                | Content::Link(_)\n                | Content::Equation(_)\n                | Content::MathSequence(_)\n                | Content::MathIdent(_)\n                | Content::MathText(_)\n                | Content::MathFrac(_)\n                | Content::MathAttach(_)\n                | Content::MathPrimes(_)\n                | Content::MathRoot(_)\n                | Content::MathStretch(_)\n                | Content::MathDelimited(_)\n                | Content::MathLr(_)\n                | Content::MathMid(_)\n                | Content::MathOverbrace(_)\n                | Content::MathUnderbrace(_)\n                | Content::MathUnderbracket(_)\n                | Content::MathUnderparen(_)\n                | Content::MathUndershell(_)\n                | Content::MathOverbracket(_)\n                | Content::MathOverparen(_)\n                | Content::MathOvershell(_)\n                | Content::MathAlignPoint(_)\n                | Content::Linebreak(_)\n                | Content::MathMatrix(_)\n                | Content::MathCases(_)\n                | Content::MathAccent(_)\n                | Content::MathCancel(_)\n                | Content::MathUnderline(_)\n                | Content::MathOverline(_)\n                | Content::MathVec(_)\n                | Content::MathClassOverride(_)\n                | Content::MathLimitsOverride(_)\n                | Content::MathUnderover(_)\n                | Content::MathOp(_)\n                | Content::MathStyled(_)\n                | Content::Label(_)\n                | Content::Ref(_)\n                | Content::CounterDisplay(_)\n                | Content::CounterUpdate(_)\n                | Content::Outline(_)\n                | Content::OutlineEntry(_)\n                | Content::Figure(_)\n                | Content::FigureCaption(_)\n                | Content::Image(_)\n                | Content::Shape(_)\n                | Content::Curve(_)\n                | Content::Transform(_)\n                | Content::Grid(_)\n                | Content::GridHeader(_)\n                | Content::GridFooter(_)\n                | Content::GridCell(_)\n                | Content::SetPage(_)\n                | Content::PageRun(_)\n                | Content::Align(_)\n                | Content::Place(_)\n                | Content::Flush(_)\n                | Content::Styled(_)\n                | Content::Divider(_)\n                | Content::Terms(_)\n                | Content::TermItem(_)\n                | Content::Quote(_)\n                | Content::Document { .. }\n                | Content::Asset { .. }\n                | Content::SmartQuote(_)\n                | Content::PdfAttach(_)\n                | Content::PdfArtifact(_)\n                | Content::Underline(_)\n                | Content::Strike(_)\n                | Content::Overline(_)\n                | Content::SmallCaps { .. }\n                | Content::Pad(_)\n                | Content::Hide(_)\n                | Content::HSpace(_)\n                | Content::VSpace(_)\n                | Content::Pagebreak(_)\n                | Content::Colbreak(_)\n                | Content::Stack(_)\n                | Content::Boxed(_)\n                | Content::Block(_)\n                | Content::TableCell(_)\n                | Content::Bibliography(_)\n                | Content::Cite(_)\n                | Content::Footnote(_)\n                | Content::FootnoteEntry(_)\n                | Content::TableHeader(_)\n                | Content::TableFooter(_)\n                | Content::GridHLine(_)\n                | Content::GridVLine(_)\n                | Content::TableHLine(_)\n                | Content::TableVLine(_)\n                | Content::Table(_)\n                | Content::Repeat(_)\n                | Content::Columns(_)\n                | Content::Metadata(_)\n                | Content::State(_)\n                | Content::StateUpdate(_)\n                | Content::StateDisplay(_)\n                | Content::CounterDisplayCallback(_)\n                | Content::ContextBlock(_)\n                | Content::Dynamic(_),\n            )`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 4874
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Content::Sequence(xs) | Content::MathSequence(xs)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 4880
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 116; guard: ausente; padr\u00e3o: `Content::Source(_)\n            | Content::ShowRecipe(_)\n            | Content::Realized(_)\n            | Content::Located(_)\n            | Content::Empty\n            | Content::Text(_)\n            | Content::Space\n            | Content::SpaceFromNewline\n            | Content::Parbreak\n            | Content::HtmlElem(_)\n            | Content::HtmlFrame(_)\n            | Content::Par { .. }\n            | Content::Heading(_)\n            | Content::Title(_)\n            | Content::Strong(_)\n            | Content::Emph(_)\n            | Content::Raw(_)\n            | Content::ListItem(_)\n            | Content::EnumItem(_)\n            | Content::Link(_)\n            | Content::MathIdent(_)\n            | Content::MathText(_)\n            | Content::MathFrac(_)\n            | Content::MathAttach(_)\n            | Content::MathPrimes(_)\n            | Content::MathRoot(_)\n            | Content::MathStretch(_)\n            | Content::MathDelimited(_)\n            | Content::MathLr(_)\n            | Content::MathMid(_)\n            | Content::MathOverbrace(_)\n            | Content::MathUnderbrace(_)\n            | Content::MathUnderbracket(_)\n            | Content::MathUnderparen(_)\n            | Content::MathUndershell(_)\n            | Content::MathOverbracket(_)\n            | Content::MathOverparen(_)\n            | Content::MathOvershell(_)\n            | Content::MathAlignPoint(_)\n            | Content::Linebreak(_)\n            | Content::MathMatrix(_)\n            | Content::MathCases(_)\n            | Content::MathAccent(_)\n            | Content::MathCancel(_)\n            | Content::MathUnderline(_)\n            | Content::MathOverline(_)\n            | Content::MathVec(_)\n            | Content::MathClassOverride(_)\n            | Content::MathLimitsOverride(_)\n            | Content::MathUnderover(_)\n            | Content::MathOp(_)\n            | Content::MathStyled(_)\n            | Content::Label(_)\n            | Content::Ref(_)\n            | Content::CounterDisplay(_)\n            | Content::CounterUpdate(_)\n            | Content::Outline(_)\n            | Content::OutlineEntry(_)\n            | Content::Figure(_)\n            | Content::FigureCaption(_)\n            | Content::Image(_)\n            | Content::Shape(_)\n            | Content::Curve(_)\n            | Content::Transform(_)\n            | Content::Grid(_)\n            | Content::GridHeader(_)\n            | Content::GridFooter(_)\n            | Content::GridCell(_)\n            | Content::SetPage(_)\n            | Content::PageRun(_)\n            | Content::Align(_)\n            | Content::Place(_)\n            | Content::Flush(_)\n            | Content::Divider(_)\n            | Content::Terms(_)\n            | Content::TermItem(_)\n            | Content::Quote(_)\n            | Content::Document { .. }\n            | Content::Asset { .. }\n            | Content::SmartQuote(_)\n            | Content::PdfAttach(_)\n            | Content::PdfArtifact(_)\n            | Content::Underline(_)\n            | Content::Strike(_)\n            | Content::Overline(_)\n            | Content::SmallCaps { .. }\n            | Content::Pad(_)\n            | Content::Hide(_)\n            | Content::HSpace(_)\n            | Content::VSpace(_)\n            | Content::Pagebreak(_)\n            | Content::Colbreak(_)\n            | Content::Stack(_)\n            | Content::Boxed(_)\n            | Content::Block(_)\n            | Content::TableCell(_)\n            | Content::Bibliography(_)\n            | Content::Cite(_)\n            | Content::Footnote(_)\n            | Content::FootnoteEntry(_)\n            | Content::TableHeader(_)\n            | Content::TableFooter(_)\n            | Content::GridHLine(_)\n            | Content::GridVLine(_)\n            | Content::TableHLine(_)\n            | Content::TableVLine(_)\n            | Content::Table(_)\n            | Content::Repeat(_)\n            | Content::Columns(_)\n            | Content::Metadata(_)\n            | Content::State(_)\n            | Content::StateUpdate(_)\n            | Content::StateDisplay(_)\n            | Content::CounterDisplayCallback(_)\n            | Content::ContextBlock(_)\n            | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 5520
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 11; guard: ausente; padr\u00e3o: `typst_core::entities::layout_types::FrameItem::TextReplacement {\n                    ..\n                }\n                | typst_core::entities::layout_types::FrameItem::TextSeparator {\n                    ..\n                }\n                | typst_core::entities::layout_types::FrameItem::Semantic { .. }\n                | typst_core::entities::layout_types::FrameItem::Text { .. }\n                | typst_core::entities::layout_types::FrameItem::TextShaped { .. }\n                | typst_core::entities::layout_types::FrameItem::Line { .. }\n                | typst_core::entities::layout_types::FrameItem::Glyph { .. }\n                | typst_core::entities::layout_types::FrameItem::Image { .. }\n                | typst_core::entities::layout_types::FrameItem::Shape { .. }\n                | typst_core::entities::layout_types::FrameItem::Group { .. }\n                | typst_core::entities::layout_types::FrameItem::Link { .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5675
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5681
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 8; guard: ausente; padr\u00e3o: `FI::TextReplacement { .. }\n                        | FI::TextSeparator { .. }\n                        | FI::Semantic { .. }\n                        | FI::Line { .. }\n                        | FI::Image { .. }\n                        | FI::Shape { .. }\n                        | FI::Group { .. }\n                        | FI::Link { .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5762
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5768
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 8; guard: ausente; padr\u00e3o: `FI::TextReplacement { .. }\n                        | FI::TextSeparator { .. }\n                        | FI::Semantic { .. }\n                        | FI::Line { .. }\n                        | FI::Image { .. }\n                        | FI::Shape { .. }\n                        | FI::Group { .. }\n                        | FI::Link { .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5818
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: presente; padr\u00e3o: `FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 5826
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 11; guard: ausente; padr\u00e3o: `FI::TextReplacement { .. }\n                        | FI::TextSeparator { .. }\n                        | FI::Semantic { .. }\n                        | FI::Text { .. }\n                        | FI::TextShaped { .. }\n                        | FI::Line { .. }\n                        | FI::Glyph { .. }\n                        | FI::Image { .. }\n                        | FI::Shape { .. }\n                        | FI::Group { .. }\n                        | FI::Link { .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/integration_tests.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 6183
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: presente; padr\u00e3o: `FrameItem::TextShaped { pos, text, .. }\n                | FrameItem::Text { pos, text, .. }`."
+      },
+      "ruleId": "V19"
+    }
+  ],
+  "new_errors_or_warnings": 0,
+  "outside_scope_exact": true
+}

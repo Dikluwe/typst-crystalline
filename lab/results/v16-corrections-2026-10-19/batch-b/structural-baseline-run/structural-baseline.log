@@ -1,0 +1,11 @@
+2026-10-19T11:54:13.674846+00:00 core-domain START
+2026-10-19T11:54:39.947443+00:00 core-domain END 101 selected 0 other 0
+2026-10-19T11:54:40.226804+00:00 new-old START
+2026-10-19T11:55:06.827397+00:00 new-old END 101 selected 0 other 0
+2026-10-19T11:55:07.112710+00:00 old-new START
+2026-10-19T11:55:32.899806+00:00 old-new END 101 selected 0 other 0
+2026-10-19T11:55:33.082899+00:00 new-new START
+2026-10-19T11:55:58.942434+00:00 new-new END 101 selected 0 other 0
+2026-10-19T11:55:59.134908+00:00 infra-omission START
+2026-10-19T11:56:38.399467+00:00 infra-omission END 0 selected 0 other 0
+PASS baseline 8 decisions plus three isolated storage pair classes

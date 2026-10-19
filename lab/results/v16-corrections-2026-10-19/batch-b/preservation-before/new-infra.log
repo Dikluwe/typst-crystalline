@@ -1,0 +1,41 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `test` profile [unoptimized] target(s) in 38.61s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 4 tests
+test integration_tests::integration::v16_b_equation_fixture_records_actual_paths ... sec_27 fixture paths:
+root/Sequence[0]/opaque:set.page
+root/Sequence[1]/Styled.body/Sequence[0]/opaque:space
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[0]/opaque:parbreak
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[1]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[2]/opaque:space
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[3]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[4]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[5]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[6]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[7]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[8]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[9]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[10]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[11]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[12]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[13]/opaque:sequence
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[14]/opaque:parbreak
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[15]/opaque:heading
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[16]/opaque:parbreak
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[17]/Equation
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[18]/opaque:space
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[19]/Equation
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[20]/opaque:space
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[21]/Equation
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[22]/opaque:space
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[23]/Equation
+root/Sequence[1]/Styled.body/Sequence[1]/Styled.body/Sequence[24]/opaque:space
+ok
+test integration_tests::integration::v16_b_equation_observer_keeps_direct_and_terminal_roots ... ok
+test integration_tests::integration::v16_b_equation_observer_keeps_semantic_and_carrier_decoys_opaque ... ok
+test integration_tests::integration::v16_b_equation_observer_preserves_sequence_and_style_order ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 1376 filtered out; finished in 0.66s
+

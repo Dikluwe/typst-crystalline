@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/tests/traversal.md
-//! @prompt-hash e1064e80
+//! @prompt-hash 78f5f107
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -72,12 +72,19 @@ fn map_content_bottom_up_pai_ve_filhos_transformados() {
     // F-5b fatia 1 (P371): `Content::strong` é variante própria `Content::Strong`
     // (o colapso P101 → `Styled[Bold]` foi superado). O bottom-up: o pai
     // (`Strong`) vê o filho já transformado.
-    let content = Content::strong(Content::text("original"));
+    let content = Content::Sequence(Arc::from([
+        Content::strong(Content::text("original")),
+        Content::Space,
+        Content::emph(Content::text("sibling")),
+        Content::text("last"),
+    ]));
+    let mut strong_visits = 0;
 
     let result = content
         .map_content(&mut |node| match node {
             Content::Text(s) => Ok(Some(Content::text(s.to_uppercase()))),
             Content::Strong(e) => {
+                strong_visits += 1;
                 let text = e.body.plain_text();
                 assert_eq!(
                     text, "ORIGINAL",
@@ -86,11 +93,138 @@ fn map_content_bottom_up_pai_ve_filhos_transformados() {
                 );
                 Ok(None)
             }
-            _ => Ok(None), // neutro: N16[β] — callback de map_content em teste retorna Ok(None) para variantes não tratadas
+            // No replacement retains already-transformed children and the node kind.
+            Content::Source(_)
+            | Content::ShowRecipe(_)
+            | Content::Realized(_)
+            | Content::Located(_)
+            | Content::Empty
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(_)
+            | Content::HtmlElem(_)
+            | Content::HtmlFrame(_)
+            | Content::Par { .. }
+            | Content::Heading(_)
+            | Content::Title(_)
+            | Content::Emph(_)
+            | Content::Raw(_)
+            | Content::ListItem(_)
+            | Content::EnumItem(_)
+            | Content::Link(_)
+            | Content::Equation(_)
+            | Content::MathSequence(_)
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathPrimes(_)
+            | Content::MathRoot(_)
+            | Content::MathStretch(_)
+            | Content::MathDelimited(_)
+            | Content::MathLr(_)
+            | Content::MathMid(_)
+            | Content::MathOverbrace(_)
+            | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
+            | Content::MathUnderparen(_)
+            | Content::MathUndershell(_)
+            | Content::MathOverbracket(_)
+            | Content::MathOverparen(_)
+            | Content::MathOvershell(_)
+            | Content::MathAlignPoint(_)
+            | Content::Linebreak(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathOverline(_)
+            | Content::MathVec(_)
+            | Content::MathClassOverride(_)
+            | Content::MathLimitsOverride(_)
+            | Content::MathUnderover(_)
+            | Content::MathOp(_)
+            | Content::MathStyled(_)
+            | Content::Label(_)
+            | Content::Ref(_)
+            | Content::CounterDisplay(_)
+            | Content::CounterUpdate(_)
+            | Content::Outline(_)
+            | Content::OutlineEntry(_)
+            | Content::Figure(_)
+            | Content::FigureCaption(_)
+            | Content::Image(_)
+            | Content::Shape(_)
+            | Content::Curve(_)
+            | Content::Transform(_)
+            | Content::Grid(_)
+            | Content::GridHeader(_)
+            | Content::GridFooter(_)
+            | Content::GridCell(_)
+            | Content::SetPage(_)
+            | Content::PageRun(_)
+            | Content::Align(_)
+            | Content::Place(_)
+            | Content::Flush(_)
+            | Content::Styled(_)
+            | Content::Divider(_)
+            | Content::Terms(_)
+            | Content::TermItem(_)
+            | Content::Quote(_)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
+            | Content::PdfArtifact(_)
+            | Content::Underline(_)
+            | Content::Strike(_)
+            | Content::Overline(_)
+            | Content::SmallCaps { .. }
+            | Content::Pad(_)
+            | Content::Hide(_)
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
+            | Content::Colbreak(_)
+            | Content::Stack(_)
+            | Content::Boxed(_)
+            | Content::Block(_)
+            | Content::TableCell(_)
+            | Content::Bibliography(_)
+            | Content::Cite(_)
+            | Content::Footnote(_)
+            | Content::FootnoteEntry(_)
+            | Content::TableHeader(_)
+            | Content::TableFooter(_)
+            | Content::GridHLine(_)
+            | Content::GridVLine(_)
+            | Content::TableHLine(_)
+            | Content::TableVLine(_)
+            | Content::Table(_)
+            | Content::Repeat(_)
+            | Content::Columns(_)
+            | Content::Metadata(_)
+            | Content::State(_)
+            | Content::StateUpdate(_)
+            | Content::StateDisplay(_)
+            | Content::CounterDisplayCallback(_)
+            | Content::ContextBlock(_)
+            | Content::Dynamic(_) => Ok(None),
         })
         .unwrap();
 
-    assert_eq!(result.plain_text(), "ORIGINAL");
+    assert_eq!(strong_visits, 1);
+    assert_eq!(result.plain_text(), "ORIGINAL SIBLINGLAST");
+    let Content::Sequence(items) = &result else { panic!("sequence must remain") };
+    assert_eq!(items.len(), 4);
+    let Content::Strong(strong) = &items[0] else { panic!("strong must remain") };
+    assert_eq!(strong.body.plain_text(), "ORIGINAL");
+    assert!(matches!(items[1], Content::Space));
+    let Content::Emph(emph) = &items[2] else { panic!("emphasis must remain") };
+    assert_eq!(emph.body.plain_text(), "SIBLING");
+    assert_eq!(items[3].plain_text(), "LAST");
 }
 
 #[test]

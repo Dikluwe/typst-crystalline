@@ -1,0 +1,6 @@
+[
+  {
+    "name": "structural-baseline",
+    "command": ["python3", "lab/results/v16-corrections-2026-10-19/workers/batch_b_structural.py", "baseline"]
+  }
+]

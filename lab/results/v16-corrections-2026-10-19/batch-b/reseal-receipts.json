@@ -1,0 +1,148 @@
+[
+  {
+    "utc": "2026-10-19T11:43:24.434678+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/math_cases_evaluation_tests.rs",
+        "before": "aecc0eae56312455dca16ed162f7902adf45f96fa3b890a68ac655ebeef09ce0",
+        "after": "91c5c9195553ad3bf075ef30eb15c5de9461883f7b3ef4fbc9c616b35df232c9"
+      },
+      {
+        "file": "01_core/src/compiler/eval/math_frac_evaluation_tests.rs",
+        "before": "a2fd2b097b969c05a3b23b226c719e163f45ab3e057ff6cc90cae2aa42e329a0",
+        "after": "e69f4e96479ebf3e6c07abc4b31aa1e692b91162cc46c287d2f4636c35801c46"
+      },
+      {
+        "file": "01_core/src/compiler/eval/math_matrix_evaluation_tests.rs",
+        "before": "c545af4c89d5a09484b1367f2bac80faf223ae8e584ca8c7cbc04c422d4ba1ef",
+        "after": "1205e3139dbca780e80d19258d8a4e81df923751de0e6c9218f3068cc96c8c7c"
+      },
+      {
+        "file": "01_core/src/compiler/eval/math_root_evaluation_tests.rs",
+        "before": "1e39fb19a3a2096480b0f1bc81e84cab9d5a0cbe683377232d12a20338d1a30d",
+        "after": "cfa72fb9347e64a7adf90cb5955ad916b3cca0245e336068240b34d546e5002d"
+      },
+      {
+        "file": "01_core/src/compiler/eval/rules.rs",
+        "before": "a3398b15cfb2fddc2d205a3e2a5ba83d1b96ae76ab84a192665f5304aa338abe",
+        "after": "c79a51b084ad2e480062915302a6123455cf54889ff74808c7ec6779a5de0f18"
+      },
+      {
+        "file": "01_core/src/entities/content/traversal.rs",
+        "before": "3e23652d37bf9abb98b5937e499473d843f159fc586f7ee68179e429e87be866",
+        "after": "0268b059fccffaf7cb92f52fd2740d118e35da0fb3770db78e22ef6997ca1a4f"
+      },
+      {
+        "file": "01_core/src/entities/content/tests/traversal.rs",
+        "before": "ebdacacf70c25866089edfce8a7d1e6079c7254b1cfe98211de529c23ed23444",
+        "after": "8fad3c92275f796df0c903938418302ff1a29d704dff0ebccca3cf6b667ec278"
+      },
+      {
+        "file": "03_infra/src/integration_tests.rs",
+        "before": "7c80e9c086739ef2a1a8900d5f15876596ecbd0248c5c9eb7c18562dc098c959",
+        "after": "d5d09c003381b5c0a5f209f1db9957f1de53dd327bec2078ea9611489f2b910d"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/math_cases_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md hash-a=fe6bd1e2 hash-b=a585f5b0\nApplied ./01_core/src/compiler/eval/math_frac_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md hash-a=38436fb8 hash-b=c9c8c421\nApplied ./01_core/src/compiler/eval/math_matrix_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md hash-a=91eed01d hash-b=c82d1718\nApplied ./01_core/src/compiler/eval/math_root_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md hash-a=00d2cb18 hash-b=c1007a91\nApplied ./01_core/src/compiler/eval/rules.rs prompt=00_nucleo/prompts/core/compiler/eval/rules.md hash-a=ab124fd6 hash-b=519867b2\nApplied ./01_core/src/entities/content/tests/traversal.rs prompt=00_nucleo/prompts/core/entities/content/tests/traversal.md hash-a=78f5f107 hash-b=d188f23d\nApplied ./01_core/src/entities/content/traversal.rs prompt=00_nucleo/prompts/core/entities/content/traversal.md hash-a=23fa5355 hash-b=c72f6552\nApplied ./03_infra/src/integration_tests.rs prompt=00_nucleo/prompts/infra/integration_tests.md hash-a=0297d5e6 hash-b=6028f313\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T11:49:38.055021+00:00",
+    "changes": [
+      {
+        "file": "03_infra/src/integration_tests.rs",
+        "before": "ad3fd63d6364b46e34281ded9432273b165f984e498c89e0e49d1459b4fd2c4b",
+        "after": "bcbfc4b543c408265e4087310337229a2ab5740c05c89923f8714f88c254c641"
+      },
+      {
+        "file": "00_nucleo/prompts/infra/integration_tests.md",
+        "before": "c718ab0663eda400733136bb2b236b272558bebd11287455333164189c4e97f3",
+        "after": "fa90e1dfef546530ae79e2ac257a96a7d6e177a9d3d4a8346b8f1f9a4844734e"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md",
+        "before": "adeabe82dec889f95143d979cc59d400e8d8c7860be537349ee0d453c71e5d42",
+        "after": "7a4da153c99422f40be5e3547c0c02c17a83fd2525376e791e546d31a8fad0c6"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md",
+        "before": "b7ce1646094980bcaf4e41c30652d47e3c717908e4037d4bc79c061d54d56a4c",
+        "after": "6a79217eb303009eb66685bfccfd1dee79f477e62b8c0db6e62473ab9b8c4059"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md",
+        "before": "3e5080cc41427ccbab2ee0ea0aae452706b72aa3c120b6c97b4268b26124c199",
+        "after": "63f219236d54a5d30c9cdf093ba5527b6a22df0f6f2f9dde98e9af55f48357b3"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md",
+        "before": "4ae6ce70fc2f259cb27f4390d436fad202814b5aa3c5a9ac63a7d159efaf6397",
+        "after": "38a8fa3eb3524832cb0011d5caeec970e82a894252505de1316979aaa662f064"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules.md",
+        "before": "6876e5c5a775f2e388ca45163c95b13880cea0aa602a4c406a6a503388051b56",
+        "after": "1c387e6ea595b3e3237657d4edaba1e81325d4e451803953b488859a751fd54c"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/content/traversal.md",
+        "before": "c21fe81bd9314ab921a1ddc91e3b3f175ae2dab9f99d28ec52ef40abe02f12f2",
+        "after": "6b5c6bee550e5258e9a368efb5b6d9f36aca24dc6681ff798176c9efaf38a714"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/content/tests/traversal.md",
+        "before": "e75682636ac051bcf8edaabdd4318a249e5bb99389517a9e3a7e5fcf1086545e",
+        "after": "41c14ef2735eda49a255eba4e0268878c75e0cde399f1f0847afd4ca4e8b8b08"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/math_cases_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md hash-a=fe6bd1e2 hash-b=425b316d\nApplied ./01_core/src/compiler/eval/math_frac_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md hash-a=38436fb8 hash-b=0a799454\nApplied ./01_core/src/compiler/eval/math_matrix_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md hash-a=91eed01d hash-b=430d5c73\nApplied ./01_core/src/compiler/eval/math_root_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md hash-a=00d2cb18 hash-b=4ac65ae8\nApplied ./01_core/src/compiler/eval/rules.rs prompt=00_nucleo/prompts/core/compiler/eval/rules.md hash-a=ab124fd6 hash-b=24f6766f\nApplied ./01_core/src/entities/content/tests/traversal.rs prompt=00_nucleo/prompts/core/entities/content/tests/traversal.md hash-a=78f5f107 hash-b=163ffe8d\nApplied ./01_core/src/entities/content/traversal.rs prompt=00_nucleo/prompts/core/entities/content/traversal.md hash-a=23fa5355 hash-b=fad3688f\nApplied ./03_infra/src/integration_tests.rs prompt=00_nucleo/prompts/infra/integration_tests.md hash-a=c7e8d7cc hash-b=a444a54a\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T11:58:02.070913+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/infra/integration_tests.md",
+        "before": "fa90e1dfef546530ae79e2ac257a96a7d6e177a9d3d4a8346b8f1f9a4844734e",
+        "after": "391f86ec54a3e7f007cd80f0220aa8e692b934f0bb12070f8cc9b12ee15e7f6d"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md",
+        "before": "7a4da153c99422f40be5e3547c0c02c17a83fd2525376e791e546d31a8fad0c6",
+        "after": "939a97f3722f467c88f2988a784851c06fe36c90fcefd1da32abe766f1275de0"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md",
+        "before": "6a79217eb303009eb66685bfccfd1dee79f477e62b8c0db6e62473ab9b8c4059",
+        "after": "9b12c28aa79c84ef8ab7da4733df18ecd1ebfe4107bf89f2455b514ae19520dd"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md",
+        "before": "63f219236d54a5d30c9cdf093ba5527b6a22df0f6f2f9dde98e9af55f48357b3",
+        "after": "e15e1695f3a30410dc3753f6ff4438af089a51f29fb13cc7ed09716e875be970"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md",
+        "before": "38a8fa3eb3524832cb0011d5caeec970e82a894252505de1316979aaa662f064",
+        "after": "abf95c5ccbbb1e06ef1d0762c645c8e233d2a444a6abbba12a2d06a8068b160d"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules.md",
+        "before": "1c387e6ea595b3e3237657d4edaba1e81325d4e451803953b488859a751fd54c",
+        "after": "28a7ae34a657e5e458836143bb2e891b9a4a711b796d67078729355bbe244797"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/content/traversal.md",
+        "before": "6b5c6bee550e5258e9a368efb5b6d9f36aca24dc6681ff798176c9efaf38a714",
+        "after": "ced51dba9414f643d6824aebc8a0537b1414a922b17dd0639aa5885d76607e69"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/content/tests/traversal.md",
+        "before": "41c14ef2735eda49a255eba4e0268878c75e0cde399f1f0847afd4ca4e8b8b08",
+        "after": "6b92efa75a78e67db07c864399bdb91fd29646d173e4b9f489ef4ff0954748d0"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/math_cases_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md hash-a=fe6bd1e2 hash-b=3ee74361\nApplied ./01_core/src/compiler/eval/math_frac_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md hash-a=38436fb8 hash-b=846fc01a\nApplied ./01_core/src/compiler/eval/math_matrix_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md hash-a=91eed01d hash-b=1b50ad1b\nApplied ./01_core/src/compiler/eval/math_root_evaluation_tests.rs prompt=00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md hash-a=00d2cb18 hash-b=9669cb1f\nApplied ./01_core/src/compiler/eval/rules.rs prompt=00_nucleo/prompts/core/compiler/eval/rules.md hash-a=ab124fd6 hash-b=8c66a01e\nApplied ./01_core/src/entities/content/tests/traversal.rs prompt=00_nucleo/prompts/core/entities/content/tests/traversal.md hash-a=78f5f107 hash-b=07c2a4c3\nApplied ./01_core/src/entities/content/traversal.rs prompt=00_nucleo/prompts/core/entities/content/traversal.md hash-a=23fa5355 hash-b=b21ce7f8\nApplied ./03_infra/src/integration_tests.rs prompt=00_nucleo/prompts/infra/integration_tests.md hash-a=c7e8d7cc hash-b=55f100fc\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  }
+]

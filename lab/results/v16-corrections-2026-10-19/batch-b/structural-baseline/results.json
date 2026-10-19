@@ -1,0 +1,290 @@
+[
+  {
+    "name": "core-domain",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T11:54:13.672872+00:00",
+    "head": "059d1a0ffa9523dbe21af6860a215acaeef55d73",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-b-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-013",
+        "file": "01_core/src/compiler/eval/math_cases_evaluation_tests.rs",
+        "function": "find_cases",
+        "line": 66,
+        "byte_start": 1555,
+        "byte_end": 1570,
+        "anchor": "match content {",
+        "diagnostics": []
+      },
+      {
+        "id": "V16-014",
+        "file": "01_core/src/compiler/eval/math_frac_evaluation_tests.rs",
+        "function": "find_frac",
+        "line": 64,
+        "byte_start": 1650,
+        "byte_end": 1665,
+        "anchor": "match content {",
+        "diagnostics": []
+      },
+      {
+        "id": "V16-015",
+        "file": "01_core/src/compiler/eval/math_matrix_evaluation_tests.rs",
+        "function": "find_mat",
+        "line": 61,
+        "byte_start": 1549,
+        "byte_end": 1564,
+        "anchor": "match content {",
+        "diagnostics": []
+      },
+      {
+        "id": "V16-016",
+        "file": "01_core/src/compiler/eval/math_root_evaluation_tests.rs",
+        "function": "find_root",
+        "line": 65,
+        "byte_start": 1612,
+        "byte_end": 1627,
+        "anchor": "match content {",
+        "diagnostics": []
+      },
+      {
+        "id": "V16-025",
+        "file": "01_core/src/compiler/eval/rules.rs",
+        "function": "collect_custom_into",
+        "line": 318,
+        "byte_start": 11286,
+        "byte_end": 11301,
+        "anchor": "match content {",
+        "diagnostics": []
+      },
+      {
+        "id": "V16-075",
+        "file": "01_core/src/entities/content/tests/traversal.rs",
+        "function": "map_content_bottom_up_pai_ve_filhos_transformados",
+        "line": 84,
+        "byte_start": 2722,
+        "byte_end": 2734,
+        "anchor": "match node {",
+        "diagnostics": []
+      },
+      {
+        "id": "V16-076",
+        "file": "01_core/src/entities/content/traversal.rs",
+        "function": "same_storage",
+        "line": 2243,
+        "byte_start": 110301,
+        "byte_end": 110315,
+        "anchor": "match (a, b) {",
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/entities/content.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T11:54:39.947153+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 170
+  },
+  {
+    "name": "new-old",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T11:54:40.224858+00:00",
+    "head": "059d1a0ffa9523dbe21af6860a215acaeef55d73",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-b-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-076",
+        "file": "01_core/src/entities/content/traversal.rs",
+        "function": "same_storage",
+        "line": 2243,
+        "byte_start": 110301,
+        "byte_end": 110315,
+        "anchor": "match (a, b) {",
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/entities/content.rs",
+      "01_core/src/entities/content/traversal.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T11:55:06.827071+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 170
+  },
+  {
+    "name": "old-new",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T11:55:07.110548+00:00",
+    "head": "059d1a0ffa9523dbe21af6860a215acaeef55d73",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-b-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-076",
+        "file": "01_core/src/entities/content/traversal.rs",
+        "function": "same_storage",
+        "line": 2243,
+        "byte_start": 110301,
+        "byte_end": 110315,
+        "anchor": "match (a, b) {",
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/entities/content.rs",
+      "01_core/src/entities/content/traversal.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T11:55:32.899430+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 170
+  },
+  {
+    "name": "new-new",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T11:55:33.080993+00:00",
+    "head": "059d1a0ffa9523dbe21af6860a215acaeef55d73",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-b-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-076",
+        "file": "01_core/src/entities/content/traversal.rs",
+        "function": "same_storage",
+        "line": 2243,
+        "byte_start": 110301,
+        "byte_end": 110315,
+        "anchor": "match (a, b) {",
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/entities/content.rs",
+      "01_core/src/entities/content/traversal.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T11:55:58.942023+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 170
+  },
+  {
+    "name": "infra-omission",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T11:55:59.132856+00:00",
+    "head": "059d1a0ffa9523dbe21af6860a215acaeef55d73",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-b-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-091",
+        "file": "03_infra/src/integration_tests.rs",
+        "function": "fixture_equation_bodies",
+        "line": 4872,
+        "byte_start": 202241,
+        "byte_end": 202250,
+        "anchor": "match c {",
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "03_infra/src/integration_tests.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T11:56:38.399063+00:00",
+    "exit": 0,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 0
+  }
+]

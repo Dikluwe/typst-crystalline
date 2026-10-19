@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/traversal.md
-//! @prompt-hash e600e78b
+//! @prompt-hash 23fa5355
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -2283,7 +2283,473 @@ mod container_reuse_tests {
             (Content::MathUndershell(a), Content::MathUndershell(b)) => Arc::ptr_eq(a, b),
             (Content::MathUnderover(a), Content::MathUnderover(b)) => Arc::ptr_eq(a, b),
             (Content::MathVec(a), Content::MathVec(b)) => Arc::ptr_eq(a, b),
-            _ => false,
+            // These left-hand classes are outside this selected Arc qualification,
+            // even if their payload also happens to use shared storage.
+            (
+                Content::Source(_)
+                | Content::ShowRecipe(_)
+                | Content::Realized(_)
+                | Content::Located(_)
+                | Content::Empty
+                | Content::Text(_)
+                | Content::Space
+                | Content::SpaceFromNewline
+                | Content::Parbreak
+                | Content::Sequence(_)
+                | Content::HtmlElem(_)
+                | Content::HtmlFrame(_)
+                | Content::Par { .. }
+                | Content::Heading(_)
+                | Content::Title(_)
+                | Content::Raw(_)
+                | Content::ListItem(_)
+                | Content::EnumItem(_)
+                | Content::Link(_)
+                | Content::MathSequence(_)
+                | Content::MathIdent(_)
+                | Content::MathText(_)
+                | Content::Linebreak(_)
+                | Content::Label(_)
+                | Content::Ref(_)
+                | Content::CounterDisplay(_)
+                | Content::CounterUpdate(_)
+                | Content::Outline(_)
+                | Content::OutlineEntry(_)
+                | Content::Figure(_)
+                | Content::FigureCaption(_)
+                | Content::Image(_)
+                | Content::Shape(_)
+                | Content::Curve(_)
+                | Content::Transform(_)
+                | Content::Grid(_)
+                | Content::GridHeader(_)
+                | Content::GridFooter(_)
+                | Content::GridCell(_)
+                | Content::SetPage(_)
+                | Content::PageRun(_)
+                | Content::Align(_)
+                | Content::Place(_)
+                | Content::Flush(_)
+                | Content::Styled(_)
+                | Content::Divider(_)
+                | Content::Terms(_)
+                | Content::TermItem(_)
+                | Content::Quote(_)
+                | Content::Document { .. }
+                | Content::Asset { .. }
+                | Content::SmartQuote(_)
+                | Content::PdfAttach(_)
+                | Content::PdfArtifact(_)
+                | Content::Underline(_)
+                | Content::Strike(_)
+                | Content::Overline(_)
+                | Content::SmallCaps { .. }
+                | Content::Pad(_)
+                | Content::Hide(_)
+                | Content::HSpace(_)
+                | Content::VSpace(_)
+                | Content::Pagebreak(_)
+                | Content::Colbreak(_)
+                | Content::Stack(_)
+                | Content::TableCell(_)
+                | Content::Bibliography(_)
+                | Content::Cite(_)
+                | Content::Footnote(_)
+                | Content::FootnoteEntry(_)
+                | Content::TableHeader(_)
+                | Content::TableFooter(_)
+                | Content::GridHLine(_)
+                | Content::GridVLine(_)
+                | Content::TableHLine(_)
+                | Content::TableVLine(_)
+                | Content::Table(_)
+                | Content::Repeat(_)
+                | Content::Columns(_)
+                | Content::Metadata(_)
+                | Content::State(_)
+                | Content::StateUpdate(_)
+                | Content::StateDisplay(_)
+                | Content::CounterDisplayCallback(_)
+                | Content::ContextBlock(_)
+                | Content::Dynamic(_),
+                Content::Source(_)
+                | Content::ShowRecipe(_)
+                | Content::Realized(_)
+                | Content::Located(_)
+                | Content::Empty
+                | Content::Text(_)
+                | Content::Space
+                | Content::SpaceFromNewline
+                | Content::Parbreak
+                | Content::Sequence(_)
+                | Content::HtmlElem(_)
+                | Content::HtmlFrame(_)
+                | Content::Par { .. }
+                | Content::Heading(_)
+                | Content::Title(_)
+                | Content::Strong(_)
+                | Content::Emph(_)
+                | Content::Raw(_)
+                | Content::ListItem(_)
+                | Content::EnumItem(_)
+                | Content::Link(_)
+                | Content::Equation(_)
+                | Content::MathSequence(_)
+                | Content::MathIdent(_)
+                | Content::MathText(_)
+                | Content::MathFrac(_)
+                | Content::MathAttach(_)
+                | Content::MathPrimes(_)
+                | Content::MathRoot(_)
+                | Content::MathStretch(_)
+                | Content::MathDelimited(_)
+                | Content::MathLr(_)
+                | Content::MathMid(_)
+                | Content::MathOverbrace(_)
+                | Content::MathUnderbrace(_)
+                | Content::MathUnderbracket(_)
+                | Content::MathUnderparen(_)
+                | Content::MathUndershell(_)
+                | Content::MathOverbracket(_)
+                | Content::MathOverparen(_)
+                | Content::MathOvershell(_)
+                | Content::MathAlignPoint(_)
+                | Content::Linebreak(_)
+                | Content::MathMatrix(_)
+                | Content::MathCases(_)
+                | Content::MathAccent(_)
+                | Content::MathCancel(_)
+                | Content::MathUnderline(_)
+                | Content::MathOverline(_)
+                | Content::MathVec(_)
+                | Content::MathClassOverride(_)
+                | Content::MathLimitsOverride(_)
+                | Content::MathUnderover(_)
+                | Content::MathOp(_)
+                | Content::MathStyled(_)
+                | Content::Label(_)
+                | Content::Ref(_)
+                | Content::CounterDisplay(_)
+                | Content::CounterUpdate(_)
+                | Content::Outline(_)
+                | Content::OutlineEntry(_)
+                | Content::Figure(_)
+                | Content::FigureCaption(_)
+                | Content::Image(_)
+                | Content::Shape(_)
+                | Content::Curve(_)
+                | Content::Transform(_)
+                | Content::Grid(_)
+                | Content::GridHeader(_)
+                | Content::GridFooter(_)
+                | Content::GridCell(_)
+                | Content::SetPage(_)
+                | Content::PageRun(_)
+                | Content::Align(_)
+                | Content::Place(_)
+                | Content::Flush(_)
+                | Content::Styled(_)
+                | Content::Divider(_)
+                | Content::Terms(_)
+                | Content::TermItem(_)
+                | Content::Quote(_)
+                | Content::Document { .. }
+                | Content::Asset { .. }
+                | Content::SmartQuote(_)
+                | Content::PdfAttach(_)
+                | Content::PdfArtifact(_)
+                | Content::Underline(_)
+                | Content::Strike(_)
+                | Content::Overline(_)
+                | Content::SmallCaps { .. }
+                | Content::Pad(_)
+                | Content::Hide(_)
+                | Content::HSpace(_)
+                | Content::VSpace(_)
+                | Content::Pagebreak(_)
+                | Content::Colbreak(_)
+                | Content::Stack(_)
+                | Content::Boxed(_)
+                | Content::Block(_)
+                | Content::TableCell(_)
+                | Content::Bibliography(_)
+                | Content::Cite(_)
+                | Content::Footnote(_)
+                | Content::FootnoteEntry(_)
+                | Content::TableHeader(_)
+                | Content::TableFooter(_)
+                | Content::GridHLine(_)
+                | Content::GridVLine(_)
+                | Content::TableHLine(_)
+                | Content::TableVLine(_)
+                | Content::Table(_)
+                | Content::Repeat(_)
+                | Content::Columns(_)
+                | Content::Metadata(_)
+                | Content::State(_)
+                | Content::StateUpdate(_)
+                | Content::StateDisplay(_)
+                | Content::CounterDisplayCallback(_)
+                | Content::ContextBlock(_)
+                | Content::Dynamic(_),
+            ) => false,
+            // All qualified same-kind pairs were handled above. Remaining pairs
+            // have unlike kinds or an unqualified right-hand class.
+            (
+                Content::Block(_)
+                | Content::Boxed(_)
+                | Content::Strong(_)
+                | Content::Emph(_)
+                | Content::Equation(_)
+                | Content::MathAccent(_)
+                | Content::MathAlignPoint(_)
+                | Content::MathPrimes(_)
+                | Content::MathAttach(_)
+                | Content::MathCancel(_)
+                | Content::MathCases(_)
+                | Content::MathClassOverride(_)
+                | Content::MathDelimited(_)
+                | Content::MathLr(_)
+                | Content::MathMid(_)
+                | Content::MathFrac(_)
+                | Content::MathLimitsOverride(_)
+                | Content::MathMatrix(_)
+                | Content::MathOp(_)
+                | Content::MathRoot(_)
+                | Content::MathStretch(_)
+                | Content::MathStyled(_)
+                | Content::MathUnderline(_)
+                | Content::MathOverline(_)
+                | Content::MathOvershell(_)
+                | Content::MathOverparen(_)
+                | Content::MathOverbracket(_)
+                | Content::MathOverbrace(_)
+                | Content::MathUnderbrace(_)
+                | Content::MathUnderbracket(_)
+                | Content::MathUnderparen(_)
+                | Content::MathUndershell(_)
+                | Content::MathUnderover(_)
+                | Content::MathVec(_),
+                Content::Source(_)
+                | Content::ShowRecipe(_)
+                | Content::Realized(_)
+                | Content::Located(_)
+                | Content::Empty
+                | Content::Text(_)
+                | Content::Space
+                | Content::SpaceFromNewline
+                | Content::Parbreak
+                | Content::Sequence(_)
+                | Content::HtmlElem(_)
+                | Content::HtmlFrame(_)
+                | Content::Par { .. }
+                | Content::Heading(_)
+                | Content::Title(_)
+                | Content::Strong(_)
+                | Content::Emph(_)
+                | Content::Raw(_)
+                | Content::ListItem(_)
+                | Content::EnumItem(_)
+                | Content::Link(_)
+                | Content::Equation(_)
+                | Content::MathSequence(_)
+                | Content::MathIdent(_)
+                | Content::MathText(_)
+                | Content::MathFrac(_)
+                | Content::MathAttach(_)
+                | Content::MathPrimes(_)
+                | Content::MathRoot(_)
+                | Content::MathStretch(_)
+                | Content::MathDelimited(_)
+                | Content::MathLr(_)
+                | Content::MathMid(_)
+                | Content::MathOverbrace(_)
+                | Content::MathUnderbrace(_)
+                | Content::MathUnderbracket(_)
+                | Content::MathUnderparen(_)
+                | Content::MathUndershell(_)
+                | Content::MathOverbracket(_)
+                | Content::MathOverparen(_)
+                | Content::MathOvershell(_)
+                | Content::MathAlignPoint(_)
+                | Content::Linebreak(_)
+                | Content::MathMatrix(_)
+                | Content::MathCases(_)
+                | Content::MathAccent(_)
+                | Content::MathCancel(_)
+                | Content::MathUnderline(_)
+                | Content::MathOverline(_)
+                | Content::MathVec(_)
+                | Content::MathClassOverride(_)
+                | Content::MathLimitsOverride(_)
+                | Content::MathUnderover(_)
+                | Content::MathOp(_)
+                | Content::MathStyled(_)
+                | Content::Label(_)
+                | Content::Ref(_)
+                | Content::CounterDisplay(_)
+                | Content::CounterUpdate(_)
+                | Content::Outline(_)
+                | Content::OutlineEntry(_)
+                | Content::Figure(_)
+                | Content::FigureCaption(_)
+                | Content::Image(_)
+                | Content::Shape(_)
+                | Content::Curve(_)
+                | Content::Transform(_)
+                | Content::Grid(_)
+                | Content::GridHeader(_)
+                | Content::GridFooter(_)
+                | Content::GridCell(_)
+                | Content::SetPage(_)
+                | Content::PageRun(_)
+                | Content::Align(_)
+                | Content::Place(_)
+                | Content::Flush(_)
+                | Content::Styled(_)
+                | Content::Divider(_)
+                | Content::Terms(_)
+                | Content::TermItem(_)
+                | Content::Quote(_)
+                | Content::Document { .. }
+                | Content::Asset { .. }
+                | Content::SmartQuote(_)
+                | Content::PdfAttach(_)
+                | Content::PdfArtifact(_)
+                | Content::Underline(_)
+                | Content::Strike(_)
+                | Content::Overline(_)
+                | Content::SmallCaps { .. }
+                | Content::Pad(_)
+                | Content::Hide(_)
+                | Content::HSpace(_)
+                | Content::VSpace(_)
+                | Content::Pagebreak(_)
+                | Content::Colbreak(_)
+                | Content::Stack(_)
+                | Content::Boxed(_)
+                | Content::Block(_)
+                | Content::TableCell(_)
+                | Content::Bibliography(_)
+                | Content::Cite(_)
+                | Content::Footnote(_)
+                | Content::FootnoteEntry(_)
+                | Content::TableHeader(_)
+                | Content::TableFooter(_)
+                | Content::GridHLine(_)
+                | Content::GridVLine(_)
+                | Content::TableHLine(_)
+                | Content::TableVLine(_)
+                | Content::Table(_)
+                | Content::Repeat(_)
+                | Content::Columns(_)
+                | Content::Metadata(_)
+                | Content::State(_)
+                | Content::StateUpdate(_)
+                | Content::StateDisplay(_)
+                | Content::CounterDisplayCallback(_)
+                | Content::ContextBlock(_)
+                | Content::Dynamic(_),
+            ) => false,
+        }
+    }
+
+    #[test]
+    fn v16_b_storage_qualification_covers_fixture_clones_and_distinct_pairs() {
+        let inputs = cases();
+        for (left_index, left) in inputs.iter().enumerate() {
+            assert!(same_storage(left, left), "{} self", left.elem_name());
+            assert!(same_storage(left, &left.clone()), "{} clone", left.elem_name());
+            for (right_index, right) in inputs.iter().enumerate() {
+                if left_index != right_index {
+                    assert!(
+                        !same_storage(left, right),
+                        "{} / {}",
+                        left.elem_name(),
+                        right.elem_name()
+                    );
+                }
+            }
+        }
+        for unqualified in [
+            Content::text("unqualified"),
+            Content::Sequence(Arc::from([Content::text("shared sequence")])),
+        ] {
+            assert!(!same_storage(&unqualified, &unqualified.clone()));
+            for qualified in &inputs {
+                assert!(!same_storage(&unqualified, qualified));
+                assert!(!same_storage(qualified, &unqualified));
+            }
+        }
+    }
+
+    #[test]
+    fn v16_b_storage_changed_parents_retain_unchanged_children() {
+        for input in cases() {
+            let childless =
+                matches!(input, Content::MathPrimes(_) | Content::MathAlignPoint(_));
+            let mut before_siblings = Vec::new();
+            input
+                .map_content(&mut |node| {
+                    if let Content::Strong(e) = node {
+                        if e.body.plain_text() == "sibling" {
+                            before_siblings.push(node.clone());
+                        }
+                    }
+                    Ok(None)
+                })
+                .unwrap();
+            let mut replacements = 0;
+            let output = input
+                .map_content(&mut |node| {
+                    if let Content::Text(text) = node {
+                        if text.as_str() == "seed" {
+                            replacements += 1;
+                            return Ok(Some(Content::text("changed")));
+                        }
+                    }
+                    Ok(None)
+                })
+                .unwrap();
+            if childless {
+                assert_eq!(replacements, 0, "{} has no children", input.elem_name());
+            } else {
+                assert!(
+                    replacements > 0,
+                    "{} must visit its seed children",
+                    input.elem_name()
+                );
+                assert!(
+                    !before_siblings.is_empty(),
+                    "{} must exercise child sharing",
+                    input.elem_name()
+                );
+            }
+            assert_eq!(
+                same_storage(&input, &output),
+                childless,
+                "{} parent",
+                input.elem_name()
+            );
+            let mut after_siblings = Vec::new();
+            output
+                .map_content(&mut |node| {
+                    if let Content::Strong(e) = node {
+                        if e.body.plain_text() == "sibling" {
+                            after_siblings.push(node.clone());
+                        }
+                    }
+                    Ok(None)
+                })
+                .unwrap();
+            assert_eq!(before_siblings.len(), after_siblings.len());
+            for (before, after) in before_siblings.iter().zip(&after_siblings) {
+                assert!(
+                    same_storage(before, after),
+                    "{} unchanged child",
+                    input.elem_name()
+                );
+            }
         }
     }
 

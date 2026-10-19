@@ -1,0 +1,32 @@
+{
+  "ids": [
+    "V16-013",
+    "V16-014",
+    "V16-015",
+    "V16-016",
+    "V16-025",
+    "V16-075",
+    "V16-076",
+    "V16-091"
+  ],
+  "sources": [
+    "01_core/src/compiler/eval/math_cases_evaluation_tests.rs",
+    "01_core/src/compiler/eval/math_frac_evaluation_tests.rs",
+    "01_core/src/compiler/eval/math_matrix_evaluation_tests.rs",
+    "01_core/src/compiler/eval/math_root_evaluation_tests.rs",
+    "01_core/src/compiler/eval/rules.rs",
+    "01_core/src/entities/content/tests/traversal.rs",
+    "01_core/src/entities/content/traversal.rs",
+    "03_infra/src/integration_tests.rs"
+  ],
+  "owners": [
+    "00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md",
+    "00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md",
+    "00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md",
+    "00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md",
+    "00_nucleo/prompts/core/compiler/eval/rules.md",
+    "00_nucleo/prompts/core/entities/content/tests/traversal.md",
+    "00_nucleo/prompts/core/entities/content/traversal.md",
+    "00_nucleo/prompts/infra/integration_tests.md"
+  ]
+}

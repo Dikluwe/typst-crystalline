@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized] target(s) in 0.16s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 1 test
+test integration_tests::integration::p1132d_base_composta_com_sup_preserva_ascent_sec27 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1378 filtered out; finished in 0.60s
+

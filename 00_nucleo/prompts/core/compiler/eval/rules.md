@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules
-Hash do Código: 519867b2
+Hash do Código: 8c66a01e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -398,3 +398,41 @@ Measurements/shape-RTL refinement in
 `lab/results/construction/diagnostics/bibliography-hanging-2026-10-18`
 precede shared selection-nucleus pin. This owner receives only pin; executable
 code/API/phase/other responsibilities unchanged by pin refinement.
+
+## Closed custom-style fixture observation
+
+### Evidence before decision
+
+Source inspection at HEAD `059d1a0ff` on 2026-10-19:
+`01_core/src/compiler/eval/rules.rs:317–338` visits Styled and Sequence, updates
+existing keys in place, and silently ignores every other Content variant.
+`01_core/src/compiler/eval/rules.rs:340–346` uses this observer to inspect custom
+style values from evaluated fixtures; callers supply set-format rules followed by
+plain text. A Styled target hidden inside another wrapper is outside this
+observer's domain. This is a bounded test observation, not language inheritance
+or a general content traversal. The source reading establishes observed behavior,
+not upstream intent or proof that every wrapper contains no styles.
+
+### Decision and acceptance
+
+Keep this observer local to tests. Styled updates existing keys without changing
+their encounter order and then descends; Sequence visits children in order.
+Every other current nominal Content alternative remains opaque and contributes
+no keys. List these alternatives at the actual match; no wildcard, conditional
+disguise, generic walker, suppression, error substitution or deleted assertion.
+The result describes the supported fixture paths and must never certify global
+absence of styles. A new causal wrapper in an evaluated fixture requires a
+separate observer-scope review before its output can certify that fixture.
+
+Before implementation, require independent direct and nested Styled controls for
+inner-over-outer precedence, Sequence encounter order, independent custom keys,
+and style-free terminal preservation. A decoy Strong wrapper with a hidden Styled
+target contributes no keys, while a following supported Styled sibling remains
+observed; assert both so opaque traversal cannot silently erase the positive
+control. Retain every existing format-rule test. Changed precedence, entering the
+opaque decoy, or loss of a supported target refutes this bounded repair.
+In a disposable real workspace, adding a Content sentinel must produce E0004 at
+this exact observer after the change, whereas the old wildcard absorbs it.
+Record source state, UTC, commands and results. Internal test-boundary correction
+uses ADR-0127 continuous flow after sealing this owner; no public API, default,
+phase or compatibility change is authorized.

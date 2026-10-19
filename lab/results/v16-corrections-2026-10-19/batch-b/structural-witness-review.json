@@ -1,0 +1,79 @@
+{
+  "utc": "2026-10-19T12:05:05.351259+00:00",
+  "seven_core_and_one_infra_exact_targets": true,
+  "baseline_selected_e0004": 0,
+  "green_selected_e0004": 8,
+  "storage_isolated_axes": [
+    {
+      "scenario": "new-old",
+      "compiler_witness_pairs": [
+        [
+          "TektV16EvolutionProbe",
+          "Source"
+        ],
+        [
+          "TektV16EvolutionProbe",
+          "ShowRecipe"
+        ],
+        [
+          "TektV16EvolutionProbe",
+          "Realized"
+        ]
+      ],
+      "target": {
+        "id": "V16-076",
+        "file": "01_core/src/entities/content/traversal.rs",
+        "function": "same_storage",
+        "line": 2243,
+        "byte_start": 110301,
+        "byte_end": 110315,
+        "anchor": "match (a, b) {"
+      }
+    },
+    {
+      "scenario": "old-new",
+      "compiler_witness_pairs": [
+        [
+          "Source",
+          "TektV16EvolutionProbe"
+        ],
+        [
+          "ShowRecipe",
+          "TektV16EvolutionProbe"
+        ],
+        [
+          "Realized",
+          "TektV16EvolutionProbe"
+        ]
+      ],
+      "target": {
+        "id": "V16-076",
+        "file": "01_core/src/entities/content/traversal.rs",
+        "function": "same_storage",
+        "line": 2243,
+        "byte_start": 110301,
+        "byte_end": 110315,
+        "anchor": "match (a, b) {"
+      }
+    },
+    {
+      "scenario": "new-new",
+      "compiler_witness_pairs": [
+        [
+          "TektV16EvolutionProbe",
+          "TektV16EvolutionProbe"
+        ]
+      ],
+      "target": {
+        "id": "V16-076",
+        "file": "01_core/src/entities/content/traversal.rs",
+        "function": "same_storage",
+        "line": 2243,
+        "byte_start": 110301,
+        "byte_end": 110315,
+        "anchor": "match (a, b) {"
+      }
+    }
+  ],
+  "other_error_codes": []
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash 13c846d5
+//! @prompt-hash c7e8d7cc
 //! @layer L3
 //! @updated 2026-10-06
 
@@ -4863,10 +4863,247 @@ mod integration {
         assert!((page.height - 125.236).abs() < 0.001, "height={}", page.height);
     }
 
+    /// Observe only the equation roots admitted by the sec_27 fixture.
+    fn fixture_equation_bodies<'a>(
+        c: &'a typst_core::entities::content::Content,
+        out: &mut Vec<&'a typst_core::entities::content::Content>,
+    ) {
+        use typst_core::entities::content::Content;
+        match c {
+            Content::Equation(e) => out.push(&e.body),
+            Content::Sequence(xs) | Content::MathSequence(xs) => {
+                for x in xs.iter() {
+                    fixture_equation_bodies(x, out);
+                }
+            }
+            Content::Styled(styled) => fixture_equation_bodies(&styled.body, out),
+            Content::Source(_)
+            | Content::ShowRecipe(_)
+            | Content::Realized(_)
+            | Content::Located(_)
+            | Content::Empty
+            | Content::Text(_)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::HtmlElem(_)
+            | Content::HtmlFrame(_)
+            | Content::Par { .. }
+            | Content::Heading(_)
+            | Content::Title(_)
+            | Content::Strong(_)
+            | Content::Emph(_)
+            | Content::Raw(_)
+            | Content::ListItem(_)
+            | Content::EnumItem(_)
+            | Content::Link(_)
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathPrimes(_)
+            | Content::MathRoot(_)
+            | Content::MathStretch(_)
+            | Content::MathDelimited(_)
+            | Content::MathLr(_)
+            | Content::MathMid(_)
+            | Content::MathOverbrace(_)
+            | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
+            | Content::MathUnderparen(_)
+            | Content::MathUndershell(_)
+            | Content::MathOverbracket(_)
+            | Content::MathOverparen(_)
+            | Content::MathOvershell(_)
+            | Content::MathAlignPoint(_)
+            | Content::Linebreak(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathOverline(_)
+            | Content::MathVec(_)
+            | Content::MathClassOverride(_)
+            | Content::MathLimitsOverride(_)
+            | Content::MathUnderover(_)
+            | Content::MathOp(_)
+            | Content::MathStyled(_)
+            | Content::Label(_)
+            | Content::Ref(_)
+            | Content::CounterDisplay(_)
+            | Content::CounterUpdate(_)
+            | Content::Outline(_)
+            | Content::OutlineEntry(_)
+            | Content::Figure(_)
+            | Content::FigureCaption(_)
+            | Content::Image(_)
+            | Content::Shape(_)
+            | Content::Curve(_)
+            | Content::Transform(_)
+            | Content::Grid(_)
+            | Content::GridHeader(_)
+            | Content::GridFooter(_)
+            | Content::GridCell(_)
+            | Content::SetPage(_)
+            | Content::PageRun(_)
+            | Content::Align(_)
+            | Content::Place(_)
+            | Content::Flush(_)
+            | Content::Divider(_)
+            | Content::Terms(_)
+            | Content::TermItem(_)
+            | Content::Quote(_)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
+            | Content::PdfArtifact(_)
+            | Content::Underline(_)
+            | Content::Strike(_)
+            | Content::Overline(_)
+            | Content::SmallCaps { .. }
+            | Content::Pad(_)
+            | Content::Hide(_)
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
+            | Content::Colbreak(_)
+            | Content::Stack(_)
+            | Content::Boxed(_)
+            | Content::Block(_)
+            | Content::TableCell(_)
+            | Content::Bibliography(_)
+            | Content::Cite(_)
+            | Content::Footnote(_)
+            | Content::FootnoteEntry(_)
+            | Content::TableHeader(_)
+            | Content::TableFooter(_)
+            | Content::GridHLine(_)
+            | Content::GridVLine(_)
+            | Content::TableHLine(_)
+            | Content::TableVLine(_)
+            | Content::Table(_)
+            | Content::Repeat(_)
+            | Content::Columns(_)
+            | Content::Metadata(_)
+            | Content::State(_)
+            | Content::StateUpdate(_)
+            | Content::StateDisplay(_)
+            | Content::CounterDisplayCallback(_)
+            | Content::ContextBlock(_)
+            | Content::Dynamic(_) => {}
+        }
+    }
+
+    #[test]
+    fn v16_b_equation_observer_keeps_direct_and_terminal_roots() {
+        use std::sync::Arc;
+        use typst_core::entities::content::Content;
+        use typst_core::entities::elements::equation::EquationElem;
+
+        let direct = Content::Equation(Arc::new(EquationElem::new(
+            Content::MathIdent("direct".into()),
+            true,
+        )));
+        let mut observed = vec![];
+        fixture_equation_bodies(&direct, &mut observed);
+        assert_eq!(observed.len(), 1);
+        assert_eq!(observed[0].plain_text(), "direct");
+
+        let nested = Content::Equation(Arc::new(EquationElem::new(direct, true)));
+        let mut observed = vec![];
+        fixture_equation_bodies(&nested, &mut observed);
+        assert_eq!(observed.len(), 1, "an equation is a terminal root");
+        assert!(matches!(observed[0], Content::Equation(_)));
+    }
+
+    #[test]
+    fn v16_b_equation_observer_preserves_sequence_and_style_order() {
+        use std::sync::Arc;
+        use typst_core::entities::content::Content;
+        use typst_core::entities::elements::equation::EquationElem;
+        use typst_core::entities::style::Styles;
+
+        let equation = |name: &str| {
+            Content::Equation(Arc::new(EquationElem::new(
+                Content::MathIdent(name.into()),
+                true,
+            )))
+        };
+        let content = Content::Sequence(Arc::from(vec![
+            Content::styled(
+                Content::styled(equation("first"), Styles::default()),
+                Styles::default(),
+            ),
+            Content::Empty,
+            Content::MathSequence(Arc::from(vec![equation("second"), equation("third")])),
+        ]));
+        let mut observed = vec![];
+        fixture_equation_bodies(&content, &mut observed);
+        assert_eq!(
+            observed.iter().map(|body| body.plain_text()).collect::<Vec<_>>(),
+            ["first", "second", "third"]
+        );
+        let mut empty = vec![];
+        fixture_equation_bodies(&Content::Empty, &mut empty);
+        assert!(empty.is_empty());
+    }
+
+    #[test]
+    fn v16_b_equation_observer_keeps_semantic_and_carrier_decoys_opaque() {
+        use std::sync::Arc;
+        use typst_core::entities::content::{
+            Content, LocatedContent, RealizedContent, ShowRecipeContent, SourceContent,
+        };
+        use typst_core::entities::elements::equation::EquationElem;
+        use typst_core::entities::locator::Locator;
+        use typst_core::entities::span::Span;
+        use typst_core::entities::style_chain::StyleChain;
+
+        let (world, _dir) = world_from_str("");
+        let equation = || {
+            Content::Equation(Arc::new(EquationElem::new(
+                Content::MathIdent("decoy".into()),
+                true,
+            )))
+        };
+        let decoys = [
+            Content::strong(equation()),
+            Content::heading(1, equation()),
+            Content::Par { body: Box::new(equation()) },
+            Content::Source(Arc::new(SourceContent {
+                body: equation(),
+                span: Span::detached(),
+            })),
+            Content::Located(Arc::new(LocatedContent {
+                body: equation(),
+                location: Locator::new().next(),
+            })),
+            Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                body: equation(),
+                textual: false,
+                context_id_floor: 0,
+                rules: Arc::from([]),
+                styles: StyleChain::empty(),
+                guards: vec![],
+                file: world.main(),
+            })),
+            Content::Realized(Arc::new(RealizedContent {
+                original: equation(),
+                visual: equation(),
+            })),
+        ];
+        for (index, decoy) in decoys.iter().enumerate() {
+            let mut observed = vec![];
+            fixture_equation_bodies(decoy, &mut observed);
+            assert!(observed.is_empty(), "out-of-scope decoy {index}");
+        }
+    }
+
     #[test]
     fn p1132d_base_composta_com_sup_preserva_ascent_sec27() {
         use typst_core::compiler::math::layout::MathLayouter;
-        use typst_core::entities::content::Content;
         use typst_core::entities::font_list::FontList;
         use typst_core::entities::layout_types::{MathSize, Pt, TextStyle};
 
@@ -4876,20 +5113,8 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().unwrap();
-        fn equations<'a>(c: &'a Content, out: &mut Vec<&'a Content>) {
-            match c {
-                Content::Equation(e) => out.push(&e.body),
-                Content::Sequence(xs) | Content::MathSequence(xs) => {
-                    for x in xs.iter() {
-                        equations(x, out);
-                    }
-                }
-                Content::Styled(styled) => equations(&styled.body, out),
-                _ => {}
-            }
-        }
         let mut eqs = vec![];
-        equations(content, &mut eqs);
+        fixture_equation_bodies(content, &mut eqs);
         let style = TextStyle {
             size: Pt(11.0),
             math: true,

@@ -1,0 +1,29 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 19s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 21 tests
+test compiler::eval::math_cases_evaluation_tests::v16_b_cases_observer_follows_only_allowed_wrapper_paths ... ok
+test compiler::eval::math_cases_evaluation_tests::v16_b_cases_observer_preserves_first_match_and_sequence_order ... ok
+test compiler::eval::math_cases_evaluation_tests::v16_b_cases_observer_returns_outer_target_without_descending ... ok
+test compiler::eval::math_cases_evaluation_tests::v16_b_cases_observer_stops_at_blocked_wrappers_with_target_decoys ... ok
+test compiler::eval::math_frac_evaluation_tests::v16_b_frac_observer_follows_only_allowed_wrapper_paths ... ok
+test compiler::eval::math_frac_evaluation_tests::v16_b_frac_observer_preserves_first_match_and_sequence_order ... ok
+test compiler::eval::math_frac_evaluation_tests::v16_b_frac_observer_returns_outer_target_without_descending ... ok
+test compiler::eval::math_frac_evaluation_tests::v16_b_frac_observer_stops_at_blocked_wrappers_with_target_decoys ... ok
+test compiler::eval::math_matrix_evaluation_tests::v16_b_matrix_observer_follows_only_allowed_wrapper_paths ... ok
+test compiler::eval::math_matrix_evaluation_tests::v16_b_matrix_observer_preserves_first_match_and_sequence_order ... ok
+test compiler::eval::math_matrix_evaluation_tests::v16_b_matrix_observer_returns_outer_target_without_descending ... ok
+test compiler::eval::math_matrix_evaluation_tests::v16_b_matrix_observer_stops_at_blocked_wrappers_with_target_decoys ... ok
+test compiler::eval::math_root_evaluation_tests::v16_b_root_observer_follows_only_allowed_wrapper_paths ... ok
+test compiler::eval::math_root_evaluation_tests::v16_b_root_observer_preserves_first_match_and_sequence_order ... ok
+test compiler::eval::math_root_evaluation_tests::v16_b_root_observer_returns_outer_target_without_descending ... ok
+test compiler::eval::math_root_evaluation_tests::v16_b_root_observer_stops_at_blocked_wrappers_with_target_decoys ... ok
+test compiler::eval::rules::tests::v16_b_custom_observer_keeps_opaque_decoy_and_supported_sibling_distinct ... ok
+test compiler::eval::rules::tests::v16_b_custom_observer_leaves_preserve_existing_accumulator ... ok
+test compiler::eval::rules::tests::v16_b_custom_observer_preserves_precedence_and_encounter_order ... ok
+test entities::content::traversal::container_reuse_tests::v16_b_storage_changed_parents_retain_unchanged_children ... ok
+test entities::content::traversal::container_reuse_tests::v16_b_storage_qualification_covers_fixture_clones_and_distinct_pairs ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 7417 filtered out; finished in 0.00s
+

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules.md
-//! @prompt-hash 291b80a4
+//! @prompt-hash ab124fd6
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -333,7 +333,205 @@ mod tests {
                     collect_custom_into(item, acc);
                 }
             }
-            _ => {}
+            // This fixture projection is deliberately opaque outside Styled/Sequence.
+            // It cannot establish the absence of styles inside these variants.
+            Content::Source(_)
+            | Content::ShowRecipe(_)
+            | Content::Realized(_)
+            | Content::Located(_)
+            | Content::Empty
+            | Content::Text(_)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::HtmlElem(_)
+            | Content::HtmlFrame(_)
+            | Content::Par { .. }
+            | Content::Heading(_)
+            | Content::Title(_)
+            | Content::Strong(_)
+            | Content::Emph(_)
+            | Content::Raw(_)
+            | Content::ListItem(_)
+            | Content::EnumItem(_)
+            | Content::Link(_)
+            | Content::Equation(_)
+            | Content::MathSequence(_)
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathPrimes(_)
+            | Content::MathRoot(_)
+            | Content::MathStretch(_)
+            | Content::MathDelimited(_)
+            | Content::MathLr(_)
+            | Content::MathMid(_)
+            | Content::MathOverbrace(_)
+            | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
+            | Content::MathUnderparen(_)
+            | Content::MathUndershell(_)
+            | Content::MathOverbracket(_)
+            | Content::MathOverparen(_)
+            | Content::MathOvershell(_)
+            | Content::MathAlignPoint(_)
+            | Content::Linebreak(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathOverline(_)
+            | Content::MathVec(_)
+            | Content::MathClassOverride(_)
+            | Content::MathLimitsOverride(_)
+            | Content::MathUnderover(_)
+            | Content::MathOp(_)
+            | Content::MathStyled(_)
+            | Content::Label(_)
+            | Content::Ref(_)
+            | Content::CounterDisplay(_)
+            | Content::CounterUpdate(_)
+            | Content::Outline(_)
+            | Content::OutlineEntry(_)
+            | Content::Figure(_)
+            | Content::FigureCaption(_)
+            | Content::Image(_)
+            | Content::Shape(_)
+            | Content::Curve(_)
+            | Content::Transform(_)
+            | Content::Grid(_)
+            | Content::GridHeader(_)
+            | Content::GridFooter(_)
+            | Content::GridCell(_)
+            | Content::SetPage(_)
+            | Content::PageRun(_)
+            | Content::Align(_)
+            | Content::Place(_)
+            | Content::Flush(_)
+            | Content::Divider(_)
+            | Content::Terms(_)
+            | Content::TermItem(_)
+            | Content::Quote(_)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
+            | Content::PdfArtifact(_)
+            | Content::Underline(_)
+            | Content::Strike(_)
+            | Content::Overline(_)
+            | Content::SmallCaps { .. }
+            | Content::Pad(_)
+            | Content::Hide(_)
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
+            | Content::Colbreak(_)
+            | Content::Stack(_)
+            | Content::Boxed(_)
+            | Content::Block(_)
+            | Content::TableCell(_)
+            | Content::Bibliography(_)
+            | Content::Cite(_)
+            | Content::Footnote(_)
+            | Content::FootnoteEntry(_)
+            | Content::TableHeader(_)
+            | Content::TableFooter(_)
+            | Content::GridHLine(_)
+            | Content::GridVLine(_)
+            | Content::TableHLine(_)
+            | Content::TableVLine(_)
+            | Content::Table(_)
+            | Content::Repeat(_)
+            | Content::Columns(_)
+            | Content::Metadata(_)
+            | Content::State(_)
+            | Content::StateUpdate(_)
+            | Content::StateDisplay(_)
+            | Content::CounterDisplayCallback(_)
+            | Content::ContextBlock(_)
+            | Content::Dynamic(_) => {}
+        }
+    }
+
+    #[test]
+    fn v16_b_custom_observer_preserves_precedence_and_encounter_order() {
+        let inner = Content::styled(
+            Content::text("inner"),
+            Styles::default()
+                .push_custom("shared", Value::Int(2))
+                .push_custom("inner-only", Value::Bool(true)),
+        );
+        let outer = Content::styled(
+            inner,
+            Styles::default()
+                .push_custom("shared", Value::Int(1))
+                .push_custom("outer-only", Value::Int(7)),
+        );
+        let later = Content::styled(
+            Content::text("later"),
+            Styles::default()
+                .push_custom("shared", Value::Int(3))
+                .push_custom("later-only", Value::Bool(false)),
+        );
+        let mut values = Vec::new();
+        collect_custom_into(&outer, &mut values);
+        assert_eq!(
+            values,
+            vec![
+                (EcoString::from("shared"), Value::Int(2)),
+                (EcoString::from("outer-only"), Value::Int(7)),
+                (EcoString::from("inner-only"), Value::Bool(true)),
+            ]
+        );
+        values.clear();
+        collect_custom_into(&Content::Sequence(Arc::from([outer, later])), &mut values);
+        assert_eq!(
+            values,
+            vec![
+                (EcoString::from("shared"), Value::Int(3)),
+                (EcoString::from("outer-only"), Value::Int(7)),
+                (EcoString::from("inner-only"), Value::Bool(true)),
+                (EcoString::from("later-only"), Value::Bool(false)),
+            ]
+        );
+    }
+
+    #[test]
+    fn v16_b_custom_observer_keeps_opaque_decoy_and_supported_sibling_distinct() {
+        let decoy = Content::strong(Content::styled(
+            Content::text("hidden"),
+            Styles::default().push_custom("hidden-target", Value::Int(99)),
+        ));
+        let supported = Content::styled(
+            Content::text("visible"),
+            Styles::default().push_custom("visible-target", Value::Int(42)),
+        );
+        let mut values = Vec::new();
+        collect_custom_into(&decoy, &mut values);
+        assert!(values.is_empty(), "the bounded observer must not enter Strong");
+        collect_custom_into(
+            &Content::Sequence(Arc::from([decoy, supported])),
+            &mut values,
+        );
+        assert_eq!(values, vec![(EcoString::from("visible-target"), Value::Int(42))]);
+    }
+
+    #[test]
+    fn v16_b_custom_observer_leaves_preserve_existing_accumulator() {
+        let initial = vec![(EcoString::from("retained"), Value::Int(5))];
+        let mut values = initial.clone();
+        for leaf in [
+            Content::Empty,
+            Content::text("plain"),
+            Content::Space,
+            Content::SpaceFromNewline,
+            Content::Parbreak,
+        ] {
+            collect_custom_into(&leaf, &mut values);
+            assert_eq!(values, initial);
         }
     }
 

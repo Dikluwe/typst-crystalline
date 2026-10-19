@@ -1,5 +1,5 @@
 # L0 — Infrastructure end-to-end test harness
-Hash do Código: 6028f313
+Hash do Código: 55f100fc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
@@ -177,3 +177,82 @@ Only this vertical-order inequality permits signed difference bounded by f64::EP
 ## Fixture relocation
 
 First postmigration compile failed at12 literal include_str! sites because root.typ directory retired; exact failure/freeze in lab/results/mature-layout-2026-10-18/attempt-1/. Use lab/corpus/legacy-sections/sec_*.typ for ten versioned inputs, bytes identical to retained construction fixtures. Change include paths only, keeping all inputs/asserts/counts/tolerances/diagnostics. Test relocation imports no lab Rust/authorizes no product behavior.
+
+## Bounded equation observation
+
+### Evidence before classification
+
+At checkpoint `059d1a0ffa9523dbe21af6860a215acaeef55d73`,
+`03_infra/src/integration_tests.rs:4861-4907` obtains the evaluated module for
+`lab/corpus/legacy-sections/sec_27.typ`, collects equation bodies through only
+Sequence, MathSequence and Styled, then checks four bodies and the third body's
+ascent against 11.4686pt with the existing 0.001pt tolerance. Equation is terminal
+for this observer: its body is collected once rather than searched for more
+equations. The fixture's lines 13-18 contain a heading followed by four top-level
+display equations. This is source evidence, not a new runtime shape measurement.
+
+`01_core/src/entities/content/traversal.rs:14-39` separately projects Source,
+ShowRecipe and Located through body and Realized through visual for its general
+static traversal. That broader traversal does not establish the scope of this
+fixture-specific observer. `01_core/src/entities/content/identity.rs:175-180`
+hides those carriers in Debug formatting; plain Debug output cannot prove their
+absence. Neither source establishes a productive math defect or a current-pin
+vanilla geometry measurement.
+
+### Measured fixture boundary
+
+`lab/results/v16-corrections-2026-10-19/batch-b/preservation-before/state.json.gz`
+records the uncommitted working tree at checkpoint
+`059d1a0ffa9523dbe21af6860a215acaeef55d73`, UTC
+`2026-10-19T11:45:55.229047+00:00`, exact changed-file stat and input hashes;
+`freeze.json` confirms no input changed during measurement. `new-infra.log`
+completed at `2026-10-19T11:48:01.666719+00:00`: the explicit diagnostic projection
+found the four required equation roots through Sequence and two Styled bodies,
+at final sequence positions 17, 19, 21 and 23. No causal carrier occurs on these
+traversed equation paths. Semantic leaves were opaque; this is not evidence that
+the whole tree lacks carriers or that a diagnostic `opaque:sequence` name is a
+literal Sequence variant. The unchanged real-font geometry case also passed,
+recorded in `sec27-geometry.log` at `2026-10-19T11:48:02.426558+00:00`.
+
+The instrumented projection and its logs are retained with
+`lab/results/v16-corrections-2026-10-19/batch-b/preimplementation.patch.gz`.
+It is a one-time measurement, not a permanent golden topology test. The evidence
+refutes a missing required equation in this fixture and does not justify adding
+carrier descent. Keep the bounded observer's behavior and close its nominal
+domain. A future fixture whose required equation is hidden behind an unsupported
+path would reopen this boundary with source and runtime evidence.
+
+### Contract and acceptance
+
+Keep this private, test-only observer bounded to its existing fixture scope.
+Extracting its unchanged decision into a private helper is permitted so controls
+exercise the same observer as the real-font integration test. Measure the actual
+fixture's carrier/sequence/style paths before deciding whether a carrier repair
+is necessary; distinguish this evidence from synthetic inputs. Do not adopt the
+general static child traversal or search arbitrary semantic containers to make
+a count pass. Absent evidence that the fixture loses a required equation, retain
+the current traversal boundary and make its entire Content complement nominal.
+In particular, heading, strong, paragraph and other semantic containers remain
+opaque even when they contain an equation.
+
+Controls must preserve direct hits, sequence and nested style ordering, empty
+input, semantic-container decoys, and terminal Equation behavior without nested
+double counting. Record actual fixture root paths with carrier names preserved;
+source/original versus visual distinction cannot be inferred from Debug output.
+The existing four-equation assertion, equation index, fonts, source bytes,
+geometry, and tolerance remain unchanged. Synthetic carrier cases characterize
+the existing boundary unless a separately measured obligation authorizes a
+repair; they do not define new language admission.
+
+Require the full existing integration case and independent observer controls,
+plus an attributable enum-growth E0004 at this exact cfg(test) decision in a
+disposable actual workspace. Baseline wildcard acceptance and candidate
+exhaustiveness must be recorded separately; unrelated compiler errors are not
+proof. If adding a Content sentinel blocks dependency metadata before this L3
+test compiles, omit one current observer arm in the disposable workspace as a
+paired domain-closure witness: baseline wildcard absorbs it, exhaustive
+candidate fails at this decision. Keep real declarations, dependency types and
+function bodies. No productive enum mutation, suppression, threshold change,
+public API, product default or pipeline-phase change is authorized. This is
+ADR-0127 continuous internal flow with L0 first, restricted sealing, and final
+test/path/lineage validation.

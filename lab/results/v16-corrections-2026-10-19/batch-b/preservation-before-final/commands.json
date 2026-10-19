@@ -1,0 +1,80 @@
+[
+  {
+    "name": "new-core",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_b_",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "utc_end": "2026-10-19T11:52:53.138709+00:00",
+    "exit": 0,
+    "seconds": 80.97734901899821,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3390111744",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "new-infra",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "v16_b_equation_",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "utc_end": "2026-10-19T11:53:32.143090+00:00",
+    "exit": 0,
+    "seconds": 39.00380610400316,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3390111744",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "sec27-geometry",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "p1132d_base_composta_com_sup_preserva_ascent_sec27",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "utc_end": "2026-10-19T11:53:32.914964+00:00",
+    "exit": 0,
+    "seconds": 0.7712645450010314,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3390111744",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

@@ -1,5 +1,5 @@
 # L0 — entities/content/traversal
-Hash do Código: c72f6552
+Hash do Código: b21ce7f8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
@@ -508,3 +508,44 @@ specification, documentary gap for its own audit, no code-derived ratification
 here. ADR-0041 records show cap64; this reading found no complete Strong256
 divergence contract. No-abort proof only for slice, operational-limit divergence
 recorded, not certified rejection parity/unlimited-depth safety.
+
+## Closed storage-qualification fixture decisions
+
+### Evidence before decision
+
+Source inspection at HEAD `059d1a0ff` on 2026-10-19:
+`01_core/src/entities/content/traversal.rs:2150–2240` constructs the bounded
+container fixtures. `01_core/src/entities/content/traversal.rs:2242–2287` compares
+their same-kind Arc payloads and returns false for all other pairs. The no-op and
+changed-parent tests at `:2291–2343`, and unchanged-child checks at `:2414–2415`,
+use this helper as a representation qualification. These are local mechanical
+reuse controls, not language identity, universal Content equality, or proof of
+productive workload frequency. Existing language/field/effect gates remain.
+
+### Decision and acceptance
+
+Keep every existing same-kind Arc::ptr_eq decision. Explicitly close both Content
+axes at this exact helper. Distinguish nominal unqualified left-hand classes from
+qualified left-hand classes; pairs left after qualified same-kind comparisons
+are either unlike variants or have an unqualified right-hand class, and return
+false. No wildcard may absorb a future variant on either axis. Do not substitute
+Rust PartialEq, payload hashes, inline addresses, or generic identity for the
+qualified Arc comparisons. The fixture roster and the positive match arms must
+agree; omission of a fixture's input/input case refutes helper completeness.
+
+Require every fixture's self and clone comparisons to succeed, every unlike
+fixture pair to fail in both orders, and unqualified Text and Sequence clones to
+remain false even when Sequence shares an Arc. Retain no-op sharing, all existing
+field/slot/order/error assertions, and changed-parent/unchanged-child controls.
+Add a per-fixture changed-child control: containers with seed descendants receive
+new parent storage while Strong siblings retain storage; the two childless
+fixtures retain storage when no callback replaces them. Never weaken a failed
+assertion to make the helper agree with a rebuild.
+
+Run these preservation controls before implementation. In a disposable real
+workspace add a Content sentinel: unlike the old wildcard, the repaired helper
+must fail at this decision for new/old, old/new and new/new pairs. Isolate both
+axes if rustc's first witness alone does not demonstrate them. Preserve exact
+source state, UTC, commands and diagnostic locations. This test-only internal
+classification uses ADR-0127 continuous flow after sealing; productive traversal,
+public API, pipeline phase, defaults and nucleus claims remain unchanged.

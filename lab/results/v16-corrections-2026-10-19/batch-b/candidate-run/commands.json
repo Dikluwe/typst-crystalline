@@ -1,0 +1,224 @@
+[
+  {
+    "name": "new-core",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_b_",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "utc_end": "2026-10-19T12:00:23.061186+00:00",
+    "exit": 0,
+    "seconds": 79.3737757639974,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3381276672",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "math-eval",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "compiler::eval::math_",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "utc_end": "2026-10-19T12:00:23.552116+00:00",
+    "exit": 0,
+    "seconds": 0.49038163099612575,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3381276672",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "rules",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "compiler::eval::rules::tests",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "utc_end": "2026-10-19T12:00:24.084439+00:00",
+    "exit": 0,
+    "seconds": 0.5317343670030823,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3381276672",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "traversal",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "entities::content::",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "utc_end": "2026-10-19T12:00:24.271081+00:00",
+    "exit": 0,
+    "seconds": 0.18606162500509527,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3381276672",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "new-infra",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "v16_b_equation_",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "utc_end": "2026-10-19T12:01:02.859246+00:00",
+    "exit": 0,
+    "seconds": 38.58752880500106,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3381276672",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "sec27-geometry",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "p1132d_base_composta_com_sup_preserva_ascent_sec27",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "utc_end": "2026-10-19T12:01:03.650870+00:00",
+    "exit": 0,
+    "seconds": 0.7910365569987334,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3381276672",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "structural-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_b_structural.py",
+      "green"
+    ],
+    "utc_end": "2026-10-19T12:03:21.844360+00:00",
+    "exit": 0,
+    "seconds": 138.19286275600462,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3381276672",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "clean-workspace-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "--offline",
+      "--locked",
+      "--target-dir",
+      "lab/target/product",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-wiring"
+    ],
+    "utc_end": "2026-10-19T12:03:22.444232+00:00",
+    "exit": 0,
+    "seconds": 0.5991826079989551,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3381276672",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "integrated-validation",
+    "command": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/batch-b/validation"
+    ],
+    "utc_end": "2026-10-19T12:16:50.887229+00:00",
+    "exit": 0,
+    "seconds": 808.4422737010027,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "5516689408",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

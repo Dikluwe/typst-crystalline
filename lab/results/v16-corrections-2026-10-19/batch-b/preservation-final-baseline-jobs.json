@@ -1,0 +1,50 @@
+[
+  {
+    "name": "new-core",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_b_",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ]
+  },
+  {
+    "name": "new-infra",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "v16_b_equation_",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ]
+  },
+  {
+    "name": "sec27-geometry",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "p1132d_base_composta_com_sup_preserva_ascent_sec27",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ]
+  }
+]

@@ -1,0 +1,106 @@
+{
+  "utc": "2026-10-19T12:17:01.754065+00:00",
+  "log": "validation/tests-domain-infra.log",
+  "log_sha256": "f902683305096b75812f17f3918221c4352fc29b31a50fce88602e4508116acd",
+  "new_tests_observed_passing": [
+    {
+      "file": "01_core/src/compiler/eval/math_cases_evaluation_tests.rs",
+      "name": "v16_b_cases_observer_follows_only_allowed_wrapper_paths"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_cases_evaluation_tests.rs",
+      "name": "v16_b_cases_observer_preserves_first_match_and_sequence_order"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_cases_evaluation_tests.rs",
+      "name": "v16_b_cases_observer_returns_outer_target_without_descending"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_cases_evaluation_tests.rs",
+      "name": "v16_b_cases_observer_stops_at_blocked_wrappers_with_target_decoys"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_frac_evaluation_tests.rs",
+      "name": "v16_b_frac_observer_follows_only_allowed_wrapper_paths"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_frac_evaluation_tests.rs",
+      "name": "v16_b_frac_observer_preserves_first_match_and_sequence_order"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_frac_evaluation_tests.rs",
+      "name": "v16_b_frac_observer_returns_outer_target_without_descending"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_frac_evaluation_tests.rs",
+      "name": "v16_b_frac_observer_stops_at_blocked_wrappers_with_target_decoys"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_matrix_evaluation_tests.rs",
+      "name": "v16_b_matrix_observer_follows_only_allowed_wrapper_paths"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_matrix_evaluation_tests.rs",
+      "name": "v16_b_matrix_observer_preserves_first_match_and_sequence_order"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_matrix_evaluation_tests.rs",
+      "name": "v16_b_matrix_observer_returns_outer_target_without_descending"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_matrix_evaluation_tests.rs",
+      "name": "v16_b_matrix_observer_stops_at_blocked_wrappers_with_target_decoys"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_root_evaluation_tests.rs",
+      "name": "v16_b_root_observer_follows_only_allowed_wrapper_paths"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_root_evaluation_tests.rs",
+      "name": "v16_b_root_observer_preserves_first_match_and_sequence_order"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_root_evaluation_tests.rs",
+      "name": "v16_b_root_observer_returns_outer_target_without_descending"
+    },
+    {
+      "file": "01_core/src/compiler/eval/math_root_evaluation_tests.rs",
+      "name": "v16_b_root_observer_stops_at_blocked_wrappers_with_target_decoys"
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules.rs",
+      "name": "v16_b_custom_observer_keeps_opaque_decoy_and_supported_sibling_distinct"
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules.rs",
+      "name": "v16_b_custom_observer_leaves_preserve_existing_accumulator"
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules.rs",
+      "name": "v16_b_custom_observer_preserves_precedence_and_encounter_order"
+    },
+    {
+      "file": "01_core/src/entities/content/traversal.rs",
+      "name": "v16_b_storage_changed_parents_retain_unchanged_children"
+    },
+    {
+      "file": "01_core/src/entities/content/traversal.rs",
+      "name": "v16_b_storage_qualification_covers_fixture_clones_and_distinct_pairs"
+    },
+    {
+      "file": "03_infra/src/integration_tests.rs",
+      "name": "v16_b_equation_observer_keeps_direct_and_terminal_roots"
+    },
+    {
+      "file": "03_infra/src/integration_tests.rs",
+      "name": "v16_b_equation_observer_keeps_semantic_and_carrier_decoys_opaque"
+    },
+    {
+      "file": "03_infra/src/integration_tests.rs",
+      "name": "v16_b_equation_observer_preserves_sequence_and_style_order"
+    }
+  ],
+  "count": 24,
+  "expanded_existing_control_passed": true,
+  "fresh_root_compile_after_copied_workspace_cache_boundary": true
+}

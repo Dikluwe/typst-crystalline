@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-19T11:45:54.932366+00:00",
+  "head": "059d1a0ffa9523dbe21af6860a215acaeef55d73",
+  "diff_head_stat": " .../compiler/eval/math_cases_evaluation_tests.md   |  93 +++++++\n .../compiler/eval/math_frac_evaluation_tests.md    |  93 +++++++\n .../compiler/eval/math_matrix_evaluation_tests.md  |  93 +++++++\n .../compiler/eval/math_root_evaluation_tests.md    |  95 +++++++\n 00_nucleo/prompts/core/compiler/eval/rules.md      |  38 +++\n .../core/entities/content/tests/traversal.md       |  30 ++\n .../prompts/core/entities/content/traversal.md     |  41 +++\n 00_nucleo/prompts/infra/integration_tests.md       |  56 ++++\n .../compiler/eval/math_cases_evaluation_tests.rs   |  92 ++++++-\n .../compiler/eval/math_frac_evaluation_tests.rs    |  86 +++++-\n .../compiler/eval/math_matrix_evaluation_tests.rs  |  87 +++++-\n .../compiler/eval/math_root_evaluation_tests.rs    |  88 +++++-\n 01_core/src/compiler/eval/rules.rs                 |  81 +++++-\n 01_core/src/entities/content/tests/traversal.rs    |  22 +-\n 01_core/src/entities/content/traversal.rs          |  92 ++++++-\n 03_infra/src/integration_tests.rs                  | 303 ++++++++++++++++++++-\n 16 files changed, 1366 insertions(+), 24 deletions(-)\n",
+  "patch_sha256": "6eb11e1701bf19ff1528854940aa9f7a704e52981062e2da932f5cf7a473bb6c",
+  "inputs": {
+    "01_core/src/compiler/eval/math_cases_evaluation_tests.rs": "84ee3c87f3967a0a1a178529648e6931f100b20268df0a98820f0604a4e0ea6e",
+    "01_core/src/compiler/eval/math_frac_evaluation_tests.rs": "e751db764818241d57e1ee4d6ff42ae86733efc74dfa4c331cbdae78f56150ad",
+    "01_core/src/compiler/eval/math_matrix_evaluation_tests.rs": "e64fc11adb5dc19549009444d4e990797881325be598aca1ef566c034086c1c1",
+    "01_core/src/compiler/eval/math_root_evaluation_tests.rs": "669eef1b05fda38cf195db75bdeace3ab1c98144f490298ec88c28de7ebbb027",
+    "01_core/src/compiler/eval/rules.rs": "44f063ec2fa7957c4ea2fd464e22e52a8032ce23915d20f643aa5210c3999afb",
+    "01_core/src/entities/content/tests/traversal.rs": "55204fc38e7023a8e2104a82136f63f7974c30115dd081e2311b6732406cf273",
+    "01_core/src/entities/content/traversal.rs": "65e11262950fa24414da4f78e11ab90445b8889bec831451602cdf39f66614ce",
+    "03_infra/src/integration_tests.rs": "7d621f258a183796b8af12593413a9e5e32ea2dbb29f3183086de1a4ffbcf6f0",
+    "00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md": "adeabe82dec889f95143d979cc59d400e8d8c7860be537349ee0d453c71e5d42",
+    "00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md": "b7ce1646094980bcaf4e41c30652d47e3c717908e4037d4bc79c061d54d56a4c",
+    "00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md": "3e5080cc41427ccbab2ee0ea0aae452706b72aa3c120b6c97b4268b26124c199",
+    "00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md": "4ae6ce70fc2f259cb27f4390d436fad202814b5aa3c5a9ac63a7d159efaf6397",
+    "00_nucleo/prompts/core/compiler/eval/rules.md": "6876e5c5a775f2e388ca45163c95b13880cea0aa602a4c406a6a503388051b56",
+    "00_nucleo/prompts/core/entities/content/tests/traversal.md": "e75682636ac051bcf8edaabdd4318a249e5bb99389517a9e3a7e5fcf1086545e",
+    "00_nucleo/prompts/core/entities/content/traversal.md": "c21fe81bd9314ab921a1ddc91e3b3f175ae2dab9f99d28ec52ef40abe02f12f2",
+    "00_nucleo/prompts/infra/integration_tests.md": "f6f0c1e01e86f004d5bd162833bc8f2048d8dae23bc35b0ee7ae4818b7f8f538"
+  }
+}

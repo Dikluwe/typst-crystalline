@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md
-//! @prompt-hash 41fd0597
+//! @prompt-hash fe6bd1e2
 //! @layer L1
 #![cfg(test)]
 
@@ -71,7 +71,122 @@ fn find_cases(content: &Content) -> Option<&Content> {
         Content::Sequence(items) | Content::MathSequence(items) => {
             items.iter().find_map(find_cases)
         }
-        _ => None,
+        // These variants are outside this fixture observer's allowed paths.
+        // Payloads may contain targets; the observer deliberately does not descend.
+        Content::Source(_)
+        | Content::ShowRecipe(_)
+        | Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => None,
     }
 }
 
@@ -232,5 +347,95 @@ fn p1430_bare_rejeita_invalidos_sem_ignorar_ocorrencias() {
             errors.iter().any(|error| error.message.contains(fragment)),
             "{source}: {errors:?}"
         );
+    }
+}
+
+#[test]
+fn v16_b_cases_observer_returns_outer_target_without_descending() {
+    let inner =
+        Content::math_cases(vec![vec![Content::text("first")]], ('{', '\0'), false, None);
+    let outer = Content::math_cases(vec![vec![inner]], ('{', '\0'), false, None);
+    let Content::MathCases(expected) = &outer else { panic!("target fixture") };
+    let actual = find_cases(&outer).expect("direct target");
+    let Content::MathCases(actual) = actual else { panic!("target hit") };
+    assert!(std::sync::Arc::ptr_eq(actual, expected));
+}
+
+#[test]
+fn v16_b_cases_observer_follows_only_allowed_wrapper_paths() {
+    let target =
+        Content::math_cases(vec![vec![Content::text("first")]], ('{', '\0'), false, None);
+    for wrapped in [
+        Content::equation(target.clone(), false),
+        Content::styled(target.clone(), Default::default()),
+        Content::math_delimited('(', target.clone(), ')'),
+        Content::Sequence(vec![target.clone()].into()),
+        Content::MathSequence(vec![target.clone()].into()),
+        Content::styled(
+            Content::math_delimited('(', Content::equation(target.clone(), false), ')'),
+            Default::default(),
+        ),
+    ] {
+        assert_eq!(find_cases(&wrapped), Some(&target), "{wrapped:?}");
+    }
+}
+
+#[test]
+fn v16_b_cases_observer_preserves_first_match_and_sequence_order() {
+    let target =
+        Content::math_cases(vec![vec![Content::text("first")]], ('{', '\0'), false, None);
+    let later =
+        Content::math_cases(vec![vec![Content::text("later")]], ('{', '\0'), false, None);
+    assert_ne!(find_cases(&target), find_cases(&later));
+    for sequence in [
+        Content::Sequence(
+            vec![
+                Content::strong(later.clone()),
+                Content::text("miss"),
+                Content::equation(target.clone(), false),
+                later.clone(),
+            ]
+            .into(),
+        ),
+        Content::MathSequence(
+            vec![
+                Content::math_styled(None, None, None, later.clone(), None),
+                Content::Empty,
+                Content::Sequence(vec![target.clone()].into()),
+                later.clone(),
+            ]
+            .into(),
+        ),
+    ] {
+        assert_eq!(find_cases(&sequence), Some(&target), "{sequence:?}");
+    }
+    for reversed in [
+        Content::Sequence(vec![later.clone(), target.clone()].into()),
+        Content::MathSequence(vec![later.clone(), target].into()),
+    ] {
+        assert_eq!(find_cases(&reversed), Some(&later), "{reversed:?}");
+    }
+}
+
+#[test]
+fn v16_b_cases_observer_stops_at_blocked_wrappers_with_target_decoys() {
+    let target =
+        Content::math_cases(vec![vec![Content::text("first")]], ('{', '\0'), false, None);
+    for blocked in [
+        Content::strong(target.clone()),
+        Content::math_styled(None, None, None, target.clone(), None),
+    ] {
+        assert!(find_cases(&blocked).is_none(), "unexpected descent: {blocked:?}");
+        let sequence = Content::Sequence(vec![blocked, target.clone()].into());
+        assert_eq!(find_cases(&sequence), Some(&target));
+    }
+    for miss in [
+        Content::Empty,
+        Content::text("not a target"),
+        Content::Sequence(vec![].into()),
+        Content::MathSequence(vec![].into()),
+        Content::equation(Content::text("no target inside"), false),
+    ] {
+        assert!(find_cases(&miss).is_none(), "{miss:?}");
     }
 }

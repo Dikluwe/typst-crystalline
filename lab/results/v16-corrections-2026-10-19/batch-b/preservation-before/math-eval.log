@@ -1,0 +1,44 @@
+    Finished `test` profile [unoptimized] target(s) in 0.13s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 37 tests
+test compiler::eval::math_accent_observation_tests::p1429_observation_relation_discrimina_cada_causa_simetricamente ... ok
+test compiler::eval::math_cases_evaluation_tests::p1430_avaliacao_opaca_falha_fechado ... ok
+test compiler::eval::math_cases_evaluation_tests::p1430_bare_converge_e_preserva_alignpoint_no_carrier ... ok
+test compiler::eval::math_cases_evaluation_tests::p1430_bare_rejeita_invalidos_sem_ignorar_ocorrencias ... ok
+test compiler::eval::math_cases_evaluation_tests::p1430_cascata_nao_muta_carrier_e_explicito_prevalece ... ok
+test compiler::eval::math_cases_evaluation_tests::p1430_delimitadores_malformados_sao_rejeitados ... ok
+test compiler::eval::math_cases_evaluation_tests::p1430_ordem_de_avaliacao_propaga_primeiro_erro ... ok
+test compiler::eval::math_cases_evaluation_tests::v16_b_cases_observer_follows_only_allowed_wrapper_paths ... ok
+test compiler::eval::math_cases_evaluation_tests::v16_b_cases_observer_preserves_first_match_and_sequence_order ... ok
+test compiler::eval::math_cases_evaluation_tests::v16_b_cases_observer_returns_outer_target_without_descending ... ok
+test compiler::eval::math_cases_evaluation_tests::v16_b_cases_observer_stops_at_blocked_wrappers_with_target_decoys ... ok
+test compiler::eval::math_frac_evaluation_tests::p1427_frac_bare_e_slash_convergem_no_carrier ... ok
+test compiler::eval::math_frac_evaluation_tests::p1427_observation_relation_compara_todos_os_campos ... ok
+test compiler::eval::math_frac_evaluation_tests::p1427_set_style_valida_e_respeita_precedencia ... ok
+test compiler::eval::math_frac_evaluation_tests::p1427_slash_associa_esquerda_e_preserva_parenteses_causais ... ok
+test compiler::eval::math_frac_evaluation_tests::v16_b_frac_observer_follows_only_allowed_wrapper_paths ... ok
+test compiler::eval::math_frac_evaluation_tests::v16_b_frac_observer_preserves_first_match_and_sequence_order ... ok
+test compiler::eval::math_frac_evaluation_tests::v16_b_frac_observer_returns_outer_target_without_descending ... ok
+test compiler::eval::math_frac_evaluation_tests::v16_b_frac_observer_stops_at_blocked_wrappers_with_target_decoys ... ok
+test compiler::eval::math_limits_override_observation_tests::p1425_observation_relation_observa_presenca_inline ... ok
+test compiler::eval::math_matrix_evaluation_tests::p1431_avaliacao_ocorre_uma_vez_e_na_ordem_causal ... ok
+test compiler::eval::math_matrix_evaluation_tests::p1431_bare_e_qualificado_convergem_sem_pre_resolver_alignpoint ... ok
+test compiler::eval::math_matrix_evaluation_tests::p1431_bare_rows_arrays_padding_e_invalidos_usam_construtor_comum ... ok
+test compiler::eval::math_matrix_evaluation_tests::p1431_cascata_nao_fabrica_presenca_e_explicito_ganha_por_eixo ... ok
+test compiler::eval::math_matrix_evaluation_tests::p1431_observacao_de_ordem_opaca_falha_fechado ... ok
+test compiler::eval::math_matrix_evaluation_tests::p1431_set_rejeita_named_e_tipos_invalidos ... ok
+test compiler::eval::math_matrix_evaluation_tests::v16_b_matrix_observer_follows_only_allowed_wrapper_paths ... ok
+test compiler::eval::math_matrix_evaluation_tests::v16_b_matrix_observer_preserves_first_match_and_sequence_order ... ok
+test compiler::eval::math_matrix_evaluation_tests::v16_b_matrix_observer_returns_outer_target_without_descending ... ok
+test compiler::eval::math_matrix_evaluation_tests::v16_b_matrix_observer_stops_at_blocked_wrappers_with_target_decoys ... ok
+test compiler::eval::math_root_evaluation_tests::p1426_observation_relation_observa_presenca_do_indice ... ok
+test compiler::eval::math_root_evaluation_tests::p1426_root_bare_exige_slots_e_preserva_presenca ... ok
+test compiler::eval::math_root_evaluation_tests::p1426_sintaxe_bare_preserva_vazio_none_e_conteudo ... ok
+test compiler::eval::math_root_evaluation_tests::v16_b_root_observer_follows_only_allowed_wrapper_paths ... ok
+test compiler::eval::math_root_evaluation_tests::v16_b_root_observer_preserves_first_match_and_sequence_order ... ok
+test compiler::eval::math_root_evaluation_tests::v16_b_root_observer_returns_outer_target_without_descending ... ok
+test compiler::eval::math_root_evaluation_tests::v16_b_root_observer_stops_at_blocked_wrappers_with_target_decoys ... ok
+
+test result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 7401 filtered out; finished in 0.34s
+

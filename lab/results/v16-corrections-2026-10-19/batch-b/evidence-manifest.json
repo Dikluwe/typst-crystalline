@@ -1,0 +1,557 @@
+{
+  "utc": "2026-10-19T12:18:32.649110+00:00",
+  "files": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/README.md",
+      "sha256": "a06605fc3806fec157f362719c2fc4e1b9b204acf9bf12682288268081340b5f",
+      "bytes": 7766
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/after.sarif.gz",
+      "sha256": "42952d14a7f0b951eac61c3a62c6c4cc7c48df00fa8c32bc609dfdef0d74d845",
+      "bytes": 140717
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/after.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/agents/final-cross-review.md",
+      "sha256": "c7dc060761beb7524195969dccbec9a7e474ba15438359813e9eb947cb344dfd",
+      "bytes": 3063
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/agents/infra.md",
+      "sha256": "c69e47bb3f9cc41e91621c1601f53111551af5bea8d89b59926aae927a430125",
+      "bytes": 4288
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/agents/math.md",
+      "sha256": "0fab230557cb0bd9441e7a5a307891412969d5553db3f0ade6954ec28f98aea3",
+      "bytes": 3914
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/agents/storage.md",
+      "sha256": "2c14a0850411bc98aaf3296a7259aa88922ebb2831eff3dd2988b0e87ce166e7",
+      "bytes": 5821
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/baseline-state.json.gz",
+      "sha256": "7f0eb665eac58dfe264ae2dca301afc7e05f3cccdf6314416ed13fcfa26faf80",
+      "bytes": 1301
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/baseline.sarif.gz",
+      "sha256": "c87eef6aab8f9621b5f28e9e8c12a19b052ca75c1e52609511a3641c8dcc2e7b",
+      "bytes": 137347
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/baseline.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-jobs.json",
+      "sha256": "b8d08985c4a5b31361d8d9baa62e3a75049fbf595c10d4a08516219628fb965b",
+      "bytes": 2286
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/clean-workspace-packages.log",
+      "sha256": "68e44ee02a3517a7d0f5811424c36e8368747f6a8947232f5129266ac9d34a19",
+      "bytes": 37
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/commands.json",
+      "sha256": "7470d833a7a73abd77f0dc22cd27cc0213c000ff3517d769e13459e7d86452b4",
+      "bytes": 5362
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/freeze.json",
+      "sha256": "eb2fd671a641deb21b9872de9b038c7ef1abdfa008de55cffd8425e30f28cb40",
+      "bytes": 298
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/integrated-validation.log",
+      "sha256": "8b6fb9168ad024ea3999740024ef8c40b5fd0d8fe9bdf16f7d779e2a55fa5bbe",
+      "bytes": 1224
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/math-eval.log",
+      "sha256": "f81aaede7ad95e495a550adc51542581d91a84de9d212583c6e4d9971c2d754a",
+      "bytes": 4450
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/new-core.log",
+      "sha256": "0602771913c52688315bc0d2ccf8203d188eb3dcbe6684aa42eaacbc638cb9a4",
+      "bytes": 2811
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/new-infra.log",
+      "sha256": "14077ae8b6ca8b84e20bb21ef09255f56d1bb54a342832cf6a854024f2489ab7",
+      "bytes": 743
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/rules.log",
+      "sha256": "c0b46ac5f87ec3bd194190cb553bbc8622569988e436eaa2a112278107715e44",
+      "bytes": 5368
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/sec27-geometry.log",
+      "sha256": "3750dcdee3d8e5fe97645d75fc586257bb54ab68c28f26d30fa6f8d80b9cebed",
+      "bytes": 366
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/state.json.gz",
+      "sha256": "b7c0c58da9d3613fbc554e649767b9f4a8283d86de81ee28341992c3a03d1f02",
+      "bytes": 100772
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/structural-green.log",
+      "sha256": "b4cb36269ac24986bba04b087f278677d44f2cce50406f06a29c0144c6c1c064",
+      "bytes": 661
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/candidate-run/traversal.log",
+      "sha256": "674ee1d17982f538c57cbb3fde7ae21d48f62c0122b8a3a96d8ccdc8eb1f6927",
+      "bytes": 22754
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/closure-ledger.json",
+      "sha256": "1971cba5d80ede496b5756424796379a24bcb6d5ab49ac634fa4e45e873f1561",
+      "bytes": 59511
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/fixture-snapshot.json",
+      "sha256": "9ffc617362676f879994b7e2c4dbc6e7d9847e2e936b18ed59b3e138789b5c8c",
+      "bytes": 205
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/infra-observer.json",
+      "sha256": "12d06d393302eecb4b6d826a77bdcd4ff7509ac1cb69047a5fb44981c2598ec6",
+      "bytes": 40
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/lint-delta.json",
+      "sha256": "32e4d64d98ec3f312217f3347eb046f60b167e0fba8ae9c146dba5375a2c523e",
+      "bytes": 64489
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/lint-state.json.gz",
+      "sha256": "5d5d40b7bf44947d3ab4c48a2591d78eac239d6864628fbdad4853b0ab8e0fc9",
+      "bytes": 99496
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/new-test-execution.json",
+      "sha256": "6904944338f1f4fa92008e898cf31e238cd50b38f2cfd6d3e7baef5d6bdf6639",
+      "bytes": 4121
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/new-tests.json",
+      "sha256": "7dfa08ecea9bf21c2e7975265f69d326f4cc5fde848dd3c13fe96b890343565a",
+      "bytes": 4122
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/note-content-delta.json",
+      "sha256": "6ac0b978d51f282f979040dcdbdcae988901ed12e8fcb2864edb5af414b04666",
+      "bytes": 45830
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/note-review.md",
+      "sha256": "71f0bdccd14f6b59304bef0e70edf014d0d6d4bd97b2b0163f5d4e3eb6502e49",
+      "bytes": 3038
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/post-document-paths.json",
+      "sha256": "732e7bdaf8641b8e3344ccc9e431097eeb84c0f6eca1bc60fc24114e0d0a17ff",
+      "bytes": 1580
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/post-document-paths.log",
+      "sha256": "ee2a7ec0883538f59a09bbcbe08b472b4750563be3770fe20a86d0812590c31e",
+      "bytes": 27
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preimplementation-final.json",
+      "sha256": "0cb6d296cc3230679c30c6c93c81c807ba1637d007089ca76ed43229ae81b4ed",
+      "bytes": 3497
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preimplementation-final.patch.gz",
+      "sha256": "a6c78f697a4690e88e52ceece68ea876f20fb9f8baec8943420f487d94da7604",
+      "bytes": 15543
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preimplementation.json",
+      "sha256": "54a7e76ec1cfceeb98a423d0de44c743e97c101d4642f9b381010828d605ac81",
+      "bytes": 3407
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preimplementation.patch.gz",
+      "sha256": "656118222328d7897e3cc4df394fa912d686bfc7830e927a80dbe79a4de5ba0d",
+      "bytes": 15456
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preseal-ownership.log",
+      "sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "bytes": 24
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before/commands.json",
+      "sha256": "427c742d0aefd390391f5d9053e7d7365215a8fab498bb9af1bf030e54cd5acc",
+      "bytes": 3623
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before/freeze.json",
+      "sha256": "2e9b9df889d41fb3423288b0d38434827afd444cf898df2387b451d639e2ce2d",
+      "bytes": 298
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before/math-eval.log",
+      "sha256": "d4450b18985a0d0eb5dbf38666fda921c140539cc44e0ba817199d481bb8b4db",
+      "bytes": 4450
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before/new-core.log",
+      "sha256": "e0763bb366cf1a0c104516ecfcaeff313aa661f9e1d0ad3bd841ef545a9c20e1",
+      "bytes": 2898
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before/new-infra.log",
+      "sha256": "a2d6a4722e9bba682f8082584a94a4fa0546b2705bb7587b695a09fb689a5311",
+      "bytes": 2936
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before/rules.log",
+      "sha256": "232567d0a3d9c737e7efb8102ef65df7af6de4e5ef69343cefbfda10cddfe9bf",
+      "bytes": 5368
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before/sec27-geometry.log",
+      "sha256": "d6bca8a6eef09b5eb310ccbf28de2e1a43ea6ee7b48f12bf5e67f6dc6831f4d7",
+      "bytes": 366
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before/state.json.gz",
+      "sha256": "6fbe0e446be94edb8cd26b121278126de3dd469fe6ab7954abe193d1a74c0722",
+      "bytes": 100769
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before/traversal.log",
+      "sha256": "674ee1d17982f538c57cbb3fde7ae21d48f62c0122b8a3a96d8ccdc8eb1f6927",
+      "bytes": 22754
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before-final/commands.json",
+      "sha256": "692eaac73d513825fd168dda03ca1daf8e4b72d08a3d2d9ac55094a8a35f5cc9",
+      "bytes": 1818
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before-final/freeze.json",
+      "sha256": "395bb4664b6d0558d4675dd5e0892275a21ea39babc696b2661dc1baa53dce5c",
+      "bytes": 298
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before-final/new-core.log",
+      "sha256": "92c76b88b6819c9c02aedfc1f5165ba43dee0de1d961cfd67eba2c28d1b3dc5a",
+      "bytes": 2811
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before-final/new-infra.log",
+      "sha256": "ca143482e8d7ae0a20c83d119cce71f34c28236934e1622631cf7d2171fd11e8",
+      "bytes": 743
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before-final/sec27-geometry.log",
+      "sha256": "ca12cf0c4b1f4ad6ed5139fb5f328ad1a1d96f6bff697d3556c4759315c2ecaa",
+      "bytes": 366
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-before-final/state.json.gz",
+      "sha256": "a002e02c6993c3f5cefa74cf848f6a040ff7a26c5bc5d739f65f014e88be8edb",
+      "bytes": 100767
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-final-baseline-jobs.json",
+      "sha256": "94867d993761555711da4b185b1d1b36e653ebf43977d4281fd8cf5249415db5",
+      "bytes": 794
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/preservation-jobs.json",
+      "sha256": "e19c034340b79affa89f078cc92593cbc6c725eaac2c71d0e3462b04aa35595e",
+      "bytes": 1572
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/reseal-receipts.json",
+      "sha256": "7f061008a19de61c55be55722a0f43f28916c908f8b7e1198ff56cbb44b4259b",
+      "bytes": 10895
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/scope.json",
+      "sha256": "4652e5bc8839b338c89ab21a1f09851d76c3e6ecd67a8accc5045122a810a8e9",
+      "bytes": 1147
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/core-domain-mutations.json.gz",
+      "sha256": "891520115bf74179bc2997b6f84dd78992f86b3b7ed7d4a767c7d565564d2551",
+      "bytes": 20152
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/core-domain.log",
+      "sha256": "4507f820a93abebe92aa0c3792a2392a878d5d6230da18068ef8f78755dbb80c",
+      "bytes": 1027632
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/freeze.json",
+      "sha256": "eb84132027170e848b24c3989e7cd420543ef0a8b2ea6d90bbcae954fcb63f3b",
+      "bytes": 65
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/infra-omission-mutations.json.gz",
+      "sha256": "f9925fcd2a44a2d0db022785af521e4b35d91eb032cc5d322f79b48cf61d1c6b",
+      "bytes": 51347
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/infra-omission.log",
+      "sha256": "76fa2f015a8b2fdefcb82c23892c49ec3f1c6428da0942e117e51bd56bf2e787",
+      "bytes": 226587
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/inputs.json.gz",
+      "sha256": "a0af5ebe16f9192b84a26de018bb9a7a786a34e85163a48e9041d0804ac5b60d",
+      "bytes": 169802
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/new-new-mutations.json.gz",
+      "sha256": "275cc6165d66e67d8e628441717b265f26837da38c952cec1fa59e4d2f0c787d",
+      "bytes": 38847
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/new-new.log",
+      "sha256": "05bb86ae3657070182836f6e9d94e48a07351140c9a9e07290d0b4639f6a698d",
+      "bytes": 1027632
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/new-old-mutations.json.gz",
+      "sha256": "6fe3c325e3539eb3ce5662936493d694313e01e94bdad3515f79549fba196e53",
+      "bytes": 38259
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/new-old.log",
+      "sha256": "11df4db72fd0108a657a77b759646ebc40a5b78a1f75db26425ee48a689a49da",
+      "bytes": 1027632
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/old-new-mutations.json.gz",
+      "sha256": "c4a89a1ee76da80e9d1315513b3e559b412c6da8e7f43a8c53629f455b4e6257",
+      "bytes": 38260
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/old-new.log",
+      "sha256": "43da0077e6889b13f8406b955977a2152e77ba9b0a572c503883a28bb31db6c5",
+      "bytes": 1027632
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/original-sources.json.gz",
+      "sha256": "ffc05687e9482fc1bf1316d6ffc0e123d2ecb49e22b6b7cf8f598a8a57ccf1d6",
+      "bytes": 3058188
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline/results.json",
+      "sha256": "a3fccb3df2d3e61bfeb3f7eb17679e2ede9974b770233a3d7f9b22844ceffcbc",
+      "bytes": 7970
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline-run/commands.json",
+      "sha256": "a14d4a3be6b429c496f1aac1282f3977a1c26d83c434512beb3311a178872fa5",
+      "bytes": 524
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline-run/freeze.json",
+      "sha256": "a078a923859f94189cd50f9eda5afb3402ceb3d00a8b37e9c16f34781667ad82",
+      "bytes": 298
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline-run/state.json.gz",
+      "sha256": "9a0993013bdb181793e519cab8a3f10e56da2dffb30d4013078d6cd0b359416d",
+      "bytes": 100767
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-baseline-run/structural-baseline.log",
+      "sha256": "afc629df3218e97451779ca93863d97421823a15d3c3a4881561243c5733688a",
+      "bytes": 662
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/core-domain-mutations.json.gz",
+      "sha256": "65c1f5374e687151294c4e448f1a458c8ce8c593b99a8ae2aa7f661124ae74f2",
+      "bytes": 20152
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/core-domain.log",
+      "sha256": "df69d1d2229902c16036b9ed26f9cb999398296572f649312c20a7249f33e42e",
+      "bytes": 1059403
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/freeze.json",
+      "sha256": "da5188f9670d233f13af5bd6cdc9fdd3f9dea819ec53051a1cf76c4339b0194c",
+      "bytes": 65
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/infra-omission-mutations.json.gz",
+      "sha256": "5d5e57ebf76c8412c549a072054b01ef4859a07aff3ea5d88276edd1a9b121b2",
+      "bytes": 52012
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/infra-omission.log",
+      "sha256": "6c03b4a0499baaf29584432f27645842462c4f6e925f8162e56b6cffaa87ee53",
+      "bytes": 231613
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/inputs.json.gz",
+      "sha256": "59b4899942fd97aea3edaec75a91e17cebc4580e26e226dfb0855ea14dfa3e88",
+      "bytes": 169883
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/new-new-mutations.json.gz",
+      "sha256": "ddcb81064bac8c59ff4382eeacc006ccb6106a2b83a0d781751235419f8e2383",
+      "bytes": 40005
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/new-new.log",
+      "sha256": "1bb81f572b30085866a004623f5fb723f16ded53b9170ee79409ef5e7ac736df",
+      "bytes": 1059697
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/new-old-mutations.json.gz",
+      "sha256": "733e0cf5b6ec7128beeb9fab7ced574375f833c3e784d74b59e3f9c0833acfa2",
+      "bytes": 39312
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/new-old.log",
+      "sha256": "1e6f1095a9a5607895927d49bfa83c11261dccadd2e7440b94aebabe1c2f6fa4",
+      "bytes": 1060291
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/old-new-mutations.json.gz",
+      "sha256": "320a0abfd3fd39ecacd37e22f69eda83ce7d988857962c4b05f35579aa73bb3c",
+      "bytes": 39313
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/old-new.log",
+      "sha256": "547fd12b932bb6c136e8fb34cae5c4c183cf92054729f027b2ae7f2b9e529db0",
+      "bytes": 1060291
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/original-sources.json.gz",
+      "sha256": "72a8e8d3e5b0667741ba03d0c744dc6a57a191f0f65363225540d3b443f99b7e",
+      "bytes": 3061129
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-green/results.json",
+      "sha256": "cb5f95c9e4dff9117288660619ddc266cb58dba5d5b33c2c2d1207d51e11b2c2",
+      "bytes": 76971
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-jobs.json",
+      "sha256": "a2c79047d07a46bd4392d452626e78610499432fa0bb6dd56cd4ebbb0bd87216",
+      "bytes": 158
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/structural-witness-review.json",
+      "sha256": "20aec3c4aacc5a9c2d8b6301c3a06701c799aa8f79a1a4a052d970b464e3716d",
+      "bytes": 1812
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/build-all-targets.log",
+      "sha256": "4446ede925a8315eb86fb0e856a18a1f70e7add12a568454d5564e8e63d71b2c",
+      "bytes": 384
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/build.log",
+      "sha256": "3a43ddd866acf99521b5f2774b3ea1e6f406b582d63a05875455ed7934f46222",
+      "bytes": 381
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/clippy.log",
+      "sha256": "683af5455ecf9c691b2f86e8b5bfaa38b67985cc39550b61b10810cc0c57a35a",
+      "bytes": 2641
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/doctests.log",
+      "sha256": "4cf0b726c9492fdb2bd14d7c923748518b55e2fb8ddeb1978d24c4d5b3caad6b",
+      "bytes": 1095
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/layout.log",
+      "sha256": "ee2a7ec0883538f59a09bbcbe08b472b4750563be3770fe20a86d0812590c31e",
+      "bytes": 27
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/observer-environment.json",
+      "sha256": "d64ba93269a2e201f18d6030c3561b3eb120d0fcc0eb061841b5e999d3e58106",
+      "bytes": 1802
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/python-ci-tests.log",
+      "sha256": "7f477407f57a5fd006c6e4d3ceffffc871a7489bba6fa11371a1934b6f623488",
+      "bytes": 133
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/reverse-lineage.log",
+      "sha256": "2310cbec2df888da2924404da81dba3202dd4ea751d7f12e04484aa1d18ad434",
+      "bytes": 41
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/rustdoc.log",
+      "sha256": "d02a9b48ca8f539e1b0caeed7c7efa91915d10b04583057ce2d8a4fe0cd25f25",
+      "bytes": 732
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/strict-lineage.log",
+      "sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "bytes": 24
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/tests-domain-infra.log",
+      "sha256": "f902683305096b75812f17f3918221c4352fc29b31a50fce88602e4508116acd",
+      "bytes": 802425
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/tests-wiring.log",
+      "sha256": "bbabba9e238bfcccb954bcb960d86de9a07c5aa99859068dd4eb439ee4e2e8c5",
+      "bytes": 20242
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/validation-commands.json",
+      "sha256": "111c97a7d60340700be44649bf81bded575e1c1ce181e46ebe9710c82ca4e753",
+      "bytes": 7643
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/validation-freeze.json",
+      "sha256": "b4df401860bde56d497d71f226b7368f82a751733b1234c68025a310e5693daf",
+      "bytes": 142
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-b/validation/validation-state.json.gz",
+      "sha256": "a9aa69416ec7de3ea5b4ea83f8d73d82957bc4803c347cace7bace5d80adc3d0",
+      "bytes": 101232
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/workers/batch_b_compare_lint.py",
+      "sha256": "5b6ee1afc843d7e139ee57eec2c0610bb9ef3ec632a4e81ce46679d20be768a6",
+      "bytes": 3321
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/workers/batch_b_structural.py",
+      "sha256": "e9036c4e54c5a5c2390b170ccfec67e8b568ece4feb9e5139f288c0a02c29212",
+      "bytes": 8384
+    }
+  ],
+  "self_excluded": true,
+  "raw_sarif_duplicate_excluded": true
+}
