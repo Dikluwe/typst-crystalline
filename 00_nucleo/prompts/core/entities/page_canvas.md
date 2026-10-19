@@ -5,7 +5,7 @@ Hash do Código: 4d341037
 **Exclusive consumer:** `01_core/src/entities/page_canvas.rs`
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/page-canvas.toml sha256:442dcd9884551a8bfc99600298aea9d1f6591a5d0ccaf61a811de075c5b435d6
+- 00_nucleo/prompts/_nuclei/layout/page-canvas.toml sha256:2aa7464200337a5915eec7850b8cf4488b9a471877220342546661f9823f19f1
 
 ## Evidence
 

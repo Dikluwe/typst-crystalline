@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-19T02:46:29.608737+00:00",
+  "service": "run-u1027.service",
+  "invocation_id": "fdc89325fb0b4719b6c63912a9ee09fd",
+  "MemoryMax": "12G",
+  "MemoryHigh": "8G",
+  "MemorySwapMax": 0,
+  "CARGO_BUILD_JOBS": 1,
+  "command": "systemd-run --user --wait --pipe --collect -p MemoryMax=12G -p MemoryHigh=8G -p MemorySwapMax=0 --working-directory=/repos/Antigravity/typst-crystalline --setenv=PATH=<recorded observer PATH> python3 lab/tools/ci/validate_layout_migration.py --output lab/results/prompt-consolidation-2026-10-18/validation"
+}

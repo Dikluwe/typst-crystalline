@@ -2,195 +2,75 @@
 Hash do Código: d3b1deef
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
-- 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
-- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:a28cd4f2dd22d2bdb2cb30085596c2a758af7770fa21eb28c38dc35e904928eb
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_emit.rs`
 **Architecture:** ADR-0107/0108/0109/0127/0129/0130.
 
-### Medição anterior à decisão
+### Evidence before specification
 
-O lote bilateral `lab/results/construction/diagnostics/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` mede 32 entradas, com estado exato em initial.json e before/, contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Em 140pt/margem 8pt, simple escolhe delta epsilon zeta eta, optimized escolhe delta epsilon zeta e junta eta à linha seguinte; Tekt ignora a estratégia. Em 240pt justificado, optimized admite eta na primeira linha reduzindo os espaços. Fonte: eval/rules.rs:3070-3100 e stdlib/structural/par.rs:131-150 validam e descartam linebreaks; text.rs:41 e word_layout.rs:29 escolhem incrementalmente; vanilla inline/mod.rs:194-196 resolve auto pela justificação, linebreak.rs:raw_ratio/raw_cost aplica redução até 1/3 e custos cúbicos/quadráticos; model/par.rs:Limits::SPACING_DEFAULT fixa 2/3..1.5. Estilos adjacentes, literal leading/trailing e conteúdo opaco estão medidos separadamente. Observação não prova intenção histórica; inferência refutável: os scope-outs L0 explícitos de preparação/optimized legitimaram o adiamento, pois ainda vedam a implementação global apesar do transporte aceito.
+`lab/results/construction/diagnostics/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` records 32 inputs, state in initial.json/before/, at historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. At 140pt/margin 8, Simple/Optimized choose different eta placement; justified 240pt Optimized shrinks spaces. Tekt discards strategy (`eval/rules.rs:3070-3100`, `stdlib/structural/par.rs:131-150`, `text.rs:41`, `word_layout.rs:29`); pinned inline/mod.rs:194-196 resolves auto from justification and linebreak raw_ratio/raw_cost plus model/par Limits::SPACING_DEFAULT define shrink/costs. Adjacent styles/Literal edges/opaque content are separate probes. This establishes observed syntax/geometry, not intent. Original preparation scope-outs explain deferred implementation but are superseded only within certified preparation below.
 
-### Decisão e escopo
+`lab/results/construction/diagnostics/correcao-hifenizacao-global-2026-09-28/before-pdf/` measures 67 inputs against historical vanilla `9f2b6e8715237cb086899a42873660fe744622e8`; initial.json/before/proveniencia.json preserve state/binaries/sources/commands. paragraph_prepare.rs:80-94 refuses true policy; paragraph_select.rs:66 only considers word ends; paragraph_plan.rs:18 selects transported strategy; break_selection.rs:41-66 hyphenates only local overflow. Pinned inline/linebreak.rs:170-209 uses same greedy candidates,`:626-684` penalizes 135*(1+0.15*(max(5-left,0)+max(5-right,0))) per hyphen plus 135 on consecutive lines; shaping.rs:583-635 draws '-' while preserving SHY for copy. Behavior/contracts do not establish historical intent.
 
-Correção interna de paridade ADR-0127: sem novos contratos públicos, flags ou fase. Primeira preparação global certificada: parágrafo latino composto por Text, Space, SpaceFromNewline, Empty, Sequence, Styled tipográfico e Strong/Emph, com hifenização desligada, direção LTR, sem matemática/smallcaps; tracking uniforme segue a extensão certificada de 2026-09-29, largura finita e constante, fora de colunas/células/floats. O conjunto completo deve ser certificado antes de emitir; uma unidade recusada preserva o caminho anterior. Hifenização, Unicode UAX14 completo, links/objetos/linebreaks, largura variável, limites customizados e seleção incremental restante continuam explicitamente incompletos; este lote não declara estado da arte nem otimização completa da língua.
+Initial after-pdf has matching breaks but justified hyphen lines 2.1252pt short: en-140-optimized-True ex- x 115.26..132 versus 117.385197..134.1252. Pinned inline/line.rs:518-526 adds overhang only to emission remainder,`:708-709` uses 0.55 for '-' or SHY and text/mod.rs:391-393 defaults true. This supports emitted right-overhang, never changed cost/selection.
 
-Materializar ranges escolhidos sem chamar o seletor incremental novamente. Emitir palavras/fragmentos com estilo efetivo via helper privado de word_layout, com admissão da baseline. Espaços preservam origem e advance ajustado uma vez; redução proporcional às larguras até 1/3 quando linha overfull, expansão nas linhas continuadas justificadas usa stretch até 1/2 proporcional e restante igual por oportunidade. Não justificar a última linha natural; preservar carriers de separação no fim das linhas/final sem incluir seu avanço no custo. Fechar linhas continuadas com flush_line porque ajustes já foram aplicados; conservar última linha aberta para fechamento causal do owner externo. Restaurar estilo externo, document_language tem primeiro estilo real. Sem pipeline eval, objetos, localização ou mutação de Content.
+`lab/results/construction/diagnostics/correcao-viuvas-orfas-2026-09-28/{before-pdf,before-extra}/` preserves 78 inputs/24 controls/full state in initial.json/before/ at historical vanilla `9f2b6e8715237cb086899a42873660fe744622e8`. page-65-100%-0%-False gives 3+1 Tekt versus 2+2 vanilla; zero costs match and tiny/large-positive retain protection. Pinned `flow/collect.rs:196-229` enables strictly-positive first-two/last-two and whole-three-line grouping; `flow/distribute.rs:343-364` advances only if required group fits next region. Emit previously progressed line by line. Distribution of words/lines in regions is language, not copied Frame/Child structure or inferred old-scope intent.
 
-## Aceitação
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json` and before/ preserve bilateral U+002D/SHY with coincident geometry across eight controls; approved-before/ records consumer traversal and owner confirmed public layout_types contract.
 
-RED→GREEN: estratégias distinguíveis sob a mesma entrada; auto e overrides lexicais; caixas bilaterais com tolerância 0.0005pt e linhas físicas agrupadas por baseline, não contagem XML. Controles de texto íntegro, estilos fortes/emph, literal leading/trailing, adjacência, overlong, restauração e fallback. Build e lint sem violations.
+paragrafo-tracking-global-2026-09-29/focused-before/results.json diverges with explicit tracking while no-tracking-baseline.json matches. paragraph_emit.rs:5-75 emits words/gaps without interunit intervals; incremental space.rs:22-32/word_layout.rs:29-58 already applies them. Extended selection is invalid unless emission uses identical fixed intervals without exporter duplication.
 
-## Hifenização global — 2026-09-28
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{probe.json.gz,initial.json.gz,inventory.json}` refutes isolated 456 789 resolution and preserves source/state/binaries. Human ratification of immutable API/three optional fields is manifest 1ae7513e.
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz` preserves HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree, status/diffstat/UTC and 2,099 sources/L0s. before.json.gz contains 92 pairs; extra-before.json.gz 26; boundary-before.json.gz 10; repeat-before.json.gz 4. Oracle commit: `bd5ebec285505889e8ff1d4f68804ab147a699f3`; binary SHA-256: `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`; initial Tekt: `2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095`. At width 160pt/margin 8/font12, hanging10 leaves first-line x8 and moves continuations x8→18; negative-5 requires x3. RTL leaves first right edge 152 and moves continuations to 142. Tekt ignores the length. MLA defaults to 18pt (1.5em); ambient set 3em does not replace it, while show-set3em requires 36pt; IEEE/Plain do not acquire hanging indent through that show-set. bibliography.where(style:"mla") does not match in the vanilla probe: preserve selector choice rather than forcing override.
 
-O lote before-pdf de `lab/results/construction/diagnostics/correcao-hifenizacao-global-2026-09-28/` mede 67 entradas contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8; estado inicial, binários, fontes e comandos estão em initial.json, before/ e proveniencia.json. paragraph_prepare.rs:80-94 recusa a política true, paragraph_select.rs:66 considera só finais de palavras, paragraph_plan.rs:18 escolhe estratégias já transportadas, break_selection.rs:41-66 hifeniza apenas por overflow local. Vanilla inline/linebreak.rs:170-209 usa os mesmos candidatos no greedy, :626-684 aplica 135*(1+0.15*(max(5-left,0)+max(5-right,0))) por hífen, mais 135 em duas linhas consecutivas; inline/shaping.rs:583-635 desenha o glyph de '-' mas conserva SHY no texto copiado. Isto mede comportamento e contratos, não intenção histórica.
+Inline-only Block/Box bodies ignore hanging10; explicit Par inside them and Block with Parbreak apply it. Simple Heading/Raw/List/Quote do not. Partial, zero, repeated and empty-scope declarations close boundaries: FIRST/MIDDLE/LAST at 5.168/27.464/49.76 versus all 5.168 in Tekt. The first lexical probe used literal brackets; it was refuted, corrected to #[...] and retained as extra-before-initial, not evidence of Styled scope. Extreme values produce extractor-clipped paint; missing pdftotext output does not mean Content deletion. A partial 24pt font does not change the shared length's 12pt em, as partial-font records.
 
-### Decisão
+Pinned source: `typst-realize/src/lib.rs:1061–1085,1190–1219` distinguishes fragment/Par and interruption; `typst-layout/src/flow/collect.rs:72–134` selects flow; `inline/mod.rs:174,216–221` and `collect.rs:141–147` resolve shape; `inline/line.rs:496–503` positions; `rules.rs:510–523` provides CSL inset/compensation. `typst-library/src/model/bibliography.rs:112–127,367` determines default/precedence. This measures language/geometry, requiring neither vanilla Rust structure nor inferred historical intent. Lost boundaries, run-relative em, double indent, page reset, imposed greedy fallback, lost copies, reexecuted callbacks or control regressions refute closure.
 
-Correção interna ADR-0127 em fluxo contínuo: sem campo/trait/assinatura pública, modo novo, fase ou quebra de compatibilidade. A restrição histórica de hifenização desligada é supersedida nesta rodada para palavras latinas de estilo/política uniformes, inclusive pontuação terminal simples. Mistura dentro da palavra, apostrofes internas, outras quebras UAX14, largura variável e objetos mantêm fallback. Texto copiado '-' versus SHY continua limitação de export independente; a geometria usa o glyph de '-' separado, como fonte medida. Aceitação mede palavras/posições/estilos e política lexical, normaliza somente o hífen de quebra para a comparação geométrica e declara a divergência textual separadamente.
+mixed-style-metrics-2026-10-18first-after/first-bib-after/first-regions-after/candidate1-sources preserve first candidate changing only line_commit with seven passing tests. audit-candidate1 finds matching SVG heading y in six bibliography cases and italic→roman, but forced still differs 0.156. linebreak.rs:46–58 appends ExplicitLinebreakBoundary with empty exterior-style Text: causal for bidi, not material face. Twenty regional PDF controls preserve same binaries/pin/sources as before-sources: at 39.44pt Tekt sends ITALIC to page 2 versus vanilla page 1;55.14pt forced 2 versus 1 pages;70pt wrap 3+1 versus 2+2 lines. Initial fix corrects wrapped y but not regional decisions. Invalid multipage SVG-without-template attempt stays in regions-before as a failed command, not SVG parity proof; use valid PDF and future regional script requests PDF only.
 
-Extrair emissão de uma linha preparada para uso compartilhado. Entrada das linhas partidas tem ranges medidos e hífen como fragmento separado sem gerar Space/TextSeparator no interior da palavra. Manter ajuste/continuação/última linha/restauração. Coordenador pode emitir Vec<Prepared> escolhido pelo novo owner, sem novas quebras locais.
+region_progress.rs:83–88 installs one-face baseline without updating assumed ascent;`:143–152` admits forecast before actual text. paragraph_pagination.rs:43–59 rejects differing edges and disables positive-cost grouping despite known selected ranges. Pinned flow/collect.rs:196–239 protects first/last actual-height frames; distribute.rs:343–364 advances group only if it fits next region. Language geometry/words/pages, not Profile shape/SVG IDs. Premature jump/recount/new callbacks/Group-based metrics/width-selection-leading changes or column/note/float/NoTypography regression refute correction.
 
-### Medição e correção da margem óptica
+## Exclusive ownership and current contract
 
-after-pdf inicial mede quebras coincidentes, mas linhas justificadas com hífen ficam 2.1252pt aquém do vanilla; en-140-optimized-True põe ex- em xMin115.26/xMax132 contra117.385197/134.1252. Fonte: lab/typst-original/crates/typst-layout/src/inline/line.rs:518-526 acrescenta overhang somente ao remaining da emissão; :708-709 fixa 0.55 para glyph '-' ou SHY; text/mod.rs:391-393 default true. Não alterar custo/seleção. Prepared guarda right_overhang privado, default zero; linhas materializadas terminadas em hífen recebem dash_width*0.55; emissor usa width+overhang para ajustar os espaços. Overhang textual configurável e de outras pontuações permanece escopo pendente, com controle separado.
+Layer L1. Sole consumer: `01_core/src/compiler/layout/paragraph_emit.rs`. Materialize selected ranges without incremental reselection/eval/objects/location/public Content mutation. Initial certificate is whole Latin paragraph Text/Space/SpaceFromNewline/Empty/Sequence/typographic Styled/Strong/Emph, LTR/no math-smallcaps/finite constant width/outside columns-cells-floats. Uniform tracking is included only under its measured extension. Certify entire input before any emission; refusal retains prior path. Later global-hyphenation extension refines initial disabled-hyphenation limit only for Latin words with uniform style/policy and simple terminal punctuation; mixed-word style/internal apostrophes/other UAX14/variable width/objects retain fallback. No complete optimization/UAX14/state-of-art claim.
 
-## Proteção regional de viúvas/órfãs — 2026-09-28
+Emit effective-style words/fragments through private word_layout::prepared with baseline admission. Preserve space origin and adjusted nominal advance once. For overfull line shrink spaces proportionally by at most 1/3; for justified continued lines stretch proportionally up to 1/2 then distribute remainder equally per opportunity. Natural last line is not justified. Keep separation carriers at line/final end without their advance in line cost. Continued lines use flush_line because adjustments are already applied; last line remains open for external causal closure. Restore outer style; document_language takes first real style.
 
-### Medição anterior à decisão
+Extract single-prepared-line emission for shared use; hyphenated input provides measured ranges and a separate hyphen fragment, with no inserted Space/TextSeparator within word. Coordinator can emit selected Vec<Prepared> without new local breaks. Pass Fragment replacement directly to prepared adapter without changing break/geometry/style. Transported causal SHY identity does not itself certify every exporter; geometric comparison normalizes only break hyphen while separately reporting copy-text divergence rather than hiding it.
 
-`lab/results/construction/diagnostics/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
+Prepared right_overhang defaults 0; materialized hyphen-final lines receive dash_width*0.55, and emitter uses width+overhang only for space adjustment. Cost/selection stay unchanged. Other-punctuation/configurable textual overhang remains separate pending scope.
 
-### Decisão vigente
+Before each emitted gap with predecessor on same line, and before word after gaps included on that line, advance exactly one signed tracking interval. First leading Literal gap has no predecessor; gap before a new-line word belongs to previous line and adds no interval before new word. Justification alters only nominal space widths, never tracking. Preserve origin/text/glyph/carrier and identical measured/emitted extent, public helper/phase/refused-content behavior.
 
-Correção interna/de paridade em fluxo contínuo ADR-0127: nenhum campo/trait/assinatura pública, flag ou fase nova. Supersede a exclusão anterior de widow/orphan exclusivamente para parágrafos preparados com métricas verticais uniformes, sem baseline offset, geometria paginada constante, sem colunas/células/subframes/notas/floats ou transação regional ativa. Os demais contextos conservam fallback e limites explícitos. Não promete algoritmo completo nem desempenho.
+Before admitting/emitting each line, prepare its hanging context and use effective initial/continued width of same shape. Preserve carriers/natural-last-line/regional admission; LineCommit commits paragraph-indent State. No new selection/eval.
 
-O módulo privado paragraph_pagination possui exclusivamente certificação vertical, agrupamento e admissão regional. Recebe ranges já escolhidos, não refaz seleção, não emite glyphs nem duplica a lógica de new_page. A certificação inteira precede emissão; todos os fragmentos devem ter size/arestas/leading iguais ao estilo exterior (negrito/itálico admissíveis se as métricas coincidirem), e finite nonnegative top/descent/leading. Bounds auto não precisam de proteção. Respeitar a baseline inicial e o colapso existente de block-chain antes de comparar necessidade real com page_bottom_limit. Novo espaço disponível é calculado com margens resolvidas para a página seguinte. Avançar só se há material na região atual e o grupo cabe na próxima. Grupos muito altos conservam progresso ordinário e conteúdo íntegro; nunca repetir new_page em laço.
+Pass already-selected emit ranges or emit_prepared_lines slice into private pagination certifier and reuse borrowed Profile for each line's admission. Do not duplicate geometry/group_size, redo breaks, change styles/carriers/justification or execute future content to predict lines. `00_nucleo/prompts/core/compiler/layout/paragraph_pagination.md` retains its own exclusive regional responsibility.
 
-Helpers privados de text_costs resolvem widow/orphan independentemente dos pesos hyphenation/runt, reutilizando FIELDS, com default Ratio 1 e teste estrito > 0. O default de estratégia do planejamento passa a Simple para parágrafo comum sem linebreaks, permitindo a preparação necessária à proteção padrão; a escolha automática por justify e todos os contextos recusados permanecem. Emitir sem alterar justificação, carriers, última linha aberta, fronteiras e restauração lexical. Preservar notas e colunas por não aplicar proteção incompleta nesses caminhos.
+`00_nucleo/prompts/core/compiler/layout/paragraph_pagination.md` exclusively certifies vertical geometry/groups/regional admission from already-selected ranges, without reselection/glyph emission/duplicate new_page. Initial scope is prepared uniform vertical metrics/zero baseline offset/constant paginated geometry, outside columns/cells/subframes/notes/floats/active regional transaction; refused contexts retain fallback. Full certification precedes emission. Initial size/edges/leading match exterior, bold/italic allowed when metrics equal, finite nonnegative top/descent/leading. Later same-size/leading mixed-face certificate refines only edge uniformity as specified by that owner. Auto bounds need no protection; honor initial baseline/block collapse before real need versus page_bottom_limit. Next-region capacity uses next physical-page resolved margins; advance only with material now and group fitting there. Too-tall groups use ordinary progress/full content, never a new_page loop.
 
-Aceitação: RED→GREEN com mesmas palavras distribuídas 2+2 versus 3+1, proteção integral de três, orphan desligado independentemente, grupo excessivo, restauração e default sem flag. Sondas bilaterais com caixas/palavras/páginas, tipos/spans anteriores preservados e controles de fallback. Não usar grupos XML como número físico de linhas. Resselo restrito aos owners, build e crystalline-lint sem erros.
+Private text_costs resolves widow/orphan independently of hyphenation/runt via FIELDS, default Ratio 1 and strict>0. Ordinary paragraph without linebreaks defaults to Simple to enable default protection; automatic-by-justify and all refused contexts remain. Preserve justification/carriers/terminal-open line/boundaries/lexical restore; do not apply incomplete protection to notes/columns.
 
-## Identidade textual — materialização aprovada
+Ratified bidi references use None in uncertified constructors and `..` in read patterns, preserving language and pinned transforms without extending phase/API.
 
-### Medição anterior à decisão
+## Acceptance and incomplete scope
 
-As sondas bilaterais e o estado exato em
-`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
-e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
-A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
+Internal parity follows ADR-0127 continuous flow without new public field/trait/signature/mode/flag/phase/compatibility. L0 precedes RED→GREEN/restricted resealing and valid owner graph.
 
-### Responsabilidade exclusiva
+Strategies must differ on discriminating same-input tests, including auto/lexical overrides; bilateral boxes use 0.0005pt tolerance and physical baseline-grouped lines rather than XML counts. Preserve full text/Strong-Emph styles/Literal leading-trailing/adjacency/overlong/restoration/fallback, build/lint without violations. Hyphenation acceptance uses words/positions/styles/lexical policy, measured geometric normalization only and separately explicit text-identity limits; overhang cannot change selector cost.
 
-Encaminhar replacement do Fragment ao adapter word_layout::prepared, sem escolher quebras ou modificar geometria/estilo.
+RED→GREEN covers identical words 2+2 versus 3+1, whole-three protection, independently disabled orphan, too-large group, restoration and default without flag. Bilateral boxes/words/pages retain prior types/spans/fallback; XML groups do not count physical lines. Restricted owners/reseal/build/lint remain required. This supersedes old widow/orphan exclusion only inside measured certificates, not full algorithm/performance/parity.
 
-O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
-possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
-transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
-## Emissão de tracking uniforme certificado — 2026-09-29
+Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
 
-Medição anterior à decisão: `paragrafo-tracking-global-2026-09-29/focused-before/results.json` mostra páginas e caixas divergentes com tracking explícito; `no-tracking-baseline.json` coincide sem essa propriedade. `paragraph_emit.rs:5-75` emite gaps e palavras sem aplicar intervalos entre unidades; o percurso incremental os aplica em `space.rs:22-32` e `word_layout.rs:29-58`. A seleção ampliada só pode ser aceita se a emissão usar os mesmos intervalos fixos, sem duplicá-los no PDF.
-
-Antes de cada gap materializado com antecessor na mesma linha, e antes da palavra após gaps incluídos na linha, avançar exatamente um tracking assinado. O primeiro gap literal inicial não tem antecessor; gap anterior a uma palavra que abre nova linha pertence à linha precedente e não acrescenta intervalo antes da nova palavra. Ajustes de justificação alteram apenas a largura base dos espaços, nunca os intervalos de tracking. Conservar origem, texto, glyphs e carriers; medir e emitir a mesma extensão. Não mudar o helper público, fase do pipeline nem comportamento de conteúdo recusado.
-
-## Migração do carrier bidi ratificado (2026-10-05)
-
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
-
-## Recuo francês — aplicação física (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
-status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
-extra-before.json.gz contém26; boundary-before.json.gz contém10 e
-repeat-before.json.gz contém4. Oracle bd5ebec285505889e8ff1d4f68804ab147a699f3,
-binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
-Tekt inicial2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095.
-Em160pt/margem8/font12, hanging10 mantém a primeira linha x8 mas move
-continuações x8→18; negativo-5 exige x3. RTL mantém primeira borda direita152
-mas continuações vão para142. O Tekt ignora o comprimento. MLA tem default
-18pt (1.5em), set ambiente3em não o troca, show-set3em exige36pt; IEEE/Plain
-não adquirem recuo de hanging por esse show-set. bibliography.where(style:"mla")
-não casa na sonda vanilla: conservar a decisão do seletor, não forçar override.
-
-Block/Box com body apenas inline ignoram hanging10; Par explícito dentro
-deles e Block com Parbreak aplicam. Heading/Raw/List/Quote simples não o
-aplicam. Declaração parcial, zero, repetida e escopo vazio fecham fronteiras:
-FIRST/MIDDLE/LAST em5.168/27.464/49.76, contra todos5.168 no Tekt. A primeira
-sonda lexical usou colchetes literais: foi refutada, corrigida para #[...] e
-preservada como extra-before-initial; não é evidência de escopo Styled.
-Valores extremos geram tinta recortada pelo extrator: não equiparar ausência
-em pdftotext a apagamento de Content. Fonte parcial24pt não muda o em do
-comprimento compartilhado12pt, como partial-font registra.
-
-Fontes pinadas: typst-realize/src/lib.rs:1061–1085,1190–1219 distinguem
-fragmento/Par e interrupção; typst-layout/src/flow/collect.rs:72–134 escolhe
-fluxo, inline/mod.rs:174,216–221 e collect.rs:141–147 resolvem forma;
-inline/line.rs:496–503 posiciona; rules.rs:510–523 faz inset/compensação CSL.
-typst-library/src/model/bibliography.rs:112–127,367 determina o default e
-precedência. Isso mede língua/geometria; não exige a estrutura Rust vanilla
-nem atribui intenção histórica. Refutação por fronteira perdida, em de run,
-recuo duplo, reset em página, fallback greedy imposto, cópia perdida, callbacks
-reexecutados ou regressões dos controles impede fechamento.
-
-### Classificação e limites
-
-Correção interna/de paridade ADR-0127, fluxo contínuo: sem campo ou assinatura
-pública, flag/default externo novo, fase ou ordem de realização diferente.
-A nova forma inicial/continuação supersede somente a limitação correspondente
-de largura constante; RTL latino certificado segue as condições do núcleo,
-sem BidiCursor ativo/tracking e sem inventar BidiSpan. Os demais limites
-anteriores continuam. Os valores/cópia fora da página requerem inspeção dos
-frames ou SVG, não igualdade de extração recortada. Não antecipar R3-T1.
-
-### Responsabilidade exclusiva deste owner
-
-Preparar contexto da linha antes de admitir/emiti-la; ajuste usa a largura efetiva inicial/continuada da mesma forma, mantendo carrier, última linha natural e admissão regional. Continuar sem selecionar de novo ou executar eval. Estado de linha do novo owner recebe commit pelo LineCommit.
-
-### Aceitação
-
-RED→GREEN antes da implementação; controles fonte→layout e bilaterais dos sinais,
-fronteiras, variantes e restauração pertinentes. Não deduzir cobertura de todas
-as alternativas por executar um arm agrupado: classificações nominais fechadas
-do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
-Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
-e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.
-
-## Faces mistas, fronteiras e regiões — refinamento medido 2026-10-18
-
-### Medição antes da decisão
-
-Os registros first-after/first-bib-after/first-regions-after e
-candidate1-sources em mixed-style-metrics-2026-10-18 preservam o candidato
-com apenas line_commit alterado e os sete testes verdes. audit-candidate1
-mede y SVG igual no título dos seis casos bibliográficos e na mistura
-itálico→romano, mas forced ainda difere0.156. linebreak.rs:46–58 acrescenta
-ExplicitLinebreakBoundary com Text vazio de estilo exterior; esse filho é
-causal para bidi, não uma face material.
-
-Os20 controles regionais PDF preservam os mesmos binários/pin e fontes do
-registro before-sources. Na altura39.44pt, o Tekt põe ITALIC na página2;
-o vanilla o conserva na página1. Em55.14pt forced usa2 páginas vs1. Em70pt
-wrap distribui3+1 linhas vs2+2. O primeiro candidato corrige y das linhas
-wrapped, mas não essas decisões regionais. A tentativa SVG sem template
-de páginas foi preservada em regions-before: o oracle recusa saída múltipla
-sem padrão; não é prova SVG de paridade. Para regiões, usar os PDFs válidos,
-e o script regional futuro solicita somente PDF.
-
-region_progress.rs:83–88 instala baseline com uma face mas não atualiza o
-ascent assumido. :143–152 admite só pela previsão, antes do texto real.
-paragraph_pagination.rs:43–59 recusa arestas diferentes, desligando a
-proteção de custos positivos, embora a seleção de ranges já seja conhecida.
-Fonte pinada flow/collect.rs:196–239 protege primeiros/últimos frames com
-suas alturas reais; distribute.rs:343–364 avança o grupo apenas quando cabe
-na próxima região. A geometria/palavras/páginas são linguagem; formato do
-Profile e IDs SVG são mecânica. Refutar por salto precoce, recontagem,
-callbacks novos, métrica por Group, alteração de largura/seleção/leading
-ou regressão de colunas/notas/float/NoTypography.
-
-### Classificação
-
-Refinamento privado de paridade ADR0127 contínuo: sem contrato público,
-flag/default do produto ou fase/ordem de callbacks nova. Preservar caminhos
-recusados/escalares anteriores. A medição amplia apenas a certificação
-regional de texto preparado com mesmo size/leading, baseline_offset zero,
-arestas finitas não negativas e faces com tops/descents diferentes. Tamanhos
-ou leading variáveis continuam fora dessa certificação, sem alegar paridade
-completa nesses casos.
-
-### Responsabilidade exclusiva deste owner
-Encaminhar ao certificador privado os ranges já selecionados no caminho emit e a fatia já preparada de linhas no caminho emit_prepared_lines. Reutilizar o Profile emprestado na admissão de cada linha. Não duplicar geometria/group_size, não refazer seleção, alterar estilos, carriers, justificação ou executar conteúdo para prever futuras linhas.
-
-Aceitação: RED→GREEN das quatro regressões adicionais e dos controles existentes, matriz30+20 regional PDF, corpus132+94+21, suíte ampla/Clippy/Rustdoc/linhagem e12GiB/High8GiB/swap0/jobs1. Registrar as tentativas sem ocultar falhas.
+Mixed-face refinement is private continuous-flow ADR-0127 without public/product-flag/default/phase/callback-order change, preserving earlier refused/scalar paths. Regional certification expands only same-size/leading prepared text, zero baseline_offset, finite nonnegative edges, faces with different tops/descents; variable sizes/leading remain outside it. Require RED→GREEN four added regressions/prior controls,30+20 regional PDFs,132+94+21 corpus, broad suite/Clippy/Rustdoc/lineage under 12GiB/High8GiB/swap0/jobs1, recording failed attempts. No full variable-metrics parity claim.

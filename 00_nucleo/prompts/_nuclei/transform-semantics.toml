@@ -1,34 +1,28 @@
 tekt = 1
 kind = "nucleus"
 id = "transform-semantics"
-title = "Identidade, presença e resolução das transformações"
-
+title = "Transform identity,presence and resolution"
 [[claims]]
 id = "operation-and-presence"
 level = "must"
-statement = "Move, Rotate, Scale e Skew conservam identidade nativa e presença lexical de cada argumento. Omissão, zero, false, auto e alinhamento parcial não colapsam. Matrix é uma operação Rust genérica distinta, nunca inferida como função nativa a partir dos coeficientes."
-
+statement = "Move,Rotate,Scale,Skew retain native identity/lexical argument presence. Omission,zero,false,auto/partial alignment never collapse. Matrix is a distinct generic Rust operation,never inferred native from coefficients."
 [[claims]]
 id = "late-resolution"
 level = "must"
-statement = "Avaliação valida e transporta valores tipados, sem assar defaults de estilo ou resolver comprimentos dependentes de fonte/região/corpo. Layout resolve os valores no uso, produz matriz finita e preserva raiz de pintura; exporters consomem Frame e não repetem layout."
-
+statement = "Eval validates/transports typed values without baking style defaults or resolving font/region/body-dependent Length. Layout resolves at use,produces finite matrix/preserves paint root;exporters consume Frame without repeated layout."
 [[claims]]
 id = "public-observation"
 level = "must"
-statement = "Campos, func, repr, encoders, seletores, igualdade da linguagem e observação conservadora preservam operação, valores e presença. Clone, mapas, wrappers, caches e realização não apagam essa distinção. Campos herdados de set não se tornam lexicalmente explícitos."
-
+statement = "Fields,func,repr,encoders,selectors,language equality/conservative observation retain operation,values/presence. Clone,maps,wrappers,caches/realization never erase distinction. Inherited set fields do not become lexically explicit."
 [[claims]]
 id = "frame-geometry"
 level = "must"
-statement = "Origin resolve cada eixo sobre o frame lógico do corpo, com defaults center/horizon e alinhamentos direcionais resolvidos no estilo vigente. Reflow falso conserva tamanho/baseline/avanço lógicos; reflow verdadeiro transforma os limites e ajusta avanço/baseline segundo a operação. Move altera tinta sem alterar o frame lógico."
-
+statement = "Origin resolves each axis against logical body frame with center/horizon defaults and directional alignment resolved in current style. Reflow false retains logical size/baseline/advance;true transforms bounds/adjusts advance-baseline per operation. Move changes ink without logical-frame change."
 [[claims]]
 id = "no-surrogate-transport"
 level = "must-not"
-statement = "Não codificar argumentos autorais em coeficientes sentinela, Styled artificial, metadata, strings, registry global, Location falsa ou matriz redundante. Não inferir kind pela matriz nem aplicar pivô ou origem duas vezes."
-
+statement = "Do not encode author arguments in sentinel coefficients,artificial Styled,metadata,strings,global registry,false Location/redundant matrix. Never infer kind from matrix or apply pivot/origin twice."
 [[claims]]
 id = "target-boundary"
 level = "must"
-statement = "Transformações não promovem o documento HTML a layout paginado. O diagnóstico estrito vigente para conteúdo não suportado permanece; não copiar a eliminação do body observada no pin HTML. Ilhas html.frame continuam com seu contrato próprio."
+statement = "Transforms never promote HTML to paged layout. Existing strict unsupported-content diagnostic remains;do not copy observed pinned-HTML body deletion. html.frame islands retain their own contract."

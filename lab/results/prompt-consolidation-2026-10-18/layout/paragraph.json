@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/paragraph.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Full original unique paragraphs and exact prior repeats reviewed. Reconciled all empty-Par supersessions through final last-empty-Text style rule, Source nominal projection, exact tolerances/SARIF/probes, lexical measurement/direction/bidi/prepared/hanging and retained constructor/nested/HTML gaps.",
+  "original_sha256": "e7bf420e17db9e5208551fbbbabebeec2139207e72f5315a8dc9edfc11616082",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/paragraph.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

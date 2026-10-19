@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/paragraph_indent.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited unique clauses/exact repeats; consolidated complete-trunk scope/Dir, pure initial/continued shape, once-only material application and read-only decoration previews/applied guard. Preserved no-consensus/no-opaque-preview, negative offsets, regional-first-line rules and all restrictions.",
+  "original_sha256": "2fd1e17d98a302a5300dd92bf3c5d8b9ac61dce9c22b95b7480feaf18353397e",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/paragraph_indent.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

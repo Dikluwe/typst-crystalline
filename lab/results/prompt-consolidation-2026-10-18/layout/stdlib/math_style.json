@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/math_style.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated all14 mappings, MathText/missing-body corrections, exact mono/script diagnostic exception, inner-axis precedence, qualified ratification and incomplete size/Greek scope.",
+  "original_sha256": "f81821861ddb96956b26f4354c20c1102e3e3d17f0d6a7966651126d288bff6e",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/math_style.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

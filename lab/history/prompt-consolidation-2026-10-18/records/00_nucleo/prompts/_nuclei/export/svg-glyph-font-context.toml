@@ -1,0 +1,34 @@
+tekt = 1
+kind = "nucleus"
+id = "svg-glyph-font-context"
+title = "Identidade de fonte para glifos matemáticos SVG"
+
+[[claims]]
+id = "resolved-font-identity"
+level = "must"
+statement = "Cada FrameItem::Glyph promovido no SVG usa a mesma identidade de fonte resolvida pela pipeline para base_char e style; glyph_id nunca é interpretado fora dessa fonte."
+
+[[claims]]
+id = "immutable-l3-context"
+level = "must"
+statement = "A resolução é transportada como contexto L3 imutável; não altera FrameItem, não executa novo layout e não consulta filesystem no exporter."
+
+[[claims]]
+id = "stable-request-key"
+level = "must"
+statement = "A associação usa uma chave normalizada das propriedades que participam da resolução e aponta ao FontKey completo; não depende de índice posicional, endereço, ordem de travessia ou ocorrência incidental."
+
+[[claims]]
+id = "observable-glyph"
+level = "must"
+statement = "O SVG preserva outline, posição, escala e fill observáveis; ids de defs, ordem e ortografia XML são mecânica."
+
+[[claims]]
+id = "ambiguous-is-unknown"
+level = "must-not"
+statement = "Fonte ausente ou ambígua é promovida a glifo preservado por tentativa de glyph_id em fontes incidentais."
+
+[[claims]]
+id = "fontless-wrapper-scope-out"
+level = "must"
+statement = "Wrappers SVG sem fontes mantêm o scope-out explícito e não fabricam fallback textual nem outline."

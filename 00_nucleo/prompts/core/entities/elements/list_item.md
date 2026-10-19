@@ -1,75 +1,54 @@
 # Prompt L0 — `entities/elements/list_item` — `ListItemElem`
 Hash do Código: e9d2f60c
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/list_item.rs`
-**Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Campo
-`marker` adicionado em **P470**; campos `indent`/`body_indent`/`tight` adicionados
-em **P505**. Trait, regras partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`.
-**Não-locatável** (confirmado P318).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/list_item.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
-
-## Struct
+## Contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct ListItemElem {
     pub body:         Content,
-    pub marker:       Option<ListMarker>,  // None = bullet padrão "•"
-    /// **P504** — alinhamento do marker (Typst 0.15.0). Layout real é
-    /// scope-out; o campo é aceite e preservado sem efeito visual.
+    pub marker:       Option<ListMarker>,
     pub marker_align: Option<Align2D>,
-    /// **P505** — indentação do marker em relação à margem esquerda.
     pub indent:       Option<Length>,
-    /// **P505** — indentação do corpo do item em relação ao marker.
     pub body_indent:  Option<Length>,
-    /// **P505** — `false` adiciona espaçamento de parágrafo entre itens;
-    /// `true` (default) mantém os itens justapostos.
     pub tight:        Option<bool>,
 }
 ```
 
-`Content::ListItem(Arc<ListItemElem>)`.
+Preserve Content::ListItem(Arc<ListItemElem>). None marker uses the default
+bullet `•`. marker_align is accepted/preserved but its actual layout was
+explicitly excluded. indent is marker offset from the left margin; body_indent
+is body offset from marker. tight false adds paragraph spacing between items;
+true is the default adjoining behavior. Layout resolves these semantics in its
+owner; the entity preserves all optional values.
 
-Construtor sem marcador (retrocompatível):
-`Content::list_item(body: Content)` → `ListItemElem { body, marker: None, marker_align: None, indent: None, body_indent: None, tight: None }`.
+Content::list_item(body: Content) sets every option None.
+Content::list_item_with_marker(body: Content, marker: ListMarker) sets only
+marker Some. Content::list_item_full(body: Content, marker: Option<ListMarker>,
+marker_align: Option<Align2D>, indent: Option<Length>, body_indent: Option<Length>,
+tight: Option<bool>) propagates every field unchanged.
 
-Construtor com marcador (P470):
-`Content::list_item_with_marker(body: Content, marker: ListMarker)`
-→ `ListItemElem { body, marker: Some(marker), marker_align: None, indent: None, body_indent: None, tight: None }`.
+Plain text is rendered marker (or `•`) plus one space and body plain text.
+is_empty defaults false. Both maps recurse into body, preserving marker,
+marker_align, indent, body_indent, tight. Field/kind/payload default None;
+non-locatable. Derived equality compares all six fields; keep specified derives.
 
-Construtor completo (P504/P505):
-`Content::list_item_full(body: Content, marker: Option<ListMarker>, marker_align: Option<Align2D>, indent: Option<Length>, body_indent: Option<Length>, tight: Option<bool>)`
-→ `ListItemElem { body, marker, marker_align, indent, body_indent, tight }`.
+## Boundary rationale and acceptance
 
-## `impl Element for ListItemElem`
+Upstream stores indent/body-indent/tight on a list container; Crystalline
+expands list into a Sequence and replicates these values into each item.
+That is deliberate representation mechanics under ADR-0107; language argument
+semantics and visual output remain acceptance, not identical data structures.
+For body `um`, no marker gives `• um`; Custom(`→`) gives `→ um`.
+Verify recursive maps with all five options preserved, equality including
+indent/body_indent/tight, and full-constructor propagation. The historical
+marker-alignment scope-out remains unclosed by this cleanup.
 
-| método | comportamento |
-|---|---|
-| `plain_text` | `format!("{} {}", self.marker.as_ref().map(|m| m.render()).unwrap_or("•"), self.body.plain_text())` |
-| `is_empty` | default `false` |
-| `map_content` | **recursivo** no body; **preserva** `marker`, `marker_align`, `indent`, `body_indent`, `tight` |
-| `map_text` | **recursivo** no body; **preserva** `marker`, `marker_align`, `indent`, `body_indent`, `tight` |
-| `get_field` | default `None` |
-| `element_kind`/`to_payload` | default `None` (não-locatável) |
+## Historical record
 
-## `eq` estrutural
-
-`#[derive(PartialEq)]` compara `body + marker + marker_align + indent + body_indent + tight`.
-
-## Nota arquitetural P505
-
-No Typst vanilla `indent`/`body-indent`/`tight` são propriedades do container
-`list`. No cristalino a função `list(...)` expande para uma `Sequence` de
-`ListItemElem`; os valores do container são **replicados em cada item**.
-Esta é uma divergência mecânica intencional (ADR-0107): a paridade é com a
-**linguagem** (resultado visual e semântica dos argumentos), não com a estrutura
-interna de dados.
-
-## Critério
-
-- `plain_text` de `ListItemElem { body: "um", marker: None, marker_align: None, indent: None, body_indent: None, tight: None }` == `"• um"`.
-- `plain_text` de `ListItemElem { body: "um", marker: Some(Custom("→")), ... }` == `"→ um"`.
-- `map_content`/`map_text` recursam no body e preservam `marker`, `marker_align`, `indent`, `body_indent`, `tight`.
-- Igualdade estrutural inclui `indent`, `body_indent`, `tight`.
-- `Content::list_item_full` cria item com todos os campos propagados.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/list_item.md`. Historical observations are not a new parity certification.

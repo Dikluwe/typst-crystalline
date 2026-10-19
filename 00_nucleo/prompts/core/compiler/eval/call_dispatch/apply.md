@@ -2,75 +2,65 @@
 Hash do Código: e392d5bf
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:32890de1247262b54fa39d7ae1d640a068774a28cf1fa1c8890d0508d999af51
+- 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329
 
-## Ownership e medição
+## Ownership and extraction evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/apply.rs`. No HEAD `d5c563dfab39f789e8e2f72c9a9364f5a761e3ca` e árvore limpa, `01_core/src/compiler/eval/call_dispatch.rs:503-603` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-call-dispatch-2026-09-30-before.json.gz`.
+Layer L1. Sole productive consumer:
+`01_core/src/compiler/eval/call_dispatch/apply.rs`. At clean HEAD
+`d5c563dfab39f789e8e2f72c9a9364f5a761e3ca`, call_dispatch.rs:503–603 contains
+extracted behavior. SHA-256/time/initial state are in
+`lab/results/construction/diagnostics/atomizacao-call-dispatch-2026-09-30-before.json.gz`.
 
-## Contrato
+## Exclusive contract
 
-Aplicar FuncRepr fechado a closures, elementos, plugins e funções nativas, incluindo seleção de span nativo. Preservar assinaturas públicas, diagnósticos, prioridades de intercepção, rastros e semântica de argumentos especificados em `00_nucleo/prompts/core/compiler/eval/call_dispatch.md`. A extração permanece em L1 com despacho estático, sem I/O ou estado global mutável.
+Apply closed FuncRepr to closures/elements/plugins/native functions, including native span selection.
 
-## Aceitação
+Preserve public signatures/diagnostics/interception priorities/traces/argument
+semantics in `00_nucleo/prompts/core/compiler/eval/call_dispatch.md`. Static L1,
+no I/O/mutable globals. Preserve L1/call_dispatch tests and crystalline-lint with
+valid ownership/hashes. Infer no performance gain.
 
-Preservar a suíte L1, os testes de call_dispatch e `crystalline-lint .` com ownership e hashes corretos. Não inferir ganho de desempenho.
+## Native-format identity evidence and application boundary
 
+### Evidence before decision
 
-## Formatos como funções de elemento — 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
-conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
-baseline-reuse.json prova igualdade de fontes/configuração/binário com a
-matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
-mede 144 casos detalhados; before-compat.json.gz mede 456 controles de
-nomes, aliases e namespace. Cada sonda conserva argv, binários e saídas.
-O pin é `9f2b6e8715237cb086899a42873660fe744622e8`, executável SHA-256
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree.
+`lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/before.json.gz`
+retains UTC/status/exact diffstat/hashes; baseline-reuse.json proves source/
+configuration/binary equality with prior3956-case/eight-profile final matrix.
+before-batch.json.gz measures144 detailed cases; before-compat.json.gz456 name/
+alias/namespace controls. Probes keep argv/binaries/output. Historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`, executable SHA
 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+Fifteen remaining routes reject where/kind only in Tekt. format.rs:17–27/96–146
+shares native_format across five formats, so pointer alone cannot distinguish
+schemas. pinned-schema.json.gz retains nine upstream declarations/blob/hash/
+lines/elem attributes. FuncRepr is pub(crate), entities/func.md:21/func.rs:24;
+retificacao-func-repr.md refutes prior claim L0 made it public.
+public-contract-before.json fixes public signatures/reexports/structs. Internal
+representation/parity classification, not new public contract or render-inferred
+intent.
 
-As quinze rotas restantes são rejeitadas por where/kind no Tekt e aceitas
-no pin. format.rs:17–27/96–146 compartilha native_format entre os cinco
-formatos, logo só ponteiro não distingue schemas. pinned-schema.json.gz
-conserva nove declarações upstream com blobs/hash/linhas e atributos elem.
-FuncRepr é pub(crate) em entities/func.md:21 e entities/func.rs:24; a nota
-anterior de que o L0 o mostrava público foi refutada em retificacao-func-repr.md.
-public-contract-before.json fixa assinaturas, reexports e structs públicos
-antes da mudança; a classificação é representação interna e paridade, não
-novo contrato público ou inferência de intenção por render.
+Apply Format in same static Native arm using exact existing NativeFunc.call/
+ctx/args/World/current_file. No recursion/wrapper/new phase/context installation
+or restoration. native_fn_addr span identity keeps same pointer.
 
-### Responsabilidade exclusiva
+### Acceptance and scope
 
-Aplicar Format pelo mesmo braço estático de Native, usando exatamente o
-NativeFunc.call, ctx, args, World e current_file existentes. Não introduzir
-chamada recursiva/wrapper, nova fase ou nova instalação/restauração de contexto.
-A identificação de span por native_fn_addr continua com o mesmo ponteiro.
+Consume pinned format-native-identity nucleus. Native/Format may share body
+because payload/ABI/projection/execution are same; independently exercise both
+in name/namespace/pointer/Eq-Hash/clone-With/dispatch tests. Inventory new V19
+unions/link tests, no suppression. Explicitly name new variant in closed matches.
+Continuous ADR-0127: no new external definition/signature/field/trait,
+compatibility/default/phase. Before code, real functional RED for15 routes via
+current factories plus real observation against unmarked Native. GREEN requires
+full corpus/144 field-call cases/456 compatibility controls unchanged outside
+where/kind. Compare public-contract-before/after and sizeof before/after.
 
-### Aceitação e fronteiras
-
-Consumir as invariantes compartilhadas do Núcleo Tekt pinado
-`00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml`. As novas
-alternativas Native/Format são agrupáveis porque usam o mesmo payload/ABI
-para projeção e execução; cada uma deve ser exercitada nos testes de nome,
-namespace, ponteiro, Eq/Hash, clone/With e despacho. V19 novo nessas uniões
-deve ser inventariado e ligado aos testes; não adicionar suppressions.
-A nova variante deve ser explicitamente nomeada nos matches fechados.
-
-Fluxo contínuo ADR-0127: nenhuma definição, assinatura, campo ou trait
-externo novo, compatibilidade, default ou fase muda. Antes do código, RED
-funcional dos quinze casos por factories atuais e controle de observação
-real contra Native não marcada. GREEN exige corpus completo, 144 casos de
-campos/chamadas e 456 controles de compatibilidade preservados fora de
-where/kind. Comparar public-contract-before/after e sizeof antes/depois.
-
-L0 antes do código; ownership/V26 antes de resselo restrito aos onze pares.
-Build, suíte workspace, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26, reverse
-e diferencial global sem novo erro/aviso. Comandos pesados sequenciais sob
-MemoryMax12GiB/High10GiB/swap0/jobs1. Rastrear notas V19 legítimas com cobertura.
-
-Esta etapa fecha admissão where/kind, não todas as operações de seleção,
-show/query, síntese, morfologia dos carriers ou counter. As frentes FG1, RM1,
-SY1, RG1 e V16 anteriores preservam seus escopos/gates; não aplicar candidatos
-antigos por cópia nem publicar.
+L0 before code, ownership/V26 before restricted11-pair reseal. Build/full suite/
+strict Clippy-Rustdoc/fmt/V1/V5/V15/V26/reverse/global differential without new
+error-warning. Heavy tasks sequential MemoryMax 12 GiB/High 10 GiB/swap0/jobs1.
+Track legitimate V19 with coverage. Closes where/kind admission only, not all
+selection/show/query/synthesis/carrier morphology/counter. FG1/RM1/SY1/RG1/prior
+V16 retain scope/gates; copy no old candidate or publish.

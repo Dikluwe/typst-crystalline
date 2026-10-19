@@ -1,14 +1,18 @@
 # Prompt L0 — `entities/elements/place` — `PlaceElem`
 Hash do Código: 843101c4
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/place.rs`
-**Origem**: modelo D (ADR-0105), **Lote 9 P324** (por largura). Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável**. Contentor — `map_*` recursam
-no `body`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/place.rs`
+**Architecture:** ADR-0105. The trait contract is owned by
+`00_nucleo/prompts/core/entities/elements/mod.md`.
 
----
+## Evidence before specification
 
-## Struct
+Original extraction anchors: `content.rs:1824`, `content.rs:1974`, `content.rs:2346`, `content.rs:2612`.
+These historical coordinates support the ownership boundary; they are not
+fresh current-pin language-parity measurements.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
@@ -19,29 +23,24 @@ pub struct PlaceElem {
     pub scope:     PlaceScope,
     pub float:     bool,
     pub clearance: Option<Length>,
-    pub body:      Content,            // era Box<Content>
+    pub body:      Content,
 }
 ```
 
-`Content::Place { alignment, dx, dy, scope, float, clearance, body }` →
-`Content::Place(Arc<PlaceElem>)`. Construtor ergonómico: `Content::place(...)`
-(7 campos + body, na ordem do enum).
+## Behavior and acceptance
 
-> **`Hash` manual via Debug**: `dx`/`dy` são `f64`; `Align2D` e
-> `Option<Length>` também não implementam `Hash` → `impl Hash {
-> format!("{self:?}").hash(state) }` (paridade `content_hash`; ressalva
-> `-0.0`≠`0.0`). `PartialEq` deriva (todos os campos implementam `PartialEq`).
+Preserve `Content::Place(Arc<PlaceElem>)` and `Content::place(...)` in
+existing field order. PartialEq compares all seven struct fields. Hash remains
+manual through Debug because dx/dy, Align2D, and Option<Length> lack Hash;
+retain the signed-zero caveat. Plain text delegates to body; emptiness stays
+the default false and must not delegate to body. Both maps recurse into body
+and preserve alignment, dx, dy, scope, float, clearance. Field/kind/payload
+retain defaults; non-locatable. Verify all fields, maps and nonempty identity.
+The original constructor note said "7 fields + body" although the struct has
+six non-body fields plus body; that count is a documentary inconsistency,
+not authorization to add an argument or change the signature.
 
-## `impl Element for PlaceElem`
+## Historical record
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.body.plain_text()` (`content.rs:1824`) |
-| `is_empty` | **default `false`** — `Place` cai em `_ => false` no hub; **não delega**. Preservar. |
-| `map_content` | **recursivo** no `body`, preserva os 6 campos cosméticos (`content.rs:2346`) |
-| `map_text` | **recursivo** no `body`, preserva os 6 campos (`content.rs:2612`) |
-| `get_field`/`element_kind`/`to_payload` | default |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara os 7 campos (paridade `content.rs:1974`).
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/place.md`. Historical observations are not a new parity certification.

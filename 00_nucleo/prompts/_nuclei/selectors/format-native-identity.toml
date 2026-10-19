@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "format-native-element-identity"
-title = "Identidade interna dos formatos nativos"
-
+title = "Internal identity of native formats"
 [[claims]]
 id = "typed-witness"
 level = "must"
-statement = "Os cinco formatos svg/png/pdf/html/bundle preservam uma testemunha nominal privada, transportada pela Func efetiva e seus clones. O callback compartilhado, nome, namespace e igualdade Rust não autenticam essa identidade; reconstruir uma Native comum pelo mesmo ponteiro não copia a testemunha."
-
+statement = "svg/png/pdf/html/bundle retain a private nominal witness transported by actual Func and clones. Shared callback,name,namespace and Rust equality do not authenticate it; reconstructing ordinary Native from same pointer does not copy witness."
 [[claims]]
 id = "native-projections"
 level = "must"
-statement = "A Func de formato conserva os campos do NativeFunc, ABI estática de quatro argumentos, ponteiro retornado por native_fn_addr, nome, namespace, span diagnóstico, repr, clone e despacho. Eq/Hash conservam a compatibilidade anterior com Native de mesmo nome; isso não concede capacidade de elemento à Native comum. With conserva namespace/nome mas não é elemento bare. Nenhuma chamada de metadados executa callback."
-
+statement = "Format Func preserves NativeFunc fields,static four-argument ABI,native_fn_addr pointer,name,namespace,diagnostic span,repr,clone,dispatch. Eq/Hash retain prior compatibility with same-name Native; this grants no element capability to ordinary Native. With retains namespace/name but is not bare element. No metadata call executes callback."
 [[claims]]
 id = "closed-construction"
 level = "must-not"
-statement = "Identificar formatos não adiciona binding, muda gate/default, constrói formato manualmente, duplica factory ou cria wrapper de chamada. As factories existentes anexam identidade interna ao NativeFunc original e mantêm namespaces/membros efetivos e fases."
-
+statement = "Format identification adds no binding,changes no gate/default,manually constructs no format,duplicates no factory and creates no call wrapper. Existing factories attach internal identity to original NativeFunc,preserving actual namespaces/members/phases."
 [[claims]]
 id = "observation-witness"
 level = "must"
-statement = "A relação observacional de duas Func de formato compara testemunha nominal, callback, nome e namespace sem execução. Format e Native comum são representações observacionalmente diferentes, mesmo quando Eq público por nome permanece true, pois só a primeira transporta capacidade de seleção."
+statement = "Observation relation of two format Func compares nominal witness,callback,name,namespace without execution. Format and ordinary Native are observationally different even when public name-based Eq remains true,because only Format carries selection capability."

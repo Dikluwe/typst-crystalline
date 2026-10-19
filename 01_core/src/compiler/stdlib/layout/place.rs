@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/place.md
-//! @prompt-hash 7c0ab477
+//! @prompt-hash 6529b9d5
 //! @layer L1
 //! @updated 2026-09-30
 //!

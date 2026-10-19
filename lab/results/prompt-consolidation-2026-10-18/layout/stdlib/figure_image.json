@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/figure_image.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated all image/Figure/caption clauses, reconciled confirmed Path/alt/reduced-caption gates and cast refinements while preserving exact diagnostics, causal spans, source/decode and incomplete FG1/SY1 scopes.",
+  "original_sha256": "61d142d27f0933ce627686f2a7a387e3a045815a3d4aff47b1c8da6b3521c066",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/figure_image.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

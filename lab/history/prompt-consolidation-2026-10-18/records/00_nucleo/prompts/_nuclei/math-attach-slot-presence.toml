@@ -1,0 +1,54 @@
+tekt = 1
+kind = "nucleus"
+id = "math-attach-slot-presence"
+title = "Presença triestatal dos slots de math.attach"
+
+[[claims]]
+id = "closed-carrier"
+level = "must"
+statement = "Os seis slots t, b, tl, bl, tr e br de MathAttach usam o enum fechado MathAttachSlot com exatamente Omitted, ExplicitNone e Present(Content)."
+
+[[claims]]
+id = "state-meaning"
+level = "must"
+statement = "Omitted significa argumento ausente; ExplicitNone significa none explicitamente fornecido; Present(content) significa argumento de conteúdo presente, inclusive quando content é Content::Empty."
+
+[[claims]]
+id = "construction-preservation"
+level = "must"
+statement = "Construtores, transformações e reconstruções de MathAttach preservam o estado de cada slot sem colapsar ExplicitNone ou Present(Content::Empty) em Omitted nem entre si."
+
+[[claims]]
+id = "compatible-projection"
+level = "must"
+statement = "As projeções compatíveis sup e sub devolvem Option<&Content> somente a partir de Present(Content), mantendo a precedência tr sobre t e br sobre b; Omitted e ExplicitNone projetam None."
+
+[[claims]]
+id = "repr-projection"
+level = "must"
+statement = "A representação pública omite Omitted, imprime none para ExplicitNone e usa a representação canônica do conteúdo para Present(Content), de modo que Present(Content::Empty) seja []."
+
+[[claims]]
+id = "layout-projection"
+level = "must"
+statement = "Somente Present(Content) cria a caixa de script e conta como presença para SpaceAfterScript, mesmo quando o conteúdo não tem tinta nem largura; Omitted e ExplicitNone são equivalentes à omissão no layout."
+
+[[claims]]
+id = "surface-convergence"
+level = "must"
+statement = "Sintaxe matemática, chamada qualificada, acesso semântico e todas as reconstruções convergem para o mesmo carrier e preservam ordem, spans, diagnósticos e avaliação já contratados."
+
+[[claims]]
+id = "no-sentinel-or-heuristic"
+level = "must-not"
+statement = "Nenhum consumer pode inferir presença por Content::Empty, texto, caractere, nome de função, largura, tinta, fonte, span, coordenada, constante de fixture ou outro sentinel ou heurística."
+
+[[claims]]
+id = "no-global-carrier"
+level = "must-not"
+statement = "Esta obrigação não cria Settable genérico nem altera parser, AST, Args, Value, a álgebra global de Content, variantes globais, estado global ou fase do pipeline."
+
+[[claims]]
+id = "no-unconfirmed-expansion"
+level = "must-not"
+statement = "O carrier não altera defaults, compatibilidade fora da assinatura confirmada de MathAttach, layout de rotas não-MathAttach nem contratos públicos além do enum e dos construtores/reconstruções de seus seis slots."

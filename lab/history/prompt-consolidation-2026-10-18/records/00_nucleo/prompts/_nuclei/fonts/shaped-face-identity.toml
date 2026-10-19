@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "shaped-face-identity"
+title = "Fonte efetiva do carrier shaped"
+
+[[claims]]
+id = "source-face"
+level = "must"
+statement = "TextShaped.font Some conserva a fonte carregada que produziu glyphs e units_per_em, sem substituir identidade por família, variante, GID ou slot de World. None conserva o caminho legado."
+
+[[claims]]
+id = "transport"
+level = "must"
+statement = "Clone e transformação geométrica conservam a fonte. Merge shaped exige face e eixos compatíveis. Não apagar semântica do estilo para induzir seleção posterior."
+
+[[claims]]
+id = "resource-binding"
+level = "must"
+statement = "TextShaped certificado vincula glifos, subset/CMap e recurso de desenho à mesma face original e coordenadas efetivas. Origem e bytes instanciados ficam associados explicitamente; não aplicar GIDs a outra face por nome ou faixa numérica. Glyph matemático direto conserva seu contrato próprio."
+
+[[claims]]
+id = "session-boundary"
+level = "must-not"
+statement = "Esta correção não cria unsafe, estado global mutável, retenção de ponteiro de World ou I/O de fontes em L1. Preparação/cache de recursos dura uma exportação."

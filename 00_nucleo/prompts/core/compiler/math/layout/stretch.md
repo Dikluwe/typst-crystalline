@@ -2,7 +2,7 @@
 Hash do Código: fb5a3525
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 
 
 **Layer:** L1
@@ -36,26 +36,82 @@ fallbacks do not narrow this approved contract; unresolved implementation/
 diagnostic coverage is recorded in the diagnostic.
 
 
-## Exaustividade nominal e origem matemática — 2026-10-17
+## Bounded ratification and incomplete composite support
 
-### Medição anterior à decisão
+`lab/history/construction/records/00_nucleo/materialization/typst-passo-1446.md:§7`
+records explicit owner confirmation of ADR-0127 on 2026-09-18 after proposal
+commit `503e6416c78563b0d3949dfb81a58412da79dccb`. Authorization is limited to
+that proposal's contract→RED→implementation→adversarial validation→verdict chain,
+not universal stretch or general Typst parity. The approved public contract
+above is not narrowed by leaf-only implementation; math-stretch-composite remains
+open for attachments/compositions with its own metrics and measurement.
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado; UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz` (snapshot inicial preservado em initial-ten-owners.json.gz). AST/spans em contexts.json/all-contexts.json/wildcard-inventory.json, parser pinado do CI. A suíte anterior passou no mesmo código de entrada, revalidado por hashes.
+## Nominal source-transparent stretch projections
 
-source-probe-before.json mede limits inline com largura 7.2 pt versus 12.912 pt ao acrescentar Source. source-family-before.json preserva a primeira matriz de 12 pares (11 diferenças). source-family-supplement.json e sua análise preservam 23 pares com métricas atribuíveis (19 diferenças e 4 controles iguais): limites, kerns, Op.text, acentos/dotless, suportes, alinhamento de matriz, espaçamento, sequências, stretch e classe. source-lines-before.json mede a mesma equação com 2 linhas versus 1 e última baseline 16.2 versus 0 sob Source, apesar dos mesmos extents. São observáveis de geometria, identidade extraível e metadados da equação, não igualdade de bytes/pointers/Rust. A transparência já é obrigatória no núcleo content-source-origin; a inspeção mostra os helpers classificando o wrapper em vez do body. Não se infere intenção histórica ou paridade global a partir desses números. O erro de contagem do analisador complementar (24 em vez de 23 pares) foi corrigido usando o stdout original válido, sem refazer a medição nem contar o erro como RED funcional.
+### Evidence before decision
 
-### Prescrição exclusiva
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz`
+retains UTC, sources/L0/hashes/configuration, status and exact git diff HEAD --stat;
+initial-ten-owners.json.gz preserves the first snapshot. contexts.json,
+all-contexts.json and wildcard-inventory.json retain AST/spans from the pinned
+CI parser. The previous suite passed on the same input code, reconfirmed by hash.
 
-Normalizar Source na elegibilidade leaf_char; conservar os casts e a seleção de eixo/variante/assembly/size. Isso não amplia a antiga elegibilidade leaf-only para corpos compostos nem redefine o contrato completo de native axis: o débito separado math-stretch-composite continua aberto e deve completar anexos/composições com métricas e medição próprias. Não ratificar esse fallback parcial como default normativo ou prometer paridade completa.
+source-probe-before.json measures inline limits at width 7.2pt versus 12.912pt
+with Source. source-family-before.json preserves the first 12 pairs (11
+differences). source-family-supplement.json and analysis preserve 23 attributable
+pairs (19 differences, 4 equal controls): limits, kerns, Op.text, accents/dotless,
+supports, matrix alignment, spacing, sequences, stretch and class.
+source-lines-before.json measures the same equation at two lines versus one and
+last baseline 16.2 versus 0 under Source despite equal extents. Geometry,
+extractable identity and equation metadata are observables; bytes/pointers/Rust
+equality are not. The content-source-origin nucleus already requires transparency;
+inspection finds helpers classifying wrappers instead of their bodies. Infer no
+historical intent or global parity. The supplemental analyzer's 24-versus-23
+count error was corrected from valid original stdout without rerunning or
+counting the analyzer error as functional RED.
 
-Trocar os fallbacks enumerados pelo complemento nominal atual dos braços **incondicionais**, sem alterar corpo/guard/ordem; variantes guardadas continuam no complemento para quando a condição falha. A projeção Option de attach é a única exceção estrutural: None retorna por ?, Some passa ao match nominal de Content normalizado, sem padrão profundo.
+### Exclusive prescription
 
-- **L30** — `01_core/src/compiler/math/layout/stretch.rs:20`, `leaf_char`, Content: excluir somente `Text, MathText, MathIdent, MathClassOverride, MathLimitsOverride`; guardados `(nenhum)`. Mesmo corpo anterior para variantes fora da propriedade procurada; não ampliar a classificação além da transparência Source aqui prescrita.
+Normalize Source for leaf_char eligibility while preserving casts and axis/
+variant/assembly/size selection. This does not expand old leaf-only support to
+composite bodies or redefine the full native-axis contract. Never ratify the
+partial fallback as a normative default or claim full parity.
 
-- **L31** — `01_core/src/compiler/math/layout/stretch.rs:34`, `cascaded_size`, Value: excluir somente `Relative, Ratio, Length`; guardados `(nenhum)`. Somente Relative/Ratio/Length representam size nesta fronteira. Os demais conservam None; isso não autoriza descartar erros de validação do produtor.
+Replace only the selected fallback with the current nominal complement of
+unconditional arms, preserving bodies/guards/order. Guarded variants remain in
+the complement when the guard fails. The attach owner's Option projection is
+the sole structural exception: None returns through ?, Some enters a nominal
+normalized-Content match without a deep pattern; that remains its own boundary.
 
-### Aceitação e limites
+- L30: stretch.rs:20, leaf_char, Content. Exclude only Text/MathText/MathIdent/
+  MathClassOverride/MathLimitsOverride, without guarded variants. Preserve the
+  fallback body and broaden classification only by specified Source transparency.
+- L31: stretch.rs:34, cascaded_size, Value. Exclude only Relative/Ratio/Length,
+  without guards: only these carry size here. Others retain None; this does not
+  authorize discarding producer validation errors.
 
-L0 antes de código. Correção interna/paridade ADR-0127 em fluxo contínuo: sem campo/assinatura pública, trait, dependência, flag/default novo, compatibilidade ou fase nova. Grupos V19 compartilham o corpo anterior explicitamente justificado por caso; as notas permanecem visíveis e não provam cobertura de execução por alternativa. Não adicionar allow/expect, elevar limiar, capturar @ ou esconder um match em if-let/matches!. Somente a transparência e as reestruturações rasas aqui nomeadas alteram o código funcional; não editar fórmulas/constantes ou relaxar expectativas anteriores. RED funcional das regressões Source e RED estrutural dos avisos/sondas antes do reparo. Após, regressões GREEN, zero V16 dos locais emitidos, revisão futura dos 36 locais (incluindo a nova projeção de Content sob Option) por sentinelas Content/Value/MathStyleKind/FrameItem em workspace descartável com cfg(test) compilado. Os scrutinees/funções atuais e a composição ganham só as alterações descritas; revalidar ast/replay, assinaturas e demais owners.
+### Acceptance and limits
 
-Gates: suíte workspace completa, build, fmt, Clippy workspace/all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings com quatro índices, V1/V5/V15/V26 estrito/reversa, SARIF diferencial completo e diff-check. V16 esperado 170→152; notas V19 novas somente dos grupos prescritos e do observador novo; V20 sem crescimento. As demais violações continuam pendentes. Fontes congeladas durante os gates; MemoryMax=12 GiB, swap zero, um job Cargo, comandos pesados sequenciais. Sem commit/push/release ou alteração do pin CI. Não alegar ganho de RAM, leitura de IA ou paridade integral por encerrar o lint.
+L0 before code. This ADR-0127 internal parity correction adds no public field/
+signature/trait, dependency, product flag/default, compatibility break or phase.
+V19 groups share their previous body with per-case justification; notes remain
+visible and do not prove execution coverage per alternative. No allow/expect,
+threshold increase, @ capture or hidden match in if-let/matches!. Only named
+transparency/shallow restructuring changes functional code; do not change
+formulas/constants or relax expectations. Require functional Source RED and
+structural warning/probe RED before repair; afterwards regression GREEN, zero
+emitted-site V16 and future sentinel review of all 36 sites (including new
+Content-under-Option projection) using copied Content/Value/MathStyleKind/FrameItem
+in a disposable real workspace compiling cfg(test). Current scrutinees/functions/
+composition change only as specified; revalidate AST/replay, signatures and other
+owners.
+
+Gates: full workspace suite, build, fmt, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, Rustdoc -D warnings with four indexes,
+strict/reverse V1/V5/V15/V26, full differential SARIF and diff-check. Expected V16
+170→152; new V19 only from prescribed groups/new observer; no V20 growth.
+Other violations remain pending. Freeze sources during gates; MemoryMax 12 GiB,
+zero swap, one Cargo job, heavy commands sequentially. No commit/push/release or
+CI pin change. Lint closure does not prove RAM gain, AI-reading benefit or
+complete parity.

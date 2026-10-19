@@ -1,0 +1,27 @@
+{
+  "reviewed_owners": 401,
+  "original_partition_completed": 395,
+  "entity_assistance_completed": 6,
+  "independent_root_peer_reviews": 7,
+  "duplicates": [],
+  "metadata_and_nucleus_pin_differences": [],
+  "original_or_result_digest_mismatches": [],
+  "unbalanced_fences": [],
+  "missing_canonical_markdown_references": [],
+  "nonliteral_portuguese_residual_scan": "one heading corrected; no remaining hits for audited phrase set",
+  "git_diff_check": "clean for compiler and entities after corrections",
+  "code_changed": false,
+  "hashes_resealed": false,
+  "tests_executed": "none; documentation-only consolidation, global validation owned by root",
+  "peer_reserved_completion": "boundaries eval/mod.md and eval/tests.md complete; 48 remaining stdlib handed to layout",
+  "limits": "Checks validate preservation structure and full-read coverage, not universal language parity. Historical measurements retain their original pins and provenance; explicitly unresolved approval/conflict gaps remain.",
+  "nuclei_independently_reviewed": 11,
+  "nucleus_claims_independently_reviewed": 48,
+  "spacing_repairs": {
+    "own_compiler_paths": 68,
+    "own_explicit_tokens": 207,
+    "plugin_outline_paths": 2,
+    "plugin_outline_explicit_tokens": 187,
+    "record_directory": "compiler/peer-review"
+  }
+}

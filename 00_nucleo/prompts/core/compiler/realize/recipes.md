@@ -1,140 +1,140 @@
 # L0 — compiler/realize/recipes
 Hash do Código: 9ffa46a0
 
-Camada: L1. Consumer produtivo exclusivo: `01_core/src/compiler/realize/recipes.rs`.
-Contrato ratificado pelo dono; o consumer será selado durante a materialização.
+Layer L1. Sole productive consumer:
+`01_core/src/compiler/realize/recipes.rs`. Owner-ratified contract; seal the
+consumer during materialization.
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 
-## R3-T1 — realização causal ratificada (2026-10-18)
+## Causal realization evidence and ratification
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz`
+retains HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted working
+tree, UTC/status/diffstat/sources/argv/binary hashes and vanilla pin
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. before-sources.json.gz contains
+complete current sources/L0. No candidate code was implemented at measurement.
+matching.rs:118–150 applies reverse regex then literals in declaration order;
+:194–207 exposes products to later passes. textual.rs:102–123 captures full
+snapshot. realize/mod.rs:177–217 visits recipes bottom-up. apply.rs:620–648/
+matching.rs:218–225 call functions without capturing children.
+expression_dispatch.rs:125–129 already distinguishes insertion_rules from local
+state.
 
-lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
-commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
-bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
-fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
-matching.rs:118–150 aplica regex reversa e depois literais em declaração;
-:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
-captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
-apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
-expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
+Measured pairs: identical literals C/B; literal/regex tie R/L; overlap X/YB;
+first effect LATER/FIRST; inverse chained function BBBB/BB; separate product
+AB/X; product+neighbor X/AB; Strong hiding child gives panic HIDDEN/Q;
+captured global followed by new global L/R, captured local L/L; local CJK
+水\n果 gives 水果/X. Pinned foundations/selector.rs:110–125 unifies escaped
+literal/regex; typst-realize/src/lib.rs:1328–1405 chooses start and carries
+revocation into product. These are language/effects, not ratification of Rust
+mechanics/buffer equality/PDF bytes. Scope separation and earlier child visits
+are inferred causes, refutable by acceptance.json, equality/fields/style/query
+and error controls.
 
-Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
-X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
-produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
-panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
-capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
-foundations/selector.rs:110–125 unifica literal escapado com regex;
-typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
-no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
-igualdade de buffers ou bytes PDF. É inferência causal que a separação de
-escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
-acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
+Human confirmation of manifest
+`47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302`
+ratified the pinned textual-recipe-frontier nucleus and this order. Within this
+scope it supersedes provisional ContentBlock show execution and pending-recipe
+bottom-up visits. Ordinary expression evaluation order stays. Do not reevaluate
+the program, advance State/Counter, bake render into morphology or create a
+public Rust contract.
 
-### Decisão ratificada
+## Exclusive recipe coordination
 
-Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
-do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
-ratificou esta ordem. Ele supersede neste escopo as
-cláusulas históricas de execução provisória de show em ContentBlock e da
-visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
-de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
-assentar render em morfologia nem criar contrato Rust público.
+Coordinate only causal execution of pending recipes/products with existing
+Engine/EvalContext, static nominal dispatch. Install causal lexical frame,
+compose current rules with local deltas by identity, realize root through its
+Sequence/apply/textual owners, then descend only into emitted children. Never
+visit Realized.original as emitted content. Preserve original provenance for
+query and product's causal namespace.
 
-### Responsabilidade exclusiva
+General Content maps retain their contracts. Use existing preorder reconstruction,
+returning Some after root processing to prevent a second automatic descent. If
+an internal map API is strictly needed, specify its owner L0 first; this approval
+changes no public map signature. Duplicate no selection/space normalization/
+Table-Cell preparation/math/layout construction/termination.
 
-Coordenar somente execução causal de receitas pendentes e seus produtos, usando Engine/EvalContext existentes. Dispatch estático e nominal. Instalar o frame lexical causal, compor regras atuais com deltas locais por identidade, realizar a raiz pelos owners Sequence/apply/textual apropriados e descer somente nos filhos emitidos. Nunca visitar Realized.original como conteúdo emitido. Preservar a proveniência do original para query e o namespace causal do produto.
+Keep one boundary per product, shared snapshots and existing depth budget. A
+single emitted unit may group its own textual nodes; products of distinct matches
+stay separate. Restore environment on every return and preserve first effect,
+spans and causal traces. Final normalize_insertions must retain information
+needed by later contextual realization. Publish no API/field/trait/language
+element/flag.
 
-Os mapas gerais de Content mantêm seu contrato vigente. Usar o pre-order existente como mecanismo de reconstrução e retornar Some quando a raiz já foi processada, evitando a segunda descida automática. Se uma API interna de mapa for estritamente necessária, especificar primeiro o L0 dono correspondente; não alterar assinatura pública de mapa nesta aprovação. O coordenador não duplica seleção, normalização de espaços, preparação Table/Cell, matemática, construção de layout ou terminação.
+## Integration evidence and current dispatch refinements
 
-Manter uma fronteira por produto e snapshots compartilhados, com orçamento de profundidade vigente. Conteúdo emitido como uma unidade pode agrupar seus próprios nós textuais, mas produtos de matches distintos permanecem separados. Restaurar ambiente em todo retorno e preservar primeiro efeito, spans e traces causais. O último normalize_insertions não pode apagar informação ainda necessária a realização contextual posterior. Não publicar API, campo, trait, elemento da linguagem ou flag.
+A protected Located Table delegates to existing Table preparation, skipping only
+its applied recipe; neither skip Cell preparation nor treat its tree generically.
+Keep real identities. All Content matches have complete nominal complements:
+realize_children excludes only unguarded Located/Sequence/Styled/Equation;
+visit excludes ShowRecipe/Realized/Styled/Table/TableCell/Sequence and, under the
+later Context capture below, ContextBlock. Guarded Located remains in complement.
+Keep visible V19 groups with one responsibility (continue descendant catalogue);
+executing a group does not prove every alternative covered.
 
-### Aceitação
+Candidate4 finished without abort: 7373 passed, 15 failed, five ignored.
+Alias/local failures show Location protection cannot skip every rule. For a
+protected Location exclude only active applied RuleIds; earlier/local rules with
+distinct identity stay eligible. Fresh occurrences inherit no exclusion. When
+revisiting completed product also protect original Location without executing
+original. Coalesce compatible generic-product packets before visiting, as for
+textual product, preserving completed boundaries/root effects. During full_error
+causal visit retain morph_canon in path, restoring on error. Recognize Source on
+entry; anchor only detached errors to innermost preserved span without changing
+mapper contract. For exclusively Par-rule packets call owner realize_paragraphs
+before selecting prepared roots; duplicate no logic or layout-time Par synthesis.
+Explicit Empty/Sequence under Sequence rules receive a nominal decision before
+text grouping; markup owner removes consumed slots.
 
-Todas as famílias T de acceptance.json e revalidação descrita nos owners. Testar especificamente erro antes de siblings, pai ocultando filho, produto que devolve alias, produto composto, efeito uma vez e restauracão após erro. Testar ambos targets e contextos/fixpoint, query de originais/produtos, Table/Cell e Equation sem repetir callbacks.
+Located with Table root must pass through realize_table_insertions before child
+visits: skipping Located root cannot skip Table preparation. Candidate6 RED has
+zero metadata and unprepared Table. Existing facade decides recipe and prepares
+placement/Cells; coordinator visits finished product without rerunning root.
+Old Table packets also enter this coordination, retaining legacy rule-composition
+fallback.
 
-### R3-T1 — integração revelada pela suíte ampla
+Send apply_root only eligible rules actually matching root via existing
+selector_matches. Nonmatching rules cannot allocate identity early for raw
+contributions. Without effective recipe preserve root data and coordinate emitted
+children. Whole-document canonical finalization keeps its owner.
 
-Um Located Table protegido é delegado ao preparo Table existente para pular
-somente sua receita já aplicada; não pular o preparo das Cells nem tratar sua
-árvore como conteúdo genérico. Manter as identidades reais. Nos matches de
-Content desta unidade escrever os complementos nominais completos: em
-realize_children excluir só Located/Sequence/Styled/Equation tratados sem
-guard; em visit excluir ShowRecipe/Realized/Styled/Table/TableCell/Sequence,
-conservando Located guardado no complemento. Grupos V19 permanecem visíveis,
-com responsabilidade única (continuar catálogo de descendentes), sem alegar
-cobertura de cada alternativa apenas por executar o corpo agrupado.
+## Acceptance
 
-### R3-T1 — refinamento por regra e fronteira
+Require every T family in acceptance.json and owner revalidation. Specifically
+test error before siblings, parent hiding child, alias-returning product,
+composite product, once-only effects and restoration after error. Test both
+targets, contexts/fixpoint, original/product queries, Table/Cell and Equation
+without repeated callbacks. Revalidate alias/local/fresh/query/Table/context
+controls without relaxing tests.
 
-Candidato4 concluiu a suíte sem abortar: 7373 passaram, 15 falharam, cinco
-ignorados. As falhas de alias/locais mostram que proteger uma Location não pode
-pular todas as regras. Para uma Location protegida, excluir somente RuleIds
-ativos já aplicados; regras anteriores e locais com identidade distinta continuam
-elegíveis. Ocorrências frescas não herdam essa exclusão. Ao revisitar produto
-concluído proteger também a Location de seu original sem executar esse original.
-Coalescer packets compatíveis do produto genérico antes da visita, como no
-produto textual, preservando fronteiras concluídas/efeitos de raiz. Em full_error
-manter morph_canon no caminho durante a visita causal, restaurando-o em erro.
-Reconhecer Source na entrada e ancorar somente erros detached ao span mais
-interno preservado, sem mudar o contrato do mapper. Para packet exclusivamente
-de regras Par chamar realize_paragraphs do owner antes de selecionar as raízes
-preparadas; não duplicar sua lógica nem sintetizar Par durante layout.
-Empty/Sequence explícitos sob regras Sequence passam por decisão nominal antes
-de agrupamento textual; slots consumidos continuam removidos no owner markup.
+## Context textual-inheritance evidence
 
-### R3-T1 — integração do fluxo emitido
+HEAD `b7e7c83223e5daa67bbdf124c36b5b7f93200731`, productive source clean.
+`lab/results/construction/diagnostics/context-paridade-2026-10-18/before.json.gz`
+contains UTC/argv/diffstat/executable SHA; fresh build is in
+baseline-build-resources.json, full freeze in before-sources.json.gz. Vanilla
+pin `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Global/local probes return
+A/A in Tekt versus R/L; creation before rule, nesting, regex and product also lose
+rule. Local-inside-Context control gives L in both. realize/mod.rs:240–269 captures
+only Equation/Table; recipes.rs:343 treats Context as generic leaf;
+textual.rs:46–103 preserves baseline and composes local delta by RuleId.
+Pinned foundations/context.rs:78–86 executes with contextual-point styles;
+typst-realize/src/lib.rs:353–418 prepares root/applies rule/visits product.
+This measures language scope/effects, not required upstream structure. Inferred
+rule-loss cause is refuted by failing scope/nesting/product/parent-hiding-child
+controls.
 
-Located cuja raiz é Table deve passar pela fachada realize_table_insertions
-antes de visitar seus filhos; pular a raiz do Located não pode pular o preparo
-da Table. O RED candidato6 tem metadata zero e Table ainda não preparada. A
-fachada existente decide a receita e prepara placement/Cells; o coordenador
-visita o produto pronto sem reexecutar a raiz. Packets antigos de Table também
-entram nesta coordenação, mantendo o fallback de composição de regras legado.
+### Current Context capture boundary
 
-### R3-T1 — contribuição bruta e identidade canônica
+Internal parity correction within ratified contextual realization preserves
+deferred execution, API and phases. This scope does not repair Location collisions
+with offsets/hashes, remove Located or change contracts. Ordinary Styled stays
+opaque in textual matching; change no mapper.
 
-O coordenador envia ao apply_root somente regras elegíveis que efetivamente
-casam a raiz, usando o mesmo selector_matches existente. Regras não casadas não
-podem causar alocação antecipada de identidade numa contribuição bruta. Sem
-receita efetiva a raiz preserva seus dados e seus filhos emitidos seguem a
-coordenação; a finalização canônica de todo o documento mantém o seu owner.
-Revalidar aliases/locais/fresh, query, Table e contextos, sem relaxar testes.
-
-
-## Context — herança textual, 2026-10-18
-
-### Medição anterior à decisão
-
-HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fonte produtiva limpa;
-lab/results/construction/diagnostics/context-paridade-2026-10-18/before.json.gz contém
-UTC, argv, diffstat e SHA dos executáveis. Build novo em baseline-build-resources.json;
-freeze completo em before-sources.json.gz. Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Sondas global/local devolvem A/A no Tekt contra R/L; criação antes da regra,
-aninhamento, regex e produto também perdem a regra. Controle local dentro de
-Context dá L nos dois. compiler/realize/mod.rs:240–269 só captura Equation/Table;
-compiler/realize/recipes.rs:343 trata Context como folha genérica; textual.rs:46–103
-já preserva baseline e compõe delta local por RuleId. No vanilla pinado,
-foundations/context.rs:78–86 executa com styles do ponto contextual;
-typst-realize/src/lib.rs:353–418 prepara raiz, aplica regra e visita produto.
-Isso mede escopo/efeitos de linguagem, não exige copiar a estrutura upstream.
-A causa de perda de regras é inferida desses caminhos e será refutada se os
-controles de escopo, nesting, produto ou pai ocultando filho falharem.
-
-### Decisão e fronteira
-
-Correção interna de paridade dentro da realização contextual já ratificada em
-R3-T1: manter execução adiada, API e fases vigentes. Não corrigir colisões de
-Location por offset/hash, remoção de Located ou alteração de contratos neste
-recorte. Styled comum permanece opaco no matching textual; não alterar o mapper.
-
-### Responsabilidade exclusiva
-
-Ao visitar ContextBlock emitido, delegar a captura efetiva de sua inserção ao
-helper privado do hub de realização e encerrar essa visita (Some). Não executar
-a closure. Excluir ContextBlock do complemento nominal do mesmo match.
-A captura só ocorre depois de a decisão do pai permitir esse filho; preservar
-os wrappers de estilo e fonte e a identidade já preparada por Located.
+When visiting emitted ContextBlock, delegate effective insertion capture to the
+realization hub's private helper and end visit with Some. Execute no closure.
+Remove ContextBlock from this match's nominal complement. Capture occurs only
+after the parent's decision permits this child; preserve style/source wrappers
+and Located's prepared identity.

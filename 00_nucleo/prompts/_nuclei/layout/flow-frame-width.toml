@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "flow-frame-width"
-title = "Extensão horizontal causal de frames automáticos"
-
+title = "Causal horizontal extent of automatic frames"
 [[claims]]
 id = "causal-width"
 level = "must"
-statement = "A largura intrínseca do fluxo é acumulada pelos produtores de layout em seu referencial, antes de deslocamentos de alinhamento visual. Shapes usam dimensão resolvida, imagens usam target, linhas usam extensão intrínseca efetivamente emitida, containers usam alocação final. Não é bbox de tinta de todos os descendentes: Place/overlays não ampliam o fluxo."
-
+statement = "Flow intrinsic width is accumulated by layout producers in their frame before visual alignment displacement. Shapes use resolved size, images target size, lines actually emitted intrinsic extent, containers final allocation. It is not all-descendant ink bbox: Place/overlays do not enlarge flow."
 [[claims]]
 id = "scope"
 level = "must"
-statement = "Block isola a extensão do corpo e publica sua largura completa com inset uma vez ao pai. Subframe isola/restaura em LIFO e devolve uma testemunha privada de largura, separada do legado last_sub_frame_width. Checkpoint conserva ambos os estados. Não medir ou executar o corpo novamente para obter esta largura."
-
+statement = "Block isolates body extent and publishes complete inset-inclusive width once to parent. Subframes isolate/restore in LIFO and return a private width witness separate from legacy last_sub_frame_width. Checkpoints retain both states. Never measure or execute body again to obtain width."
 [[claims]]
 id = "pending"
 level = "must"
-statement = "A largura automática final deve orientar backing, clip e raiz de pintura na mesma região. Fragmentação, realinhamento tardio e o referencial afim dos exporters precisam de validação própria; a instalação da testemunha de largura não certifica esses consumidores."
+statement = "Final automatic width must guide backing, clip and paint root in the same region. Fragmentation, late realignment and exporter affine frames require their own validation; installing a width witness does not certify those consumers."

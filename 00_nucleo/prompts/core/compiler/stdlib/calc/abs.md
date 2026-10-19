@@ -1,67 +1,20 @@
 # L0 — stdlib/calc/abs
 Hash do Código: dc254124
 
-## Ownership e medição
+## Evidence before specification
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/abs.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:133-255` contém o comportamento correspondente. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
+L1 exclusive consumer: `01_core/src/compiler/stdlib/calc/abs.rs`; former implementation at calc.rs:133-255. The clean HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` and `lab/results/construction/diagnostics/atomizacao-calc-2026-09-30-before.json.gz` preserve hashes/time/state before extracting algorithms by behavior. Static module composition and shared numeric boundary criteria remain in `00_nucleo/prompts/core/compiler/stdlib/calc.md`; this owner exclusively implements its declared consumer, without transferring composition ownership. Extraction changes no public signature/module function/phase/result/error policy and introduces no I/O or mutable globals. Preserve L1/calc tests, build and crystalline-lint with correct 1:1 lineage; no performance gain is inferred.
 
-## Contrato
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
-Implementar calc.abs com prioridade causal de argumentos e spans. Int usa checked_abs, Float/Decimal conservam tipo e valores dimensionais respeitam suas condições de magnitude. Preservar erros e hints de tipos/posicionais.
+`lab/results/construction/diagnostics/tekt-v16-abs-2026-10-17/` before.json.gz/before-measurement.json.gz/supplement-before-measurement.json.gz preserve HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, dirty tree/UTC/status/diffstat/sources/L0/binaries/argv. Oracle binary SHA `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`;36 initial+3 supplement pairs include37 valid abs witnesses matching measured results/exit/messages/hints. Two literal -9223372036854775808 cases are pre-abs construction/negation debt (vanilla ops.rs:116-133 rejects, Tekt observes Float); int.min overflow occurs before extras, including With. Pinned foundations/calc.rs:143-164 and local abs.rs:65-69 support admitted types and formatter boundary; frozen Par/Box SARIF flags wildcard delegation, not necessarily neutral default.
 
-Os detalhes de paridade, tipos, diagnósticos e bindings permanecem em `00_nucleo/prompts/core/compiler/stdlib/calc.md`. A extração não altera assinatura pública, função de módulo, fase, resultado ou política de erro. Nenhum I/O ou estado global mutável.
+## Exclusive contract
 
-## Aceitação
+Implement calc.abs with causal argument/span priority as specified by the composition owner's numeric boundary criteria. Int uses checked_abs, Float/Decimal retain kind, dimensional values obey their magnitude restrictions. Preserve type/positional errors/hints, return kind, spans, extras boundary, signed zero and mixed-Length behavior. No runtime coercion/formula/API/default/phase change.
 
-Preservar a suíte L1 e os testes de calc, compilar e passar `crystalline-lint .` com ownership e hashes corretos. Não inferir ganho de desempenho desta separação.
+Exhaustively enumerate Value in diagnostic-name match: Str→string, Bool→boolean, other 37 current variants→canonical type_name. This intentional V19 group shares vocabulary policy even for types admitted earlier; it does not expand numerical admission or mean one executed arm proves every alternative. Future Value requires compile classification. No V16 allow/expect or lint relaxation.
 
+## Acceptance and limits
 
-## V16 — vocabulário explícito do diagnóstico (2026-10-17)
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tekt-v16-abs-2026-10-17/before.json.gz`,
-`before-measurement.json.gz` e `supplement-before-measurement.json.gz`
-registram HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
-commitado, UTC/status/diffstat, fontes/L0/binários e argv. O oráculo é o pin
-9f2b6e8715237cb086899a42873660fe744622e8, SHA do binário7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-Foram medidos36 pares iniciais e3 suplementares.37 são testemunhas de abs
-válidas e coincidem nos resultados/exit/mensagens/hints medidos; dois usam
-literal -9223372036854775808, rejeitado pela validação de negação no eval
-vanilla (typst-eval/src/ops.rs:116–133) e observado como Float no Tekt;
-ficam como dívida de construção/validação do literal, anterior a abs. int.min produz
-overflow antes de extras, inclusive via with. Não atribuir esse débito a abs.
-Fonte pinada foundations/calc.rs:143–164 conserva os tipos admitidos e usa
-ToAbs para a fronteira de erro. abs.rs:65–69 distingue os aliases string e
-boolean, delegando os demais nomes no wildcard. O SARIF congelado da etapa
-Par/Box aponta V16 nessa delegação, sem afirmar que ela devolva default neutro.
-São diagnósticos da linguagem; buffers/particionamento de match são mecânica.
-A intenção histórica não é inferida; a revisão estrutural é refutada por
-variante futura silenciosa, nome alterado, tipo/resultados ou spans divergentes.
-
-### Decisão contínua ADR-0127 e política V19
-
-Enumerar explicitamente o domínio Value no match do nome: Str→string,
-Bool→boolean, e todas as demais37 variantes atuais usam type_name canônico.
-O grupo V19 é intencional por essa política comum de vocabulário, não por
-supor que executar o braço cubra suas alternativas. Mesmo tipos já tratados
-pela admissão externa pertencem à política completa do formatter; isso não
-amplia a admissão numérica. Uma variante futura deve exigir classificação na
-compilação deste consumer. Não adicionar allow/expect de V16 nem relaxar o
-linter; a decisão cobrada passa a ser visível aqui e neste L0.
-
-Nenhum contrato público, fase/default, coerção ou fórmula muda. Preservar
-prioridade causal, kind de retorno, hints, spans e fronteira de extras. O RED
-é estrutural: o match atual aceita variante futura sem revisão, e o desejado
-é E0004; não inventar falha funcional para um refactor de política sem mudança
-de runtime. Controle atual deve compilar. Testes funcionais de aliases,
-nomes genéricos, erro antes de extras e valores dimensionais/numéricos são
-controles de preservação, incluindo zero assinado e mixed length.
-
-Aceitação: sonda isolada rustc com corpos produtivos extraídos e payloads
-mínimos (sem usar target Cargo), controles funcionais, repetir os39 pares
-separando os dois defeitos de literal, build/suíte/Clippy/Rustdoc/quatro índices,
-fmt/diff, linhagem bidirecional e diferencial SARIF completo. Gate global
-continua aberto pelos demais V16. Recursos: MemoryMax12GiB, High10GiB,
-swap zero, Cargo jobs1, comandos pesados sequenciais. TS1/RG1 não entram
-neste reparo e seus manifestos/candidatos/fontes protegidos são preservados.
+Structural RED is current future-variant acceptance versus desired E0004; current control compiles. Do not fabricate functional RED for runtime-preserving policy cleanup. Use isolated rustc probe with extracted productive bodies/minimal payloads outside Cargo target, preservation tests for aliases/generic names/error-before-extras/numeric-dimensional values and repeat 39 pairs separating two literal debts. Full build/suite/Clippy/Rustdoc/four indexes/fmt/diff/bidirectional lineage/differential SARIF, restricted owner-consumer reseal after valid graph; global gate remains open for other V16. Heavy commands sequential 12GiB/High10GiB/swap 0/jobs1. Preserve protected TS1/RG1 manifests/candidates/sources; they are excluded.

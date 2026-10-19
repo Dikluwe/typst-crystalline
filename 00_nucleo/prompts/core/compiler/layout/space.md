@@ -2,149 +2,60 @@
 Hash do Código: e58fb288
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
-- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
-- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
-- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/space.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Evidência anterior à decisão
+## Evidence before specification
 
-A inspeção de `01_core/src/compiler/layout/text_measure.rs:85`, `word_layout.rs:89` e `space.rs:162` encontrou respectivamente fronteira textual, admissão de baseline e teste de integração de espaços iniciais em owners de outras responsabilidades. O estado exato, fontes e prompts anteriores estão em `lab/results/construction/diagnostics/separacao-tracking-2026-09-29/initial.json` e `before/`. A correção já medida encontra-se em `lab/results/construction/diagnostics/correcao-tracking-2026-09-29.md`; esta separação conserva seus resultados e limites. Posições, texto e estilos são observáveis da língua; localização das funções é mecânica. A inspeção não demonstra intenção histórica nem nova paridade bilateral.
+Inspection of `01_core/src/compiler/layout/text_measure.rs:85`, `word_layout.rs:89` and `space.rs:162` found, respectively, a textual boundary, baseline admission and an initial-space integration test owned by other responsibilities. Exact state, sources and prior prompts are in `lab/results/construction/diagnostics/separacao-tracking-2026-09-29/initial.json` and `before/`. The previously measured correction is in `lab/results/construction/diagnostics/correcao-tracking-2026-09-29.md`; this separation preserves its results and limits. Positions, text and styles are language observables; function placement is mechanical. Inspection establishes neither historical intent nor new bilateral parity.
 
-## Contrato vigente
+`lab/results/construction/diagnostics/correcao-tracking-escopos-2026-09-29/{before-pdf/results.json,summary.json,initial.json,before-pdf/provenance.json}` preserves 30-source/90-PDF state/commands/sources and historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Repeated/nested equal-looking scopes and Hide/Box expose missing lexical producer identity, not a requirement to copy PartialEq/chain representation. `text_tracking.rs:50`, pinned inline/collect.rs:287-295/shaping.rs:1269-1295 and hide.rs:21-24/boxed.rs:157-208 locate boundaries.
 
-Possuir layout e advance para Markup/Newline/Literal. Markup/Newline resolvem estilo efetivo pelo owner `00_nucleo/prompts/core/compiler/layout/text/style.md`; Literal reutiliza estilo já resolvido. Medir avanço nominal por text_measure::space.
+`lab/results/construction/diagnostics/correcao-tracking-rtl-2026-09-29/{before-pdf/results.json,summary.json,provenance.json,initial.json}` preserves 66 inputs/198 PDFs, full source/commands/binaries/HEAD/tree against that historical pin. Explicit Latin/Arabic RTL show signed missing interunit tracking while 0pt controls discriminate independent Hebrew/initial-Literal-space defects. `text_tracking.rs:65`, `word_layout.rs:34,72`, `space.rs:25`, `cursor.rs:150-186` and pinned shaping.rs:1269-1295 locate rejection, signed application and real-right-edge anchoring. Ligatures/mixed direction/global pagination remain unmeasured; these observations do not establish intent/general RTL parity.
 
-layout suprime Markup/Newline iniciais ou depois de apenas marcadores HTML. advance emite carrier quando há material ou quando Literal tem tracking resolvido diferente de zero. Aplicar text_tracking::boundary ao cursor antes do carrier, uma vez. Emitir TextSeparator append-only com origem, estilo, posição e advance nominal; advance não inclui tracking nem deve ser somado novamente pelo exportador. Aplicar largura nominal ao cursor e registrar oportunidade de justificação.
+`lab/results/construction/diagnostics/correcao-auto-espacos-2026-09-29/{before/results.json,provenance.json,initial.json}` records 30 sources/60 PDFs/font-path/commands/UTC/HEAD/tree/binaries against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Literal-only spaces at tracking 0/±0.2 lose auto dimensions in Tekt; terminal Literal width disappears while initial-with-text matches. Empty text/inkless markup and terminal newline reveal separate unresolved height issues. `space.rs:22-35` lacks initial Literal 0 carrier; page_geometry.rs:104-135 uses visual line_content_right excluding separators for correct RTL alignment; builder/exporter owns physical PDF minimum 3×3. This justifies separate causal auto extent, not a changed RTL ink bound or inferred historical intent.
 
-A posição y inicial usa cursor_y mais offset do estilo, sem demandar baseline. text_baseline pertence ao alinhamento posterior quando chega texto material. Literal sem tracking conserva avanço sem carrier inicial. Não inferir espaços a partir de distâncias ou texto adjacente. Em layout, quando par.justify não é true, flush somente após cruzar limite direito; com justify true, a unidade material seguinte escolhe continuação. advance literal não introduz esse flush imediato.
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{probe.json.gz,initial.json.gz,inventory.json}` refutes isolated 456 789 resolution and preserves source/state/binaries. Human ratification of immutable API/three optional fields is manifest 1ae7513e.
 
-## Aceitação e limites
+verification.json.gz records 3.4966pt opposite-edge drift in rtl_terminal_space/rtl_wrap and final DEF in ltr_wrap. Weak Space at Styled end and after wrapper both advance in space.rs:31. Pinned `typst-realize/src/spaces.rs:25–31,68–99,128–132` retains first grouped-space style. First corrected suite exposed an old mechanical assertion expecting second weak space to cause wrap; fixture now inserts another B before testing wrap, retaining break-after-material obligation. Test-only 1e-9pt tolerance covers measured~1e-14 float sum, not altered geometry.
 
-Preservar os testes causais existentes e o texto, posições, estilos, páginas e diagnósticos dos controles anteriores à separação. Ownership 1:1, pins válidos, build e lint sem erros. Movimentação interna ADR-0109/0127: funções estáticas descendentes, sem estado novo. As limitações de tracking em estilos mistos, RTL, seleção global e contagem de clusters permanecem as registradas no diagnóstico da correção.
+`lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz` preserves HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree, status/diffstat/UTC and 2,099 sources/L0s. before.json.gz contains 92 pairs; extra-before.json.gz 26; boundary-before.json.gz 10; repeat-before.json.gz 4. Oracle commit: `bd5ebec285505889e8ff1d4f68804ab147a699f3`; binary SHA-256: `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`; initial Tekt: `2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095`. At width 160pt/margin 8/font12, hanging10 leaves first-line x8 and moves continuations x8→18; negative-5 requires x3. RTL leaves first right edge 152 and moves continuations to 142. Tekt ignores the length. MLA defaults to 18pt (1.5em); ambient set 3em does not replace it, while show-set3em requires 36pt; IEEE/Plain do not acquire hanging indent through that show-set. bibliography.where(style:"mla") does not match in the vanilla probe: preserve selector choice rather than forcing override.
 
-## Continuidade lexical do tracking — 2026-09-29
+Inline-only Block/Box bodies ignore hanging10; explicit Par inside them and Block with Parbreak apply it. Simple Heading/Raw/List/Quote do not. Partial, zero, repeated and empty-scope declarations close boundaries: FIRST/MIDDLE/LAST at 5.168/27.464/49.76 versus all 5.168 in Tekt. The first lexical probe used literal brackets; it was refuted, corrected to #[...] and retained as extra-before-initial, not evidence of Styled scope. Extreme values produce extractor-clipped paint; missing pdftotext output does not mean Content deletion. A partial 24pt font does not change the shared length's 12pt em, as partial-font records.
 
-### Medição anterior à decisão
+Pinned source: `typst-realize/src/lib.rs:1061–1085,1190–1219` distinguishes fragment/Par and interruption; `typst-layout/src/flow/collect.rs:72–134` selects flow; `inline/mod.rs:174,216–221` and `collect.rs:141–147` resolve shape; `inline/line.rs:496–503` positions; `rules.rs:510–523` provides CSL inset/compensation. `typst-library/src/model/bibliography.rs:112–127,367` determines default/precedence. This measures language/geometry, requiring neither vanilla Rust structure nor inferred historical intent. Lost boundaries, run-relative em, double indent, page reset, imposed greedy fallback, lost copies, reexecuted callbacks or control regressions refute closure.
 
-`lab/results/construction/diagnostics/correcao-tracking-escopos-2026-09-29/before-pdf/results.json` e `summary.json` registram 30 fontes/90 PDFs, comandos, fontes e estado exato em initial.json e before-pdf/provenance.json, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Escopos iguais repetidos acumulam cerca de 0.4pt e aninhados 0.8pt; wrap positivo muda a linha. `text_tracking.rs:50` compara apenas TextStyle resolvido. Vanilla `inline/collect.rs:287-295` conserva segmentos de cadeias distintas; `inline/shaping.rs:1269-1295` soma tracking apenas dentro de cada run. Isto mede fronteiras textuais observáveis, não exige copiar PartialEq ou representação da chain. Hide/Box também são fronteiras: hide.rs:21-24 e boxed.rs:157-208 substituem/restauram buffers sem preservar essa distinção.
+## Exclusive ownership and current contract
 
-### Contrato interno da correção
+Own layout/advance for Markup/Newline/Literal, only in `01_core/src/compiler/layout/space.rs`. Markup/Newline resolve effective style via `00_nucleo/prompts/core/compiler/layout/text/style.md`; Literal reuses resolved style. Measure nominal advance through text_measure::space.
 
-Usar boundary do State antes do carrier e record depois de emitir TextSeparator. Espaço suprimido ou avanço inicial sem carrier não registra produtor. Conserva advance nominal, origem, estilo, baseline e justificação.
+layout suppresses initial Markup/Newline or after only direct HTML markers. Preserve logical-segment consumption even when weak/suppressed. For visual output, emit carrier when material exists, and for every Literal from its first space including tracking 0. This supersedes initial-Literal-zero no-carrier limitation only. Apply State::boundary before carrier once when prior eligible producer exists; record after emitting TextSeparator. Suppressed/no-carrier advance records no producer. Keep signed boundary in explicit RTL without reversing sign or adding an exporter interval.
 
-Correção interna de paridade ADR-0127 em fluxo contínuo. Aceitação RED→GREEN, controles bilaterais de texto/posições/linhas e preservação dos controles de tracking uniforme; build e lint sem erros, resselo somente destes owners. Demais limites abertos mantidos.
+TextSeparator is append-only origin/style/position/nominal advance; tracking never becomes advance or is summed again by exporter. Advance cursor by nominal width and record justification opportunity. Initial y uses cursor_y plus carrier-style baseline offset without baseline demand; `00_nucleo/prompts/core/compiler/layout/text_baseline.md` later aligns when material text arrives. Preserve resolved Literal style for auto projection, never infer space from distance/adjacent text, add globals or coded counts.
 
-## Fronteiras entre unidades em RTL explícito — 2026-09-29
+After consuming logical segment, a weak new Space following a final TextSeparator Markup/Newline does not emit/advance a duplicate visual occurrence. Preserve first surviving carrier/style/span, while omitted weak spans stay in logical input and are not reassigned. Never collapse Literal, use string equality or merge spans.
 
-### Medição anterior à decisão
+layout flushes only after crossing effective paragraph final edge when par.justify is not true; with justify true, next material unit chooses continuation. Literal advance itself does not flush immediately. Preserve origin/duplication/nominal-advance rules and never manufacture spacing for hanging indent.
 
-`lab/results/construction/diagnostics/correcao-tracking-rtl-2026-09-29/before-pdf/results.json`, `summary.json`, `provenance.json` e `initial.json` registram 66 entradas e 198 PDFs contra o vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, com fontes, comandos, binários, HEAD e working tree completos. Em `dir:rtl`, três termos latinos deixam de receber quatro intervalos: com ±0.2pt o primeiro termo difere 0.8pt; 0pt coincide. Texto árabe explícito difere 0.4pt nos dois intervalos entre palavras para ±0.2pt. `text_tracking.rs:65` recusa indiscriminadamente RTL; `word_layout.rs:34,72` e `space.rs:25` já projetam/adicionam a fronteira assinada; `cursor.rs:150-186` ancora a linha pelo limite direito real. No vanilla `inline/shaping.rs:1269-1295`, tracking aplica-se antes de cada próximo cluster distinto também em direção negativa. Isso mede posições e escolha de linha, não a intenção histórica.
+Ratified logical transport uses private Cursor, Arc input and exact spans prepared for the whole paragraph under certified lexical base before emission. Preserve visit-order offsets, not string matching. Sequence/Par create scope and nested Sequence inherits; checkpoint retains cursor/current span and subframe isolates/restores. Text supplies word/Literal-space subspans; Space consumes its segment even when weak; Linebreak consumes boundary; Word emits span only for exact untransformed text. Initial scope is incremental Simple outside generic cells/columns/subframes, without tracking/hyphenation/justification/smallcaps and Text newline/tab/language segmentation. Refused regions have None; old global preparation remains for no-context paragraphs. Certified RTL-base/RTL-character/opposite-override subset uses incremental without changing permitted breaks; explicitly selected Optimized is untouched. `00_nucleo/prompts/core/compiler/layout/bidi_origin.md` owns preparation/validation; each consumer performs only its own role. Uncertified constructors use None and read patterns `..`, preserving pinned origin transforms without broadening API/phase.
 
-Hebraico (`dir:rtl`) e espaço literal inicial apresentam diferenças mesmo em 0pt; não são prova de defeito da fronteira. Ligaduras, mistura de direção e paginação global ainda exigem suas próprias sondas.
+## Acceptance and limits
 
-### Contrato da correção
+Preserve causal tests/pre-separation text/positions/styles/pages/diagnostics,1:1 ownership/valid pins/build/lint/static descendant movement and all tracking mixed-style/global-selection/cluster limits recorded by their owner. Internal parity follows continuous-flow ADR-0127 without unapproved public/default/compatibility/phase change.
 
-Em RTL explícito, avançar para a próxima unidade textual pelo mesmo State::boundary e conservar advance do TextSeparator exclusivamente nominal. Origin/style/baseline/justificação e supressão de espaço inicial permanecem. Não somar outro intervalo em PDF ou inverter seu sinal pela direção.
+Require occurrence/UTF8/restoration/parbreak tests and bilateral wraps for logical transport. Tracking corrections require RED→GREEN, bilateral text/position/line controls for both directions/signed values and preserved LTR/uniform/terminal controls, error-free build/lint and restricted resealing; all other recorded limits stay open.
 
-Correção interna de paridade ADR-0127 em fluxo contínuo: sem contrato público, default, quebra de compatibilidade ou fase nova. A restrição histórica a LTR fica substituída somente por esta fatia medida. Aceitação RED→GREEN, controles bilaterais em ambas as direções/valores, preservação LTR, build e lint sem erros, resselo restrito.
+Literal 0/± and PDF-minimum RED→GREEN require actual bilateral causal/corpus controls; physical minimum remains exporter-owned and explicit-empty/terminal-newline issues are separate. Weak adjacency RED→GREEN covers Markup/Newline plus Literal controls with identical widths/fonts/scopes; preserve after-material wrap test rather than obsolete double-weak assumption. No byte-equality or general RTL claim.
 
-## Geometria auto de separadores literais — 2026-09-29
+This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/correcao-auto-espacos-2026-09-29/before/results.json`, `provenance.json` e `initial.json` medem 30 fontes/60 PDFs, font-path, comandos, UTC, HEAD, working tree e binários contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Só espaços literais (`#text("   ")`) com tracking 0/±0.2 produzem no Tekt `/MediaBox [0 0 0 0]` (Poppler apresenta 612×792), enquanto o vanilla mede respectivamente 9.36/9.76/8.96×8.568pt. Separadores literais finais após texto perdem a sua largura em páginas auto; os iniciais seguidos de texto já coincidem. Escopo com tamanho 18pt termina em 14.44×12.852pt vanilla para +0.2pt. Texto vazio e markup sem tinta revelam outra falta de baseline/mínimo; newline final tem divergência vertical própria e não é fechado por esta fatia.
-
-Causa fonte: `space.rs:22-35` não transporta Literal inicial sem tracking; `page_geometry.rs:104-135` usa `helpers::line_content_right` que filtra todos os TextSeparator, por necessidade correta do alinhamento RTL, e a altura de linha só com carrier não recebe topo tipográfico; `builder.rs:291` e `builder/fonts.rs:633,1167` escrevem MediaBox zero. Vanilla `crates/typst-pdf/src/convert.rs:108-118` impõe mínimo físico de 3×3 na saída PDF. Isso justifica projeção auto separada do alinhamento RTL e mínimo compartilhado entre os três caminhos exportadores. Não inferir intenção histórica do escopo antigo.
-
-### Contrato interno da correção
-
-Transportar TextSeparator Literal desde o primeiro espaço mesmo com tracking zero, sem criar baseline ou tinta. O avanço/carrier continua nominal; tracking anterior é aplicado apenas quando existe unidade anterior elegível, sem duplicação. Markup/Newline iniciais continuam suprimidos. Preservar estilo literal resolvido para a projeção auto, sem introduzir estado global nem contagens codificadas.
-
-Correção interna de paridade em fluxo contínuo ADR-0127, sem campo público, assinatura/flag/fase nova. Aceitação RED→GREEN para espaços 0/± e PDF mínimo, casos causais bilaterais, corpus anterior, build e lint sem erros, resselo estritamente no manifesto. Texto vazio explícito e newline final permanecem para rodada própria.
-
-## Migração do carrier bidi ratificado (2026-10-05)
-
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
-
-## Transporte lógico textual — contrato ratificado em 2026-10-05
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
-
-Esta unidade participa do transporte por Cursor privado, input Arc e spans exatos. Preparar antes de emitir o parágrafo textual inteiro, base lexical já certificada; conservar offsets por ordem de visita, não matching de strings. Sequence/Par criam escopo, nested Sequence herda; checkpoint conserva cursor e span corrente; subframe isola e restaura. Text fornece subspans para palavras e espaços literais; Space consome seu segmento mesmo quando fraco; Linebreak consome fronteira. Word emite span somente se texto exato não foi transformado.
-
-Escopo inicial: incremental simple, fora de células/colunas/subframes, sem tracking/hifenização/justificação/smallcaps, Text sem newline/tab/segmentação linguística. Região recusada tem None. Preparação global anterior permanece para parágrafos que não precisam do contexto bidi; para o subconjunto certificado com base RTL ou caracteres RTL/override oposto, encaminhar pelo incremental sem mudar os breaks permitidos. Não interferir em optimized explicitamente escolhido. O owner privado bidi_origin prepara/valida; esta unidade só coordena o seu papel. Testes de origem por ocorrências, UTF8, restauração e parbreak; validação bilateral de wraps.
-
-## Colapso de espaços fracos adjacentes entre escopos
-
-Medição anterior à decisão: verification.json.gz registra desvio de 3.4966pt na borda oposta de rtl_terminal_space/rtl_wrap e no DEF final de ltr_wrap. A árvore possui um Space fraco no fim do Styled e outro depois do envelope; space.rs:31 avança ambos. Correção interna de paridade: depois de consumir o segmento lógico, quando o último item já é TextSeparator Markup/Newline e o novo Space é fraco, não emitir/avançar a segunda ocorrência visual. Não colapsar Literal, não procurar igualdade de string, não fundir spans. Conservar o carrier sobrevivente e seu span; espaços fracos omitidos continuam no input lógico e não são reasignados. Aceitação RED→GREEN com Markup/Newline adjacentes e controle Literal, matriz fonte→PDF com mesmas larguras/fontes e escopos.
-
-Fonte primária complementar: vanilla `typst-realize/src/spaces.rs:25–31,68–99,128–132` conserva os estilos do primeiro espaço do grupo. A primeira suíte após a correção encontrou uma asserção mecânica antiga que esperava wrap provocado pelo segundo espaço fraco; a fixture passa a inserir um novo B antes de testar wrap, conservando a obrigação de quebra após material. O novo teste usa tolerância numérica de 1e-9pt para soma de floats; diferença medida foi ~1e-14pt, não de geometria.
-
-## Recuo francês — aplicação física (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
-status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
-extra-before.json.gz contém26; boundary-before.json.gz contém10 e
-repeat-before.json.gz contém4. Oracle bd5ebec285505889e8ff1d4f68804ab147a699f3,
-binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
-Tekt inicial2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095.
-Em160pt/margem8/font12, hanging10 mantém a primeira linha x8 mas move
-continuações x8→18; negativo-5 exige x3. RTL mantém primeira borda direita152
-mas continuações vão para142. O Tekt ignora o comprimento. MLA tem default
-18pt (1.5em), set ambiente3em não o troca, show-set3em exige36pt; IEEE/Plain
-não adquirem recuo de hanging por esse show-set. bibliography.where(style:"mla")
-não casa na sonda vanilla: conservar a decisão do seletor, não forçar override.
-
-Block/Box com body apenas inline ignoram hanging10; Par explícito dentro
-deles e Block com Parbreak aplicam. Heading/Raw/List/Quote simples não o
-aplicam. Declaração parcial, zero, repetida e escopo vazio fecham fronteiras:
-FIRST/MIDDLE/LAST em5.168/27.464/49.76, contra todos5.168 no Tekt. A primeira
-sonda lexical usou colchetes literais: foi refutada, corrigida para #[...] e
-preservada como extra-before-initial; não é evidência de escopo Styled.
-Valores extremos geram tinta recortada pelo extrator: não equiparar ausência
-em pdftotext a apagamento de Content. Fonte parcial24pt não muda o em do
-comprimento compartilhado12pt, como partial-font registra.
-
-Fontes pinadas: typst-realize/src/lib.rs:1061–1085,1190–1219 distinguem
-fragmento/Par e interrupção; typst-layout/src/flow/collect.rs:72–134 escolhe
-fluxo, inline/mod.rs:174,216–221 e collect.rs:141–147 resolvem forma;
-inline/line.rs:496–503 posiciona; rules.rs:510–523 faz inset/compensação CSL.
-typst-library/src/model/bibliography.rs:112–127,367 determina o default e
-precedência. Isso mede língua/geometria; não exige a estrutura Rust vanilla
-nem atribui intenção histórica. Refutação por fronteira perdida, em de run,
-recuo duplo, reset em página, fallback greedy imposto, cópia perdida, callbacks
-reexecutados ou regressões dos controles impede fechamento.
-
-### Classificação e limites
-
-Correção interna/de paridade ADR-0127, fluxo contínuo: sem campo ou assinatura
-pública, flag/default externo novo, fase ou ordem de realização diferente.
-A nova forma inicial/continuação supersede somente a limitação correspondente
-de largura constante; RTL latino certificado segue as condições do núcleo,
-sem BidiCursor ativo/tracking e sem inventar BidiSpan. Os demais limites
-anteriores continuam. Os valores/cópia fora da página requerem inspeção dos
-frames ou SVG, não igualdade de extração recortada. Não antecipar R3-T1.
-
-### Responsabilidade exclusiva deste owner
-
-Manter regras de origem/duplicação e avanço; ao verificar overflow, usar a borda final efetiva do parágrafo. Não fabricar espaço para representar recuo.
-
-### Aceitação
-
-RED→GREEN antes da implementação; controles fonte→layout e bilaterais dos sinais,
-fronteiras, variantes e restauração pertinentes. Não deduzir cobertura de todas
-as alternativas por executar um arm agrupado: classificações nominais fechadas
-do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
-Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
-e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.
+Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.

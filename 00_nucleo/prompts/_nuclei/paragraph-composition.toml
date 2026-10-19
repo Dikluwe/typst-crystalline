@@ -1,34 +1,28 @@
 tekt = 1
 kind = "nucleus"
 id = "paragraph-composition"
-title = "Fronteiras de parágrafo e fecho causal de linhas"
-
+title = "Paragraph boundaries and causal line closure"
 [[claims]]
 id = "physical-lines"
 level = "must"
-statement = "A linha continuada por nova unidade material usa par.justify para justificar por espaços; linha final, parbreak e linebreak false mantêm sua largura natural. linebreak true pede justificação independentemente do parágrafo."
-
+statement = "A line continued by new material uses par.justify for space justification; final line, parbreak and linebreak false keep natural width. linebreak true requests justification independently of paragraph."
 [[claims]]
 id = "paragraph-node"
 level = "must"
-statement = "Content.Par é uma fronteira de bloco da linguagem, inclusive quando vazio; construir ou realizar o nó continua em eval, sua geometria e composição continuam em layout."
-
+statement = "Content.Par is a language block boundary even when empty; node construction/realization remains eval, geometry/composition remains layout."
 [[claims]]
 id = "lexical-close"
 level = "must"
-statement = "A linha anterior a um parágrafo styled fecha antes de instalar suas opções; o parágrafo fecha sua última linha ainda dentro do seu escopo. Wrappers de estilo inline não se tornam parágrafos adicionais."
-
+statement = "Line before styled paragraph closes before its options install; paragraph closes final line within its scope. Inline-style wrappers do not become extra paragraphs."
 [[claims]]
 id = "terminal-causality"
 level = "must"
-statement = "A geometria terminal usa a baseline causal da última linha de parágrafo confirmada; notas conservam seu orçamento de clearance. Estado privado de fechamento terminal participa do checkpoint e rollback. Parágrafo vazio conserva seu avanço explícito sem fabricar tinta."
-
+statement = "Terminal geometry uses causal baseline of last confirmed paragraph line; notes retain clearance budget. Private terminal-closure state participates in checkpoints/rollback. Empty paragraph retains explicit advance without fabricated ink."
 [[claims]]
 id = "selector-scope"
 level = "must-not"
-statement = "A composição por espaços é apresentada como implementação do seletor optimized, de justificação CJK entre glifos ou de preparação global do parágrafo."
-
+statement = "Space-based composition is presented as implementation of optimized selector, CJK interglyph justification or global paragraph preparation."
 [[claims]]
 id = "scope-origin"
 level = "must"
-statement = "Escopos #set anteriores ao primeiro conteúdo material ficam exteriores aos parágrafos realizados, para que show par tenha precedência. O produtor marca a origem em eval.flow.scope privado; fragmentos inline não são promovidos por campos de estilo. Um wrapper que cobre todo o material de um fluxo ainda vazio é fatorado como escopo exterior, incluindo constructors, e conserva precedência de show-set."
+statement = "Before first material content, #set scopes stay outside realized paragraphs so show par has precedence. Producer marks origin with private eval.flow.scope; inline fragments are not promoted through style fields. A wrapper covering all material of still-empty flow is factored as exterior scope, including constructors, preserving show-set precedence."

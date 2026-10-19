@@ -1,0 +1,34 @@
+tekt = 1
+kind = "nucleus"
+id = "paragraph-composition"
+title = "Fronteiras de parágrafo e fecho causal de linhas"
+
+[[claims]]
+id = "physical-lines"
+level = "must"
+statement = "A linha continuada por nova unidade material usa par.justify para justificar por espaços; linha final, parbreak e linebreak false mantêm sua largura natural. linebreak true pede justificação independentemente do parágrafo."
+
+[[claims]]
+id = "paragraph-node"
+level = "must"
+statement = "Content.Par é uma fronteira de bloco da linguagem, inclusive quando vazio; construir ou realizar o nó continua em eval, sua geometria e composição continuam em layout."
+
+[[claims]]
+id = "lexical-close"
+level = "must"
+statement = "A linha anterior a um parágrafo styled fecha antes de instalar suas opções; o parágrafo fecha sua última linha ainda dentro do seu escopo. Wrappers de estilo inline não se tornam parágrafos adicionais."
+
+[[claims]]
+id = "terminal-causality"
+level = "must"
+statement = "A geometria terminal usa a baseline causal da última linha de parágrafo confirmada; notas conservam seu orçamento de clearance. Estado privado de fechamento terminal participa do checkpoint e rollback. Parágrafo vazio conserva seu avanço explícito sem fabricar tinta."
+
+[[claims]]
+id = "selector-scope"
+level = "must-not"
+statement = "A composição por espaços é apresentada como implementação do seletor optimized, de justificação CJK entre glifos ou de preparação global do parágrafo."
+
+[[claims]]
+id = "scope-origin"
+level = "must"
+statement = "Escopos #set anteriores ao primeiro conteúdo material ficam exteriores aos parágrafos realizados, para que show par tenha precedência. O produtor marca a origem em eval.flow.scope privado; fragmentos inline não são promovidos por campos de estilo. Um wrapper que cobre todo o material de um fluxo ainda vazio é fatorado como escopo exterior, incluindo constructors, e conserva precedência de show-set."

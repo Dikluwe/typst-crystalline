@@ -2,202 +2,54 @@
 Hash do Código: cfa3da1f
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 
-## Ownership e medição
+## Evidence before specification
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/layout/grid/tracks.rs`. Comportamento original em `01_core/src/compiler/layout/grid.rs:212-451` no HEAD `51a027f99`, árvore limpa, 2026-10-01 00:44:23 UTC. A classificação é extração interna, não nova prova bilateral de paridade ou desempenho.
+Original behavior is at `01_core/src/compiler/layout/grid.rs:212-451`, HEAD `51a027f99`, clean tree,2026-10-01 00:44:23 UTC. This establishes extraction, not new bilateral parity/performance. Historical full measurements and qualifications remain archived in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/grid/tracks.md`.
 
-## Contrato
+`tracks.rs:175`, `cell_body.rs:155` and `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05.md` precede measured-product reuse: Auto-height measurement discards a product emission rebuilds. `lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/before.json` and espaco-terminal-2026-10-06/verification.json.gz preserve state/source/L0/binaries and six tables whose inline sequences break despite one vanilla line at historical pin 9f2b6e871. `measurement.rs:104-113` uses max-width/summed-height for inline sequence, `block.rs:315` excludes Literal separators from width, `tracks.rs:108-113` uses left margin even for a single RTL Auto column. Pinned grid/layouter.rs:967-1100 measures full frame; page_geometry.rs:143-154 separates Literal-auto extent from ink. Wrong remaining wraps/anchors or weak-space/fixed-column/style/line/paragraph regressions refute the hypothesis. `lab/results/construction/diagnostics/bordas-cantos-2026-10-06.md` exploratory Align controls expose Left-RTL one-column origin; `tracks.rs:104-116` limits offset to one column and uses page margin in a subregion.
 
-Own Grid/Table column and row track resolution. Keep Fixed/Auto/Fraction order, constrained cell measurement, insets, page break before fractional row allocation, auto-height finite fallback, and current cursor/style effects. Return widths, starts and row heights without changing placement or emission. Preservar contrato público, fase do pipeline, defaults, compatibilidade e pureza L1.
+`lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, historical pin `9f2b6e8715237cb086899a42873660fe744622e8`, UTC/diffstat/status/sources/binaries/arguments/results. Oracle SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`. Pinned `layout/grid/resolve.rs:204–278,1500–1530,1665–1703,1945–1988` resolves fields/conflicts/padding/breakability. Tekt `grid_placement.rs:91–112,262–270`, `realize/mod.rs:160–200`, `table.rs:127–152` expose explicit-first/Grid-only placement, bottom-up recipes and discarded wrappers. order measures no cell effects under replaced Table/no Heading effects under hidden cell; aliases measures LOCAL a, OUTER LOCAL a, NEW a. Language/effects, not copied mechanics/bytes/Rust equality. Unknown fields/hidden effects/wrong order refute correction; cache/pagination equivalence is not inferred.
 
-## Aceitação
+`lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second,after-fourth,refuters-fourth}.json.gz`, nested-reuse-red.log and effect-order-red.json preserve full pin/binary/HEAD/state/source/UTC/argv/results. show-bare puts CELL/a on separate lines; measurement lacks TableCell at`:374`, and`:21–31` does not certify ShowRecipe in inline Sequence. aliases/show-cell-no-default-escape refute incomplete projection. geometry-fifth.json/local-bool-red.log (binary 59da863f with source/state/argv/glyph/tests) expose SECOND/d and LOCAL/a breaks: `break_selection.rs:24` strict absolute-coordinate comparison can diverge by last bit after transport. `sub_frame.rs:326` zeros terminal width for Table. width-refuter.json (binaryed82be14/tested-seventh/source/argv/UTC) puts OUTER LOCAL/a on Auto lines but one line at explicit 79.167pt; outer-alias-visual.json shows OUTER/space/LOCAL/space/a. Isolated measurement at `measurement.rs:75–92` has no proved equivalence for this transported composite flow.
 
-Suíte L1, `cargo build` e `crystalline-lint .` passam; a extração não implica ganho de desempenho.
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/working tree/UTC/sources/argv/binaries against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Existing ShowRecipe/Located/Realized branches contain the corresponding transparent operation; Source must not leak as observable content. Human approval `confirmo` was received 2026-10-07; contract: `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md`.
 
+additional-debug3 puts FUNC/styled on separate lines: Source is not evidence a composite product is atomic. `lab/results/construction/diagnostics/performance-c2-2026-10-07/table-local-regression.json` and three samples/r*-table-local/samples.json preserve source/argv/UTC/state/releaseac889581 hash and historical vanilla pin: size grows 10%, second column x60.880→38.999 overlaps. `lab/results/construction/diagnostics/table-local-c2r1-2026-10-07/red.log` has failed 10pt/Auto separation with explicit 11pt passing. Pinned typst-eval/src/code.rs:32–43 applies local set declarations only; Tekt expression_dispatch.rs:132 collapses root defaults, style_chain.rs:304–315 roots size11/bold false/italic false, tracks.rs:328 misses standalone Complete Cell. Joint style/projection hypothesis is refuted by remaining source/size/position divergence after local-style isolation/full-visual measurement, without requiring upstream graph/mechanics.
 
-## Produto medido consumível — 2026-10-05
+Type-complexity C013 at `tracks.rs:225`: `lab/results/construction/diagnostics/type-complexity-2026-10-15/before.json.gz` preserves HEAD/uncommitted tree/UTC/diffstat/source/owners/hashes; red-clippy.log fails before editing. Positional tuples/repeated FontKey alias/static contracts were distinguished. This is representation maintenance, not AI benefit/functional bug/new parity.
 
-Evidência em tracks.rs:175 e cell_body.rs:155 e diagnóstico `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05.md` precede a decisão. Devolver também a pool privada do owner measurement_cache e transferir para ela o produto completo descartado após usar a altura Auto. O helper decide elegibilidade; Fixed/Fraction e cálculos geométricos continuam vigentes. Delegar invariantes de cache ao owner canônico `00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md`. Mudança privada de mecânica, na mesma fase e fluxo contínuo ADR-0127.
+The owner approved insertion-time resolved Table (historical D08B3-A) on 2026-10-07 (`comfirmo`), archived at `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md:3`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`: five public fields, two public carriers, one public facade and logical preparation before Cell show. This supersedes its stale proposed-only gate only within the approved scope. Standalone Cell defaults/generation (historical D08B3-B) were separately ratified/materialized (`confirmo`), archived at `lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-2026-10-07.md:3`, manifest `3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`. A did not authorize B's added public field/type; B's separate confirmation did. Neither closes broader incomplete scope.
 
-## Sequência em coluna Auto e frame literal — 2026-10-06
+## Exclusive ownership and current contract
 
-### Medição anterior à decisão
+Layer L1. Sole productive consumer: `01_core/src/compiler/layout/grid/tracks.rs`. Own column/row track resolution, keeping Fixed/Auto/Fraction order, constrained cell measurements/insets, page break before fractional-row allocation, auto-height finite fallback and current cursor/style effects. Return widths/starts/heights without changing placement/emission, public contract/phase/default/compatibility/L1 purity.
 
-`lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/before.json` conserva
-estado/HEAD/stat/status/fontes L0 e código/binários. O lote predecessor em
-espaco-terminal-2026-10-06/verification.json.gz mede seis tabelas: ABC/123 e
-árabe ficam em duas linhas no Tekt, uma no vanilla pinado 9f2b6e871.
-measurement.rs:104-113 toma max das larguras de filhos e soma alturas de
-Sequence, mesmo quando Styled/Text/Space formam um fluxo inline. O vanilla
-inline/grid mede o frame completo (grid/layouter.rs:967-1100). Block RTL com
-LTR literal terminal desloca ABC em 3.49658pt por espaço: block.rs:315 usa
-line_content_right que exclui todo TextSeparator. page_geometry.rs:143-154
-já distingue extensão auto de espaço literal da extensão de tinta da linha.
-tracks.rs:108-113 ancora toda coluna em margin.left, inclusive uma coluna
-Auto RTL; no oracle a coluna única termina na margem direita. Observáveis
-de geometria/texto, não obrigação de copiar algoritmo ou bytes. Hipótese
-refutável por quebra/âncora ainda divergente ou regressão de espaço fraco,
-coluna fixa, estilos/linhas/parágrafos após medição de frame/âncora corretas.
+Return private measurement_cache pool and transfer complete discarded Auto-height product into it after using height; `00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md` exclusively decides eligibility. Fixed/Fraction/geometric formulas remain. No extra cache policy here.
 
-### Classificação
+In finite single-column regions without horizontal override, anchor at lexical chain's End RTL using available width minus resolved-width sum, without changing widths/logical order. Explicit Left/Right/Center/Start/End resolves against outer direction for total column width in any column count, using finite region and current line_start_x. Without override keep single-column refinement and legacy multicolumn policy; mirroring/multicolumn spans need separate measurement. `00_nucleo/prompts/core/compiler/layout/placement.md` owns lexical override install/restore; no duplicated translation in cell emitter. Origins/insets/rules/borders consume existing col_starts. Auto delegates constrained measurement capable of inline Sequence; Fixed/Fraction/cache/pagination/phase stay.
 
-Correção interna de paridade ADR-0127, sem API pública/fase/flag/dependência
-ou unsafe novo. Não inferir intenção histórica de P80. Núcleo de extensão
-intrínseca distingue dimensões do container de tinta/alinhamento de linha.
+For prepared input measure Complete visual at plan's correct column/row/colspan/rowspan, never chunk raw source cells as a grid or measure replaced raw body. Preserve track types/metrics/styles/formulas/insets/cache and legacy Grid order; no recipe resolution. Prepared visual uses surviving-default render properties through `00_nucleo/prompts/core/compiler/layout/grid/cell_body.md`; total replacement has zero inset, and known lexical Cell is not mutated.
 
-### Responsabilidade exclusiva
+measurement_visual projects every prepared TableCell with known stage, positioned or standalone, through e.visual(); preserve Styled/Source around text. Raw unstaged Cell retains fallback. For measurement recursively remove only Cell snapshots and ShowRecipe wrappers, keeping Styled and complete nested Table boundary. Never traverse/extract nested cells/coordinates; complete nested Table remains atomic and uses already-realized physical subframe without Func. Source/body/zero-metadata traversal in composed_visual discovers actual composite material, not fake atomicity.
 
-Para uma coluna em região finita, alinhar a âncora do grid ao End RTL da
-chain quando não há override horizontal, usando available_width menos soma
-das larguras resolvidas, sem alterar larguras nem reverter ordem lógica.
-Override Left/Right/Center/Start/End resolve contra direção externa. Colunas
-múltiplas conservam a política anterior nesta rodada: seu espelhamento e spans
-precisam de medição própria. Origins/insets/linhas/bordas consomem col_starts
-existentes. Larguras Auto continuam delegando à medição restrita, agora apta
-para Sequence inline. Fixed/Fraction, cache de células e fases conservados.
+A prepared visual with more than one inline material item is measured through a subframe in the causal Layouter instance, with full body, actual bounds and existing restoration. Metadata/Empty do not make it composite. Simple Text keeps static measurement/proven cache; nested Table and physical Bool Raw require physical fallback rather than zero static branch. When terminal subframe width is zero after Table, use real FrameItem bounds through metrics::line_content_right without losing bodies. Never infer width from getter text or abandon subframe-count controls.
 
+Only positive finite Auto widths for prepared plans receive representation-error bound EPSILON × (available width + origin + natural width). This compensates binary transport rounding, not an editorial margin; preserve exact text and legacy Grid. Same projection serves Auto width and rows; external-plan inset/align, paint, placement and cache remain unchanged. No second recipe/callback, hidden-source emission or phase/public/flag change.
 
-## Origem e override horizontal da região — 2026-10-06
+Private RowCell names cell_index, borrowed content, column, colspan, rowspan. Keep Vec<Vec<RowCell>> with Clone/Copy of same values/references; construct/destructure by name. Preserve partition/order/spans/bounds/heights/measured-product capture; never clone Content or alter cache/placement.
 
-Medição: os controles exploratórios de Align no diagnóstico
-`lab/results/construction/diagnostics/bordas-cantos-2026-10-06.md` divergem na âncora Left
-RTL de uma coluna. `tracks.rs:104-116` restringe o offset a uma coluna e usa
-margem da página como origem, mesmo em sub-região.
+## Acceptance and limits
 
-Responsabilidade exclusiva: resolver um override horizontal explícito para
-a largura total das colunas em qualquer contagem, usando região finita e
-a origem corrente line_start_x. Sem override, preservar o caminho de uma
-coluna e a política anterior de várias colunas; não inverter ordem lógica.
-O fluxo lexical que instala/restaura o override pertence ao owner canônico
-`00_nucleo/prompts/core/compiler/layout/placement.md`. Não duplicar a tradução no
-emissor de células. Fixed/Auto/Fraction, paginação e cache permanecem.
-Correção interna de posição ADR-0127, sem mudança pública.
+L1 suite/build/crystalline-lint pass; extraction proves no performance gain. Internal parity/maintenance uses continuous-flow ADR-0127 with no new public API/trait/entity/flag/default/phase. L0 before RED→GREEN/restricted resealing, build/suites/lint and physical/timing recolection. No intent inference or assumed cache/complex-cell parity.
 
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
+Require RED→GREEN, suites/build/lint/restricted preservation and D08A/B2, D05/D06/D07/query collections. Accept real language/effects/geometry, not byte equality or whitespace normalization to close render. General Table defaults/fields (table-root-equality), rich style functions/paint/strokes/insets, rich lines/gutters, multipage spans and PDF/UA are not certified. Preserve extra legacy D08B2 casts, syntax/flags and global nonlocatable policy.
 
-### Medição anterior à decisão
+Projection/rounding/composite refinements require bilateral geometry/glyph/line/effect-once controls, cache preservation and all original refusals. No whitespace normalization; remeasure after every refuter before certification. Local-style correction covers separated nonoverlapping columns,10/11pt text, local aliases, physical PDF measurements and C/C2 corpus, without mutating realized-plan geometry.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
+Preserve exclusive ownership/static dispatch without I/O or a new signature/trait/flag or eval↔layout phase. Source-origin tests/C2/C/macro collections/builds/lineage are required before certification.
 
-### Responsabilidade exclusiva proposta
-
-Na entrada preparada medir o visual Complete em coluna/linha correta, usando colspan/rowspan e coords do plano, nunca chunk de células de origem como grade nem raw body substituído. Conservar tipos de tracks, metrics/styles e fórmula/insets/cache; corrigir só adaptadores necessários. Grid legada conserva ordem anterior. Não resolver recipes aqui.
-
-### Gate, aceitação e divisão explícita
-
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
-
-### Refinamento interno medido — 2026-10-07
-
-Medição anterior à decisão: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
-after-second/show-bare mede/renderiza CELL e a em linhas diferentes. measure_content_constrained não possui ramo TableCell e não deve receber esse wrapper. Table preparada mede r.visual e usa propriedades de render do default sobrevivente via helper cell_body; substituição total tem inset zero. Coordenadas/spans do plano permanecem geométricos; Cell lexical conhecida não é mutada.
-A aceitação é bilateral, efeitos uma vez e geometria; não normalizar whitespace nem alterar contratos ratificados.
-
-Medição de fonte adicional: compiler/layout/measurement.rs:374 retorna zero para
-TableCell/Table sem ramo próprio. Para a visual preparada, remover apenas
-snapshot Cell do objeto de medição, conservando Styles. Conteúdo com Table
-aninhada requer medida física por subframe já realizada (sem Func); ASCII
-simples permanece na medida estática e no cache comprovado. Não inferir width
-pelo texto do getter nem abandonar controles de contagem de subframes.
-
-### Refutação e decisão interna antes de código — 2026-10-07
-
-Medições em lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-fourth,refuters-fourth}.json.gz, nested-reuse-red.log e effect-order-red.json: fontes/binários/HEAD/estado/UTC/resultados.
-after-fourth/aliases e show-cell-no-default-escape permanecem com quebra de texto. measurement.rs:21–31 não certifica ShowRecipe dentro de Sequence como inline. Projeção para medir deve remover snapshots de Cell e wrappers ShowRecipe recursivamente, conservando Styled e fronteira de Table completa. Não percorrer nem retirar cells/coords de malha aninhada; ali o renderer mede plano físico por subframe. Projeção total é pura, não executa receita. Guardas originais de cache e medidas equivalentes continuam obrigatórias.
-Supersede apenas a projeção/guarda aqui medida, sem contrato público ou fase adicional. Refutação: diferença nos testes/recoletas, efeitos repetidos, fonte ocultada visível ou regressão de cache/geometry.
-
-### Medição e correção suplementar interna — 2026-10-07
-
-Proveniência: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/geometry-fifth.json e local-bool-red.log, binário 59da863f, fonte/HEAD/estado/UTC/argv/glifos/testes.
-geometry-fifth.json registra quebra SECOND/d e alias LOCAL/a. break_selection.rs:24 compara coordenadas absolutas por > estrito; largura medida em origem zero e soma/transporte para origem da página podem diferir no último bit. Coluna Auto de plano preparado acrescenta limite de erro de representação EPSILON vezes escala geométrica (largura disponível + origem + largura natural), somente para largura positiva finita. Não ajustar texto, não introduzir tolerância editorial nem alterar Grid legada; testar glifos/linhas e cache. Subframe terminando com Table tem last_sub_frame_width zerado (sub_frame.rs:326), portanto medida usa bounds reais de FrameItems (metrics::line_content_right), conservando os corpos completos. Bool raw é conteúdo físico, usar esse mesmo fallback em vez da medida estática sem ramo Raw. Projeção permanece sem Func, plano já completo e sem extrair células de Table aninhada.
-Não certificar antes da recoleta RED→GREEN e suites; nenhum campo/método público, flag ou mudança de fase suplementar.
-
-### Refutador de largura auto contra largura explícita — 2026-10-07
-
-width-refuter.json (binário ed82be14, snapshot tested-seventh, fontes/argv/UTC)
-mede OUTER LOCAL/a com Auto, mas uma linha com79.167pt explícitos. Logo não é
-um problema da receita ou dos glifos; a medida Auto subestima o fluxo composto.
-outer-alias-visual.json observa sequência OUTER,space,LOCAL,space,a. O helper
-measurement.rs:75–92 cria instância isolada para sequências; essa equivalência
-não está provada para o fluxo transportado. Para visual de Cell preparada com
-mais de um item inline material, medir por subframe na instância causal de
-layout, com corpo completo, bounds reais e restauração existente. Text simples
-mantém medida estática/cache; Metadata/Empty não tornam fluxo composto. Sem
-segunda receita nem margem editorial. Validar fonte/glifos e controles cache.
-
-
-## D08B3-C2 — responsabilidade ratificada
-
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
-
-additional-debug3 mede FUNC e styled em linhas separadas: Source não torna produto composto atômico. Classificação composed_visual atravessa body e zeros metadata; medir composição inteira em subframe existente antes de decidir auto-width, preservando geometria e propriedades externas.
-
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
-
-
-## C2-R1 — correção interna de paridade
-
-Medição anterior à decisão: lab/results/construction/diagnostics/performance-c2-2026-10-07/table-local-regression.json, três samples/r*-table-local/samples.json com fontes/argv/UTC/estado/hash do release ac889581 e vanilla pin9f2b6e871. Tamanho cresce10%, segunda coluna x60.880→38.999 com sobreposição. RED semântico em lab/results/construction/diagnostics/table-local-c2r1-2026-10-07/red.log: tamanho10pt e separação Auto falham, tamanho local explícito11pt já passa.
-
-Fonte upstream typst-eval/src/code.rs:32–43 aplica somente styles da declaração set à cauda. Tekt expression_dispatch.rs:132 colapsa raiz/defaults e não só declarações locais; style_chain.rs:304–315 contém size11/boldfalse/italicfalse na raiz. tracks.rs:328 reconhece somente Cell com resolved, deixando a Cell standalone Complete na projeção; measurement.rs não mede TableCell. É semântica/estilo/posição observável, não obrigação de reproduzir árvore ou algoritmo upstream. A causa conjunta é inferência refutável por fonte/tamanho/posição ainda divergentes após isolar estilos locais e medir o visual completo.
-
-Classificação ADR-0127: reparo interno de paridade, sem API pública/trait/entidade/flag/fase nova. Fluxo contínuo autorizado por pedido de corrigir prioridade1; L0 primeiro, RED→GREEN, resselo restrito, builds/suítes/lint e recoleta física/temporal.
-
-Responsabilidade: measurement_visual de TableCell preparada, posicionada ou standalone com stage conhecido, projeta e mede e.visual(), preservando Styled/Source em torno do texto. Raw Cell sem stage conserva fallback anterior; Table aninhada permanece atômica e não tem células extraídas. Nenhuma recipe/callback é executada na medição. Mesma projeção para auto-width e rows; inset/align do plano externo, tinta, placement e cache não mudam. Validar duas colunas sem overlap, estilo de texto10/11, local aliases, medidas físicas PDF e corpus C/C2.
-
-
-## Tipos explícitos e leitura local — type_complexity (2026-10-15)
-
-### Medição anterior à decisão
-
-01_core/src/compiler/layout/grid/tracks.rs:225 (C013).
-O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
-conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
-O gate red-clippy.log falha com este lint promovido a erro antes da edição.
-A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
-estáticos já explícitos. É manutenção de representação Rust; não medição de
-benefício da IA, bug funcional ou paridade nova.
-
-### Responsabilidade e aceitação
-
-Nomear o registro privado RowCell com cell_index, content emprestado, column, colspan e rowspan. A coleção continua Vec<Vec<RowCell>>, com Clone/Copy dos mesmos valores/referências. Construir e desestruturar por nomes; preservar particionamento, ordem, spans, limites, alturas e captura do produto medido. Não copiar Content nem alterar cache/placement.
-
-Correção interna em fluxo contínuo ADR-0127: nenhuma entidade, assinatura pública
-resolvida, default ou fase é alterada. Uma abreviação de tipo só é permitida com
-expansão comprovadamente idêntica; incompatibilidade ou tipo público novo exige
-outro gate. As exceções são nominais apenas para type_complexity; não autorizar
-supressão em módulo/impl/crate nem elevar limiar. Esta permissão pontual supera
-proibições genéricas anteriores somente para os três itens justificados neste lote;
-continuam proibidas supressões dos demais casos destinados à correção.
-Usar os controles funcionais existentes sem mudar seus esperados. O gate selecionado
-deve passar RED→GREEN, incluindo unfulfilled_lint_expectations como erro; revalidar
-build, Clippy all-targets, suíte workspace, formato, Rustdoc e linhagem com resselo
-restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
+Type-complexity correction preserves resolved public signatures/default/phase. An alias is allowed only with proved identical expansion; public/new-incompatible types need another gate. Nominal type_complexity exceptions apply only specifically justified items in their package, not module/impl/crate/global threshold or other required corrections. Use unchanged functional expected outputs; selected lint RED→GREEN includes unfulfilled_lint_expectations as error. Revalidate build/Clippy all-targets/full workspace suite/fmt/Rustdoc/lineage/restricted reseal without tests mirroring field names/aliases. One-column and explicit-override refinements do not certify legacy multicolumn mirroring/spans, broader rich cells or global parity.

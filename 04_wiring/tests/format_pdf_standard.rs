@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/format_pdf_standard.md
-//! @prompt-hash 6304835d
+//! @prompt-hash 26994e9d
 //!
 //! P1469 (RED — Agente B) — integração de binário para `pdf.standard`
 //! (`#set format.pdf(standard: ...)`) e a flag `compile --pdf-standard`.

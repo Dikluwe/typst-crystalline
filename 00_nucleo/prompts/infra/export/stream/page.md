@@ -2,7 +2,7 @@
 Hash do Código: 32f519a3
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml sha256:8b7fcfaf39e60540d16868e662d48fb466fab58860385fcdae499f8c2edfe799
+- 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml sha256:afd5a809b6e3f2ac1f9a752fb1f6c6d704139eb1f71b085d430d9417f826b04e
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/stream/page.rs`
@@ -31,16 +31,27 @@ ParentTree entries or fonts, and do not compress the returned operators.
 Check blank pages, fill, bleed, background/foreground order and unchanged top-level
 coordinates with both graphic modes and tagging settings.
 
-## Composição de período e alpha sólido — 2026-10-14
+## Translucent solid canvas composition
 
-### Medição anterior à decisão
+### Evidence
 
-`lab/results/construction/diagnostics/tiling-overlap-2026-10-14/before.json.gz` preserva fontes, owners, HEAD, UTC e working tree. `tiling-nativo-2026-10-14/final-renders` e `remaining-analysis.md` registram cell8×8/pitch4×4 alpha50%: PDF vermelho opaco; SVG só uma contribuição; PNG quatro contribuições (255,15,15). `pdf_tiling.rs:184` emite BBox=size, `svg/paints.rs:148` usa overflow visible; `stream/shape.rs:155` e `stream/text.rs:275` descartam alpha. São defeitos observáveis de composição; o vanilla também corta overlap e não serve de requisito para esse defeito. Hipótese refutável: compor explicitamente um período preserva controles sem overlap e quatro contribuições coincidem com fonte-over analítica.
+`lab/results/construction/diagnostics/tiling-overlap-2026-10-14/before.json.gz`
+retains sources/owners/HEAD/UTC/working tree. tiling-nativo-2026-10-14/final-renders
+and remaining-analysis.md record cell8×8/pitch4×4 alpha50%: opaque-red PDF, one SVG
+contribution, four PNG contributions (255,15,15). pdf_tiling.rs:184 emits BBox=size;
+svg/paints.rs:148 uses overflow visible; stream/shape.rs:155/text.rs:275 discard
+alpha. These are observable composition defects; vanilla also clips overlap and
+is no requirement to copy that defect. Inference: explicit period composition
+preserves nonoverlap controls and matches four analytic source-over contributions;
+controls can refute it.
 
-### Responsabilidade desta unidade
+### Contract and acceptance
 
-No canvas Solid translúcido, aplicar opacidade com q/Q envolvendo somente o fill da página. Não alterar projeção antiga de PageFill Gradient/Tiling nem fingir que esta etapa a corrige. Os itens seguintes começam opacos.
-
-### Aceitação
-
-Correção interna ADR-0127 dentro do T1–T3 já aprovado, sem nova API/fase/flag/default. L0 primeiro, RED→GREEN, composição analítica (incluindo ordem com cores distintas), controles simples/nested/rotated/text/image e extração/seleção de páginas. Build, suíte workspace, formato, Rustdoc e linhagem. Alpha variável de gradientes e qualidade PNG seguem incompletos; não certificar pacote de produção com esses itens abertos.
+For translucent Solid canvas, wrap only page fill in q/Q with opacity. Later items
+start opaque. Do not change old PageFill Gradient/Tiling projection or claim it
+fixed by this slice. Internal ADR-0127 correction remains inside previously approved
+T1–T3, no API/phase/flag/default addition. L0 first, RED→GREEN, analytic composition
+including distinct-color order, simple/nested/rotated/text/image and page extraction/
+selection controls; build/workspace suite/fmt/Rustdoc/lineage. Variable-gradient
+alpha and PNG quality remain incomplete; do not certify a production package
+while these issues remain open.

@@ -2,13 +2,13 @@
 Hash do Código: 3280f8ed
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:42175932c75f37ed19205d1d82526969999e18fba8fed16f1b1dcff6e418bc0f
-- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
-- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:ff71dfc6648d6deb4b2b8054e3d58a93777d17837129f0f1b1e7e138ffb6943c
-- 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:c983fdb9884f90548e110fe7c1709632fc00b6e2a1387ad9e80444009c3602fd
-- 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:2ce5a50363605eb1a122920b92773b1fc956c52817dd57830c2ce12bfe5f285e
-- 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:2989f08ae6b4b379afb61d9673b94ab8538c45a97b98e566677ae0f719429dc3
-- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:0e7c32f877924fea773be54f9719b43bb72b4c3bb065f6ff44a842c56683ff78
+- 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
+- 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:a3772778f9e542de87823509c8eac57904fc73fea9526cebe6052833a69ef806
+- 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:24f0b69fa1db115ff13a786121c80cb7be3abfa2028a9a473075374a6815cfd4
+- 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:a0d3cae81e77da5875204a94bc2fbd707009f0d751cf50ed870c416a01187a22
+- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/raw.rs`
@@ -18,314 +18,56 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/raw.rs:103`, `01_core/src/compiler/layout/raw.rs:117`, `01_core/src/compiler/layout/raw.rs:20`, `01_core/src/compiler/layout/raw.rs:41`, `01_core/src/compiler/layout/raw.rs:47`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
-
-## Ownership and contract
-
-This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/core/compiler/layout/mod.md`; the contract below defines this unit's operations, not ownership of that hub.
-
-Own Raw rendering in `raw.rs`, not a separate renderer or language parser. Use embedded two_face syntax definitions and the existing Typst Light scope theme; only immutable lazy syntax/theme data is shared. Start from the current raw base style (clear bold/italic/fill, preserve the existing remaining fields), apply supported token foreground/bold/italic and restore the outer style after rendering. Block raw closes surrounding lines and starts token lines at the margin. Unknown syntax or highlighting failure uses the existing plain-token path. The current implementation uses `split_whitespace` for token emission, so the older whitespace-preservation claim is unresolved, not proven. Preserve the existing text/whitespace requirement as an open contract discrepancy; no fix, normalization expansion or weakening of the language requirement is authorized here.
-
-## Acceptance and limits
-
-Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
-
-## Raw defaults — medição pinada 2026-10-07 antes da decisão
-
-raw-defaults-2026-10-07/before.json.gz e before-state.json.gz registram
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, diffstat,
-UTC, fontes, comandos e binários. Tekt 58456b9b54041983612e5946f89fef2cf4591b9f31a09d8dcce9ae5c8a9c0eea;
-vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8 e binário 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-A medição dos 16 controles mostra Serif 11pt em Raw contra Mono 8.8pt,
-20pt contra16pt sob tamanho global, show-set absoluto15pt prevalecendo,
-show-font explicitamente Sans, show-size1em vanilla8.8pt/Tekt0pt,
-substituiçãoABC mantendo defaults de Raw, e fill vermelho herdado.
-Fonte pinada text/raw.rs:658–670 aplica defaults show-set antes dos overrides;
-raw.rs:103–123 conserva fonte/tamanho e descarta fill; apply.rs:207–253
-embrulha overrides mas perde defaults de Raw no produto; style_scope.rs:41–44
-resolve StyleChain.size por abs, perdendo em. São estilos/geometria
-observáveis da linguagem, não exigência de buffers ou bytes PDF.
-
-### Decisão interna de paridade, fluxo contínuo ADR-0127
-
-Usar a composição Styles/StyleDelta já existente, sem campo, trait ou
-assinatura pública novos, sem antecipar coordenadas ou mudar fase do pipeline.
-Os defaults de render ficam no owner Raw: fonte Mono, tamanho0.8 do exterior,
-bold/italic desativados e fill exterior herdado. Na emissão direta de Raw
-aplicar esses defaults e restaurar o exterior. Quando show de Raw produz
-conteúdo (inclusive Text), marcar um escopo privado raw.defaults no Styles
-exterior aos overrides, para que o mesmo owner instale defaults no render
-antes dos overrides. Marcar raw.defaults.active somente nesse escopo,
-e impedir aplicação dupla ao Raw devolvido por it. Styled resolve text.size
-Length contra tamanho anterior apenas dentro desse escopo Raw, preservando
-composição absoluta/relativa e restauração da chain. Nenhum parser ou
-algoritmo de show/matching/guard é duplicado.
-Para typc true/false, usar o foreground constant.language da paleta existente
-#d73948 quando não houver gramática suportada; não transformar em Text nem
-remover Raw morfológico. Outras gramáticas/whitespace continuam no owner atual.
-
-### Aceitação e limites explícitos
-
-RED→GREEN de fonte/tamanho/fill/restauração, overrides e substituição.
-Recoletar os16 controles, glifos reais de células e regressões. Mensagens,
-ordem, índices e targets continuam preservados; fonte subset e bytes não
-são critério. Whitespace Raw/syntaxes customizadas e reconstrução fresca
-de Raw dentro de show não são certificados por estes controles. A alegação
-histórica P1055 de tamanho100% é refutada para este pin e substituída aqui.
-
-
-### Refutação de fill no primeiro GREEN
-
-green.log (1/2 passou, snapshot tested-state) mostra fill None em Raw contra
-vermelho no texto. StyleChain.fill:422 lê somente delta.fill; set/text.rs:57
-guarda text.fill no canal custom, que o renderer Text já consome. O helper
-de defaults Raw deve consultar text.fill nessa chain antes do fallback
-TextStyle.fill, inclusive quando instalar o escopo para produto substituído.
-Não corrigir o contrato global StyleChain neste recorte.
-
-## Raw bloco — medição 2026-10-07 antes da decisão
-
-raw-block-spacing-2026-10-07/{before,before-additional}.json.gz e before-state
-registram HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
-UTC/diffstat/status/fontes/comandos/binários. Tekt43207349fba51afbdbcac3847c1a7d884e9ff845b6401022be22272679c00575;
-vanilla pin9f2b6e8715237cb086899a42873660fe744622e8 e binário7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-Raw prefix/suffix: yMin85.806243/95.064120 contra91.304203/108.594100.
-Cell usa x70.86614 contra75.86614; Cell isolada acrescenta0.55208pt vertical.
-Unknown-language colapsa abc/def emabcdef. SubstituiçãoABC perde a fronteira.
-Show-size15 usa margem18pt no vanilla; show-em1 mantém13.2pt.
-block-margins e show-margins above2/below7 são efetivos; par.spacing20
-produzRaw98.104163/After122.194100. EmptyRaw temAfter101.90816.
-Fonte pinada typst-layout/src/rules.rs:655–679 realiza Raw como Block;
-container.rs:324–360 define margem/colapso. Raw consumer fecha linhas e
-usamargem global; cursor.rs:88–132 já consome below pendente;
-sub_frame.rs:315–325 usa avanço hipotético quando a linha terminal já fechou.
-São geometria/texto observáveis, não algoritmo interno ou bytes.
-
-### Decisão — correção interna de paridade ADR-0127
-
-Seguir o núcleo raw-block-boundary pinado abaixo. Nenhum campo/trait/API
-público ou fase nova. Raw possui begin/end físicos privados, local origin,
-resolução de margens e classificação terminal do produto Raw. Styled orquestra
-esses helpers para produto transformado, com markers do apply no Styles
-existente. Apply conserva flag block e Length de tamanho/margens dos
-overrides sem resolvê-los. Sub-frame terminal Raw mede a borda final real
-menos seu topo, não leading/margem pendentes. Testes cobrem região local,
-produto substituído e linhas distintas em fallback.
-
-Ao iniciar, fechar prefixo material; usar baseline/descent anteriores e
-margem acima colapsada, com baseline inicial geométrica. Primeiro Raw de
-sub-frame vazio começa no topo local. Ao terminar, registrar borda inferior
-real e deixar below no protocolo existente do Cursor. Nenhuma soma de
-margem final à altura terminal. Unknown syntax mantém quebras explícitas
-entre linhas de Raw bloco, sem normalizar espaços/tabs nem alterar inline.
-
-### Aceitação e limites
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Historical pins do not certify current ratified `bd5ebec285505889e8ff1d4f68804ab147a699f3` without new measurement.
 
-RED→GREEN e recoleta dos14 controles +5 refutadores, tipografia anterior,
-Cell/morfologia/math/query, suites/build/lint e preservação restrita.
-Geometria observada decide; não introduzir tolerância posterior para apagar
-resíduos. Whitespace/tabs/linhas vazias internas, syntax customizada,
-reconstrução fresca e rich block styles/HTML continuam não certificados.
+Full historical observations/provenance/failed candidates remain in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/raw.md`. `raw-defaults-2026-10-07/{before,before-state}.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/diffstat/UTC/sources/commands, Tekt `58456b9b54041983612e5946f89fef2cf4591b9f31a09d8dcce9ae5c8a9c0eea`, historical vanilla `9f2b6e8715237cb086899a42873660fe744622e8` binary `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`. Sixteen controls refute old 100%-size/Serif defaults: Mono 0.8, absolute/show-font/relative overrides, substituted ABC retaining Raw defaults and inherited red fill. Pinned text/raw.rs:658–670 installs defaults before overrides; Raw:103–123 retained wrong font/size/discarded fill, apply.rs:207–253 lost defaults in replacement, style_scope.rs:41–44 projected abs-only size. green.log/tested-state refutes first fill fix: chain.fill:422 reads typed only while set/text.rs:57 stores custom text.fill, already consumed by Text. Styles/geometry are language, not bytes/buffer requirements.
 
-### Refutação e revisão da primeira fórmula de margem
+`raw-block-spacing-2026-10-07/{before,before-additional}.json.gz` and before-state preserve same HEAD/dirty state/UTC/diffstat/status/source/commands, Tekt `43207349fba51afbdbcac3847c1a7d884e9ff845b6401022be22272679c00575`, same historical oracle/hash. Prefix/suffix/cell/unknown-language/replacement/show-size/show-em/margins/par.spacing/empty-Raw probes expose missing block boundary, wrong local origin and collapsed explicit lines. Pinned typst-layout/src/rules.rs:655–679 realizes Raw as Block, container.rs:324–360 defines margin/collapse; cursor.rs:88–132 already consumes pending below, sub_frame.rs:315–325 uses hypothetical terminal leading. after/after-additional, refuters-red and refuters-second preserve failed candidates: extra2.64pt consecutive gap, cell offset/Strong-cell height, explicit margins ignored at set.rs:976–1006, prior paragraph sizes-up/down negatives, then remaining 0.14302pt Strong-versus-plain origin. Strong interior top is not region exterior origin.
 
-after.json.gz/after-additional.json.gz (binário/snapshot/UTC completos)
-refutam o primeiro reparo: consecutivos têm gap extra2.64pt; Cell prefix
-continua5.49796pt acima; Cell isolada fica2.59598pt acima; margens explícitas
-não chegam à chain, pois set.rs:976–1006 não reconhece Native block.
-refuters-red.json.gz mostra Strong-cell perdendo altura (After83.27018
-contra89.95610); plain-cellAfter87.36012. Também identifica negativos
-preexistentes de parágrafo sizes-up/down, cada um comdelta10.8pt.
-
-A margem Raw default é fraca e usa Raw80%:10.56pt, não13.2pt. Um parágrafo
-exterior11pt contribui13.2pt, enquanto Raw consecutivo contribui10.56pt.
-Usar prev_margin_is_parbreak como protocolo já existente de margem fraca
-de parágrafo, incluindo Raw que herda essa margem: below explícito continua
-forte e não muda esse ramo. Cursor colapsa margem fraca com par.spacing
-actual, sem alterar o ramo de margens fortes, regiões/fracionárias/checkpoints.
-Parágrafo anterior já fechado em sub-frame ainda participa da margem acima.
-Primeiro Raw de sub-frame usa cursor inicial menos top-edge exterior, porque
-cell_body.rs:253–260 recompõe sub-frame legado com ascender-top-edge.
-Classificação terminal inclui Strong/Emph transparentes, sem wildcard
-descartando dados: é predicado de fronteira, não projeção de enum.
+edges-red.json.gz refutes below0/negative/auto-spacing priority and next-auto cases; explicit edges must win weak edges in both directions before magnitude. suites-third.log refutes unconditional FontMetrics initialization by new image/shape Place font-book access: only legacy subframe with terminal Raw block needs installed regional ascent. These measurements retain exact binaries/snapshots/UTC in their diagnostics; no later tolerance may hide residuals.
 
-Set proprietário aceita por identidade Native block e aliases somente
-o subconjunto spacing/above/below com Length ou Auto; avalia uma vez,
-publica delta apenas depois de validar o conjunto. Campos/tipos fora
-desse subconjunto conservam fallback/advertência anterior e não são
-certificados. Apply transporta essas propriedades e o tamanho como Length.
-A margem de render usa o tamanho Raw efetivo (default ou show-set); o
-parágrafo anterior contribui o exterior separado. Styles não mede glyphs.
+Standalone Cell 53-probe evidence and complete source/state/UTC/binaries/pin are in `lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz`; before/refuters/complete are not extra independent rounds. It exposes intrinsic defaults/raw-versus-prepared identity/effects/fresh-generation termination/alias previous-rule reuse without fabricated location; cell-set remains separate. Pinned model/table.rs:734–778 and typst-realize/src/lib.rs:367–386,418–429,491–505,571–586 distinguish prepared arguments/guards/materialization. Owner separately ratified/materialized package on 2026-10-07 (`confirmo`), record `lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-2026-10-07.md:3`, manifest `3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`. This supersedes stale candidate-only gate for B's one new public field/type, never via earlier A approval.
 
-A hipótese é refutável por qualquer negativo que permaneça nas coletas.
-O parágrafo sizes-down já era negativo e não é declarado corrigido aqui;
-não ampliar para regra de tamanho de parágrafo anterior sem medição própria.
+That diagnostic's after-second/html-fields preserves HEAD/state/UTC/binaries: Tekt HTML displays Auto as plain text while vanilla code(data-lang:typc)/constant.language span#d73948. Pinned foundations/value.rs:191–208 presents Auto/Bool as inline Raw typc; markup_stream.rs:210–215 handles Bool only; raw.rs:201–203 colors only true/false; HTML inline lacks Raw/general path. Equal text is not morphology/style parity.
 
-### Região inicial versus estilo Strong do conteúdo
+box-baseline-inicial-2026-10-14/before/results.json.gz/before.json.gz preserve twelve-source geometric/adjacent-text/shift probes with pinned binaries/state/HEAD/UTC: zero and absent installed ascents were conflated. `posicoes-compostas-2026-10-14/raw-before.json.gz` preserves raw.rs:178 neutral-carrier first-boundary failure. `lab/results/construction/diagnostics/place-fluxo-2026-10-14/before/results.json.gz` preserves full HEAD/dirty state/diffstat/UTC/source/binary/argv/historical pin and certified-flow-anchor defects after line/Shape/Block/Grid/Raw/VSpace, with weak-margin/page/rollback/subframe refuters.
 
-refuters-second.json.gz mantém Strong-cell0.14302pt acima do vanilla,
-mas plain-cell coincide até0.00002pt. raw.begin usa o top-edge do estilo
-Strong interior para converter a origem legada; cell_body recompõe com o
-ascender/top-edge do exterior da região. Sub-frame deve inicializar seu
-line_assumed_ascent pelo estilo próprio na entrada, depois de guardar o
-ascent do pai. Raw primeiro usa esse ascent regional para converter o topo,
-não o estilo Strong/Emph interior. O helper continua restaurando o pai.
-É correção de coordenada/contexto privado na fase existente, sem novo slot,
-API ou tipo. Aceitação: o refutador Strong deve conservar a mesma origem e
-altura do plain, com recompilação e suites/regressões.
+`lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz` preserves HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree, status/diffstat/UTC and 2,099 sources/L0s. before.json.gz contains 92 pairs; extra-before.json.gz 26; boundary-before.json.gz 10; repeat-before.json.gz 4. Oracle commit: `bd5ebec285505889e8ff1d4f68804ab147a699f3`; binary SHA-256: `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`; initial Tekt: `2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095`. At width 160pt/margin 8/font12, hanging10 leaves first-line x8 and moves continuations x8→18; negative-5 requires x3. RTL leaves first right edge 152 and moves continuations to 142. Tekt ignores the length. MLA defaults to 18pt (1.5em); ambient set 3em does not replace it, while show-set3em requires 36pt; IEEE/Plain do not acquire hanging indent through that show-set. bibliography.where(style:"mla") does not match in the vanilla probe: preserve selector choice rather than forcing override.
 
-### Refutadores finais de fronteira zero/auto e acesso a fontes
+Inline-only Block/Box bodies ignore hanging10; explicit Par inside them and Block with Parbreak apply it. Simple Heading/Raw/List/Quote do not. Partial, zero, repeated and empty-scope declarations close boundaries: FIRST/MIDDLE/LAST at 5.168/27.464/49.76 versus all 5.168 in Tekt. The first lexical probe used literal brackets; it was refuted, corrected to #[...] and retained as extra-before-initial, not evidence of Styled scope. Extreme values produce extractor-clipped paint; missing pdftotext output does not mean Content deletion. A partial 24pt font does not change the shared length's 12pt em, as partial-font records.
 
-edges-red.json.gz prova: below0 sobrepõe After (74.95612 contra82.19410);
-negativoAfter72.95612 contra77.19410; auto +spacing20 não sobrepõe auto
-corretamente (Raw98.10418 contra91.30420); primeiro below0 deve vencer
-above automático do Raw seguinte (def97.99011, não108.55011).
-A margem explícita tem prioridade nos dois sentidos; ambas explícitas ou
-ambas fracas colapsam por máximo. Auto de edge interrompe o shorthand
-spacing e retoma par.spacing/default fraco. Below explícito<=0 deixa cursor
-no fim real +below com baseline geométrica pendente; below fraco, inclusive
-zero, passa ao ramo fraco do Cursor, que adiciona top-edge do texto seguinte.
+Pinned source: `typst-realize/src/lib.rs:1061–1085,1190–1219` distinguishes fragment/Par and interruption; `typst-layout/src/flow/collect.rs:72–134` selects flow; `inline/mod.rs:174,216–221` and `collect.rs:141–147` resolve shape; `inline/line.rs:496–503` positions; `rules.rs:510–523` provides CSL inset/compensation. `typst-library/src/model/bibliography.rs:112–127,367` determines default/precedence. This measures language/geometry, requiring neither vanilla Rust structure nor inferred historical intent. Lost boundaries, run-relative em, double indent, page reset, imposed greedy fallback, lost copies, reexecuted callbacks or control regressions refute closure.
 
-suites-third.log refuta inicialização incondicional de FontMetrics: dois
-controles place nontext (image/shape) passaram a adquirir font book.
-Inicializar ascent regional somente no sub-frame legado cujo produto
-terminal é Raw block. Geometric/nontext conserva a rota sem consulta nova.
-Dados sem texto não dependem de fontes por esse reparo.
+## Exclusive ownership and current contract
 
-## D08B3-B — candidato, não vigente antes de ratificação
+Own only `01_core/src/compiler/layout/raw.rs`, not another renderer/parser. Use embedded two_face syntax definitions/existing Typst Light scope theme, with only immutable lazy syntax/theme sharing. Apply supported foreground/bold/italic token styles and restore exterior. Existing split_whitespace token emission remains an explicit unresolved text/whitespace discrepancy, not license to normalize/fix/weaken it. Unknown syntax/highlight failure uses existing plain-token fallback, refined below only for block explicit line breaks.
 
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
+Current Raw defaults supersede older clear-fill/100%/font-inheritance clauses: Mono family, size 0.8 of exterior, bold/italic disabled and exterior fill inherited. For fill read custom text.fill before TextStyle.fill fallback, including replacement scope; do not alter global StyleChain contract. Direct Raw applies/restores defaults. Show-product Raw defaults travel in private raw.defaults Styles outside overrides; mark raw.defaults.active only within that scope to prevent double application when returning it. Relative text.size Length resolves against prior size within Raw defaults scope, preserving absolute/relative composition and chain restore. No copied show/matching/guard algorithm or new public type/trait/signature/phase.
 
-isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
-
-Fonte vanilla lab/typst-original/crates/typst-library/src/model/table.rs:734–778 declara defaults e propriedades; typst-realize/src/lib.rs:367–386 prepara/guarda o argumento, :418–429 visita produto com profundidade, :491–505 distingue guards por elemento, :571–586 materializa propriedades. Tekt entities/elements/table_cell.rs:111–143 só projeta lexical ou plano posicionado; compiler/realize/table_cells.rs:110–129 reaplica Cell crua sem preparo; :280–304 termina snapshot inteiro; eval/show_rule_termination.rs:65–70 trata mesma forma como ponto-fixo; eval/rules/apply.rs:139–166 revoga regra globalmente durante callback. Classificação: campos, efeitos, ordem, terminação e erro causal são língua. A estrutura de guards e materialização upstream é mecânica e não é requisito. Não se infere intenção do upstream; a escolha nominal abaixo é inferência refutável pelos controles de aliases, duas regras, novas gerações e conteúdo ocultado.
-
-### Responsabilidade exclusiva proposta
-
-O predicado terminal_block inspeciona exclusivamente visual preparado da Cell avulsa e positioned. Preservar todas as fórmulas de margens, fontes e regiões do reparo Raw atual; nenhum preparo/Engine no layout.
-
-### Gate, aceitação e incompletude explícita
-
-Candidato não vigente até confirmação humana do manifesto D08B3-B: há um campo público novo e um tipo público novo; o contrato A aprovado não os autoriza. Após ratificação instalar somente estes candidatos, escrever testes e confirmar RED antes de implementação; selar apenas owners mudados. Aceitação: coletas acima/revisões adicionais bilaterais, efeitos uma vez, igualdade/getters, seleção, produto HTML e texto/estilos/geometria reais; mensagens/spans sem apagar diferenças. Cargo build/debug/release e suítes core/infra/shell apropriadas; crystalline-lint sem erros e owners sem V5/V6/V15/V26. Revalidar D08A/B2/B3-A, Raw defaults/blocos, Equation/math/matrix/query. Preservar árvore anterior por snapshot/diff restrito, sem commit/reset/resselo global.
-
-Este recorte completa defaults intrínsecos da Cell isolada e distingue alias de nova geração de show. Continua incompleto no universo Cell: D08B3-C completa set table.cell/defaults de estilo (cell-set), mediante medição e L0 próprios; nenhuma promessa de prazo/implementação é legitimada por este scope-out. Defaults/igualdade gerais de Table, casts/paint/strokes/insets ricos, linhas/gutters/span multipágina, PDF/UA e política geral não-localizável ficam abertos. O warning preexistente de eval de ficheiro vazio não é corrigido ou normalizado para afirmar paridade.
-
-### Auto exposto pela Cell — reparo interno de apresentação, ADR-0127 contínuo
-
-Medição anterior à decisão: table-cell-isolada-d08b3b-2026-10-07/after-second.json.gz, html-fields, em HEAD/estado/UTC/binários registrados: Tekt HTML X auto a como texto; vanilla code(data-lang:typc) e span constant.language #d73948. Upstream foundations/value.rs:191–208 exibe Auto/Bool como Raw inline typc; markup_stream.rs:210–215 só cobre Bool e seu fallback usa Text para Auto; layout/raw.rs:201–203 cobre só átomos true/false. HTML inline.rs não possui ramo Raw e conserva rejeição geral. É morfologia/estilo da linguagem, não byte de PDF; texto igual não prova paridade.
-
-Antes da implementação, testes devem refutar a apresentação Auto como Text e a rejeição HTML de Raw atômico. Corrigir somente o mapeamento Auto para Raw(lang:typc,block:false), a classificação constant.language do átomo auto e a serialização HTML dos átomos typc auto/true/false com code e span constante, delegando escape/mode ao owner existente. Nenhum tipo/assinatura pública, fase, flag/default de produto ou gramática nova. A responsabilidade desta unidade limita-se à operação já owned correspondente: apresentação no markup, cor no Raw paginado, tags na inline HTML, testes no seu owner. Raw de outras linguagens/conteúdo arbitrário em HTML permanece fora da certificação. Confirmar RED→GREEN e igualdade do produto/estilos, com controles Table/Raw/query. Esta cláusula não autoriza mudanças nos outros tipos de Value ou implementação HTML geral de Raw.
-
-## Baseline inicial de caixa sem strut fictício — 2026-10-14
-
-### Medição anterior à decisão
-
-box-baseline-inicial-2026-10-14/before/results.json.gz registra doze fontes
-contra o vanilla pinado, binários, estado sujo, HEAD e UTC. Caixa 8×6pt
-sozinha começa em y pixel 22 contra 20 a 144dpi; com Q adjacente ambos
-começam em 22. Shift baseline 10pt sem texto revela a mesma contribuição
-fictícia. boxed.rs:21-38 instala fonte antes de conhecer a caixa;
-line_commit.rs:421-437 e sub_frame.rs:292-300 confundem zero com ausência
-e só consideram texto em condições parciais. Fonte pinada inline/line.rs:
-559-568 acumula top/bottom dos frames realmente presentes. A posição é
-observável; Option e buffers são mecânica. Snapshot fonte/L0: before.json.gz.
-Hipótese: diferir a baseline da primeira Box e combinar somente conteúdo
-real elimina o deslocamento. Refutar se controles de texto, transformações,
-Raw, HTML causal ou caixas aninhadas passarem a se deslocar.
-
-### Contrato deste owner
-
-Ao remover a baseline previamente instalada na entrada de Raw de bloco, subtrair o ascent opcional instalado; ausência equivale a nenhuma translação (zero). Preservar a exceção/calibração Raw no subframe e seus defaults, quebras e medidas.
-
-Correção interna ADR-0127, sem API, default ou fase novos. L0 primeiro,
-RED→GREEN, controle de ascent zero, sondas de geometria e suíte completa.
-Não substituir esperados de regressão para conservar o defeito.
-
-## Linha geométrica sem materialidade de carriers — 2026-10-14
-
-Inspeção anterior: raw.rs:178 usa current_items.is_empty para reconhecer
-a primeira fronteira Raw no subframe. Um carrier posicional neutro pode
-ter sido drenado sem conteúdo material. Snapshot em
-posicoes-compostas-2026-10-14/raw-before.json.gz. Para essa condição,
-tratar uma lista contendo apenas carriers diretos como vazia; conservar
-o significado de todos os demais itens e a fórmula de ascent instalada.
-Correção interna, mesmo protocolo do núcleo pinado. Revalidar Raw/HTML e
-a suíte sem alterar defaults ou esperados de paridade.
-
-## Place após fluxo comitado — etapa B1 — 2026-10-14
-
-### Medição antes da decisão
-
-`lab/results/construction/diagnostics/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
-
-### Responsabilidade exclusiva
-
-Registrar end físico calculado pelo owner Raw depois de instalar seus estados de abaixo/cursor, sem incluir a margem abaixo.
-
-### Aceitação e extensão pendente
-
-Correção interna ADR-0127: L0 primeiro, RED→GREEN e resselo; sem campo público, flag/default ou fase nova. Este adendo autoriza somente o estado privado necessário a esse contrato, supersedendo proibições de novo estado limitadas a extrações anteriores. Guardar/restaurar em LIFO é obrigatório. Revalidar suíte completa, HTML/contexto, PDF/SVG, build/doc/fmt/check, linhagem e inventário de avisos.
-B1 completa a âncora após produtores certificados (linha, forma, Block, Align, Grid, Raw, VSpace), sem substituir o objetivo de corrigir todo o sistema. B2 completa região de Block/inset; B3 resolve assentamento tardio de linha pendente com inline Box/Transform, e audita demais produtores (Heading/List/Stack/Equation/Columns) antes de certificar Place universal. Testemunha inválida conserva a rota legada e é pendência, não crédito de paridade. O gate público de tiling continua pendente.
-
-## Recuo francês — aplicação física (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
-status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
-extra-before.json.gz contém26; boundary-before.json.gz contém10 e
-repeat-before.json.gz contém4. Oracle bd5ebec285505889e8ff1d4f68804ab147a699f3,
-binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
-Tekt inicial2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095.
-Em160pt/margem8/font12, hanging10 mantém a primeira linha x8 mas move
-continuações x8→18; negativo-5 exige x3. RTL mantém primeira borda direita152
-mas continuações vão para142. O Tekt ignora o comprimento. MLA tem default
-18pt (1.5em), set ambiente3em não o troca, show-set3em exige36pt; IEEE/Plain
-não adquirem recuo de hanging por esse show-set. bibliography.where(style:"mla")
-não casa na sonda vanilla: conservar a decisão do seletor, não forçar override.
-
-Block/Box com body apenas inline ignoram hanging10; Par explícito dentro
-deles e Block com Parbreak aplicam. Heading/Raw/List/Quote simples não o
-aplicam. Declaração parcial, zero, repetida e escopo vazio fecham fronteiras:
-FIRST/MIDDLE/LAST em5.168/27.464/49.76, contra todos5.168 no Tekt. A primeira
-sonda lexical usou colchetes literais: foi refutada, corrigida para #[...] e
-preservada como extra-before-initial; não é evidência de escopo Styled.
-Valores extremos geram tinta recortada pelo extrator: não equiparar ausência
-em pdftotext a apagamento de Content. Fonte parcial24pt não muda o em do
-comprimento compartilhado12pt, como partial-font registra.
-
-Fontes pinadas: typst-realize/src/lib.rs:1061–1085,1190–1219 distinguem
-fragmento/Par e interrupção; typst-layout/src/flow/collect.rs:72–134 escolhe
-fluxo, inline/mod.rs:174,216–221 e collect.rs:141–147 resolvem forma;
-inline/line.rs:496–503 posiciona; rules.rs:510–523 faz inset/compensação CSL.
-typst-library/src/model/bibliography.rs:112–127,367 determina o default e
-precedência. Isso mede língua/geometria; não exige a estrutura Rust vanilla
-nem atribui intenção histórica. Refutação por fronteira perdida, em de run,
-recuo duplo, reset em página, fallback greedy imposto, cópia perdida, callbacks
-reexecutados ou regressões dos controles impede fechamento.
-
-### Classificação e limites
-
-Correção interna/de paridade ADR-0127, fluxo contínuo: sem campo ou assinatura
-pública, flag/default externo novo, fase ou ordem de realização diferente.
-A nova forma inicial/continuação supersede somente a limitação correspondente
-de largura constante; RTL latino certificado segue as condições do núcleo,
-sem BidiCursor ativo/tracking e sem inventar BidiSpan. Os demais limites
-anteriores continuam. Os valores/cópia fora da página requerem inspeção dos
-frames ou SVG, não igualdade de extração recortada. Não antecipar R3-T1.
-
-### Responsabilidade exclusiva deste owner
-
-begin_block fecha o fluxo anterior e retorna um State privado de restauração, instalando fragmento inline para tokens; end_block mantém seu protocolo de margem. layout e o caller style_scope restauram o State retornado. Raw inline permanece no contexto exterior; não mudar tokenização ou corrigir whitespace nesta alteração.
-
-### Aceitação
-
-RED→GREEN antes da implementação; controles fonte→layout e bilaterais dos sinais,
-fronteiras, variantes e restauração pertinentes. Não deduzir cobertura de todas
-as alternativas por executar um arm agrupado: classificações nominais fechadas
-do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
-Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
-e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.
+For unsupported-grammar typc true/false/auto atoms, use existing palette constant.language foreground#d73948 while retaining Raw morphology. Cross-owner boundaries: `00_nucleo/prompts/core/compiler/eval/markup_stream.md` maps Auto only to Raw(lang:typc,block:false); this owner colors atom auto alongside true/false; `00_nucleo/prompts/infra/export/html/inline.md` serializes those atoms with code/constant span and delegates existing escape/mode. No other Value presentation, new grammar or general arbitrary/language Raw HTML support is authorized.
+
+Own private physical Raw begin/end, local origin, margin resolution and terminal-product classification under raw-block-boundary. `00_nucleo/prompts/core/compiler/layout/style_scope.md` orchestrates them for transformed products and `00_nucleo/prompts/core/compiler/eval/rules/apply.md` transports block flag/size/margin Length unmeasured in existing Styles. On begin close material prefix; use previous baseline/descent plus collapsed above and geometric initial baseline. Previously closed exterior paragraph in subframe still participates. On end publish actual physical bottom and leave below in Cursor protocol; terminal Raw subframe height is actual bottom minus top, never pending leading/final margin.
+
+Default Raw margin is weak and resolves with effective Raw size (e.g.10.56pt at default 8.8pt), while prior exterior11pt paragraph contributes 13.2pt separately. Existing prev_margin_is_parbreak denotes weak paragraph-margin protocol including Raw-inherited margin; explicit below remains strong. Cursor collapses weak margin with current par.spacing without changing strong/region/fraction/checkpoint branch. Compare explicit priority before weak in both directions; equal priority collapses max. Auto edge interrupts shorthand spacing and restores weak par.spacing/default. Explicit below<=0 leaves cursor at actual end+below with pending geometric baseline; weak below including 0 takes weak Cursor path adding next text top. Do not apply special offsets.
+
+First Raw in legacy subframe converts origin using optional ascent actually installed for region, not Strong/Emph interior face; absent means zero shift. Initialize regional ascent only for legacy subframe whose terminal product is block Raw after saving parent ascent, then restore parent. Geometric/nontext paths gain no font query. A current_items buffer of direct neutral position carriers only is empty for first Raw boundary; other items retain meaning. Preserve calibrated Raw exception/defaults/line breaks/dimensions.
+
+Block Raw unknown syntax keeps explicit breaks between lines without new whitespace/tab normalization or changed inline Raw. Terminal classification transparently includes Strong/Emph through explicit nominal cases; it is a boundary predicate, not a data-dropping enum projection. For prepared standalone/positioned Cell inspect only complete prepared visual, preserving Raw formulas; no Engine/preparation in layout.
+
+Set boundary (`00_nucleo/prompts/core/compiler/eval/rules/set.md`) recognizes Native block identity/aliases only for spacing/above/below Length-or-Auto, evaluates once and publishes delta only after whole-set validation. Unsupported fields/types retain prior fallback/warning and remain uncertified. Apply preserves size/margins as Length; Styles never measures glyphs.
+
+After installing below/cursor state, register Raw's physical end excluding below margin. Hanging begin_block closes prior flow and returns private restoration State while installing inline fragment for tokens; layout and style_scope caller restore returned State. end_block retains its margin protocol. Inline Raw inherits exterior paragraph. Do not change tokenizer/whitespace for this context adjustment.
+
+## Acceptance and explicit incompleteness
+
+Internal parity corrections follow continuous-flow ADR-0127 with L0 first/real RED→GREEN/restricted reseal and no new public contract/default/phase except separately approved B scope. Typography tests cover font/size/fill/restoration/overrides/replacement; recollect 16 controls/actual cell glyphs/regressions, preserving messages/order/indexes/targets, not font subset/PDF bytes. Unknown/custom syntax, whitespace/tabs/internal empty lines, fresh Raw reconstruction, rich block styles/HTML remain uncertified. Prior paragraph sizes-down negative is not fixed without separate measurement.
+
+Block repair recollects 14 controls+five refuters, prior typography/Cell morphology/math/query/full suites/build/lint; no posthoc tolerance to erase residual. Strong-cell retains plain origin/height after rebuild/regression tests; no image/shape/no-text font demand. Explicit zero/negative/Auto priority tests retain exact expectations and normal strong/weak Cursor protocols.
+
+B ratification acceptance preserves only approved candidates, preimplementation RED, changed-owner seals, bilateral effects/equality/getters/selection/HTML/real text-style-geometry/exact message-span controls and earlier snapshots via restricted diff without commit/reset/global reseal. Revalidate D08A/B2/B3-A, Raw blocks/defaults, Equation/math/matrix/query, debug/release builds/core-infra-shell suites/lint without errors or owner V5/V6/V15/V26. Cell-set/style defaults remain separate; general Table equality/defaults/rich casts-paints-strokes-insets/lines-gutters-multipage/PDF-UA/global nonlocatable policy and preexisting empty-file warning remain open.
+
+Atom presentation tests first refute Text Auto/general Raw rejection then require correct product/style for typc auto/true/false with Table/Raw/query controls; no broader Value/HTML claim. Installed-ascent/neutral-marker controls retain current Raw/HTML/default/paged geometry. Certified flow producers do not close Block/inset/fragmentation, late Box/Transform or Heading/List/Stack/Equation/Columns; invalid witness stays legacy fallback/pending. LIFO required private causal state; revalidate suite/HTML-context/PDF-SVG/build-doc-fmt-check/lineage/warnings.
+
+This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
+
+Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.

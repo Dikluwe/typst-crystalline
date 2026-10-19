@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/smartquote.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated approved semantic SmartQuote contract and late target rendering, preserving public-field/phase approval, quote-specific partial supersession and all target/helper limits.",
+  "original_sha256": "7b4cc79ad1796e9f77102aaf1599e3a38443e78f9e12651a858e2d8c2b488015",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/smartquote.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

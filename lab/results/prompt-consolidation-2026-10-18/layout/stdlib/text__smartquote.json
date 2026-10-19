@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/text/smartquote.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Reconciled complete original contract against ratified semantic-quote amendment: disabled/omitted behavior supersedes old Text/default filling, exact Portuguese diagnostic literals retained.",
+  "original_sha256": "bc46cafec70b29adb4ed5412e80b98c72f8df86fdd9e850a6bdd2688f4b91efd",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/text/smartquote.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

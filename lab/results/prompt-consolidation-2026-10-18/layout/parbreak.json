@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/parbreak.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited full unique/repeated clauses; consolidated causal Literal-before-marker closure, terminal bottom versus weak spacing, logical-only SmartQuote reset and hanging cleanup retaining pending CSL compensation. Preserved current collapse/progress and incomplete Place/quote scope.",
+  "original_sha256": "b6900a59f67b36caeb83041c6233dd606c2347339721e0eea597a3328366e6f9",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/parbreak.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

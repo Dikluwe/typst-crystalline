@@ -51,7 +51,7 @@ The original compiler source is quarantined in `lab/typst-original/`. Migration 
 |---|---|---|
 | `adr/` | Formal architectural decisions. | `adr/adr-0109-atomization.md` |
 | `diagnostics/` | Current analyses, inventories, measurements, receipts, and state reports. | `lab/results/construction/diagnostics/typst-cobertura-vanilla-vs-cristalino.md` |
-| `prompts/` | L0 prompts directly paired with L1–L4 productive code. | `prompts/compiler/layout.md` |
+| `prompts/` | L0 prompts directly paired with L1–L4 productive code. | `prompts/core/compiler/layout/mod.md` |
 | `prompts/_nuclei/` | Shared declarative Tekt obligations in TOML. | `prompts/_nuclei/path-identity.toml` |
 
 Organization rules:

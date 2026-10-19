@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/paragraph_select_bounded.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated prototype, benchmark extensions and later exclusive experiment extraction; retained cost proof, fallback/tie semantics, complete ranges and no production promotion.",
+  "original_sha256": "1ff094638744bb837ec5520d4ad867905d60cc11b6c5f94bec060596a1524cd2",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/paragraph_select_bounded.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

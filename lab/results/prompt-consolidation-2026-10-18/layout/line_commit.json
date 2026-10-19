@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/line_commit.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Full original unique paragraphs and exact prior repeats reviewed. Preserved allocation formulas and indices, empty versus Literal causal line, actual-face edges versus advancement fallbacks, signed reconciliation supersession, restricted finite whole-line migration, numbering/link/width/hanging order and all open scopes.",
+  "original_sha256": "b694213d60ec56e49b8b20e83c2851f0daa0a761724b42314ab6597f07ccfca9",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/line_commit.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "caption-projection"
+title = "Projeção dos campos conhecidos de FigureCaption"
+
+[[claims]]
+id = "public-projection-name"
+level = "must"
+statement = "A projeção textual pública de um carrier FigureCaption isolado usa func caption. O nome interno qualificado figure.caption pode permanecer como mecânica; não justifica outro nome na serialização pública."
+
+[[claims]]
+id = "stored-body"
+level = "must"
+statement = "O getter do carrier FigureCaption considera body conhecido, inclusive Empty, e conserva seu Content armazenado. Projeções sem snapshot publicam esse body recursivamente, sem substituir o conteúdo por plain_text."
+
+[[claims]]
+id = "known-fields-order"
+level = "must"
+statement = "A projeção dos campos conhecidos de FigureCaption usa ordem position, separator, body; position e separator ausentes no carrier não são publicados por inferência de default. Snapshots presentes continuam autoritativos sob seus contratos próprios."
+
+[[claims]]
+id = "no-standalone-synthesis"
+level = "must-not"
+statement = "A projeção direta de FigureCaption não sintetiza position, separator, kind, supplement, numbering, counter ou location. A projeção legada do objeto Figure tem contrato separado; seu helper de legenda resolvida não é o serializador de um carrier FigureCaption isolado."

@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/matrix.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "6969d4fda1f47127b15ffc0094dba177a1ac1cf04158e42b1603dc06d5aed6c8",
+    "result_sha256": "100a9c613d92cc1f58e5423c772940b9660584dc6bdc0b82471a9d4284328792",
+    "disposition": "Full matrix carrier/geometry retained; empty test, wrapper/storage, C120 measured/materialized metadata and L16 Source refinement consolidated. Exact Portuguese C120 reason retained; fixes pending elsewhere not silently closed."
+  }
+]

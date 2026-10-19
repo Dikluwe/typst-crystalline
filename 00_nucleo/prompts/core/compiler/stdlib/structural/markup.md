@@ -2,7 +2,7 @@
 Hash do Código: f8d25fb5
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:f29e26ff07053f940cfe4ab5358fc9a6ac8d4d689528e169b5f8567492f52f46
+- 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/structural/markup.rs`
@@ -21,14 +21,24 @@ The original requirement that all these natives support no-argument show-selecto
 
 Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.
 
-## Presença lexical Raw — ratificada em 2026-10-14
+## Ratified Raw lexical presence
 
-### Medição anterior à decisão
+### Evidence before decision
 
-content-serialization-2026-10-14/{before,raw-controls}/results.json.gz registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes/binários e pin 9f2b6e8715237cb086899a42873660fe744622e8. RawElem raw.rs:21–25 perde omissão; native_raw markup.rs:78–136 colapsa ausência/false/none. Campos, igualdade e encoders distinguem esses valores no pin. Trata-se de semântica/morfologia, não mecânica Rust.
+content-serialization-2026-10-14/{before,raw-controls}/results.json.gz records
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree, UTC, sources/binaries
+and historical pin `9f2b6e8715237cb086899a42873660fe744622e8`.
+RawElem raw.rs:21–25 loses omission; native_raw markup.rs:78–136 collapses absent/
+false/none. Fields, equality and encoders distinguish those states at the pin.
+This is semantics/morphology, not Rust mechanics.
 
-### Responsabilidade e aceitação
+### Exclusive responsibility and acceptance
 
-native_raw marca block quando Bool lexical e lang quando argumento presente, inclusive none. block:none legado permanece omitido; casts/diagnósticos/arity legados preservados.
-
-Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
+native_raw marks block when lexical Bool and lang whenever the argument is
+present, including none. Legacy block:none remains omitted; preserve legacy
+casts/diagnostics/arity. Approved manifest:
+`b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45`,
+receipt `lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json`.
+This completes only Raw's formerly incomplete presence contract and supersedes
+no-mask clauses. Preserve other contracts; add no phase/default/render behavior.
+Validate RED→GREEN tests, suite, build and lineage.

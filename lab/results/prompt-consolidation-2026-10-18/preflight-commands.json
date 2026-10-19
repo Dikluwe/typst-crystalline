@@ -1,0 +1,39 @@
+{
+  "utc_recorded": "2026-10-19T02:48:26.437639+00:00",
+  "checkpoint": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+  "commands": [
+    {
+      "command": "crystalline-lint . --checks v15,v26 --fail-on warning",
+      "exit": 1,
+      "log": "graph-before-reseal.log",
+      "disposition": "Initial raw SHA-256 pins rejected; no Rust resealing performed."
+    },
+    {
+      "command": "crystalline-lint . --checks v15,v26 --fail-on warning",
+      "exit": 0,
+      "log": "graph-before-reseal-final.log",
+      "disposition": "Effective framed hashes corrected and graph validated before resealing."
+    },
+    {
+      "command": "crystalline-lint . --fix-hashes --checks v1,v5,v15,v26 --fail-on warning",
+      "exit": 0,
+      "log": "reseal.log"
+    },
+    {
+      "command": "python3 audit-scripts/final_prompt_integrity.py",
+      "exit": 0,
+      "receipt": "final-integrity.json"
+    },
+    {
+      "command": "crystalline-lint . --format sarif",
+      "exit": 1,
+      "log": "final-lint.sarif",
+      "disposition": "Existing 105 V16 errors; exact baseline comparison passes."
+    },
+    {
+      "command": "python3 audit-scripts/compare_prompt_sarif.py",
+      "exit": 0,
+      "receipt": "lint-comparison.json"
+    }
+  ]
+}

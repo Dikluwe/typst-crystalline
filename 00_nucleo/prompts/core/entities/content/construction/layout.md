@@ -2,174 +2,48 @@
 Hash do Código: 3b6810b1
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
-- 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:cbd8b56af347a35e867b2c4695581721d5983ec24ee7bb022e9f9987500d40f3
+- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
+- 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d
 
-## Medição anterior à decisão
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/content/construction/layout.rs`
 
-No HEAD f7195cdf6 (árvore limpa, 2026-09-30), o bloco está em `01_core/src/entities/content/construction.rs:837-1102,1193-1350`. Esta observação estabelece o limite da extração; não mede desempenho ou nova paridade bilateral.
+## Extraction evidence and contract
 
-## Owner e contrato
+Clean HEAD `f7195cdf6` on 2026-09-30 places the extracted block in construction.rs:837–1102,1193–1350. This establishes ownership, not performance/new bilateral parity. Own block/geometry/spacing/break/position/column constructors, preserving original variants/values/signatures/defaults/pipeline phase/compatibility/purity/static dispatch. L1 suite/build/linter must pass; separation alone proves no speed improvement.
 
-Camada L1. Consumer produtivo único: `01_core/src/entities/content/construction/layout.rs`. Construtores de blocos, geometria, espaçamento, quebras, posicionamento e colunas; preservam variantes e valores originais. Manter contrato público, comportamento por defeito, fase do pipeline, compatibilidade, pureza e despacho estático.
+## Semantic SmartQuote evidence and approval
 
-## Aceitação
+The historical smartquote-2026-10-06/{before,fields-before,partial-and-html,proposal-controls}.json.gz collection records pin `9f2b6e8715237cb086899a42873660fe744622e8`, binaries/HEAD/tree/diffstat/UTC/sources/argv/cwd/environment/output. PDF uses extracted text, HTML DOM/text/diagnostics, not PDF bytes. Eval converted markup quotes into Text, losing double/enabled and retaining English glyphs when reused under German/French/disabled styles. Primes6'/2-inch were misread as quotes. Native-function show/public-name corrections already passed separately; empty constructor has no fields upstream, explicit double:false is known while omission is Unset, and enabled:false remains SmartQuote. New set-double/show-filter positives distinguish presence. HTML literal worked through Text while programmatic SmartQuote rejected; literal titles render quotes but script title expects string and rejects Content before export in both binaries.
 
-A suíte L1, o build e crystalline-lint passam. A separação não constitui prova de ganho de desempenho.
+Historical markup_stream.rs:79–128 chooses glyph during eval; layout smartquote toggles two flags without preceding text; stdlib smartquote.rs:112–117 erases disabled elements; observation/elements.rs:242–250 compares current fields. Upstream eval/markup.rs:141–146 creates explicit-double elements, inline/collect.rs:196–211 resolves style/context and text/smartquote.rs:119–158 handles prime/apostrophe/nesting.
 
+Human approval on 2026-10-06 covers double bool→Option<bool>, enabled:Option<bool>, pure shared helper/context and glyph selection moving eval→target composition. Keep identity/fields during eval. Paged and semantic HTML use their own target composition (ADR-0128), sharing one pure L1 contextual selector with per-stream/compilation state. No I/O/global/vtable/property registry/upstream memoization copying, new mode/flag/unsafe/watch API/math phase. HTML escaping remains separately owned. Stack representation is mechanics; fields/known-versus-omitted/glyph/style are acceptance. Other proposals/ADRs remain unchanged.
 
-## Aspa semântica e resolução tardia — ratificada em 2026-10-06
+This owner's Content::smartquote(double:bool) signature stays unchanged and builds double:Some(double), enabled/alternative/quotes:None. Change only SmartQuote initialization; never choose a glyph or modify other constructors here.
 
-O contrato desta seção é vigente e supersede as cláusulas históricas conflitantes
-das seções anteriores apenas para SmartQuote. A ratificação humana autoriza a
-materialização em fluxo RED→GREEN, com ownership exclusivo e pins abaixo.
+## Typed transform evidence and approval
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/{before,results}.json.gz` plus controls/results.json, binding-controls/results.json and context-controls/results.json preserve HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, tree/UTC/diffstat/source/argv/binary hashes at the same historical pin. TransformElem stored matrix/body; stdlib transforms.rs:19,51,91,191 reduced arguments to matrices and layout chose center pivot/has_orphaned. Upstream retains four elements and resolves styles/region/body/origin/reflow.
 
-smartquote-2026-10-06/{before,fields-before,partial-and-html,proposal-controls}.json.gz
-registra pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 dos binários,
-HEAD/working tree, diff HEAD --stat, UTC, fontes, argv/cwd/ambiente e stdout/stderr.
-PDF usa texto extraído, HTML usa DOM/texto e diagnósticos, não igualdade de bytes PDF.
-A avaliação converte aspas de markup para Text; campos double/enabled são perdidos.
-A variável contendo aspas mantém glyph inglês sob uso em alemão/francês ou
-smartquote(enabled:false). Primes 6'/2" viram aspas no Tekt. Show da função
-nativa e nome público foram corrigidos separadamente e passam antes deste gate;
-markup ainda não é SmartQuote. Constructor vazio tem fields vazio no vanilla;
-double:false é campo conhecido, mas double omitido é Unset. enabled:false
-permanece SmartQuote no vanilla. set double:false e show filtrado têm positivos
-novos. HTML literal funciona porque recebe Text; SmartQuote programática hoje
-é rejeitada. Título literal renderiza aspas; script recebe string, rejeitando
-Content antes da exportação nos dois binários.
+Probes show empty local fields, false func equality, rotate(0deg)[X]==scale(100%)[X] locally true/upstream false, collapsed explicit defaults, ignored/rejected origin/reflow, scale(x:150%) wrongly scaling y and lost move percentages/em. Missing fields must remain lexically unknown. set rotate(23deg) is valid but named angle is not; contextual getters reflect style upstream. Initial wrapper-labeled contextual controls were invalid for value, corrected in context-controls. Upstream HTML warns and drops body; local strict HTML rejects per its separate contract. Fields/presence collapse, baked style, wrong origin/lost errors, reflow:false changing advance or dropped body refute the proposed language behavior. Upstream structs and measurement steps are mechanics.
 
-Fontes: markup_stream.rs:79–128 decide glyph em eval; smartquote.rs de layout
-alterna dois flags sem texto precedente; stdlib/text/smartquote.rs:112–117 apaga
-elemento disabled; observation/elements.rs:242–250 compara os campos atuais.
-Vanilla typst-eval/markup.rs:141–146 cria elemento com double explícito;
-typst-layout/inline/collect.rs:196–211 resolve estilo/contexto na coleta;
-typst-library/text/smartquote.rs:119–158 distingue prime/apóstrofo/nesting.
+Approval receipt `lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14/approval-receipt.json`, manifest `960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d`, ratifies the typed family only. Keep `Content::transform(matrix:TransformMatrix,body:Content)->Content`, constructing TransformElem{operation:TransformOperation::Matrix(matrix),body}. Never infer native arguments from a matrix. The stdlib owner constructs NativeMove/Rotate/Scale/Skew with independent typed presence. Other constructors remain unchanged.
 
-### Decisão ratificada e limites
+## Nominal constructor lint boundary
 
-Preservar identidade/campos de SmartQuote em eval e resolver glyph só na
-composição de render de cada target. Paged usa sua unidade; HTML permanece
-semântico e não chama layout paginado para aspas (ADR-0128). A lógica de
-seleção contextual é helper puro L1 único, com estado por fluxo/compilação,
-sem I/O, globais, vtable, registry de propriedades ou cópia do algoritmo de
-memoização upstream. Stack/estado é mecânica escolhida do Tekt; linguagem,
-campo conhecido/omitido, glyph e estilo são aceitação. Escaping HTML permanece
-com seus owners. Sem novos modos/flags, unsafe, API de watch ou math phase.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/{before.json.gz,classification.json}` freezes full source/L0/signatures/hash/HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/status/diffstat at 2026-10-15T16:39:18.873477+00:00. C023 at construction/layout.rs:177 is page_run_with_geometry with 9 Clippy arguments above 7. Arity is Rust structure, not a functional defect or language/readability measurement. Its pure public PageRun parameters, especially absence and Option<Option<_>> numbering, are meaningful; resolve no geometry here.
 
-Este gate muda double público bool→Option<bool>, adiciona enabled:Option<bool>,
-expõe helper/contexto puro e move escolha de glyph eval→render. Confirmação humana recebida em 2026-10-06. O contrato ratificado abaixo
-supersede cláusulas históricas conflitantes apenas para aspas; ADRs/núcleos
-existentes e propostas alheias permanecem intactos.
+Preserve signature/order/semantics/body/calls/cfg/other attributes. Permit only `#[expect(clippy::too_many_arguments, reason="C023: Construtor público puro com argumentos correspondentes ao PageRun: ausência e numbering Option<Option<_>> têm significado próprio")]` on that function. No module/impl/crate/global suppression, threshold increase or other lint. Remove/review it if arity falls below threshold; never silence unfulfilled_lint_expectations. This bounded exception supersedes generic suppression bans only for its named item.
 
-Content::smartquote(double:bool) preserva sua assinatura e cria double Some(double),
-enabled/alternative/quotes None. Ajustar somente inicializações SmartQuoteElem,
-sem trocar campos/semântica dos demais constructors. Nenhum glyph no constructor.
+The later `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` records 79 warnings; `clippy-excecoes-2026-10-16/before.json.gz` reconfirms sources/spans/reasons/signatures/hashes/HEAD/tree/UTC/diffstat. It materializes C023, superseding the initial audit-only pending status. Correction-class entries, including conditional C047/C066 elsewhere, remain pending and unannotated.
 
-## Transformações tipadas — contrato substitutivo
+## Acceptance and limits
 
-## Medição anterior à decisão
+Require existing constructor/language/integration controls without relaxed fixtures/tolerances. Keep layers/phase/defaults/static dispatch/no mutable global state. Any newly needed public contract or external compatibility change needs a concrete ADR-0127 gate; private signature repairs must update callers and their owners first.
 
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/{before,results}.json.gz` e
-`controls/results.json`, `binding-controls/results.json`, `context-controls/results.json`
-preservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC,
-diffstat, fontes, comandos e hashes de binários. Pin 9f2b6e8715237cb086899a42873660fe744622e8.
-TransformElem em entities/elements/transform.rs:19 armazena apenas matrix/body;
-stdlib/transforms.rs:19/51/91/191 descarta argumentos e reduz valores à matriz;
-layout/transform.rs calcula pivô central e usa has_orphaned como desvio de layout.
-No pin, typst-library/src/layout/transform.rs conserva os quatro elementos e
-typst-layout/src/transforms.rs resolve estilos, região, corpo, origin e reflow.
+For the lint-only slice, L0 precedes metadata/restricted reseal; removing added attributes and lineage header must recover prior executable source after rustfmt normalization. Measure RED first, then all-target inventory: exactly 46 arity and five test warnings satisfied by 49 expectations, no new warnings and unfulfilled expectations as errors; the 11 arities requiring correction remain visible. Validate build/fmt/strict+reverse lineage/no-new-error-or-warning Tekt, existing Counter/coverage tests under 12 GiB, swap 0, one job. The previous full suite is evidence only for identical executable code. Do not create attribute-mirroring tests or claim performance from lint metadata.
 
-Sondas: fields vazio versus body/argumentos; func falso versus função nativa;
-rotate(0deg)[X] == scale(100%)[X] true versus false; defaults explícitos colapsam.
-Origin/reflow são ignorados ou rejeitados; scale(x:150%) escala também y no
-Tekt, enquanto y permanece100% no pin; move perde percentual/em. Campos ausentes
-devem continuar desconhecidos lexicalmente. set rotate(23deg) é válido, mas
-angle nomeado não é; getters contextuais refletem estilo no pin. Os primeiros
-controles contextuais rotularam o wrapper e são inválidos para medir value;
-context-controls corrige a posição da label. HTML pinado avisa e elimina o body;
-Tekt rejeita a operação, de acordo com seu contrato HTML estrito.
+## Historical record
 
-Semântica, sintaxe, morfologia, posições/avanços e diagnósticos são linguagem;
-enum versus structs upstream e número de passos de medição são mecânica.
-A hipótese é refutável por campos/presença que ainda colapsem, estilo assado,
-origem incorreta, erro perdido, reflow falso alterando avanço ou body descartado.
-
-Esta seção substitui cláusulas anteriores conflitantes somente para a família
-Move/Rotate/Scale/Skew; demais responsabilidades permanecem.
-
-## Construção Rust genérica
-
-Content::transform(matrix: TransformMatrix, body: Content) -> Content mantém a
-assinatura e passa a construir TransformElem { operation:
-TransformOperation::Matrix(matrix), body }. Nenhum argumento nativo é inferido
-da matriz. Demais constructors desta unidade permanecem. NativeMove/Rotate/
-Scale/Skew são construídos pelo owner stdlib, com presença tipada independente.
-
-
-## Aridade das fronteiras — `clippy::too_many_arguments`
-
-### Evidência anterior à decisão
-
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
-
-- `C023`: `01_core/src/entities/content/construction/layout.rs:177`, `page_run_with_geometry`, 9 argumentos contados pelo Clippy (limiar 7).
-
-### Prescrição exclusiva por função
-
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
-
-#### `C023` — `page_run_with_geometry`: Exceção pontual justificada
-
-Construtor público puro com argumentos correspondentes ao PageRun: ausência e numbering Option<Option<_>> têm significado próprio. O L0 exige preservar variantes, valores e compatibilidade, sem resolver geometria no construtor.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C023: Construtor público puro com argumentos correspondentes ao PageRun: ausência e numbering Option<Option<_>> têm significado próprio")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-### Limite da exceção
-
-Autorizar somente `#[expect(clippy::too_many_arguments, reason = "...")]` no item
-nominal acima, com o motivo arquitetural indicado. Não aplicar no módulo, impl,
-crate ou configuração global; não elevar o limiar nem abranger outro lint.
-Nos casos com remoção de argumento morto, a exceção residual depende dessa correção.
-Se a função deixar de exceder o limiar, retirar/revisar a expectativa; não silenciar
-`unfulfilled_lint_expectations`. Esta permissão específica supera proibições
-genéricas de supressão em seções anteriores somente para este lint e os itens
-nominais justificados aqui. As demais obrigações de correção permanecem.
-
-### Fronteira de materialização
-
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
-
-
-## Exceções nominais materializadas — 2026-10-16
-
-### Medição anterior à decisão
-
-O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
-
-### Responsabilidade e aceitação
-
-Materializar somente as expectativas diretas nominais já justificadas neste owner: C023. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
-
-Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content/construction/layout.md` preserves the original evidence and chronology.

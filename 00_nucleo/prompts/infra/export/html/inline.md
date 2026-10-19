@@ -2,9 +2,9 @@
 Hash do Código: 914edc58
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:2989f08ae6b4b379afb61d9673b94ab8538c45a97b98e566677ae0f719429dc3
-- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:a0d3cae81e77da5875204a94bc2fbd707009f0d751cf50ed870c416a01187a22
+- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/html/inline.rs`
@@ -38,109 +38,134 @@ Check ordered/empty attributes, void-body rejection, styled chains, raw/title
 delegation, unsupported variants and resolved/unresolved inline frames.
 
 
-## Realização com avaliação única
+## Visual realization boundary
 
-Serialização HTML emite a projeção visual dos carriers; nunca serializa origem consumida nem cria tags DOM de transporte.
+Serialize only the visual projection of carriers, never consumed origin or
+transport DOM tags. Source.body shares the existing ShowRecipe.body transparency,
+without separate origin execution/carrier publication/Location assignment.
 
+## Semantic quotes with late target resolution
 
-## Aspa semântica e resolução tardia — ratificada em 2026-10-06
+### Evidence and approval
 
-O contrato desta seção é vigente e supersede as cláusulas históricas conflitantes
-das seções anteriores apenas para SmartQuote. A ratificação humana autoriza a
-materialização em fluxo RED→GREEN, com ownership exclusivo e pins abaixo.
+`lab/results/construction/diagnostics/smartquote-2026-10-06/{before,fields-before,partial-and-html,proposal-controls}.json.gz`
+retains historical pin `9f2b6e8715237cb086899a42873660fe744622e8`, binary SHA-256,
+HEAD/tree/diffstat/UTC/sources/argv/cwd/environment/stdout/stderr. PDF uses text,
+HTML DOM/text/diagnostics, not PDF bytes. Eval converted markup to Text, losing
+double/enabled; variables retained English glyphs under German/French/disabled
+contexts, primes 6'/2" became quotes. Native show/public name already had separate
+passing repairs while markup remained non-SmartQuote. Vanilla empty constructor
+has no fields, omitted double is Unset versus known false, enabled:false retains
+SmartQuote. Positive set double:false/filtered-show controls supplement literal
+HTML Text success/programmatic rejection. Literal title quotes render; script
+requires string/rejects Content before export in both.
+Local markup_stream.rs:79–128 selects eval glyph, layout smartquote.rs toggles two
+flags without preceding text, stdlib/text/smartquote.rs:112–117 removes disabled,
+observation/elements.rs:242–250 compares current fields. Vanilla markup.rs:141–146
+sets explicit double, inline/collect.rs:196–211 resolves styles/context,
+text/smartquote.rs:119–158 distinguishes prime/apostrophe/nesting.
+Human approval on 2026-10-06 ratified public double bool→Option<bool>,
+enabled:Option<bool>, pure helper/context and eval→render glyph choice. Supersede
+only conflicting SmartQuote clauses, never other ADRs/nuclei/proposals.
 
-### Medição anterior à decisão
+### Owner boundary and acceptance
 
-smartquote-2026-10-06/{before,fields-before,partial-and-html,proposal-controls}.json.gz
-registra pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 dos binários,
-HEAD/working tree, diff HEAD --stat, UTC, fontes, argv/cwd/ambiente e stdout/stderr.
-PDF usa texto extraído, HTML usa DOM/texto e diagnósticos, não igualdade de bytes PDF.
-A avaliação converte aspas de markup para Text; campos double/enabled são perdidos.
-A variável contendo aspas mantém glyph inglês sob uso em alemão/francês ou
-smartquote(enabled:false). Primes 6'/2" viram aspas no Tekt. Show da função
-nativa e nome público foram corrigidos separadamente e passam antes deste gate;
-markup ainda não é SmartQuote. Constructor vazio tem fields vazio no vanilla;
-double:false é campo conhecido, mas double omitido é Unset. enabled:false
-permanece SmartQuote no vanilla. set double:false e show filtrado têm positivos
-novos. HTML literal funciona porque recebe Text; SmartQuote programática hoje
-é rejeitada. Título literal renderiza aspas; script recebe string, rejeitando
-Content antes da exportação nos dois binários.
-
-Fontes: markup_stream.rs:79–128 decide glyph em eval; smartquote.rs de layout
-alterna dois flags sem texto precedente; stdlib/text/smartquote.rs:112–117 apaga
-elemento disabled; observation/elements.rs:242–250 compara os campos atuais.
-Vanilla typst-eval/markup.rs:141–146 cria elemento com double explícito;
-typst-layout/inline/collect.rs:196–211 resolve estilo/contexto na coleta;
-typst-library/text/smartquote.rs:119–158 distingue prime/apóstrofo/nesting.
-
-### Decisão ratificada e limites
-
-Preservar identidade/campos de SmartQuote em eval e resolver glyph só na
-composição de render de cada target. Paged usa sua unidade; HTML permanece
-semântico e não chama layout paginado para aspas (ADR-0128). A lógica de
-seleção contextual é helper puro L1 único, com estado por fluxo/compilação,
-sem I/O, globais, vtable, registry de propriedades ou cópia do algoritmo de
-memoização upstream. Stack/estado é mecânica escolhida do Tekt; linguagem,
-campo conhecido/omitido, glyph e estilo são aceitação. Escaping HTML permanece
-com seus owners. Sem novos modos/flags, unsafe, API de watch ou math phase.
-
-Este gate muda double público bool→Option<bool>, adiciona enabled:Option<bool>,
-expõe helper/contexto puro e move escolha de glyph eval→render. Confirmação humana recebida em 2026-10-06. O contrato ratificado abaixo
-supersede cláusulas históricas conflitantes apenas para aspas; ADRs/núcleos
-existentes e propostas alheias permanecem intactos.
-
-Aceitar Content::SmartQuote via helper puro L1 resolve_smart_quote com chain
-ativa/idioma; aplicar escape_text ao glyph no modo vigente. Compartilhar
-SmartQuoteContext através dos irmãos e wrappers inline transparentes; usar
-helper privado stateful e preservar wrapper inline existente para callers
-isolados. Nenhum layout Paged para quote; HtmlFrame conserva resolver SVG.
-Markup/nativo misturados, disabled/herança e nested tags funcionam no fluxo.
-Raw/script continua string apenas e title delega ao owner encoding com chain.
-
-## D08B3-B — candidato, não vigente antes de ratificação
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
-
-isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
-
-Fonte vanilla lab/typst-original/crates/typst-library/src/model/table.rs:734–778 declara defaults e propriedades; typst-realize/src/lib.rs:367–386 prepara/guarda o argumento, :418–429 visita produto com profundidade, :491–505 distingue guards por elemento, :571–586 materializa propriedades. Tekt entities/elements/table_cell.rs:111–143 só projeta lexical ou plano posicionado; compiler/realize/table_cells.rs:110–129 reaplica Cell crua sem preparo; :280–304 termina snapshot inteiro; eval/show_rule_termination.rs:65–70 trata mesma forma como ponto-fixo; eval/rules/apply.rs:139–166 revoga regra globalmente durante callback. Classificação: campos, efeitos, ordem, terminação e erro causal são língua. A estrutura de guards e materialização upstream é mecânica e não é requisito. Não se infere intenção do upstream; a escolha nominal abaixo é inferência refutável pelos controles de aliases, duas regras, novas gerações e conteúdo ocultado.
-
-### Responsabilidade exclusiva proposta
-
-Serializar visual emitido exclusivo de Cell avulsa preparada, não body lexical escondido. Delegar filhos e escapar conforme protocolo HTML sem layout paginado, getters novos ou recipe.
-
-### Gate, aceitação e incompletude explícita
-
-Candidato não vigente até confirmação humana do manifesto D08B3-B: há um campo público novo e um tipo público novo; o contrato A aprovado não os autoriza. Após ratificação instalar somente estes candidatos, escrever testes e confirmar RED antes de implementação; selar apenas owners mudados. Aceitação: coletas acima/revisões adicionais bilaterais, efeitos uma vez, igualdade/getters, seleção, produto HTML e texto/estilos/geometria reais; mensagens/spans sem apagar diferenças. Cargo build/debug/release e suítes core/infra/shell apropriadas; crystalline-lint sem erros e owners sem V5/V6/V15/V26. Revalidar D08A/B2/B3-A, Raw defaults/blocos, Equation/math/matrix/query. Preservar árvore anterior por snapshot/diff restrito, sem commit/reset/resselo global.
-
-Este recorte completa defaults intrínsecos da Cell isolada e distingue alias de nova geração de show. Continua incompleto no universo Cell: D08B3-C completa set table.cell/defaults de estilo (cell-set), mediante medição e L0 próprios; nenhuma promessa de prazo/implementação é legitimada por este scope-out. Defaults/igualdade gerais de Table, casts/paint/strokes/insets ricos, linhas/gutters/span multipágina, PDF/UA e política geral não-localizável ficam abertos. O warning preexistente de eval de ficheiro vazio não é corrigido ou normalizado para afirmar paridade.
-
-### Auto exposto pela Cell — reparo interno de apresentação, ADR-0127 contínuo
-
-Medição anterior à decisão: table-cell-isolada-d08b3b-2026-10-07/after-second.json.gz, html-fields, em HEAD/estado/UTC/binários registrados: Tekt HTML X auto a como texto; vanilla code(data-lang:typc) e span constant.language #d73948. Upstream foundations/value.rs:191–208 exibe Auto/Bool como Raw inline typc; markup_stream.rs:210–215 só cobre Bool e seu fallback usa Text para Auto; layout/raw.rs:201–203 cobre só átomos true/false. HTML inline.rs não possui ramo Raw e conserva rejeição geral. É morfologia/estilo da linguagem, não byte de PDF; texto igual não prova paridade.
-
-Antes da implementação, testes devem refutar a apresentação Auto como Text e a rejeição HTML de Raw atômico. Corrigir somente o mapeamento Auto para Raw(lang:typc,block:false), a classificação constant.language do átomo auto e a serialização HTML dos átomos typc auto/true/false com code e span constante, delegando escape/mode ao owner existente. Nenhum tipo/assinatura pública, fase, flag/default de produto ou gramática nova. A responsabilidade desta unidade limita-se à operação já owned correspondente: apresentação no markup, cor no Raw paginado, tags na inline HTML, testes no seu owner. Raw de outras linguagens/conteúdo arbitrário em HTML permanece fora da certificação. Confirmar RED→GREEN e igualdade do produto/estilos, com controles Table/Raw/query. Esta cláusula não autoriza mudanças nos outros tipos de Value ou implementação HTML geral de Raw.
+Domain preserves quote identity/fields in eval, each target resolves glyph at
+render composition. HTML stays semantic without paginated quote layout (ADR-0128).
+One pure L1 contextual helper uses per-flow/compilation state, no I/O/globals/vtable/
+property registry/upstream memoization copy. Stack/state mechanics are Tekt choices;
+language/known-versus-omitted fields/glyph/style are acceptance. Escaping remains
+with its owners, no new modes/flags/unsafe/watch API/math phase.
 
 
-## D08B3-C2 — responsabilidade ratificada
+Accept Content::SmartQuote through pure L1 resolve_smart_quote with active chain/
+language, then escape_text in selected mode. Share SmartQuoteContext through
+siblings/transparent inline wrappers using a private stateful helper; retain the
+old wrapper for isolated callers. No paged quote layout; HtmlFrame retains SVG
+resolver. Mixed native/markup, disabled/inherited contexts and nested tags share
+flow. Raw/script remain string-only; title delegates with active chain to encoding.
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+## Ratified isolated-cell visual projection
 
-A delegação transparente já owned de ShowRecipe.body também aceita Source.body, sem executar origem separada, publicar carrier ou atribuir Location. Preservar classificação/preparo/serialização conforme a operação desta unidade.
+Evidence: `table-cell-isolada-d08b3b-2026-10-07/complete.json.gz` retains 53 probes
+from 2026-10-07T14:47:56.340144+00:00–14:48:12.375245+00:00, HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/diffstat/status/hashes/
+sources/argv/cwd/environment/full output; historical vanilla
+`9f2b6e8715237cb086899a42873660fe744622e8`, SHA
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`, Tekt
+`6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f`.
+Do not count before/refuters/complete as independent rounds. Isolated-default/x,
+raw-fields/x/table-style/raw-versus-prepared, nested/body/late effects, fresh-
+generation/alias/two-rule/hidden cases establish defaults, once-only effects,
+termination and causal-span language; upstream guard/data structure is mechanics.
+The full source anchors/results/refuters and acceptance matrix remain in
+`00_nucleo/prompts/infra/export/html/table.md` and the archived original of this
+owner. No intent inferred or new-pin certification.
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+The insertion and isolated-cell packages were individually ratified on 2026-10-07:
+`lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md:3`
+records `comfirmo`, manifesto
+`5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`;
+`lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-2026-10-07.md:3`
+records `confirmo`, materialized status, manifesto
+`3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`.
+Only stale pre-approval candidate gates are superseded. Public carriers/fields
+remain owned by their canonical domain prompts; this owner consumes their
+approved contract without sharing ownership. cell-set/style defaults require
+separate measured L0; general Table equality/defaults, rich casts/paint/strokes/
+insets/lines/gutters, multipage spans, PDF/UA/global nonlocatable policy stay open.
+Do not normalize the existing empty-file eval warning to certify parity.
 
+Serialize exclusively the emitted prepared isolated-Cell visual, never hidden
+lexical body. Delegate children/escaping through HTML without paginated layout,
+new getters or recipe execution. Require reviewed-candidate/current-L0 tests RED
+before code, scoped seals, bilateral/additional controls, effects once/equality/
+getters/selection/HTML/actual text-style-geometry with original messages/spans;
+debug/release build and core/infra/shell suites, lint zero errors/no owner V5/V6/
+V15/V26. Revalidate earlier table lexical/insertion, Raw defaults/blocks, Equation/
+math/matrix/query. Preserve prior tree through snapshot/restricted diff, no commit/
+reset/global resealing, no byte/whitespace normalization to close render.
 
-## Guards de domínio explícitos — V17, 2026-10-16
+## Restricted typc atom display
 
-### Medição anterior à decisão
+### Evidence
 
-T317: 03_infra/src/export/html/inline.rs:47. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+`lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/after-second.json.gz`
+html-fields retains HEAD/state/UTC/binaries. Tekt emits X auto a as text;
+vanilla uses code(data-lang:typc), span constant.language color #d73948.
+Upstream value.rs:191–208 displays Auto/Bool as inline typc Raw;
+markup_stream.rs:210–215 covers only Bool/falls back Text for Auto; raw.rs:201–203
+colors only true/false; inline.rs lacks Raw and rejects it generally. This is
+language morphology/style, not PDF bytes; equal text alone proves no parity.
 
-### Responsabilidade exclusiva e aceitação
+### Contract and acceptance boundary
 
-Raw decide no corpo a elegibilidade já vigente (!block, lang typc e átomo auto/true/false). Elegível observa texto uma vez e emite code/span com escape existente; inelegível devolve exatamente o diagnóstico genérico já vigente sem observar texto. Não implementar Raw HTML geral.
+Before implementation tests refute Auto→Text and atomic-Raw HTML rejection.
+Only map Auto→Raw(lang:typc,block:false), classify auto as constant.language and
+serialize typc auto/true/false via code/constant span with existing escaping/mode.
+Each owner implements only its existing responsibility: markup presentation,
+paged Raw color, inline HTML tags or tests. No new public type/signature/phase/
+flag/default/grammar or other Value change/general Raw HTML. Other languages/
+arbitrary Raw remain uncertified. Require RED→GREEN/product-style observations
+and Table/Raw/query regressions. This internal presentation repair follows
+continuous ADR-0127.
 
-Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.
+## Explicit Raw eligibility guard
+
+`lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`
+retains checked sources/L0/SHA-256/HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/status/diffstat;
+inline.rs:47 is archived T317. The hash-reconfirmed inventory has 28 guards/21
+owners; pinned CI requires split/body conditions. Rust structure proves no
+functional/readability/upstream-intent claim.
+
+Raw's body decides existing eligibility: !block, lang typc and auto/true/false.
+Eligible observes text once then emits code/span with existing escaping;
+ineligible returns the exact existing generic diagnostic without observing text.
+No general Raw implementation/helper hiding conjunction/suppression/linter config.
+Continuous ADR-0127 adds no public/default/compatibility/phase. L0 first/existing
+functional controls unchanged; real gate RED=28 V17, GREEN=zero. Check success/
+fallback/error/short-circuit/effects, scoped resealing, build/full workspace suite/
+all-target Clippy warnings/unfulfilled expectations as errors/fmt/Rustdoc warnings
+as errors/strict V1/V5/V15/V26/reverse lineage/SARIF no new warnings under 12 GiB,
+zero swap, one job. No unmeasured memory/performance/global-parity claim.

@@ -2,7 +2,7 @@
 Hash do Código: 0431ed0b
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 
 
 **Layer:** L1
@@ -52,115 +52,164 @@ custom/folded strokes, optional delimiters and the complete Content::math_matrix
 route. Existing consumer deviations remain pending diagnostics, not exceptions
 to these contracts.
 
-## Fluxo de controle e verificações executáveis — 2026-10-13
+## Meaningful local geometry control and unused-wrapper boundary
 
-### Medição anterior à decisão
+### Evidence before decision
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/math/layout/matrix.rs:543-549 contém o trecho medido. O inventário Clippy e a leitura dos owners distinguem código sem efeito, dados inválidos deliberados e verificações vazias. Fontes, L0, UTC, status, diffstat e comandos estão em `lab/results/construction/diagnostics/controle-fluxo-ci-2026-10-13/before.json.gz` e nas evidências do mesmo diretório. Não é nova medição de paridade nem inferência sobre intenção upstream.
+At HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+matrix.rs:543–549 contains the measured fragment. Clippy inventory/owner reading
+distinguishes effectless code, deliberate invalid data and empty checks.
+`lab/results/construction/diagnostics/controle-fluxo-ci-2026-10-13/before.json.gz`
+and companion evidence retain sources/L0/UTC/status/diffstat/commands. This is
+neither new parity evidence nor upstream-intent inference.
 
-### Decisão e aceitação
+matrix.rs:21,377,378 contains the historical helper/storage inventory items.
+`lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`
+retains the same HEAD/uncommitted state plus sources/owners/references/UTC/status/
+diffstat. Call-site/productive-path research precedes classification, without
+new parity/performance evidence.
 
-Substituir o teste local que apenas afirma true por um caso produtivo de matriz 2×2 sem delimitadores, com textos de comprimentos distintos, alinhamento à esquerda e gaps absolutos explícitos. Verificar preservação dos quatro textos em ordem de linhas/colunas, baselines compartilhadas por linha, aumento de coluna com gap e aumento da separação entre linhas com row-gap. As expectativas são relações geométricas do contrato, não valores copiados da implementação candidata. O teste deve detectar saída vazia ou perda/reordenação de células.
+### Exclusive contract and acceptance
 
-Preservar APIs públicas, comportamento padrão, fase e expectativas de linguagem existentes. Revalidar a suíte apropriada, Clippy, build e linhagem. Correção interna em fluxo contínuo ADR-0127.
+Replace the local always-true test with productive 2×2 matrix layout: no
+delimiters, differently sized text, left alignment and explicit absolute gaps.
+Verify all four texts in row/column order, shared row baselines, increased column
+separation with column gap and increased row separation with row-gap. Expectations
+are contract geometry relations, not copied candidate values; empty output or
+lost/reordered cells must fail.
 
-## Helpers e armazenamento sem uso — 2026-10-13
+Compile internal layout_matrix only under `#[cfg(test)]`, preserving wrapper
+signature/body/historical defaults/Butt cap. Production uses complete
+layout_matrix_elem; do not transfer wrapper defaults into its carrier. Remove
+only the never-read final GridGeometry.row_ascent/row_descent storage, retaining
+local vectors and every baseline/height formula in measure. Preserve productive
+routes/test names/bodies/external APIs/defaults/phase and expectations. ADR-0127
+internal continuous flow requires appropriate suites, all-target build/check,
+core/test inventory, Clippy and lineage; remove no expectation to pass.
 
-### Medição anterior à decisão
+## Named test-wrapper arity exception
 
-`01_core/src/compiler/math/layout/matrix.rs` nas linhas 21, 377, 378 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+### Evidence before decision
 
-### Decisão e aceitação
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree, captured
+2026-10-15T16:39:18.873477+00:00.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`
+retains complete source/prior L0/signatures/hashes/UTC/status/git diff HEAD --stat;
+classification.json retains individual classifications/clauses read before
+decision. Clippy spans were reconfirmed from prior inventory. C120 at
+matrix.rs:22, layout_matrix has eight arguments versus threshold seven.
+This is Rust structure, not functional failure or new parity evidence; structural
+maintenance is a judgment grounded in those data.
 
-Compilar o helper interno `layout_matrix` somente sob `#[cfg(test)]`, conservando assinatura e corpo para os testes existentes. O despacho produtivo usa layout_matrix_elem. Preservar no wrapper de teste os defaults e o cap Butt históricos, sem transferi-los ao carrier produtivo. Remover apenas o armazenamento final dos campos privados GridGeometry.row_ascent e row_descent, nunca lidos. Conservar os vetores locais e todas as fórmulas de baseline/height em measure.
+The validated clippy-locais-2026-10-16/clippy-inventory.json has 79 warnings.
+`lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`
+retains reconfirmed spans/reasons/signatures/hashes plus HEAD/uncommitted tree/
+UTC/diffstat. Concrete functions/data were read first. Arity/type heuristics are
+mechanics, not new parity or measured cognitive benefit.
 
-Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.
+### Exclusive exception and materialized scope
 
+C120 is test-only compatibility: this L0 preserves wrapper signature/body/
+historical defaults while production uses layout_matrix_elem's complete carrier.
+Do not refactor production due to a test-helper warning. Preserve signature/order/
+semantics. Apply exactly this attribute only on layout_matrix:
 
-## Aridade das fronteiras — `clippy::too_many_arguments`
+`#[expect(clippy::too_many_arguments, reason="C120: Compatibilidade exclusivamente cfg(test): o L0 manda conservar assinatura/corpo e defaults históricos do wrapper, enquanto produção usa layout_matrix_elem com carrier completo")]`
 
-### Evidência anterior à decisão
+The Portuguese reason remains exact machine metadata. Confirm workspace/all-targets
+Clippy warning and no unfulfilled_lint_expectations; preserve calls/functional
+controls. This named permission supersedes generic suppression bans only for
+C120/too_many_arguments. Do not apply at module/impl/crate/configuration, raise
+global thresholds or cover another lint. A residual exception after dead-argument
+removal depends on that correction. If below threshold, remove/review the
+expectation; do not silence unfulfilled_lint_expectations. Other correction duties
+remain, including conditional C047/C066 fixes without annotation.
 
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
+The later batch materializes only already justified direct named C120 metadata,
+preserving signature/body/calls/cfg/unrelated attributes. Earlier audit wording
+left implementation pending; this later metadata scope supersedes it only for
+the named expectation, not pending functional fixes. ADR-0127 flow changes no
+public contract/executable body/cfg/default/phase/dependency/architecture.
+L0 first and restricted resealing; prove that removing new attributes/header
+recovers prior rustfmt-normalized source. Measure RED first, then all-targets
+inventory: exactly 46 arity and five test warnings satisfied by 49 expectations,
+no new warning and unfulfilled_lint_expectations as error; 11 arities targeted
+for correction remain visible. Validate build/fmt/strict/reverse lineage/Tekt
+without new errors/warnings, existing Counter tests/coverage, under 12 GiB/
+zero swap/one job. Prior full suite remains evidence for identical executable
+code; no attribute-mirroring test or new performance trial for metadata.
 
-- `C120`: `01_core/src/compiler/math/layout/matrix.rs:22`, `layout_matrix`, 8 argumentos contados pelo Clippy (limiar 7).
+Private signature corrections migrate callers/L0 before code with owner
+language/integration/call controls and unchanged fixtures/tolerances. Any new
+public contract/external compatibility need requires a concrete ADR-0127 proposal;
+this exception does not preauthorize it. Preserve layers/phase/defaults/static
+dispatch and no mutable global state.
 
-### Prescrição exclusiva por função
+## Source-transparent matrix partition
 
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
+### Evidence before decision
 
-#### `C120` — `layout_matrix`: Exceção pontual justificada
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz`
+retains UTC, sources/L0/hashes/configuration, status and exact git diff HEAD --stat;
+initial-ten-owners.json.gz preserves the first snapshot. contexts.json,
+all-contexts.json and wildcard-inventory.json retain AST/spans from the pinned
+CI parser. The previous suite passed on the same input code, reconfirmed by hash.
 
-Compatibilidade exclusivamente cfg(test): o L0 manda conservar assinatura/corpo e defaults históricos do wrapper, enquanto produção usa layout_matrix_elem com carrier completo. Não refatorar a entrada produtiva por um aviso do helper de teste.
+source-probe-before.json measures inline limits at width 7.2pt versus 12.912pt
+with Source. source-family-before.json preserves the first 12 pairs (11
+differences). source-family-supplement.json and analysis preserve 23 attributable
+pairs (19 differences, 4 equal controls): limits, kerns, Op.text, accents/dotless,
+supports, matrix alignment, spacing, sequences, stretch and class.
+source-lines-before.json measures the same equation at two lines versus one and
+last baseline 16.2 versus 0 under Source despite equal extents. Geometry,
+extractable identity and equation metadata are observables; bytes/pointers/Rust
+equality are not. The content-source-origin nucleus already requires transparency;
+inspection finds helpers classifying wrappers instead of their bodies. Infer no
+historical intent or global parity. The supplemental analyzer's 24-versus-23
+count error was corrected from valid original stdout without rerunning or
+counting the analyzer error as functional RED.
 
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C120: Compatibilidade exclusivamente cfg(test): o L0 manda conservar assinatura/corpo e defaults históricos do wrapper, enquanto produção usa layout_matrix_elem com carrier completo")], somente nesta função.
+### Exclusive prescription
 
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
+Normalize cell.source_body() for split_cell_on_align_point classification and
+item.source_body() for MathAlignPoint detection. Derived parts retain their own
+origin or receive the cell's proven origin through the existing helper, never
+a fabricated span. Fallback retains the entire cell.clone(). edge_node borrows
+Source.body to find first/last leaf. Preserve signatures/original cells/plan/
+alignment/gaps/augment.
 
-### Limite da exceção
+Replace only the selected fallback with the current nominal complement of
+unconditional arms, preserving bodies/guards/order. Guarded variants remain in
+the complement when the guard fails. The attach owner's Option projection is
+the sole structural exception: None returns through ?, Some enters a nominal
+normalized-Content match without a deep pattern; that remains its own boundary.
 
-Autorizar somente `#[expect(clippy::too_many_arguments, reason = "...")]` no item
-nominal acima, com o motivo arquitetural indicado. Não aplicar no módulo, impl,
-crate ou configuração global; não elevar o limiar nem abranger outro lint.
-Nos casos com remoção de argumento morto, a exceção residual depende dessa correção.
-Se a função deixar de exceder o limiar, retirar/revisar a expectativa; não silenciar
-`unfulfilled_lint_expectations`. Esta permissão específica supera proibições
-genéricas de supressão em seções anteriores somente para este lint e os itens
-nominais justificados aqui. As demais obrigações de correção permanecem.
+L16: matrix.rs:533, split_cell_on_align_point, Content. Exclude only
+MathSequence/MathAlignPoint, no guards. Keep the previous fallback outside the
+property and broaden classification only by specified Source transparency.
 
-### Fronteira de materialização
+### Acceptance and limits
 
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
+L0 before code. This ADR-0127 internal parity correction adds no public field/
+signature/trait, dependency, product flag/default, compatibility break or phase.
+V19 groups share their previous body with per-case justification; notes remain
+visible and do not prove execution coverage per alternative. No allow/expect,
+threshold increase, @ capture or hidden match in if-let/matches!. Only named
+transparency/shallow restructuring changes functional code; do not change
+formulas/constants or relax expectations. Require functional Source RED and
+structural warning/probe RED before repair; afterwards regression GREEN, zero
+emitted-site V16 and future sentinel review of all 36 sites (including new
+Content-under-Option projection) using copied Content/Value/MathStyleKind/FrameItem
+in a disposable real workspace compiling cfg(test). Current scrutinees/functions/
+composition change only as specified; revalidate AST/replay, signatures and other
+owners.
 
-
-## Exceções nominais materializadas — 2026-10-16
-
-### Medição anterior à decisão
-
-O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
-
-### Responsabilidade e aceitação
-
-Materializar somente as expectativas diretas nominais já justificadas neste owner: C120. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
-
-Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
-
-
-## Exaustividade nominal e origem matemática — 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado; UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz` (snapshot inicial preservado em initial-ten-owners.json.gz). AST/spans em contexts.json/all-contexts.json/wildcard-inventory.json, parser pinado do CI. A suíte anterior passou no mesmo código de entrada, revalidado por hashes.
-
-source-probe-before.json mede limits inline com largura 7.2 pt versus 12.912 pt ao acrescentar Source. source-family-before.json preserva a primeira matriz de 12 pares (11 diferenças). source-family-supplement.json e sua análise preservam 23 pares com métricas atribuíveis (19 diferenças e 4 controles iguais): limites, kerns, Op.text, acentos/dotless, suportes, alinhamento de matriz, espaçamento, sequências, stretch e classe. source-lines-before.json mede a mesma equação com 2 linhas versus 1 e última baseline 16.2 versus 0 sob Source, apesar dos mesmos extents. São observáveis de geometria, identidade extraível e metadados da equação, não igualdade de bytes/pointers/Rust. A transparência já é obrigatória no núcleo content-source-origin; a inspeção mostra os helpers classificando o wrapper em vez do body. Não se infere intenção histórica ou paridade global a partir desses números. O erro de contagem do analisador complementar (24 em vez de 23 pares) foi corrigido usando o stdout original válido, sem refazer a medição nem contar o erro como RED funcional.
-
-### Prescrição exclusiva
-
-Normalizar cell.source_body() na classificação de split_cell_on_align_point e item.source_body() na detecção do MathAlignPoint. Cada parte derivada conserva sua origem própria ou recebe a origem comprovada da célula pelo helper existente, nunca span fabricado. Fallback conserva cell.clone() inteiro. edge_node inspeciona o body Source por empréstimo para achar a primeira/última folha; assinaturas, células originais, plano, alinhamento, gaps e augment permanecem.
-
-Trocar os fallbacks enumerados pelo complemento nominal atual dos braços **incondicionais**, sem alterar corpo/guard/ordem; variantes guardadas continuam no complemento para quando a condição falha. A projeção Option de attach é a única exceção estrutural: None retorna por ?, Some passa ao match nominal de Content normalizado, sem padrão profundo.
-
-- **L16** — `01_core/src/compiler/math/layout/matrix.rs:533`, `split_cell_on_align_point`, Content: excluir somente `MathSequence, MathAlignPoint`; guardados `(nenhum)`. Mesmo corpo anterior para variantes fora da propriedade procurada; não ampliar a classificação além da transparência Source aqui prescrita.
-
-### Aceitação e limites
-
-L0 antes de código. Correção interna/paridade ADR-0127 em fluxo contínuo: sem campo/assinatura pública, trait, dependência, flag/default novo, compatibilidade ou fase nova. Grupos V19 compartilham o corpo anterior explicitamente justificado por caso; as notas permanecem visíveis e não provam cobertura de execução por alternativa. Não adicionar allow/expect, elevar limiar, capturar @ ou esconder um match em if-let/matches!. Somente a transparência e as reestruturações rasas aqui nomeadas alteram o código funcional; não editar fórmulas/constantes ou relaxar expectativas anteriores. RED funcional das regressões Source e RED estrutural dos avisos/sondas antes do reparo. Após, regressões GREEN, zero V16 dos locais emitidos, revisão futura dos 36 locais (incluindo a nova projeção de Content sob Option) por sentinelas Content/Value/MathStyleKind/FrameItem em workspace descartável com cfg(test) compilado. Os scrutinees/funções atuais e a composição ganham só as alterações descritas; revalidar ast/replay, assinaturas e demais owners.
-
-Gates: suíte workspace completa, build, fmt, Clippy workspace/all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings com quatro índices, V1/V5/V15/V26 estrito/reversa, SARIF diferencial completo e diff-check. V16 esperado 170→152; notas V19 novas somente dos grupos prescritos e do observador novo; V20 sem crescimento. As demais violações continuam pendentes. Fontes congeladas durante os gates; MemoryMax=12 GiB, swap zero, um job Cargo, comandos pesados sequenciais. Sem commit/push/release ou alteração do pin CI. Não alegar ganho de RAM, leitura de IA ou paridade integral por encerrar o lint.
+Gates: full workspace suite, build, fmt, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, Rustdoc -D warnings with four indexes,
+strict/reverse V1/V5/V15/V26, full differential SARIF and diff-check. Expected V16
+170→152; new V19 only from prescribed groups/new observer; no V20 growth.
+Other violations remain pending. Freeze sources during gates; MemoryMax 12 GiB,
+zero swap, one Cargo job, heavy commands sequentially. No commit/push/release or
+CI pin change. Lint closure does not prove RAM gain, AI-reading benefit or
+complete parity.

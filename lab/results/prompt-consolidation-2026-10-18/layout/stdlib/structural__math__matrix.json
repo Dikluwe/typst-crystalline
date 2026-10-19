@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/structural/math/matrix.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Preserved original English matrix semantic contract/D07 and translated causal cast-span, V17 tuple, V16 37-variant complement plus structural proof gates.",
+  "original_sha256": "7dcb1e4f7f63ff960d9e53134fd0a78da95d1be335d4997e505ca278b2223096",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/structural/math/matrix.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

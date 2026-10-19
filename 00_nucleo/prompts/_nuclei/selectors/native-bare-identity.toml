@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "native-bare-selector-identity"
-title = "Identidade de elemento nativo sem grupo where"
-
+title = "Native element identity without a where group"
 [[claims]]
 id = "absent-group"
 level = "must"
-statement = "Um seletor nativo bare preserva ausência de grupo where; não é o filtro explicitamente vazio Element com fields vazio."
-
+statement = "A bare native selector preserves absent where group;it is not explicitly empty Element filter with empty fields."
 [[claims]]
 id = "typed-identity"
 level = "must"
-statement = "O reconhecimento e a comparação de identidade de um seletor nativo bare usam a nativa real, sem nomes de alias como discriminador nem execução do constructor."
-
+statement = "Bare native selector recognition/identity comparison uses actual native,never alias-name discrimination or constructor execution."
 [[claims]]
 id = "locatability"
 level = "must"
-statement = "Construir seletor não exige locatabilidade; consultas e counters validam cada folha e não promovem table.cell ao índice."
+statement = "Selector construction does not require locatability;queries/counters validate each leaf and never promote table.cell into index."

@@ -2,58 +2,63 @@
 Hash do Código: 0b4baa9c
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:7ec137b6996e0ea442e3cdda52ce723fd32cb67338ab363b7ff2d733458ef8fa
+- 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:c7f9b3d18b112b1d725e082b7da75b886bf7120346ffbca911c236ea65c52986
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/world/source_session.rs`
 
-## Reuso sintático de watch — lote A
+## Evidence before decision
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/incremental-prioridade6-2026-10-08/{before.json.gz,measurement.json.gz,control-measurement.json.gz,count.json}`
+retains tree/HEAD/UTC/commands/releases. Source::new rebuilds CST; a fresh World
+rebuilds main/import Sources per edit. Minimal import already consumes eval_ms;
+do not attribute all of it to parsing. Existing owners define causal Source/id/
+path identity; reuse is mechanics preserving language observables. Cost/diagnostic/
+effect/stale source/geometry/identity changes refute benefit. No upstream intent
+is inferred.
 
-lab/results/construction/diagnostics/incremental-prioridade6-2026-10-08/before.json.gz,
-measurement.json.gz, control-measurement.json.gz e count.json registram árvore,
-HEAD, UTC, comandos e releases. Source::new reconstrói CST; World novo constrói
-Source main/import a cada edição. O import mínimo já absorve recursos no eval_ms;
-não atribuir toda a métrica a parsing. O contrato causal de Source/id/caminho vem
-dos owners existentes; o reuso é mecânica e precisa preservar observáveis de língua.
-Hipótese de benefício refutada por custo, diagnóstico, efeito, stale source,
-geometria ou identificação diferente. Não inferir intenção upstream.
+source_session.rs:24 declares public no-argument new. The field-reassign-2026-10-15/
+clippy-inventory.json reports new_without_default; clippy-default-2026-10-16 retains
+source/L0/hashes. new creates an instance-local empty Mutex<Vec<Entry>> without
+parsing/I/O. Default delegating to it is public Rust construction, no new language
+parity measurement. The owner approved manifesto
+`11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03`
+on 2026-10-16, receipt
+`lab/history/construction/records/00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`.
+This satisfies the earlier pending gate only for the three explicit Default impls
+and D1–D5 controls; all other contracts remain.
 
-### Contrato ratificado
+## Ratified session contract
 
-Possuir SourceSession pública opaca com new() sem I/O, campos privados e métodos
-internos de comparação/retensão. Guardar apenas Source markup imutável por caminho
-canônico físico e FileId corrente, validar texto integral sem Source Eq/hash como
-prova. Não atribuir IDs. Manter no máximo 8 entradas LRU, 1 MiB total de texto e
-512 KiB/entrada; oversize devolve parsing normal sem retenção. Uso de Mutex por
-instância em L3, zero globals/unsafe/disco/clock. Parsing usa Source::new de L1.
-Concorrência pode repetir trabalho; nenhum retorno usa Source de texto/id/path
-não validados. Não guardar outros produtos ou erros de leitura; dados CST com
-errors/warnings seguem reemissão normal pelo eval, sem cache do Sink.
-Testes locais devem incluir reuso em Worlds reais, recusa por texto/id/path,
-limites/evicção, transientes, erro/recuperação e concorrência. Memória real não é
-limitada pelo orçamento de texto: medir RSS. Sem comprovado ganho de produto,
-retirar conexão produtiva e conservar evidência negativa.
+Own opaque public SourceSession with new() without I/O, private fields/internal
+comparison/retention methods. Retain only immutable markup Source by canonical
+physical path and current FileId; validate full text, never Source Eq/hash as proof.
+Do not assign ids. Bounds: at most eight LRU entries, 1 MiB total text, 512 KiB per
+entry; oversize parses normally without retention. Instance Mutex in L3, no globals/
+unsafe/disk/clock. Parse using L1 Source::new. Concurrent calls may duplicate work;
+never return Source with unvalidated text/id/path. No other products/read errors
+retained. CST errors/warnings follow normal eval reemission without Sink caching.
 
-Aceitação: RED→GREEN, contagem de produção separada de tempos, três rodadas CLI
-pareadas contra release P5, startup/RSS e controles de invalidação/identidade/
-efeitos/Unicode/diagnóstico/assets/fontes/geométricas. Resselo apenas deste owner,
-build/suítes pertinentes e lint zero erros; não fechar incrementalidade completa.
+Public `impl std::default::Default for SourceSession` has `fn default() -> Self`
+returning Self::new(). Keep new/visibility/fields/values/other methods/semantics;
+no other trait/mode/flag/global state/constructor I/O/phase change. Existing callers
+need no migration; new callers may use explicit Default/bounds. This additive
+contract's future removal would break consumers. Approval narrowly supersedes
+generic API bans for its specified impls, not arbitrary API work.
 
+## Acceptance and limits
 
-## Default público — proposta sujeita à confirmação ADR-0127
+Local tests cover real-World reuse, refusal by text/id/path, bounds/eviction,
+transients/error/recovery/concurrency. Text budget is not an RSS bound; measure
+RSS. Without proven product gain remove productive connection and retain negative
+evidence. Require RED→GREEN, production counts separate from timing, three paired
+CLI rounds against the archived prior release, startup/RSS and invalidation/
+identity/effects/Unicode/diagnostic/assets/fonts/geometry controls. Owner-only
+resealing, relevant builds/suites and lint zero errors; no full-incrementality claim.
 
-### Medição anterior à decisão
-
-`03_infra/src/world/source_session.rs:24` declara pub fn new() -> Self sem argumentos. O inventário em `lab/results/construction/diagnostics/field-reassign-2026-10-15/clippy-inventory.json` registra new_without_default; fonte/L0/hashes atuais são preservados no pacote clippy-default-2026-10-16. SourceSession::new cria Mutex<Vec<Entry>> vazio por instância, sem parsing ou I/O. Default delega a Self::new(); os limites 8 entradas, 1 MiB total e 512 KiB por entrada, validação e isolamento dos Worlds permanecem inalterados. Isto é contrato Rust de construção, sem nova medição de paridade da linguagem.
-
-### Contrato proposto
-
-Adicionar somente `impl std::default::Default for SourceSession` com `fn default() -> Self` que devolve `Self::new()`. Preservar integralmente new(), sua visibilidade, campos, seus valores, todos os demais métodos e semântica. Não criar outro trait, novo modo/flag, estado compartilhado global, I/O no construtor ou mudança de fase. Nenhum caller existente precisa migrar; novo código pode usar `<SourceSession as Default>::default()` e bounds `T: Default`.
-
-### Gate, testes e aceitação
-
-Nenhuma materialização antes da confirmação humana do manifesto deste pacote (ADR-0127 §2.1/§2.4). Os impls são acréscimos públicos: sua remoção futura quebraria consumidores do novo contrato. Após ratificação, a cláusula só supersede proibições genéricas de nova API para estes três impls expressos; os demais contratos permanecem. Testes de uso por bound Default devem falhar por ausência de implementação antes do código e passar após delegação. Verificar valores/isolamento de contextos e sessões novas, preguiça de recursos e conservação dos controles existentes; suíte workspace, Clippy all-targets, build, Rustdoc, formato e linhagem com resselo restrito. Não alterar valores/defaults nem suprimir new_without_default.
-
-Ratificação: dono aprovou o manifesto SHA-256 `11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03` em 2026-10-16. Recibo: `lab/history/construction/records/00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`. O gate acima está satisfeito exclusivamente para os três impls Default e testes D1–D5 descritos; esta seção está vigente.
+Before Default implementation, bound-based usage tests fail due to missing impl;
+after delegation they pass. Check fresh-context/session values/isolation, lazy
+resources and unchanged controls; workspace suite/all-target Clippy/build/Rustdoc/
+fmt/lineage, scoped resealing. No default-value changes or new_without_default
+suppression. Original package provenance is archived in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/infra/world/source_session.md`.

@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "ssty-math-size"
-title = "Projeção nominal do nível ssty"
-
+title = "Nominal ssty-level projection"
 [[claims]]
 id = "levels"
 level = "must"
-statement = "Para entradas elegíveis em modo math fora de TextItem, MathSize::Script solicita ssty 1, ScriptScript solicita 2 e Display/Text não solicitam nível ssty (None)."
-
+statement = "For eligible math-mode input outside TextItem, MathSize::Script requests ssty 1, ScriptScript 2, and Display/Text no ssty level (None)."
 [[claims]]
 id = "gates"
 level = "must"
-statement = "Fora de math, em math_text_item ou sem elegibilidade, conservar None antes da seleção por tamanho. Shaping usa o predicado canônico ssty_eligible_text; o owner de métricas recebe a elegibilidade já decidida."
-
+statement = "Outside math, in math_text_item or without eligibility, preserve None before size selection. Shaping uses canonical ssty_eligible_text; the metrics owner receives already decided eligibility."
 [[claims]]
 id = "nominal-complement"
 level = "must"
-statement = "O match sobre MathSize enumera nominalmente Display, Text, Script e ScriptScript, sem wildcard. Display e Text podem compartilhar None (V19 uniforme); ambos precisam de controles. Uma variante futura exige revisão explícita pelo compilador."
-
+statement = "The MathSize match explicitly names Display, Text, Script and ScriptScript, with no wildcard. Display and Text may share None (uniform V19); both require controls. A future variant requires explicit compiler review."
 [[claims]]
 id = "boundary"
 level = "must-not"
-statement = "Este reparo não altera MathSize, TextStyle, API, default, fases, elegibilidade, fallback, script OpenType, GSUB, features, caches ou seleção de fontes. Não criar predicado paralelo nem silenciar V16/V19."
+statement = "This repair changes no MathSize, TextStyle, API, default, phase, eligibility, fallback, OpenType script, GSUB, feature, cache or font selection. Create no parallel predicate or V16/V19 suppression."

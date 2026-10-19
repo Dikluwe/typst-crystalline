@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "paragraph-hanging-validation"
-title = "Tipo lexical de par.hanging-indent"
-
+title = "Lexical type of par.hanging-indent"
 [[claims]]
 id = "length-only"
 level = "must"
-statement = "hanging-indent em set par e no constructor par aceita somente Length, inclusive zero, valores negativos e componentes abs+em. None, Auto, inteiros sem unidade, floats, Ratio e strings são erros de tipo, não propriedades ignoradas."
-
+statement = "hanging-indent in set par/constructor par accepts Length only, including zero, negatives and abs+em. None, Auto, unitless integers, floats, Ratio and strings are type errors, not ignored properties."
 [[claims]]
 id = "causal-diagnostic"
 level = "must"
-statement = "Falha de tipo usa o diagnóstico existente expected length com tipo público e o span do valor do argumento; inteiro sem unidade conserva o hint de acrescentar pt. Avaliar cada argumento uma vez e não alterar os outros argumentos, o corpo ou o ambiente ao rejeitar."
+statement = "Type failure uses existing expected length diagnostic with public type and argument-value span; unitless integer retains add-pt hint. Evaluate each argument once, changing no other arguments/body/environment on rejection."

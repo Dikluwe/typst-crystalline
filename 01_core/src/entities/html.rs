@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/html.md
-//! @prompt-hash 8faff694
+//! @prompt-hash 5c122da0
 //! @layer L1
 
 use ecow::EcoString;

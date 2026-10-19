@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/checkpoint.md
-//! @prompt-hash 81bb2d87
+//! @prompt-hash 80b5b5fd
 //! @layer L1
 //! @updated 2026-10-06
 

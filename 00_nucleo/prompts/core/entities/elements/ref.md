@@ -1,90 +1,55 @@
 # Prompt L0 — `entities/elements/ref` — `RefElem`
 Hash do Código: 0595bcb6
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/ref.rs`
-**Origem**: modelo D (ADR-0105), **P462**. Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável** (leaf).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/ref.rs`
+**Architecture:** ADR-0105 model D; nonlocatable terminal leaf.
 
----
+## Contract
 
-## Struct
+RefElem derives Debug/Clone/PartialEq/Hash and carries name: EcoString,
+supplement: Option<Content>, and RefForm::{Normal,Page} with Normal default.
+Content::Ref holds Arc<RefElem>. Preserve Content::reference(name:impl
+Into<EcoString>) with no supplement and reference_with_supplement(name,
+Option<Content>). The reference naming avoids Rust's ref keyword.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct RefElem {
-    pub name: EcoString,
-    pub supplement: Option<Content>,
-}
-```
+plain_text is format!("@{}", self.name); is_empty defaults false. Content/text
+maps are terminal; get_field/element_kind/to_payload retain defaults. Store
+the label name, not its resolved number. Layout resolves against document
+state through Introspector. An explicit supplement takes precedence and is
+prefixed to the formatted number; absent supplement uses the referenced type's
+default. Page form follows `00_nucleo/prompts/core/entities/page_supplement.md`.
 
-`Content::Ref { name, supplement }` → `Content::Ref(Arc<RefElem>)`.
-Construtores ergonómicos em `Content`:
-- `Content::reference(name: impl Into<EcoString>)` — supplement `None`.
-- `Content::reference_with_supplement(name, supplement: Option<Content>)`.
+## Historical evidence and unresolved default reconciliation
 
-A keyword `ref` exigiria raw identifier em cada call-site — fricção
- desnecessária; o módulo e os construtores usam `reference`.
+At upstream `e0e8ca4d`, reference.rs:148-159 describes supplements before
+referenced heading/figure numbers. This supports the document-state observable;
+it does not prescribe the crystalline Introspector/layout mechanism.
+Heading's Refable implementation at heading.rs:321-327 resolves Smart::Auto
+through LocalName; translations/en.txt:1-3,5 supplies Figure/Table/Equation/Section.
 
-## `impl Element for RefElem`
+The 2026-08-13 probe used vanilla e0e8ca4d and crystalline HEAD 4f64e4e69 with
+only L0 edits. Its English document set heading numbering "1.", figure "1",
+equation "(1)", then referenced one of each. Both produced Section 1;
+vanilla Equation 1 versus local (1), and vanilla Figure 1 versus local Fig. 1.
+Without explicit figure numbering the local reference was empty, attributed
+to the figure default rather than a separate reference defect. The earlier
+claim that headings had no default supplement was wrong on both sides.
 
-| método | comportamento |
-|---|---|
-| `plain_text` | `format!("@{}", self.name)` |
-| `is_empty` | default `false` |
-| `map_content`/`map_text` | **terminais** (leaf) |
-| `get_field`/`element_kind`/`to_payload` | default |
+The archived text also labels this finding corrected while retaining the
+contradictory pending figure/equation correction. That heading alone does not
+prove closure. Preserve explicit-supplement precedence and the language target;
+reconcile the default status with its owning layout contract and approval
+receipt before claiming closure or changing behavior under ADR-0127. These
+historical observations do not certify the current upstream pin.
 
-## Notas P462
+## Acceptance
 
-- `RefElem` não guarda o número resolvido — guarda apenas o nome do label.
-- A resolução do número acontece no layout via `Introspector` (oráculo de
-  counters).
-- `supplement` opcional: se `None`, o layout usa o supplement default do tipo
-  referenciado. Se `Some`, o conteúdo é prefixado ao número formatado.
-  **Os defaults do cristalino divergem da linguagem — ver bloco P1031 abaixo.**
+Preserve terminal traversal, label storage, formatted plain text, optional
+supplement presence and Normal/Page discrimination. Verify reference defaults
+at language level with provenance; do not infer them from Rust representation.
 
-> **Fonte de paridade (P1031)** — vanilla ratificado (`e0e8ca4d`):
->
-> - **Resolução do número no layout via `Introspector`** — a documentação sustenta que a
->   referência resolve contra o estado do documento, não contra o nó:
->   `crates/typst-library/src/model/reference.rs:148-159`, campo `supplement`: *"A supplement
->   for the reference. If the `form` is set to `{"normal"}`: - For references to headings or
->   figures, this is added before the referenced number. […]"* — e o próprio `RefElem` guarda
->   só o `target: Label`. Citação **contextual**: a documentação fala do *número
->   referenciado* sem nomear o mecanismo; que esse número venha do `Introspector` no layout
->   é decisão do cristalino, provada pelas guardas, não pela documentação.
-> - **Defaults de supplement** — no vanilla o default é `Smart::Auto`, resolvido para o
->   `LocalName` do elemento (ex.: `impl Refable for Packed<HeadingElem>`,
->   `crates/typst-library/src/model/heading.rs:321-327`), cujos valores são dados literais em
->   `crates/typst-library/translations/en.txt`: `figure = Figure` (l. 1), `table = Table`
->   (l. 2), `equation = Equation` (l. 3), `heading = Section` (l. 5).
->
-> **ACHADO CORRIGIDO (P1073) — os supplements por defeito agora têm paridade estrita com a linguagem.**
->
-> Medição de 2026-08-13 (vanilla `/usr/local/bin/typst` = `typst 0.15.1 (e0e8ca4d)`;
-> cristalino `target/release/typst` da fonte em HEAD `4f64e4e69`, árvore só com edições em
-> `00_nucleo/prompts/**`). Documento com `#set text(lang: "en")`,
-> `#set heading(numbering: "1.")`, `#set figure(numbering: "1")`,
-> `#set math.equation(numbering: "(1)")`, um heading `<h>`, uma equação `<eq>`, uma figura
-> `<f>`, e a linha `Ver @h, @eq, @f.`:
->
-> | Referência | Vanilla | Cristalino |
-> |---|---|---|
-> | `@h` (heading) | `Section 1` | `Section 1` ✅ |
-> | `@eq` (equação) | `Equation 1` | `(1)` ❌ — sem supplement, e imprime o padrão de numeração em vez do número |
-> | `@f` (figura) | `Figure 1` | `Fig. 1` ❌ — abreviatura em vez do `LocalName` |
->
-> A redacção anterior deste L0 (*"nenhum para heading/equation"*) estava **errada nos dois
-> lados** para o caso heading: a linguagem usa `Section` e o cristalino também já o faz.
-> Ficam por corrigir `figure` (`Fig.` → `Figure`) e `equation` (nenhum → `Equation`), que se
-> resolvem lendo o supplement da mesma tabela de traduções em vez de constantes fixas.
-> Mudança de comportamento por defeito → gate ADR-0127 e passo próprio. **Não implementado
-> aqui.**
->
-> Nota: com `#set figure(numbering:)` ausente, `@f` no cristalino renderiza **vazio**
-> (medido no mesmo passo) — consequência do ACHADO 1 de `compiler/layout_figure.md` (default
-> de `figure.numbering` não aplicado), não um defeito separado do `ref`.
-## P1140.25 — forma page
+## Historical record
 
-`RefElem` inclui `RefForm::{Normal, Page}` com default Normal e preserva a
-precedência do supplement explícito. Ver `entities/page_supplement.md`.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/ref.md`. Historical observations are not a new parity certification.

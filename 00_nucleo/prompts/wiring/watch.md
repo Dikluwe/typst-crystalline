@@ -2,9 +2,9 @@
 Hash do Código: 89e4b093
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:391cd1604976262b1b6e019b802ed72e78782260d2788bb04999297559605509
-- 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:7ec137b6996e0ea442e3cdda52ce723fd32cb67338ab363b7ff2d733458ef8fa
-- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
+- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0f2985807cc3c7b4aeed9a5a26b77ad66dbbdb67ccfb43ba8336dbc8e8eea1a5
+- 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:c7f9b3d18b112b1d725e082b7da75b886bf7120346ffbca911c236ea65c52986
+- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:e9d6623a18ffc35f36051b280d96a75a0e4c1bd1768361a3a50c98587c568aef
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/watch.rs`
@@ -38,89 +38,98 @@ Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do no
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
 
-## Medição anterior à decisão de retenção ratificada
+## Retained resources and watcher lifetime
 
-lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
-edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
-descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
-remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
-não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
-preservar seleção, conteúdo, diagnóstico e render na linguagem; duração/Arc são
-mecânica. Inferimos benefício possível, refutado por custo, stale resources,
-regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do relatório.
+### Evidence and approvals
 
-### Decisão ratificada sob ADR-0127 §2.1/§2.2
+`lab/results/construction/diagnostics/watch-retencao-2026-10-07.md` records
+HEAD/tree/binaries/UTC, real edits/recovery and dynamic acquisition counts per
+cycle. `watch-validacao-2026-10-07/measurement.json` compares discovery validation
+and full acquisition at the same state; controls.json covers addition/removal/
+replacement/restored mtime/links/configuration. These are isolated costs, not CLI
+speedup or upstream-intent proof. FontBook/slots/coverage must preserve language
+selection/content/diagnostics/render; duration/Arc are mechanics. Potential benefit
+is an inference refuted by cost, stale resources, regression or unbounded retention.
+Fixtures/provenance/limits remain in the report.
 
-Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
+The owner ratified the catalog package under ADR-0127 §2.1/§2.2 with `Confirmo`:
+`lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json`;
+receipt `lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json`.
+Every owner remains 1:1.
 
-## Lifetime da sessão
+`incremental-prioridade6-2026-10-08/{before.json.gz,measurement.json.gz,control-measurement.json.gz,count.json}`
+records tree/HEAD/UTC/commands/releases. Source::new rebuilds CST; new World builds
+main/import Source on each edit. Even a minimal import consumes resources in
+eval_ms; do not attribute the whole metric to parsing. Existing owners govern
+Source/id/path causal identity; reuse is mechanics preserving language observables.
+Cost, diagnostics/effects, stale source, geometry or identity changes refute the
+benefit hypothesis; no upstream intent is inferred. The source-session contract
+was ratified as stated in the archived owner record.
 
-Criar Arc<FontCatalogSession> uma vez por chamada run_watch, fora do loop, sem
-font discovery. Passar clones ao helper observado privado do owner compile em
-cada ciclo, mantendo o CompileIntent e staging existentes. Fonte/reforço de erro
-não requer reset de World: cada chamada continua construindo World novo.
-Conservar exatamente status-before-diagnostics, Instant/timers, deps/fallback,
-arm antes da publicação, evict(10), polling 100ms e estado HTTP do último sucesso.
-Não adicionar fontes como evento observado, não mudar política de servidor, nem
-alterar modo público/flags. Sessão termina com o watcher; sem retenção global.
-Aceitação com processo real: edição main/import/read/PNG; erro, criação após
-negativo e recuperação; fontes adicionadas/removidas/substituídas reconhecidas na
-próxima recompilação. Medir startup separadamente de ciclos, CPU/latência/RSS e
-contadores separados; comparar com o binário anterior congelado e vanilla pinado.
-Se não melhorar de forma repetível ou houver regressão, não declarar otimização
-concluída; conservar evidencia negativa e reavaliar caminho produtivo.
+### Session contracts and acceptance
 
-## Reuso sintático de watch — lote A
+Create Arc<FontCatalogSession> once per run_watch, outside the loop, without font
+discovery. Pass clones to compile's private observed helper every cycle, retaining
+CompileIntent/staging. Each call still constructs a new World; source/error recovery
+does not require resetting it. End the session with the watcher, never global
+retention. Preserve status-before-diagnostics, Instant/timers, deps/fallback,
+arm-before-publication, evict(10), 100ms polling and last successful HTTP state.
+Do not observe fonts as new watch events or change server policy/modes/flags.
 
-### Medição anterior à decisão
+Real-process acceptance covers main/import/read/PNG edits, error/creation-after-
+negative/recovery and font addition/removal/replacement on the next recompilation.
+Measure startup separately from cycles, CPU/latency/RSS and distinct counters;
+compare the frozen prior binary and pinned vanilla. If improvement is not repeatable
+or any regression occurs, retain negative evidence and reevaluate the productive
+path; do not claim optimization complete.
 
-lab/results/construction/diagnostics/incremental-prioridade6-2026-10-08/before.json.gz,
-measurement.json.gz, control-measurement.json.gz e count.json registram árvore,
-HEAD, UTC, comandos e releases. Source::new reconstrói CST; World novo constrói
-Source main/import a cada edição. O import mínimo já absorve recursos no eval_ms;
-não atribuir toda a métrica a parsing. O contrato causal de Source/id/caminho vem
-dos owners existentes; o reuso é mecânica e precisa preservar observáveis de língua.
-Hipótese de benefício refutada por custo, diagnóstico, efeito, stale source,
-geometria ou identificação diferente. Não inferir intenção upstream.
+Create Arc<SourceSession> once per run_watch outside the loop, independently of
+the catalog session. Pass clones to compile's private helper per cycle while World
+remains new. The watcher call bounds lifetime/retention. Preserve staging/HTTP/last
+success, recovery/deps/fallback, arm-before-publication, evict(10) and 100ms polling;
+no new public flag/mode. Acceptance requires RED→GREEN, production counts separate
+from timing, three paired CLI rounds against the archived prior release, startup/
+RSS and invalidation/identity/effects/Unicode/diagnostic/assets/font/geometry
+controls. Reseal only this owner, run relevant builds/suites and lint with zero
+errors; this does not close full incrementality.
 
-### Contrato ratificado
+## Publication and internal expression boundaries
 
-Criar Arc<SourceSession> uma vez por run_watch fora do loop, independente da
-FontCatalogSession já ratificada. Passar clones ao helper privado de compile em
-cada ciclo; World continua novo. A chamada watcher delimita lifetime/retensão.
-Preservar arm-before-publication, staging/HTTP/último sucesso, error recovery,
-watch deps/fallback, evict(10) e polling100ms. Não criar nova flag ou modo público.
+### Evidence
 
-Aceitação: RED→GREEN, contagem de produção separada de tempos, três rodadas CLI
-pareadas contra release P5, startup/RSS e controles de invalidação/identidade/
-efeitos/Unicode/diagnóstico/assets/fontes/geométricas. Resselo apenas deste owner,
-build/suítes pertinentes e lint zero erros; não fechar incrementalidade completa.
+`clippy-expressions-2026-10-16/before.json.gz` retains sources/L0, HEAD/uncommitted
+tree/status/diffstat/UTC; initial-diagnostics.json retains suggestions/spans.
+`watch.rs:94` triggered clippy::collapsible_else_if; uses/types were inspected.
+This is internal Rust representation, no new parity/performance claim.
 
+`tekt-v12-2026-10-16/before.json.gz` records HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/sources/L0/hashes/
+status/diffstat and the hash-checked inventory: 19 V12, one productive Published
+enum in main.rs and 18 auxiliary test declarations. Html(String) and
+Bundle(Vec<BundleFile>) are produced in compile.rs and dispatched in watch.rs.
+The earlier L4-local carrier permission is explicitly superseded by L3 ownership;
+this is representation, not upstream intent or parity. Full historical clauses:
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/wiring/watch.md`.
 
-## Expressões locais verificadas — Clippy 2026-10-16
+### Contract and acceptance
 
-### Medição anterior à decisão
+Flatten only failed-publication discard `else { if Bundle ... }` into `else if
+Bundle`, retaining abandon_directory versus abandon, staging, successful-only
+publication, return and previous state. Continuous ADR-0127: no public API,
+default, phase, dependency or suppression. L0 precedes code, resealing is scoped,
+existing control inputs/results/tolerances remain exact. Require selected-lint
+RED→GREEN, workspace suite/build/all-target Clippy/fmt/Rustdoc/lineage; no tests
+merely mirroring Rust syntax.
 
-04_wiring/src/watch.rs:94 (clippy::collapsible_else_if). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
-
-### Responsabilidade exclusiva e aceitação
-
-Achatar somente else { if Bundle ... } para else if Bundle no descarte após falha. Preservar abandon_directory versus abandon, staging, publicação apenas no sucesso, retorno e estado anterior disponível.
-
-Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependência ou supressão novos. L0 precede código e resselo restrito. Preservar inputs e resultados dos controles existentes, sem relaxar tolerâncias. Gate dos lints selecionados RED→GREEN; executar suíte workspace, build, Clippy all-targets, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe Rust.
-
-
-## Transporte de publicação em L3 — V12, 2026-10-16
-
-### Medição anterior à decisão
-
-O snapshot before.json.gz em lab/results/construction/diagnostics/tekt-v12-2026-10-16 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC, fontes, L0, hashes, status e git diff HEAD --stat. O inventário anterior, conferido por hashes, emite 19 V12: um enum produtivo em 04_wiring/src/main.rs:22 e 18 declarações auxiliares de testes. O enum privado Published tem exatamente Html(String) e Bundle(Vec<BundleFile>); compile.rs:90/99/363/539/541 o produz e watch.rs:103/104 despacha os dois braços. O proprietário atual é wiring.md, que autoriza o carrier privado em L4: esta proposta atualiza explicitamente essa decisão, em vez de contrariá-la sem registro. É propriedade/representação Rust, sem nova alegação de paridade ou intenção upstream.
-
-### Verificação comum
-
-T1: preservar os controles reais de watch HTML e bundle HTTP/reload, sucesso/erro, no-serve/no-reload e último snapshot válido; testes p1485_watch_bundle_http_reload_e_preserva_snapshot_apos_erro e p1485_watch_flags_no_reload_no_serve_e_porta_ocupada em 04_wiring/tests/cli.rs, mais controles HTTP de 03_infra/src/watch.rs. T2: preservar compile de HTML/bundle, árvore completa, assets byte-exatos, stdout, warnings, exit e ausência de publicação em erro nos testes CLI existentes, sem editar esperados. T3: V12 RED real antes e zero produtivo depois; conferir por diff que só houve transferência do enum e ajuste do import, sem inferir modalidade por extensão. Verificar build, Clippy workspace/all-targets -D warnings e -D unfulfilled_lint_expectations, suíte workspace, formato, Rustdoc -D warnings e quatro índices, linhagem V1/V5/V15/V26 e reversa, SARIF e diff --check. Não escrever testes que apenas espelhem a sintaxe da mudança de owner. Execuções pesadas sequenciais sob MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não publicar release.
-
-### Responsabilidade exclusiva
-
-O match estático Html/Bundle continua no mesmo local: Html chama publish_html e Bundle chama publish com os mesmos empréstimos. Não inferir formato do nome de arquivo e não mudar publicação, wait, cache, server, snapshots ou status.
+The static Html/Bundle match stays in place: Html calls publish_html, Bundle calls
+publish with the same borrows. Never infer target from filename or change
+publication/wait/cache/server/snapshots/status. Carrier ownership is
+`00_nucleo/prompts/infra/watch.md`, privately imported by main; its transfer must
+preserve the real watch HTTP/reload/flags/error/last-snapshot and compile full-tree/
+byte-exact-assets/stdout/warnings/exit/no-publication-on-error controls specified
+in `00_nucleo/prompts/wiring/main.md`. Require real V12 RED and zero productive
+V12 afterward, diff-only transfer/import proof, build, strict workspace/all-target
+Clippy (-D warnings, -D unfulfilled_lint_expectations), workspace suite/fmt,
+Rustdoc -D warnings/four indexes, V1/V5/V15/V26/reverse lineage/SARIF/diff --check.
+No syntax-only owner-transfer tests. Heavy runs sequential, MemoryMax=12 GiB,
+MemorySwapMax=0, CARGO_BUILD_JOBS=1; no release publication.

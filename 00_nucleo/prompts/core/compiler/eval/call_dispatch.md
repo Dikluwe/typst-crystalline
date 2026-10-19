@@ -2,14 +2,17 @@
 Hash do Código: 8c0964d3
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:a922bbaa9c3b4c8435708af8e68b4557801f93ba09188768d48c711ba35a0c15
-- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/call_dispatch.rs`
-**Atomização interna:** a fachada preserva testes e interface; os Prompts L0 individuais em `00_nucleo/prompts/compiler/eval/call_dispatch/` possuem spans, argumentos, aplicação, campos de tipo, métodos de valor, traces/plugins, resolução de chamadas e métodos de Location. O contrato abaixo continua a fonte semântica comum.
+**Internal atomization:** this facade preserves tests/interface. Individual L0
+owners under `00_nucleo/prompts/core/compiler/eval/call_dispatch/` own spans,
+arguments, application, type fields, value methods, traces/plugins, call resolution
+and Location methods. Clauses below remain their normative boundary criteria.
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 ## Source evidence
@@ -191,69 +194,70 @@ local typed ledger identities, not stable pointer or repr oracles. Do not execut
 anything additionally, alter origins/flow, or add a normal-build API/branch.
 
 
-## D08B3-C2 — responsabilidade ratificada
+## Ratified Source trace visibility boundary
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Before deciding, table-origens-d08b3c2-2026-10-07/baseline.json.gz records HEAD/
+working tree/UTC/sources/argv/binaries at historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`. Existing ShowRecipe/Located/Realized
+operations have corresponding transparency; Source cannot leak as observable
+element. Human `confirmo`,2026-10-07, final approval record
+`lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`;
+nested contract.md is preapproval history.
 
-Tornar módulo de trace acessível somente à camada compiler para reutilização pura do trace tardio da Table. Nenhuma assinatura/API externa nova.
+Expose trace module only within compiler for pure reuse of late Table trace;
+no external signature/API. Exclusive owner/static dispatch/no I/O/new signature/
+trait/flag/eval-layout phase. Require C2/C/macro tests/recollections/build/lineage
+before certification.
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+## Single-evaluation evidence and boundary
 
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree;
+`lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz`
+records UTC/status/git diff HEAD --stat/sources/L0/config/hashes. Exactly2124
+preceding hashes were checked before baseline. before-probe.json.gz and
+before-math-probe.json.gz retain bilateral binaries/argv/fixtures/output.
+Historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, binary SHA
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+calc.abs/array.len/str.from-unicode measure receiver3/args2 versus1/1;
+module.measure/layout/within/before/after/func/has/body reach receiver4;
+mutating fallback args3 versus1. Missing methods execute argument panic before
+causal error. math.mat adds twice; prior array(1,) becomes(1,1,1) versus(1,1),
+while empty array masks defect with truncate. call.rs:70–118 loses receiver;
+collection_methods.rs:43 evaluates args before recognizing operation; contextual/
+content/selector reevaluate AST on fallthrough; method_dispatch.rs:247 discards
+args; invoke.rs:66–120 compensates by name. call_dispatch L0 already requires
+receiver/args once. pinned-source.json.gz pins upstream call.rs/methods.rs:
+interest is language order/effect/diagnostic, not copying Vm/storage/Rust equality.
 
-## Avaliação única em chamadas — 2026-10-17
+First fixture declared reserved or as function: invalid, archived in
+invalid-fixture-attempt with no call-effect credit. It revealed panic101 on
+invalid import, still open for parsing/import owner's causal correction. Valid
+baseline replaces only fixture.
 
-### Medição anterior à decisão
+### Exclusive facade refinement
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
-status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
-anterior foram verificados exatamente antes do baseline. before-probe.json.gz
-e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.
-Pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 do binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-calc.abs/array.len/str.from-unicode medem receiver=3/args=2 contra 1/1;
-module.measure/layout/within/before/after/func/has/body chegam a receiver=4;
-fallback mutante mede args=3 contra 1. Métodos ausentes executam panic de
-argumento antes do erro causal. math.mat soma duas vezes; array prévio (1,)
-fica (1,1,1) contra (1,1). Array vazio mascara o defeito com truncate.
-call.rs:70–118 perde receiver; collection_methods.rs:43 avalia args antes de
-reconhecer operação; contextual/content/selector reavaliam AST no fallthrough;
-method_dispatch.rs:247 descarta args; invoke.rs:66–120 compensa por nome.
-O L0 call_dispatch.md já exige receiver/args uma vez. pinned-source.json.gz
-fixa call.rs/methods.rs upstream: interesse é ordem/efeito/diagnóstico da
-linguagem, não copiar Vm, storage ou igualdade Rust.
+Update only internal deferred-collection-dispatcher import. Keep public exports,
+span types/modules/tests; no new callee/global AST.
 
-A primeira fixture declarava palavra reservada or como função: é inválida e
-está arquivada em invalid-fixture-attempt, sem crédito para efeitos de chamada.
-Ela revelou panic 101 em import inválido; manter aberto para correção causal
-própria no owner de parsing/import. O baseline válido substitui só a fixture.
+### Acceptance and limits
 
-### Decisão e responsabilidade exclusiva
+Consume pinned eval/call-once nucleus. Internal mechanics/parity ADR-0127
+continuous flow keeps pub fn/pub use/public structs; new parameters/returns/
+helpers remain crate/eval-visible, no public trait/field/default/phase. Supersede
+only conflicting historical internal-signature/name-compensation restrictions;
+keep Tekt extensions.
 
-Atualizar somente o import interno do dispatcher diferido de coleções; manter exports públicos, tipos de spans, módulos e testes. Não criar novo callee ou AST global.
+Co-located functional tests before code: receiver/args effects, mutating fallback,
+error before args, where/with/selector/collections preserved, matrix without
+truncating legitimate effect. Confirm real RED then GREEN. Compare valid bilateral
+cases/controls, every collection method's hits/misses, errors/spans/occurrences/
+Value complements. Residual diagnostic debt is not equality. Unhandled dispatch
+must retain receiver without running args callback. Count observed effects, not
+PDF bytes/Rust Eq/microbenchmark.
 
-Consumir o núcleo eval/call-once.toml pinado. Mudança mecânica interna e
-correção de paridade ADR-0127 em fluxo contínuo. Assinaturas pub fn/pub use e
-structs públicos não mudam; os parâmetros novos/retornos/helpers acima têm
-visibilidade crate/eval, sem novo trait público, campo público, default ou
-fase. Esta cláusula supersede somente restrições históricas conflitantes de
-assinatura interna e compensação por nome; manter extensões Tekt existentes.
-
-### Aceitação e limites
-
-Testes funcionais co-localizados antes do código: efeitos de receiver/args,
-fallback mutante, erro antes de args, where/with/selector/coleções preservados
-e matriz sem truncar efeito legítimo. Confirmar RED funcional e GREEN.
-Comparar casos bilaterais válidos e controles; hits e misses de todos os
-métodos de coleção, erros, spans/occurrences e complementos de Value. Não
-mascarar dívida residual de diagnóstico como igualdade. Testar dispatch
-Unhandled sem perder receiver ou executar callback de args; contar avaliações
-pelo efeito observado, não por bytes de PDF, Rust Eq ou microbenchmark.
-
-Ownership/V26 antes de resselo só dos owners do lote. Build, suíte workspace,
-Clippy all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc estrito,
-fmt, V1/V5/V15/V26 e reverse, SARIF diferencial sem erro novo. V19 uniforme
-continua informativo, com matriz de alternativas e relação de comportamento;
-sem supressão nem mudança de configuração. Comandos pesados sequenciais com
-12 GiB/high10GiB/swap0/jobs1. Não publicar/commit/merge/release nem declarar o
-objetivo global fechado por esta etapa.
+Ownership/V26 before restricted batch-owner reseal. Require build/full workspace,
+all-targets Clippy -D warnings/-D unfulfilled_lint_expectations, strict Rustdoc,
+fmt/V1/V5/V15/V26/reverse/differential SARIF without new error. Uniform V19 stays
+informational with alternative matrix/behavior relation; no suppression/config
+change. Heavy commands sequential under 12 GiB/High 10 GiB/swap0/jobs1. No publication/
+commit/merge/release or global-objective closure claim.

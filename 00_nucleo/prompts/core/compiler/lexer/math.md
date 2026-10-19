@@ -3,7 +3,7 @@ Hash do Código: c9ae54cd
 
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml sha256:aae80d538980eeec87b884712269e3b777fe44c0dae6b3503b5fa9ee4f9ad76f
+- 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml sha256:8ac65bcca69910f497bdf8a35ad55ac1fdeb628ae05aca729295caf22d213a31
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/lexer/math.rs`

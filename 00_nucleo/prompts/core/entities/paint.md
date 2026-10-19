@@ -1,100 +1,47 @@
 # Prompt L0 — `entities/paint`
 Hash do Código: 41cc159a
 
-## Módulo
-`01_core/src/entities/paint.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/paint.rs`
+**Governance:** ADR-0086, ADR-0083, ADR-0039.
 
-## Camada
-L1
+## Evidence and specified subset
 
-## Propósito
+The original Paint introduction compared upstream Solid/Gradient/Tiling with
+a deliberately Solid-only wrapper for Stroke.paint. Its complete chronology
+and reserved expansion comments remain in the archive. This owner has no
+recorded later normative expansion in that original text; actual richer
+consumers do not automatically authorize rewriting its contract.
 
-Wrapper enum sobre fontes de cor para preenchimentos e contornos.
-Substitui `Color` directo em `Stroke.paint` (P261) para abrir
-caminho a `Gradient`/`Tiling` (P262+ per ADR-0086).
+## Contract retained from the owner
 
-## Estrutura
+The declared subset is Paint::Solid(Color), deriving Debug/Clone/Copy/PartialEq.
+`solid(c: Color) -> Self` wraps c, `to_color(&self) -> Color` returns the solid
+color without panic, and From<Color> returns Solid. No external dependencies.
+Gradient/Tiling were comments reserving possible consumer-driven expansion,
+not unit placeholder variants. The specified facade is public module paint and
+`pub use paint::Paint`, owned by `00_nucleo/prompts/core/entities/mod.md`.
 
-```rust
-use crate::entities::color::Color;
+The original preserves TextStyle.fill: Option<Color>, Style::Fill(Color), and
+native color constructors returning Value::Color. It introduces no Value::Paint;
+Paint::Solid is an internal wrapper. Stroke.paint is the affected boundary,
+owned by `00_nucleo/prompts/core/entities/geometry.md`; the Color owner is
+`00_nucleo/prompts/core/entities/color.md`.
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Paint {
-    Solid(Color),
-    // Gradient(Gradient),  // P262 — comentário reserva
-    // Tiling(Tiling),      // futuro — comentário reserva
-}
+## Pending reconciliation and acceptance
 
-impl Paint {
-    pub fn solid(c: Color) -> Self {
-        Paint::Solid(c)
-    }
+Later Gradient/Tiling and text-paint requirements elsewhere require explicit
+owner reconciliation with this Solid-only contract. Do not remove those
+features or silently infer a replacement contract from implementation. The
+original scope excludes panicking unwrap_solid (replaced by total to_color
+within Solid-only), relative(), and as_decoration(); text gradients were a
+future candidate. These limits are preserved as unresolved owner coverage.
+Verify `Paint::solid(c).to_color() == c`, `Paint::from(c) == Paint::Solid(c)`,
+PartialEq/Copy and no external dependencies within the declared subset.
+This cleanup does not certify compatibility of that old subset with every
+current consumer.
 
-    pub fn to_color(&self) -> Color {
-        match self {
-            Paint::Solid(c) => *c,
-        }
-    }
-}
+## Historical record
 
-impl From<Color> for Paint {
-    fn from(c: Color) -> Self {
-        Paint::Solid(c)
-    }
-}
-```
-
-## Critérios de verificação
-
-- `Paint::solid(c).to_color() == c` para qualquer `Color`.
-- `Paint::from(c) == Paint::Solid(c)`.
-- `PartialEq` + `Copy` derivados (porque `Color` é Copy).
-- Zero dependências externas.
-
-## Sobre paridade vanilla
-
-Vanilla `Paint` tem 3 variants (`Solid` + `Gradient` + `Tiling`).
-P261 materializa **Solid only**; `Gradient`/`Tiling` são
-**comentários reserva** no enum, não unit placeholders. Expansão
-consumer-driven em P262+ per ADR-0086 §"Critério revisão".
-
-**Métodos vanilla não materializados** (scope-out ADR-0086):
-- `unwrap_solid()` panicking — substituído por `to_color()`
-  sem panic (Solid only garantido).
-- `relative()` — específico Gradient/Tiling.
-- `as_decoration()` — específico Gradient texto.
-
-## Sobre ADR-0039 (TextStyle SR — preservado)
-
-`TextStyle.fill: Option<Color>` permanece **literal preservado**.
-P261 **não migra** TextStyle.fill para `Option<Paint>`. Apenas
-`Stroke.paint` adapta. Refino futuro pode migrar TextStyle.fill
-se Gradient para texto for prioritário (P262+ Gradient text como
-extensão natural).
-
-## Sobre Style::Fill (preservado)
-
-`Style::Fill(Color)` (variant StyleChain) **inalterado**. P261
-não toca este caminho.
-
-## Sobre stdlib `native_rgb`/etc. (preservado)
-
-Stdlib funcs cor continuam retornar `Value::Color`. P261 **não
-introduz** `Value::Paint`. Paint::Solid é wrapper interno
-cristalino, transparente para user-facing.
-
-## Exposição em `entities/mod.rs`
-
-```rust
-pub mod paint;
-pub use paint::Paint;
-```
-
-## Cross-references
-
-- `entities/color.md` — `Color` tipo base (8 variants P257).
-- `entities/geometry.md` — `Stroke.paint: Paint` consumer P261.
-- ADR-0086 — Paint wrapper Solid only (IMPLEMENTADO P261).
-- ADR-0083 — Color paridade vanilla (análogo estrutural).
-- ADR-0039 — TextStyle SR (preservado).
-- Vanilla `lab/typst-original/.../visualize/paint.rs` (3 variants).
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/paint.md`. Historical observations are not a new parity certification.

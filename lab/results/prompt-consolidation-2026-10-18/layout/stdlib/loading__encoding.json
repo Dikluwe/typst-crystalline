@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated all structural projection, authoritative snapshot, ratified Raw presence and bounded caption naming clauses with exact field order/limits.",
+  "original_sha256": "5c73c7f87030431155b287dc1bc909605df322c3e294739389f74435e2e4f9b7",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

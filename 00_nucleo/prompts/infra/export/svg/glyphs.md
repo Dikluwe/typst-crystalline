@@ -6,7 +6,7 @@ Hash do Código: 7790632c
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
+- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417
 
 ## Consumer evidence
 
@@ -36,87 +36,45 @@ Exercise reordered fonts, same-GID distinct fonts, mathematical assemblies,
 fill/alpha, transforms and missing/invalid/fontless contexts.
 
 
-## Simplificações locais de Clippy — 2026-10-15
+## Immutable coordinate and effective outline inputs
 
-### Medição anterior à decisão
+### Evidence
 
-`03_infra/src/export/svg/glyphs.rs:319` declara mutável a coordenada y, que não recebe nova atribuição.
-`lab/results/construction/diagnostics/avisos-clippy-tekt-2026-10-15/before.json.gz`
-conserva fontes, owners, HEAD, working tree não commitado, UTC e diffstat;
-selected-red.json identifica os diagnósticos do compilador antes da edição.
-São expressões Rust equivalentes, sem nova medição de paridade upstream.
+`avisos-clippy-tekt-2026-10-15/before.json.gz` retains sources/owners/HEAD/tree/UTC/
+diffstat; selected-red.json records glyphs.rs:319 mutable y without reassignment.
+This is equivalent Rust expression maintenance, no new parity. Preserve y value/
+offsets/advances/Y inversion/fill/definition identity, make only y immutable.
+Continuous ADR-0127: no public/default/phase, suppression or syntax-mirror tests;
+selected GREEN, existing suite/build/all-target Clippy/fmt/doc/lineage/scoped seals.
 
-### Responsabilidade e aceitação
+`too-many-arguments-2026-10-15/before.json.gz`/classification.json retains full
+source/prior L0/signatures/hashes/UTC/status/diffstat, HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, dirty tree captured
+2026-10-15T16:39:18.873477+00:00, reconfirmed spans/contracts. render_text_shaped
+:286 has nine arguments (threshold seven), historical C066; outline-only leaf
+ignores _text, HTML textual route is chosen earlier with separate writer. This
+is private structure, no functional-defect/new parity claim.
+clippy-aridade-interna-2026-10-16/before.json.gz retains checked sources/callers/L0/
+spans/28-warning inventory/hashes/HEAD/tree/UTC/diffstat. It materializes the six
+named corrections, superseding earlier pending status only for them.
 
-Manter y imutável no escritor de glifos. Preservar seu valor, offsets, avanços, inversão de Y, preenchimento e identidade das definições.
+### Current private correction and acceptance
 
-Manutenção interna em fluxo contínuo ADR-0127: conservar contratos públicos,
-defaults e fases. Não adicionar supressões nem testes que espelhem sintaxe.
-O gate dos avisos selecionados deve passar a GREEN; validar a suíte existente,
-build, Clippy all-targets, formato, documentação e linhagem com resselo restrito.
+Remove only _text from pub(super) outline helper and its dispatcher argument,
+keeping eight effective face/outline/scale/definition inputs and unchanged body.
+Then only this leaf may use
+`#[expect(clippy::too_many_arguments, reason="C066: Leaf SVG usa oito inputs efetivos de contorno, face, escala e definições; texto HTML segue writer separado")]`.
+Never remove text from FrameItem/public API/HTML writer; preserve upem==0/fallback/
+GIDs/defs/scale/offsets/advances. Residual expectation depends on dead-argument
+removal, no unconditional suppression. Item/lint only, no module/impl/crate/global
+threshold, other lint or unfulfilled suppression; remove/review if no longer needed.
 
-
-## Aridade das fronteiras — `clippy::too_many_arguments`
-
-### Evidência anterior à decisão
-
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
-
-- `C066`: `03_infra/src/export/svg/glyphs.rs:286`, `render_text_shaped`, 9 argumentos contados pelo Clippy (limiar 7).
-
-### Prescrição exclusiva por função
-
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
-
-#### `C066` — `render_text_shaped`: Correção interna prescrita
-
-O helper SVG de contornos ignora _text; o caminho HTML textual é escolhido antes no dispatcher e usa outro writer. Remover somente o argumento morto; os oito inputs restantes conservam face efetiva, glyph definitions e escala, com exceção pontual residual.
-
-Remover somente _text do leaf SVG de contornos e seu argumento no dispatcher. Após passar de nove para oito inputs, autorizar expect local para os oito inputs efetivos.
-
-Aceitação: O caminho HTML continua emitindo o texto original antes do leaf; o SVG conserva glyph identity/escala/offsets e definições. Não remover texto do FrameItem ou da API.
-
-### Limite da exceção
-
-Autorizar somente `#[expect(clippy::too_many_arguments, reason = "...")]` no item
-nominal acima, com o motivo arquitetural indicado. Não aplicar no módulo, impl,
-crate ou configuração global; não elevar o limiar nem abranger outro lint.
-Nos casos com remoção de argumento morto, a exceção residual depende dessa correção.
-Se a função deixar de exceder o limiar, retirar/revisar a expectativa; não silenciar
-`unfulfilled_lint_expectations`. Esta permissão específica supera proibições
-genéricas de supressão em seções anteriores somente para este lint e os itens
-nominais justificados aqui. As demais obrigações de correção permanecem.
-
-### Fronteira de materialização
-
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
-
-
-## Aridade interna — materialização de seis casos, 2026-10-16
-
-### Medição anterior à decisão
-
-As fontes, chamadores, cláusulas vigentes, spans e inventário de 28 avisos foram conferidos antes da decisão. `lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/before.json.gz` guarda fontes/L0 completos, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A auditoria anterior classifica estes casos como correção; não são exceções diretas. O RED deve observar as aridades atuais antes de alterações; controles funcionais existentes serão corridos antes/depois. É refatoração de representação privada, sem nova paridade ou ganho de performance medido.
-
-### Responsabilidade exclusiva e aceitação
-
-C066: retirar somente _text do helper pub(super) de contornos, mantendo oito inputs e o corpo atual. Depois do cleanup, usar #[expect(clippy::too_many_arguments, reason="C066: Leaf SVG usa oito inputs efetivos de contorno, face, escala e definições; texto HTML segue writer separado")]. Não retirar texto do writer HTML, da entidade ou das APIs públicas; manter upem==0, fallback, glyph IDs, defs, escala e avanços.
-
-Fluxo contínuo ADR-0127: nenhuma API externamente pública, default do produto, fase, dependência ou semântica é alterada. Tipos/constructors novos ficam internos; contratos públicos existentes permanecem. Este adendo concretiza somente os seis casos nominais; substitui proibições genéricas de supressão apenas para as duas expectativas residuais condicionadas C047/C066 após remover _text. As outras cinco aridades a corrigir continuam visíveis. Não elevar limiar ou silenciar no módulo/impl/crate. L0 precede código e resselo restrito. Confirmar preservação das assinaturas externamente públicas, campos/valores transportados, controles PNG/SVG/PDF, precedência/diagnósticos/recursos/MCIDs e ausência de mutações globais. Usar os testes existentes sem relaxar fixtures/esperados; não escrever testes que espelhem os carriers privados. Revalidar suíte workspace completa, build, Clippy all-targets e unfulfilled_lint_expectations, Rustdoc, fmt e linhagem estrita/reversa, mantendo 12 GiB, swap zero e um job.
+Continuous ADR-0127 no external public/default/phase/dependency/semantics change.
+New carriers/constructors private; generic bans are superseded only for the two
+historical conditional C047/C066 residuals after _text removal. Other five correction
+arities remain visible. L0 first/caller-L0 before code/scoped seals. Public/external
+compatibility needs fresh concrete approval. Real selected RED before code/GREEN
+after, preserve all functional fixtures/expectations/tolerances and values/calls/
+PNG-SVG-PDF/preference/diagnostic/resource/MCID behavior, no global mutation or
+carrier-mirror tests. Full workspace suite/build/all-target Clippy/unfulfilled
+expectations/Rustdoc/fmt/strict+reverse lineage under12GiB/zero swap/one job.

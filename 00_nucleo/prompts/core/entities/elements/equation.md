@@ -2,160 +2,76 @@
 Hash do Código: b23dc783
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/equation.rs`
-**Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. Contentor **assimétrico** — ver `map_*`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/equation.rs`
 
-> **Fronteira: LOCATÁVEL** (P186B, M6 eixo 2 ADR-0068). Absorve o braço de
-> `extract_payload` no trait (precedente Heading/Lote 6): `element_kind` →
-> `ElementKind::Equation`, `to_payload` → `ElementPayload::Equation { block,
-> counter_update: Step }`. O consumo por `ElementPayload` (`from_tags` arm
-> Equation, gate `block && numbering_active:equation`) é **inalterado**
-> (matcheia o payload, não o `Content`).
->
-> **P456 (Numeração de equações):** o padrão de numeração vive **só na chain**
-> (`custom("equation.numbering") = Value::Str(pattern)`), transportado por
-> `Content::Styled` — análogo a `figure.numbering` (P365/P454). `EquationElem`
-> **não** tem campo `numbering`; o gate efetivo é `block && pattern.is_some()`
-> no consumidor (`introspect.rs` + `layout/equation.rs`).
+## Evidence before specification
 
-> **Fonte de paridade (P1031)** — doc comments do vanilla ratificado (`e0e8ca4d`),
-> `crates/typst-library/src/math/equation.rs`, publicados em
-> `typst.app/docs/reference/math/equation/`:
->
-> - **O gate `block &&` é literal.** `equation.rs:63-64`, campo `numbering`:
->   *"How to number **block-level** equations. Accepts a numbering pattern or function
->   taking a single number."* A restrição a block-level está no próprio texto da
->   documentação — não é inferência do cristalino.
-> - **`block`** — `equation.rs:59-61`: *"Whether the equation is displayed as a separate
->   block."*, `#[default(false)]`. Confere com o campo `pub block: bool` do struct.
-> - **`pattern.is_some()`** — `pub numbering: Option<Numbering>` (`equation.rs:75`); o
->   exemplo do doc comment (`equation.rs:66-74`) mostra a forma de superfície
->   `#set math.equation(numbering: "(1)")`, que é o que a chain transporta.
->
-> **Divergência mecânica declarada (não é achado)**: o vanilla guarda `numbering` como campo
-> do `EquationElem`; o cristalino guarda-o só na chain. É estrutura de dados, logo diverge
-> de propósito (ADR-0107) desde que a superfície `#set math.equation(numbering: …)` e o gate
-> block-level se mantenham. O que a documentação sustenta é o **gate**, não a localização do
-> dado — distinção registada para não a confundir com paridade estrutural.
+Historical upstream `e0e8ca4d:crates/typst-library/src/math/equation.rs:59–75` documents block default false and numbering of block-level equations through a pattern or function, with optional Numbering and set math.equation(numbering: "(1)"). This supports the language gate, not mandatory storage in the element. Upstream supplement synthesis at equation.rs:94–110,173–188 and tagged Formula alt consumption at typst-pdf/tags/resolve/mod.rs:303–306 likewise identify observable obligations without requiring data-to-exporter coupling.
 
----
-
-## Struct
+## Carrier and public morphology
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct EquationElem {
-    pub body:  Content,            // era Box<Content>
+    pub body: Content,
     pub block: bool,
 }
 ```
 
-`Content::Equation { body, block }` → `Content::Equation(Arc<EquationElem>)`.
-Construtor ergonómico: `Content::equation(body, block)`. **Deriva `Hash`**
-(`Content` tem `impl Hash` manual; `bool: Hash`).
+Use Content::Equation(Arc<EquationElem>) and Content::equation(body,block). Both `$...$` syntax and math.equation(body,block:false) produce the same morphology. Body is required positional Content; block is boolean default false. repr omits false block and places true block before body. Derived equality/hash cover body/block.
 
-Forma de transporte numerada (P364/P456):
-`Content::equation_numbered(body, block)` produz `Content::Styled` com
-`custom("equation.numbering", Value::Str("(1)"))`.
+Numbering stays in style chain `equation.numbering`, not an artificial struct field. Public numbering accepts string/function/none; omission inherits outer style and explicit none disables. Active numbering requires block && numbering active; do not reduce a Func to textual pattern. equation_numbered wraps Content::Styled with custom("equation.numbering",Value::Str("(1)")). This supersedes the original producer-only phase's rejection of numbering.
 
-## P1140.3-B — produtor público e incompletude faseada
+number-align is validated Align2D stored in `equation.number-align`; omission resolves to end+horizon. Its constructor wrapper is visible in repr without changing structural element equality. Without active numbering it is inert and does not move the body. Supplement remains `equation.supplement`, synthesized by Location for references; callbacks receive equivalent public content/block/body/effective styles. Alt remains `equation.alt`; constructor/field access/layout preserve public morphology, with export semantics delegated to a separate frame wrapper. The old absence-of-structure-tree observation is historical, not a current global prohibition. These later clauses complete the originally named deferred producer fields without adding fields here.
 
-O elemento passa a ter dois produtores públicos da mesma morfologia: a
-sintaxe `$...$` e `math.equation(body, block: false)`. Ambos delegam a
-`Content::equation(body, block)`. `body` é `Content` posicional obrigatório;
-`block` é booleano e tem default `false`. O `repr` omite `block` quando falso
-e o inclui antes de `body` quando verdadeiro.
+## Element contract and acceptance
 
-Esta fase é **deliberadamente incompleta**: `numbering`, `number-align`,
-`supplement` e `alt` serão completados pelo **P1140.4**, com representação e
-consumidores próprios. Até lá, a nativa deve rejeitá-los explicitamente; não
-pode descartá-los nem assá-los no `body`. O transporte de `numbering` por
-`Content::Styled` para set-rules permanece uma divergência mecânica autorizada.
+Equation is locatable: kind Equation and corresponding Equation payload retain block and automatic unit counter update. The old unit Step notation is historical; the ratified CounterUpdate owner supplies its positive-level action shape. The payload consumer retains the effective block/numbering gate and inspects payload rather than Content.
 
-## P1140.4-A — numbering permanece fora do struct
+plain_text is body text inline, or newline+body+newline for block. is_empty stays the default false, never delegates to body. map_content recurses through body retaining block. map_text is terminal and returns self; preserve the combined terminal hub arm rather than splitting it into a recursive text path. get_field's base default is None; public styled properties use their dedicated projection owner. No numbering/number-align/supplement/alt field is added to Hash/PartialEq/maps here.
 
-O contrato público aceita `numbering: str | function | none`, mas o valor
-continua mecanicamente na style chain `equation.numbering`. `EquationElem`
-permanece com `body` e `block`; seu `Hash`, `PartialEq`, `map_content` e
-`map_text` não ganham campo artificial. `none` desativa explicitamente;
-ausência herda a chain exterior. O gate é `block && numbering ativo`. O payload
-não reduz `Func` a pattern textual.
+Preserve constructor/repr, block numbering, wrapper morphology, explicit-none versus inherited numbering, inert unnumbered alignment, supplement callback morphology and alt transport tests. Do not equate upstream struct layout with language parity. The pinned internal no-change refinement below preserves this traversal asymmetry and does not expand any public approval.
 
-## P1140.4-B — number-align permanece fora do struct
+## Container reuse without replacement
 
-`number-align` é propriedade settable de apresentação da numeração, não dado
-intrínseco do corpo matemático. O contrato público aceita `Align2D` validado,
-mas o transporte mecânico permanece na style chain sob
-`equation.number-align`. `EquationElem` continua exatamente com `body` e
-`block`; `Hash`, `PartialEq`, `map_content` e `map_text` não ganham campo.
+Evidence before specification:
+`lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz`
+records HEAD, working tree, UTC, complete sources, owners, and release.
+`01_core/src/entities/elements/equation.rs:58` preserves traversal but materializes the element even when
+descendants do not change. `01_core/src/entities/content/traversal.rs:111–192`
+unconditionally wraps results from these owners in Some. This is mechanical
+cost; language behavior and element semantic identity remain preserved.
+Refutable inference: propagating explicit absence of change reduces allocations
+and temporary retention. Probes and timing controls may refute that gain.
 
-O wrapper do construtor é morfologicamente observável no `repr`, mas não muda
-a igualdade estrutural do elemento. O default ausente resolve no consumidor
-como `end + horizon`. Em equação sem numeração ativa o valor é inerte e não
-altera a posição do corpo.
+Internal refinement under ADR-0127: provide only a crate-private
+map_content_if_changed helper for elements already owned by this consumer.
+Return None only when no actually visited child was replaced; childless
+terminals return None. Transform children once in the existing map_content
+order and stop at the first error. A callback Some, even containing equal
+content, always means change. Preserve every field, value, explicit presence,
+omitted/none/present slot, flag, span, and metadata item. Do not use equality,
+hash, or address as a certificate. Allocate vectors/rows only after the first
+changed child/row; unchanged siblings retain shared content. Public signatures
+and trait methods remain unchanged, with internal adaptation to this proof;
+map_content_pre and map_text retain their previous contracts. This refinement
+does not expand any ratification of historically proposed contracts.
 
-## `impl Element for EquationElem`
+Specific logic remains with this owner; Content's exhaustive match only
+delegates statically. No vtable, new enum/fields, global state, I/O, or new
+phase. Acceptance requires RED→GREEN for reuse, order, errors, equal-value
+replacement, optional fields/slots, and metadata; core suite, builds and lint;
+text/morphology/render/query qualification against the previous release and
+pinned vanilla; and paired allocation/timing measurements with provenance.
+Do not infer a universal improvement from isolated cases.
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | **custom** (`content.rs:1736`): `if self.block { format!("\n{}\n", body.plain_text()) } else { body.plain_text() }` |
-| `is_empty` | **default `false`** — `Equation` cai em `_ => false` no hub; **não delega** ao body. Preservar (não override). Precedente `Transform`/`Place` L9. |
-| `map_content` | **recursivo** no `body`, preserva `block` (`content.rs:2107`) |
-| `map_text` | **TERMINAL** — `Equation` está no arm `\|`-combinado de `map_text` (`content.rs:2466`): math structural não desce em texto. **Assimetria preservada**: `map_content` recursa, `map_text` devolve `self`. |
-| `get_field` | default `None` |
-| `element_kind` | `Some(ElementKind::Equation)` |
-| `to_payload` | `Some(ElementPayload::Equation { block: self.block, counter_update: CounterUpdate::Step })` (absorve `extract_payload.rs:90`) |
+The shared proof of absence of change follows the pinned nucleus claims.
+This prompt and its sole consumer still own the algorithm, transformed fields,
+visit order, and their specific preservation obligations.
 
-> **Assimetria `map_content` ≠ `map_text`**: única no roteiro até agora. O hub
-> tinha arm próprio em `map_content` (recursa) e `Equation` no `\|`-terminal de
-> `map_text`. O `…Elem` materializa ambos; o arm de `map_text` no hub
-> permanece **combinado** (`{ .. }` → `(_)`, sem split — sem binding).
+## Historical record
 
-## `eq`
-
-`#[derive(PartialEq)]` compara `body`/`block` (paridade `content.rs:1883`).
-
-## P1140.4-C — suplemento permanece fora do dado
-
-### Medição antes da decisão
-
-O vanilla armazena `supplement` no elemento (`math/equation.rs:94-110`), mas o
-observável é sua síntese por equação/locale (`equation.rs:173-188`) e consumo
-em referências. O cristalino já transporta outros campos lexicalmente.
-
-### Decisão
-
-`EquationElem` permanece exatamente `{ body, block }`. O suplemento efetivo é
-transportado por `custom("equation.supplement")` e materializado por Location
-na introspecção. A divergência estrutural é mecânica (ADR-0107); a callback
-recebe morfologia pública equivalente (`content`, `block`, `body` e styles
-públicos efetivos).
-
-## P1140.5-A — `alt` sem acoplamento dado→exportador
-
-### Medição antes da decisão
-
-Vanilla guarda `alt` no elemento, mas o observável final é a tag Formula do
-PDF (`typst-pdf/tags/resolve/mod.rs:303-306`). No cristalino não existe ainda
-structure tree; copiar o campo para o struct não criaria o consumidor.
-
-### Decisão
-
-`EquationElem` continua `{ body, block }`. O valor efetivo vem de
-`custom("equation.alt")`; constructor, field access e layout preservam a
-morfologia pública por esse canal. A semântica de exportação pertence a um
-wrapper de frame próprio, não ao elemento de domínio nem ao texto visual.
-
-## Reuso de contêineres sem substituição — 2026-10-10
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/equation.rs:58` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
-
-Refinamento interno ADR-0127: disponibilizar somente helper crate-private map_content_if_changed nos elementos já owned por este consumer. Retornar None apenas se nenhum filho efetivamente visitado foi substituído; terminais sem filhos retornam None. Transformar filhos na mesma ordem do map_content vigente, uma única vez, e interromper no primeiro erro. Some do callback, inclusive conteúdo igual, sempre é mudança. Preservar todos os campos, valores, presença explícita, slots omitidos/none/presentes, flags, spans e metadados; não usar igualdade/hash/endereço como certificado. Vetores/linhas só alocam após o primeiro filho/linha alterado; os irmãos conservam seu conteúdo compartilhado. Assinaturas públicas e métodos de trait ficam iguais, com adaptação interna à nova prova; map_content_pre e map_text mantêm seu contrato anterior. Nenhuma ratificação de contratos históricos propostos é ampliada por este refinamento.
-
-A lógica específica permanece neste owner; o match exaustivo em Content apenas delega estaticamente. Sem vtable, enum novo, campos novos, estado global, I/O ou fase nova. Aceitação: RED→GREEN de reuso, ordem, erro, substituição igual, opcionais/slots e metadados; suite core, builds e lint, qualificação de texto/morfologia/render/query contra release anterior e vanilla pinado; alocações e tempos pareados com proveniência. Não alegar ganho universal a partir de casos isolados.
-
-
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/equation.md` preserves the original evidence and chronology.

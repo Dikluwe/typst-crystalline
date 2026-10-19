@@ -2,62 +2,51 @@
 Hash do Código: 940ecf77
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/decimal-rounding.toml sha256:46c39d0f408e354d91f39bd6f78bd5b77707b4d9f982b3dff9bfa9140d1ecba4
+- 00_nucleo/prompts/_nuclei/decimal-rounding.toml sha256:dcf8dc8e474613bab33bbf5dff39124b8711f2facb85b731e5d63363a347e6d3
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/repr/measure.rs`. No HEAD `6b147bd213e07e1dc896a8e798b84bf4d8dbbdcb` e árvore limpa, `01_core/src/compiler/eval/repr.rs:202-329` possui o comportamento separado. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-repr-2026-09-30-before.json.gz`. O objetivo é pesquisa algorítmica por comportamento, sem ganho de desempenho presumido.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/eval/repr/measure.rs`. At HEAD `6b147bd213e07e1dc896a8e798b84bf4d8dbbdcb` with a clean tree, `01_core/src/compiler/eval/repr.rs:202-329` contains the separated behavior. SHA-256, time and state are recorded in `lab/results/construction/diagnostics/atomizacao-repr-2026-09-30-before.json.gz`. The purpose is to make algorithms discoverable by behavior, with no presumed performance gains.
 
-## Medição de arredondamento (2026-10-13)
+## Rounded measure evidence
 
-No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado, `01_core/src/compiler/eval/repr/measure.rs:72-78` multiplica
-sempre pela potência decimal antes de arredondar. No binário medido,
-`repr(1e308em)`, graus e percentagens grandes tornam-se infinitos e seis
-sondas de `eval(repr(value), mode: "code")` perdem o valor; as mesmas
-sondas preservam tipo e valor no oráculo pinado
-`9f2b6e8715237cb086899a42873660fe744622e8`.
-Snapshots, UTC, diffstat, hashes e sondas anteriores à decisão:
+At HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+repr/measure.rs:72–78 always multiplies by a decimal power before rounding.
+Measured repr(1e308em), large degrees and percentages become infinite; six
+eval(repr(value), mode:"code") probes lose the value, while historical oracle
+pin `9f2b6e8715237cb086899a42873660fe744622e8` preserves type/value. Snapshots,
+UTC/diffstat/hashes/prior probes are in
 `lab/results/construction/diagnostics/representacao-medidas-ci-2026-10-13/before.json.gz`
-e `probe-before.json` no arquivo `evidence.json.gz` desse diretório.
-A fonte upstream `lab/typst-original/crates/typst-utils/src/round.rs:26-60`
-protege mantissa preenchida, precisões extremas e escala negativa;
-`lab/typst-original/crates/typst-library/src/foundations/repr.rs:95-130`
-aplica esse arredondamento à representação com unidade e componentes.
+and evidence.json.gz's probe-before.json. Upstream typst-utils/src/round.rs:26–60
+guards filled mantissas, extreme precision and negative scaling;
+foundations/repr.rs:95–130 uses it for unit/component representation.
 
-Comprimentos `1e307pt` não são prova bilateral para esta correção:
-`lab/typst-original/crates/typst-library/src/layout/abs.rs:32,265-273`
-transborda ao multiplicar o valor por 127 na construção; a divisão por
-`1pt` já é não finita no oráculo e finita no cristalino antes de `repr`.
-Essa diferença de construção permanece fora deste escopo. A forma `0pt`
-de `float.nan * 1em` também não demonstra a política do formatador isolado.
+1e307pt lengths are not bilateral evidence for this correction: upstream
+layout/abs.rs:32,265–273 overflows by multiplying 127 during construction;
+division by 1pt is already nonfinite in the oracle but finite in Crystalline
+before repr. That construction difference remains outside scope. The 0pt form
+of float.nan * 1em likewise does not isolate formatter policy.
 
-## Decisão e contrato de arredondamento
+## Exclusive formatting and rounding contract
 
-Correção interna de paridade sem nova assinatura, default ou fase (fluxo
-contínuo ADR-0127). Aplicar as claims do núcleo decimal compartilhado;
-este owner formata a representação e conserva sua política própria:
-NaN e infinitos de entrada passam inalterados pelo arredondamento; overflow
-real do resultado continua sendo infinito, representado na forma existente.
-A precisão interna continua i32; os limites são tratados antes de negar
-precisão, incluindo i32::MIN. Os chamadores produtivos mantêm duas casas
-com unidade e três para componentes. Não introduzir I/O, dependência nova,
-API pública ou função compartilhada com calc.
+Format Duration, Relative, math.lr size, Length, Ratio and Angle with rounding/
+units. Preserve sign, explicit parts, zeros and current nonfinite forms. Detailed
+historical parity evidence remains in `00_nucleo/prompts/core/compiler/eval/repr.md`;
+extraction changes no output/public signature/phase and permits no I/O or mutable
+global state.
 
+This ADR-0127 internal correction adds no signature/default/phase. Apply the
+pinned shared decimal claims while preserving this formatter's policy: input
+NaN/infinity pass through rounding unchanged; real result overflow remains
+infinity in its existing representation. Internal precision remains i32 and
+limits are handled before negation, including i32::MIN. Productive callers keep
+two decimals with units and three for components. Add no I/O/dependency/public
+API or shared function with calc.
 
-## Contrato
+## Acceptance
 
-Formatar Duration, Relative, tamanho math.lr, Length, Ratio e Angle, incluindo arredondamento e unidades. Preservar sinal, partes explícitas, zeros e formas não finitas segundo a representação vigente.
-
-O contrato detalhado e as evidências históricas de paridade continuam em `00_nucleo/prompts/core/compiler/eval/repr.md`; a extração não muda saída, assinatura pública ou fase. Não há I/O nem estado global mutável.
-
-## Aceitação
-
-Preservar testes de morfologia de linguagem, compilar e passar `crystalline-lint .` com owner e hash válidos.
-
-Regressões: a representação de medidas finitas grandes deve continuar
-finita e preservar o valor quando reavaliada; confirmar as seis sondas
-RED→GREEN contra o oráculo e conservar o controle em 2^53. Cobrir também
-componentes, precisão i32 extrema, escala -308, zero com sinal, empate,
-formas não finitas e overflow real. A identidade de bytes Rust ou do
-algoritmo não é critério de aceitação da linguagem.
+Preserve language morphology tests, build and valid owner/hash lint. Large
+finite measures remain finite and preserve value after reevaluation; confirm
+all six oracle RED→GREEN probes and retain the 2^53 control. Cover components,
+extreme i32 precision, scale -308, signed zero, ties, nonfinite forms and true
+overflow. Rust bytes/algorithm identity is not language acceptance.

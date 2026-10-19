@@ -2,79 +2,18 @@
 Hash do Código: de54ac83
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_limits_override.rs`
-**Origem**: Passo 992 (achado externo 2026-08-07, secção 32 do documento
-estendido). Trait, regras partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`.
-**Não-locatável** (paralelo P296/P298/P772y —
-`MathAccent`/`MathCancel`/`MathOp`/`MathClassOverride`). Mecanismo vanilla:
-**dois** elementos separados, `ScriptsElem { #[required] body: Content }` e
-`LimitsElem { #[required] body: Content, #[default(true)] inline: bool }`
-(`typst-library/src/math/attach.rs`).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/math_limits_override.rs`
 
----
+## Evidence before specification
 
-## Contexto
+Upstream math/attach.rs distinguishes ScriptsElem(body) and LimitsElem(body,inline:true); math IR resolve_scripts/resolve_limits normally resolve the body and then override limit placement. The documented examples in `lab/corpus/docs/math/attach.typ:18–28` and archived tests at math/layout/tests.rs:7560–7765 establish scripts(sum)_1^2 versus sum_1^2, limits(A)_1^2 versus A_1^2, inline mode, class transparency and default italic. In particular `p992_limits_forca_empilhamento_mesmo_inline`, `p992_limits_inline_false_respeita_modo`, `p992_scripts_nao_muda_classe_do_body` and `p992_limits_preserva_italico_por_defeito` preserve those controls. The language requires these effects, not two distinct Rust structs.
 
-`scripts(body)` força `body`, quando usado como base de um `MathAttach`
-(`^`/`_`), a exibir os scripts **sempre lateralmente** (nunca empilhados),
-mesmo que `body` seja naturalmente um operador grande ou função de limite
-(`scripts(sum)_1^2 != sum_1^2`, doc vanilla). `limits(body, inline: true)`
-força o oposto — scripts **sempre empilhados** — para qualquer base,
-mesmo uma que não qualificaria naturalmente (`limits(A)_1^2 != A_1^2`).
-`inline` (só significativo quando a intenção é empilhar) controla se o
-empilhamento se aplica também fora de modo bloco/display — vanilla
-`resolve_limits`: `inline=true → Limits::Always` (empilha sempre,
-inline incluído); `inline=false → Limits::Display` (só em bloco, mesma
-regra usada por omissão para um operador grande sem wrapper).
+The later named-argument probes `/tmp/e1..e3.typ` measured `error: unexpected argument: foo` for scripts/limits(A,foo:1), and `error: expected boolean, found content` for limits(A,inline:5) in the math-native context where 5 evaluates to Content. The owner requested that repair on 2026-08-11. Errors are language observables; silently dropping named inputs is not acceptable.
 
-> **Fonte de paridade**: documentação
-> `https://typst.app/docs/reference/math/attach/#functions-scripts` e
-> `.../#functions-limits` (corpus
-> `lab/corpus/docs/math/attach.typ:18-28`); guardas end-to-end em
-> `01_core/src/compiler/math/layout/tests.rs:7560-7760`
-> (`p992_tests`).
-
-**Cristalino consolida os dois elementos vanilla num só** (ADR-0107 —
-paridade é com a língua, não com a mecânica): `MathLimitsOverrideElem {
-body, limits: bool, inline: bool }`, onde `limits` é o discriminador
-scripts()=false / limits()=true, e `inline` só é lido quando
-`limits == true` (paralelo à consolidação já feita para `binom()` via
-`math_matrix`, P899 Parte D). `scripts(body)` constrói com
-`limits: false` (o campo `inline` fica `true` por convenção mas é
-ignorado — ver fórmula em `math/layout/attach.md` §P992).
-
-> **Fonte de paridade**: mapeamento `inline=true/false` ↔ `Limits::Always/Display`
-> confirmado no vanilla
-> `lab/typst-original/crates/typst-library/src/math/attach.rs`
-> (`LimitsElem::set_limits`) e
-> `lab/typst-original/crates/typst-layout/src/math/ir/resolve.rs`
-> (`resolve_limits`); guardas em
-> `01_core/src/compiler/math/layout/tests.rs:7632-7683`
-> (`p992_limits_forca_empilhamento_mesmo_inline` e
-> `p992_limits_inline_false_respeita_modo`).
-
-Não afecta `MathClass`/espaçonto do `body` (vanilla `resolve_scripts`/
-`resolve_limits`: resolvem o `body` normalmente, só sobrescrevem
-`item.set_limits(...)` no item já resolvido) — **diferente** de
-`MathClassOverride`, que força a classe. `body` é layoutado normalmente
-via `MathLayouter::layout_node` e recursa em `apply_math_default` (ao
-contrário de `MathClassOverride`, que não recursa — ver
-`math/layout/_comum.md` §P992: o caso de uso canónico de `limits()`/
-`scripts()` inclui bases de 1 letra como `A`, que precisam do itálico por
-defeito).
-
-> **Fonte de paridade**: vanilla
-> `lab/typst-original/crates/typst-layout/src/math/ir/resolve.rs`
-> (`resolve_scripts`/`resolve_limits`); guarda de transparência de classe
-> em `01_core/src/compiler/math/layout/tests.rs:7765`
-> (`p992_scripts_nao_muda_classe_do_body`) e de itálico por defeito em
-> `:7736` (`p992_limits_preserva_italico_por_defeito`).
-
----
-
-## Struct
+## Carrier and semantics
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -86,98 +25,57 @@ pub struct MathLimitsOverrideElem {
 }
 ```
 
-`Content::MathLimitsOverride(Arc<MathLimitsOverrideElem>)`.
-Construtor ergonómico: `Content::math_limits_override(body: Content, limits:
-bool, inline: bool, inline_explicit: bool)`.
+Use Content::MathLimitsOverride(Arc<MathLimitsOverrideElem>) and `Content::math_limits_override(body: Content, limits: bool, inline: bool, inline_explicit: bool)`. scripts uses limits=false, conventional inline=true (ignored) and inline_explicit=false because it has no inline argument. limits uses limits=true; inline=true forces stacked scripts even inline, while false stacks only in block/display mode. scripts always places them laterally. Do not change the body's math class or spacing.
 
-### P1425 — presença morfológica de `inline` (APROVADO no gate ADR-0127)
+inline_explicit distinguishes omission from an explicit value, including true equal to default. Bare and qualified math.limits derive it from causal argument presence, never by comparing value to default. The public field/constructor gate was confirmed on 2026-09-16 in the original P1425 record. Preserve it in walkers/equality/reconstruction; it only controls repr emission of inline, never geometry/class/emptiness/text.
 
-`inline_explicit` distingue omissão do named de presença explícita, inclusive
-quando o valor fornecido é igual ao default `true`. A sintaxe bare e
-`math.limits` qualificado preenchem o bit a partir da lista causal de
-argumentos. `scripts` usa sempre `false`, pois `inline` não integra sua
-assinatura.
+## Element, dispatch and acceptance
 
-O bit não altera geometria, classe, vazio ou texto. Walkers, igualdade e toda
-reconstrução preservam-no. A `repr` usa-o exclusivamente para decidir se emite
-`inline: <bool>`. Não inferir presença comparando o valor com o default.
+plain_text and is_empty delegate to body. map_content recursively transforms body, preserving all three flags; map_text is terminal. get_field, element_kind and to_payload default to None: this wrapper is nonlocatable. Derived structural equality/hash include body and every flag.
 
-Este campo público e a assinatura do constructor foram confirmados pelo dono
-no gate P1425 em 2026-09-16.
+The Content hub delegates Debug/Display (`math.limits({:?})`), construction, plain_text, equality and recursive/terminal map paths. Introspection treats it as nonlocatable/terminal; outside math, layout uses layout_math_fallback. repr distinguishes `limits(<repr(body)>, inline: <bool>)` with the later presence rule from `scripts(<repr(body)>)`. Infra query helpers treat it as terminal without own text. These cross-owner paths remain independently specified.
 
-## `impl Element for MathLimitsOverrideElem`
+Unlike the historical MathClassOverride default-italic gap, apply_math_default recurses into this body's single-letter bases through normal layout_node. base_math_class/node_math_class remain body-transparent. apply_math_style for bb/bold retains its previously scoped unchanged fallback; this contract does not silently close that gap.
 
-| método | comportamento |
-|---|---|
-| `plain_text` | `self.body.plain_text()` |
-| `is_empty` | `self.body.is_empty()` (delega, mesmo padrão de `MathClassOverrideElem`) |
-| `map_content` | **recursivo** no `body`, preservando `limits`, `inline` e `inline_explicit` |
-| `map_text` | **terminal** (família math não desce em `map_text`) |
-| `get_field` | default `None` |
-| `element_kind`/`to_payload` | default `None` (não-locatável) |
+Reject unknown named arguments with SourceDiagnostic::error and the measured unexpected-argument text. Evaluate inline and reject non-Bool using type_name rather than silently keeping true. Require transparent text/emptiness, recursive content mapping, terminal text mapping, all-field retention/equality, default italic, class transparency, inline/display placement and exact diagnostic controls. Internal parity corrections follow ADR-0127 continuous flow; the no-change refinement below does not expand the public approval.
 
-## `eq` estrutural
+## Container reuse without replacement
 
-`#[derive(PartialEq)]` compara `body`, `limits`, `inline` e
-`inline_explicit`.
+Evidence before specification:
+`lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz`
+records HEAD, working tree, UTC, complete sources, owners, and release.
+`01_core/src/entities/elements/math_limits_override.rs:39` preserves traversal but materializes the element even when
+descendants do not change. `01_core/src/entities/content/traversal.rs:111–192`
+unconditionally wraps results from these owners in Some. This is mechanical
+cost; language behavior and element semantic identity remain preserved.
+Refutable inference: propagating explicit absence of change reduces allocations
+and temporary retention. Probes and timing controls may refute that gain.
 
-## Despacho no hub (`content.rs`)
+Internal refinement under ADR-0127: provide only a crate-private
+map_content_if_changed helper for elements already owned by this consumer.
+Return None only when no actually visited child was replaced; childless
+terminals return None. Transform children once in the existing map_content
+order and stop at the first error. A callback Some, even containing equal
+content, always means change. Preserve every field, value, explicit presence,
+omitted/none/present slot, flag, span, and metadata item. Do not use equality,
+hash, or address as a certificate. Allocate vectors/rows only after the first
+changed child/row; unchanged siblings retain shared content. Public signatures
+and trait methods remain unchanged, with internal adaptation to this proof;
+map_content_pre and map_text retain their previous contracts. This refinement
+does not expand any ratification of historically proposed contracts.
 
-Mesmo padrão dos restantes membros da família math (mirror de
-`MathClassOverride`): Debug/Display (`"math.limits({:?})"`), constructor,
-`plain_text`, `PartialEq`, `map_content` (recursivo), `map_text`
-(terminal — bloco de clonagem directa). Também precisa de braço em
-`compiler/introspect.rs` (2×, não-locatável/terminal),
-`compiler/introspect/locatable.rs` (não-locatável), `compiler/layout/mod.rs`
-(fallback de math fora de contexto — `layout_math_fallback`),
-`compiler/eval/repr.rs` (`limits(<repr(body)>, inline: <bool>)` quando
-`limits=true`; `scripts(<repr(body)>)` quando `limits=false`) e
-`03_infra/src/query_helpers.rs` (2×, terminal sem texto próprio).
+Specific logic remains with this owner; Content's exhaustive match only
+delegates statically. No vtable, new enum/fields, global state, I/O, or new
+phase. Acceptance requires RED→GREEN for reuse, order, errors, equal-value
+replacement, optional fields/slots, and metadata; core suite, builds and lint;
+text/morphology/render/query qualification against the previous release and
+pinned vanilla; and paired allocation/timing measurements with provenance.
+Do not infer a universal improvement from isolated cases.
 
-**Adicional face ao padrão `MathClassOverride`**: `apply_math_default`
-(`math/layout/_comum.md` §P992) ganha braço recursivo — `MathClassOverride`
-não tem este braço (gap pré-existente, fora de escopo aqui), mas o caso de
-uso de `limits()`/`scripts()` inclui bases de 1 letra que precisam do
-itálico por defeito. `apply_math_style` (`bb()`/`bold()`/etc., P311b.4)
-**não** ganha braço — cai no catch-all `other => other.clone()`, mesmo
-estado que `MathClassOverride` já tem aí (fora de escopo, não é regressão).
+The shared proof of absence of change follows the pinned nucleus claims.
+This prompt and its sole consumer still own the algorithm, transformed fields,
+visit order, and their specific preservation obligations.
 
-## Critério
+## Historical record
 
-`plain_text`/`is_empty` transparentes ao body; `map_content` recurse o body
-preservando `limits`/`inline`; `map_text` terminal (clona directamente,
-campos preservados); igualdade estrutural compara `body`, `limits` e
-`inline`; `apply_math_default` recursa no `body` (itálico por defeito
-preservado); `base_math_class`/`node_math_class` transparentes ao `body`
-(sem override de classe).
-
-## P992b — paridade de erros em named args (implementada, a pedido do dono 2026-08-11)
-
-O débito registado na auditoria pós-P992 foi fechado nesta secção, por
-ordem directa do dono ("faça as correções que o passo anterior devia ter
-escrito"). Mensagens medidas no vanilla (`/tmp/e1..e3.typ`):
-
-1. `scripts(A, foo: 1)` / `limits(A, foo: 1)` → `error: unexpected
-   argument: foo`. O braço de `scripts` (que antes descartava named args
-   pelo `filter_map` de posicionais) e o `_ => {}` do loop de `limits`
-   passam a acumular `SourceDiagnostic::error` com essa mensagem.
-2. `limits(A, inline: 5)` → `error: expected boolean, found content`. O
-   valor é avaliado; se não for `Value::Bool`, erro com o nome do tipo
-   (`type_name()` — para o caso math-nativo, `5` vira `Value::Content` →
-   "content", batendo byte-a-byte com o vanilla medido). Antes o
-   `if let Ok(Value::Bool)` descartava o erro e `inline` ficava preso em
-   `true`.
-
-Mensagem de erro é observável ao nível da língua (ADR-0107). Correcção de
-paridade — fluxo contínuo (ADR-0127), sem gate.
-
-## Reuso de contêineres sem substituição — 2026-10-10
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/math_limits_override.rs:39` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
-
-Refinamento interno ADR-0127: disponibilizar somente helper crate-private map_content_if_changed nos elementos já owned por este consumer. Retornar None apenas se nenhum filho efetivamente visitado foi substituído; terminais sem filhos retornam None. Transformar filhos na mesma ordem do map_content vigente, uma única vez, e interromper no primeiro erro. Some do callback, inclusive conteúdo igual, sempre é mudança. Preservar todos os campos, valores, presença explícita, slots omitidos/none/presentes, flags, spans e metadados; não usar igualdade/hash/endereço como certificado. Vetores/linhas só alocam após o primeiro filho/linha alterado; os irmãos conservam seu conteúdo compartilhado. Assinaturas públicas e métodos de trait ficam iguais, com adaptação interna à nova prova; map_content_pre e map_text mantêm seu contrato anterior. Nenhuma ratificação de contratos históricos propostos é ampliada por este refinamento.
-
-A lógica específica permanece neste owner; o match exaustivo em Content apenas delega estaticamente. Sem vtable, enum novo, campos novos, estado global, I/O ou fase nova. Aceitação: RED→GREEN de reuso, ordem, erro, substituição igual, opcionais/slots e metadados; suite core, builds e lint, qualificação de texto/morfologia/render/query contra release anterior e vanilla pinado; alocações e tempos pareados com proveniência. Não alegar ganho universal a partir de casos isolados.
-
-
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/math_limits_override.md` preserves the original evidence and chronology.

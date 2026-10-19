@@ -1,0 +1,17 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "41122700f6e63c29b8f025ff0d395c4ae555472f0b2234c24f644c9f968e9bfe",
+    "result_sha256": "258e4c2c3e2288a2589c929ecf893cfdaa641a2e6532534f2d6bd38632c0c811",
+    "disposition": "Full selector adapter translated, only target borrowing supersedes previous AST reevaluation; all call-once diagnostics and gate boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "ab6d3847fd8446bc2dce4b506874f48bc637f53e87532d46961a95cda111bec2",
+    "result_sha256": "ebb2a38371f0ee8f1818087f4fb976ff621e444d9526f353d17aaf87a2ca4aa3",
+    "disposition": "Full existing English facade reviewed; translated ratified State import migration with child ownership and strict gate retained.",
+    "followup": "Root canonical-reference repair retained in place; see canonical-reference-repairs.json."
+  }
+]

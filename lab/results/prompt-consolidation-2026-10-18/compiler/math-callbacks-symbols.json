@@ -1,0 +1,16 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/symbols.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "e7c74b04ce02dd9200533c56251e0d98288fe9ef78d8f4cb51b1f091012b48e1",
+    "result_sha256": "e7c74b04ce02dd9200533c56251e0d98288fe9ef78d8f4cb51b1f091012b48e1",
+    "disposition": "Full lookup/predicate contract and all Unicode tables reviewed; exact generated strings/aliases retained as language data, not translated prose."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/callbacks.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "f1a564beb6a23da9de6c3e0df9d27abf3e69d6a06ffc3c4c19bb180630d3bd5c",
+    "result_sha256": "5be541f5b648f41d4abf903d84b51fe2446e04fd5a725efbfe6fe156665a7bd9",
+    "disposition": "Full transcript validation contract retained; outcome allocation counterexample and exact E003 reason preserved; ratified size snapshot adapter translated without callback reexecution."
+  }
+]

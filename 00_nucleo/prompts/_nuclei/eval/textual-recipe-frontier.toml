@@ -1,39 +1,32 @@
 tekt = 1
 kind = "nucleus"
 id = "textual-recipe-frontier"
-title = "Escopo lexical, precedência e proteção causal de produtos textuais"
-
+title = "Lexical scope, precedence and causal protection of textual products"
 [[claims]]
 id = "inherited-versus-owned"
 level = "must"
-statement = "Distinguir regras herdadas da inserção de regras introduzidas por uma cauda lexical do valor. Herança não congela regra global obsoleta no valor; delta local permanece mais interno na inserção. Compor por identidade RuleId, sem duplicação, preservando ordem lexical. Não inferir escopo por nome, texto do produto, número do ID ou igualdade do corpo."
-
+statement = "Distinguish inherited insertion rules from rules introduced by a value's lexical tail. Inheritance does not freeze an obsolete global rule into a value; local delta stays more inward at insertion. Compose by RuleId identity without duplication and with lexical order. Never infer scope from name, product text, numeric ID or body equality."
 [[claims]]
 id = "one-text-selector-order"
 level = "must"
-statement = "Literal e regex competem no mesmo grupo elegível: escolher o menor início UTF-8 e, no empate, a regra lexicalmente mais interna/recente não revogada. Não escolher todas as ocorrências de um selector antes de considerar selectors concorrentes; ignorar matches vazios. Preservar prefixo, produto e sufixo em ordem causal."
-
+statement = "Literal and regex compete in the same eligible group: select smallest UTF-8 start, ties favoring the innermost/latest unrevoked lexical rule. Do not select every occurrence of one selector before competitors; ignore empty matches. Preserve prefix, product and suffix in causal order."
 [[claims]]
 id = "guarded-product"
 level = "must"
-statement = "A revogação textual pertence ao produto da ocorrência selecionada, inclusive alias devolvido; não contamina prefixo, sufixo ou outros siblings. Produtos concluídos delimitam fronteiras de agrupamento: não juntar dois produtos independentes ou produto e sibling para fabricar match novo. Regras elegíveis restantes podem atuar dentro de um produto composto emitido como uma unidade. Preservar a distinção entre alias e construção nova e não repetir callbacks já concluídos."
-
+statement = "Textual revocation belongs to the selected occurrence's product, including returned aliases; it does not contaminate prefix, suffix or siblings. Completed products bound grouping: do not merge independent products or product+sibling to fabricate a match. Remaining eligible rules may act within a composite product emitted as one unit. Distinguish alias from fresh construction and never repeat completed callbacks."
 [[claims]]
 id = "root-before-emitted-children"
 level = "must"
-statement = "Decidir a receita efetiva da raiz antes de realizar filhos que ela pode ocultar; visitar somente o produto efetivamente emitido. Funções textuais avaliam seu código uma vez, capturando receitas de conteúdo para realização causal posterior; não executar callbacks de filhos durante a mera construção do resultado. Guards, regras, styles, arquivo e namespace de contextos devem ser restaurados em sucesso e erro."
-
+statement = "Decide the effective root recipe before realizing children it may hide; visit only actually emitted product. Text functions evaluate code once, capturing content recipes for later causal realization; never execute child callbacks merely while constructing the result. Restore guards, rules, styles, file and context namespace on success and error."
 [[claims]]
 id = "private-transport"
 level = "must"
-statement = "Usar somente tipos públicos existentes e estado compilation-local privado. Frames internos distinguem base herdada e delta local; ShowRecipe/styles privados transportam a classificação sem campo público novo. Realized.original pode guardar proveniência de receita e guards, com visual emitido separado, sem Location falsa. Não executar metadado, vazar chaves internas em fields/repr, alterar identidade de it ou achatar Sequence escrita pelo autor. Não usar I/O, globals, vtables, PropMap ou unsafe."
-
+statement = "Use existing public types and private compilation-local state only. Internal frames distinguish inherited base/local delta; private ShowRecipe/styles carry classification without new public fields. Realized.original may retain recipe/guard provenance separately from emitted visual, without false Location. Never execute metadata, expose internal keys in fields/repr, alter it identity or flatten author-written Sequence. No I/O, globals, vtables, PropMap or unsafe."
 [[claims]]
 id = "spaces-and-style"
 level = "must"
-statement = "Normalizar Space/SpaceFromNewline no fluxo emitido antes do matching; Text contendo whitespace continua texto elegível. Distinguir vazio consumido de Empty explícito. Show-set textual aplica Styles reais somente ao match e seu produto, com precedência e guardas causais, sem pintar siblings. Source, estilos, labels e UTF-8 sobrevivem a recortes e recomposição."
-
+statement = "Normalize Space/SpaceFromNewline in emitted flow before matching; whitespace-containing Text remains eligible text. Distinguish consumed emptiness from explicit Empty. Textual show-set applies actual Styles only to match/product with causal precedence/guards, not siblings. Source, styles, labels and UTF-8 survive slicing/recomposition."
 [[claims]]
 id = "bounded-work"
 level = "must"
-statement = "Compartilhar snapshots imutáveis por Arc e representar runs por intervalos UTF-8, sem vetor de estado por byte nem cópia integral de regras por caractere. Usar orçamento de profundidade existente e ordem de efeitos observada; nenhum resultado de performance é presumido. Preservar Table→placement→Cell→body, preparação Mathy antes de sua seleção e realização lazy State/Counter."
+statement = "Share immutable snapshots through Arc and represent runs as UTF-8 ranges, without per-byte state vectors or full rule copies per character. Use existing depth budget and observed effect order; presume no performance result. Preserve Table→placement→Cell→body, Mathy preparation before selection and lazy State/Counter realization."

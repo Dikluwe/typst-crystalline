@@ -1,53 +1,43 @@
 # Prompt L0 — `entities/elements/underline` — `UnderlineElem`
 Hash do Código: d7e41152
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/underline.rs`
-**Origem**: modelo D (ADR-0105), **Lote 4 P319** (decorações de texto). Trait, regras partilhadas
-e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**
-(confirmado P319). Comportamento idêntico ao braço atual do hub (P284).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/underline.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
+## Evidence before specification
 
-## Struct
+The archived extraction record preserves the original source observations: `content.rs:1597`, `content.rs:1658`, `content.rs:1950`, `content.rs:2134`, `content.rs:2452`.
+These are historical anchors, not a fresh current-pin parity measurement.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnderlineElem {
-    pub body:   Content,           // era Box<Content>
+    pub body:   Content,
     pub stroke: Option<Color>,
     pub offset: Option<Length>,
     pub extent: Option<Length>,
 }
 ```
 
-`Content::Underline { body, stroke, offset, extent }` →
-`Content::Underline(Arc<UnderlineElem>)`. Construtor ergonómico:
-`Content::underline(body, stroke, offset, extent)`.
+## Behavior and acceptance
 
-> **`Hash` manual** (causa + ressalva completas em `overline.md`): `Length`
-> carrega `f64` e não implementa `Hash` → `impl Hash { format!("{self:?}").hash(state) }`
-> (paridade `hash_content`). Ressalva `-0.0` vs `0.0` documentada em comentário
-> no código; aceitável (regime do `content_hash`; `…Elem` não são chaves de mapa;
-> revisitar se vier a sê-lo).
+Preserve `Content::Underline(Arc<UnderlineElem>)` and
+`Content::underline(body, stroke, offset, extent)`. Plain text and emptiness
+delegate to body. Both maps recurse into body, preserving stroke, offset, and
+extent. Field/kind/payload default to None; non-locatable. Derived PartialEq
+compares all four fields.
+Manual Hash uses Debug because Length contains f64; its signed-zero caveat
+(`-0.0` versus `0.0`) must remain documented in source. This existing compromise
+follows content_hash and assumes these elements are not map keys; revisit it
+if they become keys. The full rationale is owned by
+`00_nucleo/prompts/core/entities/elements/overline.md`.
+Verify body transparency, emptiness delegation, maps with metadata preserved,
+structural equality and the specified manual hash.
 
-## `impl Element for UnderlineElem`
+## Historical record
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.body.plain_text()` (`content.rs:1658`) |
-| `is_empty` | **override**: `self.body.is_empty()` (`content.rs:1597`) |
-| `map_content` | **recursivo** no body, preserva cosméticos (`content.rs:2134`) |
-| `map_text` | **recursivo** no body (`content.rs:2452`), preserva cosméticos |
-| `get_field` | default `None` |
-| `element_kind`/`to_payload` | default `None` (não-locatável) |
-
-## `eq` estrutural
-
-`#[derive(PartialEq)]` compara `body + stroke + offset + extent`
-(paridade `content.rs:1950`).
-
-## Critério
-
-`plain_text` transparente; `is_empty` delega ao body; `map_*` recursam preservando
-cosméticos; `Hash` manual via Debug. (Maior largura do lote: 31 sites, ~metade
-em `layout/tests.rs`.)
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/underline.md`. Historical observations are not a new parity certification.

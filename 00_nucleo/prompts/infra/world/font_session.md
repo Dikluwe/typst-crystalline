@@ -2,147 +2,105 @@
 Hash do Código: c2e6253e
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:391cd1604976262b1b6e019b802ed72e78782260d2788bb04999297559605509
+- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0f2985807cc3c7b4aeed9a5a26b77ad66dbbdb67ccfb43ba8336dbc8e8eea1a5
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/world/font_session.rs`
 
 
-## Medição anterior à decisão de retenção ratificada
+## Font retention evidence and approval
 
-lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
-edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
-descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
-remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
-não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
-preservar seleção, conteúdo, diagnóstico e render na linguagem; duração/Arc são
-mecânica. Inferimos benefício possível, refutado por custo, stale resources,
-regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do relatório.
+`lab/results/construction/diagnostics/watch-retencao-2026-10-07.md` retains
+HEAD/tree/binaries/UTC, actual edits/recovery and dynamic per-cycle acquisition
+counts. `watch-validacao-2026-10-07/measurement.json` compares discovery validation
+and complete acquisition at the same state; controls.json covers additions/removals/
+replacement/restored mtime/links/configuration. These are isolated costs, no CLI
+gain or upstream-intent proof. FontBook/slots/coverage must preserve language
+selection/content/diagnostics/render; Arc/duration are mechanics. Cost, stale
+resources, regression or unbounded retention refute possible benefit. Fixtures/
+provenance/limits remain in the reports.
 
-### Decisão ratificada sob ADR-0127 §2.1/§2.2
+Owner `Confirmo` ratified
+`lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json`
+under ADR-0127 §2.1/§2.2; receipt
+`lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json`.
+Each owner remains 1:1.
 
-Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
+## Public construction and private generation ownership
 
-## Contrato público e propriedade
+Opaque public FontCatalogSession has no public fields, with public new() -> Self
+and Default delegating to Self::new(). new does no I/O; instance Mutex holds
+Option of one generation with key/Arc paired slots-book. No global/persistence/
+new trait beyond ratified Default/unsafe; catalog operation is pub(super) only
+for World descendants.
 
-Tipo público opaco FontCatalogSession, sem campos públicos:
+Under session serialization obtain eligible current proof or prepare current
+discovery through `00_nucleo/prompts/infra/fontdb/generation.md`. Matching key plus
+identity recheck clones generation Arc without metadata/coverage/slot reconstruction.
+Changed key builds from prepared discovery and revalidates before storing; never
+store unstable generation. Refusal/error/poison discards/ignores old generation
+and runs fresh combined acquisition from world/fonts, without caching fallback,
+new user error or old negative reuse.
 
-```rust
-impl FontCatalogSession { pub fn new() -> Self; }
-```
+Keep only one generation for future reuse; active Worlds' Arc clones remain valid
+by Rust ownership, with no index changes/slot clearing. Sources/maps/other services
+remain new per World. generation owns guards/discovery, world/fonts composition.
 
-new não faz I/O. Sessão L3 possui Mutex de Option de uma única geração contendo
-key e Arc do par slots/book. Nenhum global, persistência, novo trait ou unsafe.
-A operação de catálogo é pub(super), exclusiva dos descendentes World.
+Only under generation's strict eligible proof may session compare full current
+proof to stored proof without fresh font read_dir. Validated hit returns paired
+Arc without prepare; any change/refusal/instability uses fresh path above. On prepare
+collect proof before discovery, revalidate after catalog construction, retain only
+stable proof. Never store faces/slots separately, enlarge lifetime/public API or
+change lazy demand/next-recompile resource recognition.
 
-Sob a serialização da sessão, obter prova atual elegível ou preparar descoberta
-atual via owner generation.
-Se key coincide e a rechecagem das identidades tem sucesso, clonar Arc da geração;
-não reconstruir metadados/cobertura nem FontSlots. Se mudou, construir o catálogo
-a partir da descoberta preparada e revalidar identidades antes de guardá-lo.
-Não guardar geração instável. Recusa/erro/poison remove ou desconsidera a geração
-antiga e executa aquisição combinada fresca do owner fonts, sem cachear o fallback.
-Não expor erro novo de usuário nem reutilizar resultados negativos antigos.
+## Construction approval and acceptance
 
-A sessão conserva somente uma geração para reuso futuro. Clones de Arc em Worlds
-em uso ficam válidos por ownership Rust; não alterar seus índices ou limpar seus
-slots. Os mapas por arquivo e todos os outros serviços permanecem no World novo.
-Guardas de validação e descoberta estão em generation; composição está em fonts.
+font_session.rs:23 no-argument new triggered new_without_default in
+field-reassign-2026-10-15/clippy-inventory.json; clippy-default-2026-10-16 retains
+source/L0/hashes. new is empty lazy Mutex::new(None), no discovery/font reads.
+Owner approved manifesto
+`11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03`
+on 2026-10-16, receipt
+`lab/history/construction/records/00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`.
+This supersedes prior pending gate/API bans only for its three specified Default
+impls and D1–D5 tests. Keep new visibility/fields/values/other methods/semantics;
+no mode/flag/global/constructor I/O/phase. Existing callers need no migration;
+new consumers may use explicit Default or T: Default. Future removal breaks this
+additive public contract. Bound tests fail before impl/pass after; verify fresh
+session/context values/isolation/laziness/existing controls; no changed default
+values or new_without_default suppression; workspace suite/all-target Clippy/build/
+Rustdoc/fmt/lineage/scoped seals.
 
-Na configuração elegível descrita em `infra/fontdb/generation.md` §Prova
-rápida estrita, a sessão pode comparar uma prova atual completa com a prova
-guardada junto da geração, verificando configuração e identidades retidas sem
-novo `read_dir` de fontes. Hit validado devolve o Arc pareado sem chamar
-prepare; qualquer diferença, recusa ou instabilidade segue exatamente o
-caminho fresco acima. Ao preparar, colher uma prova completa antes da descoberta,
-revalidá-la após construir o catálogo e guardar apenas uma prova estável para
-eventual próximo hit.
-A prova não guarda faces/slots separadamente,
-não amplia o lifetime da geração, não publica API nova e não altera a demanda
-lazy nem o reconhecimento de recursos na próxima recompilação.
+Session RED→GREEN checks same generation avoids rebuild via private test counter,
+changed/refused key/postcheck failure rejects reuse, concurrent configs/Worlds keep
+correct paired fonts/book, file add/remove/change and negative errors inherit no
+Source/read_cache. Arc identity is internal reuse observation, never language
+parity gate; product selection/text/diagnostics/render define acceptance.
 
-Testes RED→GREEN inline: mesma geração evita reconstrução (contador privado de
-teste); key alterada/recusada e postcheck falho impedem reuso; múltiplos Worlds e
-configurações concorrentes mantêm book/slots associados e fontes corretas;
-alterar/remove/criar arquivos e falhas negativas não herda Sources/read_cache.
-Use assert de identidade apenas para observar reuso interno, nunca como gate de
-paridade. Aceitação do produto é seleção, texto, diagnósticos e render.
+## Local callable and test-only adapters
 
+`ci-simplificacoes-2026-10-14/before.json.gz` retains source/owner/spans/HEAD/dirty
+state/UTC/diffstat at :55, 73, 79; red.log captures selected errors/types checked at
+1.92.0. catalog_with_fast passes verify callable directly to Option predicates,
+borrowing &verify on early uses/consuming only final use. Preserve call/conditional
+order/short-circuit/lock/postcheck/invalidation/fallback/one generation. Removing
+identity closures permits neither early verify nor memoizing its result.
 
-## Expressões equivalentes e CI estrito — 2026-10-14
+`ci-helpers-testes-2026-10-14/before.json.gz`/references-before.json.gz retains
+source/owner/HEAD/tree/UTC/diffstat/calls/imports/modules/reference/test inventory,
+hash-checked suite state at :35. Audited private usage/compilation, not dead_code
+alone, proves catalog_with is cfg(all(test, unix))-only. Apply that same cfg to its
+definition without body/fallback/poison/concurrency changes. catalog/catalog_with_fast
+remain productive; helper is no public API. Keep test inventory/expectations/full
+suite/lib-all-target build/Rustdoc/fmt/lineage/full inventory; scoped resealing,
+selected RED→GREEN no public/default/phase/dependency/suppression, no cfg/binding
+mirror tests.
 
-### Medição anterior à decisão
-
-`03_infra/src/world/font_session.rs` nas linhas [55, 73, 79] contém as expressões apontadas pelo inventário
-Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
-conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
-red.log registra os lints selecionados como erros antes de alterar código.
-Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.
-Esta é manutenção da expressão Rust; não é medição nova de paridade upstream.
-
-### Responsabilidade e aceitação
-
-Em catalog_with_fast, passar o callable verify diretamente aos predicados Option; emprestar &verify nos usos anteriores e consumi-lo somente no último uso. Preservar chamadas e sua ordem condicional, curto-circuito, lock, postcheck, invalidação, fallback e geração única. A remoção de closures identidade não autoriza executar verify antecipadamente ou cachear seu resultado.
-
-Correção interna em fluxo contínuo ADR-0127, sem API pública, default, fase,
-unsafe, dependência ou supressão de lint novos. L0 precede código e resselo
-fica restrito ao owner. Usar os controles funcionais existentes; não alterar
-fixtures, expectativas, tolerâncias ou registrar testes que apenas espelhem
-esta simplificação. Os lints selecionados devem passar como erros, seguidos
-de suíte completa, build, all-targets, rustdoc, fmt, linhagem e inventário total.
-
-
-## Auxiliares de teste e bindings produtivos — 2026-10-14
-
-### Medição anterior à decisão
-
-`03_infra/src/world/font_session.rs` nas linhas [35] apresenta os avisos selecionados.
-`lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/before.json.gz`
-conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
-references-before.json.gz registra chamadas, imports, módulos e referências;
-o estado da suíte/inventário anterior foi verificado por hashes. A lista de
-testes foi capturada antes da edição. Não se infere inutilidade funcional
-apenas de dead_code: as chamadas privadas e sua compilação foram auditadas.
-
-### Responsabilidade e aceitação
-
-catalog_with é adaptador privado sem prova rápida, chamado apenas pelo módulo cfg(all(test, unix)). Aplicar a mesma condição à definição, mantendo seu corpo e todos os controles de fallback/poison/concorrência. catalog e catalog_with_fast continuam produtivos e inalterados. O helper não integra a API pública de FontCatalogSession.
-
-Manutenção interna em fluxo contínuo ADR-0127: nenhuma API pública, campo,
-default de produto, fase, dependência ou supressão de lint muda. O gate de
-diagnósticos selecionados deve falhar antes e passar depois; ele não é um
-novo teste funcional nem prova de paridade. Preservar a lista e as expectativas
-dos testes existentes, executar a suíte completa, compilar lib/all-targets,
-verificar build/rustdoc/fmt/linhagem e registrar o inventário total. Não criar
-testes que apenas espelhem cfg ou remoção de bindings. Resselo restrito ao owner.
-
-
-## Expressões locais verificadas — Clippy 2026-10-16
-
-### Medição anterior à decisão
-
-03_infra/src/world/font_session.rs:240 (clippy::len_zero). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
-
-### Responsabilidade exclusiva e aceitação
-
-No teste de aquisição preguiçosa, usar !world.book().is_empty() em vez de len > 0, mantendo ordem das consultas/assertions e verificação de cache. Não alterar new(), Default, aquisição ou política de sessão.
-
-Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependência ou supressão novos. L0 precede código e resselo restrito. Preservar inputs e resultados dos controles existentes, sem relaxar tolerâncias. Gate dos lints selecionados RED→GREEN; executar suíte workspace, build, Clippy all-targets, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe Rust.
-
-
-## Default público — proposta sujeita à confirmação ADR-0127
-
-### Medição anterior à decisão
-
-`03_infra/src/world/font_session.rs:23` declara pub fn new() -> Self sem argumentos. O inventário em `lab/results/construction/diagnostics/field-reassign-2026-10-15/clippy-inventory.json` registra new_without_default; fonte/L0/hashes atuais são preservados no pacote clippy-default-2026-10-16. FontCatalogSession::new cria Mutex::new(None) por instância, sem descoberta ou leitura de fontes. Default cria sessão independente, vazia e lazy, delegando a Self::new(); catálogo e política de reuso permanecem inalterados. Isto é contrato Rust de construção, sem nova medição de paridade da linguagem.
-
-### Contrato proposto
-
-Adicionar somente `impl std::default::Default for FontCatalogSession` com `fn default() -> Self` que devolve `Self::new()`. Preservar integralmente new(), sua visibilidade, campos, seus valores, todos os demais métodos e semântica. Não criar outro trait, novo modo/flag, estado compartilhado global, I/O no construtor ou mudança de fase. Nenhum caller existente precisa migrar; novo código pode usar `<FontCatalogSession as Default>::default()` e bounds `T: Default`.
-
-### Gate, testes e aceitação
-
-Nenhuma materialização antes da confirmação humana do manifesto deste pacote (ADR-0127 §2.1/§2.4). Os impls são acréscimos públicos: sua remoção futura quebraria consumidores do novo contrato. Após ratificação, a cláusula só supersede proibições genéricas de nova API para estes três impls expressos; os demais contratos permanecem. Testes de uso por bound Default devem falhar por ausência de implementação antes do código e passar após delegação. Verificar valores/isolamento de contextos e sessões novas, preguiça de recursos e conservação dos controles existentes; suíte workspace, Clippy all-targets, build, Rustdoc, formato e linhagem com resselo restrito. Não alterar valores/defaults nem suprimir new_without_default.
-
-Ratificação: dono aprovou o manifesto SHA-256 `11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03` em 2026-10-16. Recibo: `lab/history/construction/records/00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`. O gate acima está satisfeito exclusivamente para os três impls Default e testes D1–D5 descritos; esta seção está vigente.
+`clippy-expressions-2026-10-16/before.json.gz` retains sources/L0/HEAD/tree/status/
+diffstat/UTC and initial-diagnostics.json suggestions/spans/types/uses at :240
+(clippy::len_zero). Lazy-acquisition test uses !world.book().is_empty() instead of
+len>0, preserving query/assertion/cache order and new/Default/acquisition/session
+policy. Internal representation, no new parity/performance. Continuous ADR-0127:
+no public/default/phase/dependency/suppression; L0 first/scoped resealing, exact
+control inputs/results/tolerances, selected RED→GREEN/workspace suite/build/
+all-target Clippy/fmt/Rustdoc/lineage; no syntax-mirror tests.

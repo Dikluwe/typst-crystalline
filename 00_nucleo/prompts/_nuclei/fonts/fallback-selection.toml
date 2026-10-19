@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "fonts-fallback-selection"
-title = "Seleção coerente das cadeias de fallback tipográfico"
-
+title = "Consistent typographic fallback chain selection"
 [[claims]]
 id = "declared-order"
 level = "must"
-statement = "As famílias de cada cadeia catalogada são tentadas na ordem declarada antes do fallback global por cobertura e similaridade."
-
+statement = "Try families in each cataloged chain in declared order before global coverage/similarity fallback."
 [[claims]]
 id = "measurement-render-alignment"
 level = "must"
-statement = "Medição e shaping consultam as mesmas cadeias para que a face medida possa coincidir com a face desenhada."
-
+statement = "Measurement and shaping consult the same chains so measured and drawn faces can coincide."
 [[claims]]
 id = "semantic-math-trigger"
 level = "must"
-statement = "A ativação da cadeia matemática depende do modo matemático explícito ou de uma face primária com tabela MATH, nunca da ocorrência textual de math no nome da família."
-
+statement = "Activate the mathematical chain through explicit math mode or a primary face with MATH table, never textual occurrence of math in the family name."
 [[claims]]
 id = "no-catalog-global-scan"
 level = "must-not"
-statement = "A consulta de uma cadeia catalogada é substituída por varredura global cuja ordem depende da descoberta local de fontes."
+statement = "A cataloged-chain lookup is replaced by a global scan ordered by local font discovery."

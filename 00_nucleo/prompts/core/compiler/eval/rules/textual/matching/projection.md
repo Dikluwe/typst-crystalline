@@ -2,8 +2,8 @@
 Hash do Código: 8fa68922
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
-- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
+- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/rules/textual/matching/projection.rs`
@@ -23,47 +23,51 @@ The existing unmatched-range projection test belongs to this module. No dynamic 
 
 The projection test, existing `p1494` filter and full core suite remain green. `cargo build` and `crystalline-lint .` have no new blocking violations. No speedup is claimed without measurement. Header ownership is 1:1.
 
-## R3-T1 — realização causal ratificada (2026-10-18)
+## Causal realization evidence and ratification
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz`
+retains HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted working
+tree, UTC/status/diffstat/sources/argv/binary hashes and vanilla pin
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. before-sources.json.gz contains
+complete current sources/L0. No candidate code was implemented at measurement.
+matching.rs:118–150 applies reverse regex then literals in declaration order;
+:194–207 exposes products to later passes. textual.rs:102–123 captures full
+snapshot. realize/mod.rs:177–217 visits recipes bottom-up. apply.rs:620–648/
+matching.rs:218–225 call functions without capturing children.
+expression_dispatch.rs:125–129 already distinguishes insertion_rules from local
+state.
 
-lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
-commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
-bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
-fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
-matching.rs:118–150 aplica regex reversa e depois literais em declaração;
-:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
-captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
-apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
-expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
+Measured pairs: identical literals C/B; literal/regex tie R/L; overlap X/YB;
+first effect LATER/FIRST; inverse chained function BBBB/BB; separate product
+AB/X; product+neighbor X/AB; Strong hiding child gives panic HIDDEN/Q;
+captured global followed by new global L/R, captured local L/L; local CJK
+水\n果 gives 水果/X. Pinned foundations/selector.rs:110–125 unifies escaped
+literal/regex; typst-realize/src/lib.rs:1328–1405 chooses start and carries
+revocation into product. These are language/effects, not ratification of Rust
+mechanics/buffer equality/PDF bytes. Scope separation and earlier child visits
+are inferred causes, refutable by acceptance.json, equality/fields/style/query
+and error controls.
 
-Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
-X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
-produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
-panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
-capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
-foundations/selector.rs:110–125 unifica literal escapado com regex;
-typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
-no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
-igualdade de buffers ou bytes PDF. É inferência causal que a separação de
-escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
-acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
+Human confirmation of manifest
+`47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302`
+ratified the pinned textual-recipe-frontier nucleus and this order. Within this
+scope it supersedes provisional ContentBlock show execution and pending-recipe
+bottom-up visits. Ordinary expression evaluation order stays. Do not reevaluate
+the program, advance State/Counter, bake render into morphology or create a
+public Rust contract.
 
-### Decisão ratificada
 
-Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
-do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
-ratificou esta ordem. Ele supersede neste escopo as
-cláusulas históricas de execução provisória de show em ContentBlock e da
-visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
-de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
-assentar render em morfologia nem criar contrato Rust público.
+## Current exclusive causal projection
 
-### Responsabilidade exclusiva desta unidade
+Project intervals from original nodes/causal boundaries, preserving wholly covered
+nodes. Partial Text keeps Source/origin/correct UTF-8 positions. Do not cross
+completed product/effective style/incompatible snapshot when rebuilding run.
+Flatten only private product scaffolding while its boundary remains represented;
+never erase authored Sequence/explicit Empty/provenance. Pure owner: no Engine/
+callback/normalization.
 
-Projetar intervalos a partir dos nós originais e das fronteiras causais, preservando nó inteiro quando totalmente coberto. Partes de Text mantêm Source/origem e posições UTF-8 corretas; não atravessar produto concluído, estilo efetivo ou snapshot incompatível ao recompor run. Aplanar só scaffolding privado do produto quando sua fronteira continuar representada; não apagar authored Sequence, Empty explícito ou proveniência. Este owner continua puro: nenhuma chamada de Engine/callback/normalização.
-
-### Aceitação desta revisão
-
-RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.
+Require acceptance.json families, R2-S/R3 and single-evaluation controls RED→GREEN.
+Validate PDF/HTML separately; build/workspace/doctests/strict Clippy-Rustdoc/fmt/
+V1/V5/V15/V26/reverse/differential SARIF without new error-warning. Use
+12GiB/High 8 GiB/swap0/jobs1 with heavy commands sequential. No RAM gain without
+paired experiment or suppression to clear gate; no commit/push/release.

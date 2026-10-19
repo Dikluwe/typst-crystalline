@@ -2,7 +2,7 @@
 Hash do Código: 0762e96e
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
+- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/control_flow.rs`

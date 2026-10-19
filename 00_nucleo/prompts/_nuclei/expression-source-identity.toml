@@ -1,29 +1,24 @@
 tekt = 1
 kind = "nucleus"
 id = "expression-source-identity"
-title = "Identidade causal de fontes de expressão e documento"
-
+title = "Causal identity of expression and document sources"
 [[claims]]
 id = "distinct-origins"
 level = "must"
-statement = "No caminho Source-based de avaliação contextual, documento, expressão e arquivos físicos diferentes possuem FileIds distintos no mesmo World. Diagnósticos e traces conservam o Source causal; nomes, textos iguais e ordem das fases não substituem identidade."
-
+statement = "In Source-based contextual eval, document, expression and distinct physical files have distinct FileIds in the same World. Diagnostics and traces preserve causal Source; names, equal texts and phase order cannot substitute for identity."
 [[claims]]
 id = "allocated-in-infra"
 level = "must"
-statement = "SystemWorld aloca e publica Sources transientes por instância, usando o mesmo contador serializado dos arquivos físicos. Nenhum FileId publicado é reciclado ou sobrescrito por exaustão; L1 recebe Source pronto e não inventa IDs, consulta IDs arbitrários ou mantém interner global."
-
+statement = "SystemWorld allocates and publishes transient Sources per instance using the same serialized physical-file counter. No published FileId is recycled or overwritten on exhaustion; L1 receives prepared Source, invents no IDs, queries no arbitrary IDs and retains no global interner."
 [[claims]]
 id = "source-is-not-io-base"
 level = "must"
-statement = "A Source da expressão identifica sintaxe e diagnósticos; a base inicial de read/import continua world.main(). Callbacks e imports conservam suas próprias origens e bases lexicais. Documento stdin tem Source registrado e base na raiz fornecida."
-
+statement = "Expression Source identifies syntax/diagnostics; initial read/import base remains world.main(). Callbacks/imports retain their own lexical origins/bases. Stdin document has registered Source and base at supplied root."
 [[claims]]
 id = "transient-not-file"
 level = "must-not"
-statement = "Sources transientes não entram no mapa canônico de arquivos físicos nem em dependencies(), não provocam leitura do caminho marcador e não colidem com arquivos reais chamados <input-expression> ou <stdin>. Source e bytes transientes são resolvíveis durante a vida do World."
-
+statement = "Transient Sources do not enter the canonical physical-file map or dependencies(), trigger no marker-path reads and never collide with actual files named <input-expression> or <stdin>. Transient Source and bytes remain resolvable for the World lifetime."
 [[claims]]
 id = "single-context-compilation"
 level = "must"
-statement = "A fachada contextual Source-based usa a compilação existente e seu introspector final, sem segunda execução do programa, inferência pelo diagnóstico ou reconstrução do índice para reparar origens. Features, limites, scopes, fases, ordem de warnings e serialização conservam seus contratos vigentes."
+statement = "The Source-based contextual facade uses existing compilation and its final introspector without second program execution, diagnostic inference or index reconstruction to repair origins. Features, limits, scopes, phases, warning order and serialization retain existing contracts."

@@ -23,14 +23,22 @@ Calculated usize/u32-to-Int callback arguments use Args::from_parts with empty n
 Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.
 
 
-## Caminhos residuais internos — 2026-10-13
+## Internal iteration maintenance
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`01_core/src/compiler/stdlib/numbering.rs` nas linhas 168 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+compiler/stdlib/numbering.rs:168 contains the compiler's unused/visibility item.
+Before-edit usage/active-dispatch research is in
+`lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`,
+with sources/L0, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working
+tree, UTC, status and diffstat. This is not new bilateral parity evidence.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Percorrer os pares prefix/symbol sem enumerar um índice nunca usado. Preservar ordem, consumo de numbers_iter, chamadas ao formatador, erros e interrupção quando faltam números. A emissão de apóstrofo por push(char) preserva o mesmo texto.
-
-Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.
+Traverse prefix/symbol pairs without enumerating an unused index. Preserve
+order, numbers_iter consumption, formatter calls, errors and stopping when
+numbers run out. Emitting apostrophe with push(char) preserves the same text.
+This ADR-0127 internal continuous-flow correction adds no public signature,
+product default or phase. Preserve language results/test expectations and
+revalidate all targets, core suite, build, Clippy and lineage. Do not replace
+the correction with warning suppression.

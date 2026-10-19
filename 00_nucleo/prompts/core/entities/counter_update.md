@@ -1,154 +1,18 @@
 # Prompt L0 — `entities/counter_update`
 Hash do Código: 1b9c017b
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/counter_update.rs`
-**Criado em**: 2026-04-30 (P161 sub-passo .6 — adaptação de nome do `CounterAction` legacy)
-**ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/counter_update.rs`
 
----
+## Evidence before specification
 
-## Contexto
+The original extraction preserved CounterAction's unit Step and Update(usize), without duplicating a second action type. That restricted shape could not transport hierarchical arrays, explicit levels or callbacks.
 
-`CounterUpdate` é a operação a aplicar a um contador durante introspecção: avançar o contador em 1, ou fixá-lo num valor.
+Historical ratified upstream `a51e02804:crates/typst-library/src/introspection/counter.rs:459–517,567–576` accepts positive step levels (default 1), array states and functions. Bilateral probes also established step/update as static and instance public fields. This refuted the hypothesis that the missing behavior required only dispatcher glue. `lab/history/construction/records/00_nucleo/materialization/typst-passo-1148.md` records the evidence, public gate and, in section 12, owner confirmation followed by materialization. The stale pending heading is superseded by that recorded confirmation.
 
-P161 sub-passo .1 confirmou que **já existe** um tipo similar no cristalino: `CounterAction` em `entities/counter_state.rs` (a renomear para `counter_state_legacy.rs`). Forma actual: `Step` (sem payload) | `Update(usize)`.
+The observation-helper audit found the existing Func variant and owner-local impl here; putting its helper inside impl Func was both invalid at the proposed Rust location and the wrong ownership boundary.
 
-Per regra do P161 sub-passo .6 ("se já existir com forma diferente, **não duplicar**; adaptar nome ou estender o existente"), **adapta-se o nome**:
-
-- Move-se a definição de `CounterAction` para um ficheiro próprio `counter_update.rs`.
-- Renomeia-se o tipo para `CounterUpdate`.
-- **Variantes ficam exactamente como estão**: `Step` (sem payload) e `Update(usize)`. Não se reshape para o `Set(usize)/Step(usize)` esquemático do P161 (forma vanilla); essa reshape é deferida para M9 ou para o passo que ligue Counter completo, com inventário de consumers.
-
-`CounterStateLegacy` continua a usar `CounterUpdate` (renomeado) via `Content::CounterUpdate { key, action: CounterUpdate }` — só se actualizam imports e nome do field se necessário.
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: enum puro, sem I/O.
-- Sem `Func` variant (vanilla tem `Func(Func)` para counter-via-função; cristalino adia até função-com-tracking estar pronta).
-- `Clone` derivado para passar por valor em `Content::CounterUpdate` e `ElementPayload::*::counter_update`.
-
----
-
-## Interface pública
-
-```rust
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum CounterUpdate {
-    /// Avança o contador em 1 (flat) ou avança o nível (hierárquico).
-    /// Equivalente vanilla: `CounterUpdate::Step(NonZeroUsize::new(1).unwrap())`.
-    Step,
-
-    /// Força o contador para o valor indicado.
-    /// Equivalente vanilla: `CounterUpdate::Set(CounterState(smallvec![v]))`.
-    Update(usize),
-}
-```
-
-`Hash` derivado é necessário para ElementPayload (que vai conter `counter_update: CounterUpdate` e precisa de ser hashável para detecção de mudanças entre iterações do fixpoint em M2+).
-
----
-
-## Semântica
-
-- `Step`: avança o contador em 1 unidade (interpretação flat) ou avança o nível actual (interpretação hierárquica). A interpretação concreta é decidida pelo consumer (Layouter / introspect walk).
-- `Update(value)`: fixa o contador no valor exacto.
-
----
-
-## Invariantes
-
-- Apenas duas variantes em P161 — não adicionar `Set(usize)` separado, não adicionar `Func`. Ambas as adições requerem passo dedicado com inventário.
-- Variantes preservam exactamente as semânticas do `CounterAction` original — comportamento observable não muda.
-
----
-
-## Consumers actuais
-
-- `entities/content.rs::Content::CounterUpdate` variant — campo `action` muda nome do tipo de `CounterAction` para `CounterUpdate`.
-- `entities/counter_state_legacy.rs` — remoção da definição local; passa a `use crate::entities::counter_update::CounterUpdate as CounterAction` (alias temporário) ou substituição nominal nos call-sites internos.
-
-## Consumers planeados
-
-- `entities/element_payload.rs` (P161 sub-passo .7) — campo `counter_update: CounterUpdate` em `ElementPayload::Heading` e `ElementPayload::Figure`.
-- `rules/introspect.rs` walk em P162 — derivação do `CounterUpdate` a embeber em cada `ElementPayload`.
-
----
-
-## Sobre paridade
-
-Vanilla `CounterUpdate` em `lab/typst-original/crates/typst-library/src/introspection/counter.rs` linha 566:
-
-```rust
-pub enum CounterUpdate {
-    Set(CounterState),       // CounterState vanilla = SmallVec<[u64; 3]>
-    Step(NonZeroUsize),      // step number = level
-    Func(Func),
-}
-```
-
-Diferenças em P161:
-
-- Cristalino não usa `NonZeroUsize` (apenas semântica "Step = +1"). Equivalência: vanilla `Step(NonZeroUsize::new(1)?)` ↔ cristalino `Step`.
-- Cristalino `Update(usize)` corresponde grosso modo a vanilla `Set(CounterState(smallvec![value]))` — caso flat single-level. Vanilla suporta hierárquico via `SmallVec`; cristalino não codifica isso aqui (o nível é inferido pelo `step_hierarchical(key, level)` no `CounterStateLegacy`).
-- Sem `Func` — adiada per ADR-0066.
-
-Refino futuro: P162+ pode reshape para `Set(usize)` + `Step(usize)` (paridade literal) quando os call-sites estiverem preparados. Sem reservar variantes futuras neste L0.
-
----
-
-## Migração face ao actual
-
-P161 sub-passo .6 implementa a renomeação:
-
-1. Move `pub enum CounterAction { Step, Update(usize) }` de `entities/counter_state.rs` para novo `entities/counter_update.rs` como `pub enum CounterUpdate`.
-2. Update do single import em `entities/content.rs`: `use crate::entities::counter_state::CounterAction;` → `use crate::entities::counter_update::CounterUpdate;`.
-3. Update do single field name em `Content::CounterUpdate { action: CounterAction }` → `{ action: CounterUpdate }` (o nome `action` mantém-se).
-4. Update de qualquer outro consumer (`introspect.rs`, `layout/counters.rs`) com find-and-replace `CounterAction` → `CounterUpdate`.
-
-Sem alteração de comportamento observable.
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/counter_update.rs` — enum movido + tests unitários (variantes, hash, clone).
-- `entities/counter_state_legacy.rs` perde a definição local de `CounterAction` (pode reter `pub use` para compat se for útil; preferível: substituição nominal directa).
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-04-12 | Criação como `CounterAction` em `counter_state.rs` (Passo 58) | `counter_state.rs` |
-| 2026-04-30 | P161 sub-passo .6: extracção e renomeação para `CounterUpdate` em ficheiro próprio | `counter_update.rs`, `counter_state_legacy.rs`, `content.rs`, `counter_update.md` |
-
----
-
-## Proposta P1148 — reshape de paridade (AGUARDA GATE ADR-0127)
-
-### Medição antes da decisão
-
-No vanilla ratificado
-`a51e02804:crates/typst-library/src/introspection/counter.rs:459-517,567-576`,
-`counter.step` aceita `level: NonZeroUsize = 1` e produz
-`CounterUpdate::Step(level)`; `counter.update` aceita estado hierárquico ou
-função e produz `CounterUpdate::Set(CounterState)` ou `CounterUpdate::Func`.
-As sondas nos dois binários ratificados também confirmaram que `step` e
-`update` são fields públicos tanto estáticos quanto de instância.
-
-O contrato cristalino vigente acima, confirmado em
-`01_core/src/entities/counter_update.rs`, reduz essas formas a `Step` sem
-payload e `Update(usize)`. Logo a hipótese de P1148 ser somente glue foi
-refutada: `level: 2`, arrays e callbacks não podem atravessar o domínio atual.
-
-### Contrato proposto
-
-Após confirmação explícita do gate, esta secção substitui a interface e as
-invariantes históricas de P161:
+## Ratified action contract
 
 ```rust
 pub enum CounterUpdate {
@@ -158,47 +22,18 @@ pub enum CounterUpdate {
 }
 ```
 
-- `Set` preserva todos os componentes do array da linguagem; inteiro vira
-  vector de um componente.
-- `Step(level)` preserva o nível positivo. Zero, negativo e tipos errados são
-  rejeitados antes da construção.
-- `Func` preserva o callback para aplicação ao estado corrente durante a
-  construção do introspector, usando o mesmo `Engine + EvalContext` já
-  transportado para `StateUpdate::Func`.
-- `Clone`, igualdade e hashing exigidos pelos payloads permanecem disponíveis.
-  Para `Func`, devem seguir a identidade/equivalência já definida por `Func`;
-  não executar callbacks para comparar ou calcular hash.
-- Todos os producers automáticos antes escritos como `Step` passam a
-  `Step(NonZeroUsize::MIN)`; `Update(v)` passa a `Set(vec![v])`.
+Remain a pure L1 enum without I/O. Set retains every language-array component; an integer becomes a one-component vector. Step retains its positive level; zero, negative and wrong-type inputs are rejected before construction. Func retains a callback for applying to current counter state through the separately owned Engine/EvalContext runtime. This data owner does not execute it.
 
-Esta é mudança de enum público e, portanto, fica parada no ponto 3 do
-protocolo de nucleação até confirmação do dono. Nenhum teste ou código P1148
-é autorizado por esta proposta antes do gate.
+Preserve Clone and payload-required equality/hash. Func equality/hash follow the already defined Func identity/equivalence and never call a callback. Automatic unit-step producers use Step(NonZeroUsize::MIN); former Update(v) maps to Set(vec![v]). The ratified shape supersedes the obsolete two-variant prohibition and original proposed Set(usize)/Step(usize) alternatives. Flat versus hierarchical application remains the relevant consumer's responsibility; it is not a requirement to copy upstream SmallVec storage.
 
-## P1344 — acesso owner-local ao carrier da ação `Func`
+## Observation-only continuity helper
 
-### Medição anterior à decisão
+Only under `cfg(p1339_observation)`, provide a crate-visible, read-only owner-local helper. Match the actual Func(function), borrow/clone its existing private observation carrier, and let H10/H12 prove continuity of that action. Return absence for Set/Step. Never create an occurrence, invoke a callback or infer identity from a side table, extension trait, macro, nonlocal impl, name, output, equality or address. Do not alter variants, constructors, Eq, Hash, Debug or normal API. Without that cfg the helper and observation-type references do not exist. This is internal test transport, with no public/default/compatibility/phase change.
 
-O enum vigente já materializado contém `CounterUpdate::Func(Func)`. O blocker
-P1343 R3 demonstrou que o helper dessa unidade não pode ser declarado dentro
-de `impl Func`: além de ser Rust inválido naquela posição, colocaria lógica de
-`CounterUpdate` no owner errado. `entities/counter_update.rs` já é o consumer
-1:1 desta especificação e contém o `impl CounterUpdate` real.
+## Acceptance and integration
 
-### Decisão vigente
+Preserve variant, hash and clone tests and all existing language behavior. Verify complete hierarchical Set transport, positive Step levels and callback retention without execution during equality/hash. Keep the action field and updated type ownership in Content, ElementPayload, the legacy counter state and introspection/layout consumers; do not duplicate CounterAction or retain a second divergent enum. The original extraction's temporary alias was migration logistics, not a new public compatibility requirement. Any further public action-shape change needs its own approved contract.
 
-Somente sob `cfg(p1339_observation)`, `CounterUpdate` expõe ao crate um helper
-owner-local read-only que:
+## Historical record
 
-- casa exclusivamente a variante real `CounterUpdate::Func(function)`;
-- consulta e devolve por clone/borrow o mesmo carrier privado já anexado ao
-  `Func`, sem criar ocorrência ou executar callback;
-- permite aos callsites H10/H12 provar continuidade da ação real;
-- devolve ausência para `Set` e `Step`, sem inventar identidade;
-- não altera variantes, construtores, Eq, Hash, Debug ou API normal;
-- não usa side table, trait de extensão, macro, impl não local, nome, output,
-  igualdade ou endereço para reconstrução.
-
-Sem `p1339_observation`, o helper e qualquer referência aos tipos de
-observação não existem. É transporte interno de teste, sem mudança pública,
-default, compatibilidade ou fase conforme ADR-0127.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/counter_update.md` preserves the original evidence and chronology.

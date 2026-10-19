@@ -8,24 +8,24 @@ Hash do Código: 3c5a7671
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/markup-sequence-children.toml sha256:db4336e052b1d265683446ad4357ca819596185058ab10a5679ac0376ee4211f
-- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
+- 00_nucleo/prompts/_nuclei/content/markup-sequence-children.toml sha256:cd963a81970f86c33abcf36ffb19ec69acfd789ab528092c8abb7a95129ebd99
+- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
-- 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:3f300957a00ac2f02354331585c19b935428e05d5b8ac2115a533764262250c8
-- 00_nucleo/prompts/_nuclei/eval/source-validation.toml sha256:e29edf5bc71d0c7f8b45d0a2a0db43820151a7d80f7484197c56dc8b3830d774
-- 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:faaf206c9f4c20eba8b18b463ebe7836cb9671fd8672501c068eef2751f88d3c
-- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
-- 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:fb383f227b0bcd8b1e61899942fa0383a4cda66093da58bda2e87844e2895d2a
-- 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:2989f08ae6b4b379afb61d9673b94ab8538c45a97b98e566677ae0f719429dc3
-- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
-- 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
-- 00_nucleo/prompts/_nuclei/paragraph-hanging-validation.toml sha256:182a3be50a215eddc4c94959fdbc2cb703c136b16a0ff22e15da5e95c3cc9e18
-- 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:f29e26ff07053f940cfe4ab5358fc9a6ac8d4d689528e169b5f8567492f52f46
-- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
-- 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:d207e8a3a934b2eff2b67c4bfc7f15b9af0c0f3abc83acdfaf774326e7b242eb
-- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:1d697fae328277525e44cad674cecc537ceb23a1bb3ae11bb68a0a9575411ae4
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
+- 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:66cf98676c3f6ddd3641e4e67eaed2ed2b71a06d5fd9a0be93dbc3059e506074
+- 00_nucleo/prompts/_nuclei/eval/source-validation.toml sha256:727a433beef7710d70729176c3b5a5f851b7e98be320c7594b86e5b269d8d49d
+- 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:2213a4793474159cfae64b699263b16621a492ad2056fbaf5d28ac7950593c6b
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
+- 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
+- 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:a0d3cae81e77da5875204a94bc2fbd707009f0d751cf50ed870c416a01187a22
+- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
+- 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
+- 00_nucleo/prompts/_nuclei/paragraph-hanging-validation.toml sha256:00e900edd4f7f3d6cd9aef545f6631615d612b377b17e9dd37f0254c4fd7cf51
+- 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
+- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
+- 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
+- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
 
 ## Source evidence
 
@@ -93,8 +93,7 @@ only later insertion. Test origin/collapse/discard independently from literal/re
 cross-node matching. Keep explicit-space, Latin/Korean, ideographic punctuation,
 ambiguous quotes, comments, strong/dynamic, destructive Linebreak, style-chain and
 nontext boundaries as controls. Local pre-normalized show replaces only its match;
-combined local CJK show and sequential identical-rule override remain separate
-unresolved parity cases, not GREEN credited by these tests.
+combined local CJK show and sequential identical-rule override were separate unresolved cases at that baseline; only the later ratified textual-realization scope below supersedes their earlier limits after its own controls pass.
 
 Math tests preserve real syntax/qualified construction, arity/casts, presence and
 identities. Keep primes slot/nesting distinctions, cases MathAlignPoint and lr body
@@ -114,1562 +113,392 @@ No parser/build/fixture/import failure may masquerade as the expected result.
 Unknown/timeout/opaque observation fails closed. Repeat/reverse orders must be
 stable and comparisons may not strip diagnostics to manufacture equality.
 
-## Política de hifenização e validação — 2026-09-28
+## Paragraph validation, composition and lexical-cost controls
 
-### Medição anterior à decisão
+correcao-politica-hifenizacao-2026-09-28/before-pdf/resultados.json records 52 bilateral inputs/source/commands/boxes under initial.json. absent/auto/false/true were locally equivalent; historical9f2b6e8715237cb086899a42873660fe744622e8 rejects hyphenate integer/string, justify integer/auto, invalid linebreaks; literal errors/spans in stderr. rules.rs:2972–3010,3407–3420 drops options, structural/par.rs:119–126 accepts/ignores, break_selection.rs:39 ignores policy; upstream text/mod.rs:545–565/model/par.rs:227–242, 627–636 defines domains. This measures behavior/types, not old intent.
 
-`correcao-politica-hifenizacao-2026-09-28/before-pdf/resultados.json` conserva 52 entradas bilaterais, fontes, comandos e caixas, medidas no estado `initial.json`. As combinações absent/auto/false/true eram equivalentes no Tekt. O vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8` rejeita hyphenate integer/string, justify integer/auto e linebreaks fora de simple/optimized/auto; os diagnósticos literais e spans estão nos stderr do lote. Fonte: eval/rules.rs:2972-3010/3407-3420 descarta opções; stdlib/structural/par.rs:119-126 aceita/ignora; layout/break_selection.rs:39 não consulta política; vanilla text/mod.rs:545-565 declara Smart<bool> e model/par.rs:227-242/627-636 declara justify e Linebreaks. Isso mede comportamento e tipos, não demonstra a intenção histórica dos prompts.
+Internal continuous parity narrowly supersedes atomization's prohibition on honoring discarded properties for this package, without public signature/entity/phase change; shared paragraph-break-policy is not productive owner. Test set/native valid types/errors/spans/lexical custom Auto/Bool. Replace discarded-hyphenate warning canary with still-unsupported stroke, never remove assertion or weaken geometry/tolerance/language tests. first-core-integration.log6316pass/one P134 failure expects discarded justify:preserve known-property-versus-unknown-target purpose with unconsumed first-line-indent, include valid leading/no warning.
 
-### Decisão e escopo vigente
+correcao-composicao-paragrafos-2026-09-28 initial/before/before-pdf34 historical controls measure first justified end145.52versus172.000002pt at180pt/margin8, final110.048both; native Par2versus3 physical lines, empty-starty3.74versus18.14, empty-auto24.568versus38.968. line_commit already justifies, word_layout ordinary flush/layout treats Par transparent/style restore late/eval groups show flow. XML groups are not lines. Test repr/native Par/body and show-par inline styles/actual boundaries, no extra Par per wrapper, keeping earlier diagnostics/other assertions. Global preparation/optimized were separately incomplete until measured selector/cost owners; do not claim them from this slice.
 
-Correção interna de paridade ADR-0127: assinaturas públicas, entidades e fases permanecem; os owners abaixo legitimam apenas sua unidade. A restrição da atomização de não honrar propriedades descartadas é supersedida somente por este lote. O núcleo paragraph-break-policy fixa o invariante compartilhado; não é owner de código.
+precedence-state.json/regression-acceptance191checks/two show-par-sets-false failures and show-par-full-tree show swallowed #set scope. eval/mod.rs:1532–1560 has actual provenance, rules.rs:660–727 treats all Styled inline. Hub emits private eval.flow.scope in existing Styles; rules keeps pre-material #set scopes outside paragraph realization, preserves SetPage/Empty/Space/SpaceFromNewline without wrapping, postmaterial remains inline. No style-key provenance heuristic/public field/API/default/phase. Later measured whole-material constructor Styled scope factors too only with prefix/suffix Empty/Space/SpaceFromNewline/SetPage; partial fragments remain inline. The narrow whole-flow rule supersedes absolute constructor exclusion, not all boundaries. Preserve real style/precedence/restore controls.
 
-Adicionar regressões dos tipos e diagnósticos nas formas set/native, valores válidos e transporte lexical, incluindo custom Auto e Bool. Migrar o canary de warning de hyphenate para stroke, ainda não capturado, sem eliminar sua asserção. Nenhuma tolerância, fixture de geometria ou asserção preexistente de linguagem é enfraquecida.
+rules.rs:3070/par.rs:131 validates but fails transport; correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json refutes distinct strategies. Extend lexical-channel test for par.linebreaks set/native simple/optimized/auto, keeping invalid casts/spans, no public/language mechanism change.
 
-### Integração antes do ajuste de canary
+correcao-hardcode-paragrafo-2026-09-28 initial/before/before-pdf20 controls show missing bool overhang cast and fixed0.55 hyphen compensation; upstream text/mod.rs:391–393 bool/defaulttrue, line.rs:518–525 final style. Initial paragraph_select suspicion refuted by mandatory-line attempt.justify handling upstream linebreak.rs:551–559,line.rs:138–139; preserve formula/natural-last-line tests. Constants0.55/base135/distance5/increment0.15 are normative source-derived quantities, not configuration repaired by renaming. Test set overhang true/false without discarded-warning, auto/int/string expected errors, no snapshot changes. Literal-hyphen identity requires own carrier, not glyph/position inference.
 
-first-core-integration.log registra 6316 passados e uma falha: o canary P134 exige warning de justify descartado. Preservar seu teste de propriedade versus target desconhecido usando first-line-indent ainda não consumido; incluir leading válido e confirmar que não avisa. Não remover a asserção de warning.
+correcao-custos-paragrafo-2026-09-28 initial/before/before-pdf66 controls, pinned text/mod.rs:1507–1564, inline/mod.rs:240, linebreak.rs:29–30,961–962 establish Dictionary/Ratio field order/partial fold/shared scope/135-100×ratio; local eval drops costs and layout fixes defaults. Test invalid dictionary/component types/normative first-error precedence and valid costs without discarded-warning, expectations from source/probes including negative ratios. text_costs owner resolves components/default1; partial fragments never replace shared costs, only four text.costs.hyphenation/runt/widow/orphan channels join preparation whitelist after restore/inline refuters. Whole-flow Styled factors before Par, temporary preparation push restores; no costs-created typographic boundary/glyph-style inference. Debt49 intermediate overhang→costs canary is superseded by supported costs→kerning:false, retaining three warnings/spans/baseline/stroke. Uniform regional widow/orphan subset, not validation alone, owns pagination; outside subset fallback remains.
 
-## Composição de parágrafos — 2026-09-28
+correcao-viuvas-orfas-2026-09-28 before-pdf78/before-extra24/fullstate historical controls show3+1versus2+2, zero-cost equality, tiny/large-positive same protection. Pinned flow/collect.rs:196–229/distribute.rs:343–364 defines strict-positive first/last pairs/whole-three and next-region fitting; local emit lacked grouping. Boundary criteria remain prepared uniform vertical metrics/no baseline offset/constant region/no columns-cells-subframes-notes-floats-active transaction; certify entire chosen ranges, finite nonnegative top/descent/leading, exterior-matching size/edges/leading, bold-italic only same metrics. Auto bounds no protection; account initial baseline/block-chain collapse/resolved next margins; advance only nonempty current+whole next fit, oversize ordinary progress/no loop. Separate text_costs widow/orphan default1/strict>0; ordinary no-linebreak Simple default, justify auto/refused contexts remain. No reselection/glyph emission/new_page duplication/justification-carrier-last-line-lexical change. Keep same-word2+2/3+1/whole-three/orphan-off/oversize/restore/default/fallback/preserved-spans controls and no XML-line-count proof. These obligations belong to canonical layout owners, not test authorization.
 
-### Medição anterior à decisão
+## Single-evaluation, provenance and occurrence recursion tests
 
-O lote before-pdf em correcao-composicao-paragrafos-2026-09-28 mede 34 entradas contra o pin 9f2b6e8715237cb086899a42873660fe744622e8, no estado initial.json e before/. Com 180pt e margem 8pt, a primeira linha justificada termina em 145.52pt no Tekt e 172.000002pt no vanilla; a última fica em 110.048pt em ambos. BEFORE/par[MIDDLE]/AFTER produz 2 linhas físicas contra 3. Empty-start põe AFTER em yMin 3.74 contra 18.14; empty-auto mede altura 24.568 contra 38.968. native-leading-two-lines demonstra que o escopo de leading precisa fechar antes de restaurar estilo. Fonte: line_commit.rs:195-236 já possui justificação; word_layout.rs usa flush ordinário em quebras; layout/mod.rs:1469 trata Par como transparente; style_scope.rs:18-77 restaura estilo depois do body; eval/rules.rs:663-705 agrupa fluxo para show. Agrupamentos XML do extrator não são linhas físicas: coordenadas coincidentes são medidas separadamente.
+Count World reads/query original+show-generated elements using local MockWorld state, no mutable globals. One common eval also with show; it return retains one origin, equal-body headings retain distinct occurrences. Legacy adapter projects visual for render-structure assertions only; Module.introspection_content remains whole for semantic query/identity. Recipe reads original Location/fields transparently; prepared it twice has one query occurrence/two visual emissions per historical9f2b6e871 probe, distinct from ordinary not-yet-realized insertions. Counters use causal origin/product order, not numeric ids.
 
-### Decisão vigente
+Under ratified `00_nucleo/prompts/core/entities/module.md`, show eval provides memoized original/generated index; no-show snapshot absent/fallback remains; columns+show reconstructed fresh preserves body/label/counter sequence. Observe semantic Module/index contracts, not Content visual equality.
 
-Correção de paridade ADR-0127, em fluxo contínuo: sem nova assinatura pública, entidade, trait, flag ou fase. O núcleo pinado define invariantes compartilhados, não é owner de código. Preparação global e optimized ficam incompletos e pertencem à futura rodada-paragrafo-seletores, depois de medir escolhas/custos.
+show-recursao-auditoria-2026-10-06/measurement.json.gz freezes four wrongly accepted infinite generations/four finite controls against historical pin. After apply-owner confirmation, add productive rejects with message/hints, double alias, finite where, multiple rules, effects/lexical context; legacy fixpoint helper tests stay untouched. core-first.log five P348/P350c failures use revoked policy: only those productive expectations become unlimited-generation rejection with two standard hints/additional full_error classification. Keep a→b→c→it/isolated helper tests. controls-first.json refutes block duplication/local RuleId collision: add container alias/earlier-rule composition/local it rule. markup-span-red.json heading markup lacks origin locally versus upstream range=Z; test actual causal range for markup and heading[Z], no internal Span numbers/hint removal.
 
-Adicionar testes de repr/par nativo, preservação do body e realização show-par com estilos inline, verificando fronteiras reais sem Par extra por wrapper. Manter diagnósticos/política do lote anterior e asserções restantes.
+## Source identity, quote morphology and mathematical insertion
 
-### Refinamento de precedência medido antes da implementação
+Source-based identity evidence/approved gate is `lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json` and `lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json`, owner confirmo2026-10-06. It records source/UTC/HEAD/tree/binaries/commands at historical9f2b6e8715237cb086899a42873660fe744622e8; world.main reuse mislabeled document/expression, upstream separates ids/origins, integer/interner mechanics not required. Pure World tests distinct-expression Source id, own runtime/parser errors, main Source preserved, read/import base world.main, callback origins, fresh scopes/features/legacy string facades; Mock derives no expectation from candidate.
 
-No estado precedence-state.json, regression-acceptance.json registra 191 verificações passando e duas falhas no controle show-par-sets-false. O Tekt emite extraordi-/interna- onde vanilla conserva palavras sem hifenização. show-par-full-tree.log mostra SetPage e o escopo global dentro de um Par sintetizado; a recipe fica exterior ao text.hyphenate true. eval/mod.rs:1532-1560 possui a proveniência exata dos escopos #set; rules.rs:660-727 apagou essa distinção ao tratar Styled sempre como inline. Não inferir origem pelo conteúdo do Styles.
+empty-markup-warning-2026-10-06/before.json measures two-character **/__ caret including Unicode/adjacency. Test published UTF-8 ranges/Source id/message/hints/status, newline-trivia exclusion, two adjacent constructs, empty content block; nonempty no warning/open delimiter error, unchanged generic parser-warning expectations.
 
-Decisão interna: o fold dos escopos #set em eval_markup transporta marcador privado eval.flow.scope=true no Styles existente. Antes de formar o primeiro parágrafo material, realize_flow reconhece esse marcador e mantém o escopo exterior à realização dos seus parágrafos, preservando os carriers prévios SetPage/Empty/Space/SpaceFromNewline em ordem, sem os embrulhar em Par. Após conteúdo inline material o escopo permanece inline dentro do parágrafo corrente; wrappers de constructors/estilos sem marcador permanecem inline. Nenhuma entidade, assinatura, comportamento válido por defeito ou fase pública muda. Pin no núcleo compartilhado paragraph-composition documenta a distinção; não recorrer a heurística por chave de estilo. O consumer do hub só produz o marcador no fold; preparação e reconhecimento são do owner rules.
+smartquote-2026-10-06/before/fields-before first supported native-function alias/programmatic show→Q while literal markup remained phase-gated. before/fields-before/partial-and-html/proposal-controls freeze historical9f2b6e8715237cb086899a42873660fe744622e8/source/binary/HEAD/tree/diffstat/UTC/argv/cwd/environment/output:eval Text loses double/enabled, stored quote bakes English under German/French/disabled use, 6'/2" become quotes; omitted fields differ from explicit false, disabled stays SmartQuote upstream; filtered/set positives and programmatic HTML rejection differ. Markup glyph choice:79–128, layout two flags, native disabled erase:112–117, observation:242–250; upstream markup:141–146 creates explicit-double element, inline:196–211 resolves context, smartquote:119–158 prime/apostrophe/nesting. Title renders literal quotes; script accepts string/rejects Content before export in both.
 
-## Transporte de seleção — 2026-09-28
+Human ratified 2026-10-06 only SmartQuote public double bool→Option<bool>, enabled:Option<bool>, pure helper/context and eval→target-render glyph choice. Preserve semantic identity/known fields in eval, late target style/context, pure per-flow/compilation L1, no I/O/globals/vtable/property registry/unsafe/watch API/math-phase/mode/flag. HTML uses own escaping/composition, never paged layout. This narrowly supersedes conflicting historical quote clauses. RED→GREEN [it's Ω]/["hi"], double presence/false/disabled, callback/alias show; eval tests type/morphology/fields/Source, render owners keep same language/glyph/style expectations. Never delete locale/quote tests; move observation to correct target. Code string stays Value::Str.
 
-Medição antes da decisão: eval/rules.rs:3070 e native par.rs:131 validam sem transportar; before-pdf/resultados.json da rodada correcao-seletores-paragrafo-2026-09-28 refuta estratégias distinguíveis. Ampliar o teste existente de canais lexicais para par.linebreaks nas formas set/native simple/optimized/auto. Sem mudança de linguagem ou mecanismo público; casos inválidos existentes mantêm casts e spans.
+D05 after.json.gz/expression_dispatch.rs:270–281 show missing literal-equation capture: test alias math.equation.where(block:true) on $ b $, inline intact, body once/existing guard, no new phase/baked render/representation demand.
 
-## Remoção de hardcode funcional — 2026-09-28
+math-bare-2026-10-06 before/additional/refuters/math-bare-medicao preserve HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/tree/UTC/diff/source/binaries/historical9f2b6e8715237cb086899a42873660fe744622e8. Bare frac/mat/sqrt/lr/op Equation1/0, bold/ordinary0both, nested-explicit1both, reuse2upstream; style/show/context probes distinguish boundaries, explicit fraction/it.body depth error/valid it/later second insertion/raw labels refute shortcuts. Upstream realize:245–265, 302–334 wraps before show outside math; local equation text projection/realize missing normalization/bottom-up traversal/existing-locatable apply explains observed gap, not mandated algorithm/bytes. Owner ratified `lab/history/construction/records/00_nucleo/materialization/math-bare-2026-10-06.md:3`/math-bare-aprovacao-2026-10-06.json, manifest 149d6535b442a9275aa6612647ad79eac460351808ea1858175d09d1cf07e1f6; earlier pending gate satisfied only named boundary, no universal parity/math-label/other-debt closure.
 
-### Medição anterior à decisão
+Test raw frac before insertion; frac/mat/root/lr/op queryable; ordinary/math.bold([x]) no Equation; distinct equal insertions; explicit/math-inside no extra wrapping; where(block), local scope, direct-alias-where show, guarded it, new generation/it.body depth error, nonretroactive later rules, effective styles/alt. Index counts not Rust shapes; Mathy label never promoted. Pure tests here; normalizer/traversal tests with own owners. eval --in exposes no file variable to auxiliary expression; use directly evaluated block, never unknown f as raw-value proof. Bilateral scoped RED→GREEN/full validation required.
 
-`correcao-hardcode-paragrafo-2026-09-28/before-pdf/` mede 20 entradas contra
-9f2b6e8715237cb086899a42873660fe744622e8 no estado `initial.json` e `before/`.
-`eval/rules.rs:3483-3525` e `stdlib/text/constructor.rs:153-190` não capturam
-`overhang`; auto/int/string são aceitos indevidamente. A fonte vanilla
-`text/mod.rs:391-393` declara bool default true; `inline/line.rs:518-525`
-condiciona a compensação ao estilo final. `paragraph_hyphen.rs:221-224`
-sempre multiplica a largura por0.55. A suspeita inicial sobre `paragraph_select.rs:78-82` foi refutada antes de
-implementar: vanilla `inline/linebreak.rs:551-559` usa attempt.justify, que
-`inline/line.rs:138-139` desativa para mandatory. Conservar a fórmula atual
-e testar a última linha natural. Isto mede comportamento, não intenção histórica.
+## Table insertion, standalone occurrence and declared Cell defaults
 
-### Decisão vigente
+ table-cell-realizacao-d08b3-2026-10-07/before.json.gz, red.log, nested-reuse-red.log, local-bool-red.log preserve state/source/separate REDs. Insertion ratified manifest 5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b, owner comfirmo at `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md:3`. This cfg(test) owner supplements43 productive owners with field/order/hidden effects/local alias/nested cell/context/Bool-as-Raw/causal-span controls. Preservation record must name this additional test consumer/L0, not claim no outside file changed. No new production authorization/general Raw/Table-default certification.
 
-Correção interna/de paridade em fluxo contínuo ADR-0127, sem campo ou assinatura
-pública. Não confundir constantes normativas de um algoritmo com configuração
-ignorada. O fator0.55, custo-base135, distância5 e incremento0.15 vêm da fonte
-pinada; identificar essas constantes pelo significado e referência, sem alegar
-que renomear números implementa configuração. Custos customizados continuam
-escopo pendente. Conservar identidade textual literal do hífen nesta rodada:
-ela requer carrier/contrato separado, não heurística sobre glyph ou posição.
+Standalone complete.json.gz has 53 probes2026-10-07T14:47:56.340144+00:00–14:48:12.375245+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/dirty status/diffstat/hashes/source/argv/cwd/environment/output. Historical pin9f2b6e8715237cb086899a42873660fe744622e8/oracle7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea/Tekt6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. before/refuters/complete are not additional independent rounds. Upstream standalone exposes auto x/y/inset/align/fill/breakable, spans1, empty stroke dict; local omits defaults/duplicates metadata, raw remains body-only/raw-x rejected both. Standalone Table style must not supply Cell defaults; raw/prepared equality false versus true. Nested/effect/late probes refute repeated effects/lost lexical origin; fresh identical/growing/wrapped/multiple Cells must depth-error with new-constructor span while alias/body/conditional-hidden remain valid. Returning it permits earlier unconsumed recipes; query remains cell is not locatable/location none, no false Location.
 
-Adicionar controles set overhang bool true/false sem warning descartado e erro de auto/int/string com mensagem esperada; não mudar snapshots existentes.
+Upstream table.rs:734–778/realize:367–386, 418–429, 491–505, 571–586 prepares defaults/guards/product depth; local table_cell.rs:111–143/table_cells.rs:110–129,280–304/show_rule_termination:65–70/apply:139–166 expose missing standalone preparation/morphological stop/global revocation. Nominal policy is Tekt choice, refutable by alias/two-rule/new-generation/hidden-content controls, not upstream mechanics. Human confirmo ratified standalone public field/type package at `lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-2026-10-07.md:3`, manifest 3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df; insertion A alone did not authorize it. Test raw/prepared getters/presence/defaults, once effects/hidden-nested-reused-late-local body, it/alias/two earlier rules, fresh identical/growing/wrappers/conditional/hidden within/outside Table, limits/spans with existing causal Engine helper, no rule-deciding mock.
 
-## Custos textuais personalizados — 2026-09-28
+Require scoped bilateral full effects/equality/getters/selection/HTML/text-style-real geometry/messages/carets without erasing differences; debug/release/core-infra-shell suites/build/lint/no V5/V6/V15/V26; revalidate D08A/B2/B3-A, Raw blocks/defaults, Equation/math/matrix/query. Preserve old tree via snapshot/restricted diff, no commit/reset/global reseal. Standalone slice completed intrinsic defaults/alias-versus-fresh only; declared defaults completed below for its measured subset. General Table defaults/equality, rich casts/paint/strokes/insets/lines/gutters/multipage spans/PDFUA/general nonlocatable policy/empty-file warning remain open, not normalized for parity.
 
-### Medição anterior à decisão
+Standalone after-second.json.gz/html-fields measures local Auto as Text versus upstream code(data-lang:typc)/constant.language#d73948. Upstream value.rs:191–208 Auto/Bool Raw inline typc; markup_stream:210–215 covers Bool but Auto fallback Text, layout/raw:201–203 only true/false, HTML Raw generally rejected. Before code test Auto not Text/atomic Raw HTML accepted. Limit correction to Auto→Raw(lang:typc,block:false), auto constant-language color and HTML auto/true/false code+color span, existing escape/mode. No type/API/phase/flag/default/grammar or arbitrary Value/general HTML Raw certification; Table/Raw/query/style/product RED→GREEN.
 
-`correcao-custos-paragrafo-2026-09-28/before-pdf/` registra 66 entradas no
-estado `initial.json` e `before/`, contra pin 9f2b6e8715237cb086899a42873660fe744622e8.
-`text/mod.rs:1507-1564` valida Dictionary, Ratio por campo e composição parcial;
-`inline/mod.rs:240` lê costs do escopo compartilhado, não de cada fragmento;
-`inline/linebreak.rs:29-30,961-962` aplica defaults 135/100 vezes o ratio.
-O Tekt descarta costs em eval/rules e aceita sem transportar no constructor;
-paragraph_hyphen e paragraph_select usam defaults fixos. Os erros e spans
-estão no stderr vanilla, inclusive negativos aceitos. Não inferir intenção.
+ table-cell-styles-d08b3c-2026-10-07/before.json.gz58 probes2026-10-07T15:24:58.038947+00:00–15:25:13.727872+00:00 preserve same HEAD/tree/full status/diffstat/source/argv/cwd/environment, pin/oracle above/Tekt721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set/individual-field/late-local-reuse-spread/errors refute empty-target warning/missing defaults; padding-span-one/empty-fixed-rows spans1, Auto delegates Table not Cell set; show-cell-set-self changes standalone but not positioned fill; Stroke/alignment fold. refuters-before adds header/partial inset/args-condition/snapshot Table; alias-inside-table valid upstream, recurses locally. Upstream table.rs:734–778,785–800/resolve:203–278 uses styles before position-fill, spans1 padding; local set.rs:23–27 only text target/table_cells:262–310 lexical props/grid_placement:80 raw slots/standalone no private effective props. This is language, private representation not Packed/Rust equality requirement; refute with any negative, lost lexical source/raw mutation/repeated effect/lost alias guard/geometry-cache regression.
 
-### Decisão vigente
+Test RED before repair: setCell raw/prepared defaults/getters, span-padding-placement style, alias/local/late, constructor/Auto/None/fold, conditional/spread/causal errors, standalone-versus-positioned show-set, it alias in Table. Observe language/real effect order, not private structs; revalidate standalone/Raw/math/query/build/lint. Internal continuous mapping parity, no new public contract/external compatibility/flag/default/phase; props/helpers private in already externally nonconstructible carrier, lexical contracts intact. Certified subset: integer/auto, Color/None/Auto, uniform Stroke/None, alignment, Length/partial Length-Auto inset, Bool/Auto/existing typed schemas. Gradient/tiling/functions, per-side strokes, percent inset/rich constructor casts, rich groups/multipage spans/PDFUA, positional set/text/general Table defaults remain incomplete pending measured owner L0. No warning fallback certification/upstream defect copying.
 
-Correção interna/de paridade ADR-0127 em fluxo contínuo, sem novo contrato
-público, flag ou fase. Módulo privado compiler/text_costs possui owner único
-para cast, transporte por componente e resolução dos custos compartilhados.
-Hifenização/runt globais passam a consultar a configuração. Widow/orphan são validados e transportados; sua influência é limitada ao subconjunto regional certificado descrito abaixo.
-Custos de fragmentos parciais não substituem o custo compartilhado; os quatro
-canais validados são neutros para glyphs na whitelist Styled. Um wrapper integral
-é fatorado pela realização existente antes de formar Par. Largura variável
-permanece limitada. Não deduzir custo pelo glyph. Preservar todos os defaults.
+Refuters show whole constructor stroke/alignment overrides Cell set for standalone getters; self show-set colspan2 occurs after placement1, not proof of reoccupancy. Upstream resolve:218–244 freezes occupancy but not content span fields; table.rs:785–800 fixes padding spans1. Private positioned TableCellResolved remains physical plan; standalone projection may coexist only for observed recipe properties, overriding lexically omitted spans through show-set while preserving resolved fields. Getters/canonicalization use projection, placement uses original complete plan; unsourced padding has lexical spans1 so show-set cannot change it. Stage/guards stay causal, no public/source mutation; getter RED→GREEN plus geometry/regressions. This narrowly supersedes earlier mutually-exclusive prepared-stage wording only for this observed-properties overlay.
 
-Testar dicionário/tipos inválidos, prioridade normativa da primeira falha e custos válidos sem warning descartado. Inputs/mensagens derivados das sondas/fonte.
+extra-first.json.gz freezes full state/source/binaries:successive red then 2pt stroke sets yield2pt+red standalone/positioned; render constructor2pt resolves inherited Cell red before Table3pt although standalone getter exposes constructor only. Upstream #[fold]/stroke.resolve differs from raw getter. Successive declarations fold specified Value::Stroke components, no carrier/callback in Styles. Positioned constructor folds captured Cell base then Table; private TableCellProperties.stroke_inherited:Option<Stroke> carries causal base, not lexical getter. ObservationEq includes base, canonicalization ignores render-derived base; already resolved Table base None, clone/alias retain prior base, explicit None wins. Constructor whole-precedence applies standalone getter, not this measured render fold. Private continuous RED→GREEN, no public/phase/default.
 
-### Refinamento de custo compartilhado medido antes de implementar
+show-fold-before.json.gz/geometry-final.json.gz measures red lost on accumulated show-set/black1pt despite known red2pt. Pure private Cell chain_styles folds cell.stroke deltas; canonical borders owner reads surviving cell_body snapshot with no resolved-Cell fallback. Other styles/guards/order unchanged; helper folds declarative Value::Stroke only, no carrier/layout/callback/public field/API/phase/default. Real stroke recollection/RED→GREEN mandatory.
 
-after-first-resultados.json/proveniencia.json registra 66 entradas com o primeiro
-binário de custos. Só restore e inline divergem entre os inputs válidos. A fonte
-`inline/mod.rs:240` consulta shared.get(TextElem::costs); `eval/rules.rs` conserva
-fatoração dos Styled que cobrem todo o material do fluxo antes de formar Par.
-`paragraph_prepare.rs:45-78` recusa os novos canais mesmo quando eles não alteram
-nenhum atributo de glyph: o fallback incremental produz escolhas divergentes.
-A exclusão absoluta desses canais foi refutada; isto supersede o scope-out
-anterior, sem promover fragmentos ao escopo exterior nem mudar fase de pipeline.
+ table-origens-d08b3c2-2026-10-07/baseline.json.gz freezes HEAD/tree/UTC/source/binaries; owner confirmo2026-10-07. Test local set/show func styled, content-origin bare/alias/spread caret+trace, raw body shape/distinct sources/reuse/metadata once/hidden body. additional-debug/prior-local-body refutes old FUNCsequence with FUNCstyled:only this morphology expectation/test name changes. Structural inspection traverses Source without hiding child style/element/assertions. Exclusive/static boundaries/no I/O/new API/trait/flag/eval-layout phase; C2/C/macro/build/lineage required.
 
-Permitir exclusivamente text.costs.hyphenation/runt/widow/orphan na whitelist
-Styled da preparação. O custo lido pelo planejamento é o escopo compartilhado
-exterior: push temporário da preparação é restaurado e não altera tal leitura.
-Inline parcial não escolhe custos do parágrafo; Styles integral continua a ser
-fatorado pelo mecanismo existente de realização e entra na chain antes de Par.
-Não criar espaço ou fronteira de palavra por diferenças de costs. Manter
-limitações físicas widow/orphan e contextos fora do subconjunto certificado.
+## Labels, conditional set and code-tail tests
 
-## Proteção regional de viúvas/órfãs — 2026-09-28
+labels-expressoes-2026-10-14/before/results.json.gz freezes HEAD/tree/UTC/source/binaries/historical9f2b6e871:literal works, alias/call/closure/block label renders text/query misses/orphan warning absent. Pure World RED tests whole names, Heading association, preserved spaces/orphan warning-range, block confinement, show-label/text rule once, expression once. No whitespace/diagnostic stripping/vanilla-tree identity; unlabelable-target/repeated-label controls remain separate labels-associacao-alvos. Initial raw newline declaration spaces in fixtures were resolved by oracle-confirmed semicolon-equivalent fixture-controls.json, not output trim/space-semantic change.
 
-### Medição anterior à decisão
+labels-escopos-2026-10-14/before/results.json.gz freezes same provenance: Parbreak blocks target, set/show/equal-false set crosses scope incorrectly, set page hides orphan. Test literal/expression, block and alias-interpolated parbreak, separators, set/show/equal/false, page without target, exact warning span/new tail target; let/code-block creates no outer boundary. Reuse helpers/Worlds/full untrimmed expectations, no repeated-label/explicit-Empty/show realization closure from local selection.
 
-`lab/results/construction/diagnostics/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
+set-condicoes-2026-10-14/before/extra-before/results.json.gz freezes pin/HEAD/tree/UTC/source/binaries:nonCell conditions ignored, false args execute, Cell type uses int, Heading swallows arg error. Test shared condition gate before target/args/features, false no mutation/carrier/warning, condition once before args, long type names/ranges/causal errors/Cell aliases/show-set/numbering. Active Heading and registered Tekt callout argument failures retain causal diagnostics, callout has no false vanilla oracle. True/absent executes args. No trim/changed old expectations; disabled HTML tests short circuit/access denial, not active parity.
 
-### Decisão vigente
+codeblock-set-2026-10-14/before/results.json.gz/`00_nucleo/prompts/core/compiler/eval/expression_dispatch.md` measure raw-tail types/lost lexical styles/prefix join/absent return warning with exact HEAD/tree/UTC/source/binaries. RED tests tail conversion(false/Empty), prefix/span, local/nested/equal styles, once eval, return/loop/Table/Math; no-set controls retain types. No old-expectation changes/private-stack/byte acceptance; scoped continuous flow/suite/product probes. Other Value presentation, selectorless show and SetPage morphology remain separate. refuters-after/raw-rule-false/active loses Raw show on Bool:add independent false/true/nested-set Bool/Auto tests; style observer rejects unexpected variants, never silently skips.
 
-Correção interna/de paridade em fluxo contínuo ADR-0127: nenhum campo/trait/assinatura pública, flag ou fase nova. Supersede a exclusão anterior de widow/orphan exclusivamente para parágrafos preparados com métricas verticais uniformes, sem baseline offset, geometria paginada constante, sem colunas/células/subframes/notas/floats ou transação regional ativa. Os demais contextos conservam fallback e limites explícitos. Não promete algoritmo completo nem desempenho.
+first-validation/workspace.log fails old #heading[Alvo]#{set text(fill:red)}<alvo> expecting Heading; labels-first/results.json.gz shows upstream styled empty child/cannot reference styled, COUNT1 never proved Heading target. let returns None/upstream labels empty sequence. Correct old expectation, not code-tail implementation; keep new Heading after set/comment as prior-target controls, test empty CodeBlock target separately. Empty let/query association/publication remains open under actual owners, not closed by count equality; retain logs/report correction.
 
-O módulo privado paragraph_pagination possui exclusivamente certificação vertical, agrupamento e admissão regional. Recebe ranges já escolhidos, não refaz seleção, não emite glyphs nem duplica a lógica de new_page. A certificação inteira precede emissão; todos os fragmentos devem ter size/arestas/leading iguais ao estilo exterior (negrito/itálico admissíveis se as métricas coincidirem), e finite nonnegative top/descent/leading. Bounds auto não precisam de proteção. Respeitar a baseline inicial e o colapso existente de block-chain antes de comparar necessidade real com page_bottom_limit. Novo espaço disponível é calculado com margens resolvidas para a página seguinte. Avançar só se há material na região atual e o grupo cabe na próxima. Grupos muito altos conservam progresso ordinário e conteúdo íntegro; nunca repetir new_page em laço.
+## Raw presence, Default and text-size fixture approvals
 
-Helpers privados de text_costs resolvem widow/orphan independentemente dos pesos hyphenation/runt, reutilizando FIELDS, com default Ratio 1 e teste estrito > 0. O default de estratégia do planejamento passa a Simple para parágrafo comum sem linebreaks, permitindo a preparação necessária à proteção padrão; a escolha automática por justify e todos os contextos recusados permanecem. Emitir sem alterar justificação, carriers, última linha aberta, fronteiras e restauração lexical. Preservar notas e colunas por não aplicar proteção incompleta nesses caminhos.
+content-serialization-2026-10-14/before/raw-controls/results.json.gz freezes HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/tree/UTC/source/binaries/historicalpin. RawElem:21–25/native_raw:78–136 loses omission/collapses false-none; fields/equality/encoders differ upstream. Ratified manifest b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, `lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json`, supersedes only earlier no-presence-mask clause. Test omitted/false/true block, omitted/none/string lang, alias/equality/at-has-fields/JSON-YAML/markup presentation, no trim, new render/default/phase or unrelated contract change. RED→GREEN/suite/build/lineage.
 
-Aceitação: RED→GREEN com mesmas palavras distribuídas 2+2 versus 3+1, proteção integral de três, orphan desligado independentemente, grupo excessivo, restauração e default sem flag. Sondas bilaterais com caixas/palavras/páginas, tipos/spans anteriores preservados e controles de fallback. Não usar grupos XML como número físico de linhas. Resselo restrito aos owners, build e crystalline-lint sem erros.
+EvalContext::new:397–424/source-owner snapshot shows missing Default/explicit states. `00_nucleo/prompts/core/compiler/eval/mod.md` owns public contract; owner approved manifest 11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03 on2026-10-16 with clippy-default-2026-10-16 approval-receipt. Earlier pending gate satisfied only three impls/D1–D5. Test Default-bound use and isolation: Paged, empty features, full_error=false, recipes enabled/current budget, independent counters/locations/flow, mutated context cannot contaminate next Default/new. Missing-impl RED→delegation GREEN, unchanged language/diagnostics/fixtures, no new upstream parity.
 
+text-argumentos-2026-10-17 before/before-measurement/morph-before-measurement/audit preserve HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/tree/UTC/status/diffstat/source/L0/binaries/argv/historical9f2b6e8715237cb086899a42873660fe744622e8. named-em0versus24pt, affine3versus27, nested18→0versus36, six Size/Color/body orders rejected locally/accepted upstream, positional18 ignored12versus18. Pinned text/mod.rs:290, 303, 924–930, 1136–1142, args.rs:178–247 typed search/named priority/restbody/affine composition versus style_chain:513–517/constructor:123 discarded em/collapse top-wins:394–395, 419–422. Restoration/Raw/heading/math/capture-show/duplicates-spans/zero-negative/metrics refute; upstream text2em==text24pt compares Styled child(content:779–782), separate equality defect not closed by full type.
 
-## Realização com avaliação única
+Human approved manifest 771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba/two public contracts, S1–S16 under12GiB/swap0, no release/merge/push, seal only after implementation/valid graph, RG1 independent. Only this owner's fixture/adapters change Style::Size(Pt)→Size(absolute Length), StyleDelta.size expectations→Option<Length>, retaining language/function/geometry criteria, not new-representation snapshots.
 
-Acrescentar sentinelas de avaliação comum única mediante contagem de leituras de World e de query dos elementos original e gerados por show. Preservar helpers e demais testes; a contagem é estado local do MockWorld, sem global mutável.
+## Independent test observations and CI cleanup
 
+`lab/results/construction/diagnostics/testes-ci-2026-10-13/before.json.gz` preserves HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/dirty source/hashes/UTC/status/diffstat. matematica-ci-2026-10-13/clippy-inventory/evidence.json.gz records initial warnings. tests.rs:3989–4022 uses prohibited native math for four inverse-trig expectations; ratified oracle angles.json gives 30, 60, 45, 63.43494882292201 degrees with recorded float representation. Replace only platform-dependent expectations with independent degree constants/tolerance1e-12, retaining Value::Angle/public x, y order. At 6492 require actual Equation instead of discarded Module; 6501–6519 require observed mathematical𝑥 and no brackets, not conditional Text-only acceptance. Observe missing/empty negatives too. Singleton Range is spans collection, not offset iteration: use from_ref/once with full bounds. Simplify only proven redundant imports/bindings/Copy/borrows, rename private internal tests module regressions/private matrix tuple alias, keep all cases/spans/messages/fixtures/assertions. Private prefix rename removes no test, new lint exceptions forbidden. Internal tests only, Clippy-denied warning structural RED not fabricated functional RED; run cases/lineage.
 
-## Realização com avaliação única
+## Exhaustive existing FrameItem decision
 
-Testar execução comum única também com show; retorno it não duplica origem; duas headings produzidas com corpo igual conservam ocorrências distintas. Comparar observáveis de linguagem e índices causais, não igualdade morfológica como identidade.
 
+### Evidence
 
-## Realização com avaliação única
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/
+sources/L0/configuration/hashes/status/diffstat. AST spans/patterns/guards/bodies/
+complements were checked before code; classification.json records 70 cases across
+26 owners under pinned CI AST. Rust exhaustivity is mechanics; product semantics/
+morphology/geometry/effects/diagnostics stay. No new architecture/upstream intent.
 
-O adapter de testes legados projeta content visualmente para manter asserts antigos sobre estrutura de render. introspection_content conserva integralmente proveniência para testes de query/identidade; não usar projeção visual como índice semântico.
+### Exact owner complements
 
+Only replace has_line's `_` at tests.rs:7015(historical F001) with FrameItem::TextReplacement/TextSeparator/Text/TextShaped/Glyph/Image/Shape.
+Preserve complete fallback bodies/prior arms/guards/transforms/calls/returns/order.
+Callbacks/effects/metadata/clipping/fonts/positions/ink/width follow current owners;
+no expanded traversal/wrapper-leaf change/text-or-ActualText geometry replacement.
+Tests retain fixtures/expectations/tolerances/counts/Unknown failures; V19 group
+notes stay visible without pretending one arm covers all alternatives.
 
-## Realização com avaliação única
+Continuous ADR-0127 adds no enum/field/trait method/public signature/default/
+dependency/compatibility/phase and approves no historical pending proposal.
+L0 first, scoped bidirectional resealing; no suppression/higher threshold or
+match→if-let evasion. Before code run new FrameVisitor control/workspace suite
+with unchanged expectations and confirm AST RED for all 70 family warnings.
+Afterward zero scoped-family V16/no new warnings; outside V16 remains pending.
+For productive core matches reached by cargo check -p typst-core, use a disposable
+FrameItem sentinel variant to observe absent E0004 before/present after. That
+probe covers only compiled sites, never unbuilt cfg(test) or blocked L3 sites.
+For the full batch replay patterns/guards/bodies, verify enum/signatures unchanged,
+real build/tests, no stub bodies.
 
-As sentinelas de ocorrência consultam a árvore semântica preservada no módulo, enquanto assert visual usa a projeção do adapter legado.
+Revalidate full workspace suite/cargo build/strict workspace-all-target Clippy
+(-D warnings, -D unfulfilled_lint_expectations)/fmt/Rustdoc -D warnings/four HTML
+indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/L0/
+configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
+MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
+memory gain or measured AI benefit.
 
+## Nominal projection and style complements
 
-## Realização com avaliação única
+tekt-v16-eval-helpers-2026-10-17/before.json.gz, contexts.json, audit-recipe.json preserve HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/tree/UTC/exact diffstat/full sources/config/hashes/pinned parser: eleven open unguarded AST arms at tests.rs:129,494,538,566,571,632,645,771,941,963,1098; Content120/Value39, prior passing executable hash-verified. This is test-helper structure, no new language/upstream intent/AI-benefit inference.
 
-O adapter legado devolve a projeção visual da árvore realizada; conserva introspection_content integral para assert semântico de identidade. A projeção não altera o consumer produtivo.
+For each named helper below replace only `_` with current nominal enum complement excluding listed already handled whole variants. Use in-scope prefix/appropriate `_` or `{..}` payload/flat group, no new binding. scope.json retains full complement/spans. Shared prior negative body justifies informational V19, not per-variant execution/coverage. Future enum additions require compiler decision.
 
+- `eval_for_test_with_registry` at tests.rs:129 (Content; historical E01): exclude `Located, Realized, ShowRecipe` from nominal complement. Legacy visual adapter removes only Located/Realized/ShowRecipe; no other node replacement.
 
-## Realização com avaliação única
+- `go` at tests.rs:494 (Content; historical E02): exclude `Heading, Sequence, Styled` from nominal complement. Find first Heading with inherited numbering; other variants produce no result or new recursion.
 
-Receitas observam location da ocorrência original e campos do elemento com transparência dos carriers; devolver it conserva uma única ocorrência.
+- `go` at tests.rs:538 (Content; historical E03): exclude `Heading, Sequence, Styled` from nominal complement. Collect headings in current order; excluded leaves add no items.
 
+- `go` at tests.rs:566 (Value; historical E04): exclude `Str, None` from nominal complement. Non-Str/None values retain inherited numbering pattern, without validating a new pattern.
 
-## Realização com avaliação única
+- `go` at tests.rs:571 (Content; historical E05): exclude `Equation, Sequence, Styled` from nominal complement. Find Equation with inherited numbering; other nodes produce no result.
 
-Contadores seguem ordem causal de origem e produto, não ordem numérica da identidade. A sonda vanilla 9f2b6e871 de it duas vezes conserva uma ocorrência consultável e duas emissões visuais; testar distinção entre alias preparado e inserções comuns ainda não realizadas.
+- `find_matrix_or_vec_delim` at tests.rs:632 (Content; historical E06): exclude `MathMatrix, MathVec, Sequence, MathSequence, Styled, Equation` from nominal complement. Find Matrix/Vec delimiters through current traversal; other variants provide none.
 
+- `find_op_limits` at tests.rs:645 (Content; historical E07): exclude `MathOp, Sequence, MathSequence, Styled, Equation` from nominal complement. Find MathOp limits through current traversal; other variants provide none.
 
-## Reaproveitamento do índice realizado — 2026-10-05
+- `go` at tests.rs:771 (Content; historical E08): exclude `Figure, Sequence, Styled, Label` from nominal complement. Collect Figure numbering with current style/Label; other nodes add no items.
 
-Adicionar sentinelas de memoização do resultado semântico: eval comum com show disponibiliza no Module o índice original/gerados; sem show o snapshot é ausente e permanece o fallback; conteúdo com colunas e show conserva a mesma sequência de corpos/labels/contadores numa reconstrução fresca. Testes observam o contrato de Module e índices da linguagem, não a igualdade visual de Content. O gateway público foi confirmado pelo usuário em `00_nucleo/prompts/core/entities/module.md`.
+- `has_dynamic` at tests.rs:941 (Content; historical E09): exclude `Dynamic, Sequence, Styled` from nominal complement. Detect Dynamic through existing traversal; others do not satisfy detector.
 
-## Recursão por ocorrência — 2026-10-06
+- `find_styled_custom` at tests.rs:963 (Content; historical E10): exclude `Styled, Sequence` from nominal complement. Find custom within Styled/Sequence with existing preference/short circuit; other nodes provide none.
 
-Medição: show-recursao-auditoria-2026-10-06/measurement.json.gz conserva quatro gerações infinitas aceitas indevidamente e quatro controles finitos contra o pin 9f2b6e871. Após confirmação do owner apply, acrescentar regressões produtivas para essas rejeições com mensagem e hints, alias duplo, where finito, múltiplas regras, efeitos e contexto lexical. Não alterar testes isolados do helper legado de ponto-fixo.
+- `find_custom_in_styled` at tests.rs:1098 (Content; historical E11): exclude `Styled, Sequence` from nominal complement. Find custom within Styled/Sequence preserving first key/order; other nodes provide none.
 
-core-first.log mede cinco falhas em expectativas produtivas P348/P350c da política revogada. Atualizar essas expectativas para rejeição de geração ilimitada com os dois hints padrão e classificação adicional quando full_error. Preservar o teste produtivo a→b→c→it e todos os testes isolados do helper legado. controls-first.json refuta duplicação em block e perda da regra local por colisão de ID; acrescentar testes de alias em container, composição com regra anterior e regra local aplicada a it.
+Keep other Rust tokens byte-identical after rustfmt: prior bodies/guards/payloads/calls/returns/order/short circuit/inherited styles/fixtures/assertions. No Source normalization/traversal expansion in this slice; semantic provenance remains distinct from visual adapter. No match→if-let/matches!, allow/expect/threshold/preexisting-group change to hide V19; notes stay visible, no absent observation accepted. Structural RED11V16/no sentinel E0004→GREEN11E0004 in disposable cfg(test)workspace Content/Value probes, not functional RED/new parity. Replay unchanged bodies/enum/signatures; SARIF11V16 removed/11V19 added/V20 unchanged; workspace/build/fmt/strict all-target Clippy+expectations/Rustdoc four HTML indexes/V1-V5-V15-V26/reverse/scoped pair/frozen provenance/12GiB/swap0/jobs1/sequential. Other52V16 and Source(Table) were outside this slice, not silently closed; later named math work below supersedes only its own scope. No release.
 
-markup-span-red.json mede rejeição de heading de markup sem origem no Tekt e com range = Z no vanilla. Acrescentar controle de range causal real para esse construtor e para heading[Z], sem comparar números internos de Span nem retirar hints.
+## Nominal mathematical and structural complements
 
-## Identidade de documento e expressão — gate confirmado 2026-10-06
+tekt-v16-eval-math-2026-10-17/before.json.gz, contexts/all-contexts/wildcard-inventory preserve same HEAD/tree/UTC/full source-L0-hashes-config/status/exact diffstat, pinned AST/prior passing executable verified.52emitted V16 plus18latent fallbacks(seven Content/eleven MathAttachSlot). leaf/MathFrac/Quote guards and Present(MathPrimes) payload do not cover whole variants. Replace only each `_` with nominal complement of unconditionally handled variants below, Content120/MathAttachSlot Omitted-ExplicitNone-Present(Content). Retain guarded variants in complement, all bodies/slot-search order/any-find_map/callbacks/returns/errors/fixtures/expected. No if-let/matches!, suppression/threshold; V19 stays informative, not all-alternative execution proof.
 
-### Evidência anterior à decisão
+- `go` at `01_core/src/compiler/eval/tests.rs:1680` (Content; historical M01, latent): exclude `Table, Sequence, Styled, Label`; retain fallback `(no guard)`. Collect only properties in contracted traversal; other variants add no items, inheritance/order unchanged.
 
-`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
-conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
-Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
-separam erro/warning do documento de erro da expressão: o documento perde sua
-fonte, enquanto a expressão recebe indevidamente o nome do documento.
-`01_core/src/compiler/eval/mod.rs:609-615` usa world.main() para Source e base;
-`04_wiring/src/eval.rs:66-95` repete esse id ao fornecer o primary ao formatter.
-`03_infra/src/world/cache.rs:58-78` registra arquivos e recicla o contador;
-`lab/typst-original/crates/typst-cli/src/eval.rs:159-179` e
-`lab/typst-original/crates/typst-cli/src/world.rs:176-190` distinguem expressão,
-stdin e ausência de entrada por identidade. A igualdade dos inteiros e o
-interner global upstream são mecânica, não requisito (ADR-0107). A origem
-mostrada, fonte, posição e resolução relativa são observáveis de linguagem.
+- `has_math_root` at `01_core/src/compiler/eval/tests.rs:8128` (Content; historical M02, emitted): exclude `MathRoot, Equation, MathSequence, Sequence`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Decisão e escopo do gate
+- `has_math_root_with_index` at `01_core/src/compiler/eval/tests.rs:8146` (Content; historical M03, emitted): exclude `MathRoot, Equation, MathSequence, Sequence`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Testar a fachada Source-based com World puro: Source de expressão de id
-distinto do main, erro/syntaxerror na própria expressão e preservação do Source
-principal. Verificar read/import pela base world.main(), callbacks com sua
-origem própria, scopes frescos e profiles de features. Manter controles das
-fachadas string compatíveis. Mock não deve obter expectativa do candidato.
+- `eval_label_anexa_ao_bloco_anterior` at `01_core/src/compiler/eval/tests.rs:8405` (Content; historical M04, latent): exclude `Label, Sequence`; retain fallback `(no guard)`. Unexpected assertion variants retain original panic, including Quote without attribution on guard failure; absence never succeeds.
 
-Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
-Consumer exclusivo preservado; Hash do Código acompanha a materialização.
+- `tem_styled_sobre_label` at `01_core/src/compiler/eval/tests.rs:9348` (Content; historical M05, emitted): exclude `Styled, Sequence`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-## Alcance de warnings vazios — 2026-10-06
+- `tem_context_block` at `01_core/src/compiler/eval/tests.rs:10294` (Content; historical M06, emitted): exclude `ContextBlock, Sequence, Styled`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Evidência: empty-markup-warning-2026-10-06/before.json mede caret de dois
-caracteres para **/__ contra o pin, inclusive após Unicode e em adjacência.
-Testar ranges UTF-8 publicados por eval, source id, mensagem/hint/status,
-newline/trivia fora do range, dois constructs adjacentes e empty dentro de
-content block. Conteúdo não vazio não ganha warning e delimitador aberto
-continua erro. Não alterar expectativas de warnings genéricos do parser.
+- `tem_heading` at `01_core/src/compiler/eval/tests.rs:10312` (Content; historical M07, emitted): exclude `Heading, Sequence, Styled`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-## Reparos independentes do gate de aspas — 2026-10-06
+- `encontra_equation` at `01_core/src/compiler/eval/tests.rs:10542` (Content; historical M08, emitted): exclude `Equation, Sequence, Styled`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Medição anterior à decisão: smartquote-2026-10-06/{before,fields-before}.json.gz,
-com pin/HEAD/working tree/UTC e binários exatos registrados.
+- `go` at `01_core/src/compiler/eval/tests.rs:10568` (Content; historical M09, emitted): exclude `Strong, Sequence, Styled`; retain fallback `(no guard)`. Collect only properties in contracted traversal; other variants add no items, inheritance/order unchanged.
 
-Testar show com alias da função smartquote e chamada programática, exigindo
-texto Q. O resultado do markup literal é guardado para o gate de fase, sem
-reclassificar a rejeição original como sucesso. Fixtures puras atuais bastam.
+- `go` at `01_core/src/compiler/eval/tests.rs:10587` (Content; historical M10, emitted): exclude `Emph, Sequence, Styled`; retain fallback `(no guard)`. Collect only properties in contracted traversal; other variants add no items, inheritance/order unchanged.
 
+- `styled_bold_envolve_heading` at `01_core/src/compiler/eval/tests.rs:10621` (Content; historical M11, emitted): exclude `Styled, Sequence`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-## Aspa semântica e resolução tardia — ratificada em 2026-10-06
+- `contem_heading` at `01_core/src/compiler/eval/tests.rs:10630` (Content; historical M12, emitted): exclude `Heading, Styled, Sequence`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-O contrato desta seção é vigente e supersede as cláusulas históricas conflitantes
-das seções anteriores apenas para SmartQuote. A ratificação humana autoriza a
-materialização em fluxo RED→GREEN, com ownership exclusivo e pins abaixo.
+- `go` at `01_core/src/compiler/eval/tests.rs:10653` (Content; historical M13, emitted): exclude `Text, Styled, Sequence, Heading`; retain fallback `(no guard)`. Collect only properties in contracted traversal; other variants add no items, inheritance/order unchanged.
 
-### Medição anterior à decisão
+- `styled_bold_anywhere` at `01_core/src/compiler/eval/tests.rs:10736` (Content; historical M14, emitted): exclude `Styled, Sequence, Heading`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-smartquote-2026-10-06/{before,fields-before,partial-and-html,proposal-controls}.json.gz
-registra pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 dos binários,
-HEAD/working tree, diff HEAD --stat, UTC, fontes, argv/cwd/ambiente e stdout/stderr.
-PDF usa texto extraído, HTML usa DOM/texto e diagnósticos, não igualdade de bytes PDF.
-A avaliação converte aspas de markup para Text; campos double/enabled são perdidos.
-A variável contendo aspas mantém glyph inglês sob uso em alemão/francês ou
-smartquote(enabled:false). Primes 6'/2" viram aspas no Tekt. Show da função
-nativa e nome público foram corrigidos separadamente e passam antes deste gate;
-markup ainda não é SmartQuote. Constructor vazio tem fields vazio no vanilla;
-double:false é campo conhecido, mas double omitido é Unset. enabled:false
-permanece SmartQuote no vanilla. set double:false e show filtrado têm positivos
-novos. HTML literal funciona porque recebe Text; SmartQuote programática hoje
-é rejeitada. Título literal renderiza aspas; script recebe string, rejeitando
-Content antes da exportação nos dois binários.
+- `styled_bold_e_weight` at `01_core/src/compiler/eval/tests.rs:10783` (Content; historical M15, emitted): exclude `Styled, Sequence`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Fontes: markup_stream.rs:79–128 decide glyph em eval; smartquote.rs de layout
-alterna dois flags sem texto precedente; stdlib/text/smartquote.rs:112–117 apaga
-elemento disabled; observation/elements.rs:242–250 compara os campos atuais.
-Vanilla typst-eval/markup.rs:141–146 cria elemento com double explícito;
-typst-layout/inline/collect.rs:196–211 resolve estilo/contexto na coleta;
-typst-library/text/smartquote.rs:119–158 distingue prime/apóstrofo/nesting.
+- `eval_terms_construtor_typst_lang` at `01_core/src/compiler/eval/tests.rs:10898` (Content; historical M16, latent): exclude `Terms`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Decisão ratificada e limites
+- `eval_terms_construtor_typst_lang` at `01_core/src/compiler/eval/tests.rs:10900` (Content; historical M17, emitted): exclude `Terms, Sequence`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Preservar identidade/campos de SmartQuote em eval e resolver glyph só na
-composição de render de cada target. Paged usa sua unidade; HTML permanece
-semântico e não chama layout paginado para aspas (ADR-0128). A lógica de
-seleção contextual é helper puro L1 único, com estado por fluxo/compilação,
-sem I/O, globais, vtable, registry de propriedades ou cópia do algoritmo de
-memoização upstream. Stack/estado é mecânica escolhida do Tekt; linguagem,
-campo conhecido/omitido, glyph e estilo são aceitação. Escaping HTML permanece
-com seus owners. Sem novos modos/flags, unsafe, API de watch ou math phase.
+- `find_quote` at `01_core/src/compiler/eval/tests.rs:10932` (Content; historical M18, emitted): exclude `Quote, Sequence`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Este gate muda double público bool→Option<bool>, adiciona enabled:Option<bool>,
-expõe helper/contexto puro e move escolha de glyph eval→render. Confirmação humana recebida em 2026-10-06. O contrato ratificado abaixo
-supersede cláusulas históricas conflitantes apenas para aspas; ADRs/núcleos
-existentes e propostas alheias permanecem intactos.
+- `eval_quote_construtor_typst_lang` at `01_core/src/compiler/eval/tests.rs:10949` (Content; historical M19, latent): exclude `Quote`; retain fallback `(no guard)`. Unexpected assertion variants retain original panic, including Quote without attribution on guard failure; absence never succeeds.
 
-RED→GREEN de [it's Ω]/["hi"] preservando SmartQuote e campo double; callback/
-alias show da folha, native fields omitido versus false e enabled:false.
-Atualizar testes históricos que exigiam glyph em conteúdo avaliado: render é
-verificado pelo owner layout; eval verifica tipo/morfologia, campos e Source.
-Não eliminar testes de idiomas/aspas; mover a observação ao alvo correto, com
-mesmo esperado render. Code string literal permanece Value::Str.
+- `eval_quote_com_attribution_typst_lang` at `01_core/src/compiler/eval/tests.rs:10965` (Content; historical M20, latent): exclude `(no whole variant)`; retain fallback `Quote`. Unexpected assertion variants retain original panic, including Quote without attribution on guard failure; absence never succeeds. Guard-refused cases stay in nominal complement.
 
-## D05 — teste de show filtrado em equação literal
+- `eval_quote_block_true_typst_lang` at `01_core/src/compiler/eval/tests.rs:10978` (Content; historical M21, latent): exclude `Quote`; retain fallback `(no guard)`. Unexpected assertion variants retain original panic, including Quote without attribution on guard failure; absence never succeeds.
 
-Medição: after.json.gz registra show sem efeito e expression_dispatch.rs:270–281
-não chama a fronteira de captura. Testar alias math.equation.where(block: true)
-em literal $ b $ e ramo inline intacto; corpo avaliado uma vez e guard de receita
-existente. Não exigir nova fase, render baked ou mudança de representação.
+- `eval_quote_quotes_false_typst_lang` at `01_core/src/compiler/eval/tests.rs:10991` (Content; historical M22, latent): exclude `Quote`; retain fallback `(no guard)`. Unexpected assertion variants retain original panic, including Quote without attribution on guard failure; absence never succeeds.
 
-## Inserção matemática automática — proposta sujeita ao gate ADR-0127
+- `find_mathop_in` at `01_core/src/compiler/eval/tests.rs:11282` (MathAttachSlot; historical M23, latent): exclude `Present`; retain fallback `(no guard)`. Omitted/ExplicitNone contain no visitable content; retain None and existing br/tr/b/t/bl/tl order.
 
-### Medição anterior à decisão — D06, 2026-10-06
+- `find_mathop_in` at `01_core/src/compiler/eval/tests.rs:11286` (MathAttachSlot; historical M24, latent): exclude `Present`; retain fallback `(no guard)`. Omitted/ExplicitNone contain no visitable content; retain None and existing br/tr/b/t/bl/tl order.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
-UTC/diff/estado/fontes/binários nas coletas canônicas
-lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
-Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8; proveniência no relatório
-lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md.
+- `find_mathop_in` at `01_core/src/compiler/eval/tests.rs:11290` (MathAttachSlot; historical M25, latent): exclude `Present`; retain fallback `(no guard)`. Omitted/ExplicitNone contain no visitable content; retain None and existing br/tr/b/t/bl/tl order.
 
-before: frac, mat, sqrt, lr e op nus têm uma Equation no vanilla e zero no Tekt;
-math.bold([x]) e texto comum têm zero nos dois. nested e nested-equation têm
-uma nos dois; reuse tem duas no vanilla. block-style/local-block/number-style
-resolvem o escopo de inserção. show-generated e context-generated expõem as
-mesmas lacunas. additional: Equation explícita preserva o render da fração;
-it.body é rejeitado no vanilla por maximum show rule depth exceeded, enquanto
-it é válido; o show posterior afeta apenas a segunda inserção. refuters mede
-valor frac cru e label original versus Equation explícita.
+- `find_mathop_in` at `01_core/src/compiler/eval/tests.rs:11294` (MathAttachSlot; historical M26, latent): exclude `Present`; retain fallback `(no guard)`. Omitted/ExplicitNone contain no visitable content; retain None and existing br/tr/b/t/bl/tl order.
 
-lab/typst-original/crates/typst-realize/src/lib.rs:245–265,302–334 transforma
-Mathy antes de show fora de math. 01_core/src/compiler/layout/equation.rs:680–689
-projeta math nu em texto; compiler/realize/mod.rs:155–199 prepara show/identidade
-sem normalização math. entities/content/traversal.rs:14–108 é bottom-up e
-recursa no corpo matemático; rules/apply.rs:564–607 trata apenas localizáveis
-já existentes. Estes observáveis são semântica/morfologia/render de linguagem,
-não requisito de vtable, buffers, igualdade Rust ou bytes PDF.
+- `find_mathop_in` at `01_core/src/compiler/eval/tests.rs:11298` (MathAttachSlot; historical M27, latent): exclude `Present`; retain fallback `(no guard)`. Omitted/ExplicitNone contain no visitable content; retain None and existing br/tr/b/t/bl/tl order.
 
-### Responsabilidade exclusiva
+- `find_mathop_in` at `01_core/src/compiler/eval/tests.rs:11302` (MathAttachSlot; historical M28, latent): exclude `Present`; retain fallback `(no guard)`. Omitted/ExplicitNone contain no visitable content; retain None and existing br/tr/b/t/bl/tl order.
 
-Testar valores crus frac antes da inserção, frac/mat/root/lr/op automaticamente
-consultáveis, texto/math.bold([x]) sem equação, duas inserções iguais distintas,
-Equation explícita e conteúdo dentro de math sem wrapping extra. Medir contagens
-no índice sem exigir formas internas Rust. Testar where(block), escopo local,
-show direto/alias/where, it guardado, geração e erro it.body pelo limite existente,
-regra posterior não retroativa e estilo/alt efetivo. Valores esperados vêm das
-coletas pinadas. Labels não promovem propriedade à Equation automática.
+- `find_mathop_in` at `01_core/src/compiler/eval/tests.rs:11304` (Content; historical M29, emitted): exclude `MathOp, Sequence, MathSequence, Equation, MathAttach`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Testes puros e seus helpers ficam neste consumer; testes de normalizador e
-travessia ficam nos owners correspondentes. Fixtures de eval --in não expõem
-variáveis do arquivo à expressão auxiliar: não usar unknown variable f como
-prova de preservação do valor cru. Usar bloco avaliado diretamente.
+- `find_mathident_in` at `01_core/src/compiler/eval/tests.rs:11320` (MathAttachSlot; historical M30, latent): exclude `Present`; retain fallback `(no guard)`. Omitted/ExplicitNone contain no visitable content; retain None and existing br/tr/b/t/bl/tl order.
 
-### Gate e aceitação
+- `find_mathident_in` at `01_core/src/compiler/eval/tests.rs:11324` (MathAttachSlot; historical M31, latent): exclude `Present`; retain fallback `(no guard)`. Omitted/ExplicitNone contain no visitable content; retain None and existing br/tr/b/t/bl/tl order.
 
-Somente materializar após confirmação humana do pacote math-bare-2026-10-06.md.
-RED→GREEN e revalidação bilateral do escopo são obrigatórios. Esta cláusula
-supersede restrições de fase anteriores apenas nas fronteiras aqui nomeadas,
-sem ratificar paridade universal, D07, math label ou outros débitos.
+- `find_mathident_in` at `01_core/src/compiler/eval/tests.rs:11328` (MathAttachSlot; historical M32, latent): exclude `Present`; retain fallback `(no guard)`. Omitted/ExplicitNone contain no visitable content; retain None and existing br/tr/b/t/bl/tl order.
 
-## D08B3-A — controles de execução do pacote ratificado
+- `find_mathident_in` at `01_core/src/compiler/eval/tests.rs:11332` (MathAttachSlot; historical M33, latent): exclude `Present`; retain fallback `(no guard)`. Omitted/ExplicitNone contain no visitable content; retain None and existing br/tr/b/t/bl/tl order.
 
-Medições anteriores: table-cell-realizacao-d08b3-2026-10-07/before.json.gz,
-red.log, nested-reuse-red.log e local-bool-red.log registram estado, fontes
-e REDs separados das correções. O manifesto 5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b
-foi ratificado no recibo de aprovação. Este consumer cfg(test) suplementa os
-43 owners do pacote com controles de campos/ordem, efeitos ocultados, alias
-local, célula aninhada, contexto, booleano como Raw e span causal. Os testes
-comparam observáveis da linguagem. Não legitimam código produtivo adicional
-nem fecham defaults de Raw, célula isolada ou reconstrução recursiva fresca.
-O registro de preservação declara explicitamente este consumer de testes e
-seu L0 além dos 43 owners; não afirmar que nenhum arquivo externo mudou.
+- `find_mathident_in` at `01_core/src/compiler/eval/tests.rs:11334` (Content; historical M34, emitted): exclude `MathIdent, MathText, Sequence, MathSequence, Equation, MathAttach`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-## D08B3-B — candidato, não vigente antes de ratificação
+- `find_mathstyled_body_in` at `01_core/src/compiler/eval/tests.rs:11345` (Content; historical M35, emitted): exclude `MathStyled, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Medição anterior à decisão
+- `leaf` at `01_core/src/compiler/eval/tests.rs:11435` (Content; historical M36, emitted): exclude `Sequence, MathSequence, Equation`; retain fallback `MathIdent, MathText`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit. Guard-refused cases stay in nominal complement.
 
-lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
+- `find_mathdelimited_in` at `01_core/src/compiler/eval/tests.rs:11527` (Content; historical M37, emitted): exclude `MathDelimited, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
+- `find_mathlr` at `01_core/src/compiler/eval/tests.rs:11578` (Content; historical M38, emitted): exclude `MathLr, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Fonte vanilla lab/typst-original/crates/typst-library/src/model/table.rs:734–778 declara defaults e propriedades; typst-realize/src/lib.rs:367–386 prepara/guarda o argumento, :418–429 visita produto com profundidade, :491–505 distingue guards por elemento, :571–586 materializa propriedades. Tekt entities/elements/table_cell.rs:111–143 só projeta lexical ou plano posicionado; compiler/realize/table_cells.rs:110–129 reaplica Cell crua sem preparo; :280–304 termina snapshot inteiro; eval/show_rule_termination.rs:65–70 trata mesma forma como ponto-fixo; eval/rules/apply.rs:139–166 revoga regra globalmente durante callback. Classificação: campos, efeitos, ordem, terminação e erro causal são língua. A estrutura de guards e materialização upstream é mecânica e não é requisito. Não se infere intenção do upstream; a escolha nominal abaixo é inferência refutável pelos controles de aliases, duas regras, novas gerações e conteúdo ocultado.
+- `find_mathlr` at `01_core/src/compiler/eval/tests.rs:11608` (Content; historical M39, emitted): exclude `MathLr, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Responsabilidade exclusiva proposta
+- `find_mathlr` at `01_core/src/compiler/eval/tests.rs:11638` (Content; historical M40, emitted): exclude `MathLr, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Testes RED antes do reparo para defaults/getters/presença cru versus preparado; efeito uma vez; body ocultado/nested/reuse/late/local; it/alias e duas regras anteriores; fresh idêntica/crescente/wrappers/condicional/ocultada dentro e fora da Table; limites e spans. Usar helper existente de realização com Engine causal, sem mock que decida a regra no lugar do produto. Aceitação observa língua e ordem real de efeitos.
+- `find_overbrace` at `01_core/src/compiler/eval/tests.rs:11667` (Content; historical M41, emitted): exclude `MathOverbrace, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Gate, aceitação e incompletude explícita
+- `find_underbrace` at `01_core/src/compiler/eval/tests.rs:11695` (Content; historical M42, emitted): exclude `MathUnderbrace, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Candidato não vigente até confirmação humana do manifesto D08B3-B: há um campo público novo e um tipo público novo; o contrato A aprovado não os autoriza. Após ratificação instalar somente estes candidatos, escrever testes e confirmar RED antes de implementação; selar apenas owners mudados. Aceitação: coletas acima/revisões adicionais bilaterais, efeitos uma vez, igualdade/getters, seleção, produto HTML e texto/estilos/geometria reais; mensagens/spans sem apagar diferenças. Cargo build/debug/release e suítes core/infra/shell apropriadas; crystalline-lint sem erros e owners sem V5/V6/V15/V26. Revalidar D08A/B2/B3-A, Raw defaults/blocos, Equation/math/matrix/query. Preservar árvore anterior por snapshot/diff restrito, sem commit/reset/resselo global.
+- `find_underbracket` at `01_core/src/compiler/eval/tests.rs:11742` (Content; historical M43, emitted): exclude `MathUnderbracket, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Este recorte completa defaults intrínsecos da Cell isolada e distingue alias de nova geração de show. Continua incompleto no universo Cell: D08B3-C completa set table.cell/defaults de estilo (cell-set), mediante medição e L0 próprios; nenhuma promessa de prazo/implementação é legitimada por este scope-out. Defaults/igualdade gerais de Table, casts/paint/strokes/insets ricos, linhas/gutters/span multipágina, PDF/UA e política geral não-localizável ficam abertos. O warning preexistente de eval de ficheiro vazio não é corrigido ou normalizado para afirmar paridade.
+- `find_underparen` at `01_core/src/compiler/eval/tests.rs:11789` (Content; historical M44, emitted): exclude `MathUnderparen, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Auto exposto pela Cell — reparo interno de apresentação, ADR-0127 contínuo
+- `find_undershell` at `01_core/src/compiler/eval/tests.rs:11836` (Content; historical M45, emitted): exclude `MathUndershell, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Medição anterior à decisão: table-cell-isolada-d08b3b-2026-10-07/after-second.json.gz, html-fields, em HEAD/estado/UTC/binários registrados: Tekt HTML X auto a como texto; vanilla code(data-lang:typc) e span constant.language #d73948. Upstream foundations/value.rs:191–208 exibe Auto/Bool como Raw inline typc; markup_stream.rs:210–215 só cobre Bool e seu fallback usa Text para Auto; layout/raw.rs:201–203 cobre só átomos true/false. HTML inline.rs não possui ramo Raw e conserva rejeição geral. É morfologia/estilo da linguagem, não byte de PDF; texto igual não prova paridade.
+- `find_overbracket` at `01_core/src/compiler/eval/tests.rs:11883` (Content; historical M46, emitted): exclude `MathOverbracket, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Antes da implementação, testes devem refutar a apresentação Auto como Text e a rejeição HTML de Raw atômico. Corrigir somente o mapeamento Auto para Raw(lang:typc,block:false), a classificação constant.language do átomo auto e a serialização HTML dos átomos typc auto/true/false com code e span constante, delegando escape/mode ao owner existente. Nenhum tipo/assinatura pública, fase, flag/default de produto ou gramática nova. A responsabilidade desta unidade limita-se à operação já owned correspondente: apresentação no markup, cor no Raw paginado, tags na inline HTML, testes no seu owner. Raw de outras linguagens/conteúdo arbitrário em HTML permanece fora da certificação. Confirmar RED→GREEN e igualdade do produto/estilos, com controles Table/Raw/query. Esta cláusula não autoriza mudanças nos outros tipos de Value ou implementação HTML geral de Raw.
+- `find_overline` at `01_core/src/compiler/eval/tests.rs:11911` (Content; historical M47, emitted): exclude `MathOverline, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-## D08B3-C — defaults declarativos da Cell, fluxo contínuo
+- `find_overparen` at `01_core/src/compiler/eval/tests.rs:11940` (Content; historical M48, emitted): exclude `MathOverparen, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Medição anterior à decisão
+- `find_overshell` at `01_core/src/compiler/eval/tests.rs:11968` (Content; historical M49, emitted): exclude `MathOvershell, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-lab/results/construction/diagnostics/table-cell-styles-d08b3c-2026-10-07/before.json.gz registra 58 sondas, UTC 2026-10-07T15:24:58.038947+00:00 até 15:25:13.727872+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/status/fontes/argv/cwd/ambiente completos. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set, campos individuais, late/local/reuse/spread e rejeições refutam o warning de target vazio e a ausência dos defaults. padding-span-one/empty-fixed-rows fixam spans 1 em vazios; auto-table-fallback preserva Auto explícito como delegação à Table, não ao set da Cell. show-cell-set-self altera avulsa mas não fill conhecido da Cell posicionada. Stroke/alignment fazem fold. refuters-before.json.gz estende com header, partial inset, args/condição e snapshot em Table; alias-inside-table é válido no vanilla e recursa indevidamente no Tekt.
+- `prime_count` at `01_core/src/compiler/eval/tests.rs:12007` (MathAttachSlot; historical M50, latent): exclude `(no whole variant)`; retain fallback `(no guard)`. Omitted/ExplicitNone and Present(non-MathPrimes) give no count; both nominal enums require future review. Its final shallow-match refinement below supersedes only nested implementation shape.
 
-Fonte: upstream typst-library/src/model/table.rs:734–778 declara campos, e layout/grid/resolve.rs:203–278 lê estilos antes de resolver/sobrescrever posições/fill; defaults de padding TableCell packed em model/table.rs:785–800 pinam spans 1. Tekt rules/set.rs:23–27 usa text_str de target e não reconhece FieldAccess; table_cells.rs:262–310 usa apenas propriedades lexicais no placement/herança; grid_placement.rs:80 lê x/y/spans diretamente; TableCell standalone não possui propriedades efetivas privadas. É língua (campos/ordem/efeitos/estilo/erros); a representação privada abaixo é decisão Tekt, não obrigação de copiar Packed ou igualdade Rust. Hipótese refutável por qualquer negativo destas coletas, perda de fonte lexical, mutação de valor cru, efeito repetido, guard de alias perdido ou regressão de geometria/cache.
+- `find_mathmatrix_in` at `01_core/src/compiler/eval/tests.rs:12044` (Content; historical M51, emitted): exclude `MathMatrix, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Responsabilidade exclusiva
+- `find_unlined_frac_in` at `01_core/src/compiler/eval/tests.rs:12056` (Content; historical M52, emitted): exclude `MathDelimited, Sequence, MathSequence, Equation`; retain fallback `MathFrac`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit. Guard-refused cases stay in nominal complement.
 
-Escrever REDs válidos antes do reparo para setCell defaults/getters cru vs preparado, spans/padding e estilo na ocupação, alias/local/late, constructor/Auto/None/fold, condicional/spread/erro causal, show-set avulsa vs positioned e alias de it em Table. Aceitação por propriedades/efeitos/ordem e testes reais, não por espelhar structs privadas. Revalidar B3-B/Raw/math/query e builds/lint.
+- `find_mathaccent_in` at `01_core/src/compiler/eval/tests.rs:12111` (Content; historical M53, emitted): exclude `MathAccent, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Gate, aceitação e limites
+- `p958_mathtexts` at `01_core/src/compiler/eval/tests.rs:12343` (Content; historical M54, emitted): exclude `MathText, MathIdent, Sequence, MathSequence, Equation, MathDelimited, MathAttach`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Correção interna de paridade/mapeamento, ADR-0127 contínuo: nenhum contrato público, compatibilidade externa, flag/default de produto ou fase nova. Props e helpers são privados em carrier já não-construível externamente; lexicais não mudam. L0 editado primeiro, resselo restrito e RED→GREEN obrigatórios. Coletas bilaterais com erros/caret/efeitos, fonte/binaries/HEAD/UTC, geometria real; build debug/release/suítes e lint sem erros. Preservar árvore anterior sem commit/reset/resselo global. Subconjunto certificado: inteiros/autos, Color/None/Auto, Stroke uniforme/None, alinhamento, Length/inset parcial de Length/Auto, Bool/Auto e schemas já tipados. Gradient/tiling/functions, strokes por lado, inset percentuais e rich casts de constructor, grupos/spans multipágina/PDF-UA, set/text posicional e defaults gerais de Table continuam incompletos, com medição/L0 próprios antes de ampliar. Não certificar por warning fallback nem copiar defeitos upstream.
+- `p962_find_styled` at `01_core/src/compiler/eval/tests.rs:12450` (Content; historical M55, emitted): exclude `MathStyled, MathClassOverride, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Precisão medida em refuters-before: stroke-constructor-fold e align-constructor-fold preservam o construtor inteiro contra set da Cell. self-set-does-not-change-placement muda colspan observado para 2 após a ocupação já feita com 1; não é prova de nova ocupação.
+- `find` at `01_core/src/compiler/eval/tests.rs:12491` (Content; historical M56, emitted): exclude `Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Precisão dos spans observados após show-set (refutador C)
+- `find_mathunderover_in` at `01_core/src/compiler/eval/tests.rs:18768` (Content; historical M57, emitted): exclude `MathUnderover, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Medição anterior: refuters-before.json.gz / self-set-does-not-change-placement, vanilla devolve colspan 2 na célula real x0 e colspan 1 nos paddings x1/x2. Fonte pinada layout/grid/resolve.rs:218–244 captura spans de ocupação mas não assenta seus campos no conteúdo; model/table.rs:785–800 assenta 1 nos paddings. Logo ocupação e getter posterior são observáveis distintos. Decisão privada: a Cell posicionada conserva TableCellResolved como plano físico; o carrier standalone privado pode coexistir apenas para propriedades observadas da receita, mantendo campos resolvidos e sobrescrevendo spans lexicalmente omitidos pela declaração de show-set. Getters/canonicalização consultam essa projeção; placement do plano completo continua usando TableCellResolved. Padding sem fonte tem spans lexicais 1 para que show-set não os altere. Guards/stage continuam causais, sem novo contrato público nem mutação da fonte original. RED de span getter antes de implementar, GREEN mais geometria/regressões obrigatórios.
+- `find_overbrace_in` at `01_core/src/compiler/eval/tests.rs:18782` (Content; historical M58, emitted): exclude `MathOverbrace, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Fold de declarações de Stroke — medição extra C
+- `find_underbrace_in` at `01_core/src/compiler/eval/tests.rs:18796` (Content; historical M59, emitted): exclude `MathUnderbrace, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-extra-first.json.gz (fontes/HEAD/estado/UTC/binários completos) compara two-stroke-sets: set stroke:red seguido de 2pt produz 2pt + red no getter avulso e posicionado vanilla. stroke-render-inherits-cell-style resolve o constructor 2pt com paint red da Cell antes do fallback da Table 3pt, embora stroke-constructor-fold avulso exponha somente o constructor 2pt. Fonte pinada model/table.rs:765 declara #[fold]; resolve.rs:225–237 usa stroke.resolve(styles), distinto do getter cru. Decisão: declarações sucessivas foldam componentes specified ao publicar Value::Stroke declarativo; nenhum carrier/callback é guardado em Styles. Constructor stroke permanece inteiro no getter avulso; resolução posicionada folda o constructor com a base capturada Cell e depois Table. Adicionar somente campo privado stroke_inherited: Option<Stroke> em TableCellProperties para transportar essa base causal, sem assá-la no getter lexical. ObservationEq inclui base; canonicalização ignora base derivada de render. Table já resolvida tem base None. Clone/aliases conservam base anterior; None explícito vence. RED→GREEN antes de código; correção privada contínua ADR-0127, nenhum contrato público/fase/default novo. A cláusula de precedência inteira do constructor vale para o getter avulso, não para a resolução fold de stroke, conforme medição.
+- `find_underbracket_in` at `01_core/src/compiler/eval/tests.rs:18810` (Content; historical M60, emitted): exclude `MathUnderbracket, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Show-set acumulado e bordas — precisão C
+- `find_overbracket_in` at `01_core/src/compiler/eval/tests.rs:18824` (Content; historical M61, emitted): exclude `MathOverbracket, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-show-fold-before.json.gz e geometry-final.json.gz registram perda de red ao acumular show-set e desenho preto 1pt com campos conhecidos red 2pt. Aplicar helper privado puro chain_styles da Cell na acumulação de deltas cell.stroke; delegar componente de desenho ao owner borders, que lê snapshot sobrevivente do owner cell_body, sem fallback de uma Cell resolvida. Todos os outros estilos/guards/ordem permanecem. Esse helper somente folda Value::Stroke declarativo, nunca carrier/layout/callback; não cria API pública, campo/fase/default novo. RED→GREEN e recoleta real de stroke são obrigatórios.
+- `find_mathlr_body` at `01_core/src/compiler/eval/tests.rs:19031` (Content; historical M62, emitted): exclude `MathLr, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-## D08B3-C2 — testes de origem e forma ratificados
+- `first_boundary` at `01_core/src/compiler/eval/tests.rs:19048` (Content; historical M63, emitted): exclude `MathDelimited, Sequence, MathSequence, Text, MathText, MathIdent`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Medição anterior: table-origens-d08b3c2-2026-10-07/baseline.json.gz, HEAD/UTC/working tree/binários/fontes completos. Testar RED antes de implementação: local set/show deve conservar func styled; caret de bare/alias/spread usa origem do conteúdo e preserva trace. Testar forma do body cru, fontes distintas, reuso, metadata uma vez e corpo ocultado; aprovação C2 `confirmo` em 2026-10-07.
+- `last_boundary` at `01_core/src/compiler/eval/tests.rs:19065` (Content; historical M64, emitted): exclude `MathDelimited, Sequence, MathSequence, Text, MathText, MathIdent`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-### Retificação de critério antigo C2
+- `find_mathlimitsoverride_in` at `01_core/src/compiler/eval/tests.rs:19155` (Content; historical M65, emitted): exclude `MathLimitsOverride, Sequence, MathSequence, Equation, MathAttach`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-additional-debug/prior-local-body mede vanilla FUNCstyled contra critério anterior FUNCsequence. Atualizar somente essa expectativa de morfologia e nome do teste; demais critérios permanecem. Helpers de inspeção estruturais dos testes devem atravessar Source sem ignorar estilo/elemento filho (transparência, não supressão de assertions).
+- `find_mathdelimited_in` at `01_core/src/compiler/eval/tests.rs:19291` (Content; historical M66, emitted): exclude `MathDelimited, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-## Saneamento do CI — 2026-10-13
+- `has_linebreak` at `01_core/src/compiler/eval/tests.rs:19302` (Content; historical M67, emitted): exclude `Linebreak, Sequence, MathSequence, Equation`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Estado medido: HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree
-não commitado. Fontes, hashes, UTC, status e diffstat estão em
-`lab/results/construction/diagnostics/testes-ci-2026-10-13/before.json.gz`. O inventário
-Clippy de entrada é `matematica-ci-2026-10-13/clippy-inventory.json`, conservado
-no evidence.json.gz daquela rodada. Medir antes de decidir (ADR-0108).
+- `p1043_math_callee_dot_double_isolada` at `01_core/src/compiler/eval/tests.rs:19418` (Content; historical M68, emitted): exclude `MathAccent, MathSequence`; retain fallback `(no guard)`. Existing helper search/predicate only; no-result variants share prior fallback without broader traversal, false success or changed short circuit.
 
-Medição: tests.rs:3989–4022 usa métodos nativos proibidos como expectativas de
-quatro inversas trigonométricas. O oráculo pinado, com SHA-256 ratificado,
-mede os ângulos em graus no receipt angles.json (evidence.json.gz): 30, 60,
-45 e 63.43494882292201, sujeitos à representação float registrada.
-Em :6492 o teste descarta o módulo sem asserção; em :6501–6519 a asserção é
-condicional ao conteúdo/item Text, podendo passar sem texto nem equação.
-As fixtures singleton Range são coleções de spans, não iterações de offsets.
+- `break_policy_custom_values` at `01_core/src/compiler/eval/tests.rs:24262` (Content; historical M69, emitted): exclude `Styled, Sequence, Par`; retain fallback `(no guard)`. Collect only properties in contracted traversal; other variants add no items, inheritance/order unchanged.
 
-Decisão: substituir expectativas trigonométricas dependentes da plataforma
-por constantes independentes em graus, tolerância 1e-12, conservando a
-exigência Value::Angle e a ordem pública x,y. Exigir uma Equation presente
-no teste de avaliação; no teste de layout exigir texto matemático 𝑥 e rejeitar
-colchetes no texto observado, sem depender de FrameItem::Text específico.
-Simplificar imports/bindings, Copy e borrows comprovadamente redundantes;
-representar singleton Range com from_ref/once sem perder bounds; renomear
-somente o módulo privado tests interno para regressions e usar alias privado
-para a tupla de matriz. Manter todos os casos, spans, mensagens, fixtures e
-assertions; nenhuma nova exceção de lint. A mudança do prefixo privado dos
-nomes de testes não remove casos. Validar também os controles negativos de
-conteúdo ausente/vazio para os testes reforçados.
+- `count` at `01_core/src/compiler/eval/tests.rs:24320` (Content; historical M70, emitted): exclude `Par, Styled, Strong, Emph, Sequence`; retain fallback `(no guard)`. Only Par adds one count; named wrappers recurse; other variants contribute zero.
 
-Reparo interno de testes, ADR-0127 contínuo. O RED de qualidade é o Clippy
-com -D warnings. Reexecutar os casos e validar linhagem; testes sem falha
-funcional anterior não recebem alegação artificial de RED→GREEN funcional.
+Only Present(Content) slots delegate existing helpers; Quote/Label assertions keep exact panic text, no error→None/false-success conversion. Initial prime_count nested nominal payload replaced catch-all without Present(_), but candidate-state.json.gz/candidate-architecture.log measured170V16/988V19/872V20 and one added V20 depth, refuting that implementation shape rather than functional behavior.
 
-## Associação de labels produzidos por expressão — 2026-10-14
+Current prime_count retains signature and uses two shallow matches: outer Present(prime_content) versus Omitted|ExplicitNone, inner MathPrimes→Some(elem.count) versus other 119named Content→None. No guard, @ capture, clone, if-let, new helper/API or changes to other69sites/fixtures/order; two same-None complements are justified V19. No double validation/traversal, read count only for MathPrimes. Probe original70sites+new inner match:71selected E0004 GREEN versus0RED, no other errors, new MathAttachSlot breaks outer/new Content inner. Compare AST ordinals excluding only added prime_content scrutinee; final SARIF52V16 removed/71prescribed V19 added/one old prime_count V20 removed/no new V20, all other diagnostics retained. Receipt literal refinement authorizes only this extra local restructure.
 
-Medição anterior: labels-expressoes-2026-10-14/before/results.json.gz conserva
-HEAD/estado/UTC/fontes/binários e pares Tekt/vanilla no pin 9f2b6e871.
-Literal funciona; alias/chamada/closure/bloco são exibidos como texto, query
-não encontra o alvo e órfão não avisa. Acrescentar REDs no consumer de testes
-com World puro para nomes integrais, associação ao heading, espaços preservados,
-aviso/range causal de órfão, confinamento no bloco, show label e regra textual
-uma única vez, avaliação de expressão uma única vez. Esperados vêm dos
-observáveis medidos; não suprimir whitespace/diagnósticos nem exigir árvore
-interna idêntica ao vanilla. Os controles gerais de alvos não rotuláveis e
-labels repetidos permanecem abertos no passo labels-associacao-alvos.
+Initial structural acceptance52V16/no70E0004→nominal barriers is narrowed by current71-match refinement, not ignored. Test guard-refused leaf/lined fraction and Quote unchanged. Replay only patterns/rustfmt/metadata/seals plus exact prime_count refinement; do not demand outside V16 removal. Full workspace/build/fmt/strict all-target Clippy+expectations/Rustdoc4indexes/V1-V5-V15-V26/reverse/diff, frozen provenance, 12GiB/swap0/jobs1/sequential. No new public API/phase/default/compatibility/dependency/parity or AI claim.
 
-A primeira execução do candidato expôs espaços iniciais brutos provenientes
-das newlines das declarações nas fixtures. fixture-controls.json confirma
-fontes equivalentes com ponto e vírgula no oráculo. Usar essas fontes nos
-testes de texto exato; não aparar saída nem alterar a semântica de espaços.
+## Imported error traces and measured callback/reflection families
 
-## Escopo de associação de labels — 2026-10-14
+import-syntax-2026-10-17/legacy-expected-attempt/workspace/workspace.log records isolated p1306_named_module_contract_all_profiles failure at HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/uncommitted freeze validation-result. Legacy-module-probe fixture imports routes/error.typ, inner.absent gives `module `std` does not contain `absent`` at59..65. Four-profile legacy-module-probe.json freezes UTC/source-binary-fixture hashes/stdout/stderr. Historical9f2b6e8715237cb086899a42873660fe744622e8 and corrected local give Tracepoint::Import("routes/error.typ") at importer expression2..36, identical message/hints/origin; only known empty-file warning literal was discounted, remaining stderr identical. Old empty-trace assumption refuted, not upstream/test intent inferred.
 
-Medição anterior: labels-escopos-2026-10-14/before/results.json.gz, com
-HEAD/estado/UTC/fontes/binários e pin 9f2b6e871. Parbreak bloqueia alvo; set/show
-permitem atravessar escopo indevidamente, inclusive set igual/falso; set page
-suprime aviso de órfão. Acrescentar REDs para literal/expressão, parbreak em
-bloco e interpolado por alias, separadores preservados, set/show/set igual e
-falso, page sem alvo, span exato do warning e novo alvo na cauda. Controles
-let/code-block não criam fronteira externa. Manter expectativas completas
-sem trim; não fechar labels repetidos, Empty explícito ou realização show
-por esta mudança de seleção local. Reusar Worlds e helpers existentes.
+Only this case's trace expectation changes: build expression Source once, require exactly one import trace/path2..36; all others remain trace-empty. Keep one Severity::Error, exact message, empty hints, error origin/range, empty side, four profiles, normal/reverse order/controls. No assertion removal/new public test/suppression/production/Rust contract. Shared source-validation and canonical modules owner govern policy. Focal+full regression/strict Clippy-Rustdoc/lineage/SARIF/new freeze12GiB/High10GiB/swap0/jobs1.
 
-## Condições e propagação de erros de set — 2026-10-14
+lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz, before-pdf-probe.json.gz preserves HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c/tree/UTC/source/current bd5ebec285505889e8ff1d4f68804ab147a699f3, fields/admission/callback/init. paridade-novo-vanilla-2026-10-17/inventario.md E02–E04 discriminates carrier limits, not Rust dumps. Add language regressions: text/h/v/box/block getters, width/weak presence, bare text/bibliography/selectors, counter(math.equation)/alias, negative closure/partial/nonlocatable, state optional init; expectations frozen upstream, not implementation. Withdrawn first State proposal is not current; Heading independent causal controls remain. No new public/default/phase/compatibility in these tests.
 
-Medição antes da decisão: set-condicoes-2026-10-14/{before,extra-before}/results.json.gz
-com pin 9f2b6e871, HEAD/estado/UTC/fontes/binários. Condições são ignoradas
-fora da Cell; argumentos executam sob false; Cell usa int no erro; heading
-engole erro de argumento. Acrescentar testes puros para gate comum antes de
-target/args/features, false sem mutações/carriers/warnings, condição uma vez
-antes de argumentos, type error com nomes longos/ranges, erro causal, Cell e
-alias, show-set e preservação de numeração. Cobrir erro de argumento ativo
-em heading e no elemento registrado callout (extensão Tekt, sem falso oráculo
-vanilla). Controles true/ausente continuam executando argumentos. Não aparar
-mensagens nem trocar expectativas existentes. Perfil HTML desligado testa
-curto-circuito/acesso negado, sem crédito de paridade de HTML ativo.
+State reader corrected review approved at `lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md`, SHA 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4. Same-key reader init1/10 after+1 yields2/11; unread Func no execution/reused update per occurrence, pinned state.rs:226–245,419–455,477–520 document causal order. Five signatures/read phase only. Test functional direct update/stored method with inserted/reused content, creation executes nothing, init belongs each reader. State.display is Tekt extension, never vanilla proof; Set states/previous controls retain parity. Heading-supplement review approved SHA 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c at corresponding heading-supplement-runtime-2026-10-17/review.md:raw func/supplement presence/explicit numbering:none/ordered fields/ordinary Styled text opacity, negative absence preserved, no helper-mirror tests.
 
+L0 first/functional RED/bilateral GREEN and Tekt-extension controls, no other public expansion; valid1:1+nuclei before seals, build/workspace/doctests/strict Clippy-Rustdoc/fmt/V1-V5-V15-V26/reverse/no V16 increase/SARIF no new diagnostics, 12GiB/High8GiB/swap0/jobs1/sequential. debug0/incremental0 only validation environment; measure consumption, no presumed product benefit from representation.
 
-## Regressões CodeBlock com set — 2026-10-14
+## Content concatenation and public Sequence reflection
 
-Medição: codeblock-set-2026-10-14/before/results.json.gz, HEAD/estado/UTC/
-fontes/binários completos. Tipos crus, perda de estilos lexicais, join incorreto
-com prefixo e warning return ausente foram medidos antes da decisão no owner
-00_nucleo/prompts/core/compiler/eval/expression_dispatch.md. Escrever testes RED
-para conversão de cauda (incluindo false/Empty), preservação de prefixo e
-span, estilos efetivos locais/aninhados/mesmo valor, avaliação única, retorno,
-loop e integração Table/Math; controles sem set conservam tipos. Não mudar
-expectativas anteriores para fabricar aprovação. Aceitação não depende da
-pilha privada escolhida nem da igualdade de bytes. Fluxo contínuo ADR-0127,
-resselo restrito e suíte/sondas de produto; apresentações de outros Value,
-show sem seletor e morfologia de SetPage continuam nas etapas explicitadas.
+state-stack-2026-10-17/before/morphology-before/morphology-measured freezes same HEAD/tree/UTC/diffstat/source/currentpin:loops/+ nest local Sequence at every join versus upstream concatenated immediate children; debug-root.log stack-fails scanning64updates. Language form/failure, not mandated Rust storage/stack enlargement. Eval E2E for/while/+ /origin aliases uses language assert.eq(repr(...),...), valid oracle fixtures; do not require children before separate reflection repair. `00_nucleo/prompts/core/compiler/eval/operators/join.md` owns algorithm. Keep original depth/quantity/tests, RED→GREEN/full revalidation12GiB/swap0/jobs1, no public/phase/default.
 
-Refutação suplementar: refuters-after/raw-rule-false e raw-rule-active perdem
-show raw ao apresentar Bool. Acrescentar RED independente para apresentação
-Bool/Auto sob false/true/sets aninhados. O observador de estilos do teste deve
-rejeitar variantes inesperadas em vez de silenciosamente ignorá-las.
+sequence-reflection-2026-10-17/before.json.gz/before-sources preserve same HEAD/tree/UTC/diffstat/source/binaries/currentpin. Upstream content/mod.rs:724–728 requires Sequence.children, :538–585 has/at/fields; empty-fields/func/children, sequence-fields/children/single/for refute absent local fields/name empty. fields.rs:317–322,identity.rs:24,content_methods.rs:242 omit them. Language morphology/semantics, not Rust storage. Test Empty/single/multi/loops/persistent alias fields/children/has/at, missing-field errors named sequence; Text still lacks children/ordinary Styled stays opaque/empty Text stays text. Initial reflection slice alone did not certify Sequence construction/selector-show-counter/invalid-method generic message; later construction measurements supersede only its named debt. No new Rust field/type/trait/signature/phase/product mode; L0 first/real RED/regressions/full workspace-build-strict Clippy-Rustdoc/fmt/V15-V26-valid seal/reverse/no V16 increase/SARIF, sequential12GiB/High8GiB/swap0/jobs1, measure peak not benefit.
 
+## Sequence construction, selection and ratified realization
 
-### Retificação da expectativa de label sobre vazio
+sequence-constructor-2026-10-17/before/expanded.json.gz, before-sources freezes same HEAD/tree/UTC/status/diffstat/source/binaries/currentpin. Upstream content.rs:724–728/value.rs:644–650/elem.rs:573–604 defines required children/Content-string-symbol-none cast/generated constructor; local content_methods.rs:358–410 noncallable fallback, element_where/selector_matching:272–337 no Sequence, set.rs:55–76 transform-With-only rejection. Newly measured children() error already correct after getter repair: retire only that stale diagnostic debt, no diagnostic code change.
 
-first-validation/workspace.log falhou no antigo controle
-#heading[Alvo]#{set text(fill:red)}<alvo>, que esperava Alvo. A sonda nova
-labels-first/results.json.gz mede o tipo/fields do alvo: o pin publica
-styled com child vazio, e a referência é rejeitada como cannot reference
-styled. O COUNT=1 do lote labels-escopos não provava que o heading era o alvo.
-Também let retorna None e o pin associa sequence vazia, não heading. Portanto
-a antiga expectativa deve ser corrigida, não a implementação da cauda para
-reproduzir o teste incorreto. Manter novo heading após set e comentário como
-controles de alvo anterior; testar separadamente o alvo vazio de CodeBlock.
-O controle let com alvo vazio/query não é declarado resolvido: a associação
-de None/Empty e publicação introspectiva de labels arbitrários ainda requer
-os owners respectivos. Preservar os logs e a retificação no relatório;
-não reduzir uma divergência de alvo a mera igualdade da contagem.
+Test zero/single/multi/nested unflattened children, string/symbol/none, alias/With, casts/extras/positional-children precedence; selector/where positive/invalid names, negative With/homonymous closure; empty/conditional/extra/panic/partial set; bare/filtered/missing/Empty/outer-Styled show. Initial recursive show-once remains a measured refuter, never weakened for green. Baseline children()/error-before-panic controls remain. Construction slice completes earlier named construction/table-composition/internal-callback responsibility only, no new external Rust API/fields/trait/default/phase/compatibility/global show-guard/all-cast/all-element/render parity. Residual refuters retain report/owner L0 before fixes.
 
-## Presença lexical Raw — ratificada em 2026-10-14
+sequence-constructor before/expanded/controls/candidate.log eight initial RED, five early pass/show-recursion fail reflect flatten-before-selection/children-first realization/morphological nonlocatable stop versus upstream alias preserved/fresh equal-children rejected. Owner approved `lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md`, manifest 46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327. Gate covers order before children/Table/math, no new public API. Retain show/recursion REDs/S1–S20. Correct only fixture conflating Text("") with Empty:use text("") positive empty-text control and retain non-equivalence to[]. controls.json.gz Symbol func symbol-versus-text/equalityfalse-versustrue remains separate debt, repr equality no morphology certificate.
 
-### Medição anterior à decisão
+r2s-measurement.json.gz show-panic/show-once/stored-value/show-block-bad-mutation refutes copying oracle depth fallback: upstream realize:394–403 engine.delay stores failure/returns Default=empty Sequence(engine:42–49/content:94–96), Sequence rule rematches fallback until secondary spanless depth error hides primary. Tekt deliberately preserves primary Source/errors `panicked with: X`/`panicked with: EARLY` and `variables from outside the function are read-only and cannot be modified`. Do not return Empty to emulate defect. Keep four individually classified deliberate divergences/exact errors, not blanket exit/divergence suppression. Truly reconstructed equal-children Sequence still rejects `maximum show rule depth exceeded` at unchanged limit; test both causes/origins. ADR0107/0108 requires measured-source classification, not preference for candidate/Rust equality.
 
-content-serialization-2026-10-14/{before,raw-controls}/results.json.gz registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes/binários e pin 9f2b6e8715237cb086899a42873660fe744622e8. RawElem raw.rs:21–25 perde omissão; native_raw markup.rs:78–136 colapsa ausência/false/none. Campos, igualdade e encoders distinguem esses valores no pin. Trata-se de semântica/morfologia, não mecânica Rust.
+Keep prior expectations, RED→GREEN/bilateral corpus/test alternatives for V19, build/workspace/doctests separately, strict Clippy-Rustdoc/fmt/V1-V5-V15-V26/reverse/SARIF no new diagnostic, valid graph before scoped seals, 12GiB/High8GiB/swap0/jobs1/sequential, debug0/incremental0 validation-only, exact provenance/no publish-release.
 
-### Responsabilidade e aceitação
+## Pending text packages: single realization and real children
 
-Testes RED→GREEN: campos omitidos/false/true, lang omitido/none/string, aliases, igualdade, at/has/fields, JSON/YAML e markup/apresentação; sem aparar saída.
+sequence-constructor-2026-10-17/r2s-scope.json.gz/text-before.json.gz preserves same HEAD/tree/UTC/diffstat/binaries/currentpin:textual-no-repeat/baseline/interpolation/captured AAAA(B)versusAA(B); textual.rs:104–122 nests same-snapshot pending groups, realize:182–210 bottom-up repeats literal. Cross-piece AB→X and outer-hides-textY/no child panic match both.
 
-Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
+Within ratified single-group scope, textual owner coalesces only pending packages with same causal rule Arc/collapsed styles/guards/file, retaining Source/order/morphology/different-environment and nontext-element-effect boundaries. No callback in coalescing. Capture coalesced group; Sequence owner coalesces textual body after actually emitted sequences realize, before returning textual recipe. No one-rule-per-transport reapplication/indiscriminate Realized skip/matching-precedence-scope/public change. Test literal/regex interpolation-capture, identity Sequence simple/block, lexical prefix, cross-piece matching/hidden text; distinct snapshots opaque. Independent local-text-scope CversusB precedence was not part of this optimization and is superseded only by separately ratified textual matcher below.
 
+empty-slots-before.json.gz freezes source/binaries/UTC/HEAD/tree/diffstat/currentpin:body EBODYversusBODY, none/[]children EEAversusEA, text rule extraEs. markup_stream:205–225/textual:104–120 includes transport Empty slots, sequences:114–125 visits as real. First narrow repair removes bare Content::Empty slots only in markup-tail/pending-package construction; explicit occurrences already captured Source/ShowRecipe, empty Text/constructor child arrays must survive, no arbitrary domain visitor filtering. Later explicit consumption mask below refines proof of which slots to remove; it does not erase genuine bare Empty by content. Full body/[]/none/emptyconstructor/childnone/child[]/prefix/textual/no-body PDF corpus, prior RED/full PDF+HTML validation separately.
 
-## Contrato Default de EvalContext — pacote clippy-default-2026-10-16
+validation-attempt-2/trace-recipes/trace-markup2/trace-textual2 preserve11green/twoRED; eof-before.json.gz uses exact source(no appended newline):Styled+EOF Yboth, without EOF ABboth. Unit Y fixture must include measured EOF, not relax show; keep both external probes. Alias without EOF localAAAAAAAAB/upstreamAAB:sequences:112–116 skips every package root though Content::sequence singleton becomes actual ShowRecipe; skipping it leaves original pending and recaptures children, trace-textual2 proves opaque marked recipe. skip_root only skips artificial raw Empty/Sequence root, never normalized ShowRecipe/Styled/other root; decide actual marked root before children. Keep strict causal styles/rules/guards/file and slot controls, no public type/field/API/phase; archive/remove temporary cfg(test)logs before final validation.
 
-Medição antes da decisão: compiler/eval/mod.rs:397–424 inicializa estados e limites explicitamente; o inventário registra ausência de Default. Fonte/owner atuais estão no snapshot deste pacote. A proposta pública está exclusivamente em `00_nucleo/prompts/core/compiler/eval/mod.md`.
+validation-attempt-3/emission-after.json.gz freezes tree/UTC/source/argv/binaries/diffstat/currentpin:[A]/text("A") emitted by Sequence under A→AA givesAAAAversusAA; native text without Sequence alreadyAAAA in archived 2ab1495d555ff4d61e67eb14bef67597f7f668a0e3bce3a8129623011443441c(native-before). textual.rs:142–161 mistakes Sequence transport mark/guard as textual-scope distinction; trace-textual2/instrumentation-sources preserves fields.
 
-Após a confirmação do manifesto, acrescentar neste consumer os controles de uso por bound Default e isolamento entre instâncias: Paged, features vazias, full_error false, recipes habilitadas e orçamento vigente, contadores/locação/fluxo independentes. Um contexto mutado não contamina o próximo Default nem um contexto new. Confirmar RED pela ausência do impl e GREEN após delegação, sem relaxar nenhum teste de linguagem/diagnóstico existente. Não alegar nova paridade upstream nem mudar fixtures existentes. O pacote não autoriza código antes da confirmação.
+Sequence's crate-internal helper compares textual transport excluding only eval.sequence.occurrence collapsed-delta key and guards whose RuleId is a Sequence rule in snapshot; unknown/other-family guards and all actual styles remain. TextualSnapshot::same_group lexical grouping stays strict. Pending coalescing needs same rule Arc/file/equivalent textual transport. Remove generic nontext scalar recipe wrapper only if raw body Text(Source allowed), ordered RuleIds exactly parent, file/transport identical, and no element rule matches Text. Then no element callback is lost, parent already owns literal/regex; return body with Source. Never eliminate Styled/structural/context recipe/applicable-element rule, remove Engine rules, execute callback during coalescing or compare only name/Debug/product text. RED→GREEN emitted[A]/textA/native-scalar control, other-family guard/real-style opacity, all13prior controls unchanged. No public type/field/phase/other-element policy change.
 
-Ratificação: dono aprovou o manifesto SHA-256 `11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03` em 2026-10-16. Recibo: `lab/history/construction/records/00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`. O gate acima está satisfeito exclusivamente para os três impls Default e testes D1–D5 descritos; esta seção está vigente.
+## Markup values, consumed slots and None insertion
 
+sequence-r3-2026-10-18/before.json.gz/before-sources freezes HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c/tree/UTC/status/diffstat/source/executables, current bd5ebec285505889e8ff1d4f68804ab147a699f3/treecac836c07e4dec2a89219370428292393a3216b5/oracle9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9. [#([A]+[B]) C] exposes 4local children A/B/space/C versus3upstream Sequence(A,B)/space/C; alias/two siblings/later+/for same loss, singleton and show-identity-preserved body match. append_markup_sequence:286–311 always recurses Sequence even preserve_source ContentBlock; upstream markup:78 appends entire display value/content:240–250 normalizes0/1only. Morphology, not Vec/Rust sharing mandate.
 
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
+Value-child collection versus realized-flow normalization must remain distinct. Do not change Content::sequence, concat_content, alias/Source/local rules/preflatten capture/Table-Cell/style-label-snapshot indices/space normalization. Refute collection hypothesis if immediate children unrestored or singleton/+ /visual changes. sequence_r3_markup tests children/func/fields/language equality/immutable alias/two siblings/singleton/later+/for/flow, not Debug/PDF bytes; markup owner's unit tests collection/flow mode/origin with no callbacks/general-helper change. Functional RED first/GREEN/CJK/show/text/label/Source/Strong64-256 recursion/full strict validation12GiB/High8GiB/swap0/jobs1/sequential/no publication.
 
-### Medição anterior à decisão
+sequence-r3 before/markup-after/textual-before/transport-before/transport-before-sources preserves same state/currentpin:nonmatching Z show nested.children exposes synthetic Sequence+twoEmpty locally versus original three children; empty-child package+Empty versus[]/A. markup_stream:201–249 reconstructs slots zeroed by textual:103–129/matching:90–95. None/CodeBlock insertion disappears:[#none#[]A]2childrenversus3, X#none; B under showEmpty XBversusXEB. Historical generic display omits None, upstream value:191–210 displays Content::empty/markup:39–56 handles set/show own boundaries, :78 appends other expressions.
 
-F001: 01_core/src/compiler/eval/tests.rs:7015 (has_line). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+Use private Vec<bool> consumed-slot mask, no new public carrier/false Location/Rust API/mode/default/phase. Genuine Empty/Text-empty loss, changed scope/boundaries, repeated callbacks/inconsistent indices refute. None presentation changes only markup insertion, not generic Math/CodeSetTail helper; SetRule/ShowRule retain distinct syntax boundaries. sequence_r3_transport tests real children/presentation/nonmatching recipe, []/text("")func text, literal-let-assert-conditional None, showEmpty(None), emptyset/style without artificialEmpty. Shared helper gains no relaxed expectation/normalization hiding slots; expectations from pairs. RED/GREEN/bilateral/R2-S-EOF-slots-styles-CJK-loops/full separate PDFHTML strict gates12GiB/High8GiB/swap0/jobs1/no publication.
 
-### Prescrição exclusiva desta unidade
+transport-after.json.gz confirms realNone/consumedEmpty fixed but style-tail still synthetic Sequence(A,Space) child before Styled/rule-tail form differs beyond repr. R3-TextualGroups must complete synthetic-group multi-tail language projection/equality/selection while preserving author Sequence; R3-Reflection must complete Styled/Styles/label repr; A3/include owns module/include value form; R3-Symbol owns Symbol; no generic flatten/closure claim or intervention without owner L0. Earlier literal-regex precedence/show-set debt is superseded only by ratified matcher below, not by transport. These remaining reflection/groups/attribution limitations stay active.
 
-- **F001 — `has_line`**: Trocar somente o padrão '_' pelo grupo nominal `TextReplacement`, `TextSeparator`, `Text`, `TextShaped`, `Glyph`, `Image`, `Shape`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
+## Hanging-indent type and bibliography boundary acceptance
 
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
+bibliography-indent-2026-10-18/before.json.gz has 60pairs at same HEAD/tree/UTC/status/exact diffstat/source/argv/binaries/text/boxes, before-sources full, currentpin/tree/oracle above, Tekt97f6fa3078bdd6c40aabb80d6f93f3fd019b405ce70fbf2266686d8fb42271cb. Untitled MLA starts citation line(Silvax41.84/y5.168)versusx8/y27.463995; titled local merges/interleaves(y6.7568/y8.108)while upstream separates. Eight positive paragraph indents missing, ten none/auto/int/ratio/string set/constructor wrongly accepted versus expected length. bibliography:106–123 title/cache inline, set:1180–1192 unknown, par:173 ignores. Upstream layout/rules:463–531 separates title/entries, unprefixed inset+compensation, prefix two columns, par:431 Length/inline:146–148 absolute initial advance. Position/type/hint/span controls refute block-boundary/validation hypothesis; one offset never proves all indentation or extraction difference.
 
-### Gate e aceitação
+Add canonical existing regression-module/MockWorld tests set/constructor direct/alias invalid Length types, including error-before-missing-body, exact message/public type/hint/value span; accept0/negative/abs+em. No duplicate World/new owner/weakened existing tests/geometric-indent claim. L0 merge must be additive with textual-realization clauses, never restore old complete candidate over this scope when approving another package. Internal continuous parity, no public field/trait/API/default/flag/compatibility/phase. This boundary/type slice alone incomplete: A2-Structure retains CSL hanging_indent/prefix/body+margins/columns, A2-HangingTransport handles per-occurrence overrides/priorities, A2-ParIndent ordinary set-constructor strategies/directions, A2-Multi attribution/cache. Do not silence incomplete-support warnings before consumers or call positive indent fixed from negative rejection.
 
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
+Functional RED before code/GREEN title-citation-body-fallback/types+zero-negative-affine-empty controls, remeasure PDF boxes/extraction, retain indent/multiple-bibliography REDs, no unsupported Tekt advantage. Full build/workspace/doctests/strict Clippy-Rustdoc/fmt/V1-V5-V15-V26/reverse/SARIF no new diagnostics, 12GiB/High8GiB/swap0/jobs1/debug0/incremental0/sequential, no commit/push/release. Other owners' later individual completion requires their own evidence, not blanket closure here.
 
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
+## Ratified textual matching, styles and final observer refinements
 
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+textual-realization-2026-10-18/before/scope/refuters/before-sources freezes HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c/tree/UTC/status/diffstat/source/L0/argv/binaries/currentpin before candidate code. matching:118–150 reverse regex then declaration literals, :194–207 reexposes products; textual:102–123 captures whole snapshot, realize:177–217 bottom-up, apply:620–648/matching:218–225 evaluates functions without child capture, expression_dispatch:125–129 separates insertion_rules/local state. Measured local/upstream:identical literalsC/B, literal-regex tieR/L, overlapX/YB, first effectLATER/FIRST, inverse chainBBBB/BB, separate productAB/X, product+siblingX/AB, hidden Strong-child panicHIDDEN/Q, oldglobal-newglobalL/R, capturedlocalL/L, CJK水\n果→水果/X. Pinned selector:110–125/realize:1328–1405 unifies earliest match/product revocation; scope/root-first cause remains refutable by acceptance/equality/fields/style/query/error controls, not buffer/byte mechanics.
 
+Human approved manifest 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302/pinned textual-recipe-frontier. Narrowly supersedes provisional ContentBlock show/pending-recipe bottom-up, not ordinary expression eval order/program once/State-Counter laziness/render-morphology distinction/public Rust API. Test each acceptance.json family before code, global/local returned values, latest global/tie-earliest UTF8/Unicode/cycles/alias-versus-composite/adjacent-hidden products/style confinement/next rule within product, all error-identity-morphology controls. Frozen oracle expectations not candidate; keep all previous R2/R3 controls and individually deliberate primary-error-versus-oracle-depth differences, no new-algorithm failure relaxation.
 
-## Helpers de projeção e estilos — V16, 2026-10-17
+Candidate 1 visually matches eight color sets but observer Rust equality confuses named/sRGB/f32 rounding. In these eight new tests convert Color::to_srgb channels/alpha to u8 and compare exact measured oracle SVG#0074d9/#ff4136. Confirm SVGs, keep product/colors/global tolerances/confinement unchanged. Candidate 3 passes 64probes, refutes old Par observer stopping at wrapper: count only Realized.visual and Source/Located bodies, exactly onePar/full text, never original emission. Add refuter-fragment.rs prepared-environment controls: text/Strong rules, success/error, reemitted alias, callback once, restore styles/rules/guards/file/defer/realizing/frames/depth/text support, local state only. Existing Raw/Table integration REDs retain expectations.
 
-### Medição anterior à decisão
+Ratification plus eight passing bilateral color probes narrowly supersedes two historical literal/regex show-set rejection tests: they now accept with full text, style proof remains eight sRGB/SVG controls. Other13candidate4 integration REDs unchanged. candidate5b-skip-reuse exposes wrappers hiding expected visual: only has_dynamic, styled_bold_envolve_heading, contem_heading, styled_bold_anywhere, styled_bold_e_weight, and go in texto_em_strong/emph add Source.body/Located.body/Realized.visual traversal, never original, retaining every nominal complement/content-style expectation. This measured observer exception supersedes earlier no-traversal-expansion rules only for these helpers.
 
-`01_core/src/compiler/eval/tests.rs:129,494,538,566,571,632,645,771,941,963,1098`
-contém onze braços abertos auditados por AST, sem guards nesses matches.
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-UTC, diff HEAD --stat exato, fontes, configuração, hashes e parser pinado
-estão em `lab/results/construction/diagnostics/tekt-v16-eval-helpers-2026-10-17/before.json.gz`,
-`contexts.json` e `audit-recipe.json`. A enumeração atual mede 120 variantes
-Content e 39 Value; o snapshot antes do código preserva as definições por hash.
-A suíte anterior passou no mesmo estado executável, confirmado pelos hashes.
-São helpers cfg(test), não decisões novas da linguagem. Não se infere intenção
-upstream nem benefício de leitura por IA a partir de uma nota do linter.
+Before revising show_rule_regex_ultima_declarada_vence, regex-oracle.json at current bd5ebec285505889e8ff1d4f68804ab147a699f3 freezes full binarySHA/source/argv/UTC/state and exact HTML `<p>abc<em><strong>123</strong></em>def</p>`. Latest rule gives outerEmph, earlier still acts inside product; require both Strong/Emph/full text, not vanished Strong/Rust wrapper equality. texto_em_strong also traverses Emph.body and texto_em_emph Strong.body solely to observe that measured nested product. Preserve language nodes, no original-as-emission count.
 
-### Prescrição e justificativa de V19 por decisão
-
-Trocar exclusivamente o padrão `_` de cada braço abaixo pelo complemento
-nominal **atual** do enum indicado em relação às variantes atendidas nos demais
-braços. Usar o prefixo em escopo, payload `_`/`{ .. }` adequado e grupo plano,
-sem capturar binding novo. O complemento integral e seus spans estão em
-scope.json; enumerações futuras exigem nova decisão pelo compilador.
-
-- **E01**, linha 129, `eval_for_test_with_registry`, Content: excluir do complemento `Located, Realized, ShowRecipe`. Projeção visual legada remove apenas Located/Realized/ShowRecipe; demais nós não são substituídos pelo adapter. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-- **E02**, linha 494, `go`, Content: excluir do complemento `Heading, Sequence, Styled`. Busca da primeira heading com numbering herdado; demais variantes não dão resultado nem abrem nova recursão. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-- **E03**, linha 538, `go`, Content: excluir do complemento `Heading, Sequence, Styled`. Coleta de headings na ordem atual; folhas excluídas não acrescentam itens. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-- **E04**, linha 566, `go`, Value: excluir do complemento `Str, None`. Valor diferente de Str/None conserva o padrão de numeração herdado, sem validá-lo como novo padrão. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-- **E05**, linha 571, `go`, Content: excluir do complemento `Equation, Sequence, Styled`. Busca de Equation com numbering herdado; os demais nós não produzem resultado. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-- **E06**, linha 632, `find_matrix_or_vec_delim`, Content: excluir do complemento `MathMatrix, MathVec, Sequence, MathSequence, Styled, Equation`. Busca delimitadores de Matrix/Vec na travessia atual; demais variantes não fornecem delimitador. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-- **E07**, linha 645, `find_op_limits`, Content: excluir do complemento `MathOp, Sequence, MathSequence, Styled, Equation`. Busca limits do MathOp na travessia atual; demais variantes não fornecem limits. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-- **E08**, linha 771, `go`, Content: excluir do complemento `Figure, Sequence, Styled, Label`. Coleta numbering de Figure com estilo e Label atuais; demais nós não acrescentam itens. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-- **E09**, linha 941, `has_dynamic`, Content: excluir do complemento `Dynamic, Sequence, Styled`. Detector de Dynamic nas travessias atuais; as demais variantes não satisfazem esse detector. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-- **E10**, linha 963, `find_styled_custom`, Content: excluir do complemento `Styled, Sequence`. Busca custom em Styled/Sequence com preferência e curto-circuito atuais; demais nós não fornecem propriedade. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-- **E11**, linha 1098, `find_custom_in_styled`, Content: excluir do complemento `Styled, Sequence`. Busca custom em Styled/Sequence, preservando primeira chave e ordem; demais nós não fornecem propriedade. O grupo V19 compartilha somente o corpo anterior deste braço; não exige despacho distinto por variante sem observável distinto.
-
-
-Conservar byte a byte os demais tokens Rust após normalização por rustfmt:
-corpos, guards, pattern payloads anteriores, chamadas, early returns, ordem,
-short-circuit, estilos herdados e todas as fixtures/asserções existentes.
-Não normalizar Source nem ampliar travessia neste lote; os helpers têm escopo
-específico e a projeção semântica preservada continua separada do adapter visual.
-Não converter match em if-let/matches!, não adicionar allow/expect, não mudar
-limiares ou grupos preexistentes para calar V19. Esta nota é informativa e deve
-continuar visível. Nenhum teste ou resultado ausente passa a ser aceito.
-
-### Aceitação e limites
-
-Manutenção interna de testes, ADR-0127 contínuo: sem contrato público, entidade,
-default, fase, dependência ou compatibilidade nova. RED estrutural: onze V16
-no parser pinado e sentinelas Content/Value sem E0004 nesses onze matches;
-GREEN: V16 removidos e E0004 nos onze após inserir uma variante sentinela em
-cada enum numa cópia descartável do workspace com cfg(test) compilado.
-Não alegar RED funcional nem nova paridade: o comportamento é preservado.
-Conferir replay dos padrões com corpos imutáveis, enum/assinaturas intactos,
-SARIF diferencial completo (onze V16 a menos, onze V19 de complementos a mais,
-V20 inalterado), suíte workspace com os mesmos esperados, build, fmt, Clippy
-workspace/all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc
--D warnings e quatro índices HTML, V1/V5/V15/V26 estrito e linhagem reversa.
-Resselo somente deste par. Medições com fontes congeladas, proveniência completa,
-MemoryMax=12 GiB, MemorySwapMax=0, Cargo um job e comandos pesados sequenciais.
-Os outros 52 V16 neste consumer e Source(Table) permanecem fora da materialização
-desta seção; investigar cada um antes de prescrever correção. Não publicar release.
-
-
-## Helpers matemáticos e estruturais — exaustividade V16, 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado. UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `lab/results/construction/diagnostics/tekt-v16-eval-math-2026-10-17/before.json.gz`. AST do parser pinado em contexts.json/all-contexts.json/wildcard-inventory.json; definições atuais por hash. A suíte anterior passou no mesmo estado executável, revalidado por hashes antes de decidir. Sem inferir intenção upstream ou benefício cognitivo da IA a partir do lint.
-
-O inventário mede 52 V16 emitidos e 18 fallbacks nominais não emitidos (sete Content e onze MathAttachSlot). Guards em leaf/MathFrac/Quote e o payload Present(MathPrimes) são refinamentos: não representam cobertura incondicional dessas variantes. A propriedade pretendida é revisão diante de enum novo, sem alterar linguagem ou asserção.
-
-### Prescrição exclusiva e V19 justificado por caso
-
-Para cada caso abaixo, trocar somente o padrão `_` pelo complemento nominal **atual** das variantes cobertas incondicionalmente pelos braços anteriores. Content tem 120 variantes; MathAttachSlot tem Omitted/ExplicitNone/Present(Content). Não remover do complemento variantes atendidas somente sob guard. Manter guards, corpos, ordem de busca/slots, any/find_map, callbacks, retornos, erros, fixtures e esperados integralmente. Não trocar por if-let/matches!, não adicionar allow/expect, não alterar limiar. Cada grupo V19 continua informativo; não é prova de executar todas as alternativas.
-
-- **M01**, `01_core/src/compiler/eval/tests.rs:1680`, `go`, Content, latente: excluir somente `Table, Sequence, Styled, Label`; manter sob fallback `(sem guard)`. Coleta de propriedade na travessia já especificada; demais variantes não acrescentam itens e a herança/ordem permanecem.
-
-- **M02**, `01_core/src/compiler/eval/tests.rs:8128`, `has_math_root`, Content, emitido: excluir somente `MathRoot, Equation, MathSequence, Sequence`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M03**, `01_core/src/compiler/eval/tests.rs:8146`, `has_math_root_with_index`, Content, emitido: excluir somente `MathRoot, Equation, MathSequence, Sequence`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M04**, `01_core/src/compiler/eval/tests.rs:8405`, `eval_label_anexa_ao_bloco_anterior`, Content, latente: excluir somente `Label, Sequence`; manter sob fallback `(sem guard)`. Variantes que não satisfazem a asserção falham com o panic anterior, incluindo Quote sem attribution quando o guard falha; nunca aceitar ausência.
-
-- **M05**, `01_core/src/compiler/eval/tests.rs:9348`, `tem_styled_sobre_label`, Content, emitido: excluir somente `Styled, Sequence`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M06**, `01_core/src/compiler/eval/tests.rs:10294`, `tem_context_block`, Content, emitido: excluir somente `ContextBlock, Sequence, Styled`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M07**, `01_core/src/compiler/eval/tests.rs:10312`, `tem_heading`, Content, emitido: excluir somente `Heading, Sequence, Styled`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M08**, `01_core/src/compiler/eval/tests.rs:10542`, `encontra_equation`, Content, emitido: excluir somente `Equation, Sequence, Styled`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M09**, `01_core/src/compiler/eval/tests.rs:10568`, `go`, Content, emitido: excluir somente `Strong, Sequence, Styled`; manter sob fallback `(sem guard)`. Coleta de propriedade na travessia já especificada; demais variantes não acrescentam itens e a herança/ordem permanecem.
-
-- **M10**, `01_core/src/compiler/eval/tests.rs:10587`, `go`, Content, emitido: excluir somente `Emph, Sequence, Styled`; manter sob fallback `(sem guard)`. Coleta de propriedade na travessia já especificada; demais variantes não acrescentam itens e a herança/ordem permanecem.
-
-- **M11**, `01_core/src/compiler/eval/tests.rs:10621`, `styled_bold_envolve_heading`, Content, emitido: excluir somente `Styled, Sequence`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M12**, `01_core/src/compiler/eval/tests.rs:10630`, `contem_heading`, Content, emitido: excluir somente `Heading, Styled, Sequence`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M13**, `01_core/src/compiler/eval/tests.rs:10653`, `go`, Content, emitido: excluir somente `Text, Styled, Sequence, Heading`; manter sob fallback `(sem guard)`. Coleta de propriedade na travessia já especificada; demais variantes não acrescentam itens e a herança/ordem permanecem.
-
-- **M14**, `01_core/src/compiler/eval/tests.rs:10736`, `styled_bold_anywhere`, Content, emitido: excluir somente `Styled, Sequence, Heading`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M15**, `01_core/src/compiler/eval/tests.rs:10783`, `styled_bold_e_weight`, Content, emitido: excluir somente `Styled, Sequence`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M16**, `01_core/src/compiler/eval/tests.rs:10898`, `eval_terms_construtor_typst_lang`, Content, latente: excluir somente `Terms`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M17**, `01_core/src/compiler/eval/tests.rs:10900`, `eval_terms_construtor_typst_lang`, Content, emitido: excluir somente `Terms, Sequence`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M18**, `01_core/src/compiler/eval/tests.rs:10932`, `find_quote`, Content, emitido: excluir somente `Quote, Sequence`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M19**, `01_core/src/compiler/eval/tests.rs:10949`, `eval_quote_construtor_typst_lang`, Content, latente: excluir somente `Quote`; manter sob fallback `(sem guard)`. Variantes que não satisfazem a asserção falham com o panic anterior, incluindo Quote sem attribution quando o guard falha; nunca aceitar ausência.
-
-- **M20**, `01_core/src/compiler/eval/tests.rs:10965`, `eval_quote_com_attribution_typst_lang`, Content, latente: excluir somente `(nenhuma variante inteira)`; manter sob fallback `Quote`. Variantes que não satisfazem a asserção falham com o panic anterior, incluindo Quote sem attribution quando o guard falha; nunca aceitar ausência. As variantes do guard permanecem no complemento para conservar a falha da condição.
-
-- **M21**, `01_core/src/compiler/eval/tests.rs:10978`, `eval_quote_block_true_typst_lang`, Content, latente: excluir somente `Quote`; manter sob fallback `(sem guard)`. Variantes que não satisfazem a asserção falham com o panic anterior, incluindo Quote sem attribution quando o guard falha; nunca aceitar ausência.
-
-- **M22**, `01_core/src/compiler/eval/tests.rs:10991`, `eval_quote_quotes_false_typst_lang`, Content, latente: excluir somente `Quote`; manter sob fallback `(sem guard)`. Variantes que não satisfazem a asserção falham com o panic anterior, incluindo Quote sem attribution quando o guard falha; nunca aceitar ausência.
-
-- **M23**, `01_core/src/compiler/eval/tests.rs:11282`, `find_mathop_in`, MathAttachSlot, latente: excluir somente `Present`; manter sob fallback `(sem guard)`. Omitted e ExplicitNone não são conteúdo a visitar; conservar None e a ordem br/tr/b/t/bl/tl existente.
-
-- **M24**, `01_core/src/compiler/eval/tests.rs:11286`, `find_mathop_in`, MathAttachSlot, latente: excluir somente `Present`; manter sob fallback `(sem guard)`. Omitted e ExplicitNone não são conteúdo a visitar; conservar None e a ordem br/tr/b/t/bl/tl existente.
-
-- **M25**, `01_core/src/compiler/eval/tests.rs:11290`, `find_mathop_in`, MathAttachSlot, latente: excluir somente `Present`; manter sob fallback `(sem guard)`. Omitted e ExplicitNone não são conteúdo a visitar; conservar None e a ordem br/tr/b/t/bl/tl existente.
-
-- **M26**, `01_core/src/compiler/eval/tests.rs:11294`, `find_mathop_in`, MathAttachSlot, latente: excluir somente `Present`; manter sob fallback `(sem guard)`. Omitted e ExplicitNone não são conteúdo a visitar; conservar None e a ordem br/tr/b/t/bl/tl existente.
-
-- **M27**, `01_core/src/compiler/eval/tests.rs:11298`, `find_mathop_in`, MathAttachSlot, latente: excluir somente `Present`; manter sob fallback `(sem guard)`. Omitted e ExplicitNone não são conteúdo a visitar; conservar None e a ordem br/tr/b/t/bl/tl existente.
-
-- **M28**, `01_core/src/compiler/eval/tests.rs:11302`, `find_mathop_in`, MathAttachSlot, latente: excluir somente `Present`; manter sob fallback `(sem guard)`. Omitted e ExplicitNone não são conteúdo a visitar; conservar None e a ordem br/tr/b/t/bl/tl existente.
-
-- **M29**, `01_core/src/compiler/eval/tests.rs:11304`, `find_mathop_in`, Content, emitido: excluir somente `MathOp, Sequence, MathSequence, Equation, MathAttach`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M30**, `01_core/src/compiler/eval/tests.rs:11320`, `find_mathident_in`, MathAttachSlot, latente: excluir somente `Present`; manter sob fallback `(sem guard)`. Omitted e ExplicitNone não são conteúdo a visitar; conservar None e a ordem br/tr/b/t/bl/tl existente.
-
-- **M31**, `01_core/src/compiler/eval/tests.rs:11324`, `find_mathident_in`, MathAttachSlot, latente: excluir somente `Present`; manter sob fallback `(sem guard)`. Omitted e ExplicitNone não são conteúdo a visitar; conservar None e a ordem br/tr/b/t/bl/tl existente.
-
-- **M32**, `01_core/src/compiler/eval/tests.rs:11328`, `find_mathident_in`, MathAttachSlot, latente: excluir somente `Present`; manter sob fallback `(sem guard)`. Omitted e ExplicitNone não são conteúdo a visitar; conservar None e a ordem br/tr/b/t/bl/tl existente.
-
-- **M33**, `01_core/src/compiler/eval/tests.rs:11332`, `find_mathident_in`, MathAttachSlot, latente: excluir somente `Present`; manter sob fallback `(sem guard)`. Omitted e ExplicitNone não são conteúdo a visitar; conservar None e a ordem br/tr/b/t/bl/tl existente.
-
-- **M34**, `01_core/src/compiler/eval/tests.rs:11334`, `find_mathident_in`, Content, emitido: excluir somente `MathIdent, MathText, Sequence, MathSequence, Equation, MathAttach`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M35**, `01_core/src/compiler/eval/tests.rs:11345`, `find_mathstyled_body_in`, Content, emitido: excluir somente `MathStyled, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M36**, `01_core/src/compiler/eval/tests.rs:11435`, `leaf`, Content, emitido: excluir somente `Sequence, MathSequence, Equation`; manter sob fallback `MathIdent, MathText`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito. As variantes do guard permanecem no complemento para conservar a falha da condição.
-
-- **M37**, `01_core/src/compiler/eval/tests.rs:11527`, `find_mathdelimited_in`, Content, emitido: excluir somente `MathDelimited, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M38**, `01_core/src/compiler/eval/tests.rs:11578`, `find_mathlr`, Content, emitido: excluir somente `MathLr, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M39**, `01_core/src/compiler/eval/tests.rs:11608`, `find_mathlr`, Content, emitido: excluir somente `MathLr, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M40**, `01_core/src/compiler/eval/tests.rs:11638`, `find_mathlr`, Content, emitido: excluir somente `MathLr, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M41**, `01_core/src/compiler/eval/tests.rs:11667`, `find_overbrace`, Content, emitido: excluir somente `MathOverbrace, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M42**, `01_core/src/compiler/eval/tests.rs:11695`, `find_underbrace`, Content, emitido: excluir somente `MathUnderbrace, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M43**, `01_core/src/compiler/eval/tests.rs:11742`, `find_underbracket`, Content, emitido: excluir somente `MathUnderbracket, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M44**, `01_core/src/compiler/eval/tests.rs:11789`, `find_underparen`, Content, emitido: excluir somente `MathUnderparen, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M45**, `01_core/src/compiler/eval/tests.rs:11836`, `find_undershell`, Content, emitido: excluir somente `MathUndershell, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M46**, `01_core/src/compiler/eval/tests.rs:11883`, `find_overbracket`, Content, emitido: excluir somente `MathOverbracket, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M47**, `01_core/src/compiler/eval/tests.rs:11911`, `find_overline`, Content, emitido: excluir somente `MathOverline, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M48**, `01_core/src/compiler/eval/tests.rs:11940`, `find_overparen`, Content, emitido: excluir somente `MathOverparen, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M49**, `01_core/src/compiler/eval/tests.rs:11968`, `find_overshell`, Content, emitido: excluir somente `MathOvershell, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M50**, `01_core/src/compiler/eval/tests.rs:12007`, `prime_count`, MathAttachSlot, latente: excluir somente `(nenhuma variante inteira)`; manter sob fallback `(sem guard)`. Omitted/ExplicitNone e Present de Content diferente de MathPrimes não fornecem contagem; o payload nominal mantém revisão futura dos dois enums.
-
-- **M51**, `01_core/src/compiler/eval/tests.rs:12044`, `find_mathmatrix_in`, Content, emitido: excluir somente `MathMatrix, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M52**, `01_core/src/compiler/eval/tests.rs:12056`, `find_unlined_frac_in`, Content, emitido: excluir somente `MathDelimited, Sequence, MathSequence, Equation`; manter sob fallback `MathFrac`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito. As variantes do guard permanecem no complemento para conservar a falha da condição.
-
-- **M53**, `01_core/src/compiler/eval/tests.rs:12111`, `find_mathaccent_in`, Content, emitido: excluir somente `MathAccent, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M54**, `01_core/src/compiler/eval/tests.rs:12343`, `p958_mathtexts`, Content, emitido: excluir somente `MathText, MathIdent, Sequence, MathSequence, Equation, MathDelimited, MathAttach`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M55**, `01_core/src/compiler/eval/tests.rs:12450`, `p962_find_styled`, Content, emitido: excluir somente `MathStyled, MathClassOverride, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M56**, `01_core/src/compiler/eval/tests.rs:12491`, `find`, Content, emitido: excluir somente `Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M57**, `01_core/src/compiler/eval/tests.rs:18768`, `find_mathunderover_in`, Content, emitido: excluir somente `MathUnderover, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M58**, `01_core/src/compiler/eval/tests.rs:18782`, `find_overbrace_in`, Content, emitido: excluir somente `MathOverbrace, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M59**, `01_core/src/compiler/eval/tests.rs:18796`, `find_underbrace_in`, Content, emitido: excluir somente `MathUnderbrace, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M60**, `01_core/src/compiler/eval/tests.rs:18810`, `find_underbracket_in`, Content, emitido: excluir somente `MathUnderbracket, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M61**, `01_core/src/compiler/eval/tests.rs:18824`, `find_overbracket_in`, Content, emitido: excluir somente `MathOverbracket, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M62**, `01_core/src/compiler/eval/tests.rs:19031`, `find_mathlr_body`, Content, emitido: excluir somente `MathLr, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M63**, `01_core/src/compiler/eval/tests.rs:19048`, `first_boundary`, Content, emitido: excluir somente `MathDelimited, Sequence, MathSequence, Text, MathText, MathIdent`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M64**, `01_core/src/compiler/eval/tests.rs:19065`, `last_boundary`, Content, emitido: excluir somente `MathDelimited, Sequence, MathSequence, Text, MathText, MathIdent`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M65**, `01_core/src/compiler/eval/tests.rs:19155`, `find_mathlimitsoverride_in`, Content, emitido: excluir somente `MathLimitsOverride, Sequence, MathSequence, Equation, MathAttach`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M66**, `01_core/src/compiler/eval/tests.rs:19291`, `find_mathdelimited_in`, Content, emitido: excluir somente `MathDelimited, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M67**, `01_core/src/compiler/eval/tests.rs:19302`, `has_linebreak`, Content, emitido: excluir somente `Linebreak, Sequence, MathSequence, Equation`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M68**, `01_core/src/compiler/eval/tests.rs:19418`, `p1043_math_callee_dot_double_isolada`, Content, emitido: excluir somente `MathAccent, MathSequence`; manter sob fallback `(sem guard)`. Busca ou predicado específico deste helper; variantes sem resultado partilham o fallback anterior, sem ampliar travessia, sinalizar falso sucesso ou mudar curto-circuito.
-
-- **M69**, `01_core/src/compiler/eval/tests.rs:24262`, `break_policy_custom_values`, Content, emitido: excluir somente `Styled, Sequence, Par`; manter sob fallback `(sem guard)`. Coleta de propriedade na travessia já especificada; demais variantes não acrescentam itens e a herança/ordem permanecem.
-
-- **M70**, `01_core/src/compiler/eval/tests.rs:24320`, `count`, Content, emitido: excluir somente `Par, Styled, Strong, Emph, Sequence`; manter sob fallback `(sem guard)`. Somente Par soma uma ocorrência e os wrappers explicitados recursam; as demais variantes contribuem zero neste contador de teste.
-
-
-O caso prime_count substitui o catch-all por Omitted | ExplicitNone | Present
-com complemento nominal de Content menos MathPrimes dentro do payload. Não
-usar Present(_) como novo catch-all interno: a sonda deve exigir revisão diante
-de Content novo e de MathAttachSlot novo. Os demais slots Present(Content)
-continuam delegando a seus helpers. As asserções Quote/Label continuam falhando
-com o mesmo texto; não converter qualquer erro em None ou falso sucesso.
-
-### Aceitação e escopo
-
-Correção interna de testes ADR-0127 contínuo, sem API pública, fase, default,
-compatibilidade ou dependência nova. RED estrutural dos 52 avisos e sonda em
-workspace descartável compilando lib cfg(test): zero E0004 nos 70 locais antes;
-após, E0004 em todos com sentinelas Content/MathAttachSlot. Testar também
-controles de guard recusado (leaf e fração lined) e asserções Quote existentes,
-sem alterar seus esperados. Replay dos spans conserva tudo exceto padrões,
-rustfmt, metadados e selos. SARIF diferencial completo: 52 V16 removidos,
-notas V19 dos grupos prescritos, V20 e demais diagnósticos preservados após
-mapear linhas. Não exigir remoção de V16 alheios para declarar este lote fechado.
-Suíte workspace completa, build, fmt, Clippy all-targets -D warnings e
--D unfulfilled_lint_expectations, Rustdoc -D warnings/quatro índices HTML,
-V1/V5/V15/V26 estrito, reversa e diff. Limite 12 GiB, swap zero, um job Cargo,
-execução pesada sequencial, fontes congeladas e proveniência completa.
-
-
-### Refinamento medido de prime_count — V20, 2026-10-17
-
-candidate-state.json.gz/candidate-architecture.log do lote
-tekt-v16-eval-math-2026-10-17 preservam o candidato, estado/UTC/hashes e a medição:
-170 V16, 988 V19 e 872 V20. O complemento aninhado de Present(Content alternativo)
-acrescentou um V20 à profundidade já existente do braço Present(MathPrimes).
-A implementação direta foi, portanto, refutada pelo critério de não acrescentar
-profundidade; isso não é falha funcional ou motivo para silenciar V20.
-
-Superseder somente a forma do caso prime_count: manter assinatura e substituir
-o match aninhado por dois matches rasos. O externo distingue Present(prime_content)
-de Omitted | ExplicitNone; o interno retorna Some(elem.count) para MathPrimes e
-None para o complemento nominal das outras 119 variantes atuais de Content.
-Sem guard, captura @, clone, if-let, helper/API novo ou alteração dos demais
-69 locais, fixtures/asserções e ordem. Esses dois complementos V19 são legítimos
-porque compartilham somente o mesmo None em cada domínio. O conteúdo não é
-validado duas vezes nem percorrido: só se lê count quando há MathPrimes.
-
-A sonda mantém os 70 locais originais e acrescenta o match interno auxiliar:
-variante MathAttachSlot nova exige revisão do externo e Content nova exige
-revisão do interno. O resultado esperado é 71 E0004 selecionados no GREEN,
-zero no RED inicial, sem outros erros. Comparar árvores por ordinal, descontando
-somente o novo scrutinee prime_content. SARIF esperado do lote final: 52 V16
-removidos, 71 V19 prescritos novos, um V20 antigo de prime_count removido e
-nenhum V20 novo. Todos os outros diagnósticos preservados. Replay autoriza
-somente esta reestruturação local adicional, conforme receita literal no recibo
-de refinamento. Os gates de aceitação e limite de 12 GiB anteriores permanecem.
-
-
-## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
-`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
-fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
-Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
-mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
-mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
-Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
-estabelece busca tipada, preferência nomeada, body restante e composição.
-style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
-style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
-É tamanho/escopo observável da linguagem; a representação Rust é escolha
-interna. Não inferir intenção histórica. Refutar por restauração, Raw,
-heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
-A sonda de igualdade refutou a hipótese de comparar os valores declarados:
-no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
-content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
-própria correção; o tipo completo não é prova de fechamento desse eixo.
-
-### Ratificação
-
-O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
-771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
-Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
-Resselo somente após implementação e grafo válido. RG1 continua independente.
-
-### Responsabilidade exclusiva adicional
-
-Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length absoluto), e expectativas de StyleDelta.size por Option<Length>. Conservar os observáveis linguísticos e os contratos funcionais existentes; não trocar geometria correta por snapshots da representação nova.
-
-
-## Import/include — migração medida de expectativa P1306 (2026-10-17)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/import-syntax-2026-10-17/legacy-expected-attempt/workspace/workspace.log
-registra a falha isolada de p1306_named_module_contract_all_profiles em HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado e fontes
-congeladas no validation-result.json daquele diretório. O teste exigia trace
-vazio para imported-error, embora o erro surja em routes/error.typ. A fixture
-exata está em legacy-module-probe/: import do arquivo, inner.absent, mensagem
-module `std` does not contain `absent`, origem 59..65. legacy-module-probe.json
-registra quatro perfis, UTC, hashes de fontes/binários/fixtures e stdout/stderr.
-No pin 9f2b6e8715237cb086899a42873660fe744622e8 e no Tekt corrigido, o erro tem
-Tracepoint::Import("routes/error.typ") na expressão importadora, range 2..36,
-com mensagem/hints/origem iguais. Descontou-se apenas o literal de aviso de
-arquivo vazio já conhecido; stderr restante idêntico. A regra é diagnóstico
-observável da linguagem, não equivalência mecânica de Rust. O pressuposto de
-trace vazio foi refutado pela sonda; não inferir intenção do teste antigo.
-
-### Responsabilidade e aceitação
-
-Migrar somente a expectativa de trace em p1306_named_module_contract_all_profiles.
-Construir a Source da expressão uma vez e usá-la para conferir a origem do
-trace. imported-error exige exatamente um Tracepoint::Import com caminho
-routes/error.typ e range 2..36 da expressão. Todos os demais casos continuam
-exigindo trace vazio. Conservar contagem unitária de erro, Severity::Error,
-mensagem, hints vazios, origem/range do erro, side vazio, quatro perfis, ordem
-normal/inversa e controles existentes. Não retirar assertivas para acomodar a
-mudança. Sem novo teste público, supressão, lógica produtiva ou contrato Rust.
-A política compartilhada vem do núcleo pinado source-validation e do owner
-00_nucleo/prompts/core/compiler/eval/modules.md. Conferir teste legado focal,
-regressão completa, Clippy/Rustdoc estritos, linhagem e SARIF diferencial no
-novo source freeze sob MemoryMax12GiB/High10GiB/swap0/jobs1.
-
-## A1 — reparo de paridade medido em 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
-Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
-no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
-e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
-E02–E04 registra os limites de carrier e as fontes discriminantes; não se usa
-dump/estrutura Rust como critério. Estes observáveis são linguagem.
-
-### Responsabilidade exclusiva e aceitação
-
-Adicionar regressões A1 de linguagem no módulo de testes existente: getters
-text/h/v/box/block e presença de width/weak; bare text/bibliography/selector;
-counter(math.equation) e alias; negativos de closure/partial/não-locatabilidade;
-state init opcional. Esperados congelados do vanilla, não espelhados do código.
-State funcional requer revisão corrigida: A1-S1 foi retirada por contrariar
-init por objeto leitor. Heading tem seus próprios controles causais complementares.
-
-L0 primeiro, RED funcional e GREEN bilateral. Não alterar contrato público,
-default de produto, fase ou compatibilidade; a revisão corrigida de State é independente. Preservar
-1:1 e núcleos pinados; resselo após grafo válido. Build/workspace/Clippy estrito,
-Rustdoc/fmt/linhagem estrita e reversa, jobs sequenciais sob MemoryMax12GiB,
-High8GiB/swap0/jobs1. Debug0/incremental0 somente no ambiente de validação para
-reduzir picos; comparar consumo medido sem inferir ganho do produto.
-
-
-## A1-S2 — leitura por objeto aprovada em 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
-UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17.
-state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
-após +1 exige 2/11; callback não lido não executa; atualização reutilizada
-executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
-upstream introspection/state.rs:226–245, 419–455 e 477–520. O init do leitor
-inicia a sequência; a ordem vem do documento, não do inteiro de Location.
-O método atual trata Func como Set e o pós-passe eager perde essa semântica.
-Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
-A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
-lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
-SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
-
-### Responsabilidade exclusiva — supersede a fase histórica de State
-
-Acrescentar controles de linguagem para update funcional direto e método guardado
-em variável, com conteúdo inserido/reutilizado; a mera criação não executa.
-O init pertence a cada leitor. Não chamar State.display prova vanilla: é extensão
-Tekt. Estados com Set conservam paridade e controles anteriores.
-
-### Aceitação e fronteiras
-
-Gate A1-S2 ratificado para as cinco assinaturas e a fase de leitura. L0 primeiro,
-RED funcional antes do código; GREEN contra o pin indicado para linguagem e
-controles próprios das extensões Tekt. Não ampliar outros contratos públicos.
-Build/workspace/doctests, Clippy/Rustdoc estritos, fmt, linhagem V1/V5/V15/V26 e
-reversa; manter V16 sem aumento. MemoryMax12GiB/High8GiB/swap0/jobs1, tarefas
-pesadas sequenciais. Medir consumo sem inferir ganho global só da representação.
-
-
-## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
-final-freeze.json.gz e target-controls.json.gz no diagnóstico
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
-UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
-Styled de transporte altera func. Query também vê wrapper causal temporário;
-HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
-pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
-de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
-Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
-SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
-
-### Responsabilidade exclusiva
-
-Adicionar controles raw: func, supplement presente, numbering:none explícito,
-campos em ordem e wrapper Styled comum opaco, incluindo texto. Comparar valores
-da linguagem, preservando negativos de ausência e sem espelhar o helper.
-
-### Aceitação e limites
-
-H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
-público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
-cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
-callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
-fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
-comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
-
-
-## Concatenação de conteúdo — 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/diffstat/fontes
-em before.json.gz de lab/results/construction/diagnostics/state-stack-2026-10-17.
-morphology-before.json.gz/morphology-measured.json.gz comparam repr de loops e +
-com vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3: o Tekt encaixa Sequence
-a cada junção; vanilla concatena os filhos imediatos. debug-root.log localiza
-a falha de pilha na varredura da cadeia produzida por 64 updates. São forma e
-falha de linguagem, sem obrigação de copiar estrutura Rust ou aumentar stack.
-
-### Responsabilidade exclusiva
-
-Possuir testes E2E de eval para for/while, concatenação + e aliases com origem,
-usando assert.eq(repr(...), ...) no nível da língua. Fixtures devem ser válidas
-no oráculo; não acessar children como pré-requisito enquanto sua ausência atual
-é dívida separada. O algoritmo não é owned por estes testes: é especificado em
-00_nucleo/prompts/core/compiler/eval/operators/join.md.
-
-Preservar os testes anteriores. Não reduzir profundidade ou quantidade do ensaio
-original para fazê-lo passar. Confirmar RED→GREEN e revalidar sob 12GiB/swap0/jobs1,
-sem contratos públicos, fase ou defaults novos (ADR-0127 contínuo).
-
-## R1 — reflexão de sequência e vazio, fluxo contínuo ADR-0127
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-lab/results/construction/diagnostics/sequence-reflection-2026-10-17/before.json.gz e
-before-sources.json.gz guardam UTC, diffstat, fontes e SHA dos binários. Pin
-vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. No upstream
-lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:724–728,
-Sequence tem children requerido; :538–585 projeta has/at/fields. As sondas
-empty-fields/empty-func/empty-children e sequence-fields/sequence-children/
-sequence-single/sequence-for refutam o Tekt: campos ausentes e nome empty.
-fields.rs:317–322 deixa Empty/Sequence no complemento sem campos;
-identity.rs:24 usa empty; content_methods.rs:242 enumera somente body no
-fallback. São morfologia e semântica da linguagem, não exigência de copiar
-representação Rust. Text vazio continua texto; Styled comum permanece opaco.
-
-### Responsabilidade exclusiva
-
-Testar fields/children/has/at em Empty, Sequence com um ou vários filhos,
-loops e aliases persistentes; erros de campos inexistentes usam sequence.
-Controles negativos mantêm Text sem children e Styled opaco. As expectativas
-vêm das sondas bilaterais antes do código; RED real antes da implementação.
-
-### Aceitação e divisão explícita
-
-R1 é incompleto para a função Sequence: R2 completará construção e admissão
-em selector/where/show/counter, medindo argumentos, identidade e limites antes
-de alterar seus owners. before.json.gz registra esses refutadores abertos.
-Não anunciar paridade total de func() ou de sequência por este reparo.
-A mensagem genérica de método inválido também permanece fora de R1.
-
-Sem novos campos, tipos, traits ou assinaturas Rust públicas, fase ou modo
-de produto. L0 antes de código, RED→GREEN, testes de regressão, workspace,
-build, Clippy/Rustdoc estritos, ownership/núcleos/linhagem e reversa válidos;
-V16 não aumenta. Resselo somente após V15/V26 válido. Validação sequencial
-com MemoryMax12GiB/High8GiB/swap0/jobs1; registrar pico, não inferir ganho.
-
-## R2 — construção e seleção de Sequence, fluxo contínuo ADR-0127
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz
-e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
-bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
-foundations/content/mod.rs:724–728 declara children requerido;
-foundations/value.rs:644–650 define cast Content/string/symbol/none e
-typst-macros/src/elem.rs:573–604 gera o constructor. Tekt
-01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358–410
-ainda projeta fallback não chamável; o catálogo element_where não tem Sequence
-e selector_matching.rs:272–337 não tem sua identidade. rules/set.rs:55–76
-só recusa With de transforms e não reconhece set da Sequence. São semântica,
-morfologia e diagnósticos de língua, não exigência de copiar storage upstream.
-A mensagem de children() marcada pendente em R1 já coincide no baseline atual: o
-getter recém-corrigido permite que o owner existente produza o erro correto.
-A medição nova retifica essa pendência; não editar código de diagnóstico.
-
-### Responsabilidade exclusiva
-
-Cobrir construção de zero/um/vários filhos, nested sem aplanamento, strings/
-symbol/none, alias/With; erros e precedência de casts/extras/children posicional.
-Cobrir selector/where positivos e nomes inválidos; negativas de With e closure
-homônima; set vazio/condicional/extra/panic/partial; show bare, filtrado, miss,
-Empty e Styled externo. Guardar o caso show-once recursivo como refutador a
-investigar: não relaxar a expectativa do oracle para obter verde. Controles
-children() e erro antes de panic estão corretos no baseline R1 e permanecem.
-
-### Aceitação e limites
-
-Esta seção completa a responsabilidade R2 nomeada no L0 de R1. Corrigir
-continuamente tabelas/composição/callback interno, sem novos campos/traits/
-assinaturas Rust externas, modo padrão, fase ou quebra de compatibilidade.
-L0 antes de teste e código, RED funcional, GREEN e corpus bilateral. Não
-certificar guardas globais de show, todos os casts/elementos, nem paridade
-universal de render. Qualquer refutador residual deve permanecer no relatório
-e ganhar owner/L0 antes de intervenção, sem mudar testes para esconder o caso.
-
-Validar build/workspace/doctests em invocação separada, Clippy/Rustdoc estritos,
-fmt, V1/V5/V15/V26 e reversa, SARIF diferencial sem erro/warning novo. V19 pode
-registrar agrupamento nominal prescrito sem supressão, testando alternativas.
-Heavy jobs sequenciais, MemoryMax12GiB/High8GiB/swap0/jobs1, debug0/incremental0
-só no ambiente de validação. Resselo após V15/V26 válido e proveniência exata.
-
-
-## R2-S — realização nominal de Sequence, ratificada em 2026-10-17
-
-### Medição anterior à decisão
-
-As coletas before/expanded/controls.json.gz e candidate.log em
-lab/results/construction/diagnostics/sequence-constructor-2026-10-17 fixam HEAD
-b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
-UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
-markup_stream.rs:240–260 aplana antes de selecionar a sequência; realize/mod.rs:
-170–210 visita filhos antes de receita; apply.rs:140–170 delega não-localizáveis
-ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
-filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
-
-O dono aprovou a revisão
-lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
-46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
-nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
-fronteira antes dos filhos/Table/math; não cobre novo contrato público.
-
-### Responsabilidade exclusiva
-
-Manter as expectativas RED de show e recursão, completando S1–S20 da revisão
-aprovada. Retificar somente a fixture que igualava Text("") a Empty: o
-pin distingue ambos. Usar text("") como controle de texto vazio e preservar
-a rejeição de equivalência com []. Symbol conserva dívida separada registrada
-em controls.json.gz: func symbol vs text e igualdade false vs true; não usar
-repr igual como certificado dessa morfologia. Não esconder refutadores de show.
-
-### Aceitação
-
-S1–S20 ratificados, RED antes de código, GREEN bilateral e regressões; não
-reduzir expectativas por limite mecânico. Todos os owners 1:1 e núcleos pinados
-válidos antes do resselo. Build/workspace/doctests separados, Clippy/Rustdoc
-estritos, fmt/linhagem/reversa e SARIF sem novo erro/warning. 12GiB/High8GiB/
-swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.
-
-### R2-S — erros primários e defeito do oracle, decisão após medição
-
-r2s-measurement.json.gz conserva os casos show-panic/show-once/stored-value/
-show-block-bad-mutation. No pin, typst-realize/src/lib.rs:394–403 chama
-engine.delay(result); typst-library/src/engine.rs:42–49 registra a falha e
-devolve Default, que para Content é Sequence vazia (content/mod.rs:94–96).
-A regra Sequence volta a casar esse fallback e esgota profundidade antes
-de apresentar panic/erro readonly originais. O novo máximo sem span é erro
-secundário causado pelo fallback; não é a causa do programa. Esta leitura
-refuta a expectativa inicial do teste, que copiava esse defeito do oracle.
-
-Conservar no Tekt o erro primário com sua Source: panicked with: X/EARLY e
-variables from outside the function are read-only and cannot be modified.
-Não retornar Empty após falha para obter o erro secundário. Esses quatro
-refutadores continuam no corpus e são auditados como divergências deliberadas
-nominais, com seus erros exatos; não supressão geral de divergência/exit.
-Separadamente, Sequence realmente reconstruída com children iguais deve
-continuar rejeitando maximum show rule depth exceeded. Testar ambas as
-causas e as origens, sem alterar o limite. ADR-0107/0108: defeitos do vanilla
-não são requisito; esta classificação decorre da fonte medida, não de
-preferência pelo candidato ou de igualdade da mecânica Rust.
-
-## R2-S13 — uma avaliação por grupo textual pendente
-
-Medição antes da decisão: r2s-scope.json.gz e text-before.json.gz em
-lab/results/construction/diagnostics/sequence-constructor-2026-10-17 preservam estado
-não commitado em b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, UTC,
-diffstat, binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-As sondas textual-no-repeat/baseline/interpolation/captured produzem
-AAAA(B) no Tekt contra AA(B) no vanilla. textual.rs:104–122 encapsula
-grupos que já contêm receitas pendentes do mesmo snapshot;
-realize/mod.rs:182–210 realiza ambas bottom-up, reaplicando o literal.
-text-before cross-piece mede AB→X sobre filhos separados nos dois;
-outer-hides-text mede Y sem executar panic do filho em ambos.
-
-Decisão interna, dentro de S13 ratificado: o owner textual coalesce
-somente receitas textuais ainda pendentes do mesmo ambiente causal
-(identidade Arc das regras, estilos colapsados, guards e arquivo).
-Preservar Source, ordem, morfologia e fronteiras com ambiente distinto
-ou recipe não textual com efeito de elemento (a exceção escalar redundante está prescrita abaixo). Nenhum callback é executado pelo coalescimento.
-Capturar o grupo com filhos coalescidos e, no owner Sequence, coalescer
-o corpo textual depois de realizar as sequências efetivamente emitidas,
-antes de devolver a receita ao owner textual. Não reaplicar o mesmo
-grupo por cada camada de transporte; não pular Realized indiscriminadamente
-nem alterar matching, precedência, scopes ou contratos públicos.
-
-Testes RED→GREEN: literal e regex em interpolação/captura, identidade
-Sequence simples e em bloco, prefixo lexical, matching entre peças e
-filhos textuais ocultos. Fronteiras de snapshot distintas permanecem
-opacas. A divergência independente local-text-scope (C vs B), causada
-pela precedência de literais distintos, continua explícita no inventário
-e não legitima alterar a ordem do matcher neste owner.
-
-## R2-S — slots internos não são Empty explícito
-
-Medição anterior à decisão: empty-slots-before.json.gz em
-lab/results/construction/diagnostics/sequence-constructor-2026-10-17 registra fontes,
-binários, UTC, HEAD/working tree/diffstat e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Body simples produz EBODY contra BODY; filhos none/[] produzem EEA contra
-EA; com regra textual A→AA aparecem Es adicionais. markup_stream.rs:
-205–225 monta cauda incluindo slots Empty consumidos/normalizados;
-textual.rs:104–120 monta pacotes com os mesmos slots; sequences.rs:
-114–125 os visita como ocorrências reais.
-
-Correção interna dentro da captura ratificada: ao montar o corpo da cauda
-Sequence no owner markup e o corpo do pacote pendente no owner textual,
-remover somente slots Content::Empty nus do vetor. As ocorrências Empty
-explícitas sob regra Sequence já possuem captura/Source própria antes
-de entrar nesse vetor. Conservar esses carriers, Text vazio e arrays
-de filhos do construtor; não filtrar Empty arbitrariamente no visitor
-de domínio. Corpus body/[]/none/construtor vazio/filho none/filho []/prefixo/
-textual deve coincidir com o vanilla PDF, inclusive documento sem corpo.
-L0 primeiro, RED em módulo antes do código; revalidar PDF e HTML separadamente.
-
-## R2-S — raiz de pacote textual e EOF causal
-
-Medição anterior à decisão: validation-attempt-2.json.gz, trace-recipes,
-trace-markup2 e trace-textual2 em lab/results/construction/diagnostics/sequence-constructor-2026-10-17
-mostram 11 testes verdes e dois REDs. eof-before.json.gz mede as fontes
-exatas sem acrescentar newline: Styled com EOF produz Y nos dois; sem
-EOF produz AB nos dois. A expectativa unitária Y usava a fonte sem EOF,
-diferente da sonda anterior. Preservar ambos os controles externos; o
-unitário Y passa a incluir o EOF medido, não a relaxar uma regra de show.
-
-Alias textual sem EOF produz AAAAAAAAB no Tekt e AAB no vanilla.
-sequences.rs:112–116 pula a raiz de todo pacote textual, mas a construção
-Content::sequence normaliza um único item para o próprio item. Quando
-esse item é ShowRecipe marcado, pular a raiz deixa a receita original
-pendente e realiza outra captura nos seus filhos. O owner genérico volta
-a executá-la e repete regras textuais. trace-textual2 registra essa
-receita marcada ainda opaca no coalescimento após o percurso.
-
-Correção interna: skip_root pula somente uma raiz crua Empty/Sequence
-artificial de pacote, nunca ShowRecipe/Styled ou outra raiz normalizada.
-Uma receita marcada na raiz efetiva deve decidir antes de seus filhos,
-como qualquer outra ocorrência. Manter comparação causal estrita de
-estilos/regras/guards/arquivo no coalescimento e todos os controles de
-slots. Os logs cfg(test) temporários foram arquivados e serão removidos
-do código antes da validação final. Sem campo/tipo/API/fase nova.
-
-## R2-S13 — texto emitido e receitas escalares redundantes
-
-Medição antes da decisão: validation-attempt-3.json.gz e emission-after.json.gz
-em lab/results/construction/diagnostics/sequence-constructor-2026-10-17 preservam estado
-working tree, UTC, fontes/argv/binários/diffstat no pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Sequence emitindo [A] ou text("A") sob A→AA produz AAAA contra AA.
-O controle text("A") sem Sequence já produz AAAA no release de pilha
-SHA 2ab1495d555ff4d61e67eb14bef67597f7f668a0e3bce3a8129623011443441c
-(native-before.json.gz). textual.rs:142–161 compara marca/guard de
-Sequence como se distinguissem escopo textual e conserva receitas
-genéricas escalares que aplicam o mesmo conjunto literal antes do pai.
-trace-textual2/instrumentation-sources registram esses campos privados.
-
-Responsabilidade do owner Sequence: fornecer helper crate-interno que
-compara o transporte textual excluindo somente a chave privada
-eval.sequence.occurrence do delta colapsado e guards cujo RuleId pertence
-a regra Sequence no snapshot. Guards desconhecidos e de outras famílias
-permanecem. Nenhuma filtragem de estilos reais nem assinatura externa.
-
-Responsabilidade do owner textual: conservar agrupamento lexical estrito
-TextualSnapshot::same_group. No coalescimento, pacotes textuais com
-mesmo Arc de regras, arquivo e transporte textual equivalente são uma
-única realização. Para receita genérica não textual, só eliminar o
-transporte redundante se o corpo bruto for Text (permitido Source),
-as regras ordenadas têm exatamente os mesmos RuleIds do pai, o arquivo
-e o transporte textual coincidem, e nenhuma regra de elemento casa
-com esse Text. Nesse caso não há callback de elemento a executar e
-o pai já possui a aplicação literal/regex correspondente; devolver o
-corpo com sua Source. Não eliminar receita Styled/estrutural/contextual
-ou receita com regra de elemento aplicável. Não retirar regras do Engine
-nem executar callbacks no coalescimento. IDs são a identidade já vigente
-no mesmo contexto; não comparar só nomes, Debug ou texto do produto.
-
-RED→GREEN de emissão [A]/text("A") e controle escalar nativo, com os
-esperados do pin; controles de guard de outra família e estilo real
-continuam opacos. Revalidar os 13 controles anteriores sem relaxamento.
-Esta é correção interna de aplicação única já ratificada em S13, sem
-novo tipo/campo público, fase ou mudança da política dos demais elementos.
-
-
-## R3-Markup — filhos imediatos do valor de markup (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/sequence-r3-2026-10-18/before.json.gz e
-before-sources.json.gz registram UTC, HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
-working tree não commitado/diffstat/status, fontes e SHA dos executáveis.
-Vanilla pin bd5ebec285505889e8ff1d4f68804ab147a699f3, árvore
-cac836c07e4dec2a89219370428292393a3216b5, oráculo SHA
-9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
-Em [#([A]+[B]) C], o Tekt expõe quatro filhos A/B/espaço/C e o pin
-três filhos Sequence(A,B)/espaço/C. Alias, dois siblings, soma posterior
-e for apresentam a mesma perda; singleton coincide. Sob show Sequence
-identidade o corpo já preservado coincide. append_markup_sequence em
-01_core/src/compiler/eval/markup_stream.rs:286–311 recursa sempre nos
-filhos Sequence, inclusive quando preserve_source identifica ContentBlock.
-A fonte pinada lab/typst-original/crates/typst-eval/src/markup.rs:78
-apensa o valor display inteiro e foundations/content/mod.rs:240–250
-normaliza somente coleções de zero/um filhos. É morfologia da linguagem,
-não obrigação de copiar Vec ou a mecânica de compartilhamento Rust.
-
-### Decisão, limites e aceitação
-
-Correção interna/de paridade ADR-0127 em fluxo contínuo: nenhuma API pública,
-novo campo/trait, fase, modo ou default de produto. O núcleo pinado distingue
-a coleção do valor e a composição do fluxo. Não mexer em Content::sequence,
-concat_content, alias/Source, regras locais, captura anterior ao aplanamento,
-Table/Cell, índices de estilos/labels/snapshots ou normalização de espaços.
-A hipótese de perda na coleta é refutada se os filhos imediatos não forem
-restaurados ou se singleton/+ e o produto visual mudarem.
-
-Antes do código: RED funcional de filhos/tipos, alias imutável, dois irmãos,
-singleton, + posterior, for e modo de fluxo. Depois: GREEN, controles CJK,
-show/text/labels/Source e recursão Strong64/256, suíte completa, build,
-Clippy/Rustdoc estritos, fmt, linhagem bidirecional e diferencial SARIF.
-Teto12GiB/High8GiB/swap0/jobs1; comandos pesados sequenciais. Sem publicação.
-As novas medições de None omitido, metadata textual vazando em children,
-repr/campos Styled, precedência literal/regex e Symbol continuam separadas:
-R3-DisplayNone, R3-TextualTransport, R3-Reflection, R3-Textual e R3-Symbol
-completarão esses subconjuntos; este reparo não os certifica como corretos.
-
-Responsabilidade exclusiva: regressões sequence_r3_markup no módulo de testes
-existente verificam a forma por children/func/fields/igualdade da linguagem e
-controle de aliases/+; não usar Debug Rust ou bytes PDF. Testes unitários do
-owner de markup verificam a distinção entre modos de coleta e fluxo e origem
-Source, sem executar callbacks nem mudar o comportamento dos helpers gerais.
-
-
-## R3 — slots consumidos e apresentação de None (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/sequence-r3-2026-10-18/{before,markup-after,
-textual-before,transport-before,transport-before-sources}.json.gz conserva
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
-UTC/diffstat/fontes, executáveis e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Sob show literal Z que não casa, nested.children expõe um pacote Sequence
-mais dois Empty no Tekt; no pin são os três filhos originais. empty-child
-expõe pacote mais Empty no Tekt, mas []/A no pin. markup_stream.rs:201–249
-reconstitui o vetor incluindo slots que textual.rs:103–129 zerou; matching.rs:
-90–95 também zera os siblings consumidos. São detalhes de transporte vazando
-para a morfologia pública. CodeBlock/None interpolado desaparece; [#none#[]A]
-tem dois filhos no Tekt e três no pin, e X#none;B sob show Empty resulta XB
-contra XEB. A tabela value_to_display_content omite None por contrato histórico.
-No pin typst-library/src/foundations/value.rs:191–210 apresenta None como
-Content::empty; typst-eval/src/markup.rs:39–56 trata SetRule/ShowRule como
-fronteiras próprias e :78 apensa o valor das demais expressões. Não copiar
-buffers Rust nem inferir intenção a partir da implementação.
-
-### Decisão e limites
-
-Correção interna de paridade ADR-0127, sem contrato Rust externo, novo campo,
-modo/default ou fase. Máscara privada Vec<bool>, sem Location falsa ou carrier
-público novo. A hipótese é refutada por perda de Empty/Text vazio genuíno,
-deslocamento de fronteira/estilo, repetição de callback ou índices inconsistentes.
-A apresentação de None muda apenas na inserção do markup, não no helper genérico
-usado por Math/CodeSetTail. SetRule/ShowRule continuam suas fronteiras próprias.
-
-RED funcional antes de código: children/fields sob receita literal não casada,
-filhos []/Text vazio, valor None de literal/let/assert/condicional, aplicação do
-show Empty a None e set vazio/estilo sem Empty artificial. GREEN e corpus
-bilateral, controles R2-S/EOF/slots/estilos/CJK/loops, build/suítes completas,
-Clippy/Rustdoc estritos, formato/linhagem/reversa/diferencial SARIF. 12GiB,
-High8GiB, swap zero, jobs1 e jobs pesados sequenciais; sem publicação.
-
-A preservação de fronteiras do valor de markup não fecha a morfologia pública
-de Styled/Styles, repr de labels ou a formação do valor de módulo/include.
-R3-Reflection e o lote A3/include completarão esses eixos com medição própria.
-Precedência/guardas textuais e show-set literal continuam no lote R3-Textual;
-nenhuma mudança dessa política é legitimada por este transporte.
-
-Responsabilidade exclusiva: testes sequence_r3_transport verificam filhos e
-apresentação real, preservam Text vazio por func text e distinguem set/show
-sintáticos das expressões ordinárias. O helper comum não recebe expectativa
-relaxada nem nova normalização que esconda slots. Expected vem dos pares medidos.
-
-
-### Limite adicional medido — grupos textuais em múltiplas caudas
-
-transport-after.json.gz no diagnóstico R3 confirma a remoção dos Empty
-consumidos e a presença dos None reais. style-tail ainda expõe um grupo
-sintético Sequence(A,Space) como um filho, antes do Styled; rule-tail também
-conserva forma de cauda divergente. O problema é adicional à máscara de consumo,
-não somente uma diferença de repr. O pacote R3-TextualGroups completará a
-projeção linguística dos grupos sintéticos em múltiplos escopos e sua igualdade/
-seleção, preservando a Sequence escrita pelo autor. R3-Reflection completará
-Styles e Styled públicos. Não considerar esses controles fechados nem achatar
-Sequence genericamente para escondê-los. Este adendo registra o recorte ainda
-incompleto; não autoriza modificar os owners dessas projeções sem L0 próprio.
-
-## A2 — fronteira de bloco e validação de hanging-indent (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/bibliography-indent-2026-10-18/before.json.gz contém
-60 pares de sondas no HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
-working tree não commitado/UTC/status/diff HEAD --stat, fontes/argv/binários,
-texto e caixas. before-sources.json.gz preserva fontes/L0. Oracle pinado
-bd5ebec285505889e8ff1d4f68804ab147a699f3, árvore
-cac836c07e4dec2a89219370428292393a3216b5, executável SHA-256
-9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
-Tekt baseline 97f6fa3078bdd6c40aabb80d6f93f3fd019b405ce70fbf2266686d8fb42271cb.
-
-MLA sem título começa na linha da citação no Tekt (Silva x41.84/y5.168)
-contra x8/y27.463995 no vanilla. Com título, o Tekt mistura título e citação
-(y6.7568/y8.108) e intercala a extração no CSL customizado; o vanilla os
-separa. Oito positivos de par medem recuo não implementado. Dez negativos
-none/auto/int/ratio/string de set e constructor são aceitos no Tekt, mas o
-oracle rejeita expected length. bibliography.rs:106–123 despacha o título sem
-fechar a linha anterior e o cache como fluxo inline. set.rs:1180–1192 trata
-hanging-indent como desconhecido; structural/par.rs:173 ignora o valor.
-
-No pin, typst-layout/src/rules.rs:463–531 realiza título e blocos de entradas;
-sem prefixo, o recuo é inset mais HElem compensador; prefixos usam duas colunas.
-model/par.rs:431 declara Length e inline/collect.rs:146–148 conserva avanço
-inicial absoluto. São fatos de linguagem/posição/erro; não obrigação de copiar
-seu grafo Rust, bytes ou algoritmo de armazenamento. Hipótese causal desta
-subetapa: ausência de fronteira de bloco mistura título/citação/corpo, e falta
-de validação admite tipos inválidos. Medições de posições, tipos/hints/spans e
-os controles restantes podem refutá-la; não concluir que um offset único resolve
-recuo ou que toda diferença de extração PDF é só mecânica.
-
-### Classe e divisão explícita
-
-Correção interna de paridade em fluxo contínuo ADR-0127: sem campo/trait ou
-assinatura pública nova, default/flag adicional, compatibilidade Rust ou fase
-nova. O L0 precede testes/código. Esta revisão é incompleta para A2:
-A2-Structure deve preservar hanging_indent/prefix/body do CSL e compor entradas
-com suas margens/colunas; A2-HangingTransport deve transportar overrides por
-ocorrência e resolver prioridades; A2-ParIndent deve completar composição de
-parágrafos comuns (set/constructor), inclusive estratégias e direções. A2-Multi
-continua atribuição/cache por bibliografia. Não silenciar warnings de suporte
-incompleto antes de materializar seus consumidores, nem considerar positivos
-hanging-indent corrigidos pela rejeição dos negativos.
-
-### Responsabilidade exclusiva
-
-Acrescentar no módulo canônico de regressões E2E, reutilizando MockWorld, testes de rejeição de hanging-indent none/auto/int/ratio/string em set e constructor, diretos e aliases, incluindo precedência de erro sobre ausência de body, com mensagem/tipo público/hint e span do valor; controles Length zero, negativo e abs+em continuam aceitos. Não duplicar Worlds em outro owner nem relaxar expectativas existentes. O teste não declara consumo geométrico do recuo. A incorporação desta cláusula exige merge aditivo do L0 com a proposta R3-T1 pendente; não instalar a versão completa antiga por cima das cláusulas A2 quando aquela for aprovada.
-
-### Aceitação
-
-Testes RED funcionais antes da implementação; GREEN de fronteira título/citação/corpo/fallback e negativos com controles de zero/negativo/affine e vazio. Medir novamente caixas PDF/extração, manter os REDs de recuo e múltiplas bibliografias explícitos, não atribuir vantagem ao Tekt sem fonte/controle. Revalidar build/workspace/doctests, Clippy/Rustdoc estritos, fmt, linhagem V1/V5/V15/V26 e reversa, SARIF sem erro/warning novo. Teto 12 GiB/High8 GiB/swap0/jobs1/debug0/incremental0; comandos pesados sequenciais. Sem commit/push/release.
-
-## R3-T1 — realização causal ratificada (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
-commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
-bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
-fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
-matching.rs:118–150 aplica regex reversa e depois literais em declaração;
-:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
-captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
-apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
-expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
-
-Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
-X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
-produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
-panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
-capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
-foundations/selector.rs:110–125 unifica literal escapado com regex;
-typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
-no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
-igualdade de buffers ou bytes PDF. É inferência causal que a separação de
-escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
-acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
-
-### Decisão ratificada
-
-Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
-do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
-ratificou esta ordem. Ele supersede neste escopo as
-cláusulas históricas de execução provisória de show em ContentBlock e da
-visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
-de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
-assentar render em morfologia nem criar contrato Rust público.
-
-### Responsabilidade exclusiva desta unidade
-
-Acrescentar testes RED antes de código para cada família de acceptance.json e controles de erro/identidade/morfologia; expectativas vêm do pin comprovado, não do candidato. Cobrir valores globais/locais retornados por funções, global mais recente, empate/menor offset/Unicode, ciclos, alias versus produto composto, produtos adjacentes e produtos ocultos. Mostrar estilo por observável real, incluindo confinement e regra seguinte ao produto. Conservar todos os esperados R2/R3 anteriores; nunca relaxar um controle porque o novo algoritmo falhou. Casos de erro primário Tekt vs fallback de profundidade do vanilla ficam classificados individualmente.
-
-### Aceitação desta revisão
-
-RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.
-
-### R3-T1 — observador de cores
-
-O candidato1 alcançou oito conjuntos corretos de cores visuais, mas o observer
-comparava Color por igualdade Rust entre variante nomeada e sRGB e entre f32
-arredondados no transporte. Isso viola ADR-0107. Nos oito testes novos converter
-cada fill a canais sRGB u8/alpha via Color::to_srgb e comparar exatamente os
-canais esperados do SVG oracle (#0074d9 / #ff4136). Não alterar produto, cores,
-tolerâncias globais ou expectativas de confinamento; confirmar os SVGs reais.
-
-### R3-T1 — integração revelada pela suíte ampla
-
-A contagem de Par no teste de composição deve atravessar apenas o visual de
-Realized e os carriers Source/Located, conservando a expectativa de exatamente
-um Par e o texto integral; nunca contar Realized.original como emissão. O
-candidato3 passou as 64 sondas e refutou o observer antigo que parava no carrier.
-Adicionar o refutador de ambiente preparado em refuter-fragment.rs do diagnóstico
-R3: regras de texto e Strong, sucesso e erro, alias reemitido, callback uma vez,
-restauração de styles/regras/guards/arquivo/defer/realizing/frames/profundidade e
-apoio textual. Usar apenas estado local no teste, sem global mutável. As falhas
-raw e Table existentes são RED da integração e não têm expectativas relaxadas.
-
-### R3-T1 — refinamento por regra e fronteira
-
-As duas expectativas históricas de rejeitar show-set literal/regex são
-supersedidas pela aprovação R3-T1 e pelas oito sondas bilaterais de cor, que já
-passaram. Atualizar esses testes para aceitação e texto preservado; a prova de
-estilo permanece nos oito testes de canais sRGB/SVG. Não relaxar os outros 13
-REDs de integração do candidato4 nem alterar suas expectativas.
-
-### R3-T1 — observadores de emissão e composição regex
-
-O diagnóstico candidato5b-skip-reuse expôs observers que paravam em Source,
-Realized e Located embora o conteúdo esperado estivesse no visual. Ajustar
-somente has_dynamic, styled_bold_envolve_heading, contem_heading,
-styled_bold_anywhere, styled_bold_e_weight e os go de texto_em_strong/emph
-para atravessar Source.body, Located.body e Realized.visual, nunca original.
-Conservar todas as expectativas de conteúdo/estilo e os complementos nominais.
-
-Antes de decidir a expectativa de show_rule_regex_ultima_declarada_vence,
-regex-oracle.json mediu HTML do pin bd5ebec285505889e8ff1d4f68804ab147a699f3
-(ver SHA-256 integral do binário no próprio recibo).
-O resultado literal foi <p>abc<em><strong>123</strong></em>def</p>.
-A regra mais recente fornece o envoltório externo Emph e a anterior ainda
-atua dentro do produto. O teste deve exigir ambos Strong e Emph, conservando
-texto integral; não declarar que Strong desaparece. É morfologia de linguagem,
-não igualdade Rust. O receipt guarda fonte, argv, UTC, estado e hash integral.
-
-### R3-T1 — integração do fluxo emitido
-
-O observer texto_em_strong deve também atravessar Emph.body, e texto_em_emph
-atravessar Strong.body, para verificar a composição medida em regex-oracle.json.
-Conservar os nós Strong/Emph na linguagem: a mudança é só na observação do
-produto aninhado, sem comparar wrappers Rust ou contar originais como emissão.
+All textual acceptance families/R2-S/R3/single-eval controls require RED→GREEN, PDF/HTML validated separately, full build/workspace/doctests/strict Clippy-Rustdoc/fmt/V1-V5-V15-V26/reverse/SARIF no new errors-warnings, 12GiB/High8GiB/swap0/jobs1/sequential, frozen provenance, no suppression/commit/push/release or unmeasured RAM gain.

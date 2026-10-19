@@ -1,29 +1,36 @@
 # L0 — stdlib/loading/csv
 Hash do Código: c368d28e
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/loading/csv.rs`.
-No HEAD `4ac3e2082e6e708dd815ab01b47ac8ed281a14fa` e árvore limpa, `01_core/src/compiler/stdlib/loading.rs:939-1154 e 1335-1451` contém o comportamento correspondente. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-loading-2026-09-30-before.json.gz`. É separação interna conforme ADR-0109/0127/0129; não há novo contrato público ou desempenho medido.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/stdlib/loading/csv.rs`.
+At HEAD `4ac3e2082e6e708dd815ab01b47ac8ed281a14fa` with a clean tree, `01_core/src/compiler/stdlib/loading.rs:939-1154 e 1335-1451` contains the corresponding behavior. SHA-256, time and state are recorded in `lab/results/construction/diagnostics/atomizacao-loading-2026-09-30-before.json.gz`. This is internal separation under ADR-0109/0127/0129, without a new public contract or measured performance claim.
 
-## Contrato
+## Contract
 
-Decodificar CSV em Array de linhas ou Dictionary por cabeçalho, preservando delimiter, row-type, ordem causal de validação de Args, spans e posição do parser. A nativa aceita a fonte e usa o World injetado apenas pelo contrato de leitura existente; Bytes não dispara leitura.
+Decode CSV into an Array of rows or header-keyed Dictionary, preserving delimiter, row-type, causal Args validation, spans and parser position. The native accepts its source and uses injected World only through the existing read contract; Bytes triggers no read.
 
-As regras detalhadas e evidências históricas do comportamento permanecem em `00_nucleo/prompts/core/compiler/stdlib/loading.md`; esta unidade as herda sem alterar paridade nem fases do pipeline. O consumer opera em L1, recebe dados/World por argumento e não introduz I/O direto ou estado global mutável.
+Detailed rules and historical behavior evidence remain in `00_nucleo/prompts/core/compiler/stdlib/loading.md`; this unit inherits them while preserving parity and pipeline phases. The consumer operates in L1, receives data/World through arguments and introduces no direct I/O or mutable global state.
 
-## Aceitação
+## Acceptance
 
-Preservar o resultado linguístico e os diagnósticos existentes. Compilar, passar a suíte L1 e `crystalline-lint .` com ownership e hashes válidos.
+Preserve language results and existing diagnostics. Build and pass the L1 suite and `crystalline-lint .` with valid ownership and hashes.
 
-## Helpers e armazenamento sem uso — 2026-10-13
+## Test-only legacy wrapper boundary
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`01_core/src/compiler/stdlib/loading/csv.rs` nas linhas 19, 25 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+compiler/stdlib/loading/csv.rs:19,25 contains the historical Clippy inventory
+items. HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`
+preserves sources/owners/references/UTC/status/diffstat. Call-site and productive
+path research precedes classification; no new parity/performance evidence.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Compilar o helper interno `decode_csv` somente sob `#[cfg(test)]`, conservando assinatura e corpo para os testes existentes. O módulo csv é privado e sua reexportação já é cfg(test). A variante privada CsvErrorContext::Pure e seu braço no match acompanham cfg(test), pois só o wrapper a constrói. Bytes/File e a nativa CSV continuam produtivos, com spans e posições intactos.
+Compile internal decode_csv only under `#[cfg(test)]`, preserving signature/body for existing tests. The csv module is private and its reexport is already cfg(test). Private CsvErrorContext::Pure and its match arm are also cfg(test), as only this wrapper constructs it. Bytes/File and native CSV stay productive with intact spans/positions.
 
-Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.
+Preserve productive routes, existing test names/bodies, external APIs, defaults
+and phase. This internal correction follows ADR-0127 continuous flow. Revalidate
+all workspace-target build/check, core suite, test inventory, Clippy and lineage;
+do not remove expectations to pass the gate.

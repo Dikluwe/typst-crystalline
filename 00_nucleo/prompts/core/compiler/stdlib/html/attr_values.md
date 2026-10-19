@@ -1,14 +1,14 @@
 # L0 — stdlib/html/attr_values
 Hash do Código: decc16ad
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/html/attr_values.rs`. No HEAD `7a813038b9af2eca0eac7c9a0f808ae8f6509d5b` e árvore limpa, `01_core/src/compiler/stdlib/html.rs:1693-2033` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-html-2026-09-30-before.json.gz`.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/stdlib/html/attr_values.rs`. At HEAD `7a813038b9af2eca0eac7c9a0f808ae8f6509d5b` with a clean tree, `01_core/src/compiler/stdlib/html.rs:1693-2033` contains the extracted behavior. SHA-256, time and initial state are recorded in `lab/results/construction/diagnostics/atomizacao-html-2026-09-30-before.json.gz`.
 
-## Contrato
+## Contract
 
-Coerções auxiliares de enum, lista, data, duração, tamanho, imagem e diagnósticos. Preservar as assinaturas públicas, defaults, classes de diagnóstico, morfologia dos elementos e ordem de validação atualmente especificadas em `00_nucleo/prompts/core/compiler/stdlib/html.md`. Esta extração só separa responsabilidade dentro de L1; o dispatch permanece estático, sem I/O nem estado global mutável.
+Own helper coercions for enums, lists, dates, durations, sizes and images, and their diagnostics. Preserve public signatures, defaults, diagnostic classes, element morphology and validation order specified in `00_nucleo/prompts/core/compiler/stdlib/html.md`. This extraction only separates responsibility within L1; dispatch remains static, without I/O or mutable global state.
 
-## Aceitação
+## Acceptance
 
-Preservar os testes de `html`, a suíte L1 e a validade de `crystalline-lint .` com ownership e hashes corretos. Não inferir ganho de desempenho a partir da separação.
+Preserve `html` tests, the L1 suite and valid `crystalline-lint .` results with correct ownership and hashes. Do not infer performance gains from separation.

@@ -1,0 +1,12 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/table_footer.md",
+  "status": "complete",
+  "source_review": "Full original read; already English contract reviewed without replacing owner-specific norms.",
+  "disposition": "Retained evidence, exact owner, all behavior and scope limits, acceptance and nucleus pins; corrected current-reference provenance without upgrading historical measurements.",
+  "original_sha256": "ed0c65bdd9769c71384bba9a27f43ca57d2c765926819a7900df4f9525b81fc1",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/table_footer.md",
+  "open_issues": "All original limits and unresolved implementation exclusions retained verbatim.",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

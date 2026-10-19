@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "unreferencable-label"
-title = "Classificação de labels não referenciáveis"
-
+title = "Classification of unreferencable labels"
 [[claims]]
 id = "existing-not-missing"
 level = "must"
-statement = "Label existente mas não referenciável não é classificada como inexistente."
-
+statement = "An existing but unreferencable label is not classified as missing."
 [[claims]]
 id = "distinct-kinds"
 level = "must"
-statement = "Text, Raw, EquationWithoutNumbering e Other permanecem classes distintas."
-
+statement = "Text, Raw, EquationWithoutNumbering and Other remain distinct classes."
 [[claims]]
 id = "observable-translation"
 level = "must"
-statement = "O layout traduz a classe no diagnóstico observável aplicável sem inventar classe nova."
+statement = "Layout translates the class into applicable observable diagnostic without inventing a class."

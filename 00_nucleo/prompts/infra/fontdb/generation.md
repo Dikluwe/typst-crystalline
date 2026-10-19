@@ -2,147 +2,105 @@
 Hash do Código: 0cd789b1
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:391cd1604976262b1b6e019b802ed72e78782260d2788bb04999297559605509
+- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0f2985807cc3c7b4aeed9a5a26b77ad66dbbdb67ccfb43ba8336dbc8e8eea1a5
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/fontdb/generation.rs`
 
 
-## Medição anterior à decisão de retenção ratificada
+## Font retention evidence and approval
 
-lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
-edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
-descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
-remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
-não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
-preservar seleção, conteúdo, diagnóstico e render na linguagem; duração/Arc são
-mecânica. Inferimos benefício possível, refutado por custo, stale resources,
-regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do relatório.
+`lab/results/construction/diagnostics/watch-retencao-2026-10-07.md` retains
+HEAD/tree/binaries/UTC, actual edits/recovery and dynamic per-cycle acquisition
+counts. `watch-validacao-2026-10-07/measurement.json` compares discovery validation
+and complete acquisition at the same state; controls.json covers additions/removals/
+replacement/restored mtime/links/configuration. These are isolated costs, no CLI
+gain or upstream-intent proof. FontBook/slots/coverage must preserve language
+selection/content/diagnostics/render; Arc/duration are mechanics. Cost, stale
+resources, regression or unbounded retention refute possible benefit. Fixtures/
+provenance/limits remain in the reports.
 
-### Decisão ratificada sob ADR-0127 §2.1/§2.2
+Owner `Confirmo` ratified
+`lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json`
+under ADR-0127 §2.1/§2.2; receipt
+`lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json`.
+Each owner remains 1:1.
 
-Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
+## Prepared discovery and validity key
 
-## Preparação e chave de validade, somente L3 crate-private
+No public API. Private-to-L3 PreparedDiscovery holds fontdb Database, current
+project slots and comparable key. Prepare uses unchanged Database::load_system_fonts
+and fonts::discover_fonts on supplied paths with exact order/duplicates. Key
+contains path configuration and ordered origin/index/identity, never transient
+Database ids.
 
-Não oferece API pública. PreparedDiscovery possui Database do fontdb, os slots
-atuais de projeto e chave comparável. Preparar invoca Database::load_system_fonts
-atual e fonts::discover_fonts nos caminhos fornecidos, preservando exatamente as
-ordens e duplicados. A chave inclui configuração de caminhos fornecidos e lista
-ordenada de origem/índice/identidade; IDs transitórios do Database não entram.
+For every Unix Source::File/project slot capture regular-file path/index/dev/ino/
+size/mode/mtime-sec-nsec/ctime-sec-nsec. Recheck after prepare and before generation
+reuse/publication. Metadata errors/nonregular/changing samples/SharedFile refuse
+prepare/reuse. Fresh SharedFile keeps retained original bytes; Binary stays ignored.
+Non-Unix declines, no weaker identity. Full discovery repeats per new World demand
+unless the strict proof below succeeds. Old file/directory list alone is no proof;
+new/nested/config changes use the same loaders. Equal resulting list/identity need
+not rebuild immutable book. No fc-list/new watcher/directory-only snapshot/disk cache/
+mtime-only fingerprint. Recompile demand is observation boundary, not atomic whole-
+filesystem snapshot or later-change detection; font-only changes add no event.
 
-Para Source::File e cada slot de projeto, em Unix capturar path e índice,
-dev/ino/tamanho/mode/mtime-sec-nsec/ctime-sec-nsec de arquivo regular. Rechecar as
-identidades depois de preparar e novamente antes de reutilizar/publicar geração.
-Uma leitura de metadata errada, arquivo não regular, diferença entre amostras ou
-Source::SharedFile recusa preparo/reuso; SharedFile conservado pelo caminho fresco
-continua com os bytes retidos originais. Binary não persistente permanece ignorado.
-Fora de Unix recusar sem implementar identidade fraca substituta.
+## Strict generation proof
 
-A descoberta completa é repetida em cada nova demanda de World salvo quando a
-prova rápida estrita abaixo demonstra geração idêntica. Não manter lista antiga
-de fontes/diretórios como prova isolada. Entradas novas, diretórios aninhados e
-configuração de fontconfig devem passar pelos mesmos loaders na mudança.
-Mudança de configuração que produz a mesma lista/identidade não exige regenerar
-book imutável. Não usar fc-list, watchers novos, snapshots somente de
-diretórios, cache em disco ou fingerprints por mtime sozinho. A observação é em
-fronteira de recompilação, tal como o caminho fresco;
-não prometer snapshot atômico de todo filesystem nem detectar mudanças depois da
-fronteira sem novo ciclo. Mudança em fontes sozinha não adiciona evento novo.
+### Evidence
 
-## Prova rápida estrita de geração — correção interna 2026-10-08
+`lab/results/construction/diagnostics/watch-incremental-item5-2026-10-08/measurements.json`
+records Tekt median CPU 54.38/54.75/54.73ms for same-bytes/word/structural edits
+with vanilla-equivalent text/bboxes. correction-probe.json has three hot cycles:
+no-text 1.51ms total/simple text 50.45ms/set-text-font 48.43ms with 47.48ms eval.
+First catalog demand shifts its measured phase; generation.rs:27–29 calls
+load_system_fonts and font_session.rs:23–52 prepares each demand. Rediscovery is
+an inferred primary cause, refuted by direct measurement or absent paired gain.
+These medians are not additive components of one profile.
 
-Medição antes da decisão: `lab/results/construction/diagnostics/watch-incremental-item5-2026-10-08/measurements.json`
-mede 54,38/54,75/54,73 ms de CPU mediana Tekt em escrita de mesmos bytes,
-palavra e expansão estrutural, todos com texto/caixas equivalentes ao vanilla.
-`correction-probe.json` mede três ciclos quentes por controle: documento sem
-texto 1,51 ms total, texto simples 50,45 ms, `#set text(font: ...)` 48,43 ms
-com 47,48 ms atribuídos a eval. O custo muda de fase conforme a primeira
-demanda do catálogo. `generation.rs:27-29` reexecuta
-`Database::load_system_fonts`; `font_session.rs:23-52` chama prepare em toda
-demanda. Inferência: essa redescoberta é o principal candidato causal; uma
-medição direta ou ausência de ganho pareado após a mudança a refuta. Estas
-medianas não são parcelas aditivas de um perfil único.
+### Contract
 
-Permitir uma prova rápida L3 **somente** para a configuração Linux fontconfig
-padrão elegível e sem fontes de projeto explícitas. O preparador fresco anterior
-continua o oráculo e o fallback integral. A prova rápida não materializa book,
-slots ou faces e não substitui a descoberta fresca após qualquer mudança.
-Ela deve recolher a configuração efetiva pelo mesmo parser e política de
-caminho usados pelo `fontdb` pinado, os bytes dos arquivos de configuração
-mesclados e ambiente/cwd relevantes. Ao estabelecer uma geração, percorrer
-recursivamente **todas** as entradas dos diretórios efetivos, inclusive
-entradas não-fontes, com ordem observada e orçamento global. Para a
-verificação quente, reparsear a configuração, comparar arquivos/ambiente/cwd
-e revalidar identidades Unix (dev/ino/tamanho/mode/mtime/ctime) das raízes,
-de todos os diretórios, dos candidatos pelas extensões que `fontdb` aceita e
-dos symlinks, inclusive destino e ausências. Diretórios usam ctime para
-invalidar criação, remoção e rename de entradas; candidatos incluem fontes
-ilegíveis ou inválidas que podem se tornar válidas sem alteração do diretório.
-Symlinks são observados mesmo sem extensão de fonte, pois a extensão do alvo
-canonizado pode ser aceita. A ausência de raiz é registrada para detectar
-criação. Arquivos comuns de extensão não-fontes podem ser omitidos da chave:
-alterar seus bytes sem renomear não muda a descoberta do `fontdb`. Isso é uma
-prova de conteúdo/associação de descoberta, **não** snapshot apenas de
-diretórios ou mtime. Qualquer impossibilidade de revalidar obriga descoberta
-fresca.
+Fast proof is only for eligible standard Linux fontconfig without explicit project
+fonts. Original fresh preparer remains full fallback/oracle. Proof materializes no
+book/slot/face and never replaces fresh discovery after change. Gather effective
+configuration using the pinned fontdb parser/path policy, merged config bytes and
+relevant environment/cwd. At generation establishment recursively traverse all
+effective-directory entries, including nonfonts, in observed order under one global
+budget. On hot verification reparse config, compare files/environment/cwd and Unix
+identities for roots/all directories/font-extension candidates/symlinks including
+target/absence. Directory ctime catches create/remove/rename; candidate invalid/
+unreadable fonts may become valid without directory change. Observe symlinks even
+without font extension since canonical target extension may qualify. Record absent
+roots for creation. Ordinary nonfont-extension file byte changes without rename
+cannot affect discovery and need no key entry. This is discovery-content/association
+proof, not directory/mtime-only snapshot; any unverifiable case requires fresh path.
 
-Qualquer configuração customizada/ilegível, erro de travessia ou metadata,
-instabilidade, entrada não suportada, limite ou plataforma diferente recusa o
-caminho rápido. Limitar o inventário ao mesmo orçamento conservador de 16384
-entradas e 1 MiB de paths; recusa não trunca a descoberta fresca. Guardar a
-prova apenas junto da geração pareada corrente. Se a configuração nova e as
-identidades retidas forem idênticas às anteriores, e os stamps da geração
-anterior ainda forem válidos, a sessão pode reusar o Arc sem
-`Database::load_system_fonts` nem novo `read_dir` das fontes. Prova
-diferente/recusada usa
-`prepare` e sua validação anterior, reconstruindo geração se preciso.
-Revalidar a prova depois de preparar e construir, antes de guardar; não exigir
-segunda travessia completa quando as identidades retidas permanecem estáveis.
-Falha/instabilidade
-não conserva a elegibilidade rápida. O instante da demanda continua a
-fronteira observável; não acrescentar evento novo nem atrasar reconhecimento
-de fonte/configuração alterada na recompilação seguinte.
+Custom/unreadable config/traversal or metadata errors/instability/unsupported entries/
+limits/other platform decline fast path. Bound retained descriptors at 16, 384 and
+paths at 1 MiB, checked arithmetic/recoverable allocation failures decline. Limits
+constrain cache eligibility only: never truncate fresh full catalog/book. Store
+proof only with current paired generation. Identical complete new proof plus valid
+prior generation stamps may reuse Arc without load_system_fonts/new font read_dir.
+Different/refused proof uses prepare/prior validation and rebuild if needed.
+Revalidate proof after prepare/catalog construction before storing, without another
+full traversal if retained identities remain stable. Failure/instability loses fast
+eligibility. Keep demand boundary and next-recompile recognition, no new event.
 
-Testes RED→GREEN devem cobrir mesma geração, conteúdo alterado com tamanho e
-mtime restaurados, adição/remoção de fonte e diretório aninhado, symlink
-retarget, configuração incluída alterada, configuração personalizada recusada,
-limites, erro/instabilidade e concorrência. Comparar o catálogo e a seleção
-contra o preparador fresco nos testemunhos; medir CPU/latência/RSS/startup do
-watch com três rodadas e os cenários do item 5. Se a prova de frescor não for
-completa ou o benefício não se repetir, retirar a conexão rápida.
+## Acceptance and maintenance
 
-Recusar retenção se lista exceder 16384 descritores ou soma dos bytes dos caminhos
-exceder 1 MiB; aritmética checked e erro de alocação recusam quando recuperáveis.
-Esses limites restringem só elegibilidade de cache; o loader fresco permanece
-capaz de usar o catálogo completo. Não truncar fontes nem book para caber.
+Inline RED→GREEN: unchanged/add/remove/negative→valid/atomic replace/equal-size+
+restored mtime/link retarget/fontconfig included/custom config/project nesting/
+limits/unstable identity/errors/concurrency. Separate deterministic discovery
+backend from environmental dependencies. Compare full catalog/selection with fresh
+preparer. Measure watch CPU/latency/RSS/startup in three rounds with original item-5
+scenarios; remove fast connection if freshness proof incomplete or benefit fails
+to repeat. Session handles refusals; this owner creates no metadata/FontBook.
 
-Testes inline RED→GREEN em fixtures: inalterado, adição/remoção, negativo→válido,
-substituição atômica, mesmo tamanho e mtime restaurado, link retarget, mudança
-fontconfig, projeto aninhado, limite e recusa por identidade instável. Separar
-backend determinístico de descoberta de dependência ambiental. Cabe à sessão
-reagir às recusas; este owner não materializa metadados nem possui FontBook.
-
-
-## Expressões equivalentes e CI estrito — 2026-10-14
-
-### Medição anterior à decisão
-
-`03_infra/src/fontdb/generation.rs` nas linhas [356, 571, 574] contém as expressões apontadas pelo inventário
-Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
-conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
-red.log registra os lints selecionados como erros antes de alterar código.
-Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.
-Esta é manutenção da expressão Rust; não é medição nova de paridade upstream.
-
-### Responsabilidade e aceitação
-
-Nos fixtures de raiz ausente e diretório de projeto aninhado, emprestar o PathBuf como slice unitária por std::slice::from_ref. Não clonar o path só para formar o argumento. Preservar ordem de criação/alteração, rechecagens, identidade de arquivos e todas as asserções.
-
-Correção interna em fluxo contínuo ADR-0127, sem API pública, default, fase,
-unsafe, dependência ou supressão de lint novos. L0 precede código e resselo
-fica restrito ao owner. Usar os controles funcionais existentes; não alterar
-fixtures, expectativas, tolerâncias ou registrar testes que apenas espelhem
-esta simplificação. Os lints selecionados devem passar como erros, seguidos
-de suíte completa, build, all-targets, rustdoc, fmt, linhagem e inventário total.
+`ci-simplificacoes-2026-10-14/before.json.gz` retains source/owner/spans/HEAD/
+uncommitted tree/UTC/diffstat at generation.rs:356,571,574; red.log selected-lint
+errors and types/uses checked under 1.92.0. In missing-root/nested-project fixtures
+borrow PathBuf as unit slice via std::slice::from_ref, no path clone just for argument.
+Preserve create/change/recheck/identity/assertion order. Internal continuous ADR-0127
+adds no public/default/phase/unsafe/dependency/suppression. L0 first/scoped resealing,
+existing fixtures/expectations/tolerances unchanged, selected-lint RED→GREEN then
+full suite/build/all-targets/Rustdoc/fmt/lineage/full inventory. No syntax-mirror tests.

@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/attach.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "bc50b465b0a7f68a706b270a1d449a4e06bbac1cb7d5c00a620c38302d196ad6",
+    "result_sha256": "b9b691b98bb38bd316585249f9a3e930d78df83856c2c20194b1d764e0ee300e",
+    "disposition": "Full closed-slot/script/limits/primes contract retained; unused-sub_top and exact F039/L04\u2013L15 complements translated into semantic tables without dropping guarded/fallback/Option obligations."
+  }
+]

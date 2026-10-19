@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/columns.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Retained complete existing English geometry/direction/footnote/marginal specification, canonicalized child owners and consolidated tracking-state restoration, ratified bidi references, test-only paint-root observation and causal allocated width; all sibling/footnote differences and unproven scopes preserved.",
+  "original_sha256": "8b58dbc81ceb60320aeb728bae4d1c1ac928dda94bddd1fd449db958156b91d2",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/columns.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

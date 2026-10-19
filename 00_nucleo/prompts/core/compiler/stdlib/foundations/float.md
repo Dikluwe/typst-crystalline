@@ -1,7 +1,7 @@
 # L0 — stdlib/foundations/float
 Hash do Código: d902511c
 
-**Baseline**: vanilla ratificado `a51e02804`
+**Historical baseline:** ratified vanilla `a51e02804`; this is not the current parity target.
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/foundations/float.rs`

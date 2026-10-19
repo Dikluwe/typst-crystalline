@@ -4,349 +4,333 @@ Hash do Código: 60a785c8
 
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
-- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
-
-## Medição anterior à decisão
-
-No HEAD f7195cdf6 (árvore limpa, 2026-09-30), o bloco está em `01_core/src/compiler/eval/mod.rs:1651-2237`. Esta observação estabelece o limite da extração; não mede desempenho ou nova paridade bilateral.
-
-## Owner e contrato
-
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/expression_dispatch.rs`. Dispatcher exaustivo e estático de Expr e helpers de expressão; preserva ordem, escopos, spans e diagnósticos. Manter contrato público, comportamento por defeito, fase do pipeline, compatibilidade, pureza e despacho estático.
-
-## Aceitação
-
-A suíte L1, o build e crystalline-lint passam. A separação não constitui prova de ganho de desempenho.
-
-## D05 — captura lexical de show para equação literal
-
-Medição antes da decisão: equation-where-2026-10-06/after.json.gz registra
-show-block/show-inline aceitos sem transformação. expression_dispatch.rs:270–281
-cria Equation e a retorna sem intercept_content; markup_stream.rs:119 só realiza
-ocorrência inserida quando já está no modo de realização. Decisão: depois de
-avaliar body uma vez e construir Equation, passar pela fronteira existente
-rules::intercept_content, como os demais elementos de markup. A fronteira
-captura receita lexical quando diferida e realiza quando solicitado, com guards
-existentes; não adicionar avaliação global, fase nova ou novo wrapper. Preservar
-Source/spans, captura de body para query e comportamento sem show. Fluxo contínuo
-ADR-0127, mesma fase eval; teste literal RED→GREEN antes de código.
-
-## D06 — captura das fronteiras lexicais existentes
-
-Medição after.json.gz local-block-query retorna [2,0,2] versus [2,1,1];
-after-additional.json.gz context-show-render produz fração versus EQ. Inspeção
-de CodeBlock em expression_dispatch.rs:86–154 retorna Mathy sem guardar delta
-local; Contextual:475–495 conserva scope da closure, mas não snapshot de show.
-
-No join de cada valor Content de bloco de código, quando o estilo local mudou
-e há math externo a inserir, guardar o Styles delta local existente no produto,
-sem assar variável/constructor e sem espalhar set a expressões posteriores fora
-do bloco. Capturar context externo com carrier Styled privado contendo um
-ShowRecipe existente como Value::Content na chave privada eval.context.recipe;
-sem campo/enum/assinatura pública nova. O snapshot conserva rules/styles/guards/
-file/context_id_floor e não é executado ao capturar. A fachada L1 ratificada
-realiza o produto contextual usando esse snapshot causal, sem regra retroativa.
-
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
-
-### Responsabilidade exclusiva proposta
-
-No join de cada Content realmente emitido por CodeBlock, capturar ambiente local de inserção Table/Cell antes de restaurar scopes/styles/rules. LetBinding não é inserção de seu valor. Respeitar local-cell-alias/OUTER LOCAL e older-global-alias NEW, sem contador falso nem busca por nomes. Context captura snapshot Table/Cell pelos helpers L1 existentes; resultado contextual só realiza depois de produzir conteúdo. Preservar bloco matemático/D06, flow/diagnósticos/uma avaliação.
-
-### Gate, aceitação e divisão explícita
-
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
-
-### Medição e correção suplementar interna — 2026-10-07
-
-Proveniência: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/geometry-fifth.json e local-bool-red.log, binário 59da863f, fonte/HEAD/estado/UTC/argv/glifos/testes.
-local-bool-red.log mede FUNCcell em vez de FUNCsequence; geometry-fifth.json mede LOCAL/a quebrados. Em CodeBlock join efetivo, Cell crua precisa realizar regra local antes de compor outro body; empacotar receita diferida preservava Cell como body da Cell externa. Join Content com apply_show_rules=true delega imediatamente à fachada causal de Table/Cell; passagem original com apply_show_rules=false permanece sem preparo. O corpo continua valor lexical no let fora de join. Defaults de Cell isolada seguem D08B3-B; preservar it nominal, alias tardio, escopo e flags/restauração.
-Não certificar antes da recoleta RED→GREEN e suites; nenhum campo/método público, flag ou mudança de fase suplementar.
-
-
-## D08B3-C2 — candidato não vigente antes do gate ADR-0127
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` registra oito sondas completas: fontes, comandos, UTC, HEAD, working tree/diffstat, hashes e binários. Pin 9f2b6e8715237cb086899a42873660fe744622e8. Executável Tekt congelado do C validado; `source-verification.json` confirma hashes produtivos/L0 iguais ao snapshot tested-final do C. O target da raiz não estava disponível nesta retomada; não foi fingido um rebuild.
-
-bare/alias/spread-conflict: mensagens e hints iguais, caret/trace divergentes. No alias o vanilla usa a definição [a] (linha 1), não a chamada (linha 3). No spread usa [a], não o spread inteiro. local-body publica sequence com metadata+Cell preparada no Tekt, styled contendo Cell crua no vanilla; cores/efeitos coincidem no fixture. plain-func coincide cell; set-func/show-func/set-show-func medem cell/sequence contra styled. A primeira rodada `before` tinha str(function), foi invalidada para decidir morfologia; somente baseline usa repr(function).
-
-Fonte: vanilla `typst-eval/src/code.rs:148` aplica Value.spanned; `typst-library/src/foundations/value.rs:210–216` só assenta Content/Func; `foundations/content/mod.rs:109–114` preserva span já assentado. `model/table.rs:436–437` transporta value.span ao fabricar Cell. `typst-eval/src/code.rs:26–57` conserva set/show como styled sobre a cauda. Tekt `eval/expression_dispatch.rs:125–136` realiza Cell no join; `stdlib/structural/table_grid.rs:160–175` guarda children sem origem; `realize/table_cells.rs:176–183` fabrica Cell com span detached; `layout/grid/row_groups.rs:109` usa esse span. É língua (diagnóstico/morfologia/efeitos), não igualdade Rust ou bytes PDF. Não inferir intenção upstream.
-
-### Responsabilidade exclusiva candidata
-
-Capturar primeiro span de Content no eval existente, preservando referências/spreads; CodeBlock preserva Styled lexical da cauda local e snapshot causal existente, sem executar receita ao guardar o valor. Respeitar pipeline/guards/escopos e não aplicar a correção cegamente a Flow/Math.
-
-A especificação detalhada e limites estão no contrato candidato do pacote C2. Antes de materializar, instalar este conteúdo no caminho canônico do owner, auditar seus núcleos e selar hashes somente depois de RED→GREEN. A fonte vigente permanece intacta até aprovação.
-
-A cláusula C2 supersede a realização imediata da Cell no join descrita pelo refinamento A: capturar valor lexical e realizar somente na inserção efetiva. Essa mudança de fronteira/ordem também integra o gate ADR-0127 §2.3; preservar a ordem Table→placement→Cell→body do núcleo vigente.
-
-Ratificação C2: dono confirmou `confirmo` em 2026-10-07; contrato Source e fronteira causal aprovados.
-
-### Refutação de abrangência C2
-
-workspace-first.log refuta captura indiscriminada de todos os resultados Content: carriers matemáticos/nativos e grupos tipográficos perdem classificações existentes. Capturar Source somente na fronteira ContentBlock/CodeBlock, onde origem genérica ainda não é representada; constructor Table/Cell conserva span próprio. Outros constructors conservam seus carriers vigentes. Não alterar modelos nativos para esta dívida genérica.
-
-### Captura de regras locais como delta — refutação C2
-
-additional-debug/nested-local-text registra ausência da regra externa no produto interno (Tekt OUTER/LOCAL/a contra vanilla OUTER/LOCAL OUTER a). Snapshot local conserva somente regras introduzidas após a entrada no bloco; marcá-lo pelo canal privado eval.table.local=true. Na inserção, compor esse delta com regras causais atuais, por RuleId e ordem, sem congelar regras globais antigas ou duplicar id. Whole-context snapshots legados permanecem exclusivos e inalterados.
-
-### Namespace privado da captura local C2
-
-additional-debug2 refuta o snapshot local guardado em eval.context.recipe: consumidores de contexto completos podem substituir regras atuais antes de compor o delta. Usar chave privada dedicada eval.table.local.recipe, mantendo ShowRecipe existente e marca eval.table.local=true. Snapshot geral de context permanece em seu namespace anterior.
-
-
-## C2-R1 — correção interna de paridade
-
-Medição anterior à decisão: lab/results/construction/diagnostics/performance-c2-2026-10-07/table-local-regression.json, três samples/r*-table-local/samples.json com fontes/argv/UTC/estado/hash do release ac889581 e vanilla pin9f2b6e871. Tamanho cresce10%, segunda coluna x60.880→38.999 com sobreposição. RED semântico em lab/results/construction/diagnostics/table-local-c2r1-2026-10-07/red.log: tamanho10pt e separação Auto falham, tamanho local explícito11pt já passa.
-
-Fonte upstream typst-eval/src/code.rs:32–43 aplica somente styles da declaração set à cauda. Tekt expression_dispatch.rs:132 colapsa raiz/defaults e não só declarações locais; style_chain.rs:304–315 contém size11/boldfalse/italicfalse na raiz. tracks.rs:328 reconhece somente Cell com resolved, deixando a Cell standalone Complete na projeção; measurement.rs não mede TableCell. É semântica/estilo/posição observável, não obrigação de reproduzir árvore ou algoritmo upstream. A causa conjunta é inferência refutável por fonte/tamanho/posição ainda divergentes após isolar estilos locais e medir o visual completo.
-
-Classificação ADR-0127: reparo interno de paridade, sem API pública/trait/entidade/flag/fase nova. Fluxo contínuo autorizado por pedido de corrigir prioridade1; L0 primeiro, RED→GREEN, resselo restrito, builds/suítes/lint e recoleta física/temporal.
-
-Responsabilidade: para captura local Table/Cell de CodeBlock, calcular delta de declarações desde insertion_styles pelo helper privado do owner 00_nucleo/prompts/core/entities/style_chain.md; Styled lexical recebe somente esse delta, acrescido dos dois canais privados C2. local_tail reconhece prefixo não vazio ou regras locais diferentes. O clone de entrada permanece ancestral por pushes/restauração lexical; ausência de ancestral viola invariante interna, não autoriza congelar defaults silenciosamente. Snapshot causal interno conserva styles/rules/guards/file/floor existentes; não reinterpretar whole-context nem bare math. Preservar shape Styled, efeitos uma vez, source/guard e comportamento das regras anteriores.
-
-
-## Cauda lexical de set em CodeBlock — 2026-10-14
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/codeblock-set-2026-10-14/before/results.json.gz conserva
-UTC, status/diffstat, fontes/owners, comandos, binários e saídas integrais,
-contra pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8.
-false-int/str/empty retornam valores crus; active-content perde Styled;
-prefix-array junta arrays onde o pin rejeita array com content; prefix-int
-aponta o erro para a string final em vez da regra set. sequential perde os
-dois escopos; return-active omite o warning de conteúdo descartado. Célula
-local já preserva Styled e constitui controle de regressão C2. A fonte
-pinada typst-eval/src/code.rs:36–57 converte a cauda em conteúdo antes de
-juntá-la ao prefixo; Tekt expression_dispatch.rs:91–226 faz join plano e só
-transporta estilos em subconjuntos Table/Cell/Mathy. São tipo, operação,
-morfologia, estilo e diagnóstico da linguagem, não estrutura Rust imposta.
-
-### Decisão e responsabilidade
-
-Cada SetRule sintática diretamente no CodeBlock separa um prefixo de valor
-e uma cauda. Avaliar regra/condição/argumentos uma vez pelo owner set; guardar
-somente suas declarações por local_delta_since do estado anterior, incluindo
-valores iguais aos herdados. Avaliar a cauda em ordem normal, com joins de
-valores dentro dela; converter o resultado da cauda para display Content
-(inclusive None como Empty) e aplicar as declarações locais; depois juntar
-ao prefixo. Erro do join prefixo/cauda tem o span da regra set; erro interno
-à cauda mantém o span da expressão. False e set vazio não introduzem Styled,
-mas a fronteira sintática continua convertendo a cauda para conteúdo.
-
-Usar pilha privada de fronteiras para fechar caudas de dentro para fora;
-nenhuma nova recursão por quantidade de sets. Não colapsar todas as declarações
-no estilo final nem estilizar retroativamente o prefixo. Styled contíguos
-sem conteúdo intermediário podem compor seus deltas com precedência interna,
-preservando Source causal e canais privados. Marcar fluxo pelo canal
-existente eval.flow.scope. Preservar carriers SetPage na sequência de saída,
-fora do join de valores da cauda, sem descartar propriedades de página.
-
-Table/Cell mantém realização apenas na inserção aprovada C2: a fronteira
-Styled guarda o snapshot lexical de regras locais/guards/file/floor pelo
-canal existente eval.table.local.recipe, sem executar receita ao armazenar.
-Não transportar o mesmo delta de set novamente em cada célula. Regras show
-introduzidas depois da fronteira preservam sua captura por ocorrência; as
-anteriores permanecem por id/ordem. Math recebe o mesmo delta lexical pela
-fronteira, sem Equation nova nem mudança de fase. Nenhum corpo/efeito é
-reavaliado para reconhecer variante. Blocos sem set conservam seus caminhos.
-
-Flow interrompe a coleta, mas as caudas já abertas devem produzir seu
-conteúdo, incluindo vazio. Preservar return/break/continue e warnings causais;
-restaurar scopes na saída normal ou com erro, sem alterar flow do chamador.
-
-### Aceitação, gate e partes ainda incompletas
-
-Correção interna de paridade ADR-0127, sem campo/tipo/assinatura pública,
-flag/default ou mudança de fase: RED→GREEN e revalidação obrigatórios.
-Testar tipos/Empty/false/mesmo estilo, prefixo e spans, deltas aninhados,
-confinamento, uma avaliação, flow/warnings, Table/Cell e math. Medir produto
-renderizado para estilos locais e revalidar controles C2/Math.
-
-O passo codeblock-set-cauda é incompleto nas apresentações de Value cujo
-owner display ainda tem escopo parcial: value-display-completo completa os
-mapeamentos Raw/Module/Symbol conforme medição própria. codeblock-set-carriers
-completa a morfologia pública de SetPage sem perder suas propriedades físicas;
-codeblock-show-cauda completa show sem seletor e o tratamento lexical geral
-da sua cauda. Campos de Styled (por exemplo child) pertencem ao owner de
-field access e não são legitimados aqui. Essas pendências não justificam
-certificar paridade universal; este owner não altera contratos de seus donos.
-
-
-### Medição física suplementar antes da implementação
-
-docs-before/results.json.gz conserva PDFs, XML MuPDF (fontes/tamanhos/quads),
-texto e diagnósticos. style-scopes mede A/B/C/D/E/F em 11pt no Tekt contra
-11/14/18/14/22/11pt no pin; same-style-alias mede M em 30pt contra 20pt,
-confirmando que comparar apenas o valor efetivo do estilo perderia a
-redeclaração lexical. local-math mede x em 11pt contra 20pt. local-cell
-já mede Q20/R10 nos dois; local-cell-show/late e cell-hidden são refutadores
-para ordem/ocultação das receitas C2. Não se normaliza extração textual nem
-se exige identidade de bytes PDF para concluir preservação desses estilos.
-
-
-### Refutador Raw da primeira implementação
-
-refuters-after/results.json.gz, com estado/UTC/binários/saídas conservados,
-mostra raw-rule-false/active imprimindo true em vez de RAW. A nova fronteira
-passava Bool a Raw pelo helper de apresentação, mas omitia a intercepção
-que markup_stream.rs:120–125 já fazia quando recebia Bool diretamente.
-Antes de fechar a cauda, conteúdo Raw recém-criado pela apresentação de
-Bool/Auto deve passar uma vez por rules::intercept_content, no Engine local,
-preservando o protocolo de captura/guards do owner apply. Value::Content
-já existente não recebe uma segunda intercepção. Isso restaura o percurso
-existente, sem execução de receita Table/Cell nem nova fase. Teste RED próprio
-para Bool/Auto, false/true e set aninhado, seguido da recoleta bilateral.
-
-
-## R2-S — captura lexical de Sequence emitida por CodeBlock
-
-Medição anterior: r2s-measurement.json.gz no diagnóstico
-lab/results/construction/diagnostics/sequence-constructor-2026-10-17, pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
-registra local-rule AB contra LOCAL. Esta unidade em :198–245 só transporta
-regras locais quando table_cells_needed; a restauração do Engine perde o
-show Sequence de uma soma emitida pelo bloco. Contrato R2-S aprovado pelo
-manifesto 46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327.
-
-Depois de avaliar uma expressão Content uma vez no bloco, passar esse valor
-pelo capturador Sequence com o local_engine antes de join/restauração. O
-capturador só marca Empty/Sequence pertinentes, guarda rules/styles/guards/
-file e não executa a receita. LetBinding não emite seu valor; conservar
-CodeSetTail, local_delta, Table/math, flow, scopes e mensagens existentes.
-Sem campo/trait/assinatura pública nova ou nova reavaliação. RED do corpus
-antes do código; GREEN local e regressões completas sob 12 GiB/swap0/jobs1.
-
-## R2-S — origem somente quando a captura é necessária
-
-Medição antes da decisão: validation-attempt-4.json.gz, complete-workspace.log
-e conditional-origin-before-sources.json.gz em lab/results/construction/diagnostics/sequence-constructor-2026-10-17
-conservam HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, estado não
-commitado/UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-A suíte de core passou 7228 testes, falhou 24 e ignorou 5. Os dois
-controles de numbering local deixam de encontrar elementos internos;
-os demais falham na geometria do prefixo/cauda após 1fr. A referência R1
-validada antes desta etapa tinha zero falhas nesses testes.
-
-markup_stream.rs passa content.with_source_span(child.span()) ao helper
-mesmo quando não há regra Sequence ou quando o corpo não é Sequence.
-O helper devolve esse novo carrier mesmo sem capturar. Dentro de um
-ContentBlock, append_markup_sequence preserva Source, alterando as
-fronteiras legadas de estilos e coluna que não precisavam de captura.
-A adição de origem deve pertencer à operação efetiva de captura.
-
-Correção interna da rota aprovada: a fachada crate-interna capture_at
-recebe corpo cru e Span real; só acrescenta Source quando apply_show_rules
-está ativo, existe snapshot pertinente e o corpo é Empty/Sequence.
-capture conserva a assinatura interna atual e delega com Span detached;
-capture_scope recebe Span explícito e só o usa dentro do ramo que cria
-a receita marcada. Markup e CodeBlock passam o corpo sem embrulho prévio
-e a origem real separadamente. Nenhuma regra pertinente ou corpo não
-capturável devolve exatamente o conteúdo recebido; isso preserva os
-escopos por defeito e evita alocar carriers inúteis. Não modificar os
-algoritmos de layout nem os esperados dos 24 testes.
-
-RED já observado na suíte integral; exigir GREEN de f2s, integração de
-set/prefixo/1fr e controles Sequence antes da nova validação completa.
-Manter origem de [] e chamadas, guards nominais, não localização e
-coalescimento causal. Nenhuma assinatura Rust externa, campo público,
-modo padrão ou fase adicional é criada.
-
-## R3-T1 — realização causal ratificada (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
-commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
-bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
-fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
-matching.rs:118–150 aplica regex reversa e depois literais em declaração;
-:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
-captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
-apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
-expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
-
-Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
-X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
-produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
-panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
-capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
-foundations/selector.rs:110–125 unifica literal escapado com regex;
-typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
-no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
-igualdade de buffers ou bytes PDF. É inferência causal que a separação de
-escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
-acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
-
-### Decisão ratificada
-
-Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
-do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
-ratificou esta ordem. Ele supersede neste escopo as
-cláusulas históricas de execução provisória de show em ContentBlock e da
-visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
-de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
-assentar render em morfologia nem criar contrato Rust público.
-
-### Responsabilidade exclusiva desta unidade
-
-Usar os frames de saída no CodeBlock e nos joins realmente emitidos para transportar deltas locais. Não realizar o valor de let; retorno/inserção compõe o delta local com o ambiente vigente. Conservar insertion_rules/styles, CodeSetTail, scopes e restauração em erro. Capturas Table/Math e suas marcas não são reclassificadas como texto nem perdem seu protocolo.
-
-### Aceitação desta revisão
-
-RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.
-
-### R3-T1 — refinamento por regra e fronteira
-
-Preservar Source no resultado Content de qualquer expressão avaliada com show
-diferido e regras ativas, além dos ContentBlock/CodeBlock já existentes. Usar
-with_source_span para conservar a primeira origem e não sobrescrever span
-interno. Bindings continuam dados, sem realização. O candidato4 perdeu o caret
-de heading[Z]/= Z após adiar callbacks; a Source é a âncora da realização causal,
-não um elemento observável nem um campo público novo.
-
-### R3-T1 — guards nominais e V17
-
-A arquitetura SARIF do candidato9 apontou V17 em eval_expr:51 pelo guard
-composto de Value::Content. Calcular o predicado nomeado content_origin_required
-no mapper de sucesso, depois de eval_expr_inner terminar, e usar somente esse
-booleano no guard. Preservar literalmente matches(ContentBlock|CodeBlock) OU
-(defer_show_rules E regras não vazias), sem antecipar a leitura do estado para
-antes da avaliação da expressão. O predicado só lê estado puro; não introduzir
-I/O, API, fase ou nova condição. É a mesma política de origem em forma legível.
+- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
+- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+
+## Ownership and extraction evidence
+
+At clean HEAD f7195cdf6,2026-09-30, eval/mod.rs:1651–2237 contains extracted
+block. Extraction boundary, no performance/fresh bilateral measurement.
+Layer L1, sole consumer `01_core/src/compiler/eval/expression_dispatch.rs`.
+Static exhaustive Expr dispatcher/helpers preserving order/scopes/spans/diagnostics/
+public contract/default/phase/compatibility/purity. L1/build/crystalline-lint pass;
+separation alone is no speedup proof.
+
+## Literal Equation and lexical math capture
+
+Before deciding, equation-where-2026-10-06/after.json.gz shows show-block/inline
+accepted but untransformed. expression_dispatch.rs:270–281 returns Equation
+without intercept_content; markup_stream.rs:119 realizes insertion only already
+in realization mode. Evaluate body once/build Equation, then existing
+rules::intercept_content boundary, like other markup elements. It captures lexical
+recipe when deferred or realizes when requested with existing guards. No global
+reevaluation/new phase/wrapper. Preserve Source/spans/query body/no-show path.
+Continuous ADR-0127 same eval phase, literal functional RED→GREEN before code.
+
+Math-bare after local-block-query yields[2,0,2] versus[2,1,1]; after-additional
+context-show-render fraction versus EQ. CodeBlock:86–154 returns Mathy without
+local delta; Contextual:475–495 keeps closure scope but no show snapshot.
+For emitted CodeBlock Content joins with changed local style/external math,
+store existing local Styles delta in product, never bake let/constructor or
+spread set beyond block. External Context captures existing ShowRecipe as
+Value::Content under private eval.context.recipe in private Styled; no public
+field/enum/signature. Snapshot retains rules/styles/guards/file/context_id_floor,
+no execution on capture. Ratified L1 facade realizes contextual product through
+causal snapshot without retroactive rule. Later general output-frame contract
+below preserves these math/context boundaries.
+
+## Ratified Table insertion and incomplete Cell scope
+
+The approval receipt `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-aprovacao-2026-10-07.json` records user confirmation `comfirmo`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`, and materialization with documented metric residuals. This satisfies the original D08B3-A gate; it does not complete the Cell domain or promote the excluded scope. Retain the receipt’s limitations on raw default typography, D08B3-B isolated Cell/fresh reconstruction, and generic Table equality/rich properties.
+
+### Measurement before the proposal
+
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree. `lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` records pin `9f2b6e8715237cb086899a42873660fe744622e8`, UTC, diffstat/status, sources/binaries, arguments, and results. Oracle binary SHA-256: `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt binary: `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`.
+
+Vanilla `lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278` resolves fields, `:1500–1530` rejects conflicts in order, `:1665–1703` creates empty cells, and `:1945–1988` derives breakability. Tekt `grid_placement.rs:91–112` prioritizes explicit placement and `:262–270` knows only `GridCell`; `realize/mod.rs:160–200` visits recipes bottom-up; `table.rs:127–152` discards wrappers without attributes. `order` measures zero cell effects when a table is replaced and zero heading effects when a cell hides it; `aliases` measures `LOCAL a`, `OUTER LOCAL a`, and `NEW a`. These are language observables, not requirements to copy mechanics, bytes, or Rust equality. Unknown fields, hidden effects, or wrong order after a change would refute the hypothesis; cache/pagination equivalence is not inferred.
+
+### Exclusive emitted CodeBlock capture
+
+At each actually emitted CodeBlock Content join capture local Table/Cell insertion
+environment before restoring scopes/styles/rules. LetBinding emits no value.
+Preserve local-cell-alias/OUTER LOCAL/older-global-alias NEW without fake counter/
+name lookup. Context uses existing L1 Table/Cell snapshot helpers; contextual
+result realizes only after producing content. Preserve math/D06/flow/diagnostics/
+once-only evaluation.
+
+### Ratified gate, acceptance, and explicit scope split
+
+The ratified package adds five public fields, two public carriers, and one new public facade, and changes the logical phase before Cell show. The receipt above establishes ratification for this scope. Continue to require RED→GREEN, suites/build/lint/restricted preservation, and D08A/B2, D05/D06/D07/query collections. Acceptance is language, effect, and actual geometry behavior; byte equality or whitespace normalization cannot close render acceptance.
+
+This first package D08B3-A is incomplete in the Cell domain: D08B3-B is to complete isolated Cell defaults (`raw-cell-no-placement`/`outside-fields`) and the separate decision on fresh generation by `show-cell-reconstruct`. Generic Table defaults/fields (`table-root-equality`), rich styles/functions/paint/strokes/insets, rich rows/gutters, multi-page spans, and PDF/UA conformance remain outside certification. Do not change additional legacy D08B2 casts, syntax, flags, or global non-locatable policy in this package.
+
+
+
+### Historical immediate-join refinement and later supersession
+
+geometry-fifth.json/local-bool-red.log in table-cell-realizacao-d08b3-2026-10-07
+retain binary59da863f/source/HEAD/state/UTC/argv/glyphs/tests. local-bool RED
+FUNCcell versus FUNCsequence, geometry LOCAL/a split. Then-prescribed effective
+join with apply_show_rules=true immediately delegated Table/Cell facade so local
+raw Cell rule ran before composing new body; original false pass stayed raw,
+let outside join remained lexical. Required RED→GREEN/recollection/suites, no
+extra public field/method/flag/phase. The approved Source-origin frontier below
+explicitly supersedes that immediate-join policy, retaining nominal it/late alias/
+scope/restoration and separate standalone-default contract.
+
+## Ratified Source origins and insertion frontier
+
+### Evidence before decision and approval
+
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz`
+contains eight full probes: source/commands/UTC/HEAD/working tree/diffstat/hashes/
+binaries at historical pin `9f2b6e8715237cb086899a42873660fe744622e8`.
+Frozen Tekt executable is validated C build; source-verification.json confirms
+productive/L0 hashes equal C tested-final. Root target was unavailable at resume;
+no rebuild was pretended. bare/alias/spread-conflict match messages/hints but
+not caret/trace. Vanilla alias uses definition [a] line1, not call line3; spread
+uses [a], not entire spread. local-body publishes metadata+prepared Cell Sequence
+in Tekt versus styled raw Cell in vanilla; fixture colors/effects match.
+plain-func matches cell; set-func/show-func/set-show-func measure cell/sequence
+versus styled. Initial before used str(function), invalid for morphology decisions;
+only baseline uses repr(function).
+
+Vanilla typst-eval/src/code.rs:148 applies Value.spanned; value.rs:210–216 sets
+only Content/Func, content/mod.rs:109–114 preserves prior span; table.rs:436–437
+transports value.span for implicit Cell; code.rs:26–57 keeps set/show as styled
+tail. Tekt expression_dispatch.rs:125–136 realizes Cell at join;
+structural/table_grid.rs:160–175 stores children without origin;
+realize/table_cells.rs:176–183 creates detached Cell; layout/grid/row_groups.rs:109
+uses it. These diagnostics/morphology/effects are language, not Rust/PDF equality;
+infer no upstream intent.
+
+Human confirmed `confirmo` on 2026-10-07; final ratification record:
+`lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`.
+Its nested contract.md is preapproval history. Approved Source contract and
+causal insertion frontier supersede earlier immediate join-time Cell realization.
+The ADR-0127 §2.3 gate covers this frontier/order change; preserve
+Table→placement→Cell→body. Candidate instructions to await approval are historical;
+only ratified content is current, with RED→GREEN and valid nuclei before restricted
+resealing.
+
+### Exclusive lexical origin and local-rule delta
+
+Capture first Content span at existing eval boundary preserving references/spreads.
+CodeBlock retains lexical Styled tail/existing causal snapshot without executing
+recipe when storing value. Respect pipeline/guards/scopes, not a blind Flow/Math
+change. C2 supersedes immediate Cell join: capture lexical value, realize only at
+effective insertion under Table→placement→Cell→body. RED→GREEN/valid nuclei then
+restricted reseal; earlier wait-for-approval instruction is satisfied.
+
+workspace-first.log refutes indiscriminate Content Source capture: math/native/
+typographic carriers lose existing classification. C2 initially limits generic
+Source to ContentBlock/CodeBlock where absent, Table/Cell keeps own span/other
+constructors existing carriers. Later causal-show refinement below narrowly
+extends Source after evaluation; it does not change native models for generic debt.
+
+additional-debug/nested-local-text measures missing outer rule (OUTER/LOCAL/a
+versus OUTER/LOCAL OUTER a). Local snapshot keeps only rules added after block
+entry, marked eval.table.local=true; insertion composes delta with current causal
+rules in RuleId/order without frozen obsolete globals/duplicates. Legacy whole-
+context snapshots remain exclusive/unchanged. additional-debug2 refutes using
+eval.context.recipe for local delta because full-context consumers may replace
+current rules before composition. Dedicated eval.table.local.recipe keeps
+existing ShowRecipe/local marker; general Context stays prior namespace.
+
+
+## Local declarations instead of collapsed defaults
+
+### Evidence before decision
+
+performance-c2-2026-10-07/table-local-regression.json and three
+samples/r*-table-local/samples.json retain source/argv/UTC/state/release ac889581
+and historical vanilla9f2b6e871. Size grows10%; second column x60.880→38.999,
+overlap. table-local-c2r1-2026-10-07/red.log:10pt/Auto separation fail, explicit
+local 11pt passes. Pinned code.rs:32–43 applies only set declarations to tail;
+expression_dispatch.rs:132 collapses root/defaults, style_chain.rs:304–315 root
+size11/bold false/italic false. tracks.rs:328 recognizes only resolved Cell, not
+standalone Complete, and measurement.rs lacks TableCell. Language style/position,
+no required upstream tree/algorithm. Joint cause is inference refuted by remaining
+source/size/position divergence after local-only delta/full-visual measurement.
+
+### Exclusive correction and acceptance
+
+Internal continuous parity ADR-0127, no public API/trait/entity/flag/phase. Authorized
+priority1 correction requires L0 first/RED→GREEN/restricted reseal/build/suite/lint/
+physical-temporal recollection. For local CodeBlock Table/Cell capture compute
+declaration delta since insertion_styles via private style_chain owner helper:
+`00_nucleo/prompts/core/entities/style_chain.md`. Lexical Styled gets only delta+
+two private C2 channels. local_tail recognizes nonempty prefix or different local
+rules. Entry clone remains ancestral through pushes/lexical restore; missing
+ancestor is violated invariant, not permission silently to freeze defaults.
+Causal snapshot keeps styles/rules/guards/file/floor. Reinterpret no whole Context/
+bare math. Keep Styled shape/once-only effects/source/guards/prior rules.
+
+## Lexical CodeBlock set tails
+
+### Evidence before decision
+
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree.
+`lab/results/construction/diagnostics/codeblock-set-2026-10-14/before/results.json.gz`
+retains UTC/status/diffstat/sources/owners/commands/binaries/full output at
+historical pin9f2b6e871. false-int/str/empty return raw values; active-content loses
+Styled; prefix-array joins arrays instead of rejecting array+content; prefix-int
+anchors final string instead of set. sequential loses two scopes; return-active
+misses discarded-content warning. Local Cell already keeps Styled, C2 regression
+control. Pinned code.rs:36–57 converts tail to content before prefix join;
+expression_dispatch.rs:91–226 flat-joins/only transports Table-Cell-Mathy styles.
+Language type/operation/morphology/style/diagnostic, not imposed Rust structure.
+
+### Current tail algorithm
+
+Each syntactic SetRule directly in CodeBlock splits value prefix/tail. Evaluate
+rule/condition/args once through set owner. Save only declarations via
+local_delta_since prior state, including same-valued redeclarations. Evaluate
+tail in ordinary order/joins, convert resulting value to display Content (None
+as Empty), apply local declarations, then join prefix. Prefix-tail join failure
+uses set-rule span; inner-tail error expression span. False/empty set adds no
+Styled, but syntactic boundary still converts tail to content.
+
+Use private boundary stack closing inside-out, no recursion per set count. Do not
+collapse all declarations into final style or style prefix retroactively. Adjacent
+Styled without intervening content may compose deltas with inner precedence,
+preserving causal Source/private channels. Mark flow using existing eval.flow.scope.
+Keep SetPage carriers in output sequence outside tail value join, retaining page
+properties.
+
+Table/Cell realizes only at approved insertion; Styled boundary saves local
+rules/guards/file/floor through existing eval.table.local.recipe without executing
+stored recipe. Do not transport same set delta again per Cell. Later show rules
+keep occurrence capture; earlier stay RuleId/order. Math receives same lexical
+delta, no extra Equation/phase. Never reevaluate body/effect to recognize variant.
+No-set blocks preserve paths. Flow stops collection, but opened tails produce
+content including empty. Preserve return/break/continue/causal warnings; restore
+scopes on normal/error exit without changing caller flow.
+
+### Acceptance and explicit incomplete presentation
+
+Continuous internal ADR-0127, no public field/type/signature/flag/default/phase.
+RED→GREEN/revalidation for types/Empty/false/same style/prefix/spans/nested deltas/
+confinement/once-only/flow-warnings/Table-Cell/math. Measure rendered local styles,
+revalidate C2/Math. Display Raw/Module/Symbol remains separately measured
+value-display-completo scope; SetPage public morphology is codeblock-set-carriers
+scope, preserving physical properties; selectorless show/general lexical tail is
+codeblock-show-cauda scope. Styled fields (child etc.) belong to field-access
+owner. No universal certification or authorization of those owners here.
+
+docs-before/results.json.gz retains PDF/MuPDF XML fonts-size-quads/text/diagnostics.
+style-scopes A/B/C/D/E/F all 11pt versus11/14/18/14/22/11pt; same-style-alias M30pt
+versus 20pt proves effective-value equality loses lexical redeclaration. local-math
+x11pt versus 20pt. local-cell Q20/R10 matches both; local-cell-show/late/cell-hidden
+refute C2 order/hiding regressions. Normalize no text extraction or require equal
+PDF bytes to preserve styles.
+
+refuters-after/results.json.gz with state/UTC/binaries/output shows
+raw-rule-false/active prints true instead of RAW. New boundary passed Bool through
+Raw display but omitted markup_stream.rs:120–125's prior interception. Before tail
+closure, newly displayed Bool/Auto Raw passes rules::intercept_content once in
+local Engine, with apply owner's capture/guards. Existing Value::Content receives
+no second interception. Restore path without Table/Cell recipe/new phase. Own
+RED for Bool/Auto/false-true/nested set, then bilateral recollection.
+
+## Sequence local-rule capture
+
+r2s-measurement.json.gz in sequence-constructor-2026-10-17 at current pinbd5ebec2
+measures local-rule AB versus LOCAL. :198–245 transports rules only when
+table_cells_needed, so Engine restoration loses emitted sum's Sequence show.
+Approved manifest `46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327`.
+After Content expression evaluated once, pass value to Sequence capture with
+local_engine before join/restore. Only pertinent Empty/Sequence marked; snapshot
+rules/styles/guards/file, no recipe execution. LetBinding emits no value. Keep
+CodeSetTail/local_delta/Table-math/flow/scopes/messages, no public field/trait/
+signature/reevaluation. Corpus precode RED/local GREEN/full regressions, 12 GiB/
+swap0/jobs1.
+
+## Conditional origin capture
+
+validation-attempt-4.json.gz/complete-workspace.log/conditional-origin-before-sources.json.gz
+retain HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted state/
+UTC/diffstat/sources/binaries/current pin. Core suite: 7228 passed, 24 failed,
+five ignored. Two local-numbering controls lose inner elements; others fail
+prefix/tail geometry after 1fr. Prior validated R1 reference had zero failures.
+markup_stream.rs passes content.with_source_span(child.span()) even without
+Sequence rule or capturable body. Helper returns added carrier without capture;
+ContentBlock append_markup_sequence preserves Source, altering legacy style/
+column boundaries needing no capture. Origin addition belongs to effective capture.
+
+Crate-internal capture_at takes raw body and real Span, adding Source only when
+apply_show_rules is active, pertinent snapshot exists and body is Empty/Sequence.
+capture keeps current internal signature, delegates with detached Span;
+capture_scope receives explicit Span, uses it only when creating marked recipe.
+Markup/CodeBlock pass raw body and real origin separately. No pertinent rule or
+uncapturable body returns exact input, preserving default scopes and avoiding
+useless carrier allocations. Change no layout algorithm or 24 expectations.
+
+Full-suite RED already observed; require GREEN for f2s, set/prefix/1fr integration
+and Sequence controls before full validation. Retain []/call origins, nominal
+guards, nonlocation, causal coalescing. No external Rust signature/public field/
+default mode/additional phase.
+
+
+## Causal realization evidence and ratification
+
+`lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz`
+retains HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted working
+tree, UTC/status/diffstat/sources/argv/binary hashes and vanilla pin
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. before-sources.json.gz contains
+complete current sources/L0. No candidate code was implemented at measurement.
+matching.rs:118–150 applies reverse regex then literals in declaration order;
+:194–207 exposes products to later passes. textual.rs:102–123 captures full
+snapshot. realize/mod.rs:177–217 visits recipes bottom-up. apply.rs:620–648/
+matching.rs:218–225 call functions without capturing children.
+expression_dispatch.rs:125–129 already distinguishes insertion_rules from local
+state.
+
+Measured pairs: identical literals C/B; literal/regex tie R/L; overlap X/YB;
+first effect LATER/FIRST; inverse chained function BBBB/BB; separate product
+AB/X; product+neighbor X/AB; Strong hiding child gives panic HIDDEN/Q;
+captured global followed by new global L/R, captured local L/L; local CJK
+水\n果 gives 水果/X. Pinned foundations/selector.rs:110–125 unifies escaped
+literal/regex; typst-realize/src/lib.rs:1328–1405 chooses start and carries
+revocation into product. These are language/effects, not ratification of Rust
+mechanics/buffer equality/PDF bytes. Scope separation and earlier child visits
+are inferred causes, refutable by acceptance.json, equality/fields/style/query
+and error controls.
+
+Human confirmation of manifest
+`47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302`
+ratified the pinned textual-recipe-frontier nucleus and this order. Within this
+scope it supersedes provisional ContentBlock show execution and pending-recipe
+bottom-up visits. Ordinary expression evaluation order stays. Do not reevaluate
+the program, advance State/Counter, bake render into morphology or create a
+public Rust contract.
+
+
+## Current output-frame and deferred-origin responsibilities
+
+Use CodeBlock/output-join frames only for actual emissions carrying local deltas.
+Realize no let value. Return/insertion composes local delta with current environment.
+Keep insertion_rules/styles/CodeSetTail/scopes/error restoration. Table/Math captures/
+markers keep protocols without text reclassification.
+
+Require acceptance.json/R2-S-R3/single-evaluation RED→GREEN, separate PDF/HTML,
+build/workspace/doctests/strict Clippy-Rustdoc/fmt/V1/V5/V15/V26/reverse/differential
+SARIF without new error-warning.12GiB/High 8 GiB/swap0/jobs1/heavy sequential.
+No RAM claim without paired trial/suppression clearing gate/commit/push/release.
+
+Candidate4 loses heading[Z]/= Z caret after deferred callbacks. Preserve Source
+for Content result of any expression evaluated with deferred show+active rules,
+in addition to existing ContentBlock/CodeBlock cases. with_source_span keeps
+first origin/internal span. Bindings stay data, no realization. Source anchors
+causal realization, no observable element/public field. This later scoped
+requirement supersedes earlier C2-only capture exclusion for this deferred path.
+
+Candidate9 SARIF flags V17 on eval_expr:51 combined Content guard. Compute named
+content_origin_required in success mapper only after eval_expr_inner completes;
+use that bool in guard. Preserve exact predicate matches(ContentBlock|CodeBlock)
+OR(defer_show_rules AND rules nonempty), never read state before expression eval.
+Pure-state predicate, no new I/O/API/phase/condition: same origin policy in explicit
+form.

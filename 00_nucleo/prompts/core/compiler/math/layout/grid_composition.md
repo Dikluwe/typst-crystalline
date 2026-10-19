@@ -1,14 +1,14 @@
 # L0 — compiler/math/layout/grid_composition
 Hash do Código: fc4a512b
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/math/layout/grid_composition.rs`. Comportamento original em `01_core/src/compiler/math/layout/mod.rs:1835-2153` no HEAD `51a027f99`, árvore limpa, 2026-10-01 00:44:23 UTC. A classificação é extração interna, não nova prova bilateral de paridade ou desempenho.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/math/layout/grid_composition.rs`. Original behavior in `01_core/src/compiler/math/layout/mod.rs:1835-2153` at HEAD `51a027f99`, clean tree, 2026-10-01 00:44:23 UTC. This is internal extraction, not new bilateral parity or performance evidence.
 
-## Contrato
+## Contract
 
-Own two-pass math-grid measurement and placement, row and column gaps, alignment-boundary spacing, baseline sequence, synthetic-parenthesis floor and item order. Preserve matrix/cases/multiline callers and static dispatch. Preservar contrato público, fase do pipeline, defaults, compatibilidade e pureza L1.
+Own two-pass math-grid measurement and placement, row and column gaps, alignment-boundary spacing, baseline sequence, synthetic-parenthesis floor and item order. Preserve matrix/cases/multiline callers and static dispatch. Preserve the public contract, pipeline phase, defaults, compatibility and L1 purity.
 
-## Aceitação
+## Acceptance
 
-Suíte L1, `cargo build` e `crystalline-lint .` passam; a extração não implica ganho de desempenho.
+The L1 suite, `cargo build` and `crystalline-lint .` must pass; extraction does not imply performance gains.

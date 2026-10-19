@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/hide.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated lexical barrier correction, preserved measured historical pin/provenance, nonrollback causal effects and tracking acceptance/open limits.",
+  "original_sha256": "ad0a040819764fad1e32b08b95c4c109a85f10860c60095c2946d1d208a13f94",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/hide.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

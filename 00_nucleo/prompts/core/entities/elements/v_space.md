@@ -1,14 +1,16 @@
 # Prompt L0 — `entities/elements/v_space` — `VSpaceElem`
 Hash do Código: 5a1b0c22
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/v_space.rs`
-**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável** (confirmado P320). Espaço
-vertical (`v(amount)`). Comportamento idêntico ao braço atual.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/v_space.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
+## Evidence before specification
 
-## Struct
+The archived extraction record preserves the original source observations: `content.rs:1611`, `content.rs:1786`.
+These are historical anchors, not a fresh current-pin parity measurement.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
@@ -19,35 +21,21 @@ pub struct VSpaceElem {
 }
 ```
 
-`Content::VSpace { amount, weak }` → `Content::VSpace(Arc<VSpaceElem>)`.
-Construtor ergonómico preservado: `Content::v_space(amount: Length, weak: bool)`.
+## Behavior and acceptance
 
-**P1140.9 — contrato público e presença.** `weak_explicit` conserva a presença
-do named `weak` para `repr`. O construtor existente mantém a assinatura e trata
-`true` como explícito e `false` como default omitido; o caminho de eval usa
-`v_space_with_weak_presence(amount, weak, weak_explicit)`. Layout continua a
-consultar somente `weak`.
+Preserve `Content::VSpace(Arc<VSpaceElem>)` and
+`Content::v_space(amount: Length, weak: bool)`. The existing constructor treats
+true as explicit and false as omitted default. Evaluation uses
+`v_space_with_weak_presence(amount, weak, weak_explicit)`; layout reads only
+weak. weak_explicit retains named-argument presence for repr.
+Manual Hash uses Debug because Length contains f64; retain the caveat in the
+source comment and relational hash test. PartialEq compares amount, weak,
+and weak_explicit because presence changes repr; Debug-based hash includes it.
+Plain text is empty; is_empty delegates to amount.is_zero(). Maps are terminal;
+field/kind/payload default to None, non-locatable. Verify all these properties,
+especially explicit/default presence, relational hash, and zero amount.
 
-> **`Hash` manual** (igual a `h_space.md` / precedente Lote 4): `Length` carrega
-> `f64` → `impl Hash { format!("{self:?}").hash(state) }`. Ressalva em comentário;
-> teste relacional de hash.
+## Historical record
 
-## `impl Element for VSpaceElem`
-
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `String::new()` (`content.rs:1786`) |
-| `is_empty` | **override**: `self.amount.is_zero()` (`content.rs:1611`) |
-| `map_content` | **terminal** |
-| `map_text` | **terminal** |
-| `get_field`/`element_kind`/`to_payload` | default `None` |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara `amount + weak + weak_explicit`, pois presença
-distinta produz `repr` distinto. O `Hash` manual inclui o campo via `Debug`.
-
-## Critério
-
-`plain_text` vazio; `is_empty` quando `amount` zero; map_* terminais; `Hash`
-manual via Debug; igualdade por `amount+weak+weak_explicit`.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/v_space.md`. Historical observations are not a new parity certification.

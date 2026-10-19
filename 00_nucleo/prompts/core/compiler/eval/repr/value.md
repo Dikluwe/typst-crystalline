@@ -2,38 +2,51 @@
 Hash do Código: 16d8f976
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/repr/value.rs`. No HEAD `6b147bd213e07e1dc896a8e798b84bf4d8dbbdcb` e árvore limpa, `01_core/src/compiler/eval/repr.rs:28-201 e 1516-1573` possui o comportamento separado. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-repr-2026-09-30-before.json.gz`. O objetivo é pesquisa algorítmica por comportamento, sem ganho de desempenho presumido.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/eval/repr/value.rs`. At HEAD `6b147bd213e07e1dc896a8e798b84bf4d8dbbdcb` with a clean tree, `01_core/src/compiler/eval/repr.rs:28-201 e 1516-1573` contains the separated behavior. SHA-256, time and state are recorded in `lab/results/construction/diagnostics/atomizacao-repr-2026-09-30-before.json.gz`. The purpose is to make algorithms discoverable by behavior, with no presumed performance gains.
 
-## Contrato
+## Contract
 
-Formatar cada variante de Value em morfologia pública determinística. Preservar arrays limitados a 40 itens apenas no repr, dicionário vazio (:), Args causais, floats não finitos, DateTime, closures e snapshots de LocatedContent sem reconstruir campos por estilo.
+Format each Value variant as deterministic public morphology. Keep arrays limited to 40 items only in repr, empty dictionary (:), causal Args, nonfinite floats, DateTime, closures and LocatedContent snapshots without reconstructing fields from styles.
 
-O contrato detalhado e as evidências históricas de paridade continuam em `00_nucleo/prompts/core/compiler/eval/repr.md`; a extração não muda saída, assinatura pública ou fase. Não há I/O nem estado global mutável.
+The detailed contract and historical parity evidence remain in `00_nucleo/prompts/core/compiler/eval/repr.md`; extraction preserves output, public signatures and phase. No I/O or mutable global state is permitted.
 
-## Aceitação
+## Acceptance
 
-Preservar testes de morfologia de linguagem, compilar e passar `crystalline-lint .` com owner e hash válidos.
+Preserve language morphology tests, build, and pass `crystalline-lint .` with a valid owner and hash.
 
-## Dicionários extensos — correção interna medida
+## Long dictionary formatting
 
-`transformacoes-2026-10-14/after-second/results.json.gz` registra rotate-fields-explicit
-e skew-fields: valores iguais, mas o repr Tekt junta o dicionário numa linha; o
-pin usa layout vertical acima de 50 colunas. `repr/value.rs:52` usa join direto,
-embora o owner de format já implemente a regra medida em pretty_array_like.
-Usar esse formatador também para Dict não vazio, preservando ordem e (:).
-Morfologia de repr é observável; o helper e alocação são mecânica. Não alterar
-quoting de keys nesta correção. Validar regressão extensa/nested e controles curtos.
+transformacoes-2026-10-14/after-second/results.json.gz records
+rotate-fields-explicit and skew-fields with equal values but Tekt dictionary
+repr on one line, while the pin uses vertical formatting above 50 columns.
+repr/value.rs:52 joins directly although the format owner already provides the
+measured pretty_array_like rule. Reuse that formatter for nonempty Dict,
+preserving order and (:). repr morphology is observable; helper/allocation are
+mechanics. Do not change key quoting. Validate long/nested regressions and short
+controls.
 
-## Uso do Display decimal — correção interna medida 2026-10-16
+## Decimal Display use
 
-### Medição anterior à decisão
+### Evidence before decision
 
-first-validation/validation-clippy.log em lab/results/construction/diagnostics/clippy-enums-2026-10-16 registra to_string_in_format_args em repr/value.rs no braço Value::Decimal após a implementação Display ratificada. O texto vigente é format!("decimal(\"{}\")", d.to_string()); o Display padrão do novo contrato delega ao mesmo InnerDecimal. Hashes, HEAD, working tree, UTC e diffstat estão em first-validation/validation-details.json. É construção de string interna, não nova medição de paridade.
+first-validation/validation-clippy.log under
+`lab/results/construction/diagnostics/clippy-enums-2026-10-16` records
+to_string_in_format_args in repr/value.rs's Value::Decimal arm after the approved
+Display implementation. The measured text is
+`format!("decimal(\"{}\")", d.to_string())`; the new contract's default Display
+delegates to the same InnerDecimal. first-validation/validation-details.json
+retains hashes, HEAD, working tree, UTC and diffstat. This is internal string
+construction, not new parity measurement.
 
-### Responsabilidade e aceitação
+### Contract and acceptance
 
-Passar d diretamente ao format!, preservando decimal("...") e o texto decimal/escala/zeros/sinal. Não alterar nenhuma outra variante, regra de quoting, assinatura ou fase. Correção mecânica em fluxo contínuo ADR-0127, sem supressão ou contrato novo; preservar todos os testes de repr e rodar suíte, Clippy, build, rustdoc e linhagem com teto de 12 GiB. O diagnóstico anterior constitui RED do lint; GREEN exige ausência de novos avisos e saídas existentes preservadas.
+Pass d directly to format!, preserving decimal("...") and decimal text/scale/
+zeros/sign. Change no other variant, quoting rule, signature or phase. This is
+ADR-0127 mechanical continuous flow without suppression or a new contract.
+Preserve all repr tests and run suite/Clippy/build/rustdoc/lineage under 12 GiB.
+The previous diagnostic is lint RED; GREEN requires no new warning and preserved
+existing output.

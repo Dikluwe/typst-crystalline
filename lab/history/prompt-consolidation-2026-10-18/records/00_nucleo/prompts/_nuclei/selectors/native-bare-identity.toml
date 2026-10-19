@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "native-bare-selector-identity"
+title = "Identidade de elemento nativo sem grupo where"
+
+[[claims]]
+id = "absent-group"
+level = "must"
+statement = "Um seletor nativo bare preserva ausência de grupo where; não é o filtro explicitamente vazio Element com fields vazio."
+
+[[claims]]
+id = "typed-identity"
+level = "must"
+statement = "O reconhecimento e a comparação de identidade de um seletor nativo bare usam a nativa real, sem nomes de alias como discriminador nem execução do constructor."
+
+[[claims]]
+id = "locatability"
+level = "must"
+statement = "Construir seletor não exige locatabilidade; consultas e counters validam cada folha e não promovem table.cell ao índice."

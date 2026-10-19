@@ -2,9 +2,9 @@
 Hash do Código: 034555bc
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/block-margin-priority.toml sha256:bdf93363a4120d16985ebf48bed6261fd5981d3539910478ee5b6b6b41e726f7
-- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
-- 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:f10f7afaabd1b97f3048736842df89d0ba48d4daa0ae3cd453c9be317f32ef91
+- 00_nucleo/prompts/_nuclei/layout/block-margin-priority.toml sha256:67e2de824eb08850828b20d39da52b8d33c59ced2138ddb4e8a2a9113aaa3cf1
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:c8570ec5f4f32c0805587230cafc796f35e5ee7c9f8e634e13d807db2afb6e00
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/heading.rs`
@@ -14,7 +14,19 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/heading.rs:28`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
+
+`01_core/src/compiler/layout/heading.rs:114` contains unused/visibility items reported by compiler. Usage search and active dispatchers before editing are in `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, with sources/L0/HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC/status/diffstat. This is no new bilateral parity measurement.
+
+Resolved-size bridge evidence: TS1 after-extended.json.gz/analysis.json refutes initial S4 closure: affine Heading 37.8 versus 36.6. heading_size Pt is installed only in layouter.style while chain retains unscaled base; descendant relative style reads that old base through style_scope. A16.8/B33.6 over 12pt and A36.6/B73.2 with show-set2em+3pt test the hypothesis and must fail before the bridge. Do not infer size from appearance/font name. Full baseline and owner/consumer hashes are in TS1 before.json.gz.
+
+`lab/results/construction/diagnostics/bibliography-margins-2026-10-18/before.json.gz` and before-sources.json.gz preserve HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree, diffstat/status/UTC/sources/argv/binaries. Its 78 pairs use oracle `bd5ebec285505889e8ff1d4f68804ab147a699f3` (binary `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`). At par.spacing 2em, Block below0→Block above auto yields BODY y37.064 in Tekt versus 13.064; below3 yields 37.064 versus 16.063996. Heading→Block auto yields BODY40.004 versus 25.004; Block auto→Heading TITLE35.7128 versus 33.312804. Bibliography 2em title 35.7128 versus 33.31281, first body 71.9 versus 54.5. Explicit/explicit, auto/auto and auto→explicit controls match. Bidirectional differences refute a bibliography-specific offset and establish priority before magnitude. `block.rs:170–176` handles strong entry only after weak margin; `heading.rs:62` uses unconditional max. Pinned `typst-layout/src/flow/collect.rs:253–260` assigns different weakness to Auto/explicit relative margins; `distribute.rs:244–259` compares priority before magnitude. `typst-library/src/model/heading.rs:305–312` sets above/below explicitly. Position is language, without copying Rust enums/algorithm or inferring intent. Explicit zero, inverse orders, equal margins, wrappers, par.spacing, continuation, fractions and terminal regressions refute closure; measure rather than add constants.
+
+`lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz` preserves HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree, status/diffstat/UTC and 2,099 sources/L0s. before.json.gz contains 92 pairs; extra-before.json.gz 26; boundary-before.json.gz 10; repeat-before.json.gz 4. Oracle commit: `bd5ebec285505889e8ff1d4f68804ab147a699f3`; binary SHA-256: `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`; initial Tekt: `2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095`. At width 160pt/margin 8/font12, hanging10 leaves first-line x8 and moves continuations x8→18; negative-5 requires x3. RTL leaves first right edge 152 and moves continuations to 142. Tekt ignores the length. MLA defaults to 18pt (1.5em); ambient set 3em does not replace it, while show-set3em requires 36pt; IEEE/Plain do not acquire hanging indent through that show-set. bibliography.where(style:"mla") does not match in the vanilla probe: preserve selector choice rather than forcing override.
+
+Inline-only Block/Box bodies ignore hanging10; explicit Par inside them and Block with Parbreak apply it. Simple Heading/Raw/List/Quote do not. Partial, zero, repeated and empty-scope declarations close boundaries: FIRST/MIDDLE/LAST at 5.168/27.464/49.76 versus all 5.168 in Tekt. The first lexical probe used literal brackets; it was refuted, corrected to #[...] and retained as extra-before-initial, not evidence of Styled scope. Extreme values produce extractor-clipped paint; missing pdftotext output does not mean Content deletion. A partial 24pt font does not change the shared length's 12pt em, as partial-font records.
+
+Pinned source: `typst-realize/src/lib.rs:1061–1085,1190–1219` distinguishes fragment/Par and interruption; `typst-layout/src/flow/collect.rs:72–134` selects flow; `inline/mod.rs:174,216–221` and `collect.rs:141–147` resolve shape; `inline/line.rs:496–503` positions; `rules.rs:510–523` provides CSL inset/compensation. `typst-library/src/model/bibliography.rs:112–127,367` determines default/precedence. This measures language/geometry, requiring neither vanilla Rust structure nor inferred historical intent. Lost boundaries, run-relative em, double indent, page reset, imposed greedy fallback, lost copies, reexecuted callbacks or control regressions refute closure.
 
 ## Ownership and contract
 
@@ -22,160 +34,22 @@ This prompt owns only the named consumer. State storage and general coordination
 
 Scale the active body size through the helper's level mapping and create a bold Heading TextStyle that retains the other outer fields, including inherited italic. Resolve above spacing against the body size (`1.8em` at level one, `1.44em` otherwise) and below (`0.75em`); collapse entry against the preceding block's physical bottom and pending margin, without empirical offsets. A top-of-region heading starts at margin plus its own top edge. Number only when the chain enables heading numbering: format the causal hierarchical counter with the supplied pattern and append one space, or retain the formatted-counter compatibility prefix with its period. Dispatch and close the body, record its causal baseline and pending below margin, clear stale paragraph/equation collapse state, and restore the outer style. A forced `italic: false` clause in older prose is superseded by the actual inherited-style consumer, not a new behavior change.
 
+Remove discarded post-body text_edges acquisition/heading_descent only: they feed no baseline/spacing/geometry. Keep necessary metrics queries and flush. Call count is not a language observable and proves no speed gain.
+
+After existing heading_size resolution, bind that Pt as absolute Length in a local chain delta before body dispatch, restoring original chain together with style. Descendant relative styles then read effective size without multiplying declared em again. Do not change scale, other fields/fonts/numbering/spacing formulas. This is the internal bridge for already-resolved size, extended after validation, without a new public field/signature/phase. Preserve absolute-control geometry.
+
+At entry after an active block boundary, collapse own explicit above against prior margin through the private helper owned by `00_nucleo/prompts/core/compiler/layout/block.md`. Preserve prev_bottom, scale/bold/top-edge/numbering/lexical scope/flush and explicit below. Automatic prior margin yields; a larger explicit prior margin still wins. No change for heading at region top. This supersedes prior unconditional max only for different priorities in the existing protocol; do not broaden private prev_margin_is_parbreak or close hanging, vspace/sticky or mixed-metrics gaps.
+
+Isolate body as an inline fragment for generic hanging after the already-closed boundary, restoring context after flush. Preserve newly corrected margins, scale, numbering, style bridge and realization order.
+
+This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
+
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
+Internal continuous-flow ADR-0127 corrections preserve public signatures/defaults/phases, language output and existing expected tests. Do not suppress warnings instead of removing dead calculations. Validate all targets/core suite/build/Clippy/lineage.
 
-## Caminhos residuais internos — 2026-10-13
+Owner RED→GREEN: Heading after automatic Block stays fixed when weak par.spacing exceeds own above; a larger explicit below still moves Heading by the legitimate delta. Cover levels 1/2/3, initial Heading and restored-style invariance. Revalidate Heading→Block bilaterally; rerun 78 pairs, nested/regional controls, bibliography without/with title, colors and prior corpus. Require workspace/doctests, strict Clippy, Rustdoc/fmt, V1/V5/V15/V26/reverse and differential Tekt under 12GiB/High8GiB/swap0/jobs1/debug0/incremental0. Do not delete notes or certify the whole objective.
 
-### Medição anterior à decisão
-
-`01_core/src/compiler/layout/heading.rs` nas linhas 114 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
-
-### Decisão e aceitação
-
-Eliminar a aquisição de text_edges e o valor heading_descent descartados depois do body. O cálculo não alimenta baseline, espaçamento nem geometria; preservar as consultas necessárias de métricas e o flush. Não inferir número de chamadas como observável de linguagem nem ganho de desempenho.
-
-Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.
-
-## TS1 — bridge do tamanho resolvido de Heading
-
-### Medição e refutação anterior à decisão
-
-TS1 after-extended.json.gz/analysis.json refuta o fechamento inicial de S4:
-Heading afim37.8 contra36.6. Inspeção deste consumer: heading_size Pt é
-instalado apenas em layouter.style, enquanto chain conserva base não escalada.
-Uma declaração relativa descendente lê chain em style_scope e resolve contra
-essa base antiga. A hipótese é verificável por A16.8/B33.6 sobre12pt, e por
-A36.6/B73.2 com show-set2em+3pt; testes devem falhar antes do bridge. Não se
-usa aparência ou nome da fonte para inferir tamanho. Baseline completa e hash
-deste owner/consumer preservados no before.json.gz TS1.
-
-### Correção interna
-
-Depois de resolver heading_size no layout existente, vincular esse Pt como
-Length absoluto em um delta de chain local, antes de despachar o corpo; restaurar
-a chain original juntamente com o estilo. Isso faz estilos relativos filhos
-lerem o tamanho efetivamente ativo sem multiplicar o em declarado novamente.
-Não mudar a escala, as demais propriedades, fontes, numeração ou fórmulas
-de espaçamento deste owner. Nenhum campo público/assinatura/fase novo; é
-o mesmo adapter TS1 para tamanho já resolvido, aplicado ao consumer adicional
-exigido pela validação S3/S4. Preservar geometria dos controles absolutos.
-
-## Prioridade causal das margens — 2026-10-18
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/bibliography-margins-2026-10-18/before.json.gz e
-before-sources.json.gz preservam HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
-working tree não commitado, diffstat/status/UTC/fontes/argv/binários. Os 78 pares
-foram medidos contra vanilla pinado bd5ebec285505889e8ff1d4f68804ab147a699f3
-(binário 9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9).
-Com par.spacing 2em, Block below0 seguido de Block above auto posiciona BODY
-em y37.064 no Tekt contra13.064; below3 resulta37.064 contra16.063996.
-Heading→Block auto produz BODY40.004 contra25.004. Block auto→Heading produz
-TITLE35.7128 contra33.312804. Na bibliografia2em, título35.7128 contra33.31281
-e primeiro corpo71.9 contra54.5. Os controles explícito/explícito e auto/auto
-coincidem, assim como auto→explícito. O desvio em duas direções refuta um offset
-especial de bibliografia e confirma prioridade antes da magnitude.
-
-Fontes locais: block.rs:170–176 só trata a entrada forte depois de margem
-fraca; heading.rs:62 usa max incondicional. No vanilla pinado,
-typst-layout/src/flow/collect.rs:253–260 atribui fraquezas diferentes a Auto
-versus margem relativa explícita; distribute.rs:244–259 compara prioridade
-antes da magnitude. typst-library/src/model/heading.rs:305–312 configura
-above/below explicitamente. Posições são linguagem; copiar enums/algoritmo
-Rust não é requisito e não se infere intenção da fonte. Refutação: regressão
-em zero explícito, ordens inversas, margens iguais, wrappers, par.spacing,
-continuação, fracionários ou terminal; medir e não compensar com constantes.
-
-### Classificação
-
-Correção interna de paridade em fluxo contínuo ADR-0127: sem campo, trait,
-assinatura pública, default/flag novo ou transferência de fase. A regra de
-colapso anterior por max fica supersedida somente na presença de prioridades
-diferentes do protocolo existente. Não amplia o significado privado de
-prev_margin_is_parbreak nem encerra hanging, vspace/sticky ou métricas mistas.
-
-### Responsabilidade exclusiva
-
-Ao entrar após fronteira de bloco ativa, colapsar above próprio como explícito
-com a margem anterior através do helper privado do owner
-00_nucleo/prompts/core/compiler/layout/block.md. Manter cálculo de prev_bottom,
-escala/bold, top-edge, numeração, scope lexical, flush e below explícito
-existentes. Margem anterior automática cede, mas margem explícita maior
-continua a prevalecer. Nenhuma alteração para título no topo da região.
-
-### Aceitação
-
-Testes RED→GREEN no próprio consumer: título após Block automático não muda
-quando par.spacing fraco supera seu above; below explícito maior ainda move
-título pelo delta legítimo. Cobrir níveis1/2/3, título inicial e invariância
-da restauração de estilo. Revalidar título→Block no corpus bilateral.
-
-Repetir os 78 pares, controles nested/regionais, bibliografia sem/com título,
-cores e corpus anterior; build, suíte workspace/doctests, Clippy estrito,
-Rustdoc/fmt, V1/V5/V15/V26/reversa e diferencial Tekt. Limite12GiB/High8GiB,
-swap0/jobs1/debug0/incremental0. Não apagar notas nem certificar todo o objetivo.
-
-## Recuo francês — aplicação física (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
-status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
-extra-before.json.gz contém26; boundary-before.json.gz contém10 e
-repeat-before.json.gz contém4. Oracle bd5ebec285505889e8ff1d4f68804ab147a699f3,
-binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
-Tekt inicial2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095.
-Em160pt/margem8/font12, hanging10 mantém a primeira linha x8 mas move
-continuações x8→18; negativo-5 exige x3. RTL mantém primeira borda direita152
-mas continuações vão para142. O Tekt ignora o comprimento. MLA tem default
-18pt (1.5em), set ambiente3em não o troca, show-set3em exige36pt; IEEE/Plain
-não adquirem recuo de hanging por esse show-set. bibliography.where(style:"mla")
-não casa na sonda vanilla: conservar a decisão do seletor, não forçar override.
-
-Block/Box com body apenas inline ignoram hanging10; Par explícito dentro
-deles e Block com Parbreak aplicam. Heading/Raw/List/Quote simples não o
-aplicam. Declaração parcial, zero, repetida e escopo vazio fecham fronteiras:
-FIRST/MIDDLE/LAST em5.168/27.464/49.76, contra todos5.168 no Tekt. A primeira
-sonda lexical usou colchetes literais: foi refutada, corrigida para #[...] e
-preservada como extra-before-initial; não é evidência de escopo Styled.
-Valores extremos geram tinta recortada pelo extrator: não equiparar ausência
-em pdftotext a apagamento de Content. Fonte parcial24pt não muda o em do
-comprimento compartilhado12pt, como partial-font registra.
-
-Fontes pinadas: typst-realize/src/lib.rs:1061–1085,1190–1219 distinguem
-fragmento/Par e interrupção; typst-layout/src/flow/collect.rs:72–134 escolhe
-fluxo, inline/mod.rs:174,216–221 e collect.rs:141–147 resolvem forma;
-inline/line.rs:496–503 posiciona; rules.rs:510–523 faz inset/compensação CSL.
-typst-library/src/model/bibliography.rs:112–127,367 determina o default e
-precedência. Isso mede língua/geometria; não exige a estrutura Rust vanilla
-nem atribui intenção histórica. Refutação por fronteira perdida, em de run,
-recuo duplo, reset em página, fallback greedy imposto, cópia perdida, callbacks
-reexecutados ou regressões dos controles impede fechamento.
-
-### Classificação e limites
-
-Correção interna/de paridade ADR-0127, fluxo contínuo: sem campo ou assinatura
-pública, flag/default externo novo, fase ou ordem de realização diferente.
-A nova forma inicial/continuação supersede somente a limitação correspondente
-de largura constante; RTL latino certificado segue as condições do núcleo,
-sem BidiCursor ativo/tracking e sem inventar BidiSpan. Os demais limites
-anteriores continuam. Os valores/cópia fora da página requerem inspeção dos
-frames ou SVG, não igualdade de extração recortada. Não antecipar R3-T1.
-
-### Responsabilidade exclusiva deste owner
-
-Isolar o corpo como fragmento inline para hanging genérico, após a fronteira já fechada; restaurar contexto após flush. Não modificar margens recém-corrigidas, escala, numeração, style bridge ou ordem de realização.
-
-### Aceitação
-
-RED→GREEN antes da implementação; controles fonte→layout e bilaterais dos sinais,
-fronteiras, variantes e restauração pertinentes. Não deduzir cobertura de todas
-as alternativas por executar um arm agrupado: classificações nominais fechadas
-do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
-Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
-e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.
+Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.

@@ -1,14 +1,14 @@
 # L0 — compiler/eval/math/native_dispatch
 Hash do Código: fd92036c
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/native_dispatch.rs`. A lógica original estava em `01_core/src/compiler/eval/math/expression_call.rs:181-766` no HEAD `4e2a321ce`, árvore limpa, 2026-09-30 23:49:20 UTC. Trata-se de extração interna; a leitura não é prova nova de paridade nem medição de desempenho.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/eval/math/native_dispatch.rs`. The original logic was in `01_core/src/compiler/eval/math/expression_call.rs:181-766` at HEAD `4e2a321ce`, clean tree, 2026-09-30 23:49:20 UTC. This is internal extraction; inspection is neither new parity evidence nor a performance measurement.
 
-## Contrato
+## Contract
 
-Own exhaustive static dispatch for recognized bare math function names. Delegate scripts/limits/attach syntax to `00_nucleo/prompts/core/compiler/eval/math/native_attachments.md`. Delegate over/under decoration and vector constructors to `00_nucleo/prompts/core/compiler/eval/math/native_decorations.md`. Preserve constructor validation, argument order, span and morphology. Delegate unrecognized/global/symbol behavior to call_fallback without changing precedence. Não alterar contratos públicos, fase do pipeline, defaults nem compatibilidade. Preservar despacho estático e pureza L1.
+Own exhaustive static dispatch for recognized bare math function names. Delegate scripts/limits/attach syntax to `00_nucleo/prompts/core/compiler/eval/math/native_attachments.md`. Delegate over/under decoration and vector constructors to `00_nucleo/prompts/core/compiler/eval/math/native_decorations.md`. Preserve constructor validation, argument order, span and morphology. Delegate unrecognized/global/symbol behavior to call_fallback without changing precedence. Preserve public contracts, pipeline phase, defaults, compatibility, static dispatch and L1 purity.
 
-## Aceitação
+## Acceptance
 
-Testes L1, `cargo build` e `crystalline-lint .` passam. Não inferir ganho de desempenho.
+L1 tests, `cargo build` and `crystalline-lint .` must pass. Do not infer performance gains.

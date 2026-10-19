@@ -1,0 +1,16 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "0d41674e0fad8cfa67368e5e52ef233e28951c1acd9cd709e118d292c508db21",
+    "result_sha256": "0058356bc6d718c6cae91c71d6c2e2c86e4329d9ce7a16a5ff6ffc76791c75db",
+    "disposition": "Complete math eval facade already English reviewed; translated sole Portuguese atomization note and repaired canonical owner directory, all mathematical/lexical/morphological limits retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/observation/value.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "468f9f1b1daccec867b4a986ab9f5b95e218e61733e8b197122a003bdedee041",
+    "result_sha256": "de8bb517002b3010786a438ff62618d045f7570dbda61c258c06bfdfb237d6ef",
+    "disposition": "Full value observation review/translation: conservative unlike-pair Native/Format witness preserved, additional selector consumer and direct V19 matrix plus all measured catalogue controls retained."
+  }
+]

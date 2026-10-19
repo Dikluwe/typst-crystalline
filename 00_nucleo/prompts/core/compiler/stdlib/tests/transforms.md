@@ -16,34 +16,46 @@ Preserve public paths and observable results. Ownership, nucleus integrity and
 lineage checks must remain valid; no unrelated consumer is authorized by this prompt.
 
 
-## Operações numéricas puras — 2026-10-13
+## Independent numeric expectation
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`01_core/src/compiler/stdlib/tests/transforms.rs` nas linhas 80 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+stdlib/tests/transforms.rs:80 contains the disallowed_methods call flagged by
+current Clippy. HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working
+tree; `lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz`
+retains source/owner/config/libm/compiler/UTC/status/diffstat. host-math compares
+backends before choosing: 4968 cases, 69 trig/atan2 differences up to 1 ULP,
+without numeric-class or signed-zero change; powers/hypot agree in the sample.
+These are host measurements, not universal proof or new vanilla parity.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-O teste de skew com 15 graus usa o valor analítico tan(15°)=2-sqrt(3) como expectativa independente, conservando a tolerância 1e-9 e a verificação de 45 graus. Não chamar a mesma função trigonométrica do candidato para formar o oráculo.
+The 15-degree skew test uses independent analytic tan(15°)=2-sqrt(3), preserving
+1e-9 tolerance and the 45-degree check. Never use the candidate's trig function
+to build its oracle. This ADR-0127 internal correction adds no public contract,
+default or phase. Preserve geometry/language tests and compare measured SVGs
+before/after, reporting differences; geometry comparison does not certify all
+cases/platforms. Validate build/all targets/core/Clippy/lineage without lint
+suppression or compiler-byte identity as acceptance.
 
-Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, default ou fase. Preservar testes de geometria/linguagem existentes e comparar os exemplos SVG medidos antes/depois, declarando diferenças. A comparação geométrica não certifica todos os casos ou plataformas. Validar build, todos os targets, core, Clippy e linhagem. Não suprimir o lint nem substituir aceitação por identidade de bytes do compilador.
+## Approved typed transformation tests and incomplete scope
 
-## Transformações tipadas — X1/X2 aprovados em 2026-10-14
+### Evidence before decision
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/results.json.gz`
+records lost identity/presence, named x affecting y and incorrect casts.
+Supplemental controls confirm string/none body, factor after body, two-auto error
+only at layout and omitted fields distinct from explicit. Manifest
+`960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d`
+was approved, with receipt under
+`lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14`.
 
-O corpus em `lab/results/construction/diagnostics/transformacoes-2026-10-14/results.json.gz`
-registra identidade/presença perdida, named x afetando y e casts incorretos.
-Controles suplementares confirmam body string/none, factor depois de body,
-erro de dois auto apenas no layout e campos omitidos distintos de explícitos.
-O manifesto 960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d
-foi aprovado; recibo no diretório lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14.
+### Test contract
 
-### Contrato dos testes
-
-Testar operações por campos e identidade da linguagem; não exigir matriz
-antecipada. Substituir fixtures antigas que aceitam Float como Angle/Length/Ratio,
-rotate angle nomeado ou dois fatores scale: o pin rejeita essas chamadas.
-Cobrir omissão, zero, false, auto, eixos parciais, units, sobras e spans causais,
-body string/none e mapas que preservam operação. X3–X5 continuam no contrato
-aprovado e serão completados durante esta mesma frente de materialização.
+Test operations through language fields/identity, without requiring an early
+matrix. Replace obsolete fixtures accepting Float as Angle/Length/Ratio, named
+rotate angle or two scale factors: the pin rejects those calls. Cover omission,
+zero, false, auto, partial axes, units, leftovers, causal spans, string/none body
+and maps preserving operation. X3–X5 remain in the approved contract and are
+still to be completed within that same materialization scope; they are not
+silently closed by X1/X2 approval or this documentary consolidation.

@@ -1,0 +1,1535 @@
+{
+  "00_nucleo/prompts/core/entities/content/sequence.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "539e2de1ef7355ac39939b3b382c0e003d0a51448d91639434bf43a3de9db073"
+  },
+  "00_nucleo/prompts/core/entities/label_kind.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "552806b9245f25dcb6157575f98394794cba006996272bdec202aae9b95ff262"
+  },
+  "00_nucleo/prompts/core/entities/content/tests/sequence.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "682d2848a008420c3c8b1511e24a6d0eb10b95bb3079c8166a36df994ebc26d0"
+  },
+  "00_nucleo/prompts/core/entities/content/tests/traversal.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "39b400d627881b33344808f7927641de11aee818182c846fb93fba7f499031f7"
+  },
+  "00_nucleo/prompts/core/entities/content/tests/morphology.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "2530108641d913de279d1089ba8607fd34df297f76d3ac6646db5a06faa517a3"
+  },
+  "00_nucleo/prompts/core/entities/state.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "788d6755760462c7bbe6958585f903d299324c919071710a56f2b1705582f008"
+  },
+  "00_nucleo/prompts/core/entities/content/tests/mod.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "29311e0b0e950156e7e9f51c8dbf0db07193a0e18c077e30a1cd8cbf22ecab90"
+  },
+  "00_nucleo/prompts/core/entities/elements/hide.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "663beb8b15634c00111cc1ba69fc3708bc49d46ed93bfe3d4a3e04f971232c80"
+  },
+  "00_nucleo/prompts/core/entities/parity.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "63d2af7d7683da4f79e02821deacb8c9bab50f8998067410da8c0ec6d73c25d3"
+  },
+  "00_nucleo/prompts/core/entities/corners.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "2c2ce960a6deae9f6ee5ad11ba2c1b3887fb9d97ccb83b3217d8a68207108883"
+  },
+  "00_nucleo/prompts/core/entities/elements/grid_footer.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "3c0ffab82b22f65a64bacd2f00e0c7139d026e727902abc7720ed6dca7799211"
+  },
+  "00_nucleo/prompts/core/entities/elements/grid_header.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "3973a72eb6fa8d6a4428c5c4a79eae6e787641610698313e2ec776e47d1ed97a"
+  },
+  "00_nucleo/prompts/core/entities/elements/table_footer.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "b9e8699e77b23354d83b860c8c6f6cc1147b1bcaaa4602be4744cca4d021b106"
+  },
+  "00_nucleo/prompts/core/entities/elements/table_header.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "190a3b0f40d52c3bc912c88d7d18a4252cc9fa32a7989d9b09b74e4c8f86317b"
+  },
+  "00_nucleo/prompts/core/entities/syntax_node.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "e74c3be2bf06d8dc6337783b732c9423542333125c0f7a14a317532af4065525"
+  },
+  "00_nucleo/prompts/core/entities/elements/pad.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "2e2b31c86fdcabc6edabb930d03a75c4aaa3a8413fe09c9ffbc6c0c7d250bf24"
+  },
+  "00_nucleo/prompts/core/entities/elements/test_callout.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "b4872b9df13db41cabd43f50270f984fd2f1ccdd042780894fab9008ac106891"
+  },
+  "00_nucleo/prompts/core/entities/elements/context_block.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "394986bafd36e72ebcd359ba85bf31ab8570af937de97517b42bc53006cbdcfe"
+  },
+  "00_nucleo/prompts/core/entities/elements/state_display.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "b198077842a6b68191b1a89dbbc79441110cf2077c955d25c4f9ef8526bf7152"
+  },
+  "00_nucleo/prompts/core/entities/element_registry.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "3b0351bb30d8c5a5a1e24d116353886a69ea9679808d06e168b2f82165b0601b"
+  },
+  "00_nucleo/prompts/core/entities/elements/divider.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "83b072eaec8c75cf049fe9796fd84c63577d3e80c21ab443262275a629bf2963"
+  },
+  "00_nucleo/prompts/core/entities/elements/counter_display.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "16e21f16ea54bfb91d65cee04c2edba2adb5ce54c3cf4467887d9af150aa268c"
+  },
+  "00_nucleo/prompts/core/entities/elements/dynamic.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "73dbecb27f67b8c53b8f8bafd07decde742d95ed3ca39de78dbde3476a403941"
+  },
+  "00_nucleo/prompts/core/entities/elements/title.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "507c10b77f6f11ed4341cd02ef99c0ae10b4765474c8213af149b08f9b5b5d81"
+  },
+  "00_nucleo/prompts/core/entities/rel.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "e0802a499ff14e8e6c3c118c581386e2cba3197faad3445685b3d28fb55935ef"
+  },
+  "00_nucleo/prompts/core/entities/location.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "7ca0523af1b56fcc11d3864f9ed19dd56b9fdde894e83635db847684e5162c78"
+  },
+  "00_nucleo/prompts/core/entities/shaped_glyph.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "2d54d6ef6b7a1be7a5b7aa97076d3c6c5e002475a0e33b5532203821b12bfc25"
+  },
+  "00_nucleo/prompts/core/entities/dir.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "7bd846cd1bb8c7402ff9169c8eb6e0e79d924fa9a1d48318ab94b4a8df466218"
+  },
+  "00_nucleo/prompts/core/entities/elements/state.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "c06c42de63a7013692d12010c94c3409764b399f0ef104cc9a5b4b4345461c9e"
+  },
+  "00_nucleo/prompts/core/entities/elements/align.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "2817fdabf43d766899ce4504ea23aaf1f153a11c458a8dfc5f899498a0f8db51"
+  },
+  "00_nucleo/prompts/core/entities/elements/colbreak.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "4971cb60ad6cab119640827beca8d41d91dee873c854bc199381327aa203dde1"
+  },
+  "00_nucleo/prompts/core/entities/content/construction/math.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Translated all extraction evidence, ownership, preservation constraints and acceptance; chronology isolated.",
+    "reviewed_sha256": "e97a76635f8402cdd894ec9e29f43251531778080ad5cf2fa49a9b02e72fb786"
+  },
+  "00_nucleo/prompts/core/entities/content/construction/references.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Translated all extraction evidence, ownership, preservation constraints and acceptance; chronology isolated.",
+    "reviewed_sha256": "0d42f4bf6c364c004424968087ec8619c87d738dc8347a007326acd8fbca54b4"
+  },
+  "00_nucleo/prompts/core/entities/gradient/conic.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All per-module behavior, original evidence, public/default/sampling and acceptance constraints translated; no algorithm change.",
+    "reviewed_sha256": "50a149c2f9d285c040e20487dbf8f53308a719580b770d5f8d3f0979a124c9a6"
+  },
+  "00_nucleo/prompts/core/entities/gradient/radial.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All per-module behavior, original evidence, public/default/sampling and acceptance constraints translated; no algorithm change.",
+    "reviewed_sha256": "372826a684e5ebacd4433a98a794caee23de5ca3c7dc6dc569b5fc9a3058afd1"
+  },
+  "00_nucleo/prompts/core/entities/gradient/offsets.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All per-module behavior, original evidence, public/default/sampling and acceptance constraints translated; no algorithm change.",
+    "reviewed_sha256": "29456221af2cb4093a15598ef22e17e62e77b9710cd14c7e66504efe805e973d"
+  },
+  "00_nucleo/prompts/core/entities/gradient/linear.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All per-module behavior, original evidence, public/default/sampling and acceptance constraints translated; no algorithm change.",
+    "reviewed_sha256": "92978809cb9a878e0e5efdada39ffe1ad3a6fa6c680eb7ad7021ae22f233b822"
+  },
+  "00_nucleo/prompts/core/entities/gradient/kind.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All per-module behavior, original evidence, public/default/sampling and acceptance constraints translated; no algorithm change.",
+    "reviewed_sha256": "0e2c3490a165e4747051bc0b7657f51d3f06607e50095c75c16ec2271051d32a"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_cases_tests.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Translated every test discrimination, traversal and opacity requirement; no tests relaxed.",
+    "reviewed_sha256": "232e2f21aa08ef7c33dcdbc7657ce827350f9fae41ee6c00ff2cdb01f12e0ae8"
+  },
+  "00_nucleo/prompts/core/entities/elements/terms.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "71d99607d9a6ae696c88796557ed8dc80a0d6c207ee6cb7352ceab083e54e7fb"
+  },
+  "00_nucleo/prompts/core/entities/syntax_node/errors.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "788f00c5b93fa0730fa8ff7ca34b7abcad50a6542c4c8acf7b44aad38c78719c"
+  },
+  "00_nucleo/prompts/core/entities/syntax_node/linked.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "b33500820922e73f0e1d8716a51c8f9fa6f5e7e47c8c481869ddeaeb6cd58d2b"
+  },
+  "00_nucleo/prompts/core/entities/elements/flush.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "32b7631c9bf64f4e29046cf659b3e9e5cc01a61714401adc8a740f0e609c86e2"
+  },
+  "00_nucleo/prompts/core/entities/ptr_eq_arc.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "1b73107dccdd84286d65a1b3c73128dc4ca2c958796dbacedb0f9c7b089dcbe0"
+  },
+  "00_nucleo/prompts/core/entities/document_info.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "5cb3371899a580ac6ed7486ee5386a422eb7398590975035b45f6887705c1a2c"
+  },
+  "00_nucleo/prompts/core/entities/content_hash.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "87a722a274beaa0767b046782c4084572fb76c32d9a4749811b95d5a9ea6d272"
+  },
+  "00_nucleo/prompts/core/entities/syntax_node/representation.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "f23c7a32e70a385627c4a4955f7af692681aca1a1cc62382dbf5658b5160923a"
+  },
+  "00_nucleo/prompts/core/entities/elements/linebreak.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "f9a25954d281625b7dd69d0e5ee06fd1fc3177b67937c06ba9f7e1ae82437e94"
+  },
+  "00_nucleo/prompts/core/entities/compiler_features.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "00ea39413b199332b2bb16aa66e8aa29462f6fb12b8e6a329fc9ae4f068e5dbe"
+  },
+  "00_nucleo/prompts/core/entities/bytes.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "36189ae6b5a6d4adb49e7f9a791e4b99f1affe1667558a76e129eef573f5dac8"
+  },
+  "00_nucleo/prompts/core/entities/page_geometry.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "0e55f43cd3e0fd5e0bf8263306b3760874b20f09c847ea8574022dd11d03e3cc"
+  },
+  "00_nucleo/prompts/core/entities/page_canvas.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "7125ce55021cf13753f5e047f25f1c597c3b4513adf2bc77b5e193e0a5d76ab0"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_accent_tests.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved both original obligations and additive R2 discrimination criteria; no closure inferred.",
+    "reviewed_sha256": "91f0db3cc83eca1d884442471fdcb9b0d77f101f195043619070eff6a0070dd6"
+  },
+  "00_nucleo/prompts/core/entities/elements/repeat.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All fields/signatures/derives/traits/maps/defaults preserved; extraction chronology archived; inconsistencies explicit where present.",
+    "reviewed_sha256": "7321cc0e7aa311292879b5621d08f45f0bca2637884f43dcce26a3069f23bf24"
+  },
+  "00_nucleo/prompts/core/entities/elements/term_item.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All fields/signatures/derives/traits/maps/defaults preserved; extraction chronology archived; inconsistencies explicit where present.",
+    "reviewed_sha256": "2ec1ff296bbaa00957fa3571cf88e1912241ff469d332a5a5d3f55c6d9eac444"
+  },
+  "00_nucleo/prompts/core/entities/elements/stack.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All fields/signatures/derives/traits/maps/defaults preserved; extraction chronology archived; inconsistencies explicit where present.",
+    "reviewed_sha256": "0ab3e680f417397c152127d4a6ec0d2dbe4b6a2262b22e1dcb3d4208fdc5ab7e"
+  },
+  "00_nucleo/prompts/core/entities/elements/quote.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All fields/signatures/derives/traits/maps/defaults preserved; extraction chronology archived; inconsistencies explicit where present.",
+    "reviewed_sha256": "a5b69f431dd5f5c67ef859a79947a1812d39308a591f603be0cc045a7f277e4c"
+  },
+  "00_nucleo/prompts/core/entities/elements/state_update.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All fields/signatures/derives/traits/maps/defaults preserved; extraction chronology archived; inconsistencies explicit where present.",
+    "reviewed_sha256": "f7c76b6aade476a7d310db9007d4dc468abc1aaed3ab5ffc0ffc911f96bd8d1e"
+  },
+  "00_nucleo/prompts/core/entities/elements/counter_display_callback.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All fields/signatures/derives/traits/maps/defaults preserved; extraction chronology archived; inconsistencies explicit where present.",
+    "reviewed_sha256": "f4958e8b3a2ac644e13b8825213015c908347e28a74092db295f575b6e5c086e"
+  },
+  "00_nucleo/prompts/core/entities/elements/place.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All fields/signatures/derives/traits/maps/defaults preserved; extraction chronology archived; inconsistencies explicit where present.",
+    "reviewed_sha256": "5f2a22d75691555905eb86a63638fbb10286dc170ac54b51118409940fafc119"
+  },
+  "00_nucleo/prompts/core/entities/elements/grid_cell.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All fields/signatures/derives/traits/maps/defaults preserved; extraction chronology archived; inconsistencies explicit where present.",
+    "reviewed_sha256": "7aad340647eeb56b620d12eea4d54ab8e50f43c6602ef1d6ffd54d7e00588709"
+  },
+  "00_nucleo/prompts/core/entities/elements/grid_hline.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Translated full field/constructor/map/stroke contract; equality enumeration mismatch preserved explicitly; no algorithm change.",
+    "reviewed_sha256": "4346039f2ec48a6dae9f73a5090ec994d8db8b85dfb212da9596e0604092df3a"
+  },
+  "00_nucleo/prompts/core/entities/elements/grid_vline.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Translated full field/constructor/map/stroke contract; equality enumeration mismatch preserved explicitly; no algorithm change.",
+    "reviewed_sha256": "6912805104d41deca40e5123ccbea1b7b94cc35d73850bba3e136fa67e560667"
+  },
+  "00_nucleo/prompts/core/entities/elements/table_hline.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Translated full field/constructor/map/stroke contract; equality enumeration mismatch preserved explicitly; no algorithm change.",
+    "reviewed_sha256": "71f672cbf79969ee394ded2281686356b33470f15c2bec5c4a1e297a25210a4d"
+  },
+  "00_nucleo/prompts/core/entities/elements/table_vline.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Translated full field/constructor/map/stroke contract; equality enumeration mismatch preserved explicitly; no algorithm change.",
+    "reviewed_sha256": "4176ac902b8d52005e2cf7f68c1aa4cda13dc7118f79c810df70a106844eccda"
+  },
+  "00_nucleo/prompts/core/entities/axes.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved no-op existing generic contract and translated Clone-vs-Copy evidence/acceptance in full.",
+    "reviewed_sha256": "72a2a2577231bd464c429a73bed55647d218b1e0aab797b15db5012706f6ec57"
+  },
+  "00_nucleo/prompts/core/entities/content/plain_text.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Retained nucleus pins, ratified Source transparency and approval, no-double-origin, segment origins, all certification gates.",
+    "reviewed_sha256": "d997c72d0c425168d6b8477b2c7dff0779215fb395042dc453d12994afd17d32"
+  },
+  "00_nucleo/prompts/core/entities/version.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full cumulative Version contract consolidated: exact zero-pad/indexing/parser semantics; later error-observable and ratified Display supersessions; all T1\u2013T5 cross-owner checks, historical pins/receipts and absent-field pending retained.",
+    "reviewed_sha256": "bf9833f21b6da03de5342387ff8dd6cb042c6cc30cbd9b1fe321efc37045f2b8"
+  },
+  "00_nucleo/prompts/core/entities/elements/v_space.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All original fields/API/map/default/hash/acceptance clauses preserved; chronological source retained in archive; cross-owner scope-outs and gates remain explicit.",
+    "reviewed_sha256": "cbebae8ded7c45c348a293d368486b5f47280269971ca12aad5e619479acada8"
+  },
+  "00_nucleo/prompts/core/entities/elements/strike.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All original fields/API/map/default/hash/acceptance clauses preserved; chronological source retained in archive; cross-owner scope-outs and gates remain explicit.",
+    "reviewed_sha256": "6ece8922aff1d4ec4e800fe86b847652cc6ac88490049be76f7a64401ac39a17"
+  },
+  "00_nucleo/prompts/core/entities/elements/underline.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All original fields/API/map/default/hash/acceptance clauses preserved; chronological source retained in archive; cross-owner scope-outs and gates remain explicit.",
+    "reviewed_sha256": "9650fca4ac700c1e56f46f9f9c890628f35d0e742e00f7c90cfe81c897a1a959"
+  },
+  "00_nucleo/prompts/core/entities/elements/curve.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All original fields/API/map/default/hash/acceptance clauses preserved; chronological source retained in archive; cross-owner scope-outs and gates remain explicit.",
+    "reviewed_sha256": "d0d300c9943ae1033c4d90b5e52da83051c72316252c928d915ff276d35200fa"
+  },
+  "00_nucleo/prompts/core/entities/elements/label.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All original fields/API/map/default/hash/acceptance clauses preserved; chronological source retained in archive; cross-owner scope-outs and gates remain explicit.",
+    "reviewed_sha256": "06bfb006293912647edfaf02b7e9e0750346b23bb1d1c21e22aac40ba5b3e550"
+  },
+  "00_nucleo/prompts/core/entities/elements/grid.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All original fields/API/map/default/hash/acceptance clauses preserved; chronological source retained in archive; cross-owner scope-outs and gates remain explicit.",
+    "reviewed_sha256": "7ddeeecce709f1fe472a6bd846ec57e785d97facf9a708c43f05017263f4e766"
+  },
+  "00_nucleo/prompts/core/entities/elements/shape.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All original fields/API/map/default/hash/acceptance clauses preserved; chronological source retained in archive; cross-owner scope-outs and gates remain explicit.",
+    "reviewed_sha256": "5012d8d01ac604f6c8544530e8bd0090dca047ae0d8810a003ddc1cd29b04288"
+  },
+  "00_nucleo/prompts/core/entities/elements/link.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All original fields/API/map/default/hash/acceptance clauses preserved; chronological source retained in archive; cross-owner scope-outs and gates remain explicit.",
+    "reviewed_sha256": "80952e3a8b69a31d9b7a8329bb7ffa4bf21a01ec5bc9d96be496ccce194006a9"
+  },
+  "00_nucleo/prompts/core/entities/image_sizer.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved three trait signatures, EXIF/DPI precedence, null and consumer fallbacks; chronology removed.",
+    "reviewed_sha256": "38b02f6835b7ed3a0ce30a2862b4f06bf25d667d3705add208d07f694479a9ed"
+  },
+  "00_nucleo/prompts/core/entities/source_result.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All interface, storage, diagnostics, equality transport and acceptance preserved; deferred hint spans explicit.",
+    "reviewed_sha256": "9a4e8d706c3032c44049bdd924529fc1ef42c53ed12fec57ab24fbec735ebc2e"
+  },
+  "00_nucleo/prompts/core/entities/content/equality.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved Rust equality vs morphology distinction, Space equivalence, Source approval, provenance, projection constraints and certification gates; repaired canonical hash owner reference.",
+    "reviewed_sha256": "3bf5551c19855d6788438e5e9a7a618cdfdbf4ce92f7b0557f59a8a3fabb4cba"
+  },
+  "00_nucleo/prompts/core/entities/content/construction.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved Raw nucleus pin, exact approved presence behavior and supersession, all evidence/acceptance; canonicalized sibling owners.",
+    "reviewed_sha256": "320f9a7a1cff811e64f2b7d5b598d1486b319a35c802240d6ea1ded446ad02b9"
+  },
+  "00_nucleo/prompts/core/entities/font_variations.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "21ed3fdbbe0ad6030d6f49747e3a3bd3bbea5138cfc3183a2977d7b0b2afaa24"
+  },
+  "00_nucleo/prompts/core/entities/page_store.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All contract and acceptance clauses retained; already English, no editorial change needed.",
+    "reviewed_sha256": "09bedc205da2ccc14cb3bba3b5fb523443d44cf392a21c9f314791766465578a"
+  },
+  "00_nucleo/prompts/core/entities/elements/counter_update.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete data/API/behavior/acceptance and pending scope; historical timeline archived; no behavior ratified by editorial cleanup.",
+    "reviewed_sha256": "e62652c8788599bcee208ea48d6422b02bfa1951dc6ff22ed0634b322ed176e7"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_matrix_tests.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All independent pair discriminators, opacity and later compact Value ratification preserved; no false pending gate.",
+    "reviewed_sha256": "23076edea922c12f049e31adeb360df1ad208500e683a005308e3ad98d2cabbe"
+  },
+  "00_nucleo/prompts/core/entities/elements/image.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete data/API/behavior/acceptance and pending scope; historical timeline archived; no behavior ratified by editorial cleanup.",
+    "reviewed_sha256": "87c721b1cb60280f55ecc3b1af2b47928258f73234f0387a85664c07b2e57d7c"
+  },
+  "00_nucleo/prompts/core/entities/bib_entry.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete data/API/behavior/acceptance and pending scope; historical timeline archived; no behavior ratified by editorial cleanup.",
+    "reviewed_sha256": "4fff81b03c3d148286b4749941601137e644a151e917a677bbc171790ed2ab3f"
+  },
+  "00_nucleo/prompts/core/entities/list_marker.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved original marker controls and later derived Default; Array versus original scope-out inconsistency explicitly pending.",
+    "reviewed_sha256": "cdce6478d1acbc84b0b6b5ad447eb4a888f32675870df874c244fcf59e1cf0d7"
+  },
+  "00_nucleo/prompts/core/entities/lang.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete data/API/behavior/acceptance and pending scope; historical timeline archived; no behavior ratified by editorial cleanup.",
+    "reviewed_sha256": "f65f93440741d8aeaabfd488841825018c7c50d6ccfc6a81c42d603a98b4aea8"
+  },
+  "00_nucleo/prompts/core/entities/elements/overline.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete data/API/behavior/acceptance and pending scope; historical timeline archived; no behavior ratified by editorial cleanup.",
+    "reviewed_sha256": "67695dba50e6e62eab09790c0edd94f8a8752f731150be60b0a9a408ee7baace"
+  },
+  "00_nucleo/prompts/core/entities/paint.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Retained complete original Paint subset and cross-owner restrictions; later richer surface marked reconciliation, not silently adopted from code.",
+    "reviewed_sha256": "0d6a55a2c269737b397ccbbc4ceb1a13c4fec9e4eef860e0d8c6fc01e2ff0826"
+  },
+  "00_nucleo/prompts/core/entities/document_format_options.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; current clauses, prior shared-proof translation, acceptance and restrictions preserved.",
+    "reviewed_sha256": "4d088159e6b03b93bd4881d150a59f8606506219146803603dcb2d169a066b15"
+  },
+  "00_nucleo/prompts/core/entities/elements/emph.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; current clauses, prior shared-proof translation, acceptance and restrictions preserved.",
+    "reviewed_sha256": "dc4adc96f2c27b492a3273fc539e36c46e7ad58330306c13ae869ef2b3fa5985"
+  },
+  "00_nucleo/prompts/core/entities/elements/strong.md": {
+    "status": "reviewed",
+    "changed": false,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; current clauses, prior shared-proof translation, acceptance and restrictions preserved.",
+    "reviewed_sha256": "216d611e50eb6f57ac35dcef1b5dba11dba065f33502bcff17429b8b88c3a911"
+  },
+  "00_nucleo/prompts/core/entities/font_book.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; all algorithms, scalar/range bounds, performance caveats, API/ranking and oracle criteria retained. Historical source pin qualified; final human ratification replaces stale pending wording.",
+    "reviewed_sha256": "18ae3a6bc341623d635565190a014de1251f40c6989c3a74fc7339998aa121dc"
+  },
+  "00_nucleo/prompts/core/entities/elements/h_space.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full owner read; all data, trait/default, acceptance, boundary and deferred-scope clauses retained in English; chronology archived.",
+    "reviewed_sha256": "6838770633753549aff30e370409887fd9a40c112cf1e92b1d6c5ceadf8d95e7"
+  },
+  "00_nucleo/prompts/core/entities/engine.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full owner read; all data, trait/default, acceptance, boundary and deferred-scope clauses retained in English; chronology archived.",
+    "reviewed_sha256": "d3800fc50ce8417f069a1c969c983f6413efcbd8e0a672958f7530cb6026af29"
+  },
+  "00_nucleo/prompts/core/entities/syntax_mode.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full owner read; all data, trait/default, acceptance, boundary and deferred-scope clauses retained in English; chronology archived.",
+    "reviewed_sha256": "48743bcdc6d1df9c5b8c3f9054924774fd71021cab288e03395fc37628e5b0ff"
+  },
+  "00_nucleo/prompts/core/entities/elements/pdf_artifact.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full PDF element contract, approval, explicit Unknowns, closed fields/enums and every acceptance criterion preserved; no compliance inference.",
+    "reviewed_sha256": "8b5b06788c7748b362b26e3d8c49c8cb3a4017c2d22535554f578a612d02edd2"
+  },
+  "00_nucleo/prompts/core/entities/elements/pdf_attach.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full PDF element contract, approval, explicit Unknowns, closed fields/enums and every acceptance criterion preserved; no compliance inference.",
+    "reviewed_sha256": "52d673f61963e178ab8f05e5b0aca7d039f5437888832c39171e4956376eddc2"
+  },
+  "00_nucleo/prompts/core/entities/elements/pagebreak.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full owner read; all data, trait/default, acceptance, boundary and deferred-scope clauses retained in English; chronology archived.",
+    "reviewed_sha256": "279028f03666f175ea9e4b826fd2c0d5acb17c6e4e956b77aa46d3b4f59fed60"
+  },
+  "00_nucleo/prompts/core/entities/metadata_store.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full owner read; all data, trait/default, acceptance, boundary and deferred-scope clauses retained in English; chronology archived.",
+    "reviewed_sha256": "b3d261aec9a8389c6b7297017e35a797959d9963337d69d31919b023e0ebdb34"
+  },
+  "00_nucleo/prompts/core/entities/content/tests/projections.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved entire measured size/equality evidence, manifest approval and independent RG1 limit; fixture-only adaptation no expected-value weakening.",
+    "reviewed_sha256": "acee46e093ab6e4346a94e0fd1d4f21a59e5c7f54627be06b5b8d4b5f15b3667"
+  },
+  "00_nucleo/prompts/core/entities/numbering.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full contract retained; historical approval verified in execution record header; no fresh API/phase authorization.",
+    "reviewed_sha256": "f156e5fdce5421782110a15a8b9ba998176a8904d373976a4a29d813fea35db9"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_stretch.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; verified historical \u00a77 approval supersedes original proposed tag; exact bounded carrier/reuse/acceptance retained.",
+    "reviewed_sha256": "b3b7e4fbecb3492237aeac2b5299301e0b7b2e03612d5d16cfbf849bfb617a1d"
+  },
+  "00_nucleo/prompts/core/entities/enum_numbering.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete variants, matching formats, helper algorithms/examples and explicit bounded scope; high-cycle contradiction retained as coverage limitation.",
+    "reviewed_sha256": "aa037a88960bac541c8e9f9f539541af3cacf0d44bc1c3ae741e21056f88d805"
+  },
+  "00_nucleo/prompts/core/entities/source.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All initial and later Source APIs, sentinel, CST/range behavior and acceptance retained; precise later LinkedNode exception supersedes old broad exclusion.",
+    "reviewed_sha256": "c5ee4debcd5b7b564e43d2c3e3c5673803840bd0366bac562e1a67f03470738b"
+  },
+  "00_nucleo/prompts/core/entities/sides.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved all generic fields/constructors/trait bounds/order/invariants and deferred helpers; removed obsolete creation-time consumer status.",
+    "reviewed_sha256": "f8327d8140d34169ec86766c9dcf9eaa4814cc526ea04e983ee7dbc2e6f6724d"
+  },
+  "00_nucleo/prompts/core/entities/page_supplement.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; existing localization discrepancy stays open; translated all equivalent Default evidence/gates without behavior change.",
+    "reviewed_sha256": "ad84eed8e483ce51841ae58701c32f59476ca57c457de84915a15e8d79635553"
+  },
+  "00_nucleo/prompts/core/entities/elements/list_item.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All six fields and constructors/maps/equality plus replicated-container rationale and alignment scope-out retained.",
+    "reviewed_sha256": "90468a457f3b57f8a74ae02b206c74343730fd4d7d86f33f2987ca5e76378315"
+  },
+  "00_nucleo/prompts/core/entities/page_running.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; pinned marginal rules unchanged, PageMarginal-only derive and manual alignment default preserved.",
+    "reviewed_sha256": "b0772e454706c8db5a3b161e042d8742b17386600e6cfe27b7944d43b8246244"
+  },
+  "00_nucleo/prompts/core/entities/path.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Every virtual identity/normalization/context/representation/boundary requirement and acceptance retained; actual historical approval located and cited.",
+    "reviewed_sha256": "62d2f356442c6cf5b8dfbc648239b93a844ee8a0625d177449995dc65423437f"
+  },
+  "00_nucleo/prompts/core/entities/layouter_runtime_state.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All seven fields and exact write/read lifecycles, readonly mode, output transport, purity/default and lang deferral preserved.",
+    "reviewed_sha256": "f7bce76d274cc85fe9100394441c3d524a911cb1a1b8df48d97fcc43df2e650f"
+  },
+  "00_nucleo/prompts/core/entities/elements/footnote_entry.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full approved construction-only carrier/default/map/hash limits retained; historical construction return-type inconsistency remains explicit; local test obligation preserved.",
+    "reviewed_sha256": "5b9afa73699e78f5a95c62693889c5a793e75db9a7768be4b87002e8144491ad"
+  },
+  "00_nucleo/prompts/core/entities/element_info.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All fields/constructors/invariants/tests and orthogonal-label rationale retained; obsolete architecture/consumer inventory separated.",
+    "reviewed_sha256": "be24617a0f0c58fd59ad7be1060c63de5f40da02d58fe17f5346a2d24ac15edb"
+  },
+  "00_nucleo/prompts/core/entities/elements/columns.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved public flag/default/constructor, maps/hash and source-supported semantic distinction; exact overclaimed footnote inference remains with layout owner.",
+    "reviewed_sha256": "bf9511cbf54661c06264f829b0d6b74b8cc2281867be2d708176a1ae742ce0d4"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_align_point.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; complete unique owner contract translated; exact previously audited shared absence-of-change proof retained with pins.",
+    "reviewed_sha256": "749e1e5446ef4e88e6f6994a7d009a983319010d25edde9d956d80ab9835dfc9"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_op.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; complete unique owner contract translated; exact previously audited shared absence-of-change proof retained with pins.",
+    "reviewed_sha256": "3d49f6215ae4e858cbf8bdf47ff7bfc66db3f090a16d38deac784170402da5cb"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_styled.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; complete unique owner contract translated; exact previously audited shared absence-of-change proof retained with pins.",
+    "reviewed_sha256": "a95cc6b9e820508cd46d9e7880d3a03eb4bfb1a51819b213f3d1548a40c29093"
+  },
+  "00_nucleo/prompts/core/entities/elements/boxed.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full-file review; complete unique owner contract translated; exact previously audited shared absence-of-change proof retained with pins.",
+    "reviewed_sha256": "f400192b4d783eb11d5fbe6e918f3a896d7349d439a51bf5908a60f15d679f4e"
+  },
+  "00_nucleo/prompts/core/entities/elements/mod.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full public trait/default/module boundary unchanged; translated complete parent-versus-inner cfg evidence and exact test-only acceptance.",
+    "reviewed_sha256": "95733cc12d0161aa85074452e38008af0346d4d5ba1e4c70b92ba702948f3f0e"
+  },
+  "00_nucleo/prompts/core/entities/elements/heading.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All later field/presence amendments supersede incomplete map snippets; exact reflection error, clamp, payload and structural expectations preserved.",
+    "reviewed_sha256": "074882e45075ca40e0d68bc2190d41265da39968179a01e11fce4ff28f3c8b6e"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_accent.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full unique contract translated; all shared no-change proof clauses/pins retained; approval evidence and unresolved contradictions explicit.",
+    "reviewed_sha256": "b880a9c4e1ce58e21ce942c253e618d194953ff10dfd03eee398fec2a357d692"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_cases.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full unique contract translated; all shared no-change proof clauses/pins retained; approval evidence and unresolved contradictions explicit.",
+    "reviewed_sha256": "6a0832b921cefeb80f22c4dc6ae573d1c17e2a3f6e36b4823c286258345d74d7"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_class_override.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full unique contract translated; all shared no-change proof clauses/pins retained; approval evidence and unresolved contradictions explicit.",
+    "reviewed_sha256": "b207fe29501d4572fd2cdd445667bb6c6628405d51f768d2aa9c8bdce7315dc2"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_root.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full unique contract translated; all shared no-change proof clauses/pins retained; approval evidence and unresolved contradictions explicit.",
+    "reviewed_sha256": "8b93de917d2480a29cb85c96f5a670bdf5c0bc50f74dbe950c775ea2dd5ed540"
+  },
+  "00_nucleo/prompts/core/entities/elements/enum_item.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Full enum carrier and constructor/default/maps/equality preserved; formula-versus-explicit-spacing conflict resolved only to pre-existing acceptance, layout debt stays open.",
+    "reviewed_sha256": "a40af39cc6371fc91a69df743c89335958e8b35451151831847ea8b32ea8ce7a"
+  },
+  "00_nucleo/prompts/core/entities/elements/footnote.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved locatable supersession, historical label-reference gap, counter exception and numbering equality discrepancy.",
+    "reviewed_sha256": "c07d56c79f3f35ec6f5cbd6b93cfebe9e53b4b82a96b1880171b34f704a5bb11"
+  },
+  "00_nucleo/prompts/core/entities/elements/metadata.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Separated entity equality from hub mechanics and preserved query/value, payload, opacity and source-inference boundaries.",
+    "reviewed_sha256": "3899855735dd3ef62829b6d0061aebe05ee3d2edc10b53a2b487be78f495bcd2"
+  },
+  "00_nucleo/prompts/core/entities/duration.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved signed domain, full-range exact output, trait ratification and all cross-owner T1\u2013T5 gates; isolated construction chronology.",
+    "reviewed_sha256": "9042657ed90acdb58942817a59781543b282f209d7ae0bfcecf344c1455fc52b"
+  },
+  "00_nucleo/prompts/core/entities/color/adjustments.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Translated all formulas-preservation, exact nominal variant sets, sentinel controls, gates and external pending debt.",
+    "reviewed_sha256": "4c4861e257dc9686d077bd59af89856cadd8ef53683f184e8e9c0a0e0c55640e"
+  },
+  "00_nucleo/prompts/core/entities/line_cap_tests.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Retained opacity, public full-layout observations, precise F052 alternatives and every V16/sentinel/validation limit.",
+    "reviewed_sha256": "475fe5e2b96f4d6253c0c9c4c5c4b780741b12684614320cae994e34fcfa766c"
+  },
+  "00_nucleo/prompts/core/entities/font_list.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete API, normalization/exact-regex distinction, catalog integration, all checks and four deferred areas.",
+    "reviewed_sha256": "010586e1acc55d5039350a7b3a35bf9e73d34d9bc5205a00ed0689cc9562df76"
+  },
+  "00_nucleo/prompts/core/entities/sink.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved full dedup/tracked interfaces and equivalent Default gates; historical blanket pending status separated from later tracked-method scope.",
+    "reviewed_sha256": "4dbaf4102421bd4948e7aaef02567c14a6031624e053b7c10b2127eba8cbd6b2"
+  },
+  "00_nucleo/prompts/core/entities/scope.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved interfaces, order/redefinition, capture distinction and omitted fields; removed obsolete unit-Value mandate without adding fields.",
+    "reviewed_sha256": "d46a99e9b009b97da1db4fb62d9cc538df1b42701445f994953773707af9d931"
+  },
+  "00_nucleo/prompts/core/entities/syntax_text.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved public API, private storage, byte semantics, all fixtures and lineage; historical restoration isolated.",
+    "reviewed_sha256": "ebc099e3a72c4a877ea8a580f191092863daa6e7360c68060cc00dab52d20475"
+  },
+  "00_nucleo/prompts/core/entities/elements/ref.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Retained RefForm and supplement precedence; exposed archived corrected/pending contradiction without silently approving behavior changes.",
+    "reviewed_sha256": "ba04fd6f9c18d35cbabfc0798b1421b96c210f05cf8c072c485b59cadbee6a4b"
+  },
+  "00_nucleo/prompts/core/entities/ast/mod.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved exact wrapper macro and complete trait/extension interface; retained malformed-tree placeholder follow-up.",
+    "reviewed_sha256": "27262e2865c433cb5a166a20eae07bb5bf7d592eeac722bc3985449e8764b976"
+  },
+  "00_nucleo/prompts/core/entities/label.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved pure semantic vs AST label distinction and later callable public type; all equality/hash/language criteria retained.",
+    "reviewed_sha256": "04cf0de1bb44161046dbc522862ae4717110d2434ccd4740fed8accb302138e9"
+  },
+  "00_nucleo/prompts/core/entities/position.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved paged runtime integration, complete acceptance and separately ratified HTML-local carrier; removed obsolete construction phases.",
+    "reviewed_sha256": "531cd64445a23a2eb1978fbd8ccc32c4daff1aebfef295ab5c0f031098ebe512"
+  },
+  "00_nucleo/prompts/core/entities/file_id.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete handle API and checks; consolidated explicit virtual-domain supersession without moving interner/I/O.",
+    "reviewed_sha256": "0356fe7763dd7f122e2a77f87d803d70b9d48d5a658e2c4bef3e1b55b4e053f4"
+  },
+  "00_nucleo/prompts/core/entities/image_format.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved all signatures/variants, pure detector ownership and L3 corruption closure with detached-span limitation.",
+    "reviewed_sha256": "07ed2c203f4f54973324f8a3e49a77c08d79dd753b42c2ed758be1c05d8a17b5"
+  },
+  "00_nucleo/prompts/core/entities/glyph_variants.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Retained complete glyph/part/assembly fields, selection checks and two-axis/attachment semantics; isolated audit chronology.",
+    "reviewed_sha256": "26861991b660bad861865785683e25764b47bca00f04f07473afb555b23a863c"
+  },
+  "00_nucleo/prompts/core/entities/syntax_set.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved full constant sets, const API/representation and all membership/copy acceptance checks.",
+    "reviewed_sha256": "0c21632342ddec18cb94603db8198166833cb8d2d69dc79e595359c62f9449a5"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_vec.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Translated complete vector identity/presence/geometry/repr contract; preserved pinned reuse proof verbatim.",
+    "reviewed_sha256": "44ad9cc55be2ff7b14ca43f229d1753430bc351c6f9d5c3927232de8358a49ce"
+  },
+  "00_nucleo/prompts/core/entities/counter.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved namespace API/example, exact exception identifier/reason and all narrow metadata validation limits.",
+    "reviewed_sha256": "8c0abad514013a94be8684bbf8372fb14b8421a4ca4730b0e06d4236c86acf68"
+  },
+  "00_nucleo/prompts/core/entities/color/mixing.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved exact hue/Spot/default handling and private helper rename; all shared exhaustive evolution gates retained.",
+    "reviewed_sha256": "9c8cb9740e3ccd905e3d3723821f3d0c675f6848d0259f8078e528df1316311a"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_underline.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved independently approved overline identity, exact missing/extra/type/named diagnostics and pinned reuse proof.",
+    "reviewed_sha256": "50da279da496ccf662c573bed972ad40221f030ea0f8bd1ff6a45b2fdeed055d"
+  },
+  "00_nucleo/prompts/core/entities/elements/figure_caption.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved construction approval, projection correction, complete acceptance and explicit synthesis/FG1/SY1 debt; constructor annotation mismatch retained.",
+    "reviewed_sha256": "b4d0a0944a37b05c815659e2274c380812c41dc76aed719a2bbb87fd380fd718"
+  },
+  "00_nucleo/prompts/core/entities/html.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "3878e0f2d54e1d46126b5766862b45d4f279b5959e62de29f5ef22683f82ea1c"
+  },
+  "00_nucleo/prompts/core/entities/sealed_positions.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved exact public/tracked interface and sentinel identities; integration/follow-up boundaries separated from construction schedule.",
+    "reviewed_sha256": "ae4f3f19c346419404b0716df41841fa2e1c4a0b57e4324e533318ce2b508d67"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_attach.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "f9a65f770a5949ab174d8f271522a077ded28ec13e405abee27050881bae40ac"
+  },
+  "00_nucleo/prompts/core/entities/span.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved all bit layouts, bounds, full const API and test fixtures; no new interpretation of ambiguous raw saturation boundary.",
+    "reviewed_sha256": "e4fff6f845d657707be7ae6c89f6c7f1e167a470ce4feb305766bc41f901751d"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_frac.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "164d3ef41f3704170300aa380d2784071cc4f54025088e3282cc821e89e34046"
+  },
+  "00_nucleo/prompts/core/entities/elements/cite.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete Cite payload/locatability/traversal and measured label-key gap; no silent API migration.",
+    "reviewed_sha256": "de7c28a0a195c75cc452ee3d5242976af9dfaa33d562d6ccbcb714a8bdd530db"
+  },
+  "00_nucleo/prompts/core/entities/elements/transform.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "c699bc00e7147f2968d0ed522238605cd203efb4c1ff391029460fe598fe19a9"
+  },
+  "00_nucleo/prompts/core/entities/content/source.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "860cc938e2028ff35c4478a8321f6699799d1623d2e51a58a937fd270cb0b2f5"
+  },
+  "00_nucleo/prompts/core/entities/content/emptiness.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "0a1aa3238ef8030502407cac0ad256d1d51d013cd2ddf5fdc44f117442d3b4b7"
+  },
+  "00_nucleo/prompts/core/entities/content/rust_hash.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "06ca3e4e96ea6057eee2bc19553cf7f0de2a6119072acec837c05304d5de2492"
+  },
+  "00_nucleo/prompts/core/entities/math_class.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete enum, override table, exact public/private names, all acceptance and synchronization policy.",
+    "reviewed_sha256": "74c98b96de1cfeb3d97bcb488ee8a879c9218a085e2d31d2553707425cad90a7"
+  },
+  "00_nucleo/prompts/core/entities/operators.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete operator domain/API/precedence and source evidence; removed obsolete shared-header claim.",
+    "reviewed_sha256": "6e19ab8e4d72e90ab98eaaa6628c3f265caffa22044e3864c1c843fedebc4a8b"
+  },
+  "00_nucleo/prompts/core/entities/citation_style.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved real upstream IEEE evidence, local enum/default and derived equivalence; retained contradictory cross-owner Cite style integration explicitly.",
+    "reviewed_sha256": "647175d7bb99e45374bc039d51cf2419b859b510b1fb979afb8ed5fbf0e0c2ab"
+  },
+  "00_nucleo/prompts/core/entities/elements/page_run.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Reconciled initial/extension/public/numbering gates against explicit historical confirmations; preserved all measured controls and final typed deltas.",
+    "reviewed_sha256": "8b3de6b30f3ed4c1844772a0d7501ede632504aed3848f9372cc7f5ca4b55928"
+  },
+  "00_nucleo/prompts/core/entities/elements/outline.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete constructors/targets/indent domain and later title/indent presence contracts; explicit title approval reconciled.",
+    "reviewed_sha256": "c5d7e599dbe8f17ffaa679a83a5830b668c8f2f97dba2c648cfaac4775f07e85"
+  },
+  "00_nucleo/prompts/core/entities/ast/math.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete code signatures and accessor semantics, static shorthand constraints and real-parser acceptance.",
+    "reviewed_sha256": "c72e7bd88a6c8ffa1c7627f3646e1200df9726d467528837fc73a78d6b65dc26"
+  },
+  "00_nucleo/prompts/core/entities/citation_form.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Corrected already-refuted upstream-form claim, preserved four-form contract and explicit-none integration debt; all acceptance/default rules retained.",
+    "reviewed_sha256": "fc872626808453ffa343cd89cad3aa28350ec1e5444ed2a0318c60b9721db840"
+  },
+  "00_nucleo/prompts/core/entities/elements/raw.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "5e10c5fd59e4d863449fce3e05fbe284b1ea37dda82b45e84e0355380ff97092"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_delimited.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "e2a255b1be4bc54dfe98416f8dcf9b08723953707f3ed6bcaa2d2ee7ba36319e"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_underover.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "c11ab23c5018fbbcaed66044e44c865b5277f7d566864dab8b1e40cd86145ac3"
+  },
+  "00_nucleo/prompts/core/entities/frame_paint.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "bc0634bf36d124c5a87585e0247c07be0e8bac344868df7945b06b2ac02427d2"
+  },
+  "00_nucleo/prompts/core/entities/counter_state_legacy.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved legacy public interface/fields/mutation semantics and debt; exposed original field-type delegation gap without code-derived invention.",
+    "reviewed_sha256": "6d1132fe09f36ba60b0dd4a2f13c7da0e1cfe5e6fef3940ea38fc09a92536b49"
+  },
+  "00_nucleo/prompts/core/entities/resolved_label_store.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved full immutable API/delegation/tests and transition dependencies; moved staged chronology out of current invariant without claiming completion.",
+    "reviewed_sha256": "312d06d684832b75c028f3e1c7de54105417bd6591019a1ac5e28153edea0d7a"
+  },
+  "00_nucleo/prompts/core/entities/ast/markup.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved every wrapper/signature, comment-defined accessor semantics and real-parser acceptance; chronology archived.",
+    "reviewed_sha256": "59fa3c954dd75728ea4dec0db9298b967b2a434482ff63c8a7364ab7bfe87e8d"
+  },
+  "00_nucleo/prompts/core/entities/ast/code.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete syntax interface, optional/panic/error semantics, import examples and acceptance; no eval logic added.",
+    "reviewed_sha256": "f4eceac6ede060db947b48236e913e5c9f8e5f5d1912b7d133a8cb96c9342176"
+  },
+  "00_nucleo/prompts/core/entities/ast/expr.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved all enum variants/signatures and parser/operator fixtures; operator ownership cross-reference disambiguated.",
+    "reviewed_sha256": "9c267c6d89209e332a1ced8b72bfb38393fbb4e9af993adb7b8a4c955609dea7"
+  },
+  "00_nucleo/prompts/core/entities/world_types.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Consolidated Library/Datetime/error/Bytes and ordinal receipt; separated migrated owners and explicitly recorded pre-existing runtime/Font contract gaps.",
+    "reviewed_sha256": "854eae4cc6c6f9e1c8808492a2f4b288a81e8f8dfd03375477557f15a07047a1"
+  },
+  "00_nucleo/prompts/core/entities/elements/figure.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "2a8cffd96c603a0f50c6e7284354ab2c97fa52cfbdbd48b3aa8c439f8133e5f1"
+  },
+  "00_nucleo/prompts/core/entities/regex.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete Regex API/fixtures and optional capture language contract; isolated conflicting old correction status and cross-owner deferred work.",
+    "reviewed_sha256": "25060f01640ba0c7ee24335b5102a5a5c556c40c4d0a66b735ede0cc7d89adb2"
+  },
+  "00_nucleo/prompts/core/entities/counter_format.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved exact formatting/suffix/repetition/truncation, all examples, historic evidence and remaining token/duplicate-body debt.",
+    "reviewed_sha256": "5797a04c81fe31c9713f3fbc973f3788e9324ca868defc417175d060011f1f31"
+  },
+  "00_nucleo/prompts/core/entities/elements/smartquote.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Consolidated ratified four-field schema, all earlier pair/override semantics and contextual evidence; preserved exact nucleus pin despite nonstandard original location.",
+    "reviewed_sha256": "e392725a40e2fa027ed46ab90c49a2308c02e965ee9a129b18ea8f161e5266b9"
+  },
+  "00_nucleo/prompts/core/entities/syntax_kind.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved exact enum and all classifier domains/diagnostic literals/tests; isolated stale variant-count heading.",
+    "reviewed_sha256": "157b02f2281b597113bb7ddf9487a34fd0964aae05aa5c26cc8e477942addc73"
+  },
+  "00_nucleo/prompts/core/entities/elements/block.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "5ff23aea8ee7a496ca647dceecd5555164a621f8554c624c7d3e3eda548a6f7c"
+  },
+  "00_nucleo/prompts/core/entities/gradient/interpolation.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved all numerical formulas/refuted fmaf claim/probe differences, exact Spot behavior and V17 gates; no relaxation of open chroma/tolerances.",
+    "reviewed_sha256": "7ddd90985bd12ffaebb2d7e41f0b7d33151113beefd87fa67e35989586a3e091"
+  },
+  "00_nucleo/prompts/core/entities/elements/outline_entry.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "237793bba29baf2b26ee20ffb6f09b09d2d42be8e9845f9f418b59a9f81605b8"
+  },
+  "00_nucleo/prompts/core/entities/package_spec.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved full type/signature/derive interface, scanner validation and exact diagnostics/fixtures, plus retired DTO obligations.",
+    "reviewed_sha256": "ddaf21b486e6f7e55636f7809c7bfe329b8ed8317aa85ea0fa98fcf7405ea72c"
+  },
+  "00_nucleo/prompts/core/entities/module.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "951aab67443ea0c6492d37057899579f59ada6b845a6a0976bdafa12bf073e3e"
+  },
+  "00_nucleo/prompts/core/entities/region.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Consolidated final Regions fields/API and exact pending-fr/reset/advance/cell semantics; retained separate tail constraints and incomplete boundaries.",
+    "reviewed_sha256": "6e51a71e754eb546b8c035ac657338bf5e2295f2305ee145338b494a83198ddd"
+  },
+  "00_nucleo/prompts/core/entities/plugin_func.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete callable/cache/transition contracts and tests; explicitly retained host-collision inference/risk instead of claiming global uniqueness.",
+    "reviewed_sha256": "5403b5ad74ecc78edeb6f0fa2a024a9cd4c08dd6956d5941fb341685aee6be65"
+  },
+  "00_nucleo/prompts/core/entities/bidi_context.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "a481adefeaec5864bcb8dcd76d782f26dbbe7859dbac0bc2af47760cb1b83512"
+  },
+  "00_nucleo/prompts/core/entities/label_registry.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved multi-label order/duplicates/first compatibility, full API and acceptance; explicit equality-trait ambiguity retained.",
+    "reviewed_sha256": "629faee40374dc1a313c28bbee59e84951d838a2db04a8222e6982b9ba5bc9b9"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_cancel.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "a8a2388fc375a9a5e5abef4b0bfa733d2d2f8eda9bf6703746d77b942cf5ecf2"
+  },
+  "00_nucleo/prompts/core/entities/args.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "Preserved complete proposed interface and all causal writer/view/diagnostic invariants; explicit approval-provenance gap retained.",
+    "reviewed_sha256": "53f9febd949398376ea4432553dca7dd211c6cf388302691222b914d0cdc03e0"
+  },
+  "00_nucleo/prompts/core/entities/mod.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "682816b5d319402243a689dac510754e970ff16688bb23abde0210dbfbf30dc8"
+  },
+  "00_nucleo/prompts/core/entities/content/page_structure.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "ea1e85d407b14064a56f846d16d99797c12b61b3523fae8ba956b8f2c1fc3aee"
+  },
+  "00_nucleo/prompts/core/entities/elements/bibliography.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "84e0c856f402cb9b6b66cdd553e6a6e97ac21c0d6265f3dd1f259f5062fe8fbe"
+  },
+  "00_nucleo/prompts/core/entities/locator.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "6d24e6d2058b466327a5b654fbbf5f8ea4b4f91cc73fdca00bd12fd08469eeec"
+  },
+  "00_nucleo/prompts/core/entities/state_update.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "050de37edbbb1fdeb4a86db82713db8a497fc0fc78411824fdf53a943d84fdb1"
+  },
+  "00_nucleo/prompts/core/entities/element_kind.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "569a208a4e5a36b5bb81b2dfe7215b1aa9499495b78ec1ec0100c785607afed6"
+  },
+  "00_nucleo/prompts/core/entities/counter_update.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "d3d6e681a828c096cfbfa3fc989cc52a26d3949ea5388e193e0625acf70c09e1"
+  },
+  "00_nucleo/prompts/core/entities/tiling.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "0dcd24ba02be6d03542713bed3c6059c5fba8156f75c5932285436125e761119"
+  },
+  "00_nucleo/prompts/core/entities/bib_store.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "9500632873f3f44c12ada8716121536058d34dc7d77fbdc13ccb23b24d6dad30"
+  },
+  "00_nucleo/prompts/core/entities/elements/table.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "532fde83b903e5bf8e9645f26ca53febe702ca49517ea1b08b243efe733b7044"
+  },
+  "00_nucleo/prompts/core/entities/content/construction/tables.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "9623d3ba7a30ab904ca967ba7b5ab74db3ab452d5a7ddc13fab5403862894487"
+  },
+  "00_nucleo/prompts/core/entities/elements/equation.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "466cb153b1f3a1dd75c2139c1d8ce2f2e868a732138442327b4a910a90cb70ed"
+  },
+  "00_nucleo/prompts/core/entities/content/tests/representation.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "c9ad20a7f0783dcea4c5a9107f198785616ea74cc4104cb20dbff18d0ab5bcb7"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_limits_override.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "0728025d5c6e02696d37a37c09da7276b285ca1d3ecf54b8a7d307490a0ef60b"
+  },
+  "00_nucleo/prompts/core/entities/symbol.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "08f0c4a515c76c7cfb6e915b0e8567483e93aabffadccdf85dd00f8fd861e5c9"
+  },
+  "00_nucleo/prompts/core/entities/elements/math_matrix.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "af5257fcb6a9aaa132d31adf6de6a8690a99ae28e3f2999064b34a74a1f2e5a5"
+  },
+  "00_nucleo/prompts/core/entities/color/conversion.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "1b1802558e67ccf690340975dbd3e95a6ccf5bdfb6b96557bc78187312c3f44f"
+  },
+  "00_nucleo/prompts/core/entities/content.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "ce3fe673387ed051a77538526d669106dbbf11761e5fdd531ab75d523fa8830c"
+  },
+  "00_nucleo/prompts/core/entities/decimal.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "dce461c17bc32eb5f1dd94ef591178267430c30ac6c9220e3cc933ece0d3666f"
+  },
+  "00_nucleo/prompts/core/entities/content/construction/layout.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "2c35c2abf7ffca69e35dd930c517fff8d055b524b4ecec1e80a29196b1940ec5"
+  },
+  "00_nucleo/prompts/core/entities/tag.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "d2fced80831481f4b8053364fc963ef70fed12ed7a0307e18ca1bab8875651d7"
+  },
+  "00_nucleo/prompts/core/entities/math_constants.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "b295d1fc20f5f2233f85abfa4d10697ba12fa785e406239f264bdb869f020c2b"
+  },
+  "00_nucleo/prompts/core/entities/content/identity.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "6914036e8d4d2aa5ef8575e88f94f62df85a4f6298c352870473587c58c096a3"
+  },
+  "00_nucleo/prompts/core/entities/counter_registry.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "820d260dd9a72963c93695868a1805abf1e24a42a601068da0b03d16108dc7f8"
+  },
+  "00_nucleo/prompts/core/entities/state_registry.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "d2feee94b9fa63c00501d1c5a7780d8671cdb8301f8209400d5669bafa374966"
+  },
+  "00_nucleo/prompts/core/entities/element_payload.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "67d7a896f9d1e26324956a6a1c6f602a696fb5b1e182e94a81aca045657304e7"
+  },
+  "00_nucleo/prompts/core/entities/style.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "a8166ccdb8d5ea03cc3ad7e6eda94faee5ef2969724dbf0e843e35f0a2106618"
+  },
+  "00_nucleo/prompts/core/entities/content/morphology.md": {
+    "status": "reviewed",
+    "changed": true,
+    "source_commit": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+    "note": "All owned contracts, acceptance and unresolved scopes consolidated; pins/reuse proof retained.",
+    "reviewed_sha256": "8ddbfcf15962db7c38145ad7221da46192a7367265a9c811b6f198b0392291d9"
+  }
+}

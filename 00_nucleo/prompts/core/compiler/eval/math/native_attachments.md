@@ -1,14 +1,14 @@
 # L0 — compiler/eval/math/native_attachments
 Hash do Código: 21bdfd54
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/native_attachments.rs`. O comportamento original estava em `01_core/src/compiler/eval/math/native_dispatch.rs:183-299` no HEAD `6fc546566`, árvore limpa, 2026-10-01 01:04:22 UTC. Esta é extração interna, não nova medição de paridade ou desempenho.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/eval/math/native_attachments.rs`. The original behavior was in `01_core/src/compiler/eval/math/native_dispatch.rs:183-299` at HEAD `6fc546566`, clean tree, 2026-10-01 01:04:22 UTC. This is internal extraction, not a new parity or performance measurement.
 
-## Contrato
+## Contract
 
-Despacha as chamadas matemáticas diretas de scripts, limits e attach. Preserva a ordem de validação dos argumentos nomeados, a sintaxe booleana, o bit inline explícito, a morfologia dos anexos, os spans e a delegação ao construtor. Preservar contrato público, fase do pipeline, defaults, compatibilidade e pureza L1.
+Dispatch direct mathematical scripts, limits and attach calls. Preserve named-argument validation order, Boolean syntax, the explicit inline bit, attachment morphology, spans and constructor delegation. Preserve the public contract, pipeline phase, defaults, compatibility and L1 purity.
 
-## Aceitação
+## Acceptance
 
-Suíte L1, `cargo build` e `crystalline-lint .` passam. Não inferir ganho de desempenho.
+The L1 suite, `cargo build` and `crystalline-lint .` must pass. Do not infer performance gains.

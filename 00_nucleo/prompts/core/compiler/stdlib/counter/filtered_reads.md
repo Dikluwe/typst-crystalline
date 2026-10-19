@@ -1,46 +1,80 @@
-# L0 — leituras filtradas e replay de counter
+# L0 — Filtered counter reads and replay
 Hash do Código: 7691b231
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:bdbe23b72d7083b7672d71e851dc3d35baa8ed7ccb66f009f61edcf770d0aeff
-- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:8de2c32fbeeee7a30088b4ff3808e15a211f23a182673ef5cdebe54bd3eadad6
+- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
+- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:958649ea9ebdd471f101874ff8cf94feb995ee037c43eb6e2f1d1ad19a151ef3
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/counter/filtered_reads.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Evidência antes da decisão
+## Evidence before decision
 
-Em `01_core/src/compiler/stdlib/counter.rs:317-632`, a identificação de chave filtrada, resolução de localização, reconstrução de histórico, métodos `*_owned` e replay contextual compartilham a política de leitura, separada do construtor e da exibição. `compiler/eval/context_reads.rs:268` chama `replay_context_read` pela fachada. Isto mede propriedade mecânica da árvore no commit `320c2149b`; não prova intenção do vanilla.
+compiler/stdlib/counter.rs:317–632 shares filtered-key identification, location
+resolution, history reconstruction, *_owned methods and contextual replay.
+eval/context_reads.rs:268 calls replay_context_read through the facade. This
+measures mechanical tree ownership at commit 320c2149b, not upstream intent.
 
-## Contrato
+## Exclusive contract
 
-Possuir apenas a política de leitura filtrada e replay. Preservar a ordem de validação, origem dos diagnósticos, marcação de leituras filtradas, `observe_context_read` e a ordem causal dos eventos. Quando a chave não é filtrada, delegar aos métodos existentes da fachada. Reexecutar somente as variantes `Counter*` já atribuídas a este owner. Manter as assinaturas da fachada e a representação de `Counter` inalteradas. A lógica de `.display()` pertence ao prompt irmão `compiler/stdlib/counter/display.md`.
+Own only filtered-read/replay policy. Preserve validation order, causal diagnostic
+origin, filtered-read marking, observe_context_read and causal event order.
+Unfiltered keys delegate to existing facade methods. Replay only the Counter*
+variants assigned to this owner; keep facade signatures and Counter representation
+unchanged. Display belongs to
+`00_nucleo/prompts/core/compiler/stdlib/counter/display.md`.
 
-## Aceitação
+Acceptance preserves get/at/final/replay results and errors, including filtered
+selectors, labels and absent context; static dispatch, build and lint must pass.
+Claim no unmeasured performance benefit.
 
-Resultados e erros observáveis idênticos para `.get()`, `.at()`, `.final()` e replay, incluindo selectors filtrados, labels e ausência de context; despacho estático, build e lint válidos. Não alegar ganho de desempenho sem medição.
+## Causal filtered-counter order
 
+At HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, CounterRegistry::value_at,
+StateRegistry::value_at, before/after queries and counter events compare
+Location.as_u128. Realization prepares identity before transforming, so the number
+no longer orders originals/products. CLI probes and
+single_evaluation_counter_follows_causal_order retain evidence in the
+implementation diagnostic. Apply the pinned realization-order nucleus; keep
+historical fallback only without recorded order. A filtered counter prefix at
+Location uses the introspector's causal ordinal, never raw identity order.
 
+## Ratified realized Page snapshot
 
+### Evidence before decision
 
-## Medição da ordem antes da decisão
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`; exact working tree/binaries are in
+`lab/results/construction/diagnostics/contexto-page-total-2026-10-05/measurement.json.gz`.
+single prints B1/0 F0 versus B1/1 F1; two-page total/final 0 versus 2; initial
+update 7 keeps total 7 versus 8; an intermediate update changes the previous
+page (7/7 and 8/7 versus 1/7 and 7/7); final step prints final 1 versus 2.
+Bundle prints 1/7 in its first PDF versus 1/1, final 7 in the second versus 8;
+mixed HTML returns 1 versus 7. Historical paged.rs:360–365,840–913 uses the last
+update as every page's start; context_stabilization.rs:969–1010 does the same by
+body. compiler/stdlib/counter.rs:490–513 and counter/display.rs:96–110 read the
+global causal final. Vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`,
+introspection/counter.rs:246–254,730–773,934–963 combines document scope, updates
+and physical advancement. This is language parity, not a requirement to copy
+upstream memoization.
 
-No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, CounterRegistry::value_at e StateRegistry::value_at comparam Location.as_u128; queries before/after e eventos de contador fazem o mesmo. A realização prepara identidades antes de transformar, portanto o número deixa de ordenar origens e produtos. A sonda CLI e a sentinela single_evaluation_counter_follows_causal_order conservam a evidência no diagnóstico de implementação. Aplicar o núcleo realization-order; manter fallback histórico somente sem ordem registrada.
+### Ratification and current contract
 
+The human confirmed
+`lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json`,
+SHA-256 `1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e`.
+Its ADR-0127 gate is satisfied. Thus the page-counter-snapshot nucleus supersedes
+the historical final scope-out for this unit. The public contract and page-aware
+update realization were approval-gated; the archived preapproval instruction is
+not a new pending gate. Subsequent internal clarification follows continuous
+flow, L0 before code and RED→GREEN.
 
-## Realização com avaliação única
-
-Prefixo de contador filtrado consultado em Location usa ordinal causal do introspector, sem ordenar por identidade bruta.
-
-
-## Snapshot realizado de Page — ratificado em 2026-10-05
-
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
-
-Decisão proposta: aplicar o Núcleo page-counter-snapshot. Esta unidade substitui o scope-out histórico de final apenas após ratificação. Contrato público e realização page-aware de updates exigem gate ADR-0127; não materializar ou ressellar antes da confirmação. Preservar as assinaturas existentes, ciclos e budget; não adivinhar página/total antes do snapshot conhecido.
-
-Leitores Page usam snapshot realizado por Location quando presente. Current get/at/display consulta page_counter_values, final/both consulta page_counter_final_values da Location contextual pertinente; antes disso, conservar fallback causal existente, sem misturar entrada parcial e total de outra geração. Replay de CounterAt/CounterFinal/CounterTotal segue a mesma resolução, incluindo erros e estado vazio. Outras chaves não são modificadas. A vista lógica antiga do PageStore não corrige snapshots inexistentes por inferência do último PDF.
-
-Ratificação: o humano confirmou o conjunto do manifesto `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
+Preserve existing signatures, cycles and budget; do not guess page/total before
+a known snapshot. Page readers use the realized snapshot at their Location when
+present: current get/at/display reads page_counter_values; final/both reads
+page_counter_final_values for the relevant contextual Location. Until then retain
+the existing causal fallback without mixing partial input and another generation's
+total. CounterAt/CounterFinal/CounterTotal replay uses that same resolution,
+including errors and empty state. Other keys remain unchanged. The older logical
+PageStore view cannot repair absent snapshots by inferring the final PDF.

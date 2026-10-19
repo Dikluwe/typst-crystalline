@@ -1,0 +1,16 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/accent.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "404b1f8622cca340bd48f555177b78921df794491ad6d652d0873564bcf0f82a",
+    "result_sha256": "782722e7c0da957afdf264ee12f8eb6a44d73e1a94ea2945228bdc3025f8aa15",
+    "disposition": "Full accent geometry preserved; text-identity nesting/private separation/test-wrapper/dx maintenance translated; L01\u2013L03 exact guarded complements and Source rewrapping retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/underover.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "b176772c3b7a4de9384404647d252ca5fabdd7f06674c4392974d80c464f7faf",
+    "result_sha256": "aad25553b662740ddb56b3fca29f8be76ae3790991629ad6339bf564aa455f3b",
+    "disposition": "Full support/annotation formulas and glyph semantics retained; text identity/private operations and exact L32\u2013L36 complements translated with no broader traversal."
+  }
+]

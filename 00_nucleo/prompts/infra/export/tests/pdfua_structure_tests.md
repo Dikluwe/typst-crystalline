@@ -2,7 +2,7 @@
 Hash do Código: c477be31
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/tests/pdfua_structure_tests.rs`
@@ -33,6 +33,10 @@ Check structural relationships and actual marked content, not IDs/compression/
 whole-file byte equality. Existing string assertions do not replace bilateral
 corpora or independent PDF/UA validation and do not establish full accessibility.
 
-## Migração do carrier bidi ratificado (2026-10-05)
+## Ratified bidi carrier adaptation
 
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json`
+identifies this unit's references and 1:1 owners before the decision. Manifesto
+1ae7513e was confirmed. Uncertified constructors use None and read patterns use
+`..`, retaining existing language observations. Transformations obey the pinned
+origin nucleus without phase/API expansion.

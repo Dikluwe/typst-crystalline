@@ -1,0 +1,23 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/scopes.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "ef06cd031276c65ba4fdc063e6fce99e5a165836fa1c4c2545c7c6e1fdfda3a8",
+    "result_sha256": "d57bc57dd6957b1e0d02190bddc74081d46c56534f47d7c1eb75ec951a78447c",
+    "disposition": "Existing English stack contract kept; complete prefix-copy addendum translated, performance/refutation qualifications and no-extra-loop-allocation constraints retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/mod.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "7447658c882848e6a4c110b8d83ad640977c09ec76bf7ae2e90dc96afa41bf99",
+    "result_sha256": "16e63dbc9425d2eafbfd64e270caa2aa1945dcb500a2625a35f95b40429cba16",
+    "disposition": "Mixed-language cost/realization additions become canonical owner boundaries; historical widow/orphan incomplete statement qualified against current certified subset rather than silently discarded."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/text_costs.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "1ec420e05b96a0fd03770ea4469edf228fd81ead468ddf55710ac3b3dcc1cf28",
+    "result_sha256": "4ff7bbf0551c8bc351a585660928c6b80b22529fa8c87d8a152f55159518232f",
+    "disposition": "All cost parsing/default/precedence contracts and historical measurements translated; regional pagination obligations retained as explicit canonical owner boundary, limited partial supersession preserved."
+  }
+]

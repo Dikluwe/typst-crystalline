@@ -1,29 +1,24 @@
 tekt = 1
 kind = "nucleus"
 id = "stdlib-primitive-calls"
-title = "Convenções comuns das chamadas de constructors primitivos"
-
+title = "Shared primitive-constructor call conventions"
 [[claims]]
 id = "native-abi"
 level = "must"
-statement = "Cada constructor recebe EvalContext, Args, World e FileId e devolve SourceResult<Value>."
-
+statement = "Each constructor receives EvalContext,Args,World,FileId and returns SourceResult<Value>."
 [[claims]]
 id = "pure-l1"
 level = "must"
-statement = "A construção é pura em L1: não executa I/O nem depende de efeitos de World ou FileId."
-
+statement = "Construction is pure in L1:neither I/O nor dependence on World/FileId effects."
 [[claims]]
 id = "consume-call"
 level = "must"
-statement = "Cada forma aceita consome explicitamente seus argumentos; posicionais ou nomeados estranhos produzem diagnóstico em vez de serem descartados silenciosamente."
-
+statement = "Each accepted form explicitly consumes arguments;unexpected positional/named arguments produce diagnostics instead of silent discard."
 [[claims]]
 id = "typed-result"
 level = "must"
-statement = "Uma chamada válida devolve o variant de Value correspondente ao constructor chamado."
-
+statement = "A valid call returns the Value variant corresponding to called constructor."
 [[claims]]
 id = "owner-specific-coercion"
 level = "must"
-statement = "Formas, coerções e mensagens específicas pertencem ao prompt proprietário de cada constructor, não a este núcleo."
+statement = "Specific forms,coercions/messages belong to each constructor's owning prompt,not this nucleus."

@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/sub_frame.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Full unique paragraphs and exact prior repeats reviewed. Preserved every isolated versus inline slot/protocol, None/Some0 and Raw ascent exceptions, terminal width/extents, fraction/Repeat noninterference versus unresolved semantics, cell/bidi/link/hanging scopes, partial region boundaries and FrameItem complements/gates.",
+  "original_sha256": "ed5dc61be7e526297a4612893f23e25f8c7d6dcb060dee043b50944b8b62d2ef",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/sub_frame.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

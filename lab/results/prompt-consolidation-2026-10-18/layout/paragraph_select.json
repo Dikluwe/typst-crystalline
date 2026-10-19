@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/paragraph_select.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited full unique/repeated clauses; consolidated exact ratio/badness/runt cost and safe active frontier, uniform tracking admission-versus-box distinction, Shape origin widths and exact C015 exception. Retained test-only experiments, refuted last-line suspicion, numerical order and all certificate/gate limits.",
+  "original_sha256": "3f92a4e1bc6e43d1a876cd3910223217c22bbfedb1e4641be3294e76f0911812",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/paragraph_select.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

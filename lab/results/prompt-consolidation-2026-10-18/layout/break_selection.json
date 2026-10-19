@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/break_selection.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated pure strict-overflow/local-origin selector, resolved bool policy and lexical SHY replacement, retaining Unicode/first-overlong progress and exact materialized C016 diagnostic literal plus all limited exception gates.",
+  "original_sha256": "e150f4165afc88c90c0a8c4b64a45b5231edf41c435c1f422bd6f400c085313b",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/break_selection.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

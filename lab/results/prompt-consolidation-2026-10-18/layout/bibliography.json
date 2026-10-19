@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/bibliography.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated full bibliography chronology into final per-entry Block, delayed admitted prefix, and physical Hanging contract. Preserved all refuters, scoped supersessions, public cache/fallback, prior failed Grid, invalid FIRSTWORD assertion, exact literals, approvals and unresolved multiple/CSL/grouping/geometry scope.",
+  "original_sha256": "4ebebec7d0ca228b4840db574c812eb7d384444eaf1a1f7f29eca8fb24f62a21",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/bibliography.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

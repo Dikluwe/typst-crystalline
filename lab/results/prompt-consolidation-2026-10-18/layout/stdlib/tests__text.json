@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/tests/text.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated every text-policy/cost/whitelist/widow-orphan and quote fixture norm with evidence-before-contract and explicit bounded regional certificate.",
+  "original_sha256": "cde35b89be7cf2e96bebb64f24be44e1210c91809f840d7486c5788e2dcc9d99",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/tests/text.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

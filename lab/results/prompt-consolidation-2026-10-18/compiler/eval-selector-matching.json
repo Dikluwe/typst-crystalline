@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "24d74a02eb6393d2f54058f51a15e643fb1bdaf59ee31c5dc88896d8c1724888",
+    "result_sha256": "18cadaf9e44b9a186aa260f790336a8a5a6f9bb10206713a65212bf16aa94676",
+    "disposition": "Full matcher translated: narrow Styled-Equation identity, actual D08A/C2 gates, typed transforms, exhaustive native-base group, Sequence identity versus rule predicate and all tests/limitations preserved."
+  }
+]

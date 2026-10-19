@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/source_transparency_tests.md
-//! @prompt-hash 7c1ded2a
+//! @prompt-hash 421b4d82
 //! @layer L1
 //! @updated 2026-10-17
 #![cfg(test)]

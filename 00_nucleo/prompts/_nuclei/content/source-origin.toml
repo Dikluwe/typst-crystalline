@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "content-source-origin"
-title = "Origem transparente do conteúdo lexical"
-
+title = "Transparent lexical content origin"
 [[claims]]
 id = "first-origin"
 level = "must"
-statement = "A origem Source assenta somente um span causal comprovado; clones, aliases e spreads conservam a primeira origem, sem buscar nomes, texto ou igualdade para fabricar spans. Constructors que já têm origem conservam-na."
-
+statement = "Source origin establishes only a proven causal span; clones, aliases and spreads retain first origin without seeking names, text or equality to fabricate spans. Constructors already carrying origin retain it."
 [[claims]]
 id = "language-transparency"
 level = "must"
-statement = "Source não é elemento novo da linguagem: identidade, campos, func, repr, serialização, igualdade e morfologia observam seu body. A origem é causal e pode distinguir observação conservadora de cache."
-
+statement = "Source is not a new language element: identity, fields, func, repr, serialization, equality and morphology observe its body. Origin is causal and may distinguish conservative cache observations."
 [[claims]]
 id = "single-occurrence"
 level = "must"
-statement = "Source transporta uma ocorrência do body; travessia, realização, layout e introspecção não duplicam callbacks, efeitos, geometry ou contribuição por causa do wrapper. Clones preservam span e transformação preserva origem."
-
+statement = "Source transports one body occurrence; traversal, realization, layout and introspection do not duplicate callbacks, effects, geometry or contribution because of the wrapper. Clones preserve span and transformation preserves origin."
 [[claims]]
 id = "no-location"
 level = "must-not"
-statement = "Source não fabrica Location ou produtor introspectável independente, não move lógica entre eval e layout e não autoriza I/O em L1."
+statement = "Source fabricates no Location or independently introspectable producer, moves no logic between eval and layout and authorizes no L1 I/O."

@@ -33,9 +33,9 @@ retained in the assigned history diagnostic, not asserted as a fresh measurement
 
 Own the import and re-export boundary for AST adapters covering state,
 counter, color, version, selectors and native function.where. Each behavior
-family has a single child owner under `compiler/eval/bindings/value_methods/`:
-`state.md`, `counter.md`, `color.md`, `version.md`, `element_where.md` and
-`selector.md`. The child owners preserve single evaluation of receiver and
+family has a single child owner under `00_nucleo/prompts/core/compiler/eval/bindings/value_methods/`:
+`00_nucleo/prompts/core/compiler/eval/bindings/value_methods/state.md`, `00_nucleo/prompts/core/compiler/eval/bindings/value_methods/counter.md`, `00_nucleo/prompts/core/compiler/eval/bindings/value_methods/color.md`, `00_nucleo/prompts/core/compiler/eval/bindings/value_methods/version.md`, `00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md` and
+`00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md`. The child owners preserve single evaluation of receiver and
 arguments and delegate native validation to the corresponding stdlib owners.
 Do not duplicate color, version-index, state or counter parsers.
 
@@ -75,12 +75,13 @@ Under cfg(p1339_observation), retain the callback ledger adapter for functional
 counter.update actions with the real aggregate argument origin. No ledger event,
 extra evaluation or public instrumentation API is added to normal builds.
 
-## A1-S2 — migração do import de State
+## State import migration evidence and boundary
 
-Medição: state-green.log no diagnóstico lote-a1-callbacks-reflexao-seletores-2026-10-17
-registra import state_update sem uso após o adapter Func/Set ser chamado pelo
-filho proprietário. Gate A1-S2 ratificado, hash da revisão
-6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
-Remover somente esse import do hub; preservar seus módulos/reexports e demais
-receivers. A implementação de State continua no descendente, sem nova lógica
-no hub. L0 antes do código, Clippy estrito e linhagem.
+state-green.log in
+`lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17`
+records unused state_update import after the owning child calls Func/Set adapter.
+Ratified reader gate review SHA
+`6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4`,
+`lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md`.
+Remove only this hub import; preserve modules/reexports/other receivers. State
+implementation stays child-owned, no new hub logic. L0 first, strict Clippy/lineage.

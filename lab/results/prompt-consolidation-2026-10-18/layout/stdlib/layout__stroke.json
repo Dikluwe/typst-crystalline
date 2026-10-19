@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated full extraction and ratified compact Stroke adaptation plus measured Paint cast; preserved exact diagnostic and legacy field limits.",
+  "original_sha256": "5d599b2d500b032a4f5f3ea8466b5757f70cc7ce5f6c80ad40b1ba61d907c736",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

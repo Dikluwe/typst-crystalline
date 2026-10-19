@@ -2,8 +2,8 @@
 Hash do Código: c551f096
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:c8f920865f8895a89d9c42659c15e773e9bb2603bd614e390805f620834babd9
-- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
+- 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:9dda215eac16294572a1775094e5ecf6dc4b1118d9b2e5300e3ce668dcf65494
+- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/lang/quotes.rs`
@@ -46,56 +46,59 @@ Preserve span-anchored diagnostics, including singular/plural forms:
 Regional and nesting parity is not established by this owner.
 
 
-## Aspa semântica e resolução tardia — ratificada em 2026-10-06
+## Ratified semantic quotes and deferred glyph resolution
 
-O contrato desta seção é vigente e supersede as cláusulas históricas conflitantes
-das seções anteriores apenas para SmartQuote. A ratificação humana autoriza a
-materialização em fluxo RED→GREEN, com ownership exclusivo e pins abaixo.
+The following SmartQuote contract supersedes only conflicting historical
+SmartQuote clauses. Human confirmation on 2026-10-06 authorizes materialization
+with RED→GREEN, exclusive ownership and the pinned nuclei above. Other ADRs,
+nuclei and unrelated proposals retain their authority.
 
-### Medição anterior à decisão
+### Evidence before decision
 
-smartquote-2026-10-06/{before,fields-before,partial-and-html,proposal-controls}.json.gz
-registra pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 dos binários,
-HEAD/working tree, diff HEAD --stat, UTC, fontes, argv/cwd/ambiente e stdout/stderr.
-PDF usa texto extraído, HTML usa DOM/texto e diagnósticos, não igualdade de bytes PDF.
-A avaliação converte aspas de markup para Text; campos double/enabled são perdidos.
-A variável contendo aspas mantém glyph inglês sob uso em alemão/francês ou
-smartquote(enabled:false). Primes 6'/2" viram aspas no Tekt. Show da função
-nativa e nome público foram corrigidos separadamente e passam antes deste gate;
-markup ainda não é SmartQuote. Constructor vazio tem fields vazio no vanilla;
-double:false é campo conhecido, mas double omitido é Unset. enabled:false
-permanece SmartQuote no vanilla. set double:false e show filtrado têm positivos
-novos. HTML literal funciona porque recebe Text; SmartQuote programática hoje
-é rejeitada. Título literal renderiza aspas; script recebe string, rejeitando
-Content antes da exportação nos dois binários.
+`smartquote-2026-10-06/{before,fields-before,partial-and-html,proposal-controls}.json.gz`
+records historical pin `9f2b6e8715237cb086899a42873660fe744622e8`, binary SHA-256,
+HEAD/working tree, diff HEAD --stat, UTC, sources, argv/cwd/environment and
+stdout/stderr. PDF acceptance uses extracted text; HTML uses DOM/text and
+diagnostics, not PDF byte equality. Evaluation converts markup quotes to Text,
+losing double/enabled fields. A value containing quotes retains English glyphs
+when inserted in German/French or smartquote(enabled:false). Tekt turns primes
+6'/2" into quotes. Native show and the public name were independently corrected
+and pass before this gate; markup still is not SmartQuote. An empty vanilla
+constructor has empty fields; double:false is known while omitted double is
+Unset. enabled:false remains SmartQuote. set double:false and filtered show
+supply new positives. Literal HTML works because it receives Text; programmatic
+SmartQuote is rejected in the measured implementation. A literal title renders
+quotes; script receives a string and rejects Content before export in both
+binaries.
 
-Fontes: markup_stream.rs:79–128 decide glyph em eval; smartquote.rs de layout
-alterna dois flags sem texto precedente; stdlib/text/smartquote.rs:112–117 apaga
-elemento disabled; observation/elements.rs:242–250 compara os campos atuais.
-Vanilla typst-eval/markup.rs:141–146 cria elemento com double explícito;
-typst-layout/inline/collect.rs:196–211 resolve estilo/contexto na coleta;
-typst-library/text/smartquote.rs:119–158 distingue prime/apóstrofo/nesting.
+Historical source anchors: markup_stream.rs:79–128 selects glyphs in eval;
+layout smartquote.rs alternates two flags without preceding text;
+stdlib/text/smartquote.rs:112–117 erases disabled elements;
+observation/elements.rs:242–250 compares existing fields. Vanilla
+`typst-eval/markup.rs:141–146` constructs an element with explicit double;
+`typst-layout/inline/collect.rs:196–211` resolves style/context during collection;
+`typst-library/text/smartquote.rs:119–158` distinguishes prime/apostrophe/nesting.
+These observations retain their historical snapshot qualifications and are not
+new current-pin parity evidence.
 
-### Decisão ratificada e limites
+### Public contract and target boundary
 
-Preservar identidade/campos de SmartQuote em eval e resolver glyph só na
-composição de render de cada target. Paged usa sua unidade; HTML permanece
-semântico e não chama layout paginado para aspas (ADR-0128). A lógica de
-seleção contextual é helper puro L1 único, com estado por fluxo/compilação,
-sem I/O, globais, vtable, registry de propriedades ou cópia do algoritmo de
-memoização upstream. Stack/estado é mecânica escolhida do Tekt; linguagem,
-campo conhecido/omitido, glyph e estilo são aceitação. Escaping HTML permanece
-com seus owners. Sem novos modos/flags, unsafe, API de watch ou math phase.
+Preserve SmartQuote identity/fields during eval and resolve glyphs only during
+each target's render composition. Paged uses its own unit; HTML remains semantic
+and must not call paginated layout for quotes (ADR-0128). Contextual selection is
+one shared pure L1 helper with per-stream/compilation state, no I/O, globals,
+vtable, property registry or upstream memoization copy. Tekt's stack/state is
+chosen mechanics; language, known/omitted fields, glyph and style are acceptance.
+HTML escaping stays with its owners. Add no mode/flag, unsafe code, watch API or
+math phase.
 
-Este gate muda double público bool→Option<bool>, adiciona enabled:Option<bool>,
-expõe helper/contexto puro e move escolha de glyph eval→render. Confirmação humana recebida em 2026-10-06. O contrato ratificado abaixo
-supersede cláusulas históricas conflitantes apenas para aspas; ADRs/núcleos
-existentes e propostas alheias permanecem intactos.
+The approved boundary changes public double from bool to Option<bool>, adds
+enabled:Option<bool>, exposes the pure helper/context and moves glyph selection
+from eval to render. Preserve the ratified interface shared by Paged and HTML:
 
-Adicionar helper puro público compartilhado por Paged/HTML:
 ```rust
 #[derive(Debug, Clone, Default)]
-pub struct SmartQuoteContext { /* campos privados: stack e caractere precedente */ }
+pub struct SmartQuoteContext { /* private stack and preceding character */ }
 impl SmartQuoteContext {
     pub fn observe_text(&mut self, text: &str);
     pub fn observe_object(&mut self);
@@ -108,16 +111,21 @@ pub fn resolve_smart_quote(
     effective_lang: Option<&Lang>,
 ) -> SourceResult<EcoString>;
 ```
-Resolver Option explícita > chain > defaults (double/enabled true, alternative
-false, quotes auto). Reusar parse_smartquote_quotes/resolve_smartquote_pair,
-idioma efetivo explícito/chain e catálogo vigente; sem locale do processo.
-Contexto observa texto lógico final após show, não bytes Rust da fonte original
-ou último frame pintado. Manter nesting por tipo, abertura/fechamento,
-apóstrofo após letra/objeto e primes após número conforme controles.
-Disabled emite ASCII sem alterar stack de aspas habilitadas; observar o texto
-emitido como contexto seguinte. Soft wrap não reseta; parbreak reseta;
-linebreak representa newline mas mantém nesting. Não implementar bidi novo,
-limite arbitrário copiado ou novas tabelas de língua/região. Erros de config
-já validados preservam SourceDiagnostic, não panic ou falha silenciosa.
-A cláusula histórica 'não implementa contexto' é supersedida para este helper;
-par resolver/validação atual mantém sua assinatura/comportamento.
+
+Resolve explicit Option > chain > defaults: double/enabled true, alternative
+false, quotes auto. Reuse parse_smartquote_quotes/resolve_smartquote_pair, explicit
+or chain effective language and the existing catalog; never use process locale.
+Context observes final logical text after show, not Rust bytes of the original
+source or the last painted frame. Preserve type-specific nesting, opening/closing,
+apostrophe after letter/object and primes after numbers according to the controls.
+Disabled emits ASCII without changing the enabled-quote stack; observe emitted
+text as subsequent context. Soft wrapping does not reset; parbreak resets;
+linebreak represents newline while retaining nesting. Implement no new bidi,
+copied arbitrary limit or language/region tables. Already validated configuration
+errors retain SourceDiagnostic rather than panic or silent failure.
+
+The historical no-context clause is superseded only for this helper; existing
+pair resolution/validation retains its signature and behavior. Regional/nesting
+parity outside the ratified controls remains unestablished. Original decision
+sequence and approval wording are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/lang/quotes.md`.

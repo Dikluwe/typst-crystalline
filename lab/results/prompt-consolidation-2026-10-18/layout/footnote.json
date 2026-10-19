@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/footnote.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Preserved current marker/queue behavior and explicitly non-effective refuted admission proposal with all future conditions and acceptance.",
+  "original_sha256": "e88d66de1986fbf6a66fbfa03916666b97e0434de246344c30eedcdc3768cdc6",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/footnote.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

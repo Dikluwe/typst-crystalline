@@ -1,33 +1,65 @@
-# L0 — Resolução integral bidi em L3
+# L0 — Full-paragraph bidi resolution in L3
 Hash do Código: f5281c19
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 **Layer:** L3.
 **Exclusive consumer:** `03_infra/src/bidi_context.rs`.
 
-## Medição anterior à decisão
+## Evidence before decision
 
-`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver linha e shaping isolados; `initial.json.gz` guarda proveniência e thirteen casos bilaterais. `lab/typst-original/crates/typst-layout/src/inline/collect.rs:156–178` conserva embedding explícito de direção oposta. API L1 ratificada pelo manifesto 1ae7513e; nenhuma ampliação de World/FontMetrics.
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz`
+refutes isolated line/shaping resolution; initial.json.gz retains provenance and
+thirteen bilateral cases. Upstream inline/collect.rs:156–178 preserves explicit
+opposite-direction embeddings. L1 API was ratified by manifesto 1ae7513e;
+World/FontMetrics do not expand.
 
-## Decisão
+verification.json.gz for the second candidate observes numeric-explicit Tekt
+456/789 versus vanilla 789/456 on the second line, while soft-wrap 456/789 agrees.
+Upstream inline/collect.rs:191–194 inserts LF for nonjustified Linebreak and U+2028
+only for justify=true. unicode-bidi 0.3.18 src/lib.rs:546–560, 669–676 clones all
+self.levels on every visual_runs; line-view-before.json.gz retains source/SHA/
+HEAD/stat/UTC and the previous resolver. These facts support the contracts below;
+no runtime gain is inferred from copied-size reduction alone.
 
-Registry privado à crate possui Vec entradas com Arc input, string auxiliar e ranges de cada segmento original. Descobrir inputs nos carriers de documento, envelopes e camadas sem inferir identidade por texto/geometria. Arc ptr_eq é somente mecanismo local para deduplicar o mesmo input imutável (não observável de língua). Construir texto sem normalização: Text original, Space U+0020, Linebreak LF; envolver Text cuja dir difere da base com LRE/RLE e PDF somente na string auxiliar.
+## Registry and resolution contract
 
-Resolved empresta registry e possui BidiInfo com lifetime Rust normal para cada string, base explícita. Consulta span converte range original ao auxiliar, encontra parágrafo e usa visual_runs; retorna ranges relativos/RTL apenas dos bytes autorais, nunca embeddings auxiliares. Consulta linha inclui intervalo entre menor e maior span para regras de fim de linha; retorna runs para interseção exata pelos consumers. Não estimar origem pelo ponto médio ou substring. Recusar span cujo trecho não corresponda ao carrier. Fonte pode conter controles e eles permanecem.
+A crate-private registry holds Vec entries with Arc input, an auxiliary string and
+ranges for each original segment. Discover inputs from document carriers/envelopes/
+layers without text/geometric identity inference. Arc ptr_eq only deduplicates the
+same immutable input locally; it is not a language observable. Build auxiliary text
+without normalization: original Text, Space U+0020 and Linebreak LF. Wrap Text of
+opposite direction to the base in LRE/RLE and PDF only in the auxiliary string.
+This unit's Linebreak carrier certifies only nonjustified breaks; its producer
+rejects justify=true rather than inferring absent state. This correction keeps
+phase/API unchanged.
 
-Cache tem vida local à compilação e pode ser compartilhado entre reorder/shaper por helpers internos; wrappers públicos constroem equivalente local. Não reter World/watch, sem globals mutáveis/unsafe.
+Resolved borrows the registry and owns BidiInfo with ordinary Rust lifetimes per
+string and explicit base. A span query maps original to auxiliary range, locates
+its paragraph and uses visual_runs, returning relative ranges/RTL only for author
+bytes, never auxiliary embeddings. Line queries include the interval from minimum
+to maximum span for end-of-line rules; consumers intersect exact runs. No midpoint/
+substring origin estimate. Reject spans whose text does not match their carrier.
+Preserve author-supplied controls.
 
-## Aceitação
+Cache lifetime is local to compilation and may be shared by internal reorder/
+shaper helpers; public wrappers construct a local equivalent. Retain no World/
+watch state, mutable globals or unsafe.
 
-RED→GREEN: 456 789 dentro de ABC 123 456 789 مرحبا é LTR único na base RTL e não invertido por neutral como a string isolada. Controles auxiliares não aparecem nos runs originais; embeddings autorais permanecem. Prefix/suffix, UTF8, override e linha parcial respeitam identidade. Validar source→PDF bilateral.
+## Bounded line views
 
+Do not clone all input levels per word/line. Construct temporary ParagraphBidiInfo
+for only the interval text/classes/levels, copying levels already resolved from
+whole input and preserving paragraph_level. Local visual_runs applies only Unicode
+L1/L2 to the slice; translate ranges back. No additional BidiInfo::new or automatic
+detection on fragmented text.
 
-## Quebra explícita: medição antes da correção
+## Acceptance
 
-`verification.json.gz` do segundo candidato registra numeric-explicit: Tekt 456/789 versus vanilla 789/456 na segunda linha; wrap suave 456/789 coincide. `lab/typst-original/crates/typst-layout/src/inline/collect.rs:191–194` insere LF para Linebreak não justificado, U+2028 somente para justify=true. Linebreak do carrier unitário desta rodada representa somente a quebra não justificada e gera LF auxiliar. O producer recusa justify=true (não representar o estado ausente por inferência). Correção interna de paridade, mesma fase e API.
-
-## Consultas sem copiar todos os níveis do input
-
-Medição anterior à decisão: fonte unicode-bidi 0.3.18 `src/lib.rs:546–560,669–676` clona self.levels inteiro em cada visual_runs. Receipt `line-view-before.json.gz` preserva fonte, SHA, HEAD/stat/UTC e resolver anterior. Não repetir essa cópia por palavra/linha: construir ParagraphBidiInfo temporário somente com text/classes/levels do intervalo, copiando os níveis já resolvidos do input inteiro, conservando paragraph_level. visual_runs local aplica apenas L1/L2 do Unicode sobre o slice; traduzir ranges de volta ao input. Nenhum BidiInfo::new adicional nem auto-detecção sobre string fragmentada. Aceitação pelos testes de resolução integral/números/break e CLI; medir custo, não inferir ganho de tempo só do tamanho copiado.
+RED→GREEN: `456 789` within `ABC 123 456 789 مرحبا` is a single LTR run under RTL
+base, not neutral-reversed like an isolated fragment. Auxiliary controls never
+appear in original runs; author embeddings survive. Prefix/suffix/UTF-8/override/
+partial-line controls preserve identity. Validate bilateral source→PDF, full-input/
+numeric/break tests and CLI. Measure cost rather than assuming a time benefit
+from a smaller copied interval.

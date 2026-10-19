@@ -1,17 +1,17 @@
 # L0 — stdlib/loading/json
 Hash do Código: 1f515750
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/loading/json.rs`.
-No HEAD `4ac3e2082e6e708dd815ab01b47ac8ed281a14fa` e árvore limpa, `01_core/src/compiler/stdlib/loading.rs:651-681` contém o comportamento correspondente. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-loading-2026-09-30-before.json.gz`. É separação interna conforme ADR-0109/0127/0129; não há novo contrato público ou desempenho medido.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/stdlib/loading/json.rs`.
+At HEAD `4ac3e2082e6e708dd815ab01b47ac8ed281a14fa` with a clean tree, `01_core/src/compiler/stdlib/loading.rs:651-681` contains the corresponding behavior. SHA-256, time and state are recorded in `lab/results/construction/diagnostics/atomizacao-loading-2026-09-30-before.json.gz`. This is internal separation under ADR-0109/0127/0129, without a new public contract or measured performance claim.
 
-## Contrato
+## Contract
 
-Decodificar bytes JSON em Value preservando árvore, ordem de objeto, inteiros i64 quando representáveis e números não inteiros como Float. Erros de parsing permanecem diagnósticos de JSON. A função nativa é composta pelo parent com a fonte já resolvida.
+Decode JSON bytes into Value, preserving the tree, object order, representable i64 integers and noninteger numbers as Float. Parsing errors remain JSON diagnostics. The native function is composed by the parent with an already-resolved source.
 
-As regras detalhadas e evidências históricas do comportamento permanecem em `00_nucleo/prompts/core/compiler/stdlib/loading.md`; esta unidade as herda sem alterar paridade nem fases do pipeline. O consumer opera em L1, recebe dados/World por argumento e não introduz I/O direto ou estado global mutável.
+Detailed rules and historical behavior evidence remain in `00_nucleo/prompts/core/compiler/stdlib/loading.md`; this unit inherits them while preserving parity and pipeline phases. The consumer operates in L1, receives data/World through arguments and introduces no direct I/O or mutable global state.
 
-## Aceitação
+## Acceptance
 
-Preservar o resultado linguístico e os diagnósticos existentes. Compilar, passar a suíte L1 e `crystalline-lint .` com ownership e hashes válidos.
+Preserve language results and existing diagnostics. Build and pass the L1 suite and `crystalline-lint .` with valid ownership and hashes.

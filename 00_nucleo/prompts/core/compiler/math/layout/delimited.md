@@ -50,14 +50,21 @@ baseline, 100%/150%/absolute/mixed/cascaded sizes, nested lr, mid scope and
 normal/inverted fence variants. Current implementation breadth alone does
 not demonstrate full language parity or retroactively prove a historical gate.
 
-## Helpers e armazenamento sem uso — 2026-10-13
+## Test-only legacy wrapper boundary
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`01_core/src/compiler/math/layout/delimited.rs` nas linhas 54 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+compiler/math/layout/delimited.rs:54 contains the historical Clippy inventory
+item. HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`
+retains sources/owners/references/UTC/status/diffstat. Call-site and productive-path
+research precedes classification, without new parity/performance evidence.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Compilar o helper interno `lr_target_pt` somente sob `#[cfg(test)]`, conservando assinatura e corpo para os testes existentes. Somente os helpers de teste p1436_target_pt e p1437_mid_target_pt usam este cálculo de shortfall. lr_requested_target_pt e a seleção produtiva permanecem intactos.
+Compile internal lr_target_pt only under `#[cfg(test)]`, preserving signature/body
+for existing tests. Only test helpers p1436_target_pt and p1437_mid_target_pt use this shortfall calculation. lr_requested_target_pt and productive selection remain unchanged.
 
-Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.
+Preserve productive routes, test names/bodies, external APIs, defaults and phase.
+This ADR-0127 internal correction requires all workspace-target build/check,
+core suite, test inventory, Clippy and lineage; remove no expectation to pass.

@@ -1,0 +1,14 @@
+tekt = 1
+kind = "nucleus"
+id = "block-spacing-resolution"
+title = "Resolução de margens automáticas de Block"
+
+[[claims]]
+id = "ambient-fallback"
+level = "must"
+statement = "A margem de Block resolve primeiro above/below explícito, depois spacing explícito, depois par.spacing Length da chain efetiva, finalmente PAR_SPACING vezes o tamanho efetivo. Zero explícito é presença, nunca ausência."
+
+[[claims]]
+id = "allocation-and-emission"
+level = "must"
+statement = "Emissão e reserva fracionária usam a mesma resolução de margem no escopo que cada percurso conhece. Essa resolução não certifica escopo lexical perdido, força de colapso entre vizinhos nem a medição geral da cauda fracionária."

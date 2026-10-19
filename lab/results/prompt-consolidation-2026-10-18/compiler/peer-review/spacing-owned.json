@@ -1,0 +1,782 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/state.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "b7683c923bbc42871f71ef71cc2cf7788c58775f7f2b9806ef3479a8f504f9e6",
+    "result_sha256": "21f9d4965c32abd791828f3306b86833400a1db1c489ea66e697e11f2d17ec45",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "3834d14f351c80c95585bb9c5ac4bce64a8e0b7659996a753930affed7f81410",
+    "result_sha256": "e4644d0719722694611c7a9d08c48a32d968f61a09be8fba3aa8451c1b33ce3e",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/from_tags/displays.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "95e81998b743b9fa334d26ef419220c0aa4d7c64bb6e68b881d34c87878727f8",
+    "result_sha256": "792e8ddad2faf03d04add0601fd85b87969a95cae0d83a996cb9dbb4a9171703",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/from_tags/state_updates.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "f617d9f4857cf5ecca1e618284dab88f4fb7fca6ccc92376a6deb0db7880ea2b",
+    "result_sha256": "711c6053e392079d0827f16a8c427d904e38646c7cdba28c063cbb493a8870e2",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/node_wrappers.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "088c1fe9e8dfb82a7f10e4c6a2e678411ffee1f552f4e0a497bc446251f0901c",
+    "result_sha256": "0371330ce408b5f302b5f37b7bf57005c717b76da1a243160cc7566a75ab4fa8",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/sequence_composition.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "8af111937f8210ba6d549872fd76aa83b3e3dd40194f97956fd6105f05a3816d",
+    "result_sha256": "a5e59f88e1cbdebf7e18e97058e5e4be0ca42eaf8f83e12d5edc6ab6d3c4162f",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/contextual.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "dd7eeaf0ab6ee3e149253ab102db1bae6652cc4a06e42e2f0811a8b5ed98369c",
+    "result_sha256": "c3c9f811338688d0a1aba0ee6083066620727b8ebbe81fe47f331b37d19a8bfb",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/table_grid.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "575d1bae46593a465c554019288acb3ee2a35312242c99906885538a2dc924f2",
+    "result_sha256": "104626222d9f49d2ca01a1ac01e6ca7ecbb3177bb8b20dc0c6df0df900ddb14a",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/syntax_diagnostics.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "44415b74f1af1886f37bdb257e85b0d486c5bff32db2eecfd1c6670bac1e9be7",
+    "result_sha256": "07a7230979a09bde56a33d1aa6dbdc580c59191cc9bdec62f865ee690b4102cc",
+    "replacements": {
+      "High10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/stretch.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "fb3a23610e84b40e7d7bcd0f5120b99b5000295b4507141fe62ffba24f36f79c",
+    "result_sha256": "9d751e713f939fe4da6e5c407d16fac7d2e0a502959fb785683960230fabf0d2",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/underline.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "e6d9fd4ff1ac9acc616c43702763ec04a66b97ec8b48f44d2ce6cc4b789c5caf",
+    "result_sha256": "d055f78535d152e5e2e953857b08bed11b5175e73c1a18b2c9762217aa63f20b",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/math_accent_layout_tests.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "d0492fb59bffe9183cfb42c76cd52314badd0e28968f0589ae0b8b575b1a0a80",
+    "result_sha256": "912d35a66b056986e05c2d63b8e03020687ab16e92ae4a76cd71aa9928e84a0e",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/math_cases_layout_tests.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "62a0a00808b5bcf7993f47e6136973493a6ce3900e8a7fe7dc40177036be07e0",
+    "result_sha256": "320dfa14d6fd14722699238044dad7e6959d52cead085ef543c2a5308b1de949",
+    "replacements": {
+      "MemoryMax12GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/math_matrix_layout_tests.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "02d8ceb332cfc7f8500b00ab661a6aebf9d4b7d53fb404e97aeae5ad77d7d08b",
+    "result_sha256": "39355d01b8a065c6ebbc263a6866c80cba7d2211755ed9a802eea9b01ff6930f",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/source_transparency_tests.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "fe9302a29047c1b57a0022aed8b1269a5430887038b9492c123b4bc9de47d30f",
+    "result_sha256": "8294fcfb204bdd7fbe1fc3afaf70f5d22476440cc57fa9f797807a554a46fa3e",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/accent.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "11c3c3193df74bd97d4c6f44866363c5d2d77ad2f249dbeb0a988e0a6a9a14b0",
+    "result_sha256": "782722e7c0da957afdf264ee12f8eb6a44d73e1a94ea2945228bdc3025f8aa15",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/underover.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "cc2e242987c1e6a0a8102d0245a311aef013c99d21c50dfb40b4cbd4ea082840",
+    "result_sha256": "aad25553b662740ddb56b3fca29f8be76ae3790991629ad6339bf564aa455f3b",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/attach.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "669105e424e5dd414ffe2a38c16673de3a6c4d1a335791fe4e2bafb932280052",
+    "result_sha256": "b9b691b98bb38bd316585249f9a3e930d78df83856c2c20194b1d764e0ee300e",
+    "replacements": {
+      "MemoryMax12GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/matrix.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "74195c25169052da7c0bc71d306c6f9d5d1e83da48b451f8271564193d13186e",
+    "result_sha256": "100a9c613d92cc1f58e5423c772940b9660584dc6bdc0b82471a9d4284328792",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/spacing.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "8af8d66cf574c57610c380e04e8059d635324b47ef688c1831b9c624174217c7",
+    "result_sha256": "315305cf21d960a0d78108104e90962d89d2ef318029cd8c443cd828f652efaa",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/tests.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "3f6dc3fb6b6783f5fa4ca3cf383cf036ec943fb73d8eca89810fa9ca0268848e",
+    "result_sha256": "46c038936f4236ce797bcc0aa6aa20ae0b298c5d1387a75e15ab828e95c647b2",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/mod.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "4a260f7119df910adaf61d6c2a4660ad99a6983d8d91e767438d78b32b87c7fe",
+    "result_sha256": "baeaa6bafe85c355418203abbcc08543caf14cc5119e8149d703f027a6806966",
+    "replacements": {
+      "MemoryMax12GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/entrypoints.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "68dec61c4343c9bf65c62cf3fdb106937e34822b4e44ca9841587f90c6d0b3a9",
+    "result_sha256": "949bda32e58d58d1074f77101619b791c63353a32b4f208242bf2cef00900df4",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High8GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/from_tags/headings.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "367256d0e735aedbc3e0602d603695da6b0a61c4d5523735df7ef4a587c9cbe0",
+    "result_sha256": "004e27fb7546fa045b8271c2dd5ee57a694ab81a160fe0ead478e2f7e375110f",
+    "replacements": {
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/populate.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "02c11d66810732e492d151bf1d9acf9379f1daadf22da5648a3320cf5603336d",
+    "result_sha256": "6afbfcc79c5626d3482090e3ea008d4b519712b065e2a9c3cf1b15d516b60a18",
+    "replacements": {
+      "MemoryMax12GiB": 2,
+      "High10GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/from_tags.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "da23a6fa67794fd2c9be68b1434c259cf20d937cc47883ad2d42a6f6989bcbd8",
+    "result_sha256": "74447c2181835fd5d48c357fea355fb48b04c61ee2cea79c907d14f93205cd10",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High8GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/fixpoint.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "145d00c54e121fc7870bfef07562702a149c9bfae7951ebdb5db1de21f463983",
+    "result_sha256": "317a74cbf7ba8ec2fbe190d953004e2d1ddb3eff28392fececd91f30d6158d13",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High8GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/labelled.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "ea6cc9939625579bb3531ab4b7a8d86f90f8b62f503a0835248a692b51c220bd",
+    "result_sha256": "92d1aedf6b4e79c7cb047d1f3c81712dbc74944bd38798a0bd369a61b2f5f711",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/bibliography.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "9c790970e71bc2186d8ab44f2fa72ec1a19390363b5cdab02b7145015f230288",
+    "result_sha256": "5d62b3cd45bcd6262b46e7eb967d7324562c3247cd9c21079b5645e3e8887001",
+    "replacements": {
+      "MemoryMax12GiB": 2,
+      "High10GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "da8f19736329be9a3beaeff64dc6a61f8fd02433845fab059e71cbf2aa3b70c5",
+    "result_sha256": "c8fb2761437f55111b4ee5eeeb80efce84f2f3269b3e1119c56484be6b0ff4d0",
+    "replacements": {
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/walk.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "1d0489c60f6efcec030ea14081625dceec151ad53a2b55f4ddbc275f9beb801c",
+    "result_sha256": "6a12ebdf5c6b6ea6cc3463af415d9e0789cbbda248b83814ce050781ceb00e95",
+    "replacements": {
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/realize/sequences.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "0589d6bfbe200181f21480dda9d4172d5d45a70d0ccc583699bc14e9022cf67a",
+    "result_sha256": "0c9942311806707fe38b5e6e94c0ce49912ca440a29f97eb38ba1379ca285dc7",
+    "replacements": {
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/realize/table_cells.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "2cf1e9f584dd475e288591466dad1f61c32be16cbcd1af9de27be688eb6fc8af",
+    "result_sha256": "852f9c3ecaea4f14706c52b47889f1d04e24167a645f79ff1e48d30d6f9db808",
+    "replacements": {
+      "then2pt": 1,
+      "gives2pt": 1,
+      "constructor2pt": 1,
+      "Table3pt": 1,
+      "black1pt": 3,
+      "red2pt": 2,
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/selector_intercepts.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "869612aaf7ae20321c297f1514cb71f8acb0d9c6124db2beff86d3b35fd0924c",
+    "result_sha256": "a4342e0992e204e501caeb849b8449a9ee9a2e37de22533b37a978651d78405b",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/contextual_calls.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "cd0cde69c9fceb7da54e9fef95cb69e8b742cb2ffaa8eda85cf67b86b52d02ba",
+    "result_sha256": "028c970c019009245a7d60a4206c6bba5ef0679d6e46eb1e0aff089eb1a6d0e7",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "d02738e2c3c5f8b83180d268939e5c4f44866a2f9ede1aa45d8886c1ec8982fc",
+    "result_sha256": "a3caec3af415bf0fcf62c63817f5891b1977a3ac74b9bd508a1096ad4f6b50b4",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/collection_methods.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "cc37824c6f80027913ad50639adc5a59c9d039a85db6233d4b763ae4fc56296c",
+    "result_sha256": "a5499b6e795285aeeb23ea3cc5ad8a1d895232306b6fdcf6c1e75083234a68de",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/call.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "53f7745e047f65b9892170936a032636654a89518df82a58974d424af54592c0",
+    "result_sha256": "defafae5e1f70b2664fca5d5ee97042729d70759abfdbc825fd90a0395a6b2b1",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "9754dc305e4eb955fb5536e7bd4a9f5c0826e03040a60cea6a1bbad52f61cb31",
+    "result_sha256": "f537573c68efdb35f88b018f5d48e81bd84cfb291b918d8aeafd694b034de208",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/type_fields.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "1f7a9e5033ef04364e970d9b8b3b4993cf312c77c5cd8571d134546f3423f969",
+    "result_sha256": "52eced5143f52d22f67a7f561572e454d02e472c777f33a24eb7f620660af252",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/apply.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "4751578bad75c7658f7cd2f7846f3bbd7d5a78019d72a0b92b9e741b5e57e882",
+    "result_sha256": "71e842c2319ecfdcdff03bb6cde4363eb79712ed9ba87d259b01f01de608194d",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/textual/matching/projection.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "ce53fea796b9e1a27e0d0045e67658fed80490cea3d679e44df96f10e1ea25a7",
+    "result_sha256": "07c42e03be6a3db310b2fdfdfec6f7bf4cd6652552dc2ea3389ea35622dc9ddb",
+    "replacements": {
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "a432d8242062446b8e8bd670bf212af5327c033003b0fb5236ce23def47658cf",
+    "result_sha256": "258e4c2c3e2288a2589c929ecf893cfdaa641a2e6532534f2d6bd38632c0c811",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/operators/join.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "24ab0df506880cb4570dd7e75471fc48ae17a1e54ad41221c8bf6ee582927174",
+    "result_sha256": "b0b16d17a715fe75386d653a627745a5c5f7d8865e2bad3bf484bfe2d8050ec9",
+    "replacements": {
+      "sequential12GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/method_dispatch.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "d46d0ab17f464cfe39dc02bf0bb934b6c89b48f6b2c7a4247640b8f28315e400",
+    "result_sha256": "ec8c2aa3eddca613854a105b3db3a0056cb00059ee490c849b3adcfaf0f88753",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/observation/value.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "bbdff6a4c0ec7d449f6dd0397c4ddc439783e2c14f5e119ddf471e26935c3cff",
+    "result_sha256": "de8bb517002b3010786a438ff62618d045f7570dbda61c258c06bfdfb237d6ef",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "249d71d3a67fe400842166988df667bb3c7d61e49fac0d2a33be1c29b0adf1e9",
+    "result_sha256": "f2ad614488db02537400e7fedde0ab81924844c580416900ebb95af40d81a5a7",
+    "replacements": {
+      "black1pt": 1,
+      "red2pt": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/mod.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "0642ced12a2537e26f202d5cb5bee5203e6e11fc768f8fc47ccd693b7161335c",
+    "result_sha256": "9b7236726df57e4fd6724ab0ffc89c1f4f283e22659f0f3c6a683f8df92c99b1",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1,
+      "MemoryMax12GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/identity.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "1433b2aab0c686f8e1269bc532092637af43ace758503496efbe291fcb246da9",
+    "result_sha256": "2555900febbc1f33f7f6133a157983db750af69db1d1adc92ad3ceff5a031599",
+    "replacements": {
+      "MemoryMax12GiB": 2,
+      "High10GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/modules.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "0be512a5d7b0a0eef9dd3eeb469b8aed957f2e907607f12ffbec2746519c321f",
+    "result_sha256": "dbabba1f59c79e46e34aea4d2f8b293ab0152458c51c551c96642441842e42e3",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High10GiB": 1,
+      "sequential12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "fe6971a2457a0e8311a894baa9ce2acc72cecf7a53bada119f71fda85cc068ac",
+    "result_sha256": "ff8b520a3a705faf51f4bfc2e7af7bbbb38f3894b97198d5cbfd9eb590dfa0af",
+    "replacements": {
+      "under12GiB": 1,
+      "MemoryHigh10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/textual/space.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "6f9d3b98cfb8d69a7f85d996a2ee7b799a80ff1fce0ccc71eb96de5e4f6f76c3",
+    "result_sha256": "ab8c0e065a2490b7d0d07f59952d79c732062a733df6a1fcaa186dd1356bb8bd",
+    "replacements": {
+      "MemoryMax12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "6f5d4c79e0abadeec43e326e10fe525061a531e245e326b7281c408c1be8aa91",
+    "result_sha256": "aefb4514359dfc000f45c0e8cc889f57e3c2f928689a5ceb08f8e197067d834a",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "54013ee2ba5982605514ecb77f98fa59870e68cdc380b01f3b80e90fd97ba719",
+    "result_sha256": "aecace907c3eca31268ae3e3bebb7e6562e43a865d9243bc5b1228fb3ee6c168",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/field_access.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "16aee88c245229031b802707627da1f18fe631ab520198575c8b1413af9317e5",
+    "result_sha256": "c1e7d380c56eae5eb18e16bc9f0bce7e9e1aa258295d29214620e0992e991fd4",
+    "replacements": {
+      "under12GiB": 1,
+      "high10GiB": 1,
+      "MemoryMax12GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/realize.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "8a6251b9a4056edc0bf94cee45bb17a36fb2d60992cb40a79b912dbca2f1b396",
+    "result_sha256": "231d9b0dda0328f0b0d47ab08ecf8c7ccbf2de60e9ba7dfb84a9205d1c27488d",
+    "replacements": {
+      "under12GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/textual/matching.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "215f01ff9c422bd9c2f4c5f06735975ba8de26761da8ec87dc1ef8e6bf876507",
+    "result_sha256": "f46f6008b6c5dc0dfbd650c744ae55e71f0e35c1cb14ba82d6faa28355629e8b",
+    "replacements": {
+      "MemoryMax12GiB": 1,
+      "High8GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "e81b65017c0aab5edb159e01af853b782d7a17320536a62c98684452fbe90fb2",
+    "result_sha256": "18cadaf9e44b9a186aa260f790336a8a5a6f9bb10206713a65212bf16aa94676",
+    "replacements": {
+      "lineage12GiB": 1,
+      "MemoryMax12GiB": 1,
+      "High8GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "e646c713cd5ae23bb9b74daa1643ac1ce2ae4f9066061d527250748fe50e8d52",
+    "result_sha256": "12e0728b4a2c3e5a0af44fe61e454b48db16dadc5ed709d36699a2aa427a5639",
+    "replacements": {
+      "then2pt": 1,
+      "gives2pt": 1,
+      "constructor2pt": 1,
+      "Table3pt": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/show.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "dd4d195e0beee2f427fd18b2c7fb565208a946cc340ce064172f454184cd138f",
+    "result_sha256": "b22765054943c59147f8e63b61491326c60aeef024f76da317128af90c95ec80",
+    "replacements": {
+      "MemoryMax12GiB": 2,
+      "High8GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/textual.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "b873ce2a8cf5a8c359fa4e2599d1ef2bbc1db77063b19c8248b6010847cdb534",
+    "result_sha256": "908124287cebdb4436fce39ba66c78a3d3c131f62f21c733c4dbfaa8fd0888fc",
+    "replacements": {
+      "High8GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "8b3bdfd89c66038de344fecfd5c85122f7cd5d727d0763b4e2600290c95cc85d",
+    "result_sha256": "6b6816cc35bb540033a607d48721ec320b7823a3925f17ffe53e545e4722efda",
+    "replacements": {
+      "local11pt": 1,
+      "boldfalse": 1,
+      "italicfalse": 1,
+      "all11pt": 1,
+      "versus20pt": 2,
+      "regressions12GiB": 1,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "5aec0c0f74ffbafd8fa17519baac369daa004741d650ee794d8253abc7fd9e84",
+    "result_sha256": "ffa800fec91e0fc7f02f108825df12227bc517bf95e79d3b714fbf3bade999df",
+    "replacements": {
+      "gates12GiB": 1,
+      "linter12GiB": 1,
+      "High10GiB": 3,
+      "MemoryMax12GiB": 3,
+      "High8GiB": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "58f559cb64ebcc5853b40f7fcea1e739cc6a50ba98f3b4fa3e2a325e1025ce39",
+    "result_sha256": "f69b60c2d98ad824f671a6e8915967895e4723f8771b0ebeec6cf6f482ae23ff",
+    "replacements": {
+      "MemoryMax12GiB": 2,
+      "High10GiB": 1,
+      "under12GiB": 1,
+      "high10GiB": 1,
+      "High8GiB": 2
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "5f453880d614ea24cd42f04d7bc7e9ed8014fa72088cf13c896cade93c913598",
+    "result_sha256": "3e6c0968b87ece0f449fdcec836fe2cba643e9a85a6df8885c5e9a07415e6862",
+    "replacements": {
+      "gates12GiB": 1,
+      "MemoryMax12GiB": 3,
+      "High8GiB": 5
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/set.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "bdfd8519d6a39ab2e76f935b36c1233d7c04be571b3833367e03db29ca0d3c75",
+    "result_sha256": "5d96b28e1a78b4d6965a370ce76945e36107e1020a48aa7834c78abff7f62b12",
+    "replacements": {
+      "Outer11pt": 1,
+      "then2pt": 1,
+      "gives2pt": 1,
+      "constructor2pt": 1,
+      "Table3pt": 1,
+      "MemoryMax12GiB": 1,
+      "High8GiB": 3,
+      "default18pt": 1,
+      "ambient3em": 1,
+      "set3em": 1,
+      "requires36pt": 1,
+      "font24pt": 1,
+      "shared12pt": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/markup_stream.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "0b408f92037d5fd311a269f9d4e0f9f57ba5cdb362576bf119fa15249e899270",
+    "result_sha256": "accc0fc502b51251a113a3bb74830824a4708b15d2e33c38420cf7168280096a",
+    "replacements": {
+      "Tekt11pt": 1,
+      "High8GiB": 4
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/apply.md",
+    "status": "bounded-prose-spacing-repair",
+    "review_input_sha256": "b24c5589082e8a3e1fb9361a7481d8c680518e963dcebab591523f32b507a257",
+    "result_sha256": "5c65996a0663d4fea926e90624db987b00890de451e6789cc9d8908b380f0c00",
+    "replacements": {
+      "Serif11pt": 1,
+      "global20pt": 1,
+      "versus16pt": 1,
+      "set15pt": 1,
+      "size1em": 1,
+      "margin18pt": 1,
+      "emptyRaw": 1,
+      "Outer11pt": 1,
+      "black1pt": 1,
+      "red2pt": 1,
+      "replaced27pt": 1,
+      "High8GiB": 3,
+      "default18pt": 1,
+      "ambient3em": 1,
+      "set3em": 1,
+      "requires36pt": 1,
+      "font24pt": 1,
+      "shared12pt": 1
+    },
+    "disposition": "Explicit reviewed prose tokens separated; resource clauses and measured style descriptions only. Fenced/inline code, quoted strings, API names, diagnostics and metadata unchanged."
+  }
+]

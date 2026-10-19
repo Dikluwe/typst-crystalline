@@ -1,45 +1,22 @@
-# Prompt L0 — `stdlib/math_style` — 14 funções math style
+# L0 — stdlib/math_style — mathematical style constructors
 Hash do Código: 4bc93843
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/math_style.rs`
-**Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104). Convenção e
-helpers partilhados: ver `stdlib/_comum.md`. Mecanismo do variant:
-ADR-0102/0103; layout: `rules/math/layout/_comum.md` (handler MathStyled).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/stdlib/math_style.rs`
 
----
+## Evidence before specification
 
-## 14 funções math style — Passo 311b.3 + P765b
+Exclusive L1 consumer `01_core/src/compiler/stdlib/math_style.rs`, behavior split by math-style domain with shared stdlib conventions at `00_nucleo/prompts/core/compiler/stdlib/mod.md`; MathStyled composition belongs to math layout owners. Historical 12-function completion predates Display/Inline/cramped additions and is not current whole-language certification. Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
-```rust
-pub fn native_bb     (...) -> SourceResult<Value>;  // DoubleStruck
-pub fn native_bold   (...) -> SourceResult<Value>;  // bold=Some(true)
-pub fn native_cal    (...) -> SourceResult<Value>;  // Chancery
-pub fn native_display(...) -> SourceResult<Value>;  // MathSize::Display (size variant)
-pub fn native_frak   (...) -> SourceResult<Value>;  // Fraktur
-pub fn native_inline (...) -> SourceResult<Value>;  // MathSize::Text (size variant)
-pub fn native_italic (...) -> SourceResult<Value>;  // italic=Some(true)  [native_math_italic]
-pub fn native_mono   (...) -> SourceResult<Value>;  // Monospace
-pub fn native_sans   (...) -> SourceResult<Value>;  // SansSerif
-pub fn native_scr    (...) -> SourceResult<Value>;  // Roundhand
-pub fn native_script (...) -> SourceResult<Value>;  // Script + cramped
-pub fn native_serif  (...) -> SourceResult<Value>;  // Plain (force serif)
-pub fn native_sscript(...) -> SourceResult<Value>;  // SScript + cramped
-pub fn native_upright(...) -> SourceResult<Value>;  // italic=Some(false)
-```
+Measured bb("R") emitted unstylable Content::Text while bb(R) produced ℝ: MathText conversion reaches existing apply_math_style arms without layout change. Missing frak() measured `missing argument: body`, unlike historical silent Empty/broken PDF. Bilateral 2026-08-31 oraclea51e02804 refutes old Portuguese extra/named/cramped diagnostics and confirms innermost setter wins same glyph axis, orthogonal flags/sizing compose. Historical byte-identical example was supporting snapshot evidence, not acceptance by byte mechanics.
 
-Módulo dedicado per ADR-0037 (coesão por domínio; paralelo `calc.rs`/
-`structural.rs`/`text.rs`). Cada função: (1) aceita 1 arg body (`Content` ou
-`Str`); (2) wrap em `Content::MathStyled { kind, bold, italic, body, cramped }`;
-(3) retorna `Value::Content(MathStyled)`.
+Measured qualified math.bold/cal/display/italic/sans/scr/sscript/upright missing in Tekt against 2026-09-21 oracle 586e1bd43fae; human approval after causal 445cf0c81 confirms only that projection. Implementation belongs to `00_nucleo/prompts/core/compiler/stdlib/structural/math.md`, with unchanged 14 functions here; historical core 6067 pass is that snapshot, not fresh execution.
 
-**Marco P311b.3**: paridade "math style" **12/12 = 100%** (2ª categoria stdlib a
-fechar após `calc`/P308). **P765b** acrescenta `display`/`inline` e o named arg
-`cramped` em `script`/`sscript`/`display`/`inline`.
+## Exclusive constructor contract
 
-### Mapping função → MathStyled fields
+Fourteen native_bb/bold/cal/display/frak/inline/italic/mono/sans/scr/script/serif/sscript/upright accept exactly one Content|Str body, Str→Content::MathText, return Value::Content(MathStyled{kind,bold,italic,body,cramped}). italic uses native_math_italic identity. Dedicated pure L1 common helper wraps without resolving composed style.
 
-| Função | `kind` | `bold` | `italic` | `cramped` |
+| Function | `kind` | `bold` | `italic` | `cramped` |
 |---|---|---|---|---|
 | `bb` | `Some(DoubleStruck)` | None | None | None |
 | `bold` | None | `Some(true)` | None | None |
@@ -56,158 +33,16 @@ fechar após `calc`/P308). **P765b** acrescenta `display`/`inline` e o named arg
 | `sscript` | `Some(SScript)` | None | None | `Some(true)` / named |
 | `upright` | None | None | `Some(false)` | None |
 
-`bold`/`italic`/`upright` têm `kind = None` (flags ortogonais sobre variant
-herdado — `bold(bb(x))` preserva DoubleStruck). `serif` usa `Some(Plain)` para
-forçar variant.
+Bold/Italic/Upright kind None are orthogonal over inherited glyph variant (bold(bb(x)) keeps DoubleStruck); Serif Plain forces glyph variant. Display/Inline remain size variants MathStyleKind::Display/Inline factor 1.0, a recorded mechanical approximation to upstream EquationElem MathSize::Display/Text while full math layout remains incomplete; do not confuse it with complete equation-size parity.
 
-`display`/`inline` são modelados como variants de tamanho (`MathStyleKind::Display`,
-`MathStyleKind::Inline`) com factor 1.0, preservando o campo `cramped` via named
-arg. Isto é uma simplificação mecânica: no vanilla controlam `EquationElem::size`
-(`MathSize::Display`/`Text`); no cristalino, enquanto o layout math completo não
-está implementado, representam-se como `MathStyleKind` para evitar erro de
-"unknown variable" e permitir forward compatibility.
+Register globals in canonical eval root scope using original Func::native names/pointers. Qualified eight above are same functions/arguments/fields/content, no namespace wrappers; function equality/identity behavior stays with its owner. Bb/Frak/Inline/Mono/Script/Serif are outside that measured projection slice, not removed/denied.
 
-### Registo
+One private wrap_math_style(args,name,kind:Option<MathStyleKind>,bold:Option<bool>,italic:Option<bool>,default_cramped:Option<bool>,allow_cramped_named:bool)->SourceResult<Value>. Only Script/SScript/Display/Inline permit cramped Bool, defaults true/true/false/false respectively; all others reject named. Explicitly select first invalid key in existing order, no fictitious loop/reorder/extra acceptance.
 
-Cada função registada em `make_root_scope` (`eval/mod.rs`) como
-`Func::native(<nome>, native_<nome>)`. User-facing:
+Exact common public diagnostics: missing `missing argument: body`; extra positional `unexpected argument`; unconvertible body `expected content, found <tipo vanilla>`; unknown named `unexpected argument: <nome>`; nonbool cramped `expected boolean, found <tipo vanilla>`. Canonical long type names include Int integer/Str string/Bool boolean. Mono/Script use provided Args call span for absent/invalid/extra/named/cramped errors, other identities keep their span policy. For only Mono/Script and exactly named body, preserve diagnostic `the argument body is positional` with separate hint `try removing body:`; other unknown names unchanged, Script cramped remains valid. Keep body/kind/cramped/default/evaluation order/morphology/layout and shared helper, no widened identity exception.
 
-```typst
-$ bb(x) $       → MathStyled { kind:Some(DoubleStruck), body:MathIdent("x"), ... }
-$ bold(x + y) $ → MathStyled { kind:None, bold:Some(true), ... }
-$ bb(cal(x)) $  → inner Cal prevalece sobre Bb no mesmo eixo de glyph
-$ display(x) $  → MathStyled { kind:Some(Display), cramped:Some(false), ... }
-```
+Composition is MathLayouter's responsibility: inner same-axis setter wins, orthogonal properties compose; size wrapper Inline does not erase glyph variant and cramped stays subtree-local. Complete Greek/digit coverage remains outside this Latin-prioritized scope.
 
-### Casos de Aceitação
+## Acceptance and limits
 
-- `bb(Content)` → wrap directo · `bb(Str)` → `Content::MathText(s)` antes de
-  wrap (**P899** — corrige `Content::text(s)`, que produzia `Content::Text`,
-  fora do alcance de `apply_math_style`/`layout/mod.rs`, cujos braços cobrem
-  `MathIdent`/`MathText`/`MathSequence`/`MathMatrix` mas não `Text`; sintoma
-  medido: `$ bb("R") $` compilava sem erro mas devolvia `"R"` sem estilo
-  nenhum, enquanto `$ bb(R) $` — argumento identificador, já avaliado como
-  `Content::MathIdent` por `eval_math_arg_value` — devolvia `ℝ` correctamente.
-  `Content::MathText` é o mesmo tipo que `Expr::MathText`/símbolos bare já
-  produzem em modo math, dá braço a `apply_math_style` sem mudança de layout) ·
-  `bb()` sem arg → **Err `missing argument: body`** (P811 — paridade vanilla
-  medida: `$ frak() $` → `error: missing argument: body`; o comportamento
-  anterior, `Content::Empty` silencioso, deixava uma equação vazia chegar ao
-  export e produzia um PDF inválido) · `bb(x,y)` → Err (1 arg) ·
-  `bb(x, key:v)` named → Err · `bb(1)` → Err (Int não-coercível).
-- `script(Content)` → `cramped: Some(true)` (default) ·
-  `script(Content, cramped: false)` → `cramped: Some(false)`.
-- `sscript(Content)` → `cramped: Some(true)` (default) ·
-  `sscript(Content, cramped: false)` → `cramped: Some(false)`.
-- `display(Content)` → `cramped: Some(false)` (default) ·
-  `display(Content, cramped: true)` → `cramped: Some(true)`.
-- `inline(Content)` → `cramped: Some(false)` (default) ·
-  `inline(Content, cramped: true)` → `cramped: Some(true)`.
-
-### P1291 — diagnósticos públicos vanilla
-
-**Medição bilateral anterior à decisão (2026-08-31, vanilla ratificado
-`a51e02804`):** o comportamento anterior ainda emitia mensagens históricas em
-português para excesso, named desconhecido e `cramped` inválido. Mensagens de
-erro são observáveis da língua (ADR-0107/0108), logo o helper comum deve emitir:
-
-| caso | mensagem |
-|---|---|
-| body ausente | `missing argument: body` |
-| mais de um posicional | `unexpected argument` |
-| body não convertível | `expected content, found <tipo vanilla>` |
-| named desconhecido | `unexpected argument: <nome>` |
-| `cramped` não booleano | `expected boolean, found <tipo vanilla>` |
-
-Os nomes longos incluem pelo menos `int → integer`, `str → string` e `bool →
-boolean`; os restantes usam o nome público vigente. `Str` continua convertível
-para conteúdo matemático, como já especificado. A correção pertence ao helper
-único e vale igualmente para a função global e o mesmo function pointer exposto
-sob `math`; não criar wrappers por namespace.
-
-### Helper interno
-
-```rust
-fn wrap_math_style(
-    args,
-    name: &str,
-    kind: Option<MathStyleKind>,
-    bold: Option<bool>,
-    italic: Option<bool>,
-    default_cramped: Option<bool>,
-    allow_cramped_named: bool,
-) -> SourceResult<Value>;
-```
-Helper único elimina duplicação. Só `script`/`sscript`/`display`/`inline` aceitam
-o named arg `cramped`; as restantes rejeitam named args.
-
-### Composição e Não-objectivos
-
-Composição resolve no `MathLayouter` (P311b.4 — ver
-`math/layout/_comum.md`), não nas funções nativas (estas só wrap). **P1291
-corrige a precedência:** medição bilateral no vanilla ratificado em
-2026-08-31 mostrou que o setter mais interno vence no mesmo eixo:
-`serif(bb(ABC))` é byte-idêntico a `bb(ABC)`, enquanto
-`bb(serif(ABC))` é byte-idêntico a `serif(ABC)`. Propriedades ortogonais
-continuam a compor; um wrapper de tamanho como `inline` não apaga a variante
-de glyph exterior/interior e o seu `cramped` continua local ao subtree.
-Não-objectivos: Greek+dígitos completos (Latin priorizado).
-
-## Diagnósticos de `mono` e `script`
-
-`wrap_math_style` usa o span da chamada recebido em `Args` para os
-diagnósticos de `mono` e `script`: body ausente ou inválido, positional
-extra, named desconhecido e `cramped` não booleano. As demais funções
-preservam sua política de span.
-
-Quando a identidade é `mono` ou `script` e o named é exatamente `body`,
-o diagnóstico é:
-
-```text
-the argument body is positional
-hint: try removing body:
-```
-
-O hint é campo separado. Outro named continua `unexpected argument: <nome>`;
-`script.cramped` é o único named válido dessa dupla.
-
-Kind, body, cramped, defaults, ordem de avaliação, morfologia e layout não
-mudam. O helper continua comum; não duplicar wrappers nem estender a exceção a
-outra identidade.
-
-## P1466 — validação named sem loop fictício
-
-Quando qualquer named é inválido, selecionar explicitamente a primeira chave
-na ordem vigente e devolver o mesmo diagnóstico. `cramped` continua a única
-exceção nas identidades autorizadas; `body:` de `mono`/`script` conserva span e
-hint próprios. A alteração não reordena named, não aceita extras e não muda
-kind, body ou composição.
-
-## P1472 — projeção qualificada de 8 das 14 funções sob `math.*` (MATERIALIZADO)
-
-Medido (2026-09-21, vanilla ratificado `586e1bd43fae`) que `bold`, `cal`,
-`display`, `italic`, `sans`, `scr`, `sscript` e `upright` — já globais
-bare, registados em `make_root_scope` (`eval/mod.rs:8226-8238`) como
-`Func::native(<nome bare>, native_<nome>)` — são também membros
-qualificados de `math` no vanilla (`math.bold`, `math.cal`, etc., todos
-`function`, ausentes no cristalino). Ver `structural/math.md` P1472 para
-o contrato completo (owner do consumer `make_math_module`, que insere
-estes oito bindings). Este L0 só regista a projeção: as 14 funções e seus
-`kind`/`bold`/`italic`/`cramped` (tabela acima) não mudam nem um campo —
-`math.bold` e `bold` devolvem exatamente o mesmo `Content::MathStyled`
-para os mesmos argumentos, porque são a mesma função (`Func::PartialEq`
-compara nativas por nome, `entities/func.rs:384-397` — o nome bare
-idêntico já garante a igualdade linguística sem exigir wrapper).
-
-`bb`, `frak`, `inline`, `mono`, `script` e `serif` **não** ganham
-projeção qualificada neste passo — não medidos como ausentes por
-`typst-passo-1472.md` §1 (só as nove rotas listadas lá); ficam fora do
-recorte, não removidos nem negados.
-
-Confirmação recebida em 2026-09-21, posterior ao commit causal
-`445cf0c81`. Nenhum código deste ficheiro mudou — só o header
-`@prompt-hash`, ressealado pelo Agente A (`cbc3edf06`) junto da
-implementação em `structural/math.rs` (ver lá, owner do consumer). As 14
-funções e seus campos `kind`/`bold`/`italic`/`cramped` permanecem
-intactos, confirmado por `cargo test -p typst-core --lib` sem regressão
-(6067/6067).
+Test direct Content/Str MathText wrapping, nested axis precedence/orthogonal flags, absent/extra/unknown/wrong-type body, four cramped defaults/overrides/types, global-qualified pointer identities and exact span/hint restrictions. Preserve public signatures/pipeline/1:1 ownership/hash lineage/build/full suite/lint. No declared historical completion count substitutes current scope, and unmeasured qualified routes/full math rendering remain excluded.

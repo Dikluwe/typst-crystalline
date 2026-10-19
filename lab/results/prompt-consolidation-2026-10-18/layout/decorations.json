@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/decorations.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated horizontal decoration origin and material-free-preview guard, retained precise refutation, LTR-only certification and open full-geometry/RTL issues.",
+  "original_sha256": "f8efa31241975602e2a13caa6f996f992eb85d8fe81fd125163cdf4aa7f38543",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/decorations.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

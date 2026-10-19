@@ -2,31 +2,49 @@
 Hash do Código: 484bec78
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
+- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:cf64af6ef56faaa1ba19fa32ec6c134dc3f4f16a4a74fde21eca40259cf3b6ba
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/repr/math.rs`. No HEAD `6b147bd213e07e1dc896a8e798b84bf4d8dbbdcb` e árvore limpa, `01_core/src/compiler/eval/repr.rs:571-672 e 1374-1466` possui o comportamento separado. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-repr-2026-09-30-before.json.gz`. O objetivo é pesquisa algorítmica por comportamento, sem ganho de desempenho presumido.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/eval/repr/math.rs`. At HEAD `6b147bd213e07e1dc896a8e798b84bf4d8dbbdcb` with a clean tree, `01_core/src/compiler/eval/repr.rs:571-672 e 1374-1466` contains the separated behavior. SHA-256, time and state are recorded in `lab/results/construction/diagnostics/atomizacao-repr-2026-09-30-before.json.gz`. The purpose is to make algorithms discoverable by behavior, with no presumed performance gains.
 
-## Contrato
+## Contract
 
-Formatar campos matemáticos auxiliares, Attach, Binom canônico e matriz com identidade, ordem e presença causal. Não inventar fields a partir de geometria derivada nem trocar um construtor matemático por outro.
+Format mathematical helper fields, Attach, canonical Binom and matrices with identity, order and causal presence. Do not infer fields from derived geometry or substitute one mathematical constructor for another.
 
-O contrato detalhado e as evidências históricas de paridade continuam em `00_nucleo/prompts/core/compiler/eval/repr.md`; a extração não muda saída, assinatura pública ou fase. Não há I/O nem estado global mutável.
+The detailed contract and historical parity evidence remain in `00_nucleo/prompts/core/compiler/eval/repr.md`; extraction preserves output, public signatures and phase. No I/O or mutable global state is permitted.
 
-## Aceitação
+## Acceptance
 
-Preservar testes de morfologia de linguagem, compilar e passar `crystalline-lint .` com owner e hash válidos.
+Preserve language morphology tests, build, and pass `crystalline-lint .` with a valid owner and hash.
 
 
-## Guards de domínio explícitos — V17, 2026-10-16
+## Explicit domain guards
 
-### Medição anterior à decisão
+### Evidence before decision
 
-T034: 01_core/src/compiler/eval/repr/math.rs:167. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T034 is at compiler/eval/repr/math.rs:167. Current sources/L0 were read before
+prescription; `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`
+retains SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working
+tree, UTC, status and git diff HEAD --stat. The previous hash-reconfirmed
+inventory has 28 guards in 21 owners; the pinned CI rule requires splitting
+or moving the condition into the body. This is Rust structure, not functional
+failure or measured AI-reading improvement. Infer no upstream intention.
 
-### Responsabilidade exclusiva e aceitação
+### Exclusive contract and acceptance
 
-Unir Some(augment): corpo escolhe inteiro quando hline vazio, vline com exatamente um item e stroke ausente, na ordem vigente; demais casos preservam dict/repr de offsets/stroke. None continua none, sem alterar bits explicit.
+Unify Some(augment): the body chooses an integer when hline is empty, vline has
+exactly one item and stroke is absent, retaining current order; other cases
+preserve dictionary/repr of offsets/stroke. None remains none and explicit bits
+stay unchanged.
 
-Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.
+This internal ADR-0127 correction adds no public contract/default/compatibility/
+phase change. Only this exclusive consumer is authorized. No helper merely to
+hide the conjunction, suppression or linter-configuration change. Run existing
+functional controls before code with unchanged expectations. Real RED is V17's
+28-warning gate; GREEN requires zero V17. Verify success/fallback/error,
+short-circuiting and effects, then restricted owner resealing. Validate build,
+full workspace suite, all-targets Clippy with warnings/unfulfilled expectations
+as errors, fmt, Rustdoc warnings as errors, strict/reverse V1/V5/V15/V26 lineage
+and SARIF without new warnings, under 12 GiB, zero swap and one job. No memory/
+performance/global-parity claim without independent measurement.

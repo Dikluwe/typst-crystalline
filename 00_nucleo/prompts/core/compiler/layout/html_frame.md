@@ -2,12 +2,12 @@
 Hash do Código: 051a54e9
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:4e487a99ea1f1e82a67dfaced0958f98392fb26b1a7d292355230d6ffa7f2d0b
-- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:ff71dfc6648d6deb4b2b8054e3d58a93777d17837129f0f1b1e7e138ffb6943c
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
-- 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:2baf472bb540640d571ae618aa218e5f2b166839a2070f8a4a907ec65d7ded20
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:b9012d07e2d22b7c3984963a6d4e90eedbb9b925280f4136f8db8aaa9459bbc8
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/html_frame.rs`
@@ -17,7 +17,29 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/html_frame.rs:22`, `01_core/src/compiler/layout/html_frame.rs:25`, `01_core/src/compiler/layout/html_frame.rs:30`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
+
+Source→PDF RED probes in `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` and inspection of this consumer's FrameItem handlers precede textual-separator changes. Public-contract approval in `00_nucleo/prompts/core/entities/layout_types.md` was received on 2026-09-28 and recorded in materialization provenance.
+
+Bilateral probes/exact state in `lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json` and before/ measure U+002D versus SHY with coincident geometry in eight controls. This consumer's FrameItem traversal is archived in approved-before/. The owner confirmed `00_nucleo/prompts/core/entities/layout_types.md`.
+
+`lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/before/results.json` measures source→PDF with pinned binaries and no artificial terminal newline; initial.json preserves HEAD/tree/hashes/snapshots. Empty Text at 12/18pt yields Tekt 3×3 versus vanilla 3×8.568/12.852pt. abc\n\n yields Tekt 19.872×31.536 versus vanilla 19.872×8.568; interior abc\n\nxyz matches 19.872×31.536. Literal-spaces then blank line/abc stays one Tekt line versus two vanilla. `text.rs:37-86` emits no empty Text; html_frame.rs:72 excludes every separator; line_commit.rs:280-286/parbreak.rs:43-48/mod.rs:1965 reuse visual materiality for causality; parbreak.rs:40-85 advances after closure and page_geometry.rs:180-201 uses cursor absent confirmed bottom. Pinned inline/linebreak.rs:695-699 allows mandatory empty-text breakpoint. These measure observables without inferred intent or required vanilla mechanics.
+
+Selected Clippy html_frame.rs:167, source/spans/owners/references/binary/UTC/HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`/uncommitted tree/status/diffstat are preserved in `lab/results/construction/diagnostics/iteracao-parametros-ci-2026-10-13/before.json.gz`; internal mechanics/uses, not new bilateral parity or speed.
+
+`box-contexto-2026-10-14/probe.json.gz`preserves sources/binaries/HEAD/working tree/UTC: Box, inset2pt, prefix and nesting publish (0,0) despite displaced paint. The direct-context baseline difference is separate; do not copy vanilla merely because it differs. `mod.rs:1131-1148/1180-1200` writes local points to runtime.positions; Box groups its body in another coordinate system; `finish.rs:295-302` seals the map without recomposing those points. Realized writes through or_insert; labels have a parallel map. HTML already carries private markers through the frame at `html_frame.rs:30-199`. Preserve single-pass registration and per-sub-store sealing under ADR-0073/0074 position/hybrid-model sections; do not adopt vanilla global introspection. Inspection of coordinates and its owners found absolute uses in Grid and explicitly local uses in Place/Box; nucleus qualification preserves both and requires page transformation without doubled origin. Earlier snapshot: `posicoes-compostas-2026-10-14/before.json.gz`. Geometry/identity are observables; carrier/index are mechanics.
+
+`lab/results/construction/diagnostics/links-paginacao-2026-10-14.md` and receipts under `posicoes-compostas-2026-10-14/automatic-boundary-probes` record source, HEAD/dirty tree/UTC, binaries and vanilla pin. On a 160×40pt page with 10pt margins, ordinary text crosses the break; Link URL, Ref and Ref Page abort with a stale index after buffers are emptied. `references.rs:270` appears in the stack; `link.rs:22-32` uses the same mechanism. `outline.rs:28-50` also saves indices before the body. Clamping an index proves neither prefix/order/fragment/destination preservation nor geometry. Earlier snapshot: `lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz`. Content, destination, regions and bounds are observables; private boundaries are mechanics.
+
+`place-origem-local-2026-10-14/html-failures.log` reproduces four existing historical P1493 failures: aqui() publishes y11.2 rather than 20 inside Place(Box HTML), an ascender8.8 difference with FixedMetrics. `html_frame.rs:219` composes at the legacy baseline; `context_block.rs:16–22` subtracts the active ascender even when Place/Box use geometric origin 0. Pipeline tests explicitly preserve x30/y20, no page and same-target fixpoint. Earlier state: `html-before.json.gz`; `workspace-interrupted` preserves the first occurrence and full state. Capture/drawing must share geometry under coordinates; this does not justify a paginated HTML pipeline or changing ADR-0128.
+
+The pre-revision refuter `html-green-attempt1.log` keeps two transform/link tests RED: translation 5 becomes-3.8. Transform recomposes the legacy frame by removing origin 8.8; normalizing the carrier beforehand removes it twice. The HTML island already enters at geometric origin.
+
+The human approved manifest`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d` for historical T1–T3; receipt: `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`. Bilateral Parent evidence and Solid controls remain in the approved contract; structural inspection does not replace them. `lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` preserves sources, dirty state, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC, diffstat and binary hashes; it covers containers, Place and Rotate with Solid and Gradient Parent. The before-source/syntax-nodes inventory records this consumer's Group constructions/destructurings before editing: [184, 193]. `layout_types.rs:531–539` does not distinguish roots from technical groups; `helpers.rs:253–269` rebuilds Group and must preserve the field. Box groups background/body; Block leaves body flat except for clipping. Preserving coordinates is a language requirement; envelope form is mechanics. Approval does not close previously measured general Rotate/Box geometry divergences.
+
+FrameItem F007 at html_frame.rs:163, collect_context_positions.
+
+AST spans, patterns/guards/bodies and complements were checked before code. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC, sources/L0/configuration, hashes, status and git diff HEAD --stat. classification.json records 70 cases/complements across 26 owners using pinned CI-parser tree. Relevant L0 clauses were read with source; this proposes neither new architecture nor inferred upstream intent. Rust patterns/exhaustiveness are mechanics; product semantics/morphology/geometry/effects/diagnostics remain unchanged.
 
 ## Ownership and contract
 
@@ -27,188 +49,40 @@ In ordinary paginated dispatch, delegate once to the body without a visual wrapp
 
 The detailed variant captures ContextBlock ids using private zero-size carriers in the existing FrameItem tree, not a public variant or HtmlElem sentinel. Transport carriers through box/place/grid/link/group/transform geometry; after all composition, extract deterministic id/HtmlPosition pairs in the island's causal reference frame before private vertical visual cropping. Then normalize only the visual Page, remove all carriers, and derive final visual dimensions without them. Missing id/Location correspondence does not fabricate a position.
 
-Own the shared marker identity/material predicates: only a direct private marker is non-material. Existing Semantic, Link and Group wrappers retain ordinary legacy material classification even if they contain only a carrier; do not flatten them. Extent helpers ignore a direct marker but transformations still reach its point. No SVG encoder, World, PageStore or logical PDF-label behavior is introduced. The hub owns public reexports, this unit owns intrinsic implementation.
+Own the shared marker identity/material predicates: only a direct private marker receives private-marker neutrality. Existing Semantic, Link and Group wrappers retain ordinary legacy material classification even if they contain only a carrier; do not flatten them. Extent helpers ignore a direct marker but transformations still reach its point. No SVG encoder, World, PageStore or logical PDF-label behavior is introduced. The hub owns public reexports, this unit owns intrinsic implementation.
+
+TextSeparator is neutral to items_have_material/visible_top, never a removable context marker. Keep items_have_material as visual-paint/material predicate. A distinct private causal-line predicate accepts visual material or Literal TextSeparator; initial Markup/Newline/context markers do not create a line. The historical P1493 visible-Page refuter compares projection without separator leaves while preserving dimensions/matrix/pivot/marker position, separately checking textual-carrier retention; Vec structure is not visible geometry.
+
+Preserve TextReplacement while removing context markers, recursively processing children; materiality/position consult visual children. The shared nucleus does not transfer ownership.
+
+Remove only private strip_context_marker metrics parameter/M generic: it uses no metrics, merely passed them recursively. filter_map calls same helper directly. Preserve TextReplacement/Semantic/Link/Group wrappers, fields/order/ordinary children; position collection stays before removal and entrypoints retain metric acquisition/layout. Do not convert empty wrappers into Empty or remove TextSeparator.
+
+Extend shared direct-carrier predicate to recognize strict paged position carriers plus private link boundaries as neutral direct markers, alongside HTML markers. This does not flatten ordinary wrappers or make all carrier-containing wrappers empty. Keep HTML id/HtmlPosition protocol and extraction before visual crop. Resolve links before metadata removal/crop/publication, and remove both HTML/paged position carriers before intrinsic visual output even without detailed capture.
+
+Compose intrinsic island through geometric-origin helper. Text installs its own baseline; capture stays before visual crop and carrier removal after projection. No target/feature/fixpoint/PageStore/signature/position-policy change.
+
+Migrate Group constructions/patterns to approved paint_root. New technical groups and legacy fixtures use false; reconstructions transport the received value rather than inferring root status from dimensions, clipping or transformation. Preserve other fields and drawing/resource behavior. Exporter pattern use of this metadata is a separate integration boundary, not certified here. Preserve paint_root unchanged on Group reconstruction, including projection/marker removal/rebase; never true→false.
+
+F007 collect_context_positions replaces only wildcard with nominal FrameItem TextSeparator/Text/TextShaped/Line/Glyph/Image/Shape. Retain entire fallback body, previous arms/guards/transformations/calls/returns/order.
+
+Preserve callbacks/effects/metadata/clipping/fonts/positions/paint/width under their current owners. This work does not expand traversals, turn wrappers into leaves or substitute text/ActualText for geometry. Test helpers preserve fixtures/expected outputs/tolerances/counts/Unknown failure; cleanup cannot accept missing observation. Nominal alternatives retain the prior shared body and visible informative V19 notes; one arm's execution does not prove every alternative.
 
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-## Separadores textuais — materialização autorizada em 2026-09-28
+Preserve observable text/geometry, adjacency controls and pinned invariants. TextReplacement acceptance covers text/boxes, causal tests, recursive transport and literal-hyphen controls, never PDF bytes or new selection.
 
-### Medição anterior à decisão
+Causal-empty-line correction needs RED→GREEN/bilateral matrix/prior regressions/error-free build/lint and manifest-only resealing. Internal equivalent maintenance uses ADR-0127 continuous flow, unchanged expectations and no loop-mirror tests or new suppression; validate core conflicts/spans/fixups/markers/differential selection/all targets/build/docs/Clippy/lineage.
 
-`01_core/src/compiler/layout/html_frame.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
-dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
-2026-09-28 e registrada na proveniência da materialização.
+Position/origin correction requires RED→GREEN coordinates/no fictitious paint-height/identity/order/visual clones/rollback and full HTML/geometry/context-query suite. Existing p1493 expectations, including transform/link cases, remain unchanged; revalidate PDF/SVG/lineage without new public contract/phase.
 
-### Responsabilidade deste owner
+Require RED→GREEN for breaks before/within body; preserve prefix/suffix, regions, destinations/bounds, rich body/nesting/columns, deferred content and context/rollback, with no private boundaries in output. Revalidate no-break controls, suite, build and lineage.
 
-TextSeparator é neutro para items_have_material e visible_top; nunca o confundir com marcador de contexto removível.
+L0 comes first, with RED→GREEN and restricted resealing. Preserve geometry/text in source→PDF/SVG controls and revalidate suite/build/doc/check/fmt/lineage. This metadata migration neither replaces Shape.fill/stroke with FramePaint nor implements PDF/SVG/raster patterns. Prepared paint transport, native exporter integration and verification (historical T1c/T2/T3) remain explicitly open and already authorized. Build success does not establish tiling parity or production readiness.
 
-Conservar as responsabilidades existentes; a aceitação segue texto e geometria
-observáveis, incluindo os controles de adjacência e os invariantes pinados.
+Internal continuous-flow ADR-0127 maintenance introduces no enum/field, trait method/public signature, default, dependency, compatibility or phase. Do not materialize historical pending proposals. L0 precedes restricted bilateral resealing. Add no suppression, threshold change or match→if-let rewrite to hide V16.
 
-O refutador P1493 de Page visível compara a projeção sem folhas TextSeparator, preservando dimensões, matriz/pivô e posição do marker; verifica separadamente a retenção do carrier textual. Estrutura do Vec não é a geometria visível.
+Before code, run new FrameVisitor control and workspace suite with unchanged expected outputs, and establish structural RED for 70 family warnings through AST reading. Afterwards require zero covered-family V16 and no new warning, retaining external V16 as pending. For productive core matches reached by cargo check -p typst-core, use a disposable copy with a sentinel FrameItem variant to measure absent E0004 barriers before/present after. The probe covers only compiled sites, not cfg(test) helpers or L3 blocked by dependency. Across the whole package replay patterns/guards/bodies, verify unchanged enum/signatures, real build/tests and no stub bodies.
 
-## Identidade textual — materialização aprovada
-
-### Medição anterior à decisão
-
-As sondas bilaterais e o estado exato em
-`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
-e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
-A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
-
-### Responsabilidade exclusiva
-
-Conservar TextReplacement na remoção de marcadores contextuais, descendo nos filhos; materialidade/posição consultam somente os filhos visuais.
-
-O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
-possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
-transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
-
-## Linhas causais vazias em página auto — 2026-09-29
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/before/results.json` mede fontes→PDF com binários pinados e entradas sem newline artificial; `initial.json` guarda HEAD, working tree, hashes e snapshots. `#text("")` e a variante 18pt têm Tekt 3×3pt versus vanilla 3×8.568/12.852pt. `abc\n\n` termina em Tekt 19.872×31.536pt versus vanilla 19.872×8.568pt, enquanto `abc\n\nxyz` coincide a 19.872×31.536pt. `#text("  ")\n\nabc` fica numa linha Tekt (26.112×8.568pt), mas em duas linhas vanilla (19.872×31.536pt). Fonte: `text.rs:37-86` não emite item para Text vazio; `html_frame.rs:72` exclui todo TextSeparator de materialidade; `line_commit.rs:280-286`, `parbreak.rs:43-48` e `mod.rs:1965` usam essa materialidade para linha; `parbreak.rs:40-85` avança cursor após fechar linha e `page_geometry.rs:180-201` usa cursor se não há fundo confirmado. Vanilla `inline/linebreak.rs:695-699` oferece breakpoint obrigatório até para texto vazio. Isto mede o observável; não infere a intenção histórica nem exige a mecânica do vanilla.
-
-### Contrato interno segregado
-
-Manter `items_have_material` como predicado de tinta/material visual, com TextSeparator neutro. Acrescentar predicado privado distinto para existência de linha causal: material visual ou TextSeparator Literal; Markup/Newline inicial e marcadores contextuais não criam linha.
-
-Aceitação: testes RED→GREEN e matriz bilateral, regressões anteriores, build/lint sem erros; resselo somente dos owners deste manifesto.
-
-## Iteração e parâmetros internos — 2026-10-13
-
-### Medição anterior à decisão
-
-`01_core/src/compiler/layout/html_frame.rs` nas linhas 167 contém os avisos selecionados do Clippy. O snapshot anterior à decisão, spans conferidos contra a fonte, owners, referências, binário, UTC, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status e diffstat estão em `lab/results/construction/diagnostics/iteracao-parametros-ci-2026-10-13/before.json.gz`. A inspeção mede mecânica interna e usos; não é nova prova bilateral de paridade ou ganho de desempenho.
-
-### Decisão e aceitação
-
-Remover somente o parâmetro privado metrics e a generalização M de strip_context_marker: nenhuma operação do helper usa métricas, apenas as repassava a si próprio. A remoção recursiva conserva wrappers TextReplacement/Semantic/Link/Group, campos, ordem e filhos ordinários. filter_map chama diretamente o mesmo helper privado. Coleta de posições permanece antes da remoção, e aquisição/layout de métricas permanece nos entrypoints existentes. Não transformar wrappers vazios em Empty, nem remover TextSeparator.
-
-Refatoração interna equivalente em fluxo contínuo ADR-0127, sem contrato público, default ou fase novos. Conservar as expectativas dos testes existentes; não criar testes que apenas espelhem estes loops. Validar suíte core (incluindo conflitos, spans, fixups, marcadores e seleção diferencial), todos os targets, build, documentação, Clippy e linhagem com resselo restrito. Nenhuma supressão adicional de lint é autorizada por este lote.
-
-## Posições no referencial composto — 2026-10-14
-
-### Medição anterior à decisão
-
-box-contexto-2026-10-14/probe.json.gz, fontes/binários/HEAD/working tree/UTC
-preservados: Box, inset2pt, prefixo e aninhamento publicam (0,0), mesmo
-quando a tinta se desloca. A diferença da baseline do context direto é
-uma questão separada: não copiar o vanilla apenas por diferir. mod.rs:
-1131-1148/1180-1200 escreve pontos locais em runtime.positions; Box agrupa
-o corpo em outro referencial; finish.rs:295-302 sela o mapa sem recompor
-esses pontos. Realized escreve com or_insert; labels têm mapa paralelo.
-HTML já transporta markers privados pelo frame em html_frame.rs:30-199.
-O registro single-pass e sealing por sub-store são preservados, ADR-0073/
-0074 §§posição/modelo híbrido; não se adota introspecção global vanilla.
-A inspeção do núcleo coordinates e seus owners mostrou usos absolutos
-em grid e explicitamente locais em Place/Box. A qualificação do núcleo
-conserva ambos e exige transformação até a página, sem dupla origem.
-Snapshot anterior: posicoes-compostas-2026-10-14/before.json.gz.
-Geometria/identidade são observáveis; o carrier e seu índice são mecânica.
-
-### Contrato deste owner
-
-Estender o predicado compartilhado de carrier direto para reconhecer também o carrier paginado estrito do novo owner. O protocolo HTML id/HtmlPosition e sua extração anterior ao crop permanecem. Remover ambos os carriers antes da saída visual intrínseca, inclusive sem captura HTML detalhada. Grupos e wrappers existentes mantêm sua classificação; não tornar todo wrapper de carrier implicitamente vazio.
-
-Correção interna ADR-0127: sem API/campo público, flag/default ou mudança
-de fase. L0 primeiro; RED→GREEN de coordenadas, ausência de tinta/altura
-fictícia, identidade, ordem, clones visuais e rollback; revalidar os
-controles HTML, geometria, contexto/queries e suíte completa.
-
-## Captura de links através de fronteiras — 2026-10-14
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
-posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
-HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
-texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
-antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
-link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
-antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
-fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
-Os observáveis são conteúdo, destino, regiões e bounds; limites privados
-são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
-
-### Contrato deste owner
-
-Reconhecer limites privados de link como marcadores diretos neutros, junto dos marcadores existentes. Resolver links antes de remover metadados/cortar e publicar a ilha intrínseca. Preservar protocolo de contextos e targets.
-
-Aceitação: RED→GREEN de quebras antes/dentro do corpo, preservação de
-prefixo/sufixo, regiões, destinos/bounds, corpo rico/aninhamento/colunas,
-conteúdo diferido, contexto/rollback e ausência de limites privados na saída.
-Revalidar os controles sem quebra e a suíte, build e linhagem.
-
-## Origem geométrica da ilha e do carrier — 2026-10-14
-
-### Medição antes da decisão
-
-place-origem-local-2026-10-14/html-failures.log reproduz quatro falhas P1493 existentes: aqui() publica y11.2 em vez de20 dentro de Place(Box HTML), diferença de ascender8.8 em FixedMetrics. O entrypoint html_frame.rs:219 compõe em baseline legada; context_block.rs:16–22 subtrai ascender ativo mesmo quando Place/Box usam origem geométrica0. Os testes de pipeline preservam explicitamente x30/y20, nenhuma página e fixpoint do mesmo target. O estado anterior está em html-before.json.gz; workspace-interrupted conserva a primeira ocorrência e o estado integral. Captura e desenho devem usar a mesma geometria, como exige o núcleo coordinates; não é motivo para converter HTML em pipeline paginado nem mudar ADR-0128.
-
-### Responsabilidade exclusiva
-
-Compor a ilha intrínseca pelo helper de origem geométrica. Texto instala a própria baseline; a captura continua antes do crop visual, e carriers são removidos depois da projeção. Não alterar target, feature, fixpoint, PageStore, assinaturas ou política de posições.
-
-Correção interna ADR-0127 para preservar o contrato HTML já vigente. As expectativas P1493 permanecem iguais. Validar todos os testes p1493, contexto/HTML e suíte completa, além dos controles PDF/SVG e gates de linhagem; sem mudança pública ou de fase.
-
-## Referencial de pintura — transporte aprovado T1b — 2026-10-14
-
-### Medição anterior à decisão
-
-O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
-foi aprovado pelo humano para T1–T3; recibo em
-`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A evidência bilateral de Parent e controles Solid está no contrato aprovado;
-ela não é substituída por inspeção estrutural. A rodada
-`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
-fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
-diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
-e Gradient Parent. O inventário before-source/syntax-nodes registra neste
-consumer as construções/desestruturações antes da edição: [184, 193].
-layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
-reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
-Block mantém body plano exceto no clip. Preservação do referencial é requisito
-de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
-divergências gerais de geometria previamente medidas em Rotate/Box.
-
-### Responsabilidade exclusiva
-
-Migrar construções e padrões de Group para o campo paint_root aprovado. Grupos técnicos novos e fixtures legadas são false; reconstruções transportam o valor recebido, sem inferir raiz a partir de dimensão, clipping ou transformação. Preservar os demais campos e o comportamento de desenho/recursos. Exportadores ainda não usam este metadado para patterns; essa integração é T2 e não está certificada aqui. Nos ramos que desestruturam e recompõem Group, capturar paint_root e reinseri-lo sem mudança. Não redefinir true como false durante projeção, remoção de marcadores ou rebasing.
-
-### Aceitação e incompletude
-
-L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
-nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
-A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
-implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
-e já autorizados. Não alegar paridade de tiling ou produção a partir do build.
-
-
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
-
-### Medição anterior à decisão
-
-F007: 01_core/src/compiler/layout/html_frame.rs:163 (collect_context_positions). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
-
-### Prescrição exclusiva desta unidade
-
-- **F007 — `collect_context_positions`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
-
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
-
-### Gate e aceitação
-
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
-
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
-
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+Revalidate full workspace suite, cargo build, Clippy workspace/all-targets -D warnings and -D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes, strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/configuration during commands. Heavy commands run sequentially with MemoryMax 12GiB/MemorySwapMax 0/CARGO_BUILD_JOBS1. Structural cleanup does not establish new global parity, memory gain or measured AI benefit.

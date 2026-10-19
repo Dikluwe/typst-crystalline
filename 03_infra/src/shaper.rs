@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash ac12729e
+//! @prompt-hash cb5122aa
 //! @layer L3
 //! @updated 2026-10-03
 //! Post-layout shaping facade. Implementation remains in private L3 descendants.

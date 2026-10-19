@@ -2,171 +2,147 @@
 Hash do Código: c0aef757
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
-- 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:32890de1247262b54fa39d7ae1d640a068774a28cf1fa1c8890d0508d999af51
-- 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml sha256:19eb838b3e56711fa151d416bd24394a0a6f5c8286bb9ab2d0dd9bc542b4aee7
-- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:a37779d03a4ba0f16ebcc5919477bfdcf783021511a28cf8c9203c67cd64a9e5
+- 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
+- 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329
+- 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml sha256:99bae094b60a12dbe90a88c5e32df53c0422584e53097bdad7892943337ca219
+- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
 
-## Ownership e medição
+## Ownership and extraction evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/bindings/value_methods/element_where.rs`. Extração interna medida no HEAD `ce27af795` e árvore limpa em 2026-09-30 23:12:44 UTC. A fonte é o consumer pai desta unidade; a extração não é medição bilateral de paridade nem prova de desempenho.
+Layer L1. Sole productive consumer:
+`01_core/src/compiler/eval/bindings/value_methods/element_where.rs`. Internal
+extraction at clean ce27af795,2026-09-30 23:12:44 UTC, from parent
+value_methods.rs:684–1209. No fresh bilateral parity/performance proof or new
+parity decision.
 
-A lógica extraída estava em `01_core/src/compiler/eval/bindings/value_methods.rs:684-1209` no HEAD indicado. A classificação é extração interna de comportamento, não nova decisão de paridade.
+## Exclusive catalogue boundary
 
-## Contrato
+Own native element identity/function.where/field catalogue/locatability validation.
+Keep typed identity/errors/selector morphology/public contract/phase/default/
+compatibility. L1 tests/build/crystalline-lint pass; splitting proves no speedup.
 
-Own native element identity, function.where, field catalog and locatability checks. Preserve typed identity, errors and selector morphology. Não alterar contrato público, fase do pipeline, comportamento por defeito ou compatibilidade.
+## Equation catalogue evidence
 
-## Aceitação
+equation-where-2026-10-06/before.json.gz retains historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`, binary SHA/UTC/HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`/exact tree/diffstat. Tekt rejects
+equation.where as nonelement; vanilla accepts public catalogue, block/label/body/
+numbering/alt, aliases/composition/show. Vanilla rejects size/missing/position/
+closure/partial. func.rs:433–462 validates field_id/retains group;
+math/equation.rs:58–170 separates public/internal fields. element_where.rs:63–490
+omits equation; selector_matching.rs:269–310 omits native Equation matching.
+block/body getter/snapshot already exist.
 
-Os testes L1, `cargo build` e `crystalline-lint .` passam. Não inferir ganho de desempenho da divisão estrutural.
+Add math.equation via existing native_math_equation constructor identity through
+internal stdlib bridge. Public ordered catalogue block, numbering, number-align,
+supplement, alt, body; common label allowed. Equation locatable. Reject size/other
+internal fields. Keep public equation name without math prefix, ordered empty
+group, uncast filter values/argument validation/pointer aliases. Closures/homonyms/
+partial remain nonelements. No public signature/enum/API/phase/constructor execution.
+Internal continuous ADR-0127 table correction; consumer RED→GREEN/bilateral
+revalidation, preserve D04/no bare math-D06/matrix-D07 realization here.
 
-## D05 — equation.where, correção interna de paridade
+## Ratified bare table.cell selector
 
-### Medição antes da decisão
+### Evidence before decision
 
-Coleta equation-where-2026-10-06/before.json.gz registra pin
-9f2b6e8715237cb086899a42873660fe744622e8, binários SHA-256, UTC, HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b e diff HEAD --stat/estado exato.
-Tekt rejeita equation.where como função não-elemento; vanilla aceita catálogo
-público, filtros block/label/body/numbering/alt, alias, composição e show.
-Vanilla rejeita campos size/missing, posição, closure e aplicação parcial.
-Fonte upstream: foundations/func.rs:433–462 valida field_id e mantém grupo;
-math/equation.rs:58–170 separa campos públicos dos internos.
-Tekt element_where.rs:63–490 omite equation; selector_matching.rs:269–310
-omite Equation no matching nativo. O getter block/body e snapshot já existem.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree;
+`lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz`
+retains UTC/diffstat/inputs/commands/source-executable hashes. Historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`: selector(table.cell) gives cell,
+where() cell.where(:), equality false, query/counter reject nonlocatable cell.
+Real CodeBlock alias preserves results. Earlier document-only alias was unavailable
+to expression eval, no positive-alias proof; table-aliases-before corrects fixture.
 
-### Decisão e aceitação
+Pinned selector.rs:309–321 distinguishes dict None/Some; :421–450 separately
+validates locatability. Tekt selector.rs:34–37 represents only present Element
+group; foundations/selector.rs:69–77,348–354 omits native cell; other limits/hashes
+in d08-owner-audit.json. Form/identity/query rejection are language; closed new
+carrier is chosen mechanics. Source makes distinction explicit, no inferred
+intent solely from output. Inference: variant suffices for selection/locatability
+slice, refuted by public no-group/identity case not representable. No presumed
+Cell realization correction.
 
-Acrescentar math.equation à tabela estática por identidade do constructor
-native_math_equation já existente, via bridge interno de stdlib. Catálogo público:
-block, numbering, number-align, supplement, alt, body; label continua campo
-comum permitido. Equação é locatável. size e demais campos internos não são
-aceitos. Preservar mensagem equation (sem prefixo math), grupo ordenado vazio,
-valores não tipados dos filtros, validação de args e aliases por ponteiro.
-Closures, homônimos de função e aplicação parcial continuam não-elementos.
-Não mudar assinatura, enum, API pública ou fase; não executar constructor.
+### Approval and current equality contract
 
-Fluxo contínuo ADR-0127: correção de tabela interna, sem novo contrato público
-ou fase. RED→GREEN dos consumers e revalidação bilateral dos controles;
-preservar D04 e não realizar math bare/D06 ou morfologia de matriz/D07.
+Human `confirmo` receipt on2026-10-06:
+`lab/history/construction/records/00_nucleo/materialization/table-cell-selector-aprovacao-2026-10-06.json`,
+UTC `2026-10-06T22:36:30.591466+00:00`, manifest
+`f80f85c4ac3ab747d20d98ef3f5758c59727bcf5f5d762082660099aef4dcc9c`.
+Earlier proposal gate is satisfied for D08A only.
 
-## D08A — seletor bare de table.cell (PROPOSTO, gate ADR-0127)
+Keep eval_element_where/native_element_fields: table.cell already has catalogue/
+locatable=false. validate_element_locatability also visits NativeElement's actual
+function, rejecting cell with `cell is not locatable` at supplied span. Propagate
+through And/Or/Where/Within/Before/After as existing. Never convert NativeElement
+to empty Element or validate locatability during where construction.
 
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
-Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
-selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
-é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
-por CodeBlock conserva esses resultados. A fixture anterior que definiu alias
-apenas no documento não disponibilizava a variável à expressão eval e não
-prova alias positivo; table-aliases-before corrige a fixture.
-
-Fonte: lab/typst-original/crates/typst-library/src/foundations/selector.rs:309–321
-distingue dict None de Some; :421–450 valida locatabilidade separadamente.
-No Tekt, entities/selector.rs:34–37 só representa grupo Element presente;
-stdlib/foundations/selector.rs:69–77,348–354 omite a nativa cell; os demais
-limites atuais e hashes estão em d08-owner-audit.json.
-
-Classificação: formato, identidade e rejeição de consulta são linguagem;
-o novo carrier fechado é mecânica escolhida para preservar esses observáveis.
-A distinção do vanilla é explícita na fonte; não se infere intenção apenas
-da saída. Inferência: a nova variante basta à fatia de seleção/locatabilidade;
-a hipótese será refutada por um caso público cuja ausência de grupo ou
-identidade não caiba nela. Não se presume correção de realização de células.
-
-### Contrato materializável somente após ratificação
-
-Conservar eval_element_where e a tabela native_element_fields: table.cell já tem catálogo e locatable=false. validate_element_locatability visita também Selector::NativeElement pela função efetiva, rejeitando cell com `cell is not locatable` no span recebido; propagar por And/Or/Where/Within/Before/After como hoje. Não converter NativeElement em Element vazio e não validar locatabilidade na construção de where.
-
-### Fronteira incompleta e aceitação
-
-D08A cobre apenas carrier, construção, repr, igualdade, composição e
-locatabilidade. D08 permanece incompleto: D08B completa show direto, projeção
-de body/campos e preparação de células explícitas/implícitas, incluindo
-posições, padding, spans, header/footer e escopo lexical. D08B precisa de
-seus L0s medidos e de gate próprio caso mude contrato ou fase; esta ratificação
-não o autoriza. Não esconder negativos D08B ou declarar paridade universal.
-
-Após ratificação: promover este conjunto atomicamente; escrever testes
-linguísticos e verificar RED válido antes do código; materializar com
-despacho estático e Rust seguro; validar 1:1/V26 antes de ressellar somente
-owners deste manifesto; build, suíte core e linter sem erros. Revalidar
-selector cell bare/where/alias, igualdade true/false, query/counter diretos
-e compostos, função homônima, partial/closure; preservar D05, D07 e query.
-
-## Completar projeção da caption existente — 2026-10-17
-
-Medição anterior à decisão: caption-shape-before.json e caption-after.json em
-lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
-binários, HEAD/working tree de validation-result.json e pin
-9f2b6e8715237cb086899a42873660fe744622e8. Projeção de caption já produz o
-carrier, mas sua CLI imprime só func:figure.caption; body/getters/fields estão
-ausentes. json.encode tem o mesmo defeito. Metadata de kind rejeita a função
-de caption válida. O pin em model/figure.rs:510 declara caption Locatable e
-em :511-594 declara position,separator,body e kind/supplement/numbering/counter
-sintetizados públicos, com figure_location interno. Não sintetizar esses dados
-nesta correção; a função de elemento já existe desde a aprovação P1473.
-
-Responsabilidade exclusiva e aceitação:
-
-Reconhecer native_figure_caption por fn_addr_eq na tabela de elemento: nome
-caption; campos públicos position,separator,body,kind,supplement,numbering,counter;
-locatable=true conforme a fonte pinada. Excluir figure_location interno. Isso
-corrige a classificação da função em kind e where; não materializa síntese nem
-índice de captions. FG1 ainda completa esses mecanismos e audita a totalidade
-do catálogo; esta correção não certifica todos os callbacks do registry.
-
-Correção interna/paridade em fluxo contínuo ADR-0127. Não há novo campo/trait/
-assinatura Rust pública, fase, modo ou default. L0 antes de testes/código, RED
-real de getters/metadados/encoder/CLI, GREEN e corpus externo sem relaxar
-expectativas de corpo/nome. Revalidar todos os gates da etapa sob 12 GiB, swap
-zero, jobs1. Resselo só dos owners após V15/V26. FG1/SY1 permanecem incompletos
-conforme follow-ups.md; nenhuma API pendente está autorizada por esta seção.
+D08A covers only carrier/construction/repr/equality/composition/locatability.
+D08B's direct show/body-fields/explicit-implicit preparation/positions/padding/
+spans/header-footer/lexical scope requires measured own L0/gate for public-phase
+change; D08A approval authorizes none of it. Hide no negative or claim universal
+parity. Atomic approved set, language tests/valid RED before code/static safe
+Rust,1:1/V26 before manifest-owner-only reseal; build/core/lint without errors.
+Revalidate bare/where/alias/equality true-false/direct-composed query-counter/
+homonym/partial-closure, preserving D05/D07/query.
 
 
-## Catálogo nativo — lote de identidades já existentes (2026-10-17)
+## Existing caption projection completion
 
-### Medição anterior à decisão
+caption-shape-before.json/caption-after.json in
+`lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17`
+retain sources/UTC/binaries/HEAD-working tree from validation-result.json and
+historical pin9f2b6e871. Projection makes carrier but CLI only func:figure.caption,
+missing body/getters/fields; json.encode same. Kind metadata rejects valid caption
+function. Pinned figure.rs:510 declares Locatable; :511–594 public position/
+separator/body and synthesized kind/supplement/numbering/counter, internal
+figure_location. Synthesize none here; element function existed since approved
+P1473.
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `lab/results/construction/diagnostics/native-element-catalogue-2026-10-17/`
-contém `before.json.gz` (estado/diffstat e SHA-256 de todas as fontes),
-`inventory.json.gz` (bindings efetivos em oito perfis de features),
-`before-measurement.json.gz` (3956 casos de funções com comandos e saídas
-bilaterais) e `before-batch.json.gz` (campos, filtro label, desconhecidos e
-counter). Cada binário tem SHA-256; o oráculo é o pin
-`9f2b6e8715237cb086899a42873660fe744622e8`. A ausência na tabela atual faz
-where e figure(kind:) rejeitarem funções de elemento existentes. Não se
-confunde função que produz content com identidade de elemento.
+Recognize native_figure_caption by fn_addr_eq: public caption, ordered fields
+position,separator,body,kind,supplement,numbering,counter, locatable=true.
+Exclude internal figure_location. Fixes kind/where classification only, no caption
+synthesis/index. FG1 still completes those/audits entire catalogue; no all-registry-
+callback certification. Continuous internal parity ADR-0127, no public field/
+trait/signature/phase/mode/default. L0 before tests/code, real getter/metadata/
+encoder/CLI RED/GREEN/external corpus without relaxed body/name expectations.
+All batch gates, 12 GiB/zero swap/jobs1, owner-only reseal after V15/V26. FG1/SY1
+remain incomplete per follow-ups.md; no pending API authorized.
 
-`batch-schema.json` conserva os blocos literais, hashes de blobs do pin e
-linhas da fonte abaixo. typst-macros/src/elem.rs:410–421 exclui campos
-internal/external do field_id; capacidades Locatable vêm da anotação elem,
-não da hipótese de que Tagged ou ShowSet implicam locatabilidade.
+## Catalogue of existing native identities
 
-### Decisão/classificação e responsabilidade exclusiva
+### Evidence before decision
 
-Correção interna de tabela/paridade em fluxo contínuo ADR-0127: completar
-somente as quinze identidades abaixo. Usar fn_addr_eq com ABI tipada;
-math.op mantém ABI NativeWithEngine de seis argumentos, incluindo scopes e
-engine, sem invocar o constructor. As demais usam a ABI existente de quatro
-argumentos. O nome do Func nunca é discriminador; alias conserva identidade,
-função homônima não a adquire. Não usar PartialEq de Func como prova do callback.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree.
+`lab/results/construction/diagnostics/native-element-catalogue-2026-10-17/`
+contains before.json.gz state/diffstat/all source SHA, inventory.json.gz effective
+bindings/eight profiles, before-measurement.json.gz3956 function cases/bilateral
+commands-output, before-batch.json.gz fields/label filter/unknowns/counter.
+Each binary SHA recorded, historical oracle9f2b6e871. Missing catalogue causes
+where/figure(kind:) rejection of existing element functions. Content-returning
+function is not automatically element identity.
 
-| Callback existente | Nome público | Campos selecionáveis na ordem da fonte | Locatable | Fonte no pin |
+batch-schema.json retains literal blocks/pinned blob hashes/lines. elem.rs:410–421
+excludes internal/external fields from field_id; Locatable comes from elem
+annotation, not inferred from Tagged/ShowSet.
+
+### Current fifteen-identity contract
+
+Internal continuous ADR-0127 table/parity correction adds only listed identities.
+Use typed fn_addr_eq; math.op retains six-argument NativeWithEngine ABI including
+scopes/engine, others existing four-argument ABI. Execute no constructor; Func
+name/PartialEq is no callback proof. Actual alias shares identity, homonym does not.
+
+| Existing callback | Public name | Selectable fields in source order | Locatable | Pinned source |
 |---|---|---|---|---|
 | `native_title` | `title` | `body` | true | `crates/typst-library/src/model/title.rs:31` |
 | `native_document` | `document` | `path`, `format`, `title`, `author`, `description`, `keywords`, `date`, `body` | true | `crates/typst-library/src/model/document.rs:147` |
-| `native_divider` | `divider` | nenhum | false | `crates/typst-library/src/model/divider.rs:41` |
+| `native_divider` | `divider` | none | false | `crates/typst-library/src/model/divider.rs:41` |
 | `native_list_item` | `item` | `body` | false | `crates/typst-library/src/model/list.rs:167` |
 | `native_enum_item` | `item` | `number`, `body` | false | `crates/typst-library/src/model/enum.rs:230` |
 | `native_terms_item` | `item` | `term`, `description` | false | `crates/typst-library/src/model/terms.rs:115` |
 | `native_footnote_entry` | `entry` | `note`, `separator`, `clearance`, `gap`, `indent` | true | `crates/typst-library/src/model/footnote.rs:223` |
-| `native_flush` | `flush` | nenhum | false | `crates/typst-library/src/layout/place.rs:213` |
+| `native_flush` | `flush` | none | false | `crates/typst-library/src/layout/place.rs:213` |
 | `native_op` | `op` | `text`, `limits` | false | `crates/typst-library/src/math/op.rs:25` |
 | `native_curve_move` | `move` | `start`, `relative` | false | `crates/typst-library/src/visualize/curve.rs:174` |
 | `native_curve_line` | `line` | `end`, `relative` | false | `crates/typst-library/src/visualize/curve.rs:197` |
@@ -175,68 +151,48 @@ função homônima não a adquire. Não usar PartialEq de Func como prova do cal
 | `native_curve_close` | `close` | `mode` | false | `crates/typst-library/src/visualize/curve.rs:366` |
 | `native_asset` | `asset` | `path`, `data` | true | `crates/typst-bundle/src/format.rs:212` |
 
-A capacidade é metadado de validação: não afirmar que esta tabela materializa
-sintetização, índices de consulta, contadores ou renderização desses elementos.
-Preservar page no caminho com engine, raw.line dinâmico e todas as entradas
-anteriores. Não aceitar With/closure/plugin, não alargar para toda função,
-nem alterar campos/traits/assinaturas Rust públicos, default de produto ou fase.
 
-O mesmo callback real pode existir em vários bindings: alias global op e
-format.bundle.asset devem acompanhar as identidades, respeitando o registry
-atual e as features. Não criar bindings novos. Formatos raiz compartilham hoje
-callback e não são legitimados por nomes; as 41 rotas restantes da matriz são
-frente posterior de metadados/identidade, não paridade declarada por este lote.
-Símbolos e funções indisponíveis no pin são classificados separadamente.
+Locatability is validation metadata, no synthesized/index/counter/render
+materialization. Keep page's Engine path/raw.line dynamic/all earlier entries.
+No With/closure/plugin/all-function admission or public Rust field/trait/signature/
+default/phase change. Same callback may have multiple bindings: global op/
+format.bundle.asset follow current registry/features without new bindings.
+Root formats share callback and gain no name-based legitimacy. Earlier41 remaining
+matrix routes require later metadata/identity evidence below, not claimed closed
+by this batch. Symbols/unavailable pinned functions classified separately.
 
-### Aceitação e fronteiras
+Co-located precode tests: each alias identity/exact fields/common label/unknown
+rejection with public name/coherent bare-where locatability/With rejection.
+Preserve non-element homonym/page-with-engine controls. Functional RED/GREEN;
+repeat bilateral matrix unchanged outside authorized aliases, full outputs/errors.
+Check every field/unknown against pin, no Rust mechanics equality demand. Keep
+all residual differences explicit. Build/full suite/fmt/strict Clippy/Rustdoc/
+ownership-V26/reverse/linter, 12 GiB/High 10 GiB/swap0/jobs1 sequential; only this pair
+resealed after V15/V26. FG1/RM1/SY1/RG1 retain separate scope/gates.
 
-Testes co-localizados: cada identidade reconhecida sob nome alias, catálogo
-exato, label permitido, desconhecido rejeitado com nome público, locatabilidade
-coerente para bare/where e With rejeitado. Controles de homônimo não-elemento e
-page com engine preservados. RED funcional antes da tabela, GREEN depois.
-Reexecutar matriz bilateral e exigir igualdade do estado anterior fora do
-conjunto de aliases autorizado, preservando saídas/diagnósticos de todos os
-controles. Verificar cada campo e rejeição de desconhecidos contra o pin,
-sem exigir igualdade da mecânica Rust. Toda diferença residual fica explícita.
+## Native mathematical identity
 
-Validar build, suíte workspace, fmt, Clippy estrito, Rustdoc, ownership/V26,
-linhagem reversa e linter sob 12 GiB, high10, swap0 e jobs1 sequenciais.
-Resselo exclusivamente deste consumer e seu owner depois de V15/V26. FG1,
-RM1, SY1 e a proposta RG1 mantêm os seus próprios escopos/gates pendentes.
+### Evidence before decision
 
+Same HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b/uncommitted tree, historical
+pin9f2b6e871. `lab/results/construction/diagnostics/native-math-catalogue-2026-10-17/before.json.gz`
+fixes UTC/exact diffstat/protected consumer-L0-config hashes.
+before-measurement.json.gz is hash-verified prior final-matrix reuse, not fresh
+run (baseline-reuse.json). Eight profiles/3956 function cases:26 math routes
+where/kind reject only in Tekt. before-batch.json.gz227 detailed fields/exclusions/
+partial alias/counter cases with commands/binaries/outputs/hashes. batch-schema.json
+retains primary pinned blocks/SHA/file:line/current ABI declarations.
+elem.rs:410–421 excludes internal/external; all26 annotated Mathy, not Locatable.
+Public language semantics/form, not mechanical Func equality/render-inferred intent.
 
-## Identidade matemática nativa — 2026-10-17
+### Current twenty-six-identity contract
 
-### Medição anterior à decisão
+Complete native_element_fields with listed existing four-argument typed callbacks,
+all locatable=false. Recognize aliases, never Func.name/PartialEq/returned Content
+type/registry strings/constructor execution. Catalogue solely this owner; facades
+only direct internal callback reexports.
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado; pin `9f2b6e8715237cb086899a42873660fe744622e8`.
-`lab/results/construction/diagnostics/native-math-catalogue-2026-10-17/` fixa o estado
-exato em before.json.gz: UTC, diff HEAD --stat e hashes de todos os consumers,
-L0 e configuração protegidos. before-measurement.json.gz é reutilização
-verificada da matriz final da etapa anterior: fontes e binário Tekt têm
-identidade de hash com o baseline atual (baseline-reuse.json), não uma nova
-execução. A matriz cobre os oito perfis de features e 3956 casos de funções;
-26 rotas math ainda são recusadas em where/kind pelo Tekt e aceitas pelo pin.
-before-batch.json.gz mede 227 casos detalhados de campos, exclusões, alias
-parcial e counter, com comandos/binários/saídas e seus hashes.
-
-batch-schema.json conserva blocos e SHA-256 das fontes primárias do pin,
-file:line e declarações de ABI do Tekt; typst-macros/src/elem.rs:410–421
-exclui internal/external de field_id. As anotações elem destas 26 funções
-contêm Mathy e não Locatable. Isto é semântica/forma pública da linguagem,
-não igualdade mecânica de Func nem inferência de intenção por render.
-
-### Responsabilidade exclusiva e decisão
-
-Completar a tabela estática native_element_fields com os 26 callbacks
-abaixo, usando fn_addr_eq tipada à ABI existente de quatro argumentos. Todas
-as entradas têm locatable=false. Reconhecer a mesma função sob alias; não
-usar Func.name/PartialEq, tipo de Content retornado, strings de registry nem
-execução do constructor. A tabela é exclusiva deste owner; as fachadas só
-transportam os callbacks originais por reexport interno direto.
-
-| Callback | Nome público | Campos selecionáveis, na ordem do pin | Fonte no pin |
+| Callback | Public name | Selectable fields in pinned order | Pinned source |
 |---|---|---|---|
 | `native_accent` | `accent` | `base`, `accent`, `size`, `dotless` | `crates/typst-library/src/math/accent.rs:33` |
 | `native_math_attach` | `attach` | `base`, `t`, `b`, `tl`, `bl`, `tr`, `br` | `crates/typst-library/src/math/attach.rs:20` |
@@ -265,74 +221,54 @@ transportam os callbacks originais por reexport interno direto.
 | `native_math_undershell` | `undershell` | `body`, `annotation` | `crates/typst-library/src/math/underover.rs:131` |
 | `native_math_vec` | `vec` | `delim`, `align`, `gap`, `children` | `crates/typst-library/src/math/matrix.rs:33` |
 
-Excluir num-deparenthesized e denom-deparenthesized internos de frac e gap
-external de mat; row-gap/column-gap são selecionáveis. Não retirar o parâmetro
-constructor gap de mat: parâmetro externo e campo de seleção são superfícies
-diferentes. Label permanece campo comum; filtros preservam valores sem cast.
-Preservar page/math.op com engine, equation, as quinze identidades do lote
-anterior e todas as entradas históricas. Math underline/overline continuam
-identidades diferentes das funções globais homônimas.
 
-### Aceitação e limites
+Exclude frac internal num-deparenthesized/denom-deparenthesized and mat external
+gap; row-gap/column-gap selectable. Do not remove mat constructor gap: external
+parameter differs from selectable field. Common label/uncast filter values stay.
+Preserve page/math.op Engine/equation/prior fifteen/all historical entries.
+Math underline/overline differ from global homonyms.
 
-Invariantes compartilhadas: consumir o Núcleo Tekt pinado
-`00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml`; as
-responsabilidades exclusivas acima definem o segmento de cada owner.
+Consume pinned math-native-bridges nucleus. Internal continuous table/composition
+ADR-0127, no new public Rust field/trait/signature/compatibility/default/phase.
+L0 before tests/code; real missing-identity RED/GREEN26 filtered/excluded cases,
+With/homonym/non-element helper controls. Full before/after matrix preserves
+outside-authorized observables/actual aliases including crystalline global accent/
+cancel without parity credit when absent pin. where/kind success certifies no
+getter/synthesis/index/show/layout/counter. Explicit counter controls/admission
+unchanged. Earlier15 format-HTML-PDF routes have later investigation below;
+callback collision never solved by names. FG1/RM1/SY1/RG1 retain scope/gates.
+Ownership/V26 before restricted five-pair reseal; build/full suite/fmt/strict
+Clippy-Rustdoc/lineage/global diagnostics without new violation,
+MemoryMax 12 GiB/High 10 GiB/swap0/jobs1 sequential.
 
-Correção interna de tabela/composição em fluxo contínuo ADR-0127. Nenhum campo,
-trait, assinatura Rust externa, compatibilidade, default ou fase muda. L0
-antes dos testes/código; RED funcional por identidade ausente, GREEN dos 26
-casos com filtros e exclusões; controles de With, homônimo e helpers que não
-são elementos. Validar antes/depois toda a matriz, preservando observáveis
-fora das identidades autorizadas e aliases efetivos (accent/cancel globais
-cristalinos incluídos, sem crédito de paridade se não existem no pin).
+## Native-format identity evidence and application boundary
 
-O sucesso de where/kind não certifica getters, síntese, indexação, show,
-layout ou counter. Os controles counter permanecem explícitos e a sua
-admissão separada não é alterada neste lote. As quinze rotas restantes de
-formatos/HTML/PDF têm investigação própria; a colisão de callback dos formatos
-não é resolvida por nomes. FG1/RM1/SY1/RG1 preservam escopos e gates.
+### Evidence before decision
 
-Verificar ownership/V26 antes do resselo restrito aos cinco pares; build,
-suíte completa, fmt, Clippy/Rustdoc estritos, linhagem e diagnóstico global
-sem nova violação, sob MemoryMax12GiB/High10GiB/swap0/jobs1 sequenciais.
-
-
-## Formatos como funções de elemento — 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
-conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
-baseline-reuse.json prova igualdade de fontes/configuração/binário com a
-matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
-mede 144 casos detalhados; before-compat.json.gz mede 456 controles de
-nomes, aliases e namespace. Cada sonda conserva argv, binários e saídas.
-O pin é `9f2b6e8715237cb086899a42873660fe744622e8`, executável SHA-256
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree.
+`lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/before.json.gz`
+retains UTC/status/exact diffstat/hashes; baseline-reuse.json proves source/
+configuration/binary equality with prior3956-case/eight-profile final matrix.
+before-batch.json.gz measures144 detailed cases; before-compat.json.gz456 name/
+alias/namespace controls. Probes keep argv/binaries/output. Historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`, executable SHA
 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+Fifteen remaining routes reject where/kind only in Tekt. format.rs:17–27/96–146
+shares native_format across five formats, so pointer alone cannot distinguish
+schemas. pinned-schema.json.gz retains nine upstream declarations/blob/hash/
+lines/elem attributes. FuncRepr is pub(crate), entities/func.md:21/func.rs:24;
+retificacao-func-repr.md refutes prior claim L0 made it public.
+public-contract-before.json fixes public signatures/reexports/structs. Internal
+representation/parity classification, not new public contract or render-inferred
+intent.
 
-As quinze rotas restantes são rejeitadas por where/kind no Tekt e aceitas
-no pin. format.rs:17–27/96–146 compartilha native_format entre os cinco
-formatos, logo só ponteiro não distingue schemas. pinned-schema.json.gz
-conserva nove declarações upstream com blobs/hash/linhas e atributos elem.
-FuncRepr é pub(crate) em entities/func.md:21 e entities/func.rs:24; a nota
-anterior de que o L0 o mostrava público foi refutada em retificacao-func-repr.md.
-public-contract-before.json fixa assinaturas, reexports e structs públicos
-antes da mudança; a classificação é representação interna e paridade, não
-novo contrato público ou inferência de intenção por render.
+Recognize FuncRepr::Format by exhaustive Svg/Png/Pdf/Html/Bundle witness and
+canonical name/schema below, not shared pointer/name/namespace. Execute no callback.
+Other four real elements use existing typed fn_addr_eq callbacks native_pdf_attach,
+native_pdf_artifact,native_html_elem,native_html_frame. Unmarked Native borrowing
+callback/name is not format identity; actual Func clone/alias retains witness.
 
-### Responsabilidade exclusiva
-
-Reconhecer FuncRepr::Format pela testemunha exaustiva Svg/Png/Pdf/Html/Bundle,
-com nome canônico e schemas da tabela. Não descrever formato pelo mesmo
-ponteiro compartilhado, nome ou namespace. Não executar callback. Para os
-quatro elementos reais restantes, usar os callbacks existentes por
-fn_addr_eq: native_pdf_attach, native_pdf_artifact, native_html_elem e
-native_html_frame. Não aceitar Native não marcada que reutilize callback
-ou nome de formato; clone/alias da Func efetiva conserva a marca.
-
-| Rota | Campos selecionáveis, na ordem do pin | Locatable |
+| Route | Selectable fields in pinned order | Locatable |
 |---|---|---|
 | `std.format.bundle` |  | false |
 | `std.format.html` | `pretty` | false |
@@ -350,82 +286,65 @@ ou nome de formato; clone/alias da Func efetiva conserva a marca.
 | `std.pdf.artifact` | `kind`, `body` | false |
 | `std.pdf.attach` | `path`, `data`, `relationship`, `mime-type`, `description` | true |
 
-Nomes públicos são os últimos segmentos da rota (elem/frame/attach/artifact
-incluídos). HtmlElem exclui css/parent/role internal; label é o filtro comum.
-Somente attach é locatable entre essas nove identidades. Esta capacidade não
-materializa counter, indexação ou layout. With continua não-elemento bare e
-continua rejeitado por where/kind, sem descascar a aplicação parcial.
-Preservar toda a tabela anterior e os caminhos page/op/raw.line.
 
-### Aceitação e fronteiras
+Public names are final route components, including elem/frame/attach/artifact.
+HtmlElem excludes internal css/parent/role; label common. Only attach among these
+nine identities is locatable; metadata materializes no counter/index/layout.
+With stays non-element bare/rejected where-kind without partial unwrapping.
+Preserve earlier table/page-op-raw.line.
 
-Consumir as invariantes compartilhadas do Núcleo Tekt pinado
-`00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml`. As novas
-alternativas Native/Format são agrupáveis porque usam o mesmo payload/ABI
-para projeção e execução; cada uma deve ser exercitada nos testes de nome,
-namespace, ponteiro, Eq/Hash, clone/With e despacho. V19 novo nessas uniões
-deve ser inventariado e ligado aos testes; não adicionar suppressions.
-A nova variante deve ser explicitamente nomeada nos matches fechados.
+### Acceptance and scope
 
-Fluxo contínuo ADR-0127: nenhuma definição, assinatura, campo ou trait
-externo novo, compatibilidade, default ou fase muda. Antes do código, RED
-funcional dos quinze casos por factories atuais e controle de observação
-real contra Native não marcada. GREEN exige corpus completo, 144 casos de
-campos/chamadas e 456 controles de compatibilidade preservados fora de
-where/kind. Comparar public-contract-before/after e sizeof antes/depois.
+Consume pinned format-native-identity nucleus. Native/Format may share body
+because payload/ABI/projection/execution are same; independently exercise both
+in name/namespace/pointer/Eq-Hash/clone-With/dispatch tests. Inventory new V19
+unions/link tests, no suppression. Explicitly name new variant in closed matches.
+Continuous ADR-0127: no new external definition/signature/field/trait,
+compatibility/default/phase. Before code, real functional RED for15 routes via
+current factories plus real observation against unmarked Native. GREEN requires
+full corpus/144 field-call cases/456 compatibility controls unchanged outside
+where/kind. Compare public-contract-before/after and sizeof before/after.
 
-L0 antes do código; ownership/V26 antes de resselo restrito aos onze pares.
-Build, suíte workspace, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26, reverse
-e diferencial global sem novo erro/aviso. Comandos pesados sequenciais sob
-MemoryMax12GiB/High10GiB/swap0/jobs1. Rastrear notas V19 legítimas com cobertura.
+L0 before code, ownership/V26 before restricted11-pair reseal. Build/full suite/
+strict Clippy-Rustdoc/fmt/V1/V5/V15/V26/reverse/global differential without new
+error-warning. Heavy tasks sequential MemoryMax 12 GiB/High 10 GiB/swap0/jobs1.
+Track legitimate V19 with coverage. Closes where/kind admission only, not all
+selection/show/query/synthesis/carrier morphology/counter. FG1/RM1/SY1/RG1/prior
+V16 retain scope/gates; copy no old candidate or publish.
 
-Esta etapa fecha admissão where/kind, não todas as operações de seleção,
-show/query, síntese, morfologia dos carriers ou counter. As frentes FG1, RM1,
-SY1, RG1 e V16 anteriores preservam seus escopos/gates; não aplicar candidatos
-antigos por cópia nem publicar.
+## Sequence construction/selection facade
 
-## R2 — construção e seleção de Sequence, fluxo contínuo ADR-0127
+### Evidence before decision
 
-### Medição anterior à decisão
+HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree.
+`lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz`
+and before-sources.json.gz retain UTC/diffstat/status/binaries/sources/bilateral
+cases at `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Vanilla
+content/mod.rs:724–728 requires children; value.rs:644–650 casts Content/string/
+symbol/none; typst-macros/src/elem.rs:573–604 generates constructor. Tekt
+field_access/content_methods.rs:358–410 still exposes noncallable fallback;
+element_where catalogue/selector_matching.rs:272–337 lack Sequence identity;
+rules/set.rs:55–76 rejects only transform With, misses Sequence set. Language
+semantics/morphology/diagnostics, not required upstream storage. Earlier pending
+children() message already matches current baseline: fixed getter lets existing
+owner produce correct error. New evidence rectifies debt; edit no diagnostic code.
 
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz
-e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
-bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
-foundations/content/mod.rs:724–728 declara children requerido;
-foundations/value.rs:644–650 define cast Content/string/symbol/none e
-typst-macros/src/elem.rs:573–604 gera o constructor. Tekt
-01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358–410
-ainda projeta fallback não chamável; o catálogo element_where não tem Sequence
-e selector_matching.rs:272–337 não tem sua identidade. rules/set.rs:55–76
-só recusa With de transforms e não reconhece set da Sequence. São semântica,
-morfologia e diagnósticos de língua, não exigência de copiar storage upstream.
-A mensagem de children() marcada pendente em R1 já coincide no baseline atual: o
-getter recém-corrigido permite que o owner existente produza o erro correto.
-A medição nova retifica essa pendência; não editar código de diagnóstico.
+### Exclusive Sequence catalogue and acceptance
 
-### Responsabilidade exclusiva
+Add typed native_sequence: public sequence, only children field, locatable=false.
+Common label allowed through current mechanism. No name/Func equality/callback
+execution for classification. Real aliases accepted, With/closure/other-callback
+homonyms rejected. where validates names without value cast. Existing locatability
+validation returns `sequence is not locatable` for direct/filtered query/counter;
+keep compositions/spans. Completes earlier R1-named R2 responsibility. Continuous
+internal table/composition/callback correction, no new external field/trait/Rust
+signature/default mode/phase/compatibility break. L0 before tests/code, functional
+RED/GREEN/bilateral corpus. Certify no global show guards/all casts-elements/
+universal render parity. Residual refuters stay reportable with owner/L0 before
+intervention; change no tests to hide them.
 
-Acrescentar ao catálogo estático a identidade tipada native_sequence: nome
-sequence, schema somente children, locatable=false. Label comum permanece
-permitido pelo mecanismo atual. Não usar nome, igualdade de Func ou execução
-do callback para classificar. Aliases reais são aceitos, With/closures/homônimos
-com outro callback continuam rejeitados. where valida nomes sem cast de valores.
-As validações existentes de locatabilidade produzem sequence is not locatable
-para query/counter diretos e filtrados; preservar composição e spans.
-
-### Aceitação e limites
-
-Esta seção completa a responsabilidade R2 nomeada no L0 de R1. Corrigir
-continuamente tabelas/composição/callback interno, sem novos campos/traits/
-assinaturas Rust externas, modo padrão, fase ou quebra de compatibilidade.
-L0 antes de teste e código, RED funcional, GREEN e corpus bilateral. Não
-certificar guardas globais de show, todos os casts/elementos, nem paridade
-universal de render. Qualquer refutador residual deve permanecer no relatório
-e ganhar owner/L0 antes de intervenção, sem mudar testes para esconder o caso.
-
-Validar build/workspace/doctests em invocação separada, Clippy/Rustdoc estritos,
-fmt, V1/V5/V15/V26 e reversa, SARIF diferencial sem erro/warning novo. V19 pode
-registrar agrupamento nominal prescrito sem supressão, testando alternativas.
-Heavy jobs sequenciais, MemoryMax12GiB/High8GiB/swap0/jobs1, debug0/incremental0
-só no ambiente de validação. Resselo após V15/V26 válido e proveniência exata.
+Require separate build/workspace/doctests, strict Clippy/Rustdoc/fmt,
+V1/V5/V15/V26/reverse/differential SARIF without new error-warning. Prescribed
+nominal V19 allowed visibly without suppression, alternatives tested. Heavy tasks
+sequential, MemoryMax 12 GiB/High 8 GiB/swap0/jobs1; debug0/incremental0 in validation
+environment only. Reseal after valid V15/V26/exact provenance.

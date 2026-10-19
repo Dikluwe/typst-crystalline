@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/layout.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Full original unique paragraphs and exact prior repeats audited. Consolidated entire native layout surface/current child boundaries, reconciled confirmed Boxfr/Placeclearance/Page/Stroke gates, preserved Block public receipt gap and all cast/region/render limitations.",
+  "original_sha256": "6d4417fd7cc152b8341970b204e4b6f3715599bc25f9f5f8e0d62173af53f1e7",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/layout.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

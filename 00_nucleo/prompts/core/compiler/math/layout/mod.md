@@ -2,15 +2,15 @@
 Hash do Código: 51b6e32e
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
-- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
-- 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:cf64af6ef56faaa1ba19fa32ec6c134dc3f4f16a4a74fde21eca40259cf3b6ba
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
+- 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:b1f5e8d937f80e207e7cb5f1cd7ee03f3a3eebc89af5bfc0e13ebd95c615ecd0
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 
 
@@ -27,9 +27,9 @@ Historical evidence and unresolved discrepancies are archived in
 ## Core ownership
 
 Own only `01_core/src/compiler/math/layout/mod.rs`: MathLayouter, MathBox,
-equation entrypoints, static dispatch, recursive transformations, sequence/grid
-composition and external-content bridging. Feature geometry belongs to its
-child owner, not to entities. External content bridging belongs to `00_nucleo/prompts/core/compiler/math/layout/external_bridge.md`; sequence flattening and horizontal composition belong to `00_nucleo/prompts/core/compiler/math/layout/sequence_composition.md`. Math grid measurement, placement and baselines belong to `00_nucleo/prompts/core/compiler/math/layout/grid_composition.md`. Recursive glyph/default style transformation belongs to `00_nucleo/prompts/core/compiler/math/layout/style_transform.md`. Keep closed static dispatch and exhaustive
+equation entrypoints, static dispatch and coordination of recursive transformations,
+sequence/grid composition and external-content bridging through their owning
+children. Feature geometry belongs to its child owner, not to entities. External content bridging belongs to `00_nucleo/prompts/core/compiler/math/layout/external_bridge.md`; sequence flattening and horizontal composition belong to `00_nucleo/prompts/core/compiler/math/layout/sequence_composition.md`. Math grid measurement, placement and baselines belong to `00_nucleo/prompts/core/compiler/math/layout/grid_composition.md`. Recursive glyph/default style transformation belongs to `00_nucleo/prompts/core/compiler/math/layout/style_transform.md`. Keep closed static dispatch and exhaustive
 FrameItem handling; no registry, vtable or reverse entities-to-compiler import.
 
 Child owners are `00_nucleo/prompts/core/compiler/math/layout/accent.md`,
@@ -198,197 +198,282 @@ through both transformations, including empty-present attachments and optional
 fields. Do not accept fixture coordinates, serialized-byte equality,
 implementation similarity or historical test totals as parity evidence.
 
-## Separadores textuais — materialização autorizada em 2026-09-28
+## Ratified textual transport
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`01_core/src/compiler/math/layout/mod.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
-dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
-2026-09-28 e registrada na proveniência da materialização.
-
-### Responsabilidade deste owner
-
-Transportar posição, avanço já consumido, estilo e origem do TextSeparator sem criar tinta, baseline ou novo avanço; manter ordem dos filhos. Na varredura vertical não estabelecer baseline nem tinta a partir do separador.
-
-Conservar as responsabilidades existentes; a aceitação segue texto e geometria
-observáveis, incluindo os controles de adjacência e os invariantes pinados.
-
-## Identidade textual — materialização aprovada
-
-### Medição anterior à decisão
-
-As sondas bilaterais e o estado exato em
+Source→PDF RED probes under
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` and this
+consumer's FrameItem handlers were inspected before separator transport. The
+public `00_nucleo/prompts/core/entities/layout_types.md` contract was approved
+2026-09-28 and recorded in materialization provenance.
+Bilateral probes/state in
 `lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
-e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
-A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
+and before/ measure U+002D versus SHY with equal geometry in eight controls.
+This consumer's FrameItem path is archived in approved-before/; the owner
+confirmed layout_types.
 
-### Responsabilidade exclusiva
+### Exclusive responsibility and acceptance
 
-Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
+Transport TextSeparator position, consumed advance, style and origin without
+adding ink/baseline/advance; preserve child order. Vertical scans derive neither
+baseline nor ink from separators. TextReplacement is a transparent visual
+envelope: descend through children, keeping text/order/coordinates and existing
+calculation without new algorithm/advance. Pinned text-replacement claims share
+invariants, not ownership. Acceptance uses text/boxes, causal tests, recursive
+transport, literal-hyphen/adjacency controls, not PDF bytes or new selection.
 
-O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
-possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
-transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+## Accent base default style
 
-## Estilo da base de acento
+The 2026-09-30 .typ/sec_12.typ probe shows hat(mu) retaining μ without math
+italics while the same symbol outside accent becomes 𝜇 in pinned vanilla and
+elsewhere in the equation. Inspection found apply_math_default's MathAccent arm
+excluded all MathText despite its single-eligible-character mapping restriction.
+Apply the same default math italics to accent bases, retaining explicit
+MathStyled/multicharacter text. Change no mark/geometry/phase. Transformation
+ownership remains `00_nucleo/prompts/core/compiler/math/layout/style_transform.md`.
 
-Na sonda `.typ/sec_12.typ` de 2026-09-30, `hat(mu)` conserva `μ` sem o
-itálico matemático enquanto o mesmo símbolo fora do acento vira `𝜇` no
-vanilla pinado e no restante da equação. Causa medida em
-`01_core/src/compiler/math/layout/mod.rs`: o braço `MathAccent` de
-`apply_math_default` exclui toda folha `MathText`, apesar de a própria
-função já restringir o mapeamento a um único caractere elegível. A base do
-acento segue a mesma aplicação de itálico matemático por defeito que as
-demais folhas, preservando wrappers `MathStyled` explícitos e textos
-multicaractere. Não alterar o sinal de acento, a geometria ou a fase.
+## Ratified bidi and shaped-face transport
 
-## Migração do carrier bidi ratificado (2026-10-05)
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json`
+identifies references/exclusive owners; manifest 1ae7513e was confirmed. Adapt
+uncertified constructors with None and read patterns with `..`, preserving
+language observables under the pinned origin nucleus without phase/API expansion.
 
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+`lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}`
+distinguishes regular GIDs from Oblique selection. The human confirmed public
+TextShaped.font:Option<Font> in layout_types, SHA
+`f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409`.
+Implementation snapshot/inventory is under
+`lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
+This owner migrates only its references: legacy constructors use None;
+transformations retain Font; shaped comparison/join distinguishes face/axes.
+The shaper provides an effective-Font clone also on cache hits without changing
+semantics/style to force selection. Downstream owners
+`00_nucleo/prompts/infra/shaper.md`, `00_nucleo/prompts/infra/export/fonts.md` and
+`00_nucleo/prompts/infra/export/svg.md` retain these integration obligations:
+collectors/subsets/CMaps/PDF bind the same original face at style axes; PNG/SVG
+prepare local bindings and instantiate once per face/request before render,
+keeping original resource index distinct from instantiated bytes. None retains
+legacy resolution. Public APIs/FontKey remain; no artificial font/unsafe/global/
+phase. Private helpers may receive Font/bindings explicitly.
 
-## Face efetiva de TextShaped — materialização ratificada 2026-10-05
+Associate original face bytes and requested axes, never names/slots alone.
+Export-local tables retain supplied resource order and append absent faces.
+For multifont, distribute items once among bindings before per-font collectors;
+never reuse GIDs/CMaps across faces. These are cross-owner boundary criteria,
+not productive ownership here. Require RED→GREEN/bilateral miss/hit/VF controls,
+without a time-gain promise. Shared claims remain in shaped-face-identity;
+this owner materializes only its own references.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
+## Ratified transparent Source dispatch
 
-Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
+Prior evidence:
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz`,
+with HEAD/working tree/UTC/sources/argv/binaries at historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`. Existing ShowRecipe/Located/Realized
+branches have the transparent operation; Source must not leak as an observable
+element. Human approval `confirmo`, 2026-10-07, is in final record
+`lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`;
+the nested contract.md is the preapproval candidate.
+workspace-seventh/p966 refutes raw-text Source fallback: math dispatch inspects
+body, retaining identifiers/math italics/scripts and external/baseline paths.
+Preserve realization phase/exclusive ownership/static dispatch, with no I/O/new
+signature/trait/flag/eval↔layout change. C2/C/macro collections/tests, builds and
+lineage remain required.
 
-A associação é por bytes da face original e pedido de eixos; nomes e slots não bastam. A tabela local dura a exportação e conserva ordem dos recursos fornecidos, anexando faces faltantes. Para multifont, distribuir itens pelos bindings uma vez antes de coletores por fonte; não reutilizar GIDs/CMap globais em faces diferentes. Código deste owner continua 1:1 com seu L0; referências a outros owners não compartilham propriedade. Aceitação RED→GREEN e controles bilaterais incluindo miss/hit/VF, sem promessa de ganho de tempo.
+## Test-module conditional integration
 
-Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
+Before decision, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree.
+Duplicate cfg(test) pairs: math_limits_layout_tests.rs:5/parent:1714;
+math_root_layout_tests.rs:5/:1717; math_frac_layout_tests.rs:5/:1720;
+math_accent_layout_tests.rs:5/:1723; math_cases_layout_tests.rs:5/:1726;
+math_matrix_layout_tests.rs:5/:1729. Sources/L0/UTC/status/diffstat are in
+`lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/before.json.gz`
+and refinement-before.json.gz. Pinned Clippy reproduces duplicates. Removing
+inner cfg preserves Rust tests, but the pinned architecture linter does not
+propagate parent cfg and flags helpers V2.
+Remove only outer cfg(test) on those declarations. Keep paths/names/visibility/
+path attributes. Each file's inner `#![cfg(test)]` excludes its complete module/
+imports/helpers from production. Test consumers/L0 stay intact. Add no dependency/
+logic/API/default mode/phase; validate identical test list/core suite/non-test
+build/Clippy/architecture. The six separately owned modules delegate their
+bodies without this hub absorbing test ownership.
 
+## Approved paint-root transport and incomplete exporter integration
 
-## D08B3-C2 — responsabilidade ratificada
+### Evidence before decision
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+The human approved T1–T3 manifest
+`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`,
+receipt `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+Approved bilateral Parent/Solid evidence is not replaced by structural inspection.
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz`
+retains sources/dirty state, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC,
+diffstat/binary hashes for containers/Place/Rotate with Solid/Gradient Parent.
+before-source/syntax-nodes records this owner's constructors/destructuring
+[536,543]. layout_types.rs:531–539 lacks root versus technical group distinction;
+helpers.rs:253–269 reconstructs Group and must retain the field. Box combines
+background/body; Block keeps body flat except clip. Paint reference is language,
+envelope mechanics. General Rotate/Box geometry discrepancies remain open.
 
-workspace-seventh/p966 refuta Source como fallback textual cru: dispatcher math inspeciona body, preservando identificadores, variante itálica math, scripts e caminho externo/baseline. Não alterar fase de realização matemática.
+### Exclusive responsibility and acceptance
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+Adapt Group construction/patterns for approved paint_root. New technical groups/
+legacy fixtures are false; reconstruction carries the received value without
+inferring root from size/clip/transform. Preserve other fields/drawing/resources.
+Exporters still do not use metadata for patterns: T2 remains uncertified here.
+Destructure/recompose retains paint_root exactly; never reset true to false in
+projection/marker removal/rebasing.
+L0 first/RED→GREEN/restricted resealing; retain geometry/text in source→PDF/SVG
+controls and suite/build/doc/check/fmt/lineage. This does not substitute FramePaint
+for Shape.fill/stroke or implement PDF/SVG/raster patterns. Authorized T1c/T2/T3
+remain open; build does not establish tiling parity/production readiness.
 
-## Integração condicional dos módulos de teste — 2026-10-13
+## Nominal test visual-item projection
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
-working tree não commitado. A duplicação cfg(test) ocorre em `01_core/src/compiler/math/layout/math_limits_layout_tests.rs:5` / pai :1714; `01_core/src/compiler/math/layout/math_root_layout_tests.rs:5` / pai :1717; `01_core/src/compiler/math/layout/math_frac_layout_tests.rs:5` / pai :1720; `01_core/src/compiler/math/layout/math_accent_layout_tests.rs:5` / pai :1723; `01_core/src/compiler/math/layout/math_cases_layout_tests.rs:5` / pai :1726; `01_core/src/compiler/math/layout/math_matrix_layout_tests.rs:5` / pai :1729.
-Fontes, L0, UTC, status e diffstat estão em
-`lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/before.json.gz` e
-`refinement-before.json.gz`. O Clippy pinado reproduz os atributos duplicados.
-A tentativa de retirar a condição interna mantém os testes Rust, mas o linter
-arquitetural pinado não propaga a condição do pai e acusa V2 nos helpers.
+### Evidence before decision
 
-Neste owner, retirar apenas o atributo externo cfg(test) das declarações
-listadas acima. Manter os caminhos, nomes e visibilidades dos módulos e seus
-atributos path. A condição interna `#![cfg(test)]` de cada arquivo listado
-continua a excluir integralmente o módulo do build de produção, inclusive
-seus imports e helpers. Os consumers de teste e seus L0 permanecem intactos.
-Não acrescentar dependências, lógica, API, modo padrão ou fase. Validar a
-mesma lista de testes, suíte core, build sem cfg(test), Clippy e arquitetura.
+F040 is compiler/math/layout/mod.rs:302 (p1441_overline_geometry). AST spans/patterns/guards/
+bodies/complements were checked before code.
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+UTC/sources/L0/config/hashes/status/git diff HEAD --stat. classification.json
+records 70 cases/complements in 26 owners using the pinned CI parser. Pertinent
+L0/source were read together, without new architecture or inferred upstream
+intent. Rust exhaustiveness is mechanics; preserve product semantics/morphology/
+geometry/effects/diagnostics.
 
-## Referencial de pintura — transporte aprovado T1b — 2026-10-14
+### Exclusive prescription
 
-### Medição anterior à decisão
+For F040 p1441_overline_geometry, replace only `_` with nominal TextReplacement/TextSeparator/
+Semantic/Line/Glyph/Image/Shape/Group/Link alternatives using the in-scope FrameItem
+prefix. Preserve the complete fallback body, prior arms, guards, transformations,
+calls, returns and order.
 
-O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
-foi aprovado pelo humano para T1–T3; recibo em
-`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A evidência bilateral de Parent e controles Solid está no contrato aprovado;
-ela não é substituída por inspeção estrutural. A rodada
-`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
-fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
-diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
-e Gradient Parent. O inventário before-source/syntax-nodes registra neste
-consumer as construções/desestruturações antes da edição: [536, 543].
-layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
-reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
-Block mantém body plano exceto no clip. Preservação do referencial é requisito
-de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
-divergências gerais de geometria previamente medidas em Rotate/Box.
+Preserve callbacks/effects/metadata/clipping/fonts/positions/ink/width under their
+current owners. Do not expand traversals, turn wrappers into leaves or substitute
+text/ActualText for geometry. Test helpers retain fixtures/expected results/
+tolerances/counts/Unknown failures; missing observation is not acceptance.
+Nominal groups share the previous body; keep V19 notes without equating arm
+coverage with every alternative.
 
-### Responsabilidade exclusiva
+### Acceptance and limits
 
-Migrar construções e padrões de Group para o campo paint_root aprovado. Grupos técnicos novos e fixtures legadas são false; reconstruções transportam o valor recebido, sem inferir raiz a partir de dimensão, clipping ou transformação. Preservar os demais campos e o comportamento de desenho/recursos. Exportadores ainda não usam este metadado para patterns; essa integração é T2 e não está certificada aqui. Nos ramos que desestruturam e recompõem Group, capturar paint_root e reinseri-lo sem mudança. Não redefinir true como false durante projeção, remoção de marcadores ou rebasing.
+ADR-0127 internal flow adds no enum/field/public trait method/signature/default/
+dependency/compatibility/phase. Do not materialize unrelated pending proposals.
+L0 first and restricted bilateral resealing. No suppressions, threshold changes
+or match-to-if-let rewrites to hide V16.
 
-### Aceitação e incompletude
+Before code run the new FrameVisitor control and workspace suite on unchanged
+expectations and confirm 70-family-warning RED by AST inspection. Afterwards
+require zero selected-family V16 and no new warning; external V16 stays open.
+For productive-core matches reached by cargo check -p typst-core, a disposable
+copy with sentinel FrameItem measures absent E0004 before/present after. Claim
+coverage only for compiled sites, not inaccessible cfg(test)/L3. Replay checks
+all patterns/guards/bodies, unchanged enum/signatures and real builds/tests;
+no stubbed bodies.
 
-L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
-nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
-A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
-implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
-e já autorizados. Não alegar paridade de tiling ou produção a partir do build.
+Validate full workspace/build, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes,
+strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/
+configuration during heavy sequential commands under MemoryMax 12 GiB,
+MemorySwapMax0/CARGO_BUILD_JOBS1. Structural sanitation proves neither global
+parity nor RAM/AI-reading benefit.
 
+## Nominal Source-transparent core projections
 
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
+### Evidence before decision
 
-### Medição anterior à decisão
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz`
+retains UTC, sources/L0/hashes/configuration, status and exact git diff HEAD --stat;
+initial-ten-owners.json.gz preserves the first snapshot. contexts.json,
+all-contexts.json and wildcard-inventory.json retain AST/spans from the pinned
+CI parser. The previous suite passed on the same input code, reconfirmed by hash.
 
-F040: 01_core/src/compiler/math/layout/mod.rs:302 (p1441_overline_geometry). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+source-probe-before.json measures inline limits at width 7.2pt versus 12.912pt
+with Source. source-family-before.json preserves the first 12 pairs (11
+differences). source-family-supplement.json and analysis preserve 23 attributable
+pairs (19 differences, 4 equal controls): limits, kerns, Op.text, accents/dotless,
+supports, matrix alignment, spacing, sequences, stretch and class.
+source-lines-before.json measures the same equation at two lines versus one and
+last baseline 16.2 versus 0 under Source despite equal extents. Geometry,
+extractable identity and equation metadata are observables; bytes/pointers/Rust
+equality are not. The content-source-origin nucleus already requires transparency;
+inspection finds helpers classifying wrappers instead of their bodies. Infer no
+historical intent or global parity. The supplemental analyzer's 24-versus-23
+count error was corrected from valid original stdout without rerunning or
+counting the analyzer error as functional RED.
 
-### Prescrição exclusiva desta unidade
+### Exclusive prescription
 
-- **F040 — `p1441_overline_geometry`**: Trocar somente o padrão '_' pelo grupo nominal `TextReplacement`, `TextSeparator`, `Semantic`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
+Declare only private source_transparency_tests with inner `#![cfg(test)]` in
+its exclusive consumer. Normalize transformed.source_body() in
+layout_equation_measured for line_count/first/last baseline, node/next in
+should_tighten_text_frame and content in single_math_leaf_char.
+flatten_math_sequence_nodes classifies nodes/children by Source.body, preserving
+atomic markup Sequence and opening only already-eligible technical sequences.
+Derived fragments retain own origin or the container's first proven origin via
+source_span/with_source_span. Do not clone already-originated fragments or add
+reoriginating work without span. Preserve once-only glyph transformation,
+baselines/callbacks/context/author tree/API/phases.
 
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
+Replace only the selected fallback with the current nominal complement of
+unconditional arms, preserving bodies/guards/order. Guarded variants remain in
+the complement when the guard fails. The attach owner's Option projection is
+the sole structural exception: None returns through ?, Some enters a nominal
+normalized-Content match without a deep pattern; that remains its own boundary.
 
-### Gate e aceitação
+| Site | Function | Scrutinee | Exclude unconditionally | Guarded complement |
+| --- | --- | --- | --- | --- |
+| L17 mod.rs:320 | p1441_overline_geometry | FrameItem | Line | none |
+| L18 mod.rs:629 | needs_external_layout | Content | Equation, Boxed, Align, Pad, Block, Sequence, Styled | none |
+| L19 mod.rs:936 | layout_equation_measured | Content | MathSequence | none |
+| L20 mod.rs:1284 | single_math_leaf_char | Content | Text, MathText, MathIdent | none |
+| L21 mod.rs:1431 | x_of | FrameItem | none | Text |
 
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
+Content complements keep prior bodies outside the sought property, expanding
+only specified Source transparency. Item collectors seek named species and
+retain presence/count assertions; None is not layout success. Guarded variants
+remain for rejected conditions. needs_external_layout's open-fallback comment
+must describe its nominal complement, keeping false and all other comments.
 
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
+### Acceptance and limits
 
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+L0 before code. This ADR-0127 internal parity correction adds no public field/
+signature/trait, dependency, product flag/default, compatibility break or phase.
+V19 groups share their previous body with per-case justification; notes remain
+visible and do not prove execution coverage per alternative. No allow/expect,
+threshold increase, @ capture or hidden match in if-let/matches!. Only named
+transparency/shallow restructuring changes functional code; do not change
+formulas/constants or relax expectations. Require functional Source RED and
+structural warning/probe RED before repair; afterwards regression GREEN, zero
+emitted-site V16 and future sentinel review of all 36 sites (including new
+Content-under-Option projection) using copied Content/Value/MathStyleKind/FrameItem
+in a disposable real workspace compiling cfg(test). Current scrutinees/functions/
+composition change only as specified; revalidate AST/replay, signatures and other
+owners.
 
+Gates: full workspace suite, build, fmt, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, Rustdoc -D warnings with four indexes,
+strict/reverse V1/V5/V15/V26, full differential SARIF and diff-check. Expected V16
+170→152; new V19 only from prescribed groups/new observer; no V20 growth.
+Other violations remain pending. Freeze sources during gates; MemoryMax 12 GiB,
+zero swap, one Cargo job, heavy commands sequentially. No commit/push/release or
+CI pin change. Lint closure does not prove RAM gain, AI-reading benefit or
+complete parity.
 
-## Exaustividade nominal e origem matemática — 2026-10-17
+## Source grid marker refinement
 
-### Medição anterior à decisão
-
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado; UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz` (snapshot inicial preservado em initial-ten-owners.json.gz). AST/spans em contexts.json/all-contexts.json/wildcard-inventory.json, parser pinado do CI. A suíte anterior passou no mesmo código de entrada, revalidado por hashes.
-
-source-probe-before.json mede limits inline com largura 7.2 pt versus 12.912 pt ao acrescentar Source. source-family-before.json preserva a primeira matriz de 12 pares (11 diferenças). source-family-supplement.json e sua análise preservam 23 pares com métricas atribuíveis (19 diferenças e 4 controles iguais): limites, kerns, Op.text, acentos/dotless, suportes, alinhamento de matriz, espaçamento, sequências, stretch e classe. source-lines-before.json mede a mesma equação com 2 linhas versus 1 e última baseline 16.2 versus 0 sob Source, apesar dos mesmos extents. São observáveis de geometria, identidade extraível e metadados da equação, não igualdade de bytes/pointers/Rust. A transparência já é obrigatória no núcleo content-source-origin; a inspeção mostra os helpers classificando o wrapper em vez do body. Não se infere intenção histórica ou paridade global a partir desses números. O erro de contagem do analisador complementar (24 em vez de 23 pares) foi corrigido usando o stdout original válido, sem refazer a medição nem contar o erro como RED funcional.
-
-### Prescrição exclusiva
-
-Registrar apenas o módulo privado source_transparency_tests, com a condição interna #![cfg(test)] no novo consumer e owner exclusivo, conforme a composição existente. No código produtivo, normalizar transformed.source_body() em layout_equation_measured para preservar line_count/first/last baseline; normalizar node e next em should_tighten_text_frame e content em single_math_leaf_char. flatten_math_sequence_nodes classifica node/children pelo body Source, preserva a Sequence de markup atômica e abre só sequências técnicas já elegíveis; todo fragmento derivado mantém origem própria ou a primeira origem comprovada do container por source_span/with_source_span. Não clonar fragmentos já originados nem acrescentar trabalho de reoriginação no caminho sem span. Preservar a transformação de glyph uma vez, baselines, callbacks, contexto, árvore autoral, API e fases.
-
-Trocar os fallbacks enumerados pelo complemento nominal atual dos braços **incondicionais**, sem alterar corpo/guard/ordem; variantes guardadas continuam no complemento para quando a condição falha. A projeção Option de attach é a única exceção estrutural: None retorna por ?, Some passa ao match nominal de Content normalizado, sem padrão profundo.
-
-- **L17** — `01_core/src/compiler/math/layout/mod.rs:320`, `p1441_overline_geometry`, FrameItem: excluir somente `Line`; guardados `(nenhum)`. O coletor procura somente a espécie de item explicitada; as demais não são candidatos. Conservar os asserts de presença/quantidade e não confundir None com sucesso de layout.
-
-- **L18** — `01_core/src/compiler/math/layout/mod.rs:629`, `needs_external_layout`, Content: excluir somente `Equation, Boxed, Align, Pad, Block, Sequence, Styled`; guardados `(nenhum)`. Mesmo corpo anterior para variantes fora da propriedade procurada; não ampliar a classificação além da transparência Source aqui prescrita.
-
-- **L19** — `01_core/src/compiler/math/layout/mod.rs:936`, `layout_equation_measured`, Content: excluir somente `MathSequence`; guardados `(nenhum)`. Mesmo corpo anterior para variantes fora da propriedade procurada; não ampliar a classificação além da transparência Source aqui prescrita.
-
-- **L20** — `01_core/src/compiler/math/layout/mod.rs:1284`, `single_math_leaf_char`, Content: excluir somente `Text, MathText, MathIdent`; guardados `(nenhum)`. Mesmo corpo anterior para variantes fora da propriedade procurada; não ampliar a classificação além da transparência Source aqui prescrita.
-
-- **L21** — `01_core/src/compiler/math/layout/mod.rs:1431`, `x_of`, FrameItem: excluir somente `(nenhuma variante inteira)`; guardados `Text`. O coletor procura somente a espécie de item explicitada; as demais não são candidatos. Conservar os asserts de presença/quantidade e não confundir None com sucesso de layout. Variantes sob guard permanecem no complemento para conservar a condição recusada.
-
-### Aceitação e limites
-
-L0 antes de código. Correção interna/paridade ADR-0127 em fluxo contínuo: sem campo/assinatura pública, trait, dependência, flag/default novo, compatibilidade ou fase nova. Grupos V19 compartilham o corpo anterior explicitamente justificado por caso; as notas permanecem visíveis e não provam cobertura de execução por alternativa. Não adicionar allow/expect, elevar limiar, capturar @ ou esconder um match em if-let/matches!. Somente a transparência e as reestruturações rasas aqui nomeadas alteram o código funcional; não editar fórmulas/constantes ou relaxar expectativas anteriores. RED funcional das regressões Source e RED estrutural dos avisos/sondas antes do reparo. Após, regressões GREEN, zero V16 dos locais emitidos, revisão futura dos 36 locais (incluindo a nova projeção de Content sob Option) por sentinelas Content/Value/MathStyleKind/FrameItem em workspace descartável com cfg(test) compilado. Os scrutinees/funções atuais e a composição ganham só as alterações descritas; revalidar ast/replay, assinaturas e demais owners.
-
-Gates: suíte workspace completa, build, fmt, Clippy workspace/all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings com quatro índices, V1/V5/V15/V26 estrito/reversa, SARIF diferencial completo e diff-check. V16 esperado 170→152; notas V19 novas somente dos grupos prescritos e do observador novo; V20 sem crescimento. As demais violações continuam pendentes. Fontes congeladas durante os gates; MemoryMax=12 GiB, swap zero, um job Cargo, comandos pesados sequenciais. Sem commit/push/release ou alteração do pin CI. Não alegar ganho de RAM, leitura de IA ou paridade integral por encerrar o lint.
-
-O comentário de needs_external_layout que dizia fallback aberto deve descrever o complemento nominal atual; preservar sua expressão false e os demais comentários.
-
-
-### Marcadores Source no grid — complemento medido em 2026-10-17
-
-source-markers-before.json confirma: Source(Linebreak) transforma duas linhas
-em uma (a/b na mesma baseline); Source(MathAlignPoint) conserva duas linhas,
-mas desloca 1/2 em relação à coluna de 333/4. Preservar esse RED antes do reparo.
-No owner pai, needs_grid_layout e partition_grid também classificam os marcadores
-por node.source_body(), sem mudar separadores, linhas/células vazias ou ordem.
-No braço de conteúdo de partition_grid, reter o clone original com sua origem;
-usar complemento nominal plano se isso eliminar o binding normalizado anterior,
-sem captura @ ou suppressão. A nova origem nunca fabrica Location.
-O novo consumer de regressão acrescenta dois testes públicos display, para
-Linebreak e MathAlignPoint Source, exigindo as mesmas baselines e posições.
-Os 27 controles anteriores não mudam: o total passa a 29, com RED esperado
-5 passando/24 falhando. Nenhum novo contrato, fase, default ou API pública.
-
-## Owned test module declarations
-
-This consumer declares the following separately owned test modules: `math_limits_layout_tests`, `math_root_layout_tests`, `math_frac_layout_tests`, `math_accent_layout_tests`, `math_cases_layout_tests`, `math_matrix_layout_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+source-markers-before.json confirms Source(Linebreak) turns two lines into one
+(a/b sharing baseline); Source(MathAlignPoint) keeps two but displaces 1/2 from
+333/4's column. Preserve RED before repair. needs_grid_layout/partition_grid
+classify via node.source_body(), retaining separators/empty lines/cells/order.
+partition_grid content retains original clone/origin; use flat nominal complement
+if removing its old normalized binding, without @/suppression. Origin never
+creates Location. The regression owner adds two public display tests for Source
+Linebreak/MathAlignPoint with identical baselines/positions. Previous 27 controls
+stay, total 29 and expected RED 5 passing/24 failing. No contract/phase/default/
+public API change.

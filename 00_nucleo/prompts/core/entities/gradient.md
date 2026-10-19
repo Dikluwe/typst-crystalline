@@ -1,35 +1,103 @@
-# Prompt L0 — `entities/gradient`
+# L0 — Gradient facade and shared semantic contract
 Hash do Código: 812dc437
 
-## Módulo
-`01_core/src/entities/gradient.rs`
+**Layer:** L1. **Exclusive consumer:** `01_core/src/entities/gradient.rs`.
+The facade owns GradientStop, RelativeTo, public reexports and historical local
+tests. Separate owners define offsets, variants, kind and interpolation:
+`00_nucleo/prompts/core/entities/gradient/offsets.md`,
+`00_nucleo/prompts/core/entities/gradient/linear.md`,
+`00_nucleo/prompts/core/entities/gradient/radial.md`,
+`00_nucleo/prompts/core/entities/gradient/conic.md`,
+`00_nucleo/prompts/core/entities/gradient/kind.md` and
+`00_nucleo/prompts/core/entities/gradient/interpolation.md`.
+The common semantic obligations below are their boundary acceptance criteria,
+not permission for a second implementation in this facade. Color and Paint
+remain owned by `00_nucleo/prompts/core/entities/color.md` and
+`00_nucleo/prompts/core/entities/paint.md`. No L1 I/O or mutable global state.
 
-A fachada mantém `GradientStop`, `RelativeTo`, reexports públicos e testes históricos. Os Prompts L0 individuais em `00_nucleo/prompts/entities/gradient/` possuem offsets, variantes e interpolação. O restante deste documento permanece como contrato semântico comum.
+## Evidence before the current contract
 
-## Camada
-L1
+The initial linear-only subset grew to Linear/Radial/Conic, then focal fields,
+eight process spaces, relative coordinates and anti-alias state. Its former
+reservation comments were not unit placeholders. Those bounded omissions are
+superseded only by the explicit later additions below; the old labels
+“3/3 complete” and “24/24 complete” never close unrelated limits or establish
+current-pin parity. Shared Arc storage is the local representation, not an
+upstream-mechanics parity obligation. Historical ADR-0086/0087/0088/0089,
+ADR-0091/0092 and their cumulative records preserve that design provenance;
+apply current governing ADRs rather than reviving revoked guidance.
 
-## Propósito
+At historical `e055a12f`, repeat(2) on four automatically spaced Linear RGB
+stops exposed `0, 0.1666666716337204, 0.3333333432674408, 0.5, 0.5,
+0.6666666865348816, 0.8333333730697632, 1` versus upstream
+`0, 1/6, 1/3, 1/2, 1/2, 2/3, 5/6, 1`. Local code first resolved through
+Vec<f32> and reconstructed Ratio(f64); upstream gradient.rs:664–688 consumes
+resolved Ratio(f64). Removing that narrowing alone still failed RED: the
+native_gradient_stops accessor independently narrowed again. Both first-loss
+points require their own functional controls; changing only repeat is
+insufficient evidence of public precision.
 
-Tipo `Gradient` enum + struct `Linear` + sub-componente
-`GradientStop`. Permite preenchimentos/contornos com gradient
-linear. Activa `Paint::Gradient(Gradient)` variant per ADR-0086
-§"Critério revisão" cumprido por P262 (ADR-0087).
+After the earlier color/offset corrections, Radial sampling at
+`t = 37.123456789%` still narrowed its public argument to f32. Oklab black/white
+lightness was `0.3712349534034729` versus `0.37123456597328186`; a/b already
+agreed. Linear RGB red/blue first channel was `0.6287654638290405` versus
+`0.6287654042243958`. Upstream gradient.rs:846–860 forwards t:f64 and
+:1461–1484 creates f32 weights only at mixing. The hypothesis that argument
+narrowing causes this discrepancy is refuted if removing it fails to reproduce
+those public components. This is component-level acceptance, not a render,
+quantization or budget change.
 
-## Estrutura
+Historical ratified upstream `a51e02804`, visualize/gradient.rs:545–716,
+sets anti_alias=false for sharp, true in constructors and preserves it in
+repeat. This affects visible sharp transitions and cannot be discarded as
+unobservable mechanics. The owner approved the public field gate with
+“Continuar” before the L1/L3 changes; the original owner explicitly records
+this package as approved and materialized.
+
+For spot sampling, upstream visualize/color.rs:1147–1245,2471–2521 chooses the
+shared complete colorant when all stops have it, otherwise Oklab.
+`gradient.linear(s.tint(50%), s.tint(25%)).space() == s` and sample(50%) returns
+s.tint(37.5%). Adding red changes automatic space to oklab; explicit space:s
+with a process stop rejects conversion to spot. Local gradient.rs:204–273,
+369–385,478–500 previously carried only process ColorSpace and prenormalized
+stops. The owner confirmed the spot public package on 2026-09-23 under ADR-0127.
+That sampling gate does not itself certify spot-gradient PDF/SVG/PNG export.
+
+The 2026-10-13 color evidence records HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, sources, hashes,
+UTC, status and diffstat in
+`lab/results/construction/diagnostics/cores-ci-2026-10-13/before.json.gz`
+and constructors-before.json.gz, with probes/numerical proof in evidence.json.gz.
+Its historical vanilla pin is `9f2b6e8715237cb086899a42873660fe744622e8`,
+verified executable SHA-256
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+All eighteen proposed interpolation coefficient spellings compile to exactly
+the same f32 bits (literals.rs/literals.json). Equivalent spelling is distinct
+from precision loss; only these demonstrated alternatives are permitted.
+
+The same HEAD/tree/pin/executable and source provenance appear in
+`lab/results/construction/diagnostics/limites-cor-2026-10-13/before.json.gz`,
+parents-before.json.gz and evidence.json.gz. red.rotate(45deg) exposed negative
+blue locally versus upstream zero; rgb(10%,20%,30%,40%) exposed 10.2%/30.2%
+instead of 10%/30%; Linear RGB accepted 256 and alpha−1% rejected upstream;
+negative Oklch chroma became chromatic locally versus gray. Preserve complete
+outputs and extra public digits. Upstream color.rs:1825–1895 distinguishes
+bounded FromColor, identity and from_linear; palette 0.7.6
+convert/from_into_color.rs:53–59 clamps after conversion.
+encoding/srgb.rs:100–120 uses reciprocal multiplication in linear decode and
+mul_sub in encode; num.rs:718–722 implements mul_sub without fusion. The older
+fmaf-encode assertion is therefore refuted for this source. oklab.rs:355–368
+clamps chroma to zero before polar conversion; hues.rs:155–157 uses sincosf
+through libm. None of these old measurements certifies the current upstream pin.
+
+## Facade data and public composition
 
 ```rust
-use std::sync::Arc;
-use crate::entities::color::Color;
-use crate::entities::layout_types::{Angle, Ratio};
-
-/// Sub-componente per ADR-0029 §exclusões.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct GradientStop {
-    pub color:  Color,
+    pub color: Color,
     pub offset: Option<Ratio>,
 }
-
 impl GradientStop {
     pub fn new(color: Color, offset: Ratio) -> Self {
         Self { color, offset: Some(offset) }
@@ -38,1070 +106,341 @@ impl GradientStop {
         Self { color, offset: None }
     }
 }
+```
 
-#[derive(Debug, Clone, PartialEq)]
+GradientStop loses Copy because Color now carries SpotColorant; its constructor,
+offset and semantics do not change. Necessary clones are Rust mechanics.
+Retain `RelativeTo { Self_, Parent }`, Default=Self_, with per-variant
+`relative: Option<RelativeTo>`: None means Auto, resolved to Self_. Public
+reexports include Gradient, GradientStop, Linear, Radial and Conic; the public
+color_to_oklab_with_alpha helper remains accessible to L3. Keep the facade's
+module/public reexport paths and historical tests. Reexport implementation
+belongs to the entities/mod owner, not another productive consumer here.
+
+The following is the shared data schema of the child-owned types, retaining
+all fields as additions to their earlier forms:
+
+```rust
 pub struct Linear {
     pub stops: Arc<[GradientStop]>,
     pub angle: Angle,
+    pub space: ColorSpace,
+    pub relative: Option<RelativeTo>,
+    pub anti_alias: bool,
 }
-
-impl Linear {
-    /// Offsets efectivos com auto-spacing aplicado (paridade
-    /// vanilla — stops com offset=None recebem distribuição
-    /// uniforme entre stops com offset explícito).
-    pub fn effective_offsets(&self) -> Vec<f32>;
-
-    /// Amostra a cor interpolada em parâmetro t ∈ [0, 1].
-    /// Interpolação em Oklab (paridade vanilla default).
-    pub fn sample(&self, t: f32) -> Color;
+pub struct Radial {
+    pub stops: Arc<[GradientStop]>,
+    pub center: Axes<Ratio>,
+    pub radius: Ratio,
+    pub focal_center: Axes<Ratio>,
+    pub focal_radius: Ratio,
+    pub space: ColorSpace,
+    pub relative: Option<RelativeTo>,
+    pub anti_alias: bool,
 }
-
+pub struct Conic {
+    pub stops: Arc<[GradientStop]>,
+    pub center: Axes<Ratio>,
+    pub angle: Angle,
+    pub space: ColorSpace,
+    pub relative: Option<RelativeTo>,
+    pub anti_alias: bool,
+}
 #[derive(Debug, Clone, PartialEq)]
 pub enum Gradient {
     Linear(Arc<Linear>),
-    // Radial(Arc<Radial>),  // P-Gradient-Radial — comentário reserva
-    // Conic(Arc<Conic>),    // P-Gradient-Conic — comentário reserva
-}
-
-impl Gradient {
-    pub fn linear(stops: impl Into<Arc<[GradientStop]>>, angle: Angle) -> Self;
-
-    /// Amostra primeiro stop (fallback para `Paint::to_color()`).
-    pub fn first_stop_color(&self) -> Color;
-}
-
-// Activa Paint::Gradient — ADR-0086 §"Critério revisão".
-impl From<Gradient> for Paint;
-```
-
-## Critérios de verificação
-
-- `GradientStop::new(c, r).offset == Some(r)`.
-- `GradientStop::unspaced(c).offset == None`.
-- `Gradient::linear(stops, angle)` constrói `Gradient::Linear(Arc<Linear>)`.
-- `Linear::effective_offsets()` auto-spacing correcto.
-- `Linear::sample(0.0) == primeiro stop color` (após Oklab roundtrip).
-- `Linear::sample(1.0) == último stop color`.
-- `Gradient::first_stop_color()` retorna color do primeiro stop.
-- Clone Arc é O(1).
-- `PartialEq` derivado.
-
-## Sobre paridade vanilla
-
-Vanilla `Gradient` tem 3 variants (Linear/Radial/Conic).
-P262 materializa **Linear only**; Radial/Conic são **comentários
-reserva** no enum, não unit placeholders. Expansão consumer-
-driven em P-Gradient-Radial/Conic per ADR-0087 §"Critério
-revisão".
-
-**ColorSpace fixo Oklab** (paridade vanilla default per user
-decision P262 Q2). Interpolação em Oklab via `Color::oklab` +
-Oklab linear interpolation; conversão final para PDF via
-`Color::to_rgba_f32()` (linear path Oklab → linear RGB → sRGB).
-
-**Scope-outs vanilla** (per ADR-0087):
-- `space: ColorSpace` — Oklab fixo.
-- `relative: Smart<RelativeTo>` — bbox-relative assumido.
-- `anti_alias: bool` — assume true.
-- `Gradient::sample()` user-facing — futuro.
-- `Gradient::stops()` getter — futuro.
-
-## Sobre ADR-0086 (Paint wrapper) — §"Critério revisão" cumprido
-
-`Paint::Gradient(Gradient)` variant activada (era comentário
-reserva pré-P262). `Copy` removido de Paint (Gradient não é
-Copy via Arc). `Paint::to_color()` fallback retorna primeiro
-stop color.
-
-## Sobre ADR-0039 (TextStyle SR — preservado)
-
-`TextStyle.fill: Option<Color>` permanece **literal preservado**.
-P262 **não migra** TextStyle.fill para Option<Paint>. Decisão
-preservada de P261.
-
-## Exposição em `entities/mod.rs`
-
-```rust
-pub mod gradient;
-pub use gradient::{Gradient, GradientStop, Linear};
-```
-
-## Cross-references
-
-- `entities/color.md` — `Color` tipo base (8 variants P257) com
-  `Color::oklab` + `to_rgba_f32()` consumidos.
-- `entities/paint.md` — Paint wrapper P261; `Paint::Gradient`
-  variant activada.
-- ADR-0087 — Gradient Linear-only (IMPLEMENTADO P262).
-- ADR-0086 — Paint wrapper Solid only (P261; §"Critério revisão"
-  cumprido).
-- ADR-0083 — Color paridade vanilla (template N=2 do pattern).
-- ADR-0039 — TextStyle SR (preservado).
-- Vanilla `lab/typst-original/.../visualize/gradient.rs` (1366
-  linhas; 3 variants).
-
-**P1253 — precisão Oklab compartilhada com `entities/color`.** A conversão
-sRGB linear → Oklab usada por `Gradient::sample` deve empregar exatamente as
-constantes completas de `palette 0.7.6::oklab::linear_srgb_to_oklab` pinadas no
-L0 `entities/color`. A duplicação privada neste consumer deve permanecer
-numericamente idêntica, inclusive na ordem `mul_add` da curva sRGB e na raiz
-cúbica bit-compatível com `libm::cbrtf`;
-constantes abreviadas que mudem o valor f32 e alterações da ordem própria de cada direção de gamma são proibidas. Endpoints e
-intermediários públicos devem coincidir com o vanilla antes de qualquer tuning
-do helper adaptativo L3.
-Na interpolação Oklab, os pesos são materializados separadamente como `f32` e
-cada canal usa `(w0*c0 + w1*c1)/(w0+w1)`, tal como `Color::mix_iter` do
-baseline; a forma algébrica `c0 + (c1-c0)*t` não é numericamente equivalente.
-O caminho interno usado pela superfície de linguagem Linear preserva `t` e os
-offsets `Ratio` em `f64` até calcular o peso local; só então converte os dois
-pesos separadamente para `f32`. O método Rust histórico `sample(f32)` permanece
-inalterado para os consumidores existentes.
-
-**P1269-owner — offsets precisos compartilhados.** A resolução efetiva dos
-offsets Linear em `f64` é uma única operação interna compartilhada pelo
-sampling preciso e pela normalização de identidades públicas de fronteira. Ela
-preserva offsets explícitos e calcula auto-spacing sem carrier intermediário
-`f32`. O método Rust histórico `effective_offsets() -> Vec<f32>` permanece
-inalterado. O accessor de linguagem `gradient.stops` expõe a resolução precisa;
-o sampling aceita tanto essa fronteira canônica quanto as identidades `f32`
-históricas, inclusive em coincidências não diádicas de `sharp`.
-
-**P1271-C3 — medição anterior à decisão.** Em `e055a12f`,
-`Gradient::repeat(2)` sobre quatro stops automáticos Linear RGB expunha offsets
-`0, 0.1666666716337204, 0.3333333432674408, 0.5, 0.5,
-0.6666666865348816, 0.8333333730697632, 1`; o vanilla ratificado expõe
-`0, 1/6, 1/3, 1/2, 1/2, 2/3, 5/6, 1`. A fonte cristalina resolvia todos os
-variants por `effective_offsets() -> Vec<f32>` antes de reconstruir
-`Ratio(f64)`; a fonte vanilla `gradient.rs:664-688` consome os `Ratio(f64)`
-resolvidos pela transformação.
-
-**Refinamento medido C3b.** O primeiro RED após remover esse estreitamento
-continuou a expor exatamente os mesmos Ratios arredondados. A nova inspeção
-localizou um segundo estreitamento serial no accessor de linguagem
-`native_gradient_stops`, que voltava a chamar `effective_offsets() -> Vec<f32>`.
-Logo C3 contém dois primeiros pontos independentes na cadeia: C3a na entrada
-de `repeat` e C3b na exposição dos stops; ambos recebem testes funcionais próprios.
-
-**Decisão P1271-C3.** A resolução efetiva precisa é operação interna comum às
-três variantes e conserva `Ratio(f64)` até concluir auto-spacing. Linear,
-Radial e Conic podem expô-la apenas dentro da crate; os métodos Rust públicos
-históricos em `f32` e seus consumidores permanecem. A transformação `repeat`
-e o accessor de linguagem são os novos consumidores deste subpasso. A
-inferência é que os dois carriers `f32` seriais são as causas de C3; seria
-refutada se removê-los não reproduzisse os offsets públicos do vanilla.
-Aceitação compara os Ratios da linguagem. `sharp`, sampling, quantização,
-budgets e render ficam explicitamente fora de C3.
-
-**P1271-C4 — medição anterior à decisão.** Depois de C2/C3, a superfície
-Radial em `t = 37.123456789%` ainda estreitava o argumento público para `f32`.
-No espaço Oklab com stops `black/white`, o cristalino expunha lightness
-`0.3712349534034729`, enquanto o vanilla ratificado expõe
-`0.37123456597328186`; os canais `a/b` já coincidiam após C2. Em Linear RGB
-com `red/blue`, o primeiro canal cristalino era `0.6287654638290405` e o
-vanilla `0.6287654042243958`. A fonte vanilla `gradient.rs:846-860` encaminha
-`t: f64` e `sample_stops` em `gradient.rs:1461-1484` só materializa os pesos
-como `f32` no mixing.
-
-**Decisão P1271-C4.** Radial ganha sampling interno preciso que preserva `t` e
-offsets em `f64` até calcular o peso local. Nos espaços Oklab e Linear RGB,
-materializa separadamente `w0=(1-local) as f32` e `w1=local as f32`, e cada
-canal usa `(w0*c0+w1*c1)/(w0+w1)`, inclusive alpha. O método Rust público
-histórico `sample(f32)` não muda; Conic e os outros seis espaços ficam fora
-deste cluster. A inferência é que o cast público `f64→f32` é a primeira causa
-de C4; seria refutada se sua remoção não reproduzisse os componentes acima.
-Aceitação é pelos componentes da linguagem, sem alterar budget, quantização,
-cap ou render adaptativo.
-
----
-
-## Anotação cumulativa P264 — Radial variant materializada
-
-**Data**: 2026-05-15.
-
-Subset Radial materializado per ADR-0088 (Opção α — ADR nova
-dedicada paridade pattern N=2 P261/P262).
-
-### Tipos adicionados
-
-```rust
-use crate::entities::axes::Axes;
-
-pub struct Radial {
-    pub stops:  Arc<[GradientStop]>,
-    pub center: Axes<Ratio>,
-    pub radius: Ratio,
-}
-
-impl Radial {
-    pub fn effective_offsets(&self) -> Vec<f32>;  // paridade Linear
-    pub fn sample(&self, t: f32) -> Color;        // paridade Linear (Oklab)
-}
-```
-
-### Enum Gradient expandido
-
-```rust
-pub enum Gradient {
-    Linear(Arc<Linear>),
-    Radial(Arc<Radial>),  // P264 — descomentado
-    // Conic(Arc<Conic>),   // P-Gradient-Conic — comentário reserva
-}
-
-impl Gradient {
-    pub fn linear(stops, angle) -> Self;
-    pub fn radial(stops, center, radius) -> Self;  // P264
-    pub fn first_stop_color(&self) -> Color;  // pattern-match expandido
-}
-```
-
-### Scope-outs P264 (per ADR-0088)
-
-- `focal_center` (default = center; consumer raro).
-- `focal_radius` (default 0%; consumer raro).
-- `space` (Oklab fixo — paridade P262).
-- `relative` (bbox-local — paridade P262).
-- `anti_alias` (true assumed — paridade P262).
-- **PDF emit Radial fallback Solid** até **P265 dedicado**
-  (`/ShadingType 3`).
-
-### Cross-references P264
-
-- `entities/axes.md` — `Axes<T>` minimal criado P264.
-- ADR-0088 — Gradient Radial-only (IMPLEMENTADO P264).
-- ADR-0087 §"Critério revisão" cumprido parcialmente
-  (Conic continua scope-out).
-- ADR-0086 — Paint::Gradient automaticamente absorve Radial
-  (zero cascade refactor).
-- P262 — Linear precedente; helpers Oklab reutilizados literal.
-- P265 (futuro) — PDF emit Radial dedicado (replica P263
-  template).
-
----
-
-## Anotação cumulativa P267 — Conic variant materializada (cluster Gradient 3/3 completo)
-
-**Data**: 2026-05-15.
-
-Subset Conic materializado per ADR-0089 (Opção α — ADR nova
-dedicada paridade pattern N=5 P261/P262/P264). **Cluster
-Gradient L1+stdlib completo 3/3** (Linear + Radial + Conic).
-
-### Tipos adicionados
-
-```rust
-pub struct Conic {
-    pub stops:  Arc<[GradientStop]>,
-    pub center: Axes<Ratio>,
-    pub angle:  Angle,
-}
-
-impl Conic {
-    pub fn effective_offsets(&self) -> Vec<f32>;  // paridade Linear/Radial
-    pub fn sample(&self, t: f32) -> Color;        // paridade (Oklab)
-}
-```
-
-### Enum Gradient expandido (3/3 variants completo)
-
-```rust
-pub enum Gradient {
-    Linear(Arc<Linear>),
     Radial(Arc<Radial>),
-    Conic(Arc<Conic>),    // P267 — descomentado
-}
-
-impl Gradient {
-    pub fn linear(stops, angle) -> Self;
-    pub fn radial(stops, center, radius) -> Self;  // P264
-    pub fn conic(stops, center, angle) -> Self;    // P267
-    pub fn first_stop_color(&self) -> Color;       // pattern-match 3-arm
+    Conic(Arc<Conic>),
 }
 ```
 
-### Scope-outs P267 (per ADR-0089)
-
-- `space` (Oklab fixo — paridade P262/P264).
-- `relative` (bbox-local — paridade P262/P264).
-- `anti_alias` (true assumed — paridade P262/P264).
-- **PDF emit Conic fallback Solid** até **P268 dedicado**.
-- **Sem `focal_*` scope-out** — não existe em ConicGradient
-  vanilla (exclusivo Radial).
-
-### Cross-references P267
-
-- ADR-0089 — Gradient Conic-only (IMPLEMENTADO P267).
-- ADR-0088 §"variants não materializados" parcialmente
-  revogado por este passo (Conic activado; `focal_*` Radial
-  preservado).
-- ADR-0086 — Paint::Gradient automaticamente absorve Conic
-  (zero cascade refactor).
-- P262/P264 — precedentes directos; helpers Oklab reutilizados
-  literal (subpadrão "Reutilização literal helpers
-  cross-passos" N=1 → N=2).
-- P268 (futuro) — PDF emit Conic dedicado (replica P263/P265
-  template).
-
----
-
-## Anotação P268 — PDF Conic shading (`/ShadingType 4` Gouraud)
-
-**Data**: 2026-05-15.
-
-PDF render Conic materializado per ADR-0089 §"Anotação
-cumulativa P268". **Promessa P267 fechada**: 3 sítios
-pattern-match `Gradient::Conic(_) => continue/fallback` em
-`03_infra/src/export.rs` substituídos por emit real.
-
-### Estratégia: Type 4 Free-Form Gouraud Triangle Mesh
-
-PDF Spec ISO 32000 §7.5.7. Triangulação manual do disco em
-N=32 fatias (sem dependência crate externa krilla — vanilla
-delega para krilla::SweepGradient não autorizada cristalino).
-
-Estrutura PDF Conic Shading:
-- `/ShadingType 4` (Gouraud free-form triangle mesh).
-- `/ColorSpace /DeviceRGB`.
-- `/BitsPerCoordinate 8` (256 níveis bbox unit).
-- `/BitsPerComponent 8` (RGB sRGB).
-- `/BitsPerFlag 8` (flag=0 todos os triângulos).
-- `/Decode [0 1 0 1 0 1 0 1 0 1]`.
-- Stream binary: 96 vertices × (1 flag + 1 x + 1 y + 3 RGB)
-  = 576 bytes para N=32 triangles.
-
-Cor central = primeiro stop (paridade fallback). Cores em
-edges = `Conic::sample(i/N)`. Helpers Oklab P262/P263/P265
-reutilizados literal.
-
-Cluster Gradient L1+stdlib+PDF **3/3 completo** pós-P268.
-
-**Anotação P268.1**: divergência arquitectural Type 4 cristalino
-vs estratégia vanilla actual desconhecida (krilla `SweepGradient`
-interno opaco; Typst original pré-krilla era Type 6 Coons per
-blog 2023 — Part 7 #5420 transitou para krilla) formalizada em
-ADR-0090 EM VIGOR; convenção cor central = primeiro stop
-confirmada como industry standard Cairo/PDF (não decisão
-arbitrária P268). Cristalino Type 4 alinhado com Cairo
-(Type 6/7) / Inkscape (Type 7) / Typst original (Type 6 Coons)
-— todos família mesh-based; divergência intra-família mesh
-(Type 4 vs Type 6). ADR-0018 preservado (krilla não autorizada).
-Refino qualidade visual pendente P268.2 (adaptive N hybrid;
-spec futura).
-
-**Anotação P268.2**: `emit_conic_gouraud_stream` callsite production
-usa N adaptive hybrid 1+2 (número de stops + contraste Oklab ΔE) em
-vez de N=32 fixo; fórmula §A.6 `diagnostico-adaptive-n-passo-268-2.md`
-com `factor_delta = 256.0` calibrado para Oklab canónico (Björn
-Ottosson; W3C CSS Color 4). ADR-0090 preservada literal (estratégia
-Type 4 intocada). Helper privado `color_to_oklab_with_alpha`
-promovido a `pub fn` para acessibilidade cross-crate L3 (function
-body preservada literal); wrapper L3 `oklab_delta_e` ~8 LOC.
-Assinatura `emit_conic_gouraud_stream(conic, n_slices)` preservada
-literal — adaptive N entra apenas no callsite, zero regressão dos
-6 tests P268 originais. Cluster Gradient PDF cristalino transita
-para qualidade visual **industry-grade**.
-
----
-
-## Anotação cumulativa P269 — Radial focal_center + focal_radius activados
-
-**Data**: 2026-05-15.
-
-Subset Radial estendido per ADR-0088 §"Anotação cumulativa P269"
-(anotação cumulativa N=7; subpadrão "ADR scope-out revogado
-parcialmente" N=1 → N=2 — P267 Conic + **P269 focal_***).
-
-### Tipos estendidos
-
-```rust
-pub struct Radial {
-    pub stops:        Arc<[GradientStop]>,
-    pub center:       Axes<Ratio>,
-    pub radius:       Ratio,
-    pub focal_center: Axes<Ratio>,  // P269 — novo campo; default via construtor = center
-    pub focal_radius: Ratio,        // P269 — novo campo; default via construtor = Ratio(0.0)
-}
-
-impl Gradient {
-    pub fn radial(stops, center, radius) -> Self;                // P264; default focal=(center, 0)
-    pub fn radial_with_focal(stops, center, radius,              // P269 — focal explícito
-                             focal_center, focal_radius) -> Self;
-}
-```
-
-### Stdlib estendido
+Preserve Debug/Clone/PartialEq for variant data and derived field equality,
+including anti_alias. Arc clones are O(1). Constructors retain the following
+API families and their existing signatures; abbreviated argument lists record
+names, not permission to change concrete Rust types:
 
 ```text
-#gradient.radial(red, blue, focal_center: (30%, 40%), focal_radius: 10%)
+Gradient::linear(stops: impl Into<Arc<[GradientStop]>>, angle: Angle) -> Self
+Gradient::radial(stops, center, radius) -> Self
+Gradient::conic(stops, center, angle) -> Self
+Gradient::radial_with_focal(stops, center, radius, focal_center, focal_radius) -> Self
+Gradient::linear_with_space(stops, angle, space) -> Self
+Gradient::radial_with_space(stops, center, radius, space) -> Self
+Gradient::conic_with_space(stops, center, angle, space) -> Self
+Gradient::first_stop_color(&self) -> Color
+Linear/Radial/Conic::effective_offsets(&self) -> Vec<f32>
+Linear/Radial/Conic::sample(&self, t: f32) -> Color
+impl From<Gradient> for Paint
 ```
 
-Named args novos: `focal_center: Array [Ratio, Ratio]` (default =
-center), `focal_radius: Ratio` (default `0%`).
-
-### Validações stdlib portadas vanilla
-
-- `focal_radius > radius` → erro.
-- `dist(focal_center, center)² >= (radius - focal_radius)²` → erro
-  (focal circle deve estar dentro do outer circle).
-
-### Defaults preservam P264 — zero regressão
-
-- `Gradient::radial(stops, center, radius)` sem focal → focal=(center, 0).
-- Stdlib `gradient.radial(...)` sem named focal_* → idem.
-- L3 `/Coords [cx cy 0 cx cy r]` (idêntico P265 para defaults).
-- 16 tests P264/P265 preservados verdes literal (assertions intactas;
-  struct literal sites recebem 2 campos novos com valores trivial).
-
-### `Radial::sample(t)` inalterado
-
-`Radial::sample(t)` permanece 1D pura (interpolação Oklab sobre
-offsets dos stops; não usa coordenadas 2D nem focal). Focal só
-afecta L3 PDF emit (`/Coords` Type 3 nativo).
-
-### Scope-outs preservados pós-P269
-
-- `space: ColorSpace` — Oklab fixo (paridade P262/P264).
-- `relative: Smart<RelativeTo>` — bbox-local.
-- `anti_alias: bool` — true assumed.
-
-### Cross-references P269
-
-- ADR-0088 §"Anotação cumulativa P269" — fórmula completa.
-- ADR-0054 anotação P269 — perfil graded preservado.
-- `lab/results/construction/diagnostics/diagnostico-gradient-focal-passo-269.md`
-  — diagnóstico imutável (sétimo consumo directo de fonte vanilla).
-- P264 — Radial L1+stdlib subset 3 campos (precedente directo).
-- P265 — PDF Radial /ShadingType 3 (template emit; `compute_radial_coords`
-  estendido).
-- P267 — Conic activado (precedente "ADR scope-out revogado
-  parcialmente" N=1).
-
----
-
-## ColorSpace runtime (P270 — cross-variant)
-
-Cada variant (Linear/Radial/Conic) tem campo `space: ColorSpace`:
-
-- Default = `ColorSpace::Oklab` (preserva P262/P264/P267 behavior
-  bit-exact).
-- `sample(t)` interpola no space escolhido via dispatcher
-  `interpolate_in_space(c0, c1, t, space)`.
-- Hue-wrap shorter default para HSL/Oklch/HSV (CSS standard; vanilla
-  paridade literal).
-
-### `ColorSpace` enum criado P270
-
-```rust
-pub enum ColorSpace {
-    Oklab, Oklch, Srgb, Luma, LinearRgb, Hsl, Hsv, Cmyk,
-}
-```
-
-8 variants paridade vanilla (Luma ≡ D65Gray nome cristalino histórico).
-Localização: `01_core/src/entities/color.rs`.
-
-### Construtores estendidos
-
-```rust
-impl Gradient {
-    // Defaults Oklab preservam P262/P264/P267 behavior.
-    pub fn linear(stops, angle) -> Self;
-    pub fn radial(stops, center, radius) -> Self;            // P269 defaults focal
-    pub fn conic(stops, center, angle) -> Self;
-
-    // P270 — explicit space cross-variant.
-    pub fn linear_with_space(stops, angle, space) -> Self;
-    pub fn radial_with_space(stops, center, radius, space) -> Self;
-    pub fn conic_with_space(stops, center, angle, space) -> Self;
-
-    // P269 (preservado).
-    pub fn radial_with_focal(stops, center, radius, fc, fr) -> Self;
-}
-```
-
-### Stdlib user-facing
-
-```text
-#gradient.linear(red, blue, space: "hsl")
-#gradient.radial(red, blue, space: "oklch")
-#gradient.conic(red, blue, space: "srgb")
-```
-
-Named arg `space: Str` aceita `"oklab" | "oklch" | "srgb" | "luma" |
-"linear-rgb" | "hsl" | "hsv" | "cmyk"`. Default sem named arg → Oklab.
-
-### Hue-wrap shorter (HSL/Oklch/HSV)
-
-Para polar spaces, hue interpolada via caminho mais curto (CSS
-standard; vanilla paridade literal portada de `mix_iter` linha
-1126-1136). Wrap se `|h1 - h0| > 180°`.
-
-### L3 emit preservado P270 (refactor adiado P270.1+P270.2)
-
-L3 PDF emit ainda Oklab pipeline P263/P265/P268. Multi-space emit:
-- P270.1 (futuro M+): 7 spaces RGB-family + perceptual via Oklab
-  pipeline N=16 → DeviceRGB.
-- P270.2 (futuro S+): CMYK directo `/DeviceCMYK` (revoga ADR-0083 §CMYK).
-
-Cluster Gradient L1+stdlib **feature-complete em 3 variants × 8 spaces**
-pós-P270.
-
-### Cross-references P270
-
-- ADR-0091 — Gradient ColorSpace runtime + CMYK strategy (criada
-  PROPOSTO+IMPLEMENTADO P270).
-- ADR-0083 — Color paridade (anotada cumulativa P270; §ColorSpace
-  runtime revogado parcialmente).
-- ADR-0054 — Perfil graded (anotada cumulativa P270).
-- ADR-0087/0088/0089/0090 — Variant strategies (anotadas cumulativa
-  P270).
-- `lab/results/construction/diagnostics/diagnostico-gradient-space-passo-270.md`
-  — diagnóstico imutável (oitavo consumo directo de fonte vanilla).
-- P262/P264/P267 — Linear/Radial/Conic L1+stdlib (precedentes
-  directos extendidos).
-- P269 — Radial focal_* (preservado; campo space adicional).
-
-**Anotação P270.1**: pipeline L3 emit ganha consciência de space —
-helpers L3 renomeados `oklab_sample_stops_*` → `multispace_sample_stops_*`
-(`03_infra/src/export.rs`). **Body literal preserved** porque
-`<variant>.sample(t)` despacha via P270 `interpolate_in_space`
-automaticamente — P270 já passou L3 multi-space implicitamente.
-7 spaces materializados L3 emit (Oklab/Oklch/sRGB/Luma/LinearRGB/HSL/HSV);
-CMYK preservado via pipeline natural CMYK→sRGB sub-óptimo (P270.2
-materializa `/DeviceCMYK` directo). Defaults Oklab preservam bytes
-pré-P270.1 bit-exact (2500 baseline preservados). Ver ADR-0091
-§"Anotação cumulativa P270.1".
-
-**Anotação P270.2**: CMYK emit branch directo `/DeviceCMYK`
-materializado em L3 para **Linear+Radial** (Cenário B). Pipeline
-dual em `emit_gradient_objects`: `space == Cmyk` → shading
-`/ColorSpace /DeviceCMYK` + Function 4-component
-(`/Range [0 1 0 1 0 1 0 1]`); senão P270.1 pipeline literal
-preserved. Helpers L3 novos: `multispace_sample_stops_<variant>_cmyk(n)`
-retorna `Vec<(c, m, y, k)>` via `Color::Cmyk` pattern-match
-(dispatcher P270 arm Cmyk). **Conic CMYK preserved scope-out**
-P270.2 (§A.8 diagnóstico Cenário B — vanilla suporte/reader
-compatibility incertos; candidato P-Gradient-Conic-CMYK futuro);
-Conic com `space: Cmyk` usa pipeline P270.1 fallback sub-óptimo
-(CMYK→sRGB). **Bug vanilla #4422 resolvido por construção**
-(cristalino emit `/DeviceCMYK` correcto). **ICC profiles scope-out
-preserved** (candidato P-Gradient-CMYK-ICC futuro). ADR-0083
-§DeviceCMYK revogado parcialmente. Cluster L3 emit Linear+Radial
-**8/8 spaces**; Conic 7/8 + CMYK fallback. Ver ADR-0091 §"Anotação
-cumulativa P270.2".
-
-**Anotação P270.3**: infra-estrutura **Type 6 Coons Patch Mesh**
-materializada como estratégia adicional Conic L3 emit (preparação
-CMYK P270.4 via ADR-0092 EM VIGOR). **Conic ganha 2 emit paths
-coexistentes** — Type 4 Gouraud (P268+P268.2 preserved; RGB
-default) + Type 6 Coons (P270.3 infra; P270.4 activa para
-`space == Cmyk`). **Dispatcher opt-in flag interno** (não user-facing;
-default OFF P270.3; ON P270.4). **Strategy "1 patch per stop"**
-(paridade Typst original blog 2023; N stops → N patches angulares).
-**Matemática Bezier cúbico arc círculo** (Stanislaw Adaszewski):
-offset = r·(4/3)·tan(angle/4). Helpers L3 novos:
-`bezier_control_points_for_arc`, `compute_coons_patches_n_stops`,
-`emit_conic_coons_stream` (37 bytes per patch: 1 flag + 12 control
-points × 2 coord + 4 corner colors × 3 RGB). **`#[allow(dead_code)]`**
-marcações P270.3 (helpers serão usados P270.4). ADR-0090 §Type 6
-scope-out **revogado parcialmente** (Type 6 sai; Type 7 preserved).
-Sub-padrão "ADR scope-out revogado parcialmente" N=4 → **N=5
-cumulativo limiar formalização clara muito ultrapassado** —
-candidato meta-ADR URGENTE. 2545 baseline preserved bit-exact
-(flag default OFF). Ver ADR-0092 EM VIGOR.
-
-**Anotação P270.4**: opt-in flag Coons CMYK **activado** (cluster L3
-24/24 absoluto). `emit_conic_coons_stream_cmyk` variant materializado
-(corner colors 4-component CMYK; **41 bytes/patch** vs 37 RGB).
-Dispatcher Conic em `emit_gradient_objects`:
-- `space == Cmyk` → `/ShadingType 6 /ColorSpace /DeviceCMYK` Coons
-  (Decode `[0 1 0 1 0 1 0 1 0 1 0 1]` 6 pares x,y,c,m,y,k).
-- senão → `/ShadingType 4 /ColorSpace /DeviceRGB` Gouraud P268+P268.2
-  literal preserved.
-Helpers Coons P270.3 perdem `#[allow(dead_code)]` (agora em uso).
-**Adaptive N NÃO se aplica a Coons** (strategy 1 patch per stop;
-N = stops.len()). Sub-decisão prévia recalibrar factor_delta CMYK
-preservada reserva (P-Gradient-Adaptive-Multispace candidato futuro).
-**Bug vanilla #4422 resolvido por construção** absoluto (3 variants ×
-CMYK). **ADR-0091 §Conic CMYK scope-out** revogado **final**.
-**ADR-0083 §DeviceCMYK PDF** revogado **definitivo**. Sub-padrão
-"ADR scope-out revogado parcialmente" N=5 → **N=6 cumulativo limiar
-ainda mais ultrapassado** — meta-ADR URGENTE FINAL. **Cluster
-Gradient L1+stdlib+L3 emit feature-complete 24/24 absoluto** —
-marco arquitectural máximo. Série P270 completa (P270 + P270.1 +
-P270.2 + P270.3 + P270.4). Ver ADR-0092 §"Anotação cumulativa
-P270.4".
-
-**Anotação P272**: Conic L3 emit **estratégia unificada Coons** —
-`emit_conic_coons_stream_rgb` (P270.3 helper activado + extension
-**N=stops*4** patches angulares) + `emit_conic_coons_stream_cmyk`
-(P270.4 preserved literal). Dispatcher Conic **único** `/ShadingType 6`
-para 8/8 spaces (Decode 5 pares RGB ou 6 pares CMYK; Function Type 2
-N=1 identity 3 ou 4 components). Corner colors interpolated via
-`Conic::sample(t)` dispatcher P270 (dispatches `interpolate_in_space`
-per `conic.space` automaticamente). **Helpers REMOVED P272**:
-`emit_conic_gouraud_stream` + `compute_adaptive_n_conic` +
-`oklab_delta_e` (P268+P268.2). **20 tests P268+P268.2 REMOVED** + ~18
-tests P272 ADDED (net -2). **ADR-0090 REVOGADO P272** (Type 4 Gouraud
-descontinuado); **ADR-0092 expandida cumulativamente**. Sub-padrão
-"ADR REVOGADO + substituta" N=2 → **N=3 cumulativo**. Sub-padrão
-"Aplicação meta-ADR (ADR-0093 + ADR-0094)" **N=1 inaugural cada** —
-primeira aplicação prática pós-formalização P271. **Cluster Gradient
-L3 emit estratégia única Coons feature-complete 24/24 simplificado**.
-Ver ADR-0092 §"Anotação cumulativa P272 — Decisão Cenário A revisado
-FINAL".
-
-**Anotação P273**: cluster Gradient cross-variant ganha campo
-`relative: Option<RelativeTo>` (default `None` = Auto = Self_;
-preserva P272 literal). Enum `RelativeTo { Self_, Parent }` com
-`Default = Self_`; ADR-0064 §Caso A pattern (`Smart<T>` → `Option<T>`
-cristalino). Stdlib named arg `"relative"` cross-variant
-("self"/"parent"/"auto"; whitelist estendida em 3 fns). L3 dispatcher
-dual:
-- `Self_` (default) → pipeline P272 preserved literal (page-relative
-  coords).
-- `Parent` → `apply_parent_transform(local, parent_bbox)` em Rust
-  nativo (paridade vanilla `correct_transform`; PDF `/Matrix`
-  identity). `parent_bbox = None` em callsites P273 (estrutural) →
-  identity; futuro callsite poderá passar bbox real.
-
-**Cluster Gradient cross-variant runtime fields canónica 3/3**:
-focal_* (P269) + space (P270) + **relative (P273)**.
-
-Industry research consolidada P273 — Cairo/Inkscape/vanilla usam
-transform Rust nativo (paridade cristalino); PDF `/Matrix`
-rejeitado por todos. Sub-padrão "Anotação cumulativa em vez de ADR
-nova" N=12; "Reutilização literal helpers" N=12; "Cap LOC hard/soft"
-N=6; "Fase A com industry research proactiva" N=5 (limiar
-formalização clara muito ultrapassado); "Aplicação meta-ADR
-(ADR-0094)" N=2 cumulativo. Ver ADR-0091 §"Anotação cumulativa P273
-— Cross-variant runtime fields".
-
-**Anotação P274**: Adaptive N multispace refino qualitativo para
-Linear+Radial RGB-family + perceptual. Pré-amostragem N=16 fixo
-substituída por `adaptive_n_for_stops(stops, space)` (threshold
-based; 16/32/64 níveis baseados em max_pair_delta_e Oklab). Cap
-N_max=64 (4× N_base). Conic preserved P272 literal (Coons N=stops*4);
-CMYK preserved P270.2 directo. Novo helper L3 privado
-`perceptual_distance_in_space(c0, c1, space)` — genérico cross-space
-desacoplado (`color_to_oklab_with_alpha` P262 reused 4ª vez literal).
-Defaults pastel low-contrast preservam N=16 (paridade P270.1 emit
-literal); red→blue high-contrast escala para N=64 deterministic.
-Tests P270.1 reproducibility (`pdf1==pdf2`) preserved zero regressão.
-Sub-padrão "Reutilização literal helpers cross-passos" N=12 → N=13
-consolidação clara persistente; "Anotação cumulativa em vez de ADR
-nova" N=12 → N=13 consolidação clara persistente; "Cap LOC hard/soft"
-N=6 → N=7 consolidação total; "Fase A com industry research
-proactiva" N=5 → N=6 (4 fontes W3C/Ottosson/Skia/Cairo); "Aplicação
-meta-ADR (ADR-0093)" N=1 → N=2; "Aplicação meta-ADR (ADR-0094)" N=2
-→ N=3. Ver ADR-0091 §"Anotação cumulativa P274".
-
-**Anotação P273.5**: Fecho pendência P273 `apply_parent_transform`
-em `#[allow(dead_code)]` via callsite real L3 emit gradient.
-Decisão 3γ híbrida (Fase A): callsite L3 passa `page_bbox` como
-fallback parent_bbox (3γ.1 materializado) — cobre semântica vanilla
-"shape top-level com relative=Parent ancora à página". Refino futuro
-3γ.2 (Block/Boxed/Group save/restore real) é pendência preservada
-incremental per ADR-0054 graded; estructuralmente preparado via
-campo `parent_bbox: Option<Rect>` L1 Layouter. Novo `Rect` struct
-em L1 paridade `Point`/`Size` (em `entities/layout_types.rs`).
-Padrão DEBT-37 P84.6 `cell_origin_*: Option<f64>` reused
-estructuralmente — campo opcional Layouter para contexto pai;
-sub-padrão emergente "Pattern DEBT-37 replicado" N=1 → N=2 (meio
-caminho limiar formalização N=3-4). `#[allow(dead_code)]` removido
-de `apply_parent_transform` — função tem callsites L3 reais.
-Defaults `relative: None/Some(Self_)` preservam pipeline P272+P273+P274
-bit-exact. Sub-padrão "Anotação cumulativa em vez de ADR nova" N=13
-→ N=14 (sétima anotação consecutiva ADR-0091); "Reutilização literal
-helpers cross-passos" N=13 → N=14 consolidação clara persistente.
-Ver ADR-0091 §"Anotação cumulativa P273.5".
-
-**Anotação P273.6**: Fecho 3γ.2 — `parent_bbox` Layouter ganha
-consumer real via save/restore em `Content::Block` arm + propagação
-ao L3 via `FrameItem::Shape.parent_bbox_at_emit: Option<Rect>` (cascade
-~86 sites bulk-patched). Decisão 1 (3γ.2.γ): popular apenas quando
-`width.is_some() && height.is_some()` (Decisão Fase A). Decisão 2
-(Prop-A revisitada): `FrameItem::Shape` + `GradientObject` ambos
-ganham `parent_bbox_at_emit: Option<Rect>`. Decisão 3 (escopo
-contentores): {Block} apenas; Boxed difere P273.7; outros scope-out
-per ADR-0054 graded. **`#[allow(dead_code)]` Layouter `parent_bbox`
-removed** — campo consumed por Block arm (write) + emit shape (read).
-Pattern DEBT-37 `cell_origin_*` replicado N=3 cumulativo (P84.6 +
-P273.5 estrutural + P273.6 com consumer real) — atinge limiar
-formalização ADR meta N=3-4. Defaults `relative: None/Some(Self_)` +
-Block sem dimensions literais preservam P262-P273.5 bit-exact (cai
-no fallback page_bbox L3 P273.5). Sub-padrão "Anotação cumulativa em
-vez de ADR nova" N=14 → N=15 (oitava anotação consecutiva ADR-0091);
-"Reutilização literal helpers cross-passos" N=14 → N=15; "Cap LOC
-hard vs soft explícito" N=8 → N=9 consolidação total. Ver ADR-0091
-§"Anotação cumulativa P273.6".
-
-**Anotação P273.7**: Estende Decisão 3 P273.6 de `{Block}` para
-`{Block, Boxed}` aplicando o template save/restore literal ao arm
-`Content::Boxed`. **Decisão 1 (semântica bbox.y inline fixada
-`3γ.2.γ-inline-baseline-y`)**: `bbox.y = self.regions.current.cursor_y`
-literal (baseline-relative). Aproximação aceitável — coerente com
-limitação consciente pré-existente P156H "height em contexto inline
-alteraria line_height — refino futuro"; refino topo-exacto fica
-registado como `P273.X-bis2` per ADR-0054 graded. **Decisões 2/3/4
-herdadas P273.6 literal**: 3γ.2.γ W/H (popular apenas com
-width+height literais); Prop-A revisitada inalterada (emit shape
-sites do Boxed já populam `parent_bbox_at_emit` desde P273.6); escopo
-contentores estendido para `{Block, Boxed}` (Stack/Pad/Group/Grid cell
-scope-out per ADR-0054 graded). **Sem cascade novo**: cascade ~86
-sites já feito P273.6; L3 GradientObject + dispatcher inalterados.
-Defaults `relative: None/Some(Self_)` + Boxed sem dimensions literais
-preservam P262-P273.6 bit-exact. Pattern DEBT-37 N=3 cumulativo
-preserved (P273.7 é extensão da 3ª aplicação, não 4ª). Sub-padrão
-"Anotação cumulativa em vez de ADR nova" N=15 → N=16 (nona anotação
-consecutiva ADR-0091); "Template-passo replicado literal" N=0 → N=1
-emergente (save/restore P273.6 replicado a Boxed com bbox.y semantic
-inline-baseline-y). Ver ADR-0091 §"Anotação cumulativa P273.7".
-
-**Anotação P273.9**: Estende Decisão 3 de `{Block, Boxed}` para
-`{Block, Boxed, Grid cell, Stack, Pad}` — escopo 1γ M magnitude
-(Decisão utilizador). **Decisão 2 fixada (Grid bbox)**:
-`Rect { x: body_x, y: body_y, w: body_w, h: body_h }` exacto cell —
-todos 4 disponíveis pré-body via track resolution + insets aplicados.
-**Decisão 3 fixada (Stack + Pad bbox)**: medição inline via
-`measure_content_constrained` pre-layout. Stack — vertical
-`max_w × sum_h`; horizontal `sum_w × max_h`; bbox no cursor
-pós-flush_line. Pad — bbox INNER (body region, sem insets) paralela
-a Block; `(body_w, body_h) = measure_content_constrained(body,
-available_inner)`. **Sem cascade novo**; L3 dispatcher inalterado
-desde P273.6. **Layout duplo arquitectural aceite** — sub-padrão
-N=0 → N=1 inaugural emergente; custo perf ~1.5-2× **apenas em
-pipelines com gradient `relative=parent`** (defaults Self_/None
-preservam zero overhead). **Pattern DEBT-37 `cell_origin_*`
-replicado N=3 → N=4 cumulativo** atinge limiar formalização
-N=3-4 com folga consolidada (P84.6 + P273.5 + P273.6 + **P273.9**
-Grid cell paralelo a `cell_origin_*`). **Template-passo replicado
-literal N=1 → N=2 cumulativo** (Grid replica template Block/Boxed
-literal; Stack/Pad replicam com adaptação layout duplo). Defaults
-rigorosos (`body_w > 0 && body_h > 0`) preservam P262-P273.8
-bit-exact. Sub-padrão "Anotação cumulativa em vez de ADR nova"
-N=16 → N=17 (décima anotação consecutiva ADR-0091). Ver ADR-0091
-§"Anotação cumulativa P273.9".
-
-**Anotação P273.10**: Estende cobertura `parent_bbox` para
-`FrameItem::Group` via **mecanismo L3 puro** (zero touch Layouter
-L1). Inaugura sub-padrão "L3-only parent_bbox" N=1 — contentores
-post-layout cuja bbox é conhecida apenas em L3 emit-time usam L3
-dispatcher override em vez de L1 save/restore. **Decisão 1α**
-(parameter threading): `scan_all_gradients` ganha helper recursivo
-interno com `parent_bbox_override: Option<Rect>`; Group arm constrói
-`group_bbox = Rect { pos, inner_width, inner_height }` e recurse;
-Shape arm aplica **Inner-wins** via `parent_bbox_at_emit.or(override)`.
-**Decisão 2α** (bbox): geometric exact em coords cristalino (sem
-Y-inversion). **Decisão 3α** (precedence): Inner wins — Shapes com
-campo populated pelos 5 containers Layouter (Block/Boxed/Grid/Stack/Pad)
-mantêm-no; override Group ignorado nesse caso. **Scope creep arquitectural**:
-`pattern_resources_for_page` também ganha recursão symmetric — bug
-latent pré-existente onde gradients dentro de Groups não eram
-registados/listados é corrigido em paralelo (sem o scope creep, a
-feature não produz observable behavior). Defaults `relative:
-None/Some(Self_)` + Shapes com campo populated preservam P262-P273.9
-bit-exact. Sub-padrão "L3-only parent_bbox" distingue de Pattern
-DEBT-37 (L1 save/restore) e Layout duplo arquitectural aceite (L1
-`measure_content_constrained`). Sub-padrão "Anotação cumulativa em
-vez de ADR nova" N=17 → N=18 (décima primeira anotação consecutiva
-ADR-0091); "Sub-passos consecutivos do mesmo cluster" N=5 → N=6
-emergente. Ver ADR-0091 §"Anotação cumulativa P273.10".
-
-**Anotação P273.12**: Fecha limitação documentada P273.6 §9 quarto
-bullet ("gradient com mesmo Arc usado em contextos distintos:
-actualmente primeiro wins") preservada em todos relatórios P273.6-P273.11.
-Refino arquitectural L3-puro: chave dedup expandida de `Arc::as_ptr`
-para `DedupKey { arc_ptr: usize, bbox: Option<RectKey> }` com
-`RectKey(i32, i32, i32, i32)` em milipontos quantizados (resolve
-problemas de `f64` em HashMap key + preserva precisão sub-typográfica).
-**Decisão 2β scan-side**: `scan_all_gradients.walk` +
-`pattern_resources_for_page.walk` computam `effective_bbox =
-parent_bbox_at_emit.or(parent_bbox_override)` e usam-no como dedup
-key; `emit_stroke_paint` ganha `effective_bbox` param para construir
-DedupKey lookup. **Decisão 3α**: pat_ptr_to_idx permanece global ao
-documento. Trade-off PDF size: pior caso N callsites mesmo Arc + N
-bboxes distintos → N patterns (semântica correcta); caso comum
-preserved. Defaults preservam P262-P273.11 bit-exact:
-`relative=self/None` (bbox=None) → DedupKey factorizes a singleton
-key per Arc; Arc-único context idem. Apenas Arc com bboxes effective
-distintos em N contexts produz N PDF patterns (vs primeira-wins
-pre-P273.12). Sub-padrão **"Dedup Arc::as_ptr resources" N=2 → N=3
-cumulativo crossing limiar formalização N=3-4** (P73 image + P263
-pattern + **P273.12 pattern bbox-aware**); candidato meta-ADR
-formalização NÃO reservado. Sub-padrão **"Bug arquitectural
-intencional corrigido" N=0 → N=1 inaugural emergente** — limitação
-corrigida 6 sub-passos depois com refino deliberado; distingue de
-"Bug latent corrigido em scope creep". "Anotação cumulativa em vez
-de ADR nova" N=18 → N=19 (décima segunda anotação consecutiva
-ADR-0091). Ver ADR-0091 §"Anotação cumulativa P273.12".
-
-**Anotação P273.13**: Fecha pendência P263 §8 #3 (2026-05-16) +
-P273.12 §9 quarto bullet — `draw_item_local` (recursão Group em
-build_page_stream_*) usava fallback solid color via
-`s.paint.to_color()` em vez de consumir o pattern dict registado
-em P273.10/P273.12. **Decisão 1α** (parameter threading): adiciona
-3 params (`parent_bbox_override`, `pat_ptr_to_idx`, `pat_refs`)
-paralelo ao P273.10 `scan_all_gradients.walk`. **Decisão 2α**
-(Group bbox source): construção literal-equivalente a
-`scan_all_gradients.walk` + `pattern_resources_for_page.walk` para
-garantir `dedup_key_for` produzir chave idêntica → lookup encontra
-pattern. **Decisão 3α** (coords): cristalino (Y-down) paridade scan.
-**Scope creep aceito**: arm Group novo em `draw_item_local` corrige
-bug pre-existente (nested Groups silenciosamente descartados via
-`_ => {}`) + suporta recurse paralelo scan. **Sub-padrão "L3-only
-parent_bbox" N=1 → N=2 cumulativo** — P273.10 inaugural
-(scan_all_gradients) + **P273.13 reaplicação (draw_item_local)**;
-padrão consolidado mas longe do limiar formalização N=3-4. Sub-padrão
-**"Triplicação Group bbox" N=0 → N=1 emergente** — 3 sítios constroem
-mesmo Rect literal (scan + pattern_resources + draw_item_local);
-candidato extract helper P273.X-bis-helper-group-bbox NÃO reservado.
-Defaults preservam P262-P273.12 bit-exact (top-level Shapes
-unaffected; Group Shapes sem gradient solid preserved). "Anotação
-cumulativa em vez de ADR nova" N=19 → N=20 (décima terceira anotação
-consecutiva ADR-0091); "Sub-passos consecutivos do mesmo cluster"
-N=8 → N=9 emergente. Ver ADR-0091 §"Anotação cumulativa P273.13".
-
-**Anotação P273.14**: CMYK-ICC paridade — **SCOPE-OUT-RECONFIRMED**
-via NO-GO Fase A binária. Razão tríplice: (1) Caminho 1 crate
-externa requer ADR nova revogando invariante L0 export.md "sem
-crates externas de PDF" — decisão arquitectural fora de escopo;
-(2) Caminho 2 profile bytes hardcoded inviável — zero profiles
-CMYK royalty-free industry-recognized para redistribuição (todos
-proprietários Adobe/ECI/IDEAlliance; "generic CMYK no-profile"
-royalty-free não existe per ICC.org Tech Note 7); (3) Caminho 3
-scope-out preserved reconfirmado por evidência empírica P273.14
-factual. `/DeviceCMYK` preserved como caminho actual; PDF/A
-compliance pendência inalterada. Pendência **P-Gradient-CMYK-ICC**
-permanece formal aberta com **trabalho prévio externo identificado**
-(3 itens em `typst-passo-273-14-trabalho-previo-externo.md`).
-Sub-padrão emergente inaugural **"Scope-out reconfirmado por Fase A"
-N=0 → N=1** — passo executado até critério binário; NO-GO honesto
-é output legítimo per ADR-0054 graded; trabalho de diagnóstico
-preserved como documento de pendência + pré-requisitos. Distingue
-de "Bug arquitectural intencional corrigido" P273.12 (limitação
-fechável vs dependente de trabalho externo). Zero alterações código
-L1/L3. "Anotação cumulativa em vez de ADR nova" N=20 → N=21 (décima
-quarta anotação consecutiva ADR-0091); "Sub-passos consecutivos do
-mesmo cluster" N=9 → N=10 cumulativo emergente. Ver ADR-0091
-§"Anotação cumulativa P273.14".
-
-**Anotação P273.15**: Bbox medido pós-layout — **SCOPE-OUT-RECONFIRMED**
-via NO-GO Fase A factual. Razão quádrupla: (1) §A.1 confirma **zero
-demanda empírica** registada em 8 sub-passos consecutivos
-(P273.6-P273.13; grep verificação em 20 documentos
-`00_nucleo/`); (2) Caminho 1 (eager) custo perf inaceitável —
-`measure_content_constrained` em todos Blocks sem dimensions, pior
-caso O(N²) onde antes era O(N); (3) Caminho 2 (lazy) custo impl
-desproporcional (walker novo ~60-100 LOC + manutenção sem demanda);
-(4) 3γ.2.γ aceito por ADR-0054 graded — "menor mudança suficiente"
-preserved. Decisão P273.6 §A.3 (3γ.2.γ) preserved literal — 8
-sub-passos sem contraproba. Block sem dimensions continua a cair no
-fallback page_bbox L3 P273.5 (identity transform; comportamento
-aceito). Pendência **P273.X-bis-bbox-medido-pos-layout** permanece
-formal aberta com **2 pré-requisitos identificados** (em
-`typst-passo-273-15-trabalho-previo-externo.md`): caso empírico
-concreto + decisão executiva custo perf. Sub-padrão "Scope-out
-reconfirmado por Fase A" N=1 → N=2 cumulativo emergente — primeira
-reaplicação do padrão inaugurado P273.14; mecânica consolidada
-(Fase A factual + decisão binária + NO-GO output legítimo + zero
-código). Distingue de P273.14 (constraints externas: licensing +
-crate) por NO-GO ser por **ausência de demanda + custo perf**. Zero
-alterações código L1/L3. "Anotação cumulativa em vez de ADR nova"
-N=21 → N=22 (décima quinta anotação consecutiva ADR-0091);
-"Sub-passos consecutivos do mesmo cluster" N=10 → N=11 cumulativo
-emergente — folga máxima sobre limiar formalização N=3-4 preservada.
-Ver ADR-0091 §"Anotação cumulativa P273.15".
-
-**Anotação P273.16**: Bbox.y topo-exacto inline —
-**SCOPE-OUT-RECONFIRMED** via NO-GO Fase A factual; **terceira
-aplicação consolidando padrão "Scope-out reconfirmado por Fase A"
-crossing limiar formalização ADR meta N=3-4**. Descoberta empírica
-importante: spec premissa "DEBT-56 EM ABERTO" factualmente
-desactualizada — verificação literal em `DEBT.md:535` confirma
-DEBT-56 ENCERRADO P221 (2026-05-12). Fase A empírica prevalece
-sobre premissa da spec — cumprimento honesto critério "verificar
-empíricamente". Razão NO-GO quádrupla: (1) zero demanda empírica
-em 9 sub-passos consecutivos (P273.7-P273.15); (2) Caminho 1
-refactor inline line_height fora de escopo P273.16 (magnitude L+
-vs S-M cluster Gradient; Fase 4 multi-region scope-out per
-ADR-0078 §"Decisão" sub-fase (b)); (3) Caminho 2 font_metrics
-ad-hoc cria dívida invisível sem demanda; (4) 3γ.2.γ-inline-baseline-y
-P273.7 aceito por ADR-0054 graded + coerente com **P156H
-limitação consciente** preserved literal. Bloqueador real
-identificado (substituindo DEBT-56 fechado): P156H limitação
-consciente + ADR-0078 §"Decisão" sub-fase (b) Fase 4 scope-out.
-Decisão P273.7 §A.3 (3γ.2.γ-inline-baseline-y) preserved literal —
-9 sub-passos sem contraproba. Pendência
-**P273.X-bis2-bbox-y-topo-exacto-inline** permanece formal aberta
-com 3 pré-requisitos identificados. Pendência candidata XS nova
-**P273.X-bis-content-md-debt56-update** descoberta empíricamente
-(L0 referência DEBT-56 fechado desactualizada; NÃO reservado).
-Sub-padrão "Scope-out reconfirmado por Fase A" N=2 → N=3
-cumulativo **crossing limiar formalização ADR meta N=3-4** —
-terceira aplicação consolida com 3 razões NO-GO distintas
-(externa P273.14 + interna P273.15 + estrutural aceita P273.16).
-Candidato meta-ADR formalização NÃO reservado. **Cluster Gradient
-declarável feature-complete pós-P273.16** — sequência "terminar
-cluster Gradient" esgotada com 12 sub-passos consecutivos
-(P273.5-P273.16) — **caminho mais longo documentado no projecto
-cristalino**. Zero alterações código L1/L3. "Anotação cumulativa
-em vez de ADR nova" N=22 → N=23 (décima sexta anotação consecutiva
-ADR-0091); "Sub-passos consecutivos do mesmo cluster" N=11 → N=12
-cumulativo emergente. Ver ADR-0091 §"Anotação cumulativa P273.16".
-
-**Anotação P273.17**: Passo administrativo S+ — reflexão metodológica
-formal cluster Gradient + 3 ADRs meta novas EM VIGOR. **ADRs criadas
-directamente** (paridade P271 ADR-0093/0094): **ADR-0095** "Dedup
-`Arc::as_ptr` resources" (N=3 cumulativo: P73 image + P263 pattern
-+ P273.12 bbox-aware); **ADR-0096** "Pattern DEBT-37 campo Layouter
-consumer-pending" (N=4 com folga: P84.6 Grid + P273.5 + P273.6 +
-P273.9); **ADR-0097** "Scope-out reconfirmado por Fase A" (N=3 com
-3 razões NO-GO distintas: P273.14 externa + P273.15 interna +
-P273.16 estrutural aceita). **Documento reflexão** standalone
-`typst-cluster-gradient-reflexao.md` com 10 secções (trajectória +
-sub-padrões + limiares + descobertas + pendências + trade-offs +
-anti-padrões + reflexão final). **Cluster Gradient encerrado
-definitivamente** — **13 sub-passos consecutivos P273.5-P273.17**
-caminho mais longo de sub-passos consecutivos do mesmo cluster
-documentado no projecto cristalino. ADRs vigentes 81 → 84 (+3 EM
-VIGOR). Sub-padrões NÃO formalizados (preserved emergentes N=1-2):
-L3-only parent_bbox, Template-passo replicado, Layout duplo, Extract
-helper inline, Triplicação Group bbox, Bug arquitectural intencional,
-Bug latent scope creep, Cleanup XS derivado — anti-padrão
-over-formalização explícito. Sub-padrão meta-meta "Passo
-administrativo XS/S criar ADRs meta" N=3 cumulativo (P156K + P271 +
-P273.17) NÃO formalizado por mesmo anti-padrão. Zero alterações
-código L1/L3 (ADR-0029 preserved absoluto). "Anotação cumulativa em
-vez de ADR nova" N=22 → N=23 (décima sétima anotação consecutiva
-ADR-0091); "Sub-passos consecutivos do mesmo cluster" N=12 → N=13
-cumulativo emergente. Ver ADR-0091 §"Anotação cumulativa P273.17".
-
----
-
-## Proposta P1145 — estado de anti-alias das transformações públicas
-
-**Estado:** `APROVADO PELO DONO E MATERIALIZADO`.
-
-Medição no vanilla ratificado `a51e02804`,
-`visualize/gradient.rs:545-716`, mostrou que `gradient.sharp` define
-`anti_alias: false`, enquanto constructors definem `true` e `repeat` preserva
-o valor existente. O campo é consumido pelo render e não pode ser descartado
-como mecânica quando altera a morfologia visual de transições sharp.
-
-Proposta de contrato público:
-
-```rust
-pub struct Linear {
-    // campos vigentes preservados
-    pub anti_alias: bool,
-}
-
-pub struct Radial {
-    // campos vigentes preservados
-    pub anti_alias: bool,
-}
-
-pub struct Conic {
-    // campos vigentes preservados
-    pub anti_alias: bool,
-}
-```
-
-Invariantes propostas:
-
-- constructors públicos Rust e Typst existentes inicializam `true`;
-- `sharp` clona a variant com stops transformados e inicializa `false`;
-- `repeat` preserva o valor da origem;
-- sampling 1D não depende do campo;
-- consumers de render devem respeitá-lo onde a estratégia suporta
-  anti-alias, sem mudar defaults dos gradients normais;
-- todos os struct literals existentes recebem explicitamente `true`, salvo
-  materialização de `sharp`.
-
-Adicionar este campo às três structs públicas foi mudança de contrato público.
-O dono aprovou o gate ADR-0127 com “Continuar” antes da alteração L1/L3.
-
-### Materialização
-
-As três structs possuem `pub anti_alias: bool`. Constructors Rust e Typst e
-todos os struct literals históricos inicializam `true`; `sharp` produz
-`false`; `repeat` preserva. `PartialEq` inclui o campo por derivação. As
-referências PDF afetadas foram regeneradas porque constructors Typst agora
-também convertem os stops para o mixing space ratificado.
-## P1482 — identidade spot na amostragem (CONFIRMADO em 2026-09-23; ADR-0127)
-
-### Medição anterior à decisão
-
-Vanilla `visualize/color.rs:1147-1245,2471-2521` resolve o espaço
-automático ao colorant quando todos os stops o compartilham; caso
-contrário usa Oklab. Sondas: `gradient.linear(s.tint(50%),
-s.tint(25%)).space() == s`; `.sample(50%)` devolve `s.tint(37.5%)`.
-Com um stop `red`, `.space()` é `oklab`; `space: s` explícito
-com stop process erra conversão para spot. O cristalino
-`entities/gradient.rs:204-273,369-385,478-500` só transporta
-`ColorSpace` de processo e normaliza stops previamente.
-
-### Decisão proprietária
-
-Os três tipos Linear/Radial/Conic aceitam o novo
-`ColorSpace::Spot(SpotColorant)` do owner `entities/color.md`.
-`sample` interpola apenas o tint quando todos os stops pertencem ao
-colorant escolhido e preserva a identidade de `Color::Spot`; espaço
-automático escolhe spot só se todos os colorants completos coincidem,
-senão Oklab. Extremos preservam a cor original. Falha de conversão
-explícita é erro de linguagem no constructor, nunca fallback silencioso.
-`sample_precise` conserva a precisão do percentual; a existência de
-`Color::Spot` não promete ainda render PDF/SVG/PNG de gradiente:
-P1483 fecha render, conforme `infra/export/stream.md`. As oito
-interpelações de processo e seus controles não mudam.
-
-`GradientStop` perde `Copy` porque contém `Color`, sem alterar o seu
-constructor, offset ou semântica; clones necessários são mecânica Rust.
-
-## Correção medida em 2026-10-13
-
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado.
-Fontes, hashes, UTC, status e diffstat: `lab/results/construction/diagnostics/cores-ci-2026-10-13/before.json.gz`
-e `constructors-before.json.gz`. Sondas e prova numérica em `evidence.json.gz`.
-Vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, SHA-256 ratificado
-`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
-
-Medição: as 18 grafias propostas no owner interpolation foram compiladas como
-f32 e preservam exatamente os bits (literals.rs/literals.json no receipt).
-Decisão: P1253 proíbe perda de precisão, não grafias equivalentes demonstradas.
-Permitir somente essas grafias sem alterar coeficientes ou ordem. A fachada
-produtiva recebe apenas resselo; não muda sua API, comportamento ou testes.
-
-## Limites e precisão de cor — 2026-10-13
-
-Medição anterior à decisão, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
-working tree não commitado: fontes, SHA-256, UTC, status e diffstat em
-`lab/results/construction/diagnostics/limites-cor-2026-10-13/before.json.gz` e
-`parents-before.json.gz`; sondas em `evidence.json.gz`. Oráculo pinado
-`9f2b6e8715237cb086899a42873660fe744622e8`, binário SHA-256
-`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
-
-`red.rotate(45deg)` expõe blue negativo no cristalino; o vanilla limita a zero.
-`rgb(10%,20%,30%,40%)` expõe 10.2%/30.2% em vez de 10%/30%. Linear RGB aceita
-256 e alpha -1%, que o vanilla rejeita. Chroma Oklch negativo converte para
-cor cromática no cristalino e cinza no vanilla. As saídas completas ficam
-conservadas, inclusive dígitos adicionais dos componentes públicos.
-
-Fonte: upstream `visualize/color.rs:1825-1895` distingue FromColor limitado,
-identidade e from_linear; palette 0.7.6 `convert/from_into_color.rs:53-59`
-chama clamp após converter. `encoding/srgb.rs:100-120` usa multiplicação pelo
-recíproco na parte linear do decode e mul_sub no encode; `num.rs:718-722`
-implementa mul_sub SEM fusão. A antiga cláusula P1253 de encode com fmaf era
-incorreta para esta fonte. `oklab.rs:355-368` limita chroma a zero antes da
-conversão polar; `hues.rs:155-157` usa sincosf via o trait libm.
-
-Correção interna contínua ADR-0127: nenhum campo/assinatura pública, binding,
-modo padrão, compatibilidade externa ou fase muda. L0 primeiro, testes RED
-para observáveis, implementação e revalidação. Diferenças restantes das
-sondas não são normalizadas nem recebem certificado genérico de paridade.
-
-Retificar a proibição genérica de decompor gamma: preservar a operação real
-do baseline em cada direção. Decode exponencial continua fused; encode do
-owner color/conversion tem mul_sub sem fusão, e decode linear usa recíproco.
-A fachada recebe somente resselo; não muda sampling/offsets/contratos públicos.
-Os owners permanecem 1:1.
+first_stop_color supplies the first-stop fallback for Paint::to_color().
+Paint::Gradient is active and Paint is not Copy. This package preserves
+`TextStyle.fill: Option<Color>`; it does not migrate that field to Option<Paint>.
+Linear-only, radial-only and reserved-conic enum excerpts are superseded by the
+three actual variants; do not restore placeholders or discard later fields.
+
+## Variant defaults, spaces and surface boundaries
+
+Radial's ordinary constructor defaults focal_center=center and focal_radius=0.
+Explicit focal constructors/stdlib arguments preserve both. The corresponding
+stdlib accepts focal_center as Array[Ratio,Ratio] and focal_radius:Ratio and
+rejects focal_radius>radius and
+`dist(focal_center, center)² >= (radius - focal_radius)²`: the focal circle must
+be inside the outer circle. Existing no-focal construction remains equivalent,
+including `/Coords [cx cy 0 cx cy r]` at the export boundary. Preserve the sixteen
+historical radial/focal regression assertions; old struct-literal call sites
+receive explicit default fields. Radial sample(t) remains pure one-dimensional
+stop interpolation, not two-dimensional/focal evaluation. Focal changes affect
+native Type 3 PDF coordinates, not sampling. Conic has no focal_* fields; its
+old absence was not a deferred radial feature.
+
+All variants carry selected ColorSpace. The eight process spaces are
+Oklab, Oklch, Srgb, Luma, LinearRgb, Hsl, Hsv and Cmyk. Luma is the historical
+local name for D65Gray. Default is Oklab, preserving earlier Oklab behavior.
+The stdlib space strings remain `"oklab" | "oklch" | "srgb" | "luma" |
+"linear-rgb" | "hsl" | "hsv" | "cmyk"`; selected-space sampling dispatches through
+interpolate_in_space. Polar HSL/Oklch/HSV interpolation takes the shorter hue
+path, wrapping when |h1−h0|>180°, as measured from upstream mix_iter:1126–1136.
+The older fixed-Oklab scope-out is superseded by these runtime spaces, not by
+unmeasured color conversion or export promises.
+
+Each variant also accepts ColorSpace::Spot(SpotColorant) under its color owner.
+Automatic selection chooses spot only when every complete colorant agrees;
+otherwise choose Oklab. In chosen spot space, interpolate tint only and retain
+Color::Spot identity. Endpoints preserve the original color. Explicit invalid
+spot conversion is a language constructor error, never silent process fallback.
+sample_precise retains percentage precision. The eight process interpolation
+contracts and controls remain unchanged. Spot-gradient rendering is a separate
+package, historically completed by the export record P1483 under
+`00_nucleo/prompts/infra/export/stream.md`; presence of Color::Spot alone is not
+proof of PDF/SVG/PNG support.
+
+Relative stdlib strings are `"self"`, `"parent"`, `"auto"` for all variants.
+Default None/Some(Self_) keeps the established pipeline. Parent coordinate
+semantics and their deliberately limited container scope are specified below.
+The original deferred gradient.sample/stops language surfaces are superseded
+only by their separately owned accessors in
+`00_nucleo/prompts/core/compiler/stdlib/gradients.md`.
+
+## Precise offsets, interpolation and anti-alias state
+
+Effective offsets preserve explicit Ratios and distribute unspecified stops
+uniformly between explicit neighbors. Resolve effective offsets in f64 as one
+internal operation shared by precise sampling, repeat and public-boundary
+identity normalization. Linear/Radial/Conic may expose it crate-internally;
+keep public historical effective_offsets()->Vec<f32> and sample(f32) unchanged
+for existing Rust callers. gradient.stops exposes precise effective offsets;
+precise Linear sampling accepts both that canonical boundary and historical
+f32 identities, including coincident non-dyadic sharp boundaries. repeat and
+the language stops accessor must both avoid the two serial f32 losses measured
+above. Their focused acceptance compares public Ratios; it does not close sharp,
+sampling, quantization, budgets or adaptive render merely by fixing offsets.
+
+Oklab conversion uses the complete palette 0.7.6::oklab::linear_srgb_to_oklab
+constants pinned by the Color owner, identical across private duplicates.
+Preserve f32 values, each direction's actual gamma operation order and the
+cube root bit-compatible with libm::cbrtf. Shortened constants that change bits
+are prohibited. The eighteen separately proven equivalent spellings are an
+explicit exception to spelling identity, not to value/order identity.
+Keep exponential decode fused, encode mul_sub unfused and linear decode's
+reciprocal multiplication, superseding the incorrect generic gamma/fmaf
+prohibition only where measured. Color conversion corrections belong to the
+conversion/interpolation owners; this facade only receives the corresponding
+lineage update and does not change sampling/offset/public contracts.
+
+Oklab mixing materializes separate f32 weights and uses
+`(w0*c0 + w1*c1)/(w0+w1)` per channel; `c0 + (c1-c0)*t` is not numerically
+equivalent. The precise Linear language path retains t and Ratio offsets as
+f64 until local weights are calculated, then converts each weight separately.
+Precise Radial Oklab and LinearRgb sampling likewise retains f64 t/offsets,
+then sets w0=(1−local) as f32 and w1=local as f32 and uses the weighted expression
+for every channel, including alpha. That bounded correction leaves Conic and
+the other six spaces outside its measured cluster; it does not remove their
+existing behavior. Endpoints and public intermediate components must agree
+with the measured oracle before tuning adaptive L3 helpers. Preserve render
+budget, quantization and cap; no generic parity certificate follows from
+remaining probe differences.
+
+Rust/Typst constructors and historical struct literals initialize anti_alias
+true. sharp preserves the variant with transformed stops and sets false;
+repeat retains its source value. Pure 1D sampling ignores anti_alias. Render
+consumers honor it where their strategy supports anti-aliasing, preserving
+ordinary-gradient defaults. PartialEq includes it. The approved package also
+converted Typst stops to the ratified mixing space, so affected PDF references
+were regenerated; that historical receipt is not permission to relax expected
+outputs during future changes.
+
+## Export boundary and superseded strategy evidence
+
+Export algorithms remain under the infrastructure export owners, principally
+`00_nucleo/prompts/infra/export/stream.md`; this pure facade does not emit PDF.
+The inherited common specification records the following retained boundary
+criteria and explicit supersessions, rather than authorizing export code here.
+
+Linear/Radial RGB-family and perceptual export consumes the selected-space
+sample dispatcher and emits DeviceRGB. Cmyk Linear/Radial takes direct
+DeviceCMYK shading with four-component functions and Range
+`[0 1 0 1 0 1 0 1]`; do not restore the older CMYK→sRGB fallback. The original
+seven-space helper rename oklab_sample_stops_*→multispace_sample_stops_* changed
+no body, because sample(t) already dispatched by space. Historical claims about
+unchanged baseline bytes/counts describe that source snapshot, not present
+validation or a universal language byte-parity gate.
+
+Conic's current retained strategy is unified Type 6 Coons for all eight process
+spaces: RGB emit_conic_coons_stream_rgb with N=stops*4 angular patches, CMYK
+emit_conic_coons_stream_cmyk with its retained one-patch-per-stop path. Decode
+has five RGB pairs or six CMYK pairs, and an N=1 identity Type 2 function with
+three or four components. Corner colors use Conic::sample(t) and the selected
+space. The CMYK stream uses 41 bytes/patch versus 37 RGB: flag, twelve control
+points with two coordinates, and four corner colors. Preserve the cubic-circle
+arc offset `r*(4/3)*tan(angle/4)` and the infrastructure helpers
+bezier_control_points_for_arc/compute_coons_patches_n_stops. Adaptive N does not
+apply to the CMYK Coons one-patch-per-stop strategy. The reserved multispace
+factor_delta recalibration remains a separate candidate, not an implemented
+gain inferred from the current path.
+
+The earlier Type 4 Gouraud strategy is superseded, not coactive: its historical
+N=32 disk slices used ShadingType 4, DeviceRGB, 8-bit coordinates/components/flags,
+Decode `[0 1 0 1 0 1 0 1 0 1]`, 96 vertices and 576 bytes at 32 triangles; center
+was first-stop color and edge colors sample(i/N). It subsequently used adaptive
+hybrid stops/contrast with factor_delta 256.0. That implementation's helper
+emit_conic_gouraud_stream, compute_adaptive_n_conic and oklab_delta_e were removed
+by the unified Coons package; twenty old tests were replaced by approximately
+eighteen strategy tests. ADR-0090 Type4 guidance is revoked by that package.
+The intermediate dual Type4-RGB/Type6-CMYK dispatcher, formerly default-OFF
+Coons opt-in and its temporary allow(dead_code), are construction history,
+not current flags, fallback policy or suppression authority. Earlier Type6
+scope-out ended there; Type7 remains outside this slice. The original industry
+research/family comparison and claims about upstream bug#4422 are retained as
+historical evidence, not new measured oracle equivalence or ICC/PDF-A closure.
+
+For Linear/Radial RGB/perceptual sampling, adaptive_n_for_stops replaces fixed
+N 16 with threshold-based 16/32/64 from maximum pair Oklab delta-E, cap N_max 64
+(4*N_base). Keep the private perceptual_distance_in_space helper and public
+color_to_oklab_with_alpha conversion, without duplicating different constants.
+Pastel low contrast retains 16; red→blue high contrast selects 64 deterministically.
+Preserve same-input PDF reproducibility controls. Conic Coons and direct CMYK
+remain separate strategies; the old adaptive Gouraud helper does not revive.
+
+## Parent-relative coordinate and resource boundary
+
+Parent transform is native Rust apply_parent_transform(local,parent_bbox),
+following the measured correct_transform behavior; do not switch to PDF Matrix
+as a surrogate. Self_ retains the established coordinate path. Parent without a
+local box falls back to page_bbox at L3; None input previously produced identity.
+The later real page fallback supersedes the earlier structurally unwired
+helper/dead-code stage. Default Self_/None must add no parent-measurement work.
+
+Layouter parent_bbox:Option<Rect> saves/restores parent context, and captured
+FrameItem::Shape.parent_bbox_at_emit:Option<Rect> propagates it to GradientObject.
+Only explicit width AND height populate Block/Boxed boxes; absent dimensions
+retain page fallback, rather than eager measurement of every block. Boxed y
+remains current regions.cursor_y, baseline-relative; exact inline-top y is an
+open refinement. The container set subsequently extends from Block/Boxed to
+Grid cell/Stack/Pad: Grid uses exact
+`Rect { x: body_x, y: body_y, w: body_w, h: body_h }` after tracks/insets; Stack
+measures vertical max_w*sum_h or horizontal sum_w*max_h with
+measure_content_constrained before layout, locating bbox after flush_line.
+Pad uses its INNER body region without insets, measured with available_inner.
+Retain body_w>0 && body_h>0 guards and caller save/restore. The historically
+accepted extra measurement is limited to relative=parent pipelines; its old
+~1.5–2x cost is snapshot-specific, not a new benchmark or default overhead claim.
+
+Post-layout FrameItem::Group parent boxes are L3-only. scan_all_gradients has
+an internal recursive parent_bbox_override:Option<Rect>; the Group bbox is
+Rect { pos, inner_width, inner_height } in native Y-down coordinates, without
+Y inversion. Shape chooses inner-wins
+`parent_bbox_at_emit.or(parent_bbox_override)`: an existing captured box from
+Block/Boxed/Grid/Stack/Pad wins over Group override. Recursively register groups
+in pattern_resources_for_page as well; otherwise a traversed gradient might
+lack its actual resource. draw_item_local also recurses nested Groups, rather
+than silently dropping them, and consumes the registered pattern instead of
+s.paint.to_color() fallback. Thread its three corresponding inputs
+parent_bbox_override,pat_ptr_to_idx,pat_refs; construct equivalent Group boxes
+in scan/resource/draw so dedup_key_for finds the identical resource. Preserve
+solid Group and top-level Shape behavior. Extracting the three repeated Group
+bbox constructors is an unreserved helper candidate, not authorization for
+another owner or new public API.
+
+Resource deduplication is document-global and uses
+`DedupKey { arc_ptr: usize, bbox: Option<RectKey> }`, where RectKey has four i32
+millipoint coordinates. Compute effective bbox identically during scan and
+resource registration, and pass it into emit_stroke_paint lookup. Self_/None
+uses bbox=None and one key per Arc. A shared Arc in N distinct effective parent
+boxes legitimately yields N patterns; one-context/shared-default cases keep
+one resource. This supersedes historical first-Arc-context-wins behavior;
+quantization avoids f64 HashMap keys while preserving subtypographic precision.
+Increased worst-case PDF size is the accepted semantic tradeoff, not a gain.
+
+## Explicitly open scope and retained negative decisions
+
+CMYK ICC and PDF/A compliance remain open. The original NO-GO investigation
+found three blockers: an external PDF crate requires a new architectural
+exception to export's no-external-PDF-crate rule; hardcoded profile bytes lacked
+an identified royalty-free recognized redistributable CMYK profile under the
+then-investigated Adobe/ECI/IDEAlliance/ICC Tech Note 7 evidence; preserving
+DeviceCMYK without profile remained the bounded path. This is a retained
+historical investigation, not a fresh legal/licensing claim. The three external
+prerequisites remain in archived typst-passo-273-14-trabalho-previo-externo.md.
+No automatic profile synthesis, crate adoption or PDF/A completion is authorized.
+
+Measured post-layout boxes for dimensionless containers remain open. The NO-GO
+record found no empirical demand over its eight reviewed substeps; eager
+measure_content_constrained on every undimensioned Block risked O(N²) instead
+of O(N), while a new lazy walker of roughly 60–100 lines was disproportionate to
+that evidence. Preserve explicit-dimension/page fallback. The two prerequisites
+are a concrete empirical case and an executive performance-cost decision, in
+archived typst-passo-273-15-trabalho-previo-externo.md. Lack of historical demand
+is not proof that a future use case cannot exist.
+
+Exact top y for inline Boxed also remains open. Its NO-GO record found no demand
+over nine reviewed substeps; a broad inline line_height refactor was outside
+that gradient slice and the ADR-0078 multiregion phase, and ad hoc font_metrics
+would create unmeasured debt. Preserve the accepted baseline-relative y and
+its conscious inline-height limitation (historical P156H); later exact-top work
+needs its three recorded prerequisites. DEBT-56 was already closed by P221 on
+2026-05-12, confirmed by DEBT.md:535, so it is not the blocker. Updating the stale
+Content reference was an unreserved candidate. The actual blockers were that
+inline-height restriction and the deferred multiregion phase, not the old debt.
+
+Historical completion of the gradient series and its meta-ADRs does not close
+these three limits. ADR-0095/0096/0097 formalized resource dedup, optional parent
+context with pending consumers, and evidence-based NO-GO scope maintenance;
+other emerging helper/duplication/layout-cost patterns were deliberately not
+formalized. Methodology counters, maximal-completion rhetoric, old test totals,
+unchanged-byte receipts and administrative-only milestones remain in the
+archive and authorize no new productive code here. Normal/no-focal/Oklab/Self_
+controls retain their expected behavior through the respective later changes.
+
+## Acceptance and change limits
+
+GradientStop::new retains Some(offset), unspaced retains None, linear constructs
+the correct Arc variant, and first_stop_color returns its first color. Verify
+uniform effective spacing; first/last sampling endpoints after the documented
+Oklab roundtrip; Arc clone behavior and derived PartialEq. Preserve radial focal
+validation/default tests, all three variant/space controls, hue shorter-path,
+precise canonical/f32 boundary compatibility, repeat/accessor Ratios, Radial
+precision components/alpha, spot identity/tint/errors and anti_alias state.
+Do not substitute mechanics tests for observable public components.
+
+Color bounds/precision maintenance follows ADR-0127 continuous flow: no public
+field/signature/binding/default-mode/compatibility or phase change. L0 precedes
+functional RED, implementation and revalidation; remaining differences stay
+visible. The facade receives only its prescribed lineage update for child
+conversion work, preserving sampling/offset APIs and 1:1 ownership. Builds,
+local/L1 regression suites, existing integrations and crystalline-lint must
+validate the actual materialization; source inspection or an old completion
+claim is not a fresh measurement. Export tests, parent scopes, resource lookup
+and outstanding ICC/box decisions remain acceptance boundaries of their owners,
+not extra productive responsibilities of this facade.
+
+## Historical record
+
+The complete original, including all measurements, explicit intermediate
+strategies, administrative revisions, methodology counts and unresolved
+prerequisite references, is preserved at
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/gradient.md`.
+Construction records remain under
+`lab/history/construction/records/00_nucleo/materialization/`; identifiers
+P262–P274/P273.5–P273.17, P1145/P1253/P1269/P1271/P1482/P1483 identify archived
+provenance and bounded supersessions, not an active execution-step hierarchy.

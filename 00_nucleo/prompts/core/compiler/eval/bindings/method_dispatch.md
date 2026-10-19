@@ -2,7 +2,7 @@
 Hash do Código: 0a7ed794
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:a922bbaa9c3b4c8435708af8e68b4557801f93ba09188768d48c711ba35a0c15
+- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/bindings/method_dispatch.rs`
@@ -31,8 +31,9 @@ them. Preserve readonly classification so temporary mutation fails with the
 existing diagnostic rather than becoming a mutation of a detached copy.
 
 Evaluate arguments, resolve the mutable place, then perform the mutation in the
-existing order. The mutation interceptor returns None for an unrecognized
-nonmutating call. Preserve array/dictionary bounds, empty-collection, missing
+existing order. The ordinary unrecognized nonmutating route preserves its no-interception
+behavior; the later internal MutatingCall transport below carries already
+evaluated fallback target/Args without replay. Preserve array/dictionary bounds, empty-collection, missing
 argument, default and unexpected-argument diagnostics and span priorities.
 first/last/at return the actual mutable slot, never a cloned substitute.
 
@@ -41,71 +42,69 @@ they keep Args views, occurrences, names, individual origins and aggregate span
 coherent. Never retain an occurrence carrier after modifying its views directly.
 
 
-## Avaliação única em chamadas — 2026-10-17
+## Single-evaluation evidence and boundary
 
-### Medição anterior à decisão
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree;
+`lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz`
+records UTC/status/git diff HEAD --stat/sources/L0/config/hashes. Exactly2124
+preceding hashes were checked before baseline. before-probe.json.gz and
+before-math-probe.json.gz retain bilateral binaries/argv/fixtures/output.
+Historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, binary SHA
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+calc.abs/array.len/str.from-unicode measure receiver3/args2 versus1/1;
+module.measure/layout/within/before/after/func/has/body reach receiver4;
+mutating fallback args3 versus1. Missing methods execute argument panic before
+causal error. math.mat adds twice; prior array(1,) becomes(1,1,1) versus(1,1),
+while empty array masks defect with truncate. call.rs:70–118 loses receiver;
+collection_methods.rs:43 evaluates args before recognizing operation; contextual/
+content/selector reevaluate AST on fallthrough; method_dispatch.rs:247 discards
+args; invoke.rs:66–120 compensates by name. call_dispatch L0 already requires
+receiver/args once. pinned-source.json.gz pins upstream call.rs/methods.rs:
+interest is language order/effect/diagnostic, not copying Vm/storage/Rust equality.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
-status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
-anterior foram verificados exatamente antes do baseline. before-probe.json.gz
-e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.
-Pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 do binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-calc.abs/array.len/str.from-unicode medem receiver=3/args=2 contra 1/1;
-module.measure/layout/within/before/after/func/has/body chegam a receiver=4;
-fallback mutante mede args=3 contra 1. Métodos ausentes executam panic de
-argumento antes do erro causal. math.mat soma duas vezes; array prévio (1,)
-fica (1,1,1) contra (1,1). Array vazio mascara o defeito com truncate.
-call.rs:70–118 perde receiver; collection_methods.rs:43 avalia args antes de
-reconhecer operação; contextual/content/selector reavaliam AST no fallthrough;
-method_dispatch.rs:247 descarta args; invoke.rs:66–120 compensa por nome.
-O L0 call_dispatch.md já exige receiver/args uma vez. pinned-source.json.gz
-fixa call.rs/methods.rs upstream: interesse é ordem/efeito/diagnóstico da
-linguagem, não copiar Vm, storage ou igualdade Rust.
+First fixture declared reserved or as function: invalid, archived in
+invalid-fixture-attempt with no call-effect credit. It revealed panic101 on
+invalid import, still open for parsing/import owner's causal correction. Valid
+baseline replaces only fixture.
 
-A primeira fixture declarava palavra reservada or como função: é inválida e
-está arquivada em invalid-fixture-attempt, sem crédito para efeitos de chamada.
-Ela revelou panic 101 em import inválido; manter aberto para correção causal
-própria no owner de parsing/import. O baseline válido substitui só a fixture.
+### Exclusive mutation transport and partial supersession
 
-### Decisão e responsabilidade exclusiva
+Add eval-restricted enum MutatingCall { Handled(Value), Fallback { target: Value,
+args: Args } }. try_eval_mutating_method returns SourceResult<MutatingCall>
+with same parameters. Preserve args before access and actual writeback. Mutation
+success maps Handled; Module/Func/Type/Symbol/Content fallback clones local value
+once and transports Args. Reexecute neither access nor args. This supersedes
+historical double-evaluation acceptance in P717 comment: new measurement proves
+observable effect requiring repair.
 
-Adicionar enum restrito a eval MutatingCall { Handled(Value), Fallback { target: Value, args: Args } }. try_eval_mutating_method passa a SourceResult<MutatingCall> mantendo os mesmos parâmetros. Preservar args antes de access e writeback real; sucesso mutante mapeia Handled; fallback de Module/Func/Type/Symbol/Content clona o valor do local uma única vez e transporta os Args. Não reexecutar access ou args. Isto supersede a aceitação histórica de dupla avaliação no comentário P717; a nova medição prova efeito observável e exige correção.
+### Acceptance and limits
 
-Consumir o núcleo eval/call-once.toml pinado. Mudança mecânica interna e
-correção de paridade ADR-0127 em fluxo contínuo. Assinaturas pub fn/pub use e
-structs públicos não mudam; os parâmetros novos/retornos/helpers acima têm
-visibilidade crate/eval, sem novo trait público, campo público, default ou
-fase. Esta cláusula supersede somente restrições históricas conflitantes de
-assinatura interna e compensação por nome; manter extensões Tekt existentes.
+Consume pinned eval/call-once nucleus. Internal mechanics/parity ADR-0127
+continuous flow keeps pub fn/pub use/public structs; new parameters/returns/
+helpers remain crate/eval-visible, no public trait/field/default/phase. Supersede
+only conflicting historical internal-signature/name-compensation restrictions;
+keep Tekt extensions.
 
-### Aceitação e limites
+Co-located functional tests before code: receiver/args effects, mutating fallback,
+error before args, where/with/selector/collections preserved, matrix without
+truncating legitimate effect. Confirm real RED then GREEN. Compare valid bilateral
+cases/controls, every collection method's hits/misses, errors/spans/occurrences/
+Value complements. Residual diagnostic debt is not equality. Unhandled dispatch
+must retain receiver without running args callback. Count observed effects, not
+PDF bytes/Rust Eq/microbenchmark.
 
-Testes funcionais co-localizados antes do código: efeitos de receiver/args,
-fallback mutante, erro antes de args, where/with/selector/coleções preservados
-e matriz sem truncar efeito legítimo. Confirmar RED funcional e GREEN.
-Comparar casos bilaterais válidos e controles; hits e misses de todos os
-métodos de coleção, erros, spans/occurrences e complementos de Value. Não
-mascarar dívida residual de diagnóstico como igualdade. Testar dispatch
-Unhandled sem perder receiver ou executar callback de args; contar avaliações
-pelo efeito observado, não por bytes de PDF, Rust Eq ou microbenchmark.
+Ownership/V26 before restricted batch-owner reseal. Require build/full workspace,
+all-targets Clippy -D warnings/-D unfulfilled_lint_expectations, strict Rustdoc,
+fmt/V1/V5/V15/V26/reverse/differential SARIF without new error. Uniform V19 stays
+informational with alternative matrix/behavior relation; no suppression/config
+change. Heavy commands sequential under 12 GiB/High 10 GiB/swap0/jobs1. No publication/
+commit/merge/release or global-objective closure claim.
 
-Ownership/V26 antes de resselo só dos owners do lote. Build, suíte workspace,
-Clippy all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc estrito,
-fmt, V1/V5/V15/V26 e reverse, SARIF diferencial sem erro novo. V19 uniforme
-continua informativo, com matriz de alternativas e relação de comportamento;
-sem supressão nem mudança de configuração. Comandos pesados sequenciais com
-12 GiB/high10GiB/swap0/jobs1. Não publicar/commit/merge/release nem declarar o
-objetivo global fechado por esta etapa.
+### Measured flat-complement refinement
 
-
-### Forma plana do complemento — medição V20
-
-candidate-4/validation-architecture.log e differential-review.json medem nota
-V20 nova por captura target/other @ (grupo de variantes) com profundidade 3.
-A captura é dispensável: guardar o local mutável em variável target antes do
-match e referenciá-lo no complemento, ou referenciar o callee original cujo
-payload foi ignorado. Manter os grupos explícitos planos, os mesmos membros e
-retornos, sem supressão de V20/V19 e sem duplicar classificação. As matrizes de
-39 alternativas, os efeitos e o ponteiro original devem permanecer iguais.
+candidate-4/validation-architecture.log and differential-review.json measure new
+V20 from target/other @ (variant group), depth3. Capture is unnecessary: bind
+mutable place as target before match and reference it in complement, or reference
+original callee with ignored payload. Keep explicit flat groups/same members/
+returns, no V20/V19 suppression or duplicate classification. Preserve39-alternative
+matrices/effects/original pointer.

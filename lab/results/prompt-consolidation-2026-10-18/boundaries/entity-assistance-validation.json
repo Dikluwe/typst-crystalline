@@ -1,0 +1,18 @@
+{
+  "files": [
+    "style_chain",
+    "show",
+    "geometry",
+    "math_style",
+    "selector",
+    "value",
+    "color"
+  ],
+  "full_read": true,
+  "hash_labels_and_nucleus_pins": "unchanged against HEAD",
+  "fences": "passed",
+  "reference_errors": [],
+  "ledger_count": 7,
+  "rust_reseal_repin": false,
+  "scope_note": "Two large files transferred exclusively from layout_english after mutual confirmation; R5 unverified gate preserved distinctly from H2 approval."
+}

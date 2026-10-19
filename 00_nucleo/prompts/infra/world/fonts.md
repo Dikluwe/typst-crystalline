@@ -2,7 +2,7 @@
 Hash do Código: 35a9e117
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:391cd1604976262b1b6e019b802ed72e78782260d2788bb04999297559605509
+- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0f2985807cc3c7b4aeed9a5a26b77ad66dbbdb67ccfb43ba8336dbc8e8eea1a5
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/world/fonts.rs`
@@ -34,23 +34,25 @@ Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do no
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
 
-## Medição anterior à decisão de retenção ratificada
+## Font retention evidence and approval
 
-lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
-edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
-descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
-remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
-não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
-preservar seleção, conteúdo, diagnóstico e render na linguagem; duração/Arc são
-mecânica. Inferimos benefício possível, refutado por custo, stale resources,
-regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do relatório.
+`lab/results/construction/diagnostics/watch-retencao-2026-10-07.md` retains
+HEAD/tree/binaries/UTC, actual edits/recovery and dynamic per-cycle acquisition
+counts. `watch-validacao-2026-10-07/measurement.json` compares discovery validation
+and complete acquisition at the same state; controls.json covers additions/removals/
+replacement/restored mtime/links/configuration. These are isolated costs, no CLI
+gain or upstream-intent proof. FontBook/slots/coverage must preserve language
+selection/content/diagnostics/render; Arc/duration are mechanics. Cost, stale
+resources, regression or unbounded retention refute possible benefit. Fixtures/
+provenance/limits remain in the reports.
 
-### Decisão ratificada sob ADR-0127 §2.1/§2.2
+Owner `Confirmo` ratified
+`lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json`
+under ADR-0127 §2.1/§2.2; receipt
+`lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json`.
+Each owner remains 1:1.
 
-Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
-
-## Builder público da sessão (única assinatura nova deste owner)
+## Session builder contract
 
 ```rust
 pub fn with_font_catalog_session(
@@ -60,19 +62,19 @@ pub fn with_font_catalog_session(
 ) -> Self;
 ```
 
-Capture Arc e cópia dos caminhos sem I/O ou descoberta. A primeira demanda de
-catálogo delega à sessão; substituição de builder limpa coverage_cache e substitui
-o OnceLock/closure, tal como builders atuais. Não compartilhar coverage_cache:
-a cobertura precomputada em FontBook já pertence à geração; a cobertura ausente
-é reconstruída no mapa fresco deste World. Builders antigos continuam independentes.
+This is this owner's only new public signature in that approved package. Capture
+Arc/copied paths without I/O/discovery. First catalog demand delegates to session;
+builder replacement clears coverage_cache and replaces OnceLock/closure like the
+existing builders. Do not share coverage_cache: FontBook's precomputed coverage
+belongs to the generation, missing coverage is rebuilt in the new World's map.
+Old builders remain independent.
 
-Adaptar o armazenamento interno para Arc sem alterar o retorno privado de
-font_catalog(), nem a associação índice/book. A composição permanece texto
-embutido → sistema → math/code embutido → projeto. Extraia helpers pub(super)
-para a aquisição combinada fresca e para montar catálogo a partir da descoberta
-preparada pelo child generation, consumindo os slots de projeto já descobertos.
-São acesso entre descendentes L3, não API pública. Não duplicar os algoritmos de
-metadata, cobertura ou seleção. O owner fontdb materializa o book do Database;
-o owner fonts existente materializa o book dos slots de projeto. Não mover fases.
-Testes inline do builder verificam laziness, substituição e independência de
-sources, sem instrumentação pública.
+Use internal Arc storage without changing private font_catalog return or paired
+indices/book. Order stays embedded text→system→embedded math/code→project. Expose
+pub(super) helpers for fresh combined acquisition and assembling a catalog from
+generation-prepared discovery, consuming already discovered project slots. This
+is L3-descendant access, no public API. Do not duplicate metadata/coverage/selection.
+`00_nucleo/prompts/infra/fontdb.md` owns book creation from Database;
+`00_nucleo/prompts/infra/fonts.md` owns project-slot book creation. No phase change.
+Inline builder tests check laziness/replacement/source independence without public
+instrumentation.

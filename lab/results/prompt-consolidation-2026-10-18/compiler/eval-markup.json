@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/markup_stream.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "6f8090cef94a42b257456bff2dda5a66dbe165e18eb564109a16008dbe2a9533",
+    "result_sha256": "accc0fc502b51251a113a3bb74830824a4708b15d2e33c38420cf7168280096a",
+    "disposition": "All612lines full-read/translated: actual quote/Table/C2/Sequence gates, Bool-Auto typc, label association then scoped-tail partial completion, Source flow versus later whole-value append supersession, slots/None mask, immutable children, deferred lexical output and all measured unresolved debts/gates retained."
+  }
+]

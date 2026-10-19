@@ -2,22 +2,42 @@
 Hash do Código: 3dd060a6
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
+- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/shaper/tracking.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Evidência anterior à decisão
+## Evidence before decision
 
-A inspeção de `01_core/src/compiler/layout/text_measure.rs:85`, `word_layout.rs:89` e `space.rs:162` encontrou respectivamente fronteira textual, admissão de baseline e teste de integração de espaços iniciais em owners de outras responsabilidades. O estado exato, fontes e prompts anteriores estão em `lab/results/construction/diagnostics/separacao-tracking-2026-09-29/initial.json` e `before/`. A correção já medida encontra-se em `lab/results/construction/diagnostics/correcao-tracking-2026-09-29.md`; esta separação conserva seus resultados e limites. Posições, texto e estilos são observáveis da língua; localização das funções é mecânica. A inspeção não demonstra intenção histórica nem nova paridade bilateral.
+Inspection of text_measure.rs:85, word_layout.rs:89 and space.rs:162 found text
+boundaries, baseline admission and leading-space integration tests in other owners.
+Exact state/sources/prior prompts are in
+`lab/results/construction/diagnostics/separacao-tracking-2026-09-29/initial.json`
+and before/. The measured correction is in
+`lab/results/construction/diagnostics/correcao-tracking-2026-09-29.md`; this
+separation preserves its results/limits. Position/text/style are language
+observables; function location is mechanics. No historical intent or new bilateral
+parity follows from this inspection.
 
-## Contrato vigente
+## Current contract
 
-Possuir exclusivamente residual(glyphs,index,style,upem) e width derivados, privados à crate. residual retorna zero sem glyph atual/próximo, em cluster igual, tamanho não positivo/não finito ou tracking ausente/zero/não finito. Entre clusters diferentes, resolver tracking em pontos e subtrair sua representação arredondada em i32 reconvertida para pontos; upem usa no mínimo 1. Preservar ordem das operações e semântica de casts.
+Own only crate-private residual(glyphs,index,style,upem) and derived width.
+residual returns zero if current/next glyph is absent, clusters equal, size is
+nonpositive/nonfinite or tracking absent/zero/nonfinite. Between distinct clusters,
+resolve tracking in points and subtract its rounded i32 representation converted
+back to points; upem is at least 1. Preserve operation/cast order and semantics.
 
-width soma avanço de cada glyph convertido em pontos e residual desse índice. Não adquirir fontes, modificar glyphs, cachear, escolher fronteiras entre FrameItems ou emitir PDF. O mesmo cálculo deve alimentar medição, reconciliação e posições do PDF, sem Tc adicional ou novo contrato Glyph. Conservar teste de resíduo positivo/negativo, cluster interno e último glyph.
+width sums each glyph's advance converted to points plus that index's residual.
+Do not acquire fonts, mutate glyphs, cache, select FrameItem boundaries or emit
+PDF. This same calculation feeds measurement/reconciliation/PDF positions without
+extra Tc or a new Glyph contract. Keep positive/negative residual, internal-cluster
+and final-glyph tests.
 
-## Aceitação e limites
+## Acceptance and limits
 
-Preservar os testes causais existentes e o texto, posições, estilos, páginas e diagnósticos dos controles anteriores à separação. Ownership 1:1, pins válidos, build e lint sem erros. Movimentação interna ADR-0109/0127: funções estáticas descendentes, sem estado novo. As limitações de tracking em estilos mistos, RTL, seleção global e contagem de clusters permanecem as registradas no diagnóstico da correção.
+Preserve existing causal tests and pre-separation text/positions/styles/pages/
+diagnostics. Require 1:1 ownership, valid pins, build/lint without errors. Internal
+ADR-0109/0127 movement uses descendant static functions without new state. Mixed-
+style/RTL/global-selection/cluster-count tracking limitations remain exactly as
+recorded in the correction diagnostic.

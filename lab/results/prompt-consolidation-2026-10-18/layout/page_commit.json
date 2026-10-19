@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/page_commit.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated ratified bidi carrier and link capture boundaries; retained None for uncertified constructors, composition/fixup order and controls.",
+  "original_sha256": "db4fbf665875b37a425b5af03c54df15e58d0dab337da67a65428dddd86a0d14",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/page_commit.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

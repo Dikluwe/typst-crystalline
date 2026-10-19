@@ -1,14 +1,14 @@
 # L0 — compiler/eval/math/native_decorations
 Hash do Código: d7522f68
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/native_decorations.rs`. Comportamento original em `01_core/src/compiler/eval/math/native_dispatch.rs:338-452` no HEAD `51a027f99`, árvore limpa, 2026-10-01 00:44:23 UTC. A classificação é extração interna, não nova prova bilateral de paridade ou desempenho.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/eval/math/native_decorations.rs`. Original behavior in `01_core/src/compiler/eval/math/native_dispatch.rs:338-452` at HEAD `51a027f99`, clean tree, 2026-10-01 00:44:23 UTC. This is internal extraction, not new bilateral parity or performance evidence.
 
-## Contrato
+## Contract
 
-Own the recognized over/under decoration and vec mathematical call family. Preserve name-specific constructor, argument order, style defaults, spans, output morphology and exact fallback boundary. Preservar contrato público, fase do pipeline, defaults, compatibilidade e pureza L1.
+Own the recognized over/under decoration and vec mathematical call family. Preserve name-specific constructor, argument order, style defaults, spans, output morphology and exact fallback boundary. Preserve the public contract, pipeline phase, defaults, compatibility and L1 purity.
 
-## Aceitação
+## Acceptance
 
-Suíte L1, `cargo build` e `crystalline-lint .` passam; a extração não implica ganho de desempenho.
+The L1 suite, `cargo build` and `crystalline-lint .` must pass; extraction does not imply performance gains.

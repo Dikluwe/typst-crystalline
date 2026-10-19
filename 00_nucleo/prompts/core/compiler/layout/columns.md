@@ -2,12 +2,9 @@
 Hash do Código: cb820737
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:9d9d6c265a3840cc5a3b8e121f403bc9e3fe55b1e586ab9014948f0784de5c3e
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
-
-```text
-```
+- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 ## Ownership and evidence
 
@@ -19,13 +16,23 @@ continuous flow at `:638`, marginal patterns at `:36`, and physical column
 operations at `:715`. The producer/transform boundary is
 `01_core/src/entities/content/page_structure.rs:181`, not this consumer.
 
-This owner specifies the column layout entrypoint and local geometry. Segmented sibling regions, continuous flow and physical transitions are owned by `00_nucleo/prompts/core/compiler/layout/columns/segmented.md`, `flow.md` and `transitions.md` respectively.
+This owner specifies the column layout entrypoint and local geometry. Segmented sibling regions, continuous flow and physical transitions are owned by `00_nucleo/prompts/core/compiler/layout/columns/segmented.md`, `00_nucleo/prompts/core/compiler/layout/columns/flow.md` and `00_nucleo/prompts/core/compiler/layout/columns/transitions.md` respectively.
 ColumnsElem and page_columns are existing input data owned by
 `00_nucleo/prompts/core/entities/elements/columns.md`; page-body transformation
 belongs to `00_nucleo/prompts/core/entities/content/page_structure.md`.
 Cursor decides when to advance; `00_nucleo/prompts/core/compiler/layout/columns/transitions.md` owns close_current_column, merge_column_items, finish_columns, start_next_column and start_column, with descendant visibility for layout coordination.
 Footnote body fitting/overflow is owned exclusively by
 `00_nucleo/prompts/core/compiler/layout/footnote_flush.md`.
+
+## Additional supporting evidence
+
+Historical scope-tracking evidence is in `lab/results/construction/diagnostics/correcao-tracking-escopos-2026-09-29/before-pdf/results.json` and `summary.json`: 30 sources/90 PDFs, with commands, sources and exact state in `initial.json` and `before-pdf/provenance.json`, against vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`. Repeated equal scopes accumulate approximately 0.4pt and nested scopes 0.8pt; positive wrap changes the line. `text_tracking.rs:50` compares only resolved TextStyle. Vanilla `inline/collect.rs:287-295` preserves segments from distinct chains; `inline/shaping.rs:1269-1295` adds tracking only within each run. This measures observable text boundaries without requiring PartialEq or the chain representation to be copied. Hide/Box are also boundaries: `hide.rs:21-24` and `boxed.rs:157-208` replace/restore buffers without preserving that distinction.
+
+The ratified bidi-carrier inventory `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifies this unit's references and 1:1 owners; manifest `1ae7513e` was confirmed.
+
+paint-root-2026-10-14/layout-first.log records tests looking for Text only in page.items and missing descendants of a new Block paint root. before-extra-test-owners preserves source/L0/HEAD/UTC/diffstat before adjustment. Group.paint_root was approved in manifest `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`; only test observation changes here.
+
+`block-auto-width-2026-10-14/before/results.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC/diffstat/status/sources/binaries/argv and historical pin 9f2b6e871. The initial extractor sought blue as #0000ff; blue-geometries-corrected.json reads actual #0074d9 from the same SVGs without rerun. For Shape, Empty, Place-only, Grid and Stack, Tekt backing width is 160 versus pin54,14,14,68,68 respectively. `block.rs:222,416,453` uses available width; `line_commit.rs:753` loses cursor on closure; `sub_frame.rs:354` saves terminal cursor only. Pinned `flow/block.rs:145–166,281–290,339–363` distinguishes Auto from expansion. Geometry is language; witness structure is internal mechanics. Place contaminating width, leaking scopes, lost literal advances or changed explicit-container dimensions refute the hypothesis.
 
 ## Geometry and dispatch
 
@@ -132,6 +139,16 @@ and advancing; a later candidate must not replace it.
 Explicit containers keep joint sibling consolidation instead.
 Restore private contexts/buffers at exit without additional callbacks.
 
+## Additional current state and observation boundaries
+
+In each segmented sibling-column composition, save tracking State with the exterior line and restore them together. Sibling text provenance must not contaminate exterior prefix; all other states/counters/widths remain.
+
+Ratified carrier migration uses None for uncertified constructors and `..` in read patterns, preserving language observables. Transformations obey the pinned origin nucleus without broadening phase/API.
+
+Only the affected test observer traverses the frame tree and projects coordinates by Group.pos/matrix through the layout test helper. Preserve content, expected values and tolerances; no productive algorithm changes. `00_nucleo/prompts/core/compiler/layout/tests.md` owns that helper; test-sibling visibility is not product API. Revalidate tests and package renders.
+
+Publish allocated Columns usable causal width, never global width inferred from paint in a single column.
+
 ## Acceptance and evidence limits
 
 Verify full usable width, asymmetric margins, segmented/continuous transitions,
@@ -152,64 +169,6 @@ unsupported. Producer support for mid-document page columns and page gutter
 must be audited separately, as recorded in
 `lab/results/construction/diagnostics/sanitization-introspection-columns-history.md`.
 
-## Continuidade lexical do tracking — 2026-09-29
+Tracking correction follows continuous-flow ADR-0127, with RED→GREEN, bilateral text/position/line controls and preserved uniform tracking; error-free build/lint and restricted resealing. All other open limits remain.
 
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/correcao-tracking-escopos-2026-09-29/before-pdf/results.json` e `summary.json` registram 30 fontes/90 PDFs, comandos, fontes e estado exato em initial.json e before-pdf/provenance.json, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Escopos iguais repetidos acumulam cerca de 0.4pt e aninhados 0.8pt; wrap positivo muda a linha. `text_tracking.rs:50` compara apenas TextStyle resolvido. Vanilla `inline/collect.rs:287-295` conserva segmentos de cadeias distintas; `inline/shaping.rs:1269-1295` soma tracking apenas dentro de cada run. Isto mede fronteiras textuais observáveis, não exige copiar PartialEq ou representação da chain. Hide/Box também são fronteiras: hide.rs:21-24 e boxed.rs:157-208 substituem/restauram buffers sem preservar essa distinção.
-
-### Contrato interno da correção
-
-Na composição segmentada de cada coluna irmã, salvar State de tracking junto à linha exterior e restaurá-lo com essa linha. Não deixar proveniência textual da irmã contaminar o prefixo exterior; demais estados/counters/widths permanecem.
-
-Correção interna de paridade ADR-0127 em fluxo contínuo. Aceitação RED→GREEN, controles bilaterais de texto/posições/linhas e preservação dos controles de tracking uniforme; build e lint sem erros, resselo somente destes owners. Demais limites abertos mantidos.
-
-## Migração do carrier bidi ratificado (2026-10-05)
-
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
-
-## Observação dos grupos de pintura — T1b — 2026-10-14
-
-Medição anterior à decisão: layout-first.log em paint-root-2026-10-14
-registra testes que procuram Text somente em page.items e não encontram
-as folhas dentro da nova raiz de Block. before-extra-test-owners conserva
-fonte/L0, HEAD/UTC/diffstat antes deste ajuste. O contrato de Group.paint_root
-foi aprovado no manifesto d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d.
-
-Neste consumer alterar somente o observador de teste afetado para percorrer
-a árvore e projetar as coordenadas por Group.pos/matrix, usando o helper
-de teste de layout. Conservar conteúdo, valores esperados e tolerâncias.
-Nenhum algoritmo produtivo deste owner muda. O owner do helper é
-00_nucleo/prompts/core/compiler/layout/tests.md; sua visibilidade interna para
-testes irmãos não é API do produto. Revalidar os testes e os renders do lote.
-
-
-## Largura causal de Block Auto — 2026-10-14
-
-### Medição anterior à decisão
-
-block-auto-width-2026-10-14/before/results.json.gz conserva HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
-UTC/diffstat/status/fontes/binários/argv e pin 9f2b6e871. O extrator inicial
-procurou blue como #0000ff; blue-geometries-corrected.json lê a cor real
-#0074d9 dos mesmos SVGs, sem nova execução. Em shape, Empty, Place-only,
-Grid e Stack a largura do backing Tekt é160; pin54,14,14,68,68 respectivamente.
-block.rs:222,416,453 usa largura disponível; line_commit.rs:753 perde cursor
-no fechamento e sub_frame.rs:354 guarda apenas cursor terminal. Fonte pinada
-flow/block.rs:145–166,281–290,339–363 distingue Auto de expansão.
-É geometria da linguagem; estrutura da testemunha é mecânica interna.
-A hipótese é refutada se Place contaminar largura, escopos vazarem, texto
-literal perder avanço ou containers explícitos mudarem de dimensão.
-
-### Responsabilidade exclusiva
-
-Publicar a largura útil da alocação de Columns; não derivar largura global da tinta em apenas uma coluna.
-
-### Aceitação e limites
-
-Correção interna/de paridade ADR-0127: nenhum contrato público, default ou
-fase novo; L0 primeiro, RED→GREEN, resselo restrito. A largura é uma parte
-da correção B2b/T1–T3 já em andamento: altura Auto/backing, alinhamento tardio,
-fracionários, fragmentação, outset e PDF Parent continuam com critérios próprios.
-Não declarar render aprovado por testar apenas o carrier. Preservar controles
-bilaterais completos e refutadores, suíte/build/doc/fmt/linhagem/inventários.
+This internal parity correction under ADR-0127 adds no public contract/default/phase. L0 precedes RED→GREEN/restricted resealing. Causal width is only part of the ongoing block-region/width/transport correction: Auto height/backing, late alignment, fractions, fragmentation, outset and PDF Parent retain their own criteria. Testing a carrier alone does not approve render. Preserve full bilateral controls/refuters, suite/build/doc/fmt/lineage/inventories.

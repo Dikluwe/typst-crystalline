@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "content-projection-exhaustiveness"
+title = "Complementos nominais de projeções Content"
+
+[[claims]]
+id = "closed-domain"
+level = "must"
+statement = "Cada projeção auditada de Content enumera nominalmente os casos tratados e seu complemento atual, para que uma variante futura exija decisão do compilador. Nenhum wildcard de descarte substitui esse domínio fechado."
+
+[[claims]]
+id = "uniform-complement"
+level = "may"
+statement = "Alternativas com a mesma projeção negativa podem compartilhar corpo: false, None, Span::detached ou delegação integral ao hash existente. O owner prescreve a responsabilidade e cobertura de cada grupo V19, sem suprimir a nota."
+
+[[claims]]
+id = "guard-refusal"
+level = "must"
+statement = "Quando um caso positivo tem guard, a recusa conserva o caminho anterior e sua variante aparece no complemento nominal. Campos string desconhecidos permanecem abertos; não confundir esgotamento de Content com enumeração de todos os nomes de campo."
+
+[[claims]]
+id = "static-boundary"
+level = "must-not"
+statement = "Não introduzir registry, vtable, I/O, estado global ou classificador paralelo para substituir os matches estáticos e seus owners. O reparo nominal não altera algoritmos ou contratos públicos; exceções semânticas medidas precisam de prescrição própria no owner."

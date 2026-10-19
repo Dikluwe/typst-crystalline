@@ -1,0 +1,29 @@
+{
+  "status": "section-only; whole-file review pending unless independently in ledger.json",
+  "files": [
+    "00_nucleo/prompts/core/entities/content/traversal.md",
+    "00_nucleo/prompts/core/entities/elements/block.md",
+    "00_nucleo/prompts/core/entities/elements/boxed.md",
+    "00_nucleo/prompts/core/entities/elements/emph.md",
+    "00_nucleo/prompts/core/entities/elements/equation.md",
+    "00_nucleo/prompts/core/entities/elements/math_accent.md",
+    "00_nucleo/prompts/core/entities/elements/math_align_point.md",
+    "00_nucleo/prompts/core/entities/elements/math_attach.md",
+    "00_nucleo/prompts/core/entities/elements/math_cancel.md",
+    "00_nucleo/prompts/core/entities/elements/math_cases.md",
+    "00_nucleo/prompts/core/entities/elements/math_class_override.md",
+    "00_nucleo/prompts/core/entities/elements/math_delimited.md",
+    "00_nucleo/prompts/core/entities/elements/math_frac.md",
+    "00_nucleo/prompts/core/entities/elements/math_limits_override.md",
+    "00_nucleo/prompts/core/entities/elements/math_matrix.md",
+    "00_nucleo/prompts/core/entities/elements/math_op.md",
+    "00_nucleo/prompts/core/entities/elements/math_root.md",
+    "00_nucleo/prompts/core/entities/elements/math_stretch.md",
+    "00_nucleo/prompts/core/entities/elements/math_styled.md",
+    "00_nucleo/prompts/core/entities/elements/math_underline.md",
+    "00_nucleo/prompts/core/entities/elements/math_underover.md",
+    "00_nucleo/prompts/core/entities/elements/math_vec.md",
+    "00_nucleo/prompts/core/entities/elements/strong.md"
+  ],
+  "preserved": "Every existing reusable proof, traversal, callback, field, allocation, signature, acceptance, provenance and no-expanded-ratification clause translated in full; per-owner source anchors retained."
+}

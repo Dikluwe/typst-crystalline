@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/realize/sequences.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "3eec6a35eddc52d8c688372e7ede1dec53f5ed5f8069f75b9095389a1990ca55",
+    "result_sha256": "0c9942311806707fe38b5e6e94c0ce49912ca440a29f97eb38ba1379ca285dc7",
+    "disposition": "Entire Sequence owner read/translated: approvals and current root coordination, pending-text and scalar transport, explicit Empty/HTML scaffolding distinction, causal EOF, origin-only-on-capture, every failed corpus and separate unresolved completion boundary retained."
+  }
+]

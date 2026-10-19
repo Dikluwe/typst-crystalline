@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/format.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated full format root/5child contracts and sequential approvals as current composition boundaries; reconciled Module\u2192Func inputs\u2192Format and nominal marker while preserving all defaults/gates/member clones/vertical scope and causal acceptance.",
+  "original_sha256": "04e6bce3e16051480453642ffc854b62a799840bc5993da1c45f50e3cab68b91",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/format.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

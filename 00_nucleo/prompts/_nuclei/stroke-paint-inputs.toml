@@ -1,9 +1,8 @@
 tekt = 1
 kind = "nucleus"
 id = "stroke-paint-inputs"
-title = "Preservação de Paint na conversão de contornos"
-
+title = "Paint preservation in stroke conversion"
 [[claims]]
 id = "typed-paint"
 level = "must"
-statement = "A conversão de paint de contorno preserva Color como Solid, Gradient como Gradient e Tiling como Tiling, sem amostrar a primeira cor, executar o tiling ou descartar o valor. Os consumidores mantêm os demais campos e a distinção entre omissão e presença explícita."
+statement = "Stroke-paint conversion preserves Color as Solid,Gradient as Gradient,Tiling as Tiling,without sampling first color,executing tiling or discarding value. Consumers retain other fields and omission versus explicit-presence distinction."

@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "markup-sequence-children"
-title = "Filhos imediatos de Sequence interpolada em ContentBlock"
-
+title = "Immediate children of an interpolated Sequence in ContentBlock"
 [[claims]]
 id = "immediate-child"
 level = "must"
-statement = "Ao formar um valor ContentBlock, uma Sequence interpolada contribui um filho imediato, preservando seus próprios filhos e ordem. A normalização de coleção vazia ou com um único filho permanece vigente; não há achatamento recursivo dos filhos do valor."
-
+statement = "When forming a ContentBlock value, an interpolated Sequence contributes one immediate child, preserving its own children and order. Existing empty/single-child collection normalization remains; value children are not recursively flattened."
 [[claims]]
 id = "distinct-operations"
 level = "must"
-statement = "Concatenação por + e acumulação de valores conservam suas regras próprias de operandos imediatos. A coleta do valor de markup não pode simular concatenação recursiva nem alterar aliases, Source ou corpos Styled/Located/Realized/ShowRecipe. A composição do fluxo realizado conserva sua rota de normalização e captura causal."
+statement = "Concatenation with + and value accumulation retain their own immediate-operand rules. Markup value collection cannot simulate recursive concatenation or change aliases, Source or Styled/Located/Realized/ShowRecipe bodies. Realized flow composition keeps its normalization and causal-capture path."

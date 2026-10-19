@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/sym.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated full symbol catalog/pin/aliases/modifier tie rules, selective legacy overlay and warning asymmetry; retained exact static reason literal and all compatibility/diagnostic gaps.",
+  "original_sha256": "a5eb5019ff7cccdb1b3978d1ef18c9bd243c9fe74c64cf36556dfe3f26fddb43",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/sym.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

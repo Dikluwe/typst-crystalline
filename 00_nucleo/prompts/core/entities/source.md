@@ -1,54 +1,28 @@
-# Prompt L0 — `entities/source.rs`
+# L0 — In-memory source and syntax tree
 Hash do Código: 4a61e5da
 
-**Camada**: L1 — domínio puro
-**Módulo**: `01_core/src/entities/source.rs`
-**Origem**: `lab/typst-original/crates/typst-syntax/src/source.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/source.rs`
+**Governance:** ADR-0016, ADR-0031, ADR-0045.
 
----
+## Evidence and responsibility
 
-## Contexto
+The historical reference is
+`lab/typst-original/crates/typst-syntax/src/source.rs`. Source owns loaded text
+and its CST. L3 acquires file bytes/text; this pure type accepts text already
+in RAM and parses it. The earlier world_types stub and staged implementation
+chronology are archived rather than a second current owner.
 
-`Source` representa um ficheiro de texto carregado em memória com
-a sua CST (Concrete Syntax Tree) associada. É criado em L3 quando
-o filesystem carrega um ficheiro, mas o tipo em si é domínio puro:
-recebe texto já carregado e chama `parse()` internamente.
+## Contract
 
-Substituí o stub `pub struct Source { pub id: FileId, pub text: String }`
-de `world_types.rs` pelo tipo real.
-
----
-
-## Decisões de migração
-
-| Original | Substituição | ADR |
-|----------|-------------|-----|
-| `Arc<LazyHash<SourceInner>>` | `Arc<SourceInner>` | 0016 |
-| `#[derive(Clone, Hash)]` | apenas `Clone` (sem `Hash`) | 0016 |
-| `reparse()` incremental | omitido neste passo | — |
-| `LinkedNode::find()` em `find()` | omitido neste passo | — |
-
-`LazyHash` é infraestrutura de hashing para `comemo` — não pertence
-a L1 (ADR-0016). `Hash`/`Eq` serão adicionados em Passo 10 quando
-`comemo` for isolado em L3.
-
-`reparse()` e `LinkedNode` estão fora do âmbito deste passo —
-a interface pública mínima abaixo é suficiente para o Passo 5.
-
----
-
-## Interface pública
+Preserve private Source backed by Arc<SourceInner>, with fields id: FileId,
+text: String, root: SyntaxNode. The original Arc<LazyHash<SourceInner>> was
+replaced with Arc and Clone under ADR-0016. Preserve public signatures:
 
 ```rust
-pub struct Source { /* privado */ }
-
 impl Source {
-    /// Cria Source com FileId explícito — usado por L3 ao carregar ficheiros.
     pub fn new(id: FileId, text: String) -> Self;
-
-    /// Cria Source sem FileId — para testes e contextos sem filesystem.
     pub fn detached(text: impl Into<String>) -> Self;
-
     pub fn id(&self) -> FileId;
     pub fn text(&self) -> &str;
     pub fn root(&self) -> &SyntaxNode;
@@ -56,63 +30,28 @@ impl Source {
 }
 ```
 
-Métodos fora do bloco original, adicionados em passos posteriores:
-`new_with_parser`/`detached_with_parser` (P394), `content_hash` (ADR-0031),
-`span_to_line_col` (Passo 111, ADR-0045), `span_byte_range` (**P846** —
-resolve um span para o seu byte range no texto: raw-range directo, numbered
-via `LinkedNode::find().range()`; `None` para detached/outro ficheiro/não
-encontrado. Equivalente ao `world.range(span)` do vanilla, usado pelo call
-trace #57 em `compiler/eval/closures.rs::trace_call` e pelo renderer L2).
+new/detached parse to construct root. detached uses
+FileId::from_raw(NonZeroU16::new(1).unwrap()) as fixed sentinel (or the
+corresponding detached helper convention), with no filesystem access.
+Retain the later public new_with_parser/detached_with_parser, content_hash,
+span_to_line_col, and span_byte_range methods. span_byte_range resolves direct
+raw ranges or numbered spans through LinkedNode::find().range(); detached,
+other-file or missing spans yield None. The call-trace and shell rendering
+consumers rely on this range behavior, analogous to upstream world.range.
 
-`detached()` usa `FileId::from_raw(NonZeroU16::new(1).unwrap())` como
-id sentinel. A convenção é idêntica ao original (`Source::detached`
-chama `FileId::detached()` se existir, ou usa um id sentinel fixo).
+## Acceptance and remaining coverage
 
----
+new(id,"Hello *world*") has non-erroneous Markup root, original text and id.
+Empty text has zero bytes. detached("= Heading") has a Heading child;
+detached("#{{{broken") is erroneous. Preserve parser injection, content hash,
+line/column and range behavior with their current integration tests.
+Incremental reparse was excluded in the original bounded scope. The old
+blanket exclusion of LinkedNode in find is superseded specifically for the
+later span-byte-range method. The old future Hash/Eq/comemo-isolation plan
+is historical, not permission to remove current hash APIs or alter L1 purity;
+any unresolved trait/representation mismatch needs its own owner review.
 
-## Critérios de verificação
+## Historical record
 
-```
-Dado Source::new(id, "Hello *world*".into())
-Quando root() for chamado
-Então SyntaxNode com kind() == SyntaxKind::Markup e erroneous() == false
-
-Dado Source::new(id, "".into())
-Quando len_bytes() for chamado
-Então 0
-
-Dado Source::detached("= Heading")
-Quando root().children() for iterado
-Então existe filho com kind() == SyntaxKind::Heading
-
-Dado Source::new(id, "Hello *world*".into())
-Quando root().erroneous() for chamado
-Então false
-
-Dado Source::detached("#{{{broken")
-Quando root().erroneous() for chamado
-Então true
-
-Dado Source::new(id, "text".into())
-Quando id() for chamado
-Então o mesmo FileId passado a new()
-
-Dado Source::new(id, "Hello *world*".into())
-Quando text() for chamado
-Então "Hello *world*"
-```
-
----
-
-## Estrutura interna
-
-```rust
-struct SourceInner {
-    id: FileId,
-    text: String,
-    root: SyntaxNode,
-}
-```
-
-`parse()` é chamado em `new()` e `detached()` para construir `root`.
-O módulo `parse` já existe em `01_core/src/compiler/parse.rs`.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/source.md`. Historical observations are not a new parity certification.

@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/materialize_time.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "a0e1f78a33dff28371396ef63b5d5aaa737ce21548f04609b9b05942161e5f38",
+    "result_sha256": "8748e7b24e0fd30a2682397639ba6e13967b8fcda7fda7e1e5fd3fc2ce3ba889",
+    "disposition": "Full temporal owner translated; actual lexical/Table/standalone/Source approvals resolve stale candidate headings while preserving every visual-only reconstruction and separate-scope/acceptance obligation."
+  }
+]

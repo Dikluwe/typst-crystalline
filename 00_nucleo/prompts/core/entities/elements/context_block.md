@@ -5,7 +5,7 @@ Hash do Código: 7673023b
 **Exclusive consumer:** `01_core/src/entities/elements/context_block.rs`
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/context/block-semantics.toml sha256:0ede5ade7908670f0440672becaba2aa356acc51346fd590dc426e4788dc6dd0
+- 00_nucleo/prompts/_nuclei/context/block-semantics.toml sha256:22f48ae879819be41fc5490d426bd4611fe7ffecbdd9bad20cb0d9ddcea00717
 
 ## Contract
 

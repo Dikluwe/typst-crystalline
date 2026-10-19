@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/math_fraction_representation_provenance.md
-//! @prompt-hash f7a5a8d1
+//! @prompt-hash 4eb14760
 //! @layer L3
 //!
 //! Recalibração independente dos observadores públicos `math.frac` P1428.

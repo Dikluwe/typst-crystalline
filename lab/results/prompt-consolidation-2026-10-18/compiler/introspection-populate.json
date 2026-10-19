@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/populate.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "1672eed99d4d9c7e3c962568e79ef029163b9a57d59450979e75894ead761c6b",
+    "result_sha256": "6afbfcc79c5626d3482090e3ea008d4b519712b065e2a9c3cf1b15d516b60a18",
+    "disposition": "Complete causal population contract translated; exact 17 automatic negative alternatives and State recording partial phase supersession retained, carrier/label/bibliography cross-owner acceptance stays bounded."
+  }
+]

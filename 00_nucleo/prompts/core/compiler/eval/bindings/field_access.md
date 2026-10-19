@@ -2,14 +2,17 @@
 Hash do Código: bc314723
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:2b8888460a1e6008abda0ff71603fe4dace79ff0a2a7aad598f8aabfab3e3776
-- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
-- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:a922bbaa9c3b4c8435708af8e68b4557801f93ba09188768d48c711ba35a0c15
-- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+- 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
+- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/bindings/field_access.rs`
-**Atomização interna:** a fachada conserva a interface e os testes; os Prompts L0 em `00_nucleo/prompts/compiler/eval/bindings/field_access/` possuem identidade, campos, erros de callee e métodos de Content. O contrato abaixo permanece comum.
+**Internal atomization:** facade preserves interface/tests. Individual owners
+under `00_nucleo/prompts/core/compiler/eval/bindings/field_access/` own identity,
+fields, callee errors and Content methods. Clauses below remain their normative
+boundary criteria.
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 ## Source evidence
@@ -118,170 +121,143 @@ Keep messages, severities, hint order, traces and spans unchanged. Public field
 availability or generic method-value promotion requires a separate contract
 decision; this owner does not authorize it.
 
-## Reexportação usada somente nos testes — 2026-10-13
+## Test-only reexport evidence and boundary
 
-Medição anterior à decisão: a compilação de todos os targets, após condicionar
-o alias no hub bindings, identifica o alias correspondente em
-`01_core/src/compiler/eval/bindings/field_access.rs:451` como sem uso produtivo.
-O consumidor externo ao módulo é o teste em
-`01_core/src/compiler/stdlib/tests/introspection.rs:163`; chamadas produtivas
-usam a função dentro de content_methods. HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes,
-UTC e diffstat em `lab/results/construction/diagnostics/imports-ci-2026-10-13/before.json.gz`
-e `first-check-state.json.gz`.
+After bindings-hub alias was cfg(test), all-targets build identifies corresponding
+field_access.rs:451 alias as unused productively. External consumer is
+stdlib/tests/introspection.rs:163; productive calls use content_methods directly.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree;
+sources/UTC/diffstat in imports-ci-2026-10-13/before.json.gz and
+first-check-state.json.gz. Keep eval_content_method_at reexport cfg(test), its
+test visibility/productive definition/other reexports. Internal ADR-0127 composition,
+no new public API/phase/default; revalidate old tests/build/lineage.
 
-Manter a reexportação de eval_content_method_at somente sob cfg(test),
-preservando sua visibilidade no build de testes, a definição produtiva e
-as demais reexportações. Composição interna ADR-0127, sem nova API pública,
-fase ou default. Revalidar os testes existentes, build e linhagem.
+## Feature-gate causal continuation
 
+candidate-1/validation-green.log records four passing controls and real argument
+test failure: std.html(panic(...)) panics before gate. before-set-probe.json.gz
+retains UTC/hashes/sources/bilateral outputs at same HEAD/uncommitted tree:
+called std.html/format.html/std.asset/format.bundle evaluate args before gate;
+set std.html/std.format.html/alias hides target error/ignores args. Missing
+set variable/field wrongly accepted; false condition short-circuits. Active-HTML
+set alias ignores panic only in Tekt. Language order/diagnostic/effect.
+collection_methods.rs:36 evaluates args before module authentication;
+set.rs:44 uses ok() resolving target, :326 authenticates HTML by literal syntax.
 
-## Continuação causal do gate — chamadas e set rules
+Reexport only fields owner's check_module_field_feature internally to eval; absorb no logic.
 
-Medição anterior à decisão: candidate-1/validation-green.log registra quatro
-controles aprovados e falha real do teste de argumentos: std.html(panic(...))
-executa panic antes do gate. before-set-probe.json.gz registra UTC, hashes,
-fontes e saídas bilaterais no mesmo HEAD/árvore não commitada: std.html,
-format.html, std.asset e format.bundle chamados avaliam argumentos antes do
-gate; set std.html/std.format.html/alias apaga o erro do target e ignora os
-argumentos. Variável/field ausente em set também é aceito indevidamente;
-condition false conserva atalhamento. Html ativo em set por alias ignora panic
-no Tekt e o executa no pin. São ordem causal, diagnóstico e efeito da linguagem.
-collection_methods.rs:36 avalia argumentos antes de autenticar módulo; set.rs:
-44 usa ok() na resolução e :326 autentica HTML pela sintaxe literal.
+L0 precedes correction; internal/parity continuous ADR-0127, pinned
+builtin-module-identity unchanged, no public field/fallback/suppression change.
+Keep controls/eight-profile matrix; add bilateral effect/set checks with/without
+feature. Full suite reruns after new source freeze; changed source cannot reuse
+old gates.
 
-Somente reexportar check_module_field_feature do owner fields com visibilidade interna a eval.
+## Single-evaluation evidence and boundary
 
-L0 precede esta continuação; correção interna/paridade em fluxo ADR-0127.
-O núcleo builtin-module-identity continua pinado e sem alteração. O contrato
-público e os campos externos permanecem iguais; nenhum fallback novo ou
-supressão. Os controles e a matriz dos oito perfis permanecem; acrescentar
-verificação bilateral dos efeitos e de set com/sem feature. A suite completa
-regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree;
+`lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz`
+records UTC/status/git diff HEAD --stat/sources/L0/config/hashes. Exactly2124
+preceding hashes were checked before baseline. before-probe.json.gz and
+before-math-probe.json.gz retain bilateral binaries/argv/fixtures/output.
+Historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, binary SHA
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+calc.abs/array.len/str.from-unicode measure receiver3/args2 versus1/1;
+module.measure/layout/within/before/after/func/has/body reach receiver4;
+mutating fallback args3 versus1. Missing methods execute argument panic before
+causal error. math.mat adds twice; prior array(1,) becomes(1,1,1) versus(1,1),
+while empty array masks defect with truncate. call.rs:70–118 loses receiver;
+collection_methods.rs:43 evaluates args before recognizing operation; contextual/
+content/selector reevaluate AST on fallthrough; method_dispatch.rs:247 discards
+args; invoke.rs:66–120 compensates by name. call_dispatch L0 already requires
+receiver/args once. pinned-source.json.gz pins upstream call.rs/methods.rs:
+interest is language order/effect/diagnostic, not copying Vm/storage/Rust equality.
 
+First fixture declared reserved or as function: invalid, archived in
+invalid-fixture-attempt with no call-effect credit. It revealed panic101 on
+invalid import, still open for parsing/import owner's causal correction. Valid
+baseline replaces only fixture.
 
-## Avaliação única em chamadas — 2026-10-17
+### Exclusive borrowed-field facade
 
-### Medição anterior à decisão
+Only reexport eval_field_access_with_target internally to eval, no absorbed logic.
+Existing pure APIs remain.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
-status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
-anterior foram verificados exatamente antes do baseline. before-probe.json.gz
-e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.
-Pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 do binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-calc.abs/array.len/str.from-unicode medem receiver=3/args=2 contra 1/1;
-module.measure/layout/within/before/after/func/has/body chegam a receiver=4;
-fallback mutante mede args=3 contra 1. Métodos ausentes executam panic de
-argumento antes do erro causal. math.mat soma duas vezes; array prévio (1,)
-fica (1,1,1) contra (1,1). Array vazio mascara o defeito com truncate.
-call.rs:70–118 perde receiver; collection_methods.rs:43 avalia args antes de
-reconhecer operação; contextual/content/selector reavaliam AST no fallthrough;
-method_dispatch.rs:247 descarta args; invoke.rs:66–120 compensa por nome.
-O L0 call_dispatch.md já exige receiver/args uma vez. pinned-source.json.gz
-fixa call.rs/methods.rs upstream: interesse é ordem/efeito/diagnóstico da
-linguagem, não copiar Vm, storage ou igualdade Rust.
+### Acceptance and limits
 
-A primeira fixture declarava palavra reservada or como função: é inválida e
-está arquivada em invalid-fixture-attempt, sem crédito para efeitos de chamada.
-Ela revelou panic 101 em import inválido; manter aberto para correção causal
-própria no owner de parsing/import. O baseline válido substitui só a fixture.
+Consume pinned eval/call-once nucleus. Internal mechanics/parity ADR-0127
+continuous flow keeps pub fn/pub use/public structs; new parameters/returns/
+helpers remain crate/eval-visible, no public trait/field/default/phase. Supersede
+only conflicting historical internal-signature/name-compensation restrictions;
+keep Tekt extensions.
 
-### Decisão e responsabilidade exclusiva
+Co-located functional tests before code: receiver/args effects, mutating fallback,
+error before args, where/with/selector/collections preserved, matrix without
+truncating legitimate effect. Confirm real RED then GREEN. Compare valid bilateral
+cases/controls, every collection method's hits/misses, errors/spans/occurrences/
+Value complements. Residual diagnostic debt is not equality. Unhandled dispatch
+must retain receiver without running args callback. Count observed effects, not
+PDF bytes/Rust Eq/microbenchmark.
 
-Reexportar somente eval_field_access_with_target com visibilidade interna a eval; não absorver lógica. APIs puras existentes permanecem.
+Ownership/V26 before restricted batch-owner reseal. Require build/full workspace,
+all-targets Clippy -D warnings/-D unfulfilled_lint_expectations, strict Rustdoc,
+fmt/V1/V5/V15/V26/reverse/differential SARIF without new error. Uniform V19 stays
+informational with alternative matrix/behavior relation; no suppression/config
+change. Heavy commands sequential under 12 GiB/High 10 GiB/swap0/jobs1. No publication/
+commit/merge/release or global-objective closure claim.
 
-Consumir o núcleo eval/call-once.toml pinado. Mudança mecânica interna e
-correção de paridade ADR-0127 em fluxo contínuo. Assinaturas pub fn/pub use e
-structs públicos não mudam; os parâmetros novos/retornos/helpers acima têm
-visibilidade crate/eval, sem novo trait público, campo público, default ou
-fase. Esta cláusula supersede somente restrições históricas conflitantes de
-assinatura interna e compensação por nome; manter extensões Tekt existentes.
+## Type::Array diagnostic-control correction
 
-### Aceitação e limites
+candidate-5/workspace/workspace.log records one failure in old
+p1338_preserve_other_categories_diagnostics: #array.nope still expects double
+quotes/whole array.nope anchor. Historical pin9f2b6e871 missing/array emits
+``type array does not contain field `__missing` `` with field-only span;
+code.rs:347–368 uses field.span. Call RED/full bilateral comparison established
+contract before code. Update only that #array.nope test line to backtick message/
+nope anchor. Preserve length/boolean/none/auto/integer/string cases/severity/
+spans/hints/traces/profiles, remove no assertion or ignore test.
 
-Testes funcionais co-localizados antes do código: efeitos de receiver/args,
-fallback mutante, erro antes de args, where/with/selector/coleções preservados
-e matriz sem truncar efeito legítimo. Confirmar RED funcional e GREEN.
-Comparar casos bilaterais válidos e controles; hits e misses de todos os
-métodos de coleção, erros, spans/occurrences e complementos de Value. Não
-mascarar dívida residual de diagnóstico como igualdade. Testar dispatch
-Unhandled sem perder receiver ou executar callback de args; contar avaliações
-pelo efeito observado, não por bytes de PDF, Rust Eq ou microbenchmark.
+## Measured historical text.text residual correction
 
-Ownership/V26 antes de resselo só dos owners do lote. Build, suíte workspace,
-Clippy all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc estrito,
-fmt, V1/V5/V15/V26 e reverse, SARIF diferencial sem erro novo. V19 uniforme
-continua informativo, com matriz de alternativas e relação de comportamento;
-sem supressão nem mudança de configuração. Comandos pesados sequenciais com
-12 GiB/high10GiB/swap0/jobs1. Não publicar/commit/merge/release nem declarar o
-objetivo global fechado por esta etapa.
+workspace.log in
+`lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17`
+records p1325_content_direct_alias_and_known_lookup_residual failing because
+[x].text now returns text, matching before-pdf-probe.json.gz bilateral witness at
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. Old error assertion was known
+residual, not intended contract. Remove only that negative entry; add explicit
+[x].text == "x" to existing positive test. Keep unknown-field/alias/Unicode/all-
+profile negatives. Hide no presence regression or change productive facade
+dispatch. L0 before test/reseal/full suite.
 
+## Sequence construction/selection facade
 
-### Atualização do controle Type::Array para o pin vigente
+### Evidence before decision
 
-candidate-5/workspace/workspace.log registra uma falha, no controle antigo
-p1338_preserve_other_categories_diagnostics: #array.nope ainda exige aspas
-duplas e a âncora array.nope inteira. O pin 9f2b6e871 na sonda missing/array
-emite type array does not contain field `__missing`, no field-only span, e a
-fonte code.rs:347–368 usa field.span. Os REDs de chamadas e a comparação
-bilateral integral fixaram esse contrato antes do código. Atualizar somente
-a linha #array.nope daquele teste para mensagem com backticks e âncora nope.
-Manter os casos length/boolean/none/auto/integer/string, sua severidade, spans,
-hints, traces e perfis anteriores, sem retirar assertivas ou ignorar o teste.
+HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree.
+`lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz`
+and before-sources.json.gz retain UTC/diffstat/status/binaries/sources/bilateral
+cases at `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Vanilla
+content/mod.rs:724–728 requires children; value.rs:644–650 casts Content/string/
+symbol/none; typst-macros/src/elem.rs:573–604 generates constructor. Tekt
+field_access/content_methods.rs:358–410 still exposes noncallable fallback;
+element_where catalogue/selector_matching.rs:272–337 lack Sequence identity;
+rules/set.rs:55–76 rejects only transform With, misses Sequence set. Language
+semantics/morphology/diagnostics, not required upstream storage. Earlier pending
+children() message already matches current baseline: fixed getter lets existing
+owner produce correct error. New evidence rectifies debt; edit no diagnostic code.
 
-## A1 — revisão do residual histórico text.text, 2026-10-17
+### Exclusive export and acceptance
 
-Medição antes da decisão: workspace.log do diagnóstico
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17
-registra p1325_content_direct_alias_and_known_lookup_residual falhando porque
-`[x].text` agora devolve o texto, conforme sonda bilateral before-pdf-probe.json.gz
-contra vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. A asserção de erro era
-um residual conhecido, não um contrato desejado. Retirar somente essa entrada
-da tabela negativa; substituir por controle positivo explícito `[x].text == "x"`
-no teste positivo existente. Conservar negativos de campos desconhecidos, alias,
-Unicode e todos os perfis. Não mascarar regressões de presença nem alterar o
-dispatch produtivo deste hub. L0 antes do teste, resselo e suíte completa.
+Only reexport native_sequence directly from content_methods owner to bindings hub
+with internal visibility, no construction/selection logic here. Preserve every
+other export/test. Completes earlier R1-named R2 responsibility. Continuous
+internal table/composition/callback correction, no new external field/trait/Rust
+signature/default mode/phase/compatibility break. L0 before tests/code, functional
+RED/GREEN/bilateral corpus. Certify no global show guards/all casts-elements/
+universal render parity. Residual refuters stay reportable with owner/L0 before
+intervention; change no tests to hide them.
 
-## R2 — construção e seleção de Sequence, fluxo contínuo ADR-0127
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz
-e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
-bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
-foundations/content/mod.rs:724–728 declara children requerido;
-foundations/value.rs:644–650 define cast Content/string/symbol/none e
-typst-macros/src/elem.rs:573–604 gera o constructor. Tekt
-01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358–410
-ainda projeta fallback não chamável; o catálogo element_where não tem Sequence
-e selector_matching.rs:272–337 não tem sua identidade. rules/set.rs:55–76
-só recusa With de transforms e não reconhece set da Sequence. São semântica,
-morfologia e diagnósticos de língua, não exigência de copiar storage upstream.
-A mensagem de children() marcada pendente em R1 já coincide no baseline atual: o
-getter recém-corrigido permite que o owner existente produza o erro correto.
-A medição nova retifica essa pendência; não editar código de diagnóstico.
-
-### Responsabilidade exclusiva
-
-Somente reexportar native_sequence diretamente do owner content_methods para
-o hub de bindings com visibilidade interna; sem lógica de construção ou seleção
-nesta fachada. Preservar todos os demais exports e testes.
-
-### Aceitação e limites
-
-Esta seção completa a responsabilidade R2 nomeada no L0 de R1. Corrigir
-continuamente tabelas/composição/callback interno, sem novos campos/traits/
-assinaturas Rust externas, modo padrão, fase ou quebra de compatibilidade.
-L0 antes de teste e código, RED funcional, GREEN e corpus bilateral. Não
-certificar guardas globais de show, todos os casts/elementos, nem paridade
-universal de render. Qualquer refutador residual deve permanecer no relatório
-e ganhar owner/L0 antes de intervenção, sem mudar testes para esconder o caso.
-
-Validar build/workspace/doctests em invocação separada, Clippy/Rustdoc estritos,
-fmt, V1/V5/V15/V26 e reversa, SARIF diferencial sem erro/warning novo. V19 pode
-registrar agrupamento nominal prescrito sem supressão, testando alternativas.
-Heavy jobs sequenciais, MemoryMax12GiB/High8GiB/swap0/jobs1, debug0/incremental0
-só no ambiente de validação. Resselo após V15/V26 válido e proveniência exata.
+Require separate build/workspace/doctests, strict Clippy/Rustdoc/fmt,
+V1/V5/V15/V26/reverse/differential SARIF without new error-warning. Prescribed
+nominal V19 allowed visibly without suppression, alternatives tested. Heavy tasks
+sequential, MemoryMax 12 GiB/High 8 GiB/swap0/jobs1; debug0/incremental0 in validation
+environment only. Reseal after valid V15/V26/exact provenance.

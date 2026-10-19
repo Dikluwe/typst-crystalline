@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/boxed.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Full original unique paragraphs and exact prior repeats reviewed. Preserved full Box geometry, measured radius/stroke corrections, fractional incompleteness and calibration, bounded regional admission, tracking barrier, test-only TS1 change and paint/frame gates; chronology archived with evidence register.",
+  "original_sha256": "f2a4de3b927e262cbe30a31c8d02ddbb90f7d2fabee6049070f0166b4eac4693",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/boxed.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

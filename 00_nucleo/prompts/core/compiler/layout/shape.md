@@ -2,11 +2,11 @@
 Hash do Código: 617c99a2
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:9d9d6c265a3840cc5a3b8e121f403bc9e3fe55b1e586ab9014948f0784de5c3e
-- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:ff71dfc6648d6deb4b2b8054e3d58a93777d17837129f0f1b1e7e138ffb6943c
-- 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:04f91fc931871165d4fef399ea9c2e21e8b75f7fd57031183a4e2aed0ed1b62a
-- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:0e7c32f877924fea773be54f9719b43bb72b4c3bb065f6ff44a842c56683ff78
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
+- 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:06c0f9a3e9b81ea332d57174938fda46c0865535787945094cea27ee5afbd562
+- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/shape.rs`
@@ -16,7 +16,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/shape.rs:25`, `01_core/src/compiler/layout/shape.rs:35`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Historical pins do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without new measurement.
 
 The equivalent-input pinned SVG probes in
 `lab/results/construction/diagnostics/font-demand-geometry-study/results.json` show that an
@@ -32,263 +32,48 @@ records remaining actual Place catalog access; it does not prove every accessor
 call is a catalog scan. The no-typography descendant controls discriminate the
 unused query from the shared subframe's actual origin acquisition.
 
-## Ownership and contract
-
-This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/core/compiler/layout/mod.md`; the contract below defines this unit's operations, not ownership of that hub.
-
-Own Shape rendering in `shape.rs`. Resolve the current Rect/RoundedRect/Ellipse/Path dimensions or Line dx/dy, establish the initial typography reference, close pending text and retain the main-flow block-spacing/collapse protocol. Shape position follows the source's distinct first/post-block cap-height versus post-text baseline-plus-above branches; subframes use direct positioning without main-flow above/below. Request ordinary progress only from the candidate shape's actual bottom, so a fitting shape is not rejected by unrelated typographic leading. Resolve radius against effective size, preserve Paint, stroke, fill rule and parent bbox. Delegate supported content-backed tiling fills to `00_nucleo/prompts/core/compiler/layout/tiling.md`; when materialized, preserve the separate unfilled stroke shape and paint order; otherwise retain the declarative fill. Advance using the current shape extent/below protocol and leave parent state coherent. Do not rasterize, sample all paints into a single solid color, shift Place through a global scan or move this render logic into ShapeElem.
-
-## Acceptance and limits
-
-Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
-
-## Initial non-text block correction
-
-When main-flow layout still has its initial baseline pending and no pending line,
-place the first block at the physical region origin without acquiring typography
-merely to add and subtract an artificial baseline. Mark that initial state handled;
-retain the existing post-block cursor/margin protocol so later text can request its
-own metrics. Explicit text top-edge must not move this block. Preserve pending-text
-and subframe paths, dimensions, clipping/paint and existing overflow behavior except
-that first-block fitting uses its actual geometric extent. Tests in this consumer
-must discriminate explicit top edges and prove this path needs no FontMetrics query.
-This internal parity repair does not change public API or pipeline phases.
-
-## Subframe metric demand
-
-Ordinary subframe block positioning must not query cap-height when the result is
-unused. Preserve the current subframe origin and cursor/extent protocol. For a
-shape whose actual extent triggers the existing new-page branch, resolve the
-needed cap-height before transitioning pages, preserving its original style and
-fallback coordinates. Image subframe positioning/extent does not use cap-height.
-Keep the main-flow typography-dependent paths unchanged. This removes unnecessary
-queries, not the subframe owner's initial catalog demand; no speedup is asserted.
-
-## Correction — 2026-09-28
-
-### Measurement before decision
-
 The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `lab/results/construction/diagnostics/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
 
-### Owner responsibility
+containers-clip-2026-10-13/before-renders.json records oversized declared-height Block Shape producing two blank Tekt pages versus one clipped region; full source/provenance there. shape.rs:119/cursor.rs:125/line_commit.rs:438/region_progress.rs:115,131 allow external overflow transition while is_sub_frame; sub_frame.rs:109-121,317-340 saves local buffers/cursor but cannot undo descendant committed page. `lab/results/construction/diagnostics/subframe-isolamento-2026-10-13/before.json.gz` preserves source/L0/HEAD/dirty tree/status/diffstat/UTC. Test hypothesis directly before condition changes, not by raising test height/dropping frame items.
 
-A first shape with an initial baseline pending and an empty line consumes a geometric origin in the dedicated root Place sublayout as well as in main flow. It must not request typography for that origin. Existing baseline-origin sublayouts still clear the pending flag before dispatch and retain their positions.
+`box-contexto-2026-10-14/probe.json.gz`preserves sources/binaries/HEAD/working tree/UTC: Box, inset2pt, prefix and nesting publish (0,0) despite displaced paint. The direct-context baseline difference is separate; do not copy vanilla merely because it differs. `mod.rs:1131-1148/1180-1200` writes local points to runtime.positions; Box groups its body in another coordinate system; `finish.rs:295-302` seals the map without recomposing those points. Realized writes through or_insert; labels have a parallel map. HTML already carries private markers through the frame at `html_frame.rs:30-199`. Preserve single-pass registration and per-sub-store sealing under ADR-0073/0074 position/hybrid-model sections; do not adopt vanilla global introspection. Inspection of coordinates and its owners found absolute uses in Grid and explicitly local uses in Place/Box; nucleus qualification preserves both and requires page transformation without doubled origin. Earlier snapshot: `posicoes-compostas-2026-10-14/before.json.gz`. Geometry/identity are observables; carrier/index are mechanics.
 
-## Isolamento de overflow local — 2026-10-13
+`lab/results/construction/diagnostics/place-fluxo-2026-10-14/before/results.json.gz`records the same HEAD, uncommitted tree/diffstat/UTC/sources/binaries/argv and historical pin. All 24 root/Box pairs after 12 prefixes differ: Linebreak/Parbreak require y22.25pt, Shape y27pt, Block/Grid/VSpace20pt y35pt, Tekt 15pt. Rotate also overlaps independently. `line_commit.rs:721–733` prepares next baseline; `shape.rs:196–206` adds below/cap; `block.rs:465` separates boundary/margin; `place.rs:91–99` recognizes still-pending line only. Pinned flow/distribute.rs:703–715 uses physical flow offset for axis-unspecified Place. Weak margins/overlap/new page/rollback/subframe leakage can refute the causal-end hypothesis.
 
-### Medição anterior à decisão
+`block-auto-width-2026-10-14/before/results.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC/diffstat/status/sources/binaries/argv and historical pin 9f2b6e871. The initial extractor sought blue as #0000ff; blue-geometries-corrected.json reads actual #0074d9 from the same SVGs without rerun. For Shape, Empty, Place-only, Grid and Stack, Tekt backing width is 160 versus pin54,14,14,68,68 respectively. `block.rs:222,416,453` uses available width; `line_commit.rs:753` loses cursor on closure; `sub_frame.rs:354` saves terminal cursor only. Pinned `flow/block.rs:145–166,281–290,339–363` distinguishes Auto from expansion. Geometry is language; witness structure is internal mechanics. Place contaminating width, leaking scopes, lost literal advances or changed explicit-container dimensions refute the hypothesis.
 
-As sondas em containers-clip-2026-10-13/before-renders.json registram
-block(shape maior que altura declarada) criando duas páginas vazias no
-Tekt contra uma região recortada no controle. Fonte e proveniência completas
-estão naquele lote. Para corrigir a composição é necessário que o helper
-isolado retenha o corpo, mas shape.rs:119, cursor.rs:125,
-line_commit.rs:438 e region_progress.rs:115,131 ainda permitem avanço
-externo por overflow com is_sub_frame ativo. sub_frame.rs:109-121,317-340
-salva buffers/cursor, mas não uma página já comitada por esses descendentes.
-Essa hipótese será testada diretamente antes de modificar as condições.
-Fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC estão
-em `lab/results/construction/diagnostics/subframe-isolamento-2026-10-13/before.json.gz`.
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` records HEAD, working tree, diffstat/UTC and sources/owners before migration. `layout_types.rs:510–511` still transports Paint/Stroke; `shape.rs:151–191` materializes only fill in groups; `tiling.rs:85` limits/clones the grid. `prepare_cell` already returns TilingFrame once per occurrence. Probes `tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz` establish that dense-open and stroke-open still diverge in all three targets. The contract was approved in manifest `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`; receipt: `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`. Preparation/object counts are transport mechanics; render, contours, text, geometry and diagnostics are observable language obligations.
 
-### Responsabilidade exclusiva e aceitação
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/shape-dim-before-complete/results.json.gz` preserves HEAD/dirty tree/diffstat/UTC/sources/binaries. Root 50%/25% in 160 region measures 80×40 pin; Block80/inset5 requires 35 width and 75 auto-height or 25 with height 60; Box80×60 gives 40×30, auto-height Box 40×80. Unbounded 50%+10pt axes must give 10×10, not invalid candidate SVG. helpers.rs:427-438 resolves absolute only; shape.rs:150-151 uses it universally; sub_frame.rs:130-141 inherits auto sentinel instead of real region. Pinned flow/block.rs:255-290,layout/ratio.rs:108-110,rel.rs:112-113 support relative geometry, not bytes/Rust layout. First GREEN shape-dim-green.log still gives 37.5 versus 35 under Block inset5 because root available_width subtracts physical margins rather than local line_start_x; active block_place_region inner width must dominate.
 
-Antes de pedir nova região pelo fundo da forma, distinguir is_sub_frame. A forma local excedente conserva a posição corrente e seu tamanho; não executar a compensação de cap-height reservada à transição externa.
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/shape-terminal-complete/results.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, dirty tree/status/diffstat/UTC/source/binaries/historical pin 9f2b6e871. Shape-only height 43.2 versus 30, second Shape y25.962 versus 33.2, following Text baseline20.438 versus 40.438, Shape→Rotate top13.2 versus 33.2 and Rotate→Shape height 30 versus 53.2. shape.rs:196-266 subtracts cap-height from geometric top,`:289-304` omits confirmed baseline/bottom consumed by cursor.rs:90-110/transform.rs:352-356. Pinned flow/collect.rs:253-285/distribute.rs:302-318 distinguish frame from terminal weak margin. Geometry, not Rust/buffer strategy, is language obligation. shape-flow-before/results.json.gz also measures lost strong VSpace 7pt/30pt after Shape/Rotate; weak-between-item collapse remains a separate gap.
 
-Os invariantes compartilhados pertencem ao núcleo subframe-overflow pinado.
-Correção interna ADR-0127, sem campo/assinatura pública, fase ou novo default.
-Exigir RED→GREEN antes/depois das condições, preservação da paginação
-ordinária externa, suíte core, build, formato e linhagem. Não elevar a
-altura de teste para esconder overflow nem descartar itens do frame.
-A correção do helper não equivale a terminar a composição de block/box;
-a coleta, dimensões e recorte desses containers continuam nos seus owners.
+## Exclusive ownership and current contract
 
-## Posições no referencial composto — 2026-10-14
+Own only `01_core/src/compiler/layout/shape.rs`, shape rendering rather than ShapeElem data/entity methods. Resolve Rect/RoundedRect/Ellipse/Path dimensions or Line dx/dy in existing adapter, radius against active effective size, preserving kind/fill_rule/parent_bbox_at_emit, cursor/bbox state and ordinary block-spacing/collapse boundaries. No rasterization/paint-to-solid sampling/global Place scan/entity render coupling.
 
-### Medição anterior à decisão
+A first Shape with pending initial baseline and no material line uses physical geometric region origin in root main flow and dedicated root Place sublayout, without querying typography to add/subtract fictitious baseline. Mark initial state handled; preserve later postblock cursor/margin so subsequent text requests its own metrics. Direct-position-carrier-only line is empty for this fresh-block condition; other items including separators retain meaning. A neutral carrier never causes font ascent demand. Legacy baseline-origin sublayouts keep their established cleared-pending route/positions.
 
-box-contexto-2026-10-14/probe.json.gz, fontes/binários/HEAD/working tree/UTC
-preservados: Box, inset2pt, prefixo e aninhamento publicam (0,0), mesmo
-quando a tinta se desloca. A diferença da baseline do context direto é
-uma questão separada: não copiar o vanilla apenas por diferir. mod.rs:
-1131-1148/1180-1200 escreve pontos locais em runtime.positions; Box agrupa
-o corpo em outro referencial; finish.rs:295-302 sela o mapa sem recompor
-esses pontos. Realized escreve com or_insert; labels têm mapa paralelo.
-HTML já transporta markers privados pelo frame em html_frame.rs:30-199.
-O registro single-pass e sealing por sub-store são preservados, ADR-0073/
-0074 §§posição/modelo híbrido; não se adota introspecção global vanilla.
-A inspeção do núcleo coordinates e seus owners mostrou usos absolutos
-em grid e explicitamente locais em Place/Box. A qualificação do núcleo
-conserva ambos e exige transformação até a página, sem dupla origem.
-Snapshot anterior: posicoes-compostas-2026-10-14/before.json.gz.
-Geometria/identidade são observáveis; o carrier e seu índice são mecânica.
+Current main-flow vertical refinement supersedes earlier first/postblock cap-height and posttext formulas only for physical Shape placement. Close pending text through existing hook and place at preceding physical end plus collapsed gap, without subtracting cap-height from geometric top. First Shape retains physical origin; page transition uses new region's geometric top. On completion publish Shape bottom to prev_line_baseline/last_block_descent_y, clear equation descent/parbreak marker, keep pending below separate, and register shape_base+resolved_h after cursor update excluding preparatory cap-height/below. Do not query fonts for a shape-only sequence. Preserve local subframe route/dimensions/paints/transport and following strong VSpace contribution to height.
 
-### Contrato deste owner
+Ordinary fitting uses actual candidate bottom, not unrelated typographic leading. Before requesting overflow region distinguish is_sub_frame: oversized local Shape keeps current position/size and never performs external-transition cap-height compensation. Main-flow ordinary progress remains; no frame discard/test-height workaround. Removing unused subframe cap-height queries does not itself prove every font accessor was a catalogue scan or a speedup.
 
-No teste de início de bloco fresco, uma linha contendo apenas carriers posicionais diretos equivale à linha vazia. Conservar o significado de todos os outros itens, inclusive separadores. Não introduzir ascent de fonte por causa do carrier.
+Dimension subset: Length resolves effective font size, Ratio against regional axis, Relative sums both; nonfinite relative product contributes 0 retaining absolute portion. Width first uses active block_place_region inner width, otherwise existing local available width. Height uses explicit inner Block height, else saved real relative region, else root available height; never subframe sentinel. Other Values/None/Auto/Line dx-dy keep legacy helper. Automatic identities/dimensions, circle/square and casts remain separately incomplete under shape-dimensoes-automaticas; no public API change or correct-control claim is implied. No extra speculative execution.
 
-Correção interna ADR-0127: sem API/campo público, flag/default ou mudança
-de fase. L0 primeiro; RED→GREEN de coordenadas, ausência de tinta/altura
-fictícia, identidade, ordem, clones visuais e rollback; revalidar os
-controles HTML, geometria, contexto/queries e suíte completa.
+Prepare fill/stroke through `00_nucleo/prompts/core/compiler/layout/tiling.md` prepare_paint/prepare_stroke before emission, recording layout errors. Emit one Shape with both prepared paints, no repetition Group. This approved transport supersedes former repeated content-fill Group/separate-stroke fallback only within approved scope; preserve declarative ShapeElem, pos/kind/dimensions/fill_rule/parent bbox/block protocol/flow witnesses and paint order/semantics. Publish resolved logical horizontal dimension independently of paint/stroke/tiling; stroke/outset is never flow advance.
 
-## Place após fluxo comitado — etapa B1 — 2026-10-14
+## Acceptance and incomplete scope
 
-### Medição antes da decisão
+Preserve language content/morphology/causal positions-pages/styles/diagnostics and static interfaces, no unapproved public signature/default/compatibility/phase. Internal ADR-0127 corrections require L0 before RED→GREEN/restricted reseal and full corpus/suites/validators.
 
-`lab/results/construction/diagnostics/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
+Initial nontext controls discriminate explicit text top-edge and prove no FontMetrics demand for geometric origin; preserve pending-text/subframe/clip/paint/dimension/ordinary overflow controls with actual-extent fitting. Oversized local tests first fail then pass with no external pages, unchanged external pagination/core/build/fmt/lineage; container collection/dimensions/clipping remain their owners' incomplete scope.
 
-### Responsabilidade exclusiva
+Relative-size controls keep origin/paint/stroke/resources/effects and no extra evaluation; None/Auto/circle/square/casts remain explicit debt. Final vertical refinement cannot discard strong VSpace; Shape defaults/RTL alignment/Block Auto/general weak-VSpace collapse retain own pending work and cannot be closed here.
 
-Ao concluir a forma, registrar shape_base + resolved_h, depois de atualizar o cursor; excluir below e cap-height preparatório. Preservar desenho e margens existentes.
+Flow-end private state authorization is limited to measured causal contract with LIFO save/restore. Certified line/Shape/Block/Align/Grid/Raw/VSpace does not complete Block/inset/fragmentation/late inline Box-Transform or other Heading/List/Stack/Equation/Columns producers. Invalid witness remains legacy fallback/pending, not parity credit. Revalidate full suite/HTML-context/PDF-SVG/build-doc-fmt-check/lineage/warnings.
 
-### Aceitação e extensão pendente
+This internal parity correction under ADR-0127 adds no public contract/default/phase. L0 precedes RED→GREEN/restricted resealing. Causal width is only part of the ongoing block-region/width/transport correction: Auto height/backing, late alignment, fractions, fragmentation, outset and PDF Parent retain their own criteria. Testing a carrier alone does not approve render. Preserve full bilateral controls/refuters, suite/build/doc/fmt/lineage/inventories.
 
-Correção interna ADR-0127: L0 primeiro, RED→GREEN e resselo; sem campo público, flag/default ou fase nova. Este adendo autoriza somente o estado privado necessário a esse contrato, supersedendo proibições de novo estado limitadas a extrações anteriores. Guardar/restaurar em LIFO é obrigatório. Revalidar suíte completa, HTML/contexto, PDF/SVG, build/doc/fmt/check, linhagem e inventário de avisos.
-B1 completa a âncora após produtores certificados (linha, forma, Block, Align, Grid, Raw, VSpace), sem substituir o objetivo de corrigir todo o sistema. B2 completa região de Block/inset; B3 resolve assentamento tardio de linha pendente com inline Box/Transform, e audita demais produtores (Heading/List/Stack/Equation/Columns) antes de certificar Place universal. Testemunha inválida conserva a rota legada e é pendência, não crédito de paridade. O gate público de tiling continua pendente.
+Prepared fill/stroke tests use counted Image body once per occurrence, no grid and target-area-independent preparation cost. Preserve true render controls rather than carrier-only proof.
 
-
-## Largura causal de Block Auto — 2026-10-14
-
-### Medição anterior à decisão
-
-block-auto-width-2026-10-14/before/results.json.gz conserva HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
-UTC/diffstat/status/fontes/binários/argv e pin 9f2b6e871. O extrator inicial
-procurou blue como #0000ff; blue-geometries-corrected.json lê a cor real
-#0074d9 dos mesmos SVGs, sem nova execução. Em shape, Empty, Place-only,
-Grid e Stack a largura do backing Tekt é160; pin54,14,14,68,68 respectivamente.
-block.rs:222,416,453 usa largura disponível; line_commit.rs:753 perde cursor
-no fechamento e sub_frame.rs:354 guarda apenas cursor terminal. Fonte pinada
-flow/block.rs:145–166,281–290,339–363 distingue Auto de expansão.
-É geometria da linguagem; estrutura da testemunha é mecânica interna.
-A hipótese é refutada se Place contaminar largura, escopos vazarem, texto
-literal perder avanço ou containers explícitos mudarem de dimensão.
-
-### Responsabilidade exclusiva
-
-Ao emitir Shape, publicar a dimensão horizontal resolvida na posição lógica, independentemente de fill/stroke/tiling. Não usar stroke/outset como avanço de fluxo.
-
-### Aceitação e limites
-
-Correção interna/de paridade ADR-0127: nenhum contrato público, default ou
-fase novo; L0 primeiro, RED→GREEN, resselo restrito. A largura é uma parte
-da correção B2b/T1–T3 já em andamento: altura Auto/backing, alinhamento tardio,
-fracionários, fragmentação, outset e PDF Parent continuam com critérios próprios.
-Não declarar render aprovado por testar apenas o carrier. Preservar controles
-bilaterais completos e refutadores, suíte/build/doc/fmt/linhagem/inventários.
-
-
-## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
-HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
-layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
-materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
-prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
-`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
-comprovam que dense-open e stroke-open ainda divergem nos três targets.
-O contrato foi aprovado no manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A preparação/contagem de objetos é mecânica de transporte; render, contornos,
-texto, geometria e diagnósticos são obrigações observáveis de linguagem.
-
-### Responsabilidade exclusiva desta unidade
-
-Preparar fill e stroke antes do emit por tiling::prepare_paint/prepare_stroke, registrando erros de layout. Emitir uma única Shape com as duas pinturas preparadas; nenhum Group de repetição. Preservar pos, kind, dimensões, fill_rule, parent_bbox_at_emit, protocolo de bloco e testemunhas de fluxo. Não alterar o ShapeElem declarativo. Testar fill e stroke com body Image contado uma vez por ocorrência, ausência de grade e custo independente da área alvo.
-
-### Aceitação e continuidade
-
-Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
-aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
-somente no âmbito do contrato aprovado. Preservar os demais comportamentos
-vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
-fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
-carriers e sem fallback sólido para obter build verde. Não elevar o limite
-antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
-clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
-página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
-quando integrados e verificados; estado intermediário quebrado ou parcial
-não é certificação de produção. T4 e publicação continuam fora deste pacote.
-
-## Dimensões relativas de formas — correção medida
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/shape-dim-before-complete/results.json.gz`
-registra HEAD, working tree não commitado, diffstat, UTC, fontes e binários.
-Root Ratio50%/25% em região160 mede80×40 no pin; o Tekt descarta Ratio e
-em. Block80 com inset5 exige largura35 e altura75 se auto,25 se altura60.
-Box80×60 exige40×30; Box de altura auto exige40×80. A forma unbounded com
-50%+10pt em ambos os eixos mede10×10 no pin; o candidato produz SVG inválido.
-helpers.rs:427–438 só resolve parte absoluta; shape.rs:150–151 usa esse
-fallback para todos os Values. sub_frame.rs:130–141 herda infinito do Block
-auto e perde a região real. Fontes pinadas: flow/block.rs:255–290,
-layout/ratio.rs:108–110 e layout/rel.rs:112–113. Geometria de linguagem,
-não igualdade de bytes ou exigência de organização Rust.
-
-### Responsabilidade exclusiva
-
-Resolver Length com tamanho efetivo da fonte, Ratio pelo eixo regional e
-Relative pela soma dessas parcelas, no layout existente. Produto relativo
-não finito contribui zero, conservando a parcela absoluta. Width usa a
-largura local disponível; height usa altura interna explícita de Block,
-senão a região relativa real salva, senão a altura disponível da raiz.
-Não usar a sentinela de subframe como base percentual. Conservar o helper
-legado para Values fora deste subconjunto e para None/Auto, e Line dx/dy.
-Este recorte é explicitamente incompleto: o passo `shape-dimensoes-automaticas` de identidade e
-dimensões automáticas de formas completa None/Auto, círculo/quadrado e casts.
-Não certificar esses controles como corretos nem mudar API pública nesta etapa.
-
-Correção interna/de paridade ADR-0127, sem API/trait/campo público nem fase
-nova. L0 primeiro, RED→GREEN, resselo restrito, corpus, suíte e verificadores.
-Preservar origem, pintura, contornos, recursos e efeitos; a medição especulativa
-existente não ganha execução nova.
-
-O primeiro GREEN candidato (implementation/shape-dim-green.log) ainda mede
-37.5 em vez35 no Block com inset5: available_width na raiz desconta as
-margens físicas, não line_start_x local. Para a base percentual horizontal,
-a largura interna de block_place_region prevalece sobre available_width;
-fora de Block mantém-se o cálculo local existente. Não alterar o fallback
-legado None/Auto nesta etapa.
-
-
-## Fronteira vertical de Shape — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/shape-terminal-complete/results.json.gz`
-registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
-commitado, status/diffstat/UTC/fontes/binários e pin vanilla 9f2b6e871.
-Página width100/heightAuto/margem10 e rect20×10: Tekt mede altura43.2,
-pin30. Duas formas: segunda em y25.962 contra33.2. Texto depois da forma:
-baseline20.438 contra40.438. Shape→Rotate usa top13.2 contra33.2;
-Rotate→Shape mantém altura30 contra53.2. shape.rs:196–266 subtrai cap-height
-de um topo geométrico e shape.rs:289–304 não publica prev_line_baseline
-nem last_block_descent_y. cursor.rs:90–110 e transform.rs:352–356 usam
-esses campos para a próxima unidade. v_space.rs:22–31 publica apenas a
-âncora de Place, sem manter o fundo terminal confirmado. A fonte pinada
-flow/collect.rs:253–285 e flow/distribute.rs:302–318 distingue frame e
-margem fraca terminal. São observáveis geométricos; a organização Rust
-e a estratégia de buffers não são requisitos de paridade.
-
-### Responsabilidade exclusiva
-
-No fluxo principal, posicionar a forma no fim físico anterior mais o gap
-colapsado, sem subtrair cap-height do topo geométrico. Texto pendente fecha
-pelo hook existente e fornece seu fim causal; primeira forma conserva a
-origem física. Ao concluir, publicar o fim da forma em prev_line_baseline
-e last_block_descent_y, limpar descida de equação/marcador de parbreak e
-manter abaixo pendente separado do fundo. Transição de página usa o topo
-geométrico da nova região. Isso supersede a fórmula P767 que preservava
-cap-height e a proibição antiga de mudar esse protocolo. Não consultar
-fontes por uma sequência só de formas. Preservar a rota local de subframe,
-dimensões, pinturas e transporte. VSpace explícito posterior deve continuar
-a contribuir para a altura; não aceitar uma correção que corte esse avanço.
-
-Correção interna ADR-0127: sem assinatura/campo público, fase ou modo novo.
-L0 primeiro, testes RED→GREEN, resselo restrito, corpus bilateral e suíte.
-Defaults de formas, alinhamento RTL, Block Auto e colapso geral de espaços
-continuam abertos; este contrato não autoriza encerrar esses eixos.
+Apply the pinned nucleus.Ratification supersedes older clauses awaiting approval or requiring declarative Paint/Stroke inside Shape only within the approved contract. Preserve all other existing behavior. L0 comes first, followed by RED→GREEN; explicitly migrate fixtures/consumers without a total From<Paint> conversion, PartialEq on carriers or a solid fallback merely to obtain a green build. Do not raise the old limit or move layout into L3. Validate fill/stroke transport, resources, clipping, affine Parent, native targets, Solid/Gradient controls, page semantics and the complete suite/build/doc/fmt/lineage. Prepared transport, native target integration and verification (historical T1c/T2/T3) are complete only together; a broken or partial intermediate state does not certify production. The remaining historical T4 scope and publication remain outside this package.

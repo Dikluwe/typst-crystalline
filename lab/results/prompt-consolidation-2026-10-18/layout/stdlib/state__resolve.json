@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/state/resolve.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated full ratified state-reader phase, whole-demanded-key future-error supersession, borrowing/materialized fallback and local V2 proof; no eager interpretation retained.",
+  "original_sha256": "e49a5290d48efa300bb89844b68fffb29187283a51bd063e393d5a671251264b",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/state/resolve.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

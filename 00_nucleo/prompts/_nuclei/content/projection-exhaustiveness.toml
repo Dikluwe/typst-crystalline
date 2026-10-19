@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "content-projection-exhaustiveness"
-title = "Complementos nominais de projeções Content"
-
+title = "Nominal complements of Content projections"
 [[claims]]
 id = "closed-domain"
 level = "must"
-statement = "Cada projeção auditada de Content enumera nominalmente os casos tratados e seu complemento atual, para que uma variante futura exija decisão do compilador. Nenhum wildcard de descarte substitui esse domínio fechado."
-
+statement = "Each audited Content projection explicitly names handled cases and its current complement, so a future variant requires a compiler decision. No discard wildcard replaces this closed domain."
 [[claims]]
 id = "uniform-complement"
 level = "may"
-statement = "Alternativas com a mesma projeção negativa podem compartilhar corpo: false, None, Span::detached ou delegação integral ao hash existente. O owner prescreve a responsabilidade e cobertura de cada grupo V19, sem suprimir a nota."
-
+statement = "Alternatives with the same negative projection may share a body: false, None, Span::detached or complete delegation to existing hash. The owner prescribes responsibility and coverage for each V19 group without suppressing its note."
 [[claims]]
 id = "guard-refusal"
 level = "must"
-statement = "Quando um caso positivo tem guard, a recusa conserva o caminho anterior e sua variante aparece no complemento nominal. Campos string desconhecidos permanecem abertos; não confundir esgotamento de Content com enumeração de todos os nomes de campo."
-
+statement = "When a positive case has a guard, refusal preserves its prior path and its variant appears in the nominal complement. Unknown string fields remain open; do not confuse exhaustive Content handling with enumeration of every field name."
 [[claims]]
 id = "static-boundary"
 level = "must-not"
-statement = "Não introduzir registry, vtable, I/O, estado global ou classificador paralelo para substituir os matches estáticos e seus owners. O reparo nominal não altera algoritmos ou contratos públicos; exceções semânticas medidas precisam de prescrição própria no owner."
+statement = "Do not introduce a registry, vtable, I/O, global state or parallel classifier to replace static matches and their owners. Nominal repair changes no algorithms or public contracts; measured semantic exceptions require their own owner prescription."

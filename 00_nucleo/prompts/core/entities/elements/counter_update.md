@@ -1,66 +1,51 @@
 # Prompt L0 — `entities/elements/counter_update` — `CounterUpdateElem`
 Hash do Código: 2805c367
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/counter_update.rs`
-**Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:
-ver `entities/elements/_comum.md`. Comportamento idêntico (P198C). A mais larga
-do lote (largura 39).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/counter_update.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
-> **Fronteira: LOCATÁVEL**. `element_kind` → `ElementKind::CounterUpdate`;
-> `to_payload` → `ElementPayload::CounterUpdate`. `from_tags` aplica à
-> `CounterRegistry` (`apply_at`/`apply_hierarchical_at`; consumo por payload,
-> inalterado).
+## Evidence before specification
 
----
+Historical anchors are content.rs:1704,1868, extract_payload.rs:129 and
+counter_update.rs:20. The observation record establishes that element and
+payload clone key/action and that a Func action already transports the real
+Func through Content, maps, and walk; no extra element field is needed for
+that measured fixture.
 
-## Struct
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct CounterUpdateElem {
     pub key:    String,
-    pub action: CounterAction,   // entities::counter_update (deriva Hash)
+    pub action: CounterAction,
 }
 ```
 
-`Content::CounterUpdate { key, action }` → `Content::CounterUpdate(Arc<…Elem>)`.
-Construtor: `Content::counter_update(key, action)`.
+## Behavior and acceptance
 
-> **`Hash` por derive** se o tipo de `action` derivar `Hash` (o enum em
-> `counter_update.rs:20` deriva `Hash`). **Confirmar em Fase B**: se `action`
-> carregar `Value`/`f64`, cair para `Hash` manual via Debug (regra do modelo).
+Preserve `Content::CounterUpdate(Arc<CounterUpdateElem>)` and
+`Content::counter_update(key, action)`. Derived equality compares key/action;
+the hub dispatches matching CounterUpdate variants to it. Derive Hash when
+CounterAction supports it; the original conditional fallback to manual Debug
+hash if action gains Value/f64 remains a future review condition, not an
+unconditional algorithm change.
+Plain text is empty, is_empty defaults false, and maps are terminal. This
+carrier is locatable: kind CounterUpdate and payload CounterUpdate preserve
+key/action. from_tags applies the payload to CounterRegistry through apply_at
+or apply_hierarchical_at; this owner does not implement registry application.
 
-## `impl Element`
+Under exact `cfg(p1339_observation)`, a Func action may carry the private
+observation carrier defined by `00_nucleo/prompts/core/entities/func.md`.
+Clone, both maps, and to_payload preserve that same nested carrier by cloning
+Func. Do not extract/recreate it or index it through a side table. Set/Step
+have no such carrier. This is test-only transport for the specified observation
+fragment; the normal struct, fields, payload, Eq/Hash, locatability and result
+stay unchanged. Verify terminal transport, equality/hash, payload identity,
+and the nested test-only carrier where enabled.
 
-| método | comportamento |
-|---|---|
-| `plain_text` | `String::new()` (`content.rs:1704`) |
-| `is_empty` | default `false` |
-| `map_*` | **terminais** |
-| `element_kind` | `Some(ElementKind::CounterUpdate)` |
-| `to_payload` | `Some(ElementPayload::CounterUpdate { key, action })` (absorve `extract_payload.rs:129`) |
+## Historical record
 
-## `eq`
-
-`#[derive(PartialEq)]` compara `key + action` (paridade `content.rs:1868`) →
-**dispatch** `(CounterUpdate(a), CounterUpdate(b)) => a == b`.
-
-## P1342 — preservação do carrier aninhado da ação Func
-
-### Medição anterior à decisão
-
-A medição histórica registra que o elemento e o payload
-clonam `key` e `action`; para `CounterUpdate::Func`, o `Func` real é o objeto
-que já atravessa Content, mapeamentos e walk. Um campo adicional no elemento
-não é necessário para a fixture medida.
-
-### Decisão vigente
-
-Sob `cfg(p1339_observation)`, a ação Func pode conter o carrier privado P1342
-definido pelo owner `entities/func`. O derive Clone, `map_content`, `map_text` e
-`to_payload` preservam esse mesmo carrier por clone do Func. Não extrair,
-recriar ou indexar o carrier por side table; Set/Step não têm carrier.
-
-Struct normal, campos públicos, payload, Eq/Hash, locatability e resultado
-permanecem inalterados. A cláusula só legitima o transporte test-only já
-aninhado no Func para o fragmento P1342.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/counter_update.md`. Historical observations are not a new parity certification.

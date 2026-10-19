@@ -1,0 +1,100 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/assembly.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "042e17db306790f6d3e379e79ab3427cb3c8f7b932449161774a532eea52eb2f",
+    "result_sha256": "042e17db306790f6d3e379e79ab3427cb3c8f7b932449161774a532eea52eb2f",
+    "disposition": "Full English contract reviewed: repeat/overlap/axes and font compensation limitation retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/cases.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "af06bc61fb9335050a3efd197d5b7db29638437fbfdd1ed2edd304eef5d02b20",
+    "result_sha256": "77278b6e55903f01949527d04c36eb6345b61128826db232700472cb7f68149d",
+    "disposition": "Cases delimiter extraction and test-only wrapper constraints translated in full; current rendering/row contract unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/large_operator.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "e789942819f14d0519c447034e1b766d5ab788931f6b43eb41dd956aa9f22b2e",
+    "result_sha256": "c71a71effff485c543888b4ced61b6dd0ae1e93fa84eba0435b7c679e7c62171",
+    "disposition": "Full source/font measurement translated and qualified as historical; complete English selection/assembly acceptance retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/external_bridge.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "4417546dd5ff44a53255f3bffadfb437e7d6ca8e61744495333d4019e6dceda7",
+    "result_sha256": "e46ff0a1f6842393e5b4c94cf321d76c8e975ef6fdc6b7296709826321606790",
+    "disposition": "Full bidi adaptation and ratified size evidence translated; two-contract approval, independent equality axis/RG1 and bridge-only prescription retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/node_wrappers.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "ed8bf650ee990e9c146dfa9c73502ad6bb9435ffb81660be5cae7d27c5ee9955",
+    "result_sha256": "0371330ce408b5f302b5f37b7bf57005c717b76da1a243160cc7566a75ab4fa8",
+    "disposition": "Full nominal MathSize prescription and historical Source measurements translated; no-op axis, sentinel/replay/full gate requirements retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/sequence_composition.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "cd819a74761af4cc27dee696df4a05c75e12d21b11fa819943ce5d6ac1f8419f",
+    "result_sha256": "a5e59f88e1cbdebf7e18e97058e5e4be0ca42eaf8f83e12d5edc6ab6d3c4162f",
+    "disposition": "Full sequence extraction, source-transparent material/space reads and L27 guarded complement translated; metrics and all acceptance limits retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/style_transform.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "ae835c0be6331a693e5acdac043d8e6015116ce1d2b2b425fec49bb4621c3771",
+    "result_sha256": "26f1c1f98bd0bf38d114bca41810cba8d0bbf328fe6f46e3a0f2c2d60c96cb9e",
+    "disposition": "Full ratified source traversal refinement translated; exact source approval and immutable style/presence boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/math_frac_layout_tests.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "fa27fef8be4b425b35d91e128d1b48049d2d92892bb22f9d6adb6c29d6193ed9",
+    "result_sha256": "fa27fef8be4b425b35d91e128d1b48049d2d92892bb22f9d6adb6c29d6193ed9",
+    "disposition": "Full English contract reviewed; independent assertions, geometry/formulas, fallback qualifications and owner boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/math_limits_layout_tests.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "21280430d3dfb41dd1287379d5f0700da07dcd9a983c30a7d30c522abc8234a8",
+    "result_sha256": "21280430d3dfb41dd1287379d5f0700da07dcd9a983c30a7d30c522abc8234a8",
+    "disposition": "Full English contract reviewed; independent assertions, geometry/formulas, fallback qualifications and owner boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/math_root_layout_tests.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "63710c57a4b08eb94dde76a02902b6970d2bfca4bfce264deef52e1eede7780c",
+    "result_sha256": "63710c57a4b08eb94dde76a02902b6970d2bfca4bfce264deef52e1eede7780c",
+    "disposition": "Full English contract reviewed; independent assertions, geometry/formulas, fallback qualifications and owner boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/op.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "837e9ec8790d46312d261128780f46134e684095f1dd6326e356d8d3d6a93599",
+    "result_sha256": "837e9ec8790d46312d261128780f46134e684095f1dd6326e356d8d3d6a93599",
+    "disposition": "Full English contract reviewed; independent assertions, geometry/formulas, fallback qualifications and owner boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/root.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "a6650253fb0e85dc34b9312f94cce9aa845419db14ff8443815fff006532e1cc",
+    "result_sha256": "a6650253fb0e85dc34b9312f94cce9aa845419db14ff8443815fff006532e1cc",
+    "disposition": "Full English contract reviewed; independent assertions, geometry/formulas, fallback qualifications and owner boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/stretchy.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "6da3cda34b3e9e84065712192861f1e2427a1c1438c4ca99d864788ac0a386bc",
+    "result_sha256": "6da3cda34b3e9e84065712192861f1e2427a1c1438c4ca99d864788ac0a386bc",
+    "disposition": "Full English contract reviewed; independent assertions, geometry/formulas, fallback qualifications and owner boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/vec.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "233765262eb7c8d257fbec1000e2d2c831ddf93f28268c3c1b2caf20e82ba78c",
+    "result_sha256": "233765262eb7c8d257fbec1000e2d2c831ddf93f28268c3c1b2caf20e82ba78c",
+    "disposition": "Full English contract reviewed; independent assertions, geometry/formulas, fallback qualifications and owner boundaries retained."
+  }
+]

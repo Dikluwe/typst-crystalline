@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/word_layout.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited every unique/repeated clause; consolidated strict tracking/Keep-Wrap-Hyphenate effects, lexical SHY/highlight separation, final effective paragraph bounds, admitted-prefix-before-paint and ensure_text_baseline prepared facade. Preserved all bidi/preparation/metric limits and no emitter fitting.",
+  "original_sha256": "82969d3671a614e9502bbabc984964e6a4c3dff82141fe6417ff018da0c867aa",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/word_layout.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

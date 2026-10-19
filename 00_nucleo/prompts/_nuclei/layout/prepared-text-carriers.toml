@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "prepared-text-carriers"
-title = "Inspeção textual de conteúdo já realizado"
-
+title = "Text inspection of already realized content"
 [[claims]]
 id = "visual-projection"
 level = "must"
-statement = "Certificação textual inspeciona Source.body, Located.body e Realized.visual como envelopes transparentes, mantendo Styled, Strong e Emph como donos dos estilos e conservando os critérios tipográficos próprios de cada certificado. Realized.original não participa da medição visual."
-
+statement = "Text certification inspects Source.body, Located.body and Realized.visual as transparent envelopes, keeping Styled, Strong and Emph as style owners and each certificate's own typographic criteria. Realized.original does not participate in visual measurement."
 [[claims]]
 id = "read-only"
 level = "must"
-statement = "A projeção é emprestada e não executa ShowRecipe/callbacks, não emite nem altera o conteúdo original, Location, tags ou origem. Conteúdo não certificado conserva a recusa e o caminho anterior."
+statement = "Projection is borrowed and executes no ShowRecipe/callbacks, emits nothing and changes no original content, Location, tags or origin. Uncertified content retains refusal and prior path."

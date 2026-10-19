@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/grid/row_pagination.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated extraction and approved prepared-stroke transport without altering pagination/rule semantics; preserved all approval, partial-supersession and integration limits.",
+  "original_sha256": "4f3866a2fd6924a25df5ecceab90a977346490dcd7913a477bd3da3568e3bc0d",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/grid/row_pagination.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

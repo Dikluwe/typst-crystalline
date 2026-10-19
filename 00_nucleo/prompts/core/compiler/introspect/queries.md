@@ -2,108 +2,99 @@
 Hash do Código: faf3cc35
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:8de2c32fbeeee7a30088b4ff3808e15a211f23a182673ef5cdebe54bd3eadad6
-- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:a37779d03a4ba0f16ebcc5919477bfdcf783021511a28cf8c9203c67cd64a9e5
+- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:958649ea9ebdd471f101874ff8cf94feb995ee037c43eb6e2f1d1ad19a151ef3
+- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/introspect/queries.rs`.
-No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:287-673` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `lab/results/construction/diagnostics/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/introspect/queries.rs`.
+At clean-tree state `df72a6c4a701917ab56a7c6169764a92ea775693`, `01_core/src/compiler/introspect.rs:287-673` contains the behavior assigned to this unit. Source and state are recorded in `lab/results/construction/diagnostics/atomizacao-introspect-2026-09-30-before.json.gz`. Separation is by behavior, preserving the API and without a performance claim.
 
-## Contrato
+## Contract
 
-Implementar Introspector para TagIntrospector usando os índices de ocorrências. Filtros, seletores e posições preservam ordem causal, identidade por Location, limites Before/After e projeções de snapshot conforme o contrato existente.
+Implement Introspector for TagIntrospector through occurrence indexes. Filters, selectors and positions preserve causal order, Location identity, Before/After limits and snapshot projection under the existing contract.
 
-As invariantes de linguagem, a ordem causal e os limites de paridade continuam definidos em `00_nucleo/prompts/core/compiler/introspect.md`; este owner não cria uma segunda interpretação. O código usa chamadas estáticas na camada L1, sem vtable, I/O ou estado global mutável.
+Language invariants, causal order and parity limits remain defined in `00_nucleo/prompts/core/compiler/introspect.md`; this owner must not create a second interpretation. Code uses static L1 calls without vtables, I/O or mutable global state.
 
-## Aceitação
+## Acceptance
 
-Preservar os testes de introspecção e a suíte L1, compilar e passar `crystalline-lint .` com hashes coerentes. Mudanças semânticas futuras exigem medição de linguagem e atualização do L0 antes do código.
-
-
+Preserve introspection tests and the L1 suite, build, and pass `crystalline-lint .` with consistent hashes. Future semantic changes require language measurement and an L0 update before code.
 
 
-## Medição da ordem antes da decisão
-
-No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, CounterRegistry::value_at e StateRegistry::value_at comparam Location.as_u128; queries before/after e eventos de contador fazem o mesmo. A realização prepara identidades antes de transformar, portanto o número deixa de ordenar origens e produtos. A sonda CLI e a sentinela single_evaluation_counter_follows_causal_order conservam a evidência no diagnóstico de implementação. Aplicar o núcleo realization-order; manter fallback histórico somente sem ordem registrada.
 
 
-## Realização com avaliação única
+## Causal query order
 
-Seletores before/after e ordenação de native-element query usam a ordem causal registrada, conservando Locations como identidades opacas.
+At HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, CounterRegistry::value_at,
+StateRegistry::value_at, before/after queries and counter events compare
+Location.as_u128. Realization prepares identities before transformation, so
+numeric IDs no longer order originals/products. CLI probes and
+single_evaluation_counter_follows_causal_order retain evidence in the
+implementation diagnostic. Apply the realization-order nucleus, retaining
+historical fallback only without recorded order.
 
+Before/after and native-element query ordering use recorded causal ordinals.
+Locations remain opaque identities; after never infers position from their
+integer. Sort native-selector unions by causal order and deduplicate only
+prepared identity.
 
-## Realização com avaliação única
+## Label filters on legacy absent snapshots
 
-after compara ordinal causal; não inferir posição no documento do número interno de Location.
+Evidence: after.json.gz records equation.where(label:<display>) returning zero
+versus one upstream. walk.rs:242 retains Equation fields None;
+from_tags/equations.rs:161–166 realizes fields None. LabelRegistry already maps
+the Location, transported by query_helpers.rs:544 for None results.
 
+Only when entry.fields is None, a Value::Label filter resolves through that
+Location's LabelRegistry; other fields use existing element_selector_matches/
+equality. Some, including empty, is authoritative and gets no index-completed
+field. Fabricate no snapshot or text-derived label; preserve causal order and
+other selectors. No signature/phase change, ADR-0127 continuous flow. Test positive
+and Some-empty before code; invalid/absent cases require measurement.
+label-oracle.json additionally measures none and string "display" failing,
+Label <display> matching and <unknown> failing. Absence is not Value::None,
+String is not Label; only Value::Label uses index fallback, other values retain
+prior projection/equality without type coercion.
 
-## Realização com avaliação única
+## Ratified bare table.cell selector boundary
 
-Ordenar união de selectors nativos pela ordem causal, deduplicando apenas a identidade preparada.
+### Evidence before decision
 
-## D05 — label em filtros de elementos com snapshot legado
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz`
+retains UTC/diffstat/inputs/commands/source and executable hashes. Historical pin:
+`9f2b6e8715237cb086899a42873660fe744622e8`. selector(table.cell) returns cell;
+where() returns cell.where(:), comparison is false, and query/counter reject
+nonlocatable cell. A genuine CodeBlock alias preserves those results. The
+previous document-only alias fixture did not expose its variable to eval and
+was not positive alias evidence; table-aliases-before corrects it.
 
-Medição: after.json.gz registra query equation.where(label:<display>) como zero
-contra um no vanilla. walk.rs:242 conserva fields None para Equation;
-from_tags/equations.rs:161–166 realiza a vista com fields None. O registro de
-labels já identifica a Location, como transportado por query_helpers.rs:544
-para os resultados None. Decisão: quando entry.fields é None, filtro label
-Value::Label resolve pelo índice LabelRegistry da mesma Location; demais campos
-mantêm element_selector_matches e igualdade existente. Some, incluindo vazio,
-permanece autoritativo sem completar campo ausente pelo índice. Não fabricar
-snapshot nem inferir label do texto; preservar ordem causal e demais seletores.
-Não altera assinatura ou fase, fluxo contínuo ADR-0127. Testar positivo e Some
-vazio antes do código; valores inválidos/ausência ficam submetidos à medição.
+Upstream foundations/selector.rs:309–321 distinguishes dict None from Some;
+:421–450 validates locatability separately. Local entities/selector.rs:34–37
+represents only a present Element group; stdlib/foundations/selector.rs:69–77,
+348–354 omits native cell. d08-owner-audit.json retains other boundaries/hashes.
+Form/identity/query rejection are language; the closed carrier is chosen
+mechanics. Source explicitly distinguishes the states; do not infer intent from
+output alone. The inference that the new variant covers selection/locatability
+is refuted by a public absent-group/identity case it cannot represent. This does
+not presume correct Cell realization.
 
-label-oracle.json mede adicionalmente: label none e string "display" não casam;
-Label <display> casa e <unknown> não casa. Não equiparar ausência a Value::None,
-nem string a Label. O fallback de índice recebe apenas Value::Label. Demais
-valores usam projeção/igualdade antiga, sem transformar tipo de filtro.
+### Ratification, responsibility and incomplete scope
 
-## D08A — seletor bare de table.cell (PROPOSTO, gate ADR-0127)
+The human confirmed the selector-only manifest
+`f80f85c4ac3ab747d20d98ef3f5758c59727bcf5f5d762082660099aef4dcc9c`;
+receipt `lab/history/construction/records/00_nucleo/materialization/table-cell-selector-aprovacao-2026-10-06.json`
+at 2026-10-06T22:36:30.591466+00:00. Its original ADR-0127 gate is satisfied;
+the archived proposal-only instruction is not a new pending approval.
 
-### Medição anterior à decisão
+Consume NativeElement by real native-identity matching against registered elements, preserving causal order/Locations. Add no filter or fabricated snapshot: absent group is not empty filtering. Do not hardcode [] for the variant; prior validation must reject table.cell as nonlocatable before a valid query. Compositions retain limits/identity. Broaden no indexable catalog and register no TableCell.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
-Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
-selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
-é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
-por CodeBlock conserva esses resultados. A fixture anterior que definiu alias
-apenas no documento não disponibilizava a variável à expressão eval e não
-prova alias positivo; table-aliases-before corrige a fixture.
-
-Fonte: lab/typst-original/crates/typst-library/src/foundations/selector.rs:309–321
-distingue dict None de Some; :421–450 valida locatabilidade separadamente.
-No Tekt, entities/selector.rs:34–37 só representa grupo Element presente;
-stdlib/foundations/selector.rs:69–77,348–354 omite a nativa cell; os demais
-limites atuais e hashes estão em d08-owner-audit.json.
-
-Classificação: formato, identidade e rejeição de consulta são linguagem;
-o novo carrier fechado é mecânica escolhida para preservar esses observáveis.
-A distinção do vanilla é explícita na fonte; não se infere intenção apenas
-da saída. Inferência: a nova variante basta à fatia de seleção/locatabilidade;
-a hipótese será refutada por um caso público cuja ausência de grupo ou
-identidade não caiba nela. Não se presume correção de realização de células.
-
-### Contrato materializável somente após ratificação
-
-Consumir NativeElement pelo matching de identidade nativa real dos elementos registrados, conservando ordem causal e Locations. Sem filtros adicionais ou snapshot fabricado: ausência de grupo não é filtro vazio. Não hardcodear retorno [] para a nova variante: table.cell não deve entrar em consulta válida, porque a validação antecedente a rejeita. Composições preservam limites e identidade existentes. Não ampliar catálogo indexável ou registrar TableCell.
-
-### Fronteira incompleta e aceitação
-
-D08A cobre apenas carrier, construção, repr, igualdade, composição e
-locatabilidade. D08 permanece incompleto: D08B completa show direto, projeção
-de body/campos e preparação de células explícitas/implícitas, incluindo
-posições, padding, spans, header/footer e escopo lexical. D08B precisa de
-seus L0s medidos e de gate próprio caso mude contrato ou fase; esta ratificação
-não o autoriza. Não esconder negativos D08B ou declarar paridade universal.
-
-Após ratificação: promover este conjunto atomicamente; escrever testes
-linguísticos e verificar RED válido antes do código; materializar com
-despacho estático e Rust seguro; validar 1:1/V26 antes de ressellar somente
-owners deste manifesto; build, suíte core e linter sem erros. Revalidar
-selector cell bare/where/alias, igualdade true/false, query/counter diretos
-e compostos, função homônima, partial/closure; preservar D05, D07 e query.
+This selector package covers carrier/construction/repr/equality/composition/
+locatability only. The broader Cell domain needs separately measured direct show,
+body/field projection and explicit/implicit cell preparation, including positions,
+padding/spans/header/footer/lexical scope. Its own measured L0 and public/phase
+gates are not authorized by selector approval. Preserve negative controls and no
+universal parity claim. Atomic promotion, language RED before code, static/safe
+Rust, 1:1/V26 before restricted owner resealing, build/core suite/linter remain
+required. Revalidate bare/where/alias, true/false equality, direct/composed
+query/counter, homonymous function and partial/closure; preserve D05/D07/query.

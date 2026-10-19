@@ -8,8 +8,8 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
-- 00_nucleo/prompts/_nuclei/packages/downloader-contract.toml sha256:1fe7c4c5a8dff2081396620797bf0f94b051128c75fcaf306d8a691a50d4d91a
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:4b9f69ff41790a55a5b2d6a7b9982da858092e4bb2f0c503d6332a14a510e3ec
+- 00_nucleo/prompts/_nuclei/packages/downloader-contract.toml sha256:46d1fc7a1a1c99a876e6cfcadf2e6ff1793eb840b944da823ba717d5a1a7adf2
 ```
 
 ## Current evidence

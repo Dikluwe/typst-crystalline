@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "tiling-frame-transport"
-title = "Célula resolvida e referencial de pintura"
-
+title = "Resolved cell and paint coordinate frame"
 [[claims]]
 id = "resolved-cell"
 level = "must"
-statement = "Paint de frame transporta somente célula preparada pelo layout, com tamanho, pitch e placement finitos válidos. Layout executa o corpo uma vez por ocorrência de paint; repetição não clona a célula proporcionalmente à área coberta nem volta a avaliar conteúdo."
-
+statement = "Frame paint transports only layout-prepared cell with valid finite size,pitch/placement. Layout executes body once per paint occurrence;repetition neither clones cell proportionally to covered area nor reevaluates content."
 [[claims]]
 id = "reference-space"
 level = "must"
-statement = "Parent usa o referencial de pintura do container dono. Page e célula são raízes; Box e Block estabelecem raiz local incluindo inset; Place e transformações comuns herdam. Composição afim completa e sua inversa distinguem self e parent; offset é pivô de rotação, com periodicidade na base rotacionada."
-
+statement = "Parent uses owning container's paint frame. Page/cell are roots;Box/Block establish inset-inclusive local roots;Place/ordinary transforms inherit. Complete affine composition/inverse distinguishes self/parent;offset is rotation pivot,periodicity in rotated basis."
 [[claims]]
 id = "roles-and-resources"
 level = "must"
-statement = "Fill e stroke preservam o mesmo paint preparado com seus caminhos, fill rule, espessura, caps, joins, dash e miter. Fontes, imagens, cores e patterns aninhados da célula integram os recursos do target; célula não é conteúdo textual ou anotação de página multiplicado por repetição."
-
+statement = "Fill/stroke retain same prepared paint with paths,fill rule,thickness,caps,joins,dash/miter. Cell fonts,images,colors/nested patterns join target resources;repetition does not multiply cell text content/page annotations."
 [[claims]]
 id = "no-false-success"
 level = "must-not"
-statement = "Célula não resolvida ou limite de repetições não pode virar silenciosamente cor sólida nem sucesso de produção. Exporter não executa layout. Nenhum dado declarativo de linguagem é reescrito com frame ou dependência de target."
+statement = "Unresolved cell or repetition limit cannot silently become solid color or production success. Exporter executes no layout. No declarative language datum is rewritten with frame/target dependency."

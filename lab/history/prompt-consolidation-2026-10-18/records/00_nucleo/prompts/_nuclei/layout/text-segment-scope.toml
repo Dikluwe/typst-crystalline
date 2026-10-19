@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "text-segment-scope"
+title = "Escopo lexical de segmento textual e prefixo multiline"
+
+[[claims]]
+id = "lexical-owner"
+level = "must"
+statement = "Segmento que inicia sem linha exterior aberta instala sua cadeia lexical; descida parcial por wrappers herda a cadeia dona do segmento exterior até uma fronteira de bloco. Valores iguais de runs irmãos não criam ancestral lexical."
+
+[[claims]]
+id = "geometric-prefix"
+level = "must"
+statement = "Prefixo multiline textual certificado anteriormente recusado pode medir e emitir linhas sob a mesma cadeia comum: leading vem dessa cadeia; top e bottom vêm das unidades materiais de cada linha. A baseline prevista deve ser reconciliada com o top real, inclusive quando menor. Reserva conta a altura causal e margem uma vez."
+
+[[claims]]
+id = "isolation"
+level = "must"
+statement = "Cadeia dona e modo geométrico são privados e lexicais, participam de checkpoint e rollback, são suspensos em subframe isolado e restaurados na saída. Medição textual isolada não executa unidades opacas, efeitos ou callbacks e não altera o emissor."
+
+[[claims]]
+id = "legacy"
+level = "must"
+statement = "Prefixos escalares já certificados preservam seus hooks e fórmulas; o caminho multiline novo não aplica ajustes escalares de wrap. Unidades recusadas, bidi não certificado, floats e corpos não textuais mantêm seus caminhos anteriores."

@@ -1,79 +1,66 @@
-# Prompt L0 — `entities/path` — caminho virtual enraizado
+# Prompt L0 — `entities/path` — rooted virtual paths
 Hash do Código: 0447f38e
 
-**Camada:** L1  
-**Ficheiro alvo:** `01_core/src/entities/path.rs`  
-**Criado em:** 2026-08-24 (P1141)  
-**ADRs:** ADR-0024, ADR-0107, ADR-0108, ADR-0127
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/path.rs`
+**Governance:** ADR-0024, ADR-0107, ADR-0108, ADR-0127.
 
-## Medição antes da decisão
+## Evidence before specification and approval
 
-No vanilla ratificado `a51e02804`, `foundations/path.rs:134-224` define o tipo
-público `path`, seu constructor contextual, `repr` e `PathOrStr`;
-`typst-syntax/src/path.rs:16-60,72-81,189-357` define `RootedPath` como raiz
-(`Project | Package(PackageSpec)`) + path virtual normalizado. As sondas P1141
-mediram `type(path("x")) == path`, `path(path("x")) == path("x")`, igualdade
-após normalizar `.`/`..`, `repr(path("a")) == "path(\"/a\")"`, rejeição de
-barra invertida/escape e retenção da base através de chamada cross-file. Ver
-`typst-passo-1141.md` para comandos, outputs e proveniência.
+Historical upstream `a51e02804`, foundations/path.rs:134–224 defines the public
+path type, contextual constructor, repr, PathOrStr; typst-syntax/src/path.rs:
+16–60,72–81,189–357 defines root plus normalized virtual path. Recorded probes
+establish type(path("x")) == path, idempotent path(path("x")), equality after
+./.. normalization, repr(path("a")) == `path("/a")`, backslash/root-escape
+rejection, and base retention across files. Commands, outputs and provenance
+are in `lab/history/construction/records/00_nucleo/materialization/typst-passo-1141.md`.
+Its §6 records the owner's `Prossiga` approval on 2026-08-24, superseding the
+original pending public-contract gate. No new public interface is authorized
+by this consolidation.
 
-O cristalino tem apenas `FileId` opaco e `geometry::PathItem`; nenhum deles
-representa esse contrato de linguagem. `SystemWorld` já conhece roots físicos,
-mas o valor não pode conter `PathBuf` nem realizar I/O em L1.
-
-## Decisão
-
-Materializar em L1 um domínio lexical, portátil e fechado:
+## Pure virtual-path contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum VirtualRoot { Project, Package(PackageSpec) }
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct VirtualPath(EcoString); // forma absoluta normalizada, começa por '/'
-
+pub struct VirtualPath(EcoString);
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct RootedPath { root: VirtualRoot, vpath: VirtualPath }
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PathOrStr { Path(RootedPath), Str(EcoString) }
 ```
 
-Campos permanecem privados. Construtores/accessors públicos mínimos:
-`VirtualPath::new`, `join`, `parent`, `get_with_slash`; `RootedPath::new`,
-`root`, `vpath`; `PathOrStr` conversões de path/string. `EcoString` é permitido
-em L1 pelo ADR-0024; nenhum tipo físico (`Path`, `PathBuf`) aparece no contrato.
+Keep fields private. Preserve minimal constructors/accessors VirtualPath::new,
+join, parent, get_with_slash; RootedPath::new, root, vpath; and PathOrStr path/
+string conversions. EcoString is permitted by ADR-0024. No physical Path or
+PathBuf type crosses this boundary; FileId and geometry::PathItem do not
+substitute for language path identity.
 
-Normalização é lexical: slash separa segmentos; `.` desaparece; `..` remove o
-segmento anterior; ultrapassar a raiz retorna `PathError::Escapes`; qualquer
-backslash retorna `PathError::Backslash`. Não consultar filesystem. Path
-absoluto começa na raiz do chamador; relativo é unido ao parent do ficheiro
-chamador pela resolução contextual do `World`.
+Normalize lexically using slash: remove ., pop the previous segment for ..,
+reject root escape with PathError::Escapes and any backslash with
+PathError::Backslash. Virtual paths are normalized absolute strings beginning
+with /. Never consult the filesystem. Absolute input starts at the caller's
+root; relative input joins the caller file's parent through World resolution.
+Root participates in equality/hash: different project/package roots are
+distinct even with identical textual repr. Repr is path(<repr absolute vpath>)
+and deliberately omits package specification.
+PathOrStr::Path is never re-resolved. Resolve Str once at the span/caller FileId
+and convert it to RootedPath before I/O.
 
-`RootedPath` inclui a raiz na igualdade/hash. Dois paths de roots de pacote ou
-projeto diferentes não são iguais mesmo quando o `repr` textual coincide.
-`repr` é `path(<repr da vpath absoluta>)`; por paridade, não expõe a spec do
-pacote. Essa diferença entre identidade e representação é intencional.
+## Boundary and acceptance
 
-`PathOrStr::Path` nunca é re-resolvido. `PathOrStr::Str` é resolvido uma única
-vez no `FileId` do span/chamador e então convertido em `RootedPath` antes de I/O.
+L1 owns virtual identity, normalization and domain errors. World bridges
+(FileId,str) to RootedPath and RootedPath to resources; L3 owns physical roots,
+caches, defensive canonicalization and I/O. Do not copy upstream's global
+interner; ID/cache mechanics may differ under ADR-0107.
+Verify a/./b/../c → /a/c; ./x equals x within a root; escaped root and backslash
+produce measured error classes/messages; distinct roots remain distinct; and
+a path constructed in one file keeps root/vpath when consumed in another.
+No I/O, clock, environment, global state or PathBuf in L1; never import or
+convert geometry::PathItem.
 
-## Fronteira L1/L3
+## Historical record
 
-L1 possui identidade virtual, normalização e erros de domínio. O trait `World`
-traduz `(FileId, str)` em `RootedPath` e materializa `RootedPath` em recurso
-físico; L3 possui root real, caches, canonicalização defensiva e I/O. O interner
-global do vanilla não é copiado; mecânica de IDs/caches é livre (ADR-0107).
-
-## Critérios de aceitação
-
-- `a/./b/../c` normaliza para `/a/c`; `./x == x` no mesmo root.
-- `..` além da raiz e `\\` falham com as classes/mensagens medidas.
-- projeto e pacote preservam identidades distintas.
-- path construído num ficheiro mantém root/vpath quando consumido noutro.
-- zero I/O, relógio, ambiente, estado global ou `PathBuf` em L1.
-- `geometry::PathItem` não é importado nem convertido.
-
-## Gate
-
-Tipo e métodos públicos novos: ADR-0127 exige confirmação antes de código.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/path.md`. Historical observations are not a new parity certification.

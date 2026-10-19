@@ -1,0 +1,16 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/entrypoints.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "5f64f310b302f0fa42e09733312c3583b16171839d285cb82c0066e031a4d7ed",
+    "result_sha256": "949bda32e58d58d1074f77101619b791c63353a32b4f208242bf2cef00900df4",
+    "disposition": "Full entrypoint contract translated; separate Heading callback correction, ratified H2 facade and State phase supersession retain distinct approval/scope, bundle identities and no reevaluation."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "775e966448b46c9425bbb0c8a9009344d1f40d1c28707f60d2ffa5ce82f32c65",
+    "result_sha256": "58040313da62c60cf9849f262c96ae97366d060cf532f4fa9eca2c9810a9479b",
+    "disposition": "Full query order/legacy-label/type policy and bare-cell boundary translated; D08A actual receipt preserved, no TableCell registration or fabricated snapshots."
+  }
+]

@@ -24,20 +24,19 @@ Verify the owned behavior through local tests and its existing integrations.
 Preserve public paths and observable results. Ownership, nucleus integrity and
 lineage checks must remain valid; no unrelated consumer is authorized by this prompt.
 
-## Integração condicional dos módulos de teste — 2026-10-13
+## Test-module conditional integration
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
-working tree não commitado. A duplicação cfg(test) ocorre em `01_core/src/compiler/stdlib/registry/tests.rs:7` / pai :48; `01_core/src/compiler/stdlib/registry/microbenchmarks.rs:7` / pai :51.
-Fontes, L0, UTC, status e diffstat estão em
-`lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/before.json.gz` e
-`refinement-before.json.gz`. O Clippy pinado reproduz os atributos duplicados.
-A tentativa de retirar a condição interna mantém os testes Rust, mas o linter
-arquitetural pinado não propaga a condição do pai e acusa V2 nos helpers.
+Before decision, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working
+tree. Duplicate cfg(test) occurs at registry/tests.rs:7 / parent:48 and
+registry/microbenchmarks.rs:7 / parent:51. Sources/L0/UTC/status/diffstat are in
+`lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/before.json.gz`
+and refinement-before.json.gz. Pinned Clippy reproduces duplicate attributes.
+Removing the inner condition preserves Rust tests but the pinned architectural
+linter does not propagate the parent's condition and reports V2 on helpers.
 
-Neste owner, retirar apenas o atributo externo cfg(test) das declarações
-listadas acima. Manter os caminhos, nomes e visibilidades dos módulos e seus
-atributos path. A condição interna `#![cfg(test)]` de cada arquivo listado
-continua a excluir integralmente o módulo do build de produção, inclusive
-seus imports e helpers. Os consumers de teste e seus L0 permanecem intactos.
-Não acrescentar dependências, lógica, API, modo padrão ou fase. Validar a
-mesma lista de testes, suíte core, build sem cfg(test), Clippy e arquitetura.
+Remove only outer cfg(test) attributes from those declarations in this owner.
+Keep module paths/names/visibility and path attributes. Each listed file's
+inner `#![cfg(test)]` still excludes the whole module, imports and helpers from
+production. Test consumers and their L0 stay intact. Add no dependency/logic/
+API/default mode/phase. Validate the same test list, core suite, production
+build without cfg(test), Clippy and architecture.

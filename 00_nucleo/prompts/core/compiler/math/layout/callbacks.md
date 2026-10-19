@@ -3,7 +3,7 @@ Hash do Código: 4029b4ca
 
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/callbacks.rs`
@@ -59,49 +59,75 @@ cross cardinality, style matching, stale/extra/missing store entries, discarded
 attempts, repeated/reflowed requests and document-free Pending.
 
 
-## Tamanho dos enums — decisão medida 2026-10-16
+## Outcome storage and named lint boundary
 
-### Medição anterior à decisão
+### Evidence before decision
 
-lab/results/construction/diagnostics/clippy-enums-2026-10-16/before.json.gz conserva fontes/L0, hashes globais, HEAD, working tree não commitado, UTC e diffstat; callers.txt registra usos no workspace. probe-details.json e measurements.json guardam rustc 1.92/x86_64, comandos/binário/rlib e tamanhos/alocações de candidatos isolados antes de código. O enum privado é espelhado fielmente da fonte; os tipos públicos são medidos diretamente do rlib. O observador unsafe existe somente no executável diagnóstico, nunca na camada produtiva. É medição de representação Rust, não igualdade de linguagem, intenção upstream ou prova de ganho global.
+`lab/results/construction/diagnostics/clippy-enums-2026-10-16/before.json.gz`
+retains sources/L0/global hashes/HEAD/uncommitted working tree/UTC/diffstat;
+callers.txt records workspace uses. probe-details.json/measurements.json retain
+rustc 1.92/x86_64, commands/binary/rlib, isolated candidate sizes/allocations before
+code. The private enum is faithfully mirrored; public types are measured from
+rlib. An unsafe observer exists only in the diagnostic executable, never
+productive layers. This is Rust representation, not language equality, upstream
+intent or global benefit.
 
-### Responsabilidade exclusiva e aceitação
+### Exclusive responsibility and acceptance
 
-Preservar MathLayoutPassOutcome::Pending(Vec<MathCancelRequest>) e Complete(PagedDocument), públicos, diretamente por valor. A busca dos usos produtivos mostra retorno e consumo por match, não coleção de outcomes. A sonda Complete-only com documento vazio e black_box mede inline sem alocação contra uma por Complete na candidata Box: 20.000 extras por amostra. O enum é 440 bytes e a candidata 24; o documento de 440 continua existindo separadamente na caixa. Portanto reduzir esse container não é reduzir a memória total do resultado completo. Manter a fronteira direta e não adicionar Box ao percurso validado. Usar somente #[expect(clippy::large_enum_variant, reason="E003: resultado único de math layout por valor; Box adiciona alocação ao Complete, sem reduzir o documento")] no enum. A sonda não é benchmark de layout real nem caracteriza todos os workloads.
+Keep public MathLayoutPassOutcome::Pending(Vec<MathCancelRequest>) and
+Complete(PagedDocument) directly by value. Productive uses return/match a single
+outcome, not collections. Complete-only probes with empty document/black_box
+measure no inline allocation versus one per boxed Complete: 20,000 extras per
+sample. The enum is 440 bytes, boxed candidate 24, but its 440-byte document still
+exists separately. A smaller container does not mean less total result memory.
+Keep the direct validated path without Box. Use only the exact enum attribute:
+`#[expect(clippy::large_enum_variant, reason="E003: resultado único de math layout por valor; Box adiciona alocação ao Complete, sem reduzir o documento")]`.
+The Portuguese reason is machine metadata and remains verbatim. This is not
+real-layout benchmarking or all-workload characterization.
 
-Fluxo contínuo ADR-0127: esta etapa altera somente representação/constructor privados ao crate e metadados nominais; os contratos externos dos outcomes e entidades permanecem. L0 antes do código, resselo restrito. Gate de tamanho privado RED→GREEN e Clippy large_enum_variant deve confirmar três spans selecionados antes e resolver um com código e dois com expectativas satisfeitas. Não elevar limiar ou silenciar módulo/impl/crate; não estender expectativas a Tag/Transformation ou ao request privado. Preservar fixtures/esperados e testar os controles existentes de outline (incluindo oito casos P1405), contexto/replay, callbacks e pipeline. Validar workspace completo/build/Clippy/expectativas/Rustdoc/fmt/linhagem, sem avisos Tekt novos, sob 12 GiB, swap zero e um job. Tag/Transformation continuam medidos, sem alteração pública autorizada neste pacote.
+ADR-0127 continuous flow changes only crate-private representation/constructor
+or nominal metadata in its named batch; external outcome/entity contracts stay
+unchanged. L0 first, restricted resealing. The private-size RED→GREEN and
+large_enum_variant gates confirm three selected spans, fixing one through code
+and two through fulfilled expectations. Do not raise thresholds or suppress
+module/impl/crate, and do not extend this exception to Tag/Transformation or the
+private request. Preserve fixtures/expectations and existing outline controls
+(eight P1405 cases), context/replay/callback/pipeline tests. Validate full workspace/
+build/Clippy/expectations/Rustdoc/fmt/lineage without new Tekt warning under
+12 GiB/zero swap/one job. Tag/Transformation measurement is no authorization for
+a public change in this package.
 
+## Ratified complete text size
 
-## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
+### Evidence before decision
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`,
+before-measurement.json.gz, morph-before-measurement.json.gz and audit.json
+preserve HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+UTC, status/diffstat, sources/L0/binaries/argv and historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`. named-em measures A at 0pt versus
+24pt; affine 3pt versus 27pt; nested over 18pt measures 0pt versus 36pt. All six
+Size/Color/body permutations are accepted by the pin and rejected by Tekt.
+Positional set 18pt is ignored (12 versus 18pt). Pinned text/mod.rs:290,303,
+924–930,1136–1142 and args.rs:178–247 establish typed search, named preference,
+remaining body and composition. style_chain.rs:513–517 and constructor.rs:123
+discard em; collapse at style_chain.rs:394–395,419–422 uses top-wins where size
+needs a fold. Size/scope is observable language; Rust representation is an
+internal choice. Infer no historical intent. Restoration, Raw, heading, math,
+capture/show, duplicates/spans, zero/negative or metric failures can refute it.
+The equality probe refuted comparing declared values: the pin returns true for
+text(size:2em)[A] == text(size:24pt)[A]. Pinned StyledElem::eq at
+content/mod.rs:779–782 compares child. That equality defect requires independent
+correction; a complete size type does not close that axis.
 
-`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
-`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
-fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
-Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
-mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
-mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
-Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
-estabelece busca tipada, preferência nomeada, body restante e composição.
-style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
-style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
-É tamanho/escopo observável da linguagem; a representação Rust é escolha
-interna. Não inferir intenção histórica. Refutar por restauração, Raw,
-heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
-A sonda de igualdade refutou a hipótese de comparar os valores declarados:
-no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
-content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
-própria correção; o tipo completo não é prova de fechamento desse eixo.
+### Ratification and limits
 
-### Ratificação
+The human approved the complete-size package and its two public contracts in
+manifest `771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba`.
+Require implementation and S1–S16 tests under 12 GiB/zero swap; no release/merge/
+push. Reseal only after implementation and a valid graph. RG1 remains independent.
 
-O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
-771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
-Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
-Resselo somente após implementação e grafo válido. RG1 continua independente.
+### Exclusive callback-snapshot adapter
 
-### Responsabilidade exclusiva adicional
-
-Adapter de snapshot: TextStyle.size Pt já resolvido entra como Length absoluto em StyleDelta.size. Preservar shape/payload, callback demand e replay sem multiplicar em novamente.
+Already-resolved TextStyle.size Pt becomes absolute Length in StyleDelta.size.
+Preserve shape/payload, callback demand and replay without multiplying em again.

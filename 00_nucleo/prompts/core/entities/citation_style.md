@@ -1,139 +1,57 @@
 # Prompt L0 — `entities/citation_style`
 Hash do Código: f2e2438d
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/citation_style.rs`
-**Criado em**: 2026-06-25 (P468 — Bibliography Phase 2: numeric citation style)
-**ADRs relevantes**: ADR-0037 (coesão por domínio), ADR-0054 (graded scope-out), ADR-0107 (paridade linguagem)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/citation_style.rs`
+**References:** ADR-0037, ADR-0054, ADR-0107.
 
----
+## Evidence and scope
 
-## Propósito
+CitationStyle is a crystalline fallback construct for numeric/author-date/
+alphabetic citation systems, orthogonal to CitationForm's rendering form.
+Upstream has no CitationStyle enum: historical e0e8ca4d uses
+Derived<CslSource,CslStyle> (bibliography.rs:163) and CitationForm
+(cite.rs:133-147). Its bibliography default is fixed IEEE, not unspecified:
+bibliography.rs:159-163 selects ArchivedStyle::InstituteOfElectricalAndElectronicsEngineers;
+lines 79-95 describe IEEE's Engineering/IT use.
 
-`CitationStyle` é enum entity que representa o estilo de formatação
-bibliográfica. Distinto de `CitationForm` (que controla a *forma* da
-citação — normal/prose/author/year); `CitationStyle` controla o *sistema*
-de citação (numérico, autor-data, alfabético).
+The 2026-08-13 comparison without explicit bibliography style observed
+upstream `A [1] B [1] C [2] D [1]` versus local
+`A [1] B ibid. C [2] D [1] Doe, op. cit.`; explicit "ieee" produced matching
+bytes in that probe. The local Numeric fallback is not filling an upstream
+vacuum. Applying the product's IEEE default is a separate bibliography-layout
+issue; this entity cleanup neither changes it nor certifies current parity.
 
-Adicionado em P468 (Bibliography Phase 2) para suportar citação numérica
-`[1]`, `[2]` ordenada por primeira aparição no documento.
+## Contract
 
-## Paridade
+CitationStyle derives Debug/Clone/Copy/PartialEq/Eq/Hash with AuthorDate,
+Numeric and Alphabetic. Default is Numeric. Examples are (Kirsch,1973),
+[1]/[2] and [Kir73], respectively; numeric order follows first appearance in
+the bounded original integration. as_str(&self)->&'static str yields
+"author-date", "numeric", "alphabetic" exactly. Distinct variants differ.
 
-Vanilla Typst tem `CitationStyle` como enum derivado de `CslStyle`
-(hayagriva). Cristalino usa subset de 3 variants universais independentes
-de hayagriva:
+The historical integration description names optional CiteElem style, strict
+case-sensitive style-string parsing and layout unwrap_or_default. The CiteElem
+owner lists a different bounded carrier; retain this cross-owner integration
+reconciliation, rather than adding a field from this prose alone.
+Additional CSL-specific variants, automatic bibliography.style propagation
+and full serialization/deserialization remain deferred.
 
-- `Numeric` — `[1]`, `[2]` (default cristalino).
-- `AuthorDate` — `(Kirsch, 1973)`.
-- `Alphabetic` — `[Kir73]`.
+## Equivalent Default: evidence and acceptance
 
-Default é `Numeric` — diferença deliberada face ao vanilla. Cristalino usa Numeric
-como default universal para citar sem especificar style explícito.
+Clippy identified the manual Default at citation_style.rs:22. The nongeneric
+type introduces no public bounds through derive. Source/owners/spans/UTC/
+status/diffstat at HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b with uncommitted
+tree are in
+`lab/results/construction/diagnostics/expressoes-defaults-ci-2026-10-13/before.json.gz`.
+Use derive(Default) with #[default] Numeric, preserving the existing trait
+and value. Do not change product bibliography style or claim new CSL parity.
+This internal ADR-0127 correction changes no public signature/field/variant,
+product default or phase. Preserve tests/expectations; validate workspace
+all-targets, core suite/test inventory, build, Rustdoc, Clippy and lineage.
+Acceptance includes Numeric default and all three exact as_str mappings.
 
-> **Correcção P1031 — o vanilla *tem* default fixo.**
->
-> A redacção anterior dizia que o vanilla *"não tem um default fixo; depende de
-> `bibliography.style`"*. Medido e refutado: `bibliography.style` **tem** default, e é
-> `"ieee"`. Citação literal do vanilla ratificado (`e0e8ca4d`),
-> `crates/typst-library/src/model/bibliography.rs:159-163`:
->
-> ```rust
-> #[default({
->     let default = ArchivedStyle::InstituteOfElectricalAndElectronicsEngineers;
->     Derived::new(CslSource::Named(default, None), CslStyle::from_archived(default))
-> })]
-> pub style: Derived<CslSource, CslStyle>,
-> ```
->
-> Página publicada: `typst.app/docs/reference/model/bibliography/#parameters-style`; o doc
-> comment da tabela de estilos (`bibliography.rs:79-95`) lista `{"ieee"}` como o estilo
-> típico de *"Engineering, IT"*.
->
-> **Consequência**: `Numeric` como default do cristalino não é "preencher um vazio do
-> vanilla" — é substituir um default que existe. O output difere: medido em 2026-08-13,
-> `#bibliography("works.bib")` sem `style` dá `A [1] B [1] C [2] D [1]` no vanilla e
-> `A [1] B ibid. C [2] D [1] Doe, op. cit.` no cristalino; com `style: "ieee"` explícito os
-> dois binários coincidem byte-a-byte. Detalhe e escalonamento em
-> `compiler/layout/bibliography.md` §"Propósito" (achado escalado: aplicar o default
-> `"ieee"`).
->
-> **Sobre `CitationStyle` ser "enum derivado de `CslStyle`"**: no vanilla não existe um tipo
-> `CitationStyle`; o que existe é `CitationForm` (`cite.rs:133-147`, ortogonal — ver
-> `entities/citation_form.md`) e o estilo CSL resolvido em `Derived<CslSource, CslStyle>`
-> (`bibliography.rs:163`). `CitationStyle` é **construto do cristalino** para o fallback
-> local, não um espelho de um tipo vanilla — a frase de paridade acima foi reescrita em
-> conformidade.
+## Historical record
 
-## Representação
-
-```rust
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum CitationStyle {
-    /// Estilo autor-data, ex.: `(Kirsch, 1973)`.
-    AuthorDate,
-    /// Estilo numérico, ex.: `[1]`, `[2]`.
-    Numeric,
-    /// Estilo alfabético, ex.: `[Kir73]`.
-    Alphabetic,
-}
-
-impl Default for CitationStyle {
-    fn default() -> Self { Self::Numeric }
-}
-```
-
-## Interface pública
-
-```rust
-impl CitationStyle {
-    pub fn as_str(&self) -> &'static str;
-}
-```
-
-`as_str()` devolve strings lowercase canonical:
-- `AuthorDate` → `"author-date"`
-- `Numeric` → `"numeric"`
-- `Alphabetic` → `"alphabetic"`
-
-## Uso
-
-- `CiteElem { style: Option<CitationStyle> }` — P468.
-- `extract_citation_style` em `rules/stdlib/structural.rs` parseia `style:
-  Str` named de `cite()` via strict matching (case-sensitive).
-- `layout/cite.rs` resolve `e.style.unwrap_or_default()` para o arm de
-  match do render.
-- `Default` implementado explicitamente como `Numeric` — permite
-  `unwrap_or_default()` em layout.
-
-## Scope-out
-
-- Variants adicionais de style CSL (específicas de hayagriva).
-- Integração com `bibliography.style` para propagação automática de style.
-- Serialização/desserialização completa.
-
-## Critérios de verificação
-
-- `CitationStyle::default()` == `CitationStyle::Numeric`.
-- `CitationStyle::Numeric.as_str()` == `"numeric"`.
-- `CitationStyle::AuthorDate.as_str()` == `"author-date"`.
-- `CitationStyle::Alphabetic.as_str()` == `"alphabetic"`.
-- `PartialEq`: variants diferentes não são iguais.
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-06-25 | P468: enum CitationStyle com 3 variants + Default::Numeric | `citation_style.rs`, `citation_style.md` |
-
-## Default derivado com valor preservado — 2026-10-13
-
-### Medição anterior à decisão
-
-`01_core/src/entities/citation_style.rs:22` contém a implementação manual de Default sinalizada pelo Clippy. O corpo existente retorna a mesma variante ou inicializa cada campo pelo seu default. O tipo não é genérico, portanto a derivação não acrescenta bounds a parâmetros públicos. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, spans, UTC, status e diffstat estão em `lab/results/construction/diagnostics/expressoes-defaults-ci-2026-10-13/before.json.gz`. É evidência de implementação, não nova medição de paridade ou desempenho.
-
-### Decisão e aceitação
-
-Substituir somente a implementação manual de Default por derive(Default), conservando o trait já implementado e seu valor. CitationStyle mantém Numeric como default, anotada com #[default]. Não mudar o estilo bibliográfico do produto nem alegar nova paridade CSL. Os exemplos anteriores de impl Default explicitam o valor exigido; a derivação equivalente passa a ser a forma desta implementação.
-
-Não alterar assinatura pública, campos, variantes, comportamento padrão do produto ou fase. Correção mecânica interna em fluxo contínuo ADR-0127. Preservar testes e expectativas; validar todos os targets do workspace, suíte core, registro de testes, build, rustdoc, Clippy e linhagem.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/citation_style.md`. Historical observations are not a new parity certification.

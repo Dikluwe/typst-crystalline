@@ -2,375 +2,73 @@
 Hash do Código: 45965d51
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:a37779d03a4ba0f16ebcc5919477bfdcf783021511a28cf8c9203c67cd64a9e5
+- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/selector.rs`
-**Criado em**: 2026-04-29 (P175 sub-passo .B — primeiro consumer fixpoint)
-**ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
+**Layer:** L1, immutable pure selector data. **Exclusive consumer:** `01_core/src/entities/selector.rs`.
 
----
+## Evidence and distinct approval states
 
-## Contexto
+The original minimal Kind-only specification and revision tables are historical,not a reduction of today's selector domain. Source inventory verified during consolidation includes Kind,NativeElement,Element,Label,Location,And,Or,Regex,Where,Within,Before,After. Preserve existing Debug/Clone/PartialEq/Hash;the later Value/NaN-bearing contract explicitly supersedes the old Eq derive. Entities import no compiler/AST/introspector or function execution. Representation is not blanket language parity.
 
-`Selector` é o predicado para `Introspector::query`. Vanilla `foundations/selector.rs` tem variants `Elem`, `Label`, `Where`, `And`, `Or`, `Before`, `After`, `Regex`, `Can`, `Predicate`. Cristalino P175 implementa **apenas `Kind(ElementKind)`**.
+Historical public type measurements in `lab/results/construction/diagnostics/superficie-linguagem-p1140*` at upstreama51e02804 found repr(type(selector))"function" versus"type";postatomization catalog/22public probes matched structural baseline byte-for-byte. The resulting public global selector is callable Value::Type(Type::Selector) through static dispatcher/existing L1 constructor,type(selector)==type/constructed type_name()=="selector",without entity-operation change. This is public semantics,not required Rust mechanics/current-oracle certification.
 
-Variants futuros (vanilla):
-- `Label(Label)` — elemento por label específica.
-- `And(...)` / `Or(...)` — combinadores.
-- `Where(...)` — predicado sobre fields.
-- etc.
+At HEAD2f42d64253547734564513a1159ee6b584c1c4b4/no consumer diff,selector.rs:28–61 could not represent native function plus ordered field group,distinguish empty filter from bare or identify Strong/Emph/Text through ElementKind. Historical strong.where(:)/text.where(text:"Hi") failed. Probe UTC2026-09-10T00:04:21.279738+00:00–00:04:21.402736+00:00 records sources/state/results:explicit empty filter differs from selector(element),aliases preserve equality,field reorder changes equality/repr,spread replacement keeps first key position. Upstreama51e02804 selector.rs:75–81,309–321 preserves identity/group presence/order;func.rs:430–450 validates element/field names. This supports Element data proposal,not approval by observation.
 
-P175 deliberadamente minimal: cobre `query(heading)` / `query(figure)` / `query(outline)` cases. Adopção em features que se segmentem (M9+ refino).
+The original public Element proposal requires ADR-0127 because an added variant breaks exhaustive external Rust matches. No verified receipt for that selector gate was located during consolidation,although current code contains Element. Preserve this approval-record gap explicitly;do not infer ratification from code or from the distinct ElementPayload NativeElement approval assertion. Its contract/acceptance below remains preserved,not silently promoted into a new authorization.
 
----
+The historical Before/After proposal likewise records a baseline ending in Within and measured rejected methods despite upstream base+limit+inclusive(defaulttrue). Current code already contains both variants,but no verified public-gate receipt was located. Earlier no-edit/before-after exclusion was narrowed by this explicit proposed design only;unverified approval is still pending reconciliation. Do not simulate Before/After through Within/And/Or/Where or treat such substitution as preserved behavior.
 
-## Restrições Estruturais
+Bare Cell selector is a separate verified package. `lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz` preserves HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b/tree/UTC/diffstat/inputs/commands/source/executable hashes,historical9f2b6e8715237cb086899a42873660fe744622e8. selector(table.cell)→cell,where()→cell.where(:),equalityfalse,query/counter reject nonlocatablecell. Real CodeBlock alias preserves this;previous document-only alias unavailable to eval was invalid positive evidence. Upstream selector.rs:309–321 separates dictNone/Some,:421–450 validates locatability independently. Local then only Element-present-group/catalog omitted cell;d08-owner-audit.json preserves other limits/hashes. Source distinguishes states explicitly,not inferred intent. Closed-carrier sufficiency is refuted by a public absent-group/identity case it cannot represent,no Cell realization assumption.
 
-- Camada **L1**: enum puro.
-- `Clone`, `PartialEq`, `Eq`, `Hash` derivados (todos triviais via `ElementKind`).
-- Imutável.
+Human confirmo at2026-10-06T22:36:30.591466+00:00 approved manifestf80f85c4ac3ab747d20d98ef3f5758c59727bcf5f5d762082660099aef4dcc9c in `lab/history/construction/records/00_nucleo/materialization/table-cell-selector-aprovacao-2026-10-06.json`,ten promoted owners. This satisfies only bare-selector package's pending gate,not unrelated earlier Element/Before/After receipts or all Cell realization.
 
----
-
-## Interface pública
+## Existing immutable data vocabulary
 
 ```rust
-use ecow::EcoVec;
-
-use crate::entities::element_kind::ElementKind;
-use crate::entities::label::Label;
-use crate::entities::location::Location;
-use crate::entities::value::Value;
-use ecow::EcoString;
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub enum Selector {
-    /// Selector de kind — matches todos os elementos de um tipo.
     Kind(ElementKind),
-    /// **P209B (M9c)** — Selector de label específica. Reusa `Label`
-    /// L1 (`pub struct Label(pub String)`); Hash derive.
+    NativeElement(crate::entities::func::Func),
+    Element {
+        function: crate::entities::func::Func,
+        fields: ecow::EcoVec<(ecow::EcoString, crate::entities::value::Value)>,
+    },
     Label(Label),
-    /// **P209B (M9c)** — Selector de Location específica (singleton
-    /// match). Reusa `Location` L1; Hash derive. Equivalente
-    /// vanilla literal.
     Location(Location),
-    /// **P209C (M9c)** — Composição N-ária: TODOS os sub-selectors
-    /// devem matchar. Query semantics = intersecção de Vec<Location>.
-    /// Vazio: empty Vec (Opção A fixada em P209C C3).
-    /// `EcoVec` per paridade vanilla (clone O(1) com Arc interno).
-    And(EcoVec<Selector>),
-    /// **P209C (M9c)** — Composição N-ária: AO MENOS UM sub-selector
-    /// deve matchar. Query semantics = união dedupliquada de
-    /// Vec<Location> (ordem de primeira-aparição preservada).
-    /// Vazio: empty Vec.
-    Or(EcoVec<Selector>),
-    /// **P417 (M)** — Selector por campo de elemento.
-    /// `base` tipicamente `Kind(Heading)`; `field` é o nome do campo
-    /// (ex.: `"level"`); `value` é o valor esperado (`Value::Int(1)`).
-    /// Sem vtable/closure — estrutura estática (ADR-0109 forma B).
-    /// Query arm é stub `vec![]` documentado: cristalino single-pass
-    /// indexa `ElementPayload`, não Content fields; consumer real
-    /// emerge em P417+ se houver demanda.
-    Where { base: Box<Selector>, field: EcoString, value: Value },
+    And(ecow::EcoVec<Selector>),
+    Or(ecow::EcoVec<Selector>),
+    Regex(Regex),
+    Where { base: Box<Selector>, field: EcoString, value: Box<Value> },
+    Within { base: Box<Selector>, ancestor: Box<Selector> },
+    Before { base: Box<Selector>, end: Box<Selector>, inclusive: bool },
+    After { base: Box<Selector>, start: Box<Selector>, inclusive: bool },
 }
 ```
 
----
+This inventory preserves currently represented data while the approval-record distinctions above stay explicit. The old unboxed Where.value example is superseded by existing Box<Value> recursion boundary;Regex/Within are not omitted. No new ElementKind/NodeKind,Func/Value field,trait or extra public method is authorized here. Reexport existing selector module through entities/mod.rs;consumers use their own owner contracts.
 
-## Semântica
+Kind carries existing ElementKind including the later List,Enum,Par,Link,Raw,Quote,Footnote additions,not only initial Heading/Figure/Outline. Label carries exact Label string identity;Location exact opaque singleton identity. And/Or use EcoVec with shared O(1)clone,order-sensitive structural comparison/recursive hashing. Distinct variants remain distinct even when payload looks equivalent:Kind(Heading)not Label("Heading"),And(v)not Or(v),Where not bare Kind.
 
-- `Selector::Kind(k1) == Selector::Kind(k2)` sse `k1 == k2`.
-- `Selector::Label(l1) == Selector::Label(l2)` sse `l1 == l2`
-  (igualdade structural sobre `Label.0: String`).
-- `Selector::Location(loc1) == Selector::Location(loc2)` sse
-  `loc1 == loc2`.
-- **P209C** `Selector::And(v1) == Selector::And(v2)` sse `v1 == v2`
-  (igualdade ordem-sensível dos sub-selectors via `EcoVec` Eq).
-- **P209C** `Selector::Or(v1) == Selector::Or(v2)` idem.
-- **P417** `Selector::Where { base, field, value } ==
-  Selector::Where { base', field', value' }` sse `base == base'`,
-  `field == field'` e `value == value'` (igualdade semântica de
-  `Value`, ADR-0107; `Value::Int(1) == Value::Float(1.0)` por
-  ADR-0025).
-- Hash determinístico (delega para Hash dos field types;
-  recursivo para `And`/`Or` via discriminant + EcoVec elementos).
-  `Where` hasheia `base`, `field` e `value`.
-- Variants distintos são sempre `!=` independentemente do
-  conteúdo (e.g., `Kind(Heading)` ≠ `Label(Label("Heading"))`;
-  `And(v)` ≠ `Or(v)` mesmo com mesmo conteúdo;
-  `Where` ≠ `Kind` mesmo que base seja `Kind(Heading)`).
+Where preserves base/field/value and nested multi-field chains. Producer builds one Where per field,inner field1 then outer field2;show matching recursively ANDs predicates. Legacy Where requires base+known field+semantic Value equality(including existing Int1/Float1.0 language relation),not name/Debug/hash approximation. Public language equality belongs to `00_nucleo/prompts/core/compiler/eval/operators/equality.md`;do not change Func/Value/Selector derives to implement it or add Eq over NaN-bearing Value. Deterministic field/discriminant hashing is internal,not a new persistent hash format.
 
-### Query semantics (consumidas em `Introspector::query`)
+NativeElement(Func)represents absent where group;Element{function,fields}represents explicitly present group,including empty. Empty group never collapses to Kind,And([]),Regex,Label or sentinel. Func is actual producer-recognized element identity,not callback to execute for type/field discovery. Fields are ordered unique names/values after producer normalization;spread replacement preserves first key position. EcoVec breaks Selector↔Value storage recursion,not a PropMap,type registry,vtable or dynamic-dispatch mechanism. Preserve empty/order/value/alias through clone/composition. Bare native recognition uses actual typed identity,no alias-name discriminator or constructor call.
 
-- **`And(EcoVec<Selector>)`**: intersecção de `Vec<Location>`
-  retornados pelos sub-selectors.
-  - **Vazio** (`And(EcoVec::new())`): retorna `vec![]` (Opção A
-    fixada em P209C C3). Justificação: cristalino single-pass
-    não tem "universo computável" sem walk completo;
-    consistência com `Or` vazio.
-  - **N elementos**: `sels[0]` ∩ `sels[1]` ∩ ... ∩ `sels[N-1]`,
-    preservando ordem do primeiro `Vec`.
-- **`Or(EcoVec<Selector>)`**: união dedupliquada de
-  `Vec<Location>`.
-  - **Vazio** (`Or(EcoVec::new())`): retorna `vec![]`.
-  - **N elementos**: união preservando ordem de primeira-aparição
-    (via `HashSet::insert` check).
+Before/After data preserves full base/end-or-start/inclusive,clone/structural equality/hash,order/nesting without normalization. Public proposed default inclusive=true is fixed by language caller;Box is storage mechanics,not language semantics. Current query consumers already implement these operations;their existence does not resolve missing public approval record. No phase/default/compatibility decision follows from this documentation consolidation.
 
----
+## Query and show boundaries
 
-## Tests obrigatórios
+`00_nucleo/prompts/core/compiler/introspect/queries.md` owns actual queries over occurrence indexes;`00_nucleo/prompts/core/compiler/eval/selector_matching.md` owns conversion/show matching. Entity stores predicates only. Kind delegates kind index;Label query delegates query_by_label's compatible0/1return,Location yields singleton. And queries intersect subresults in first-vector order;empty And→vec![],the chosen explicit empty-domain policy rather than inferred universal set. Or returns deduplicated union preserving first appearance;empty Or→vec![]. Recursive nested composition retains these semantics. Native-element query ordering additionally follows canonical recorded causal order,never raw Location integer.
 
-- `Selector::Kind(Heading) == Selector::Kind(Heading)`.
-- `Selector::Kind(Heading) != Selector::Kind(Figure)`.
-- Hash determinístico (mesma key duas vezes).
-- **P209B**: `Selector::Label(Label("foo".into())) == Selector::Label(Label("foo".into()))`.
-- **P209B**: `Selector::Location(loc1) == Selector::Location(loc1)`;
-  `!= Selector::Location(loc2)`.
-- **P209B**: variants distintos são desiguais mesmo com
-  conteúdo "equivalente".
-- **P209C**: `And(EcoVec::new())` query devolve `vec![]` (Opção A).
-- **P209C**: `Or(EcoVec::new())` query devolve `vec![]`.
-- **P209C**: `And([Kind(k), Label(l)])` query devolve intersecção
-  ordenada de `query_by_kind(k)` e `query_by_label(l)`.
-- **P209C**: `Or([Kind(k1), Kind(k2)])` query devolve união
-  dedupliquada na ordem de primeira-aparição.
-- **P209C**: nested — `And([Or([...]), Kind(...)])` recursivo
-  funciona (query reuso self-referencial).
-- **P417**: `Where { base: Kind(Heading), field: "level",
-  value: Int(1) }` é igual a outro idêntico; diferente se
-  `field`, `value` ou `base` mudarem.
-- **P417**: `Where` distinto de `Kind(Heading)` mesmo com
-  campo/valor coincidentes.
-- **P417**: Hash determinístico de `Where`.
+Legacy Regex and Where query arms remain explicit empty-vector limitations(verified queries.rs:167,173),not successful feature parity;Element native ordered-field queries are a distinct path under their owner. Do not accidentally treat the old Where stub as all native-filter behavior or silently add query-by-text support. Show Where may work while query Where remains limited. Earlier Rust-API-only composite exposure was narrowed by later language selector.and/or/within methods over existing variants,without an entity redesign. Counter/query validation independently checks every leaf's locatability;building a selector alone does not require it and never inserts table.cell into index.
 
----
+The public Element proposal covers only where data boundary,not all ten surface routes. Before any additional materialization,each repr/query-introspector/counter consumer needs current L0;no silent wildcard/unconditional empty result/filter loss. Approval of one entity does not authorize pending consumer code. Existing native-filter acceptance requires measured public construction/repr/equality/application,not structural tests alone. If Func+ordered group cannot recover a measured identity/filter,reopen specification rather than add incidental public metadata.
 
-## Consumers
+## Acceptance and remaining scope
 
-- `Introspector::query(&self, &Selector) -> Vec<Location>` (P175 sub-passo .C).
-- Stdlib `query(kind_str)` (P175 sub-passo .D) — constrói `Selector::Kind` internamente.
-- **P493c — `eval_element_where`**: dado `<elemento>.where(field1: v1, field2: v2)`, constrói uma cadeia de `Selector::Where` aninhados:
+Preserve Kind same/different-kind equality/deterministic hash,Label exact-string equality,Location same/different identity,cross-variant inequality;And/Or structural order/empty data,empty query,ordered intersection/first-appearance union/nested recursion. Where identical base-field-value equal,each changed component different,distinct from Kind,deterministic hash. Test full public Element empty/ordered/replaced fields/aliases through clone/composition and construction/repr/language equality/application against recorded probes. No API-only structure test closes function.where.
 
-  ```rust
-  Selector::Where {
-      base: Box::new(Selector::Where {
-          base: Box::new(Selector::Kind(kind)),
-          field: "field1",
-          value: v1,
-      }),
-      field: "field2",
-      value: v2,
-  }
-  ```
+Bare Cell package requires atomic confirmed-owner promotion,linguistic tests/valid RED before static safe Rust,valid1:1/V26 before restricted manifest seals/build/core suite/lint zero. Revalidate bare/where/true alias equality/direct and composite query-counter/homonym/partial/closure plus existing D05/D07/query controls. Carrier only transports Func/group absence,no compiler/introspector import/evaluation,new Cell ElementKind/NodeKind or derives defining linguistic equality.
 
-  O matching em show rules (`apply_show_rules`) percorre recursivamente a cadeia `Where` e aplica AND lógico: todos os predicados devem satisfazer-se para a regra aplicar. Query (`Introspector::query`) mantém-se stub `vec![]` para `Where` (single-pass não indexa Content fields).
+Its bounded scope is carrier/construction/repr/equality/composition/locatability. Direct Cell show,body/field projection,explicit/implicit preparation,position/padding/spans/header-footer/lexical scope required separately measured owners and any public/phase gates. Later independently ratified Cell packages do not imply universal table parity or authorize hidden negatives. General filter/locatability/reflection/error limits remain visible. Preserve snapshots/effects/diagnostics and public pending-gate distinctions rather than infer acceptance from current Rust.
 
----
-
-## Sobre paridade
-
-Vanilla tem 10+ variants em `Selector`. Cristalino P175 implementa só `Kind` — minimal viable. Refino futuro adiciona `Label`, combinadores, `Where`, etc. quando consumers reais necessitarem.
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/selector.rs` — enum + tests
-  (P175 base + P209B variants Label/Location + P209C + P417 + P493c).
-- Re-export em `01_core/src/entities/mod.rs`.
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-04-29 | P175 sub-passo .B: tipo Selector minimal para query | `selector.rs`, `selector.md` |
-| 2026-05-12 | P209B (M9c — Bloco VI Selector extensions per Q3=α humano): +variants `Label(Label)` + `Location(Location)`. Hash derive preserved (campos Hash trivialmente). Query arms triviais: `Label` delega a `query_by_label`; `Location` retorna singleton `vec![loc]`. Stdlib `native_query`/`native_locate` ganham type dispatch (`Value::Str("<name>")` → Label; `Value::Location(loc)` → Location). | `selector.rs`, `selector.md`, `introspector.rs`, `foundations.rs` |
-| 2026-05-12 | P209C (M9c — Bloco VI Selector extensions per C4 P207A): +variants compósitos `And(EcoVec<Selector>)` + `Or(EcoVec<Selector>)`. Hash derive recursivo via discriminant + EcoVec elementos. Query arms: `And` faz intersecção via filter+contains; `Or` faz união dedupliquada via HashSet check preservando ordem. **Opção A** fixada para `And/Or` vazios: ambos retornam `vec![]` (consistência + cristalino single-pass sem universo computável). Stdlib API: **Opção (c) Rust API only** — sem dispatch via `Value` em `native_query`/`native_locate`. | `selector.rs`, `selector.md`, `introspector.rs` |
-| 2026-06-23 | P417 (M): +variant `Where { base, field, value }`. Estrutura estática sem vtable; query arm stub `vec![]` documentado (single-pass não indexa Content fields). Semântica de igualdade via `Value` (ADR-0107). | `selector.rs`, `selector.md`, `value.rs`, `introspector.rs`, `show.rs`, `show.md`, `eval/` |
-| 2026-06-25 | P467 (S — sonda A.0): confirma que `Selector::Where` já está implementado e funcional em show rules; nenhuma alteração de código necessária. Inventário de cobertura atualizado. | `selector.md`, `cobertura-vanilla-vs-cristalino.md` |
-| 2026-06-29 | P493c: `Where` multi-field via `eval_element_where`. Cadeia de `Selector::Where` aninhados; show-rule matching recursivo. | `selector.md`, `bindings.rs` |
-| 2026-06-29 | P494: `ElementKind` expandido com `List`, `Enum`, `Par`, `Link`, `Raw`, `Quote`, `Footnote`; `Selector::Kind` passa a aceitar os 7 novos kinds (parse em L3 `query_helpers.rs` e L2 `foundations.rs`). Nenhuma alteração estrutural no enum `Selector`. | `selector.md`, `element_kind.md`, `query-helpers.md`, `foundations.rs` |
-
-
-## P1140.1-B — medição anterior à decisão (2026-08-23)
-
-No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
-cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `lab/results/construction/diagnostics/superficie-linguagem-p1140*`
-medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
-`tiling` e `version`. Os construtores atuais foram novamente executados após
-a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
-baseline estrutural. Esta é divergência de semântica pública da linguagem,
-não de mecânica Rust (ADR-0107).
-
-## P1140.1-B — identidade pública do tipo `selector`
-
-O nome global `selector` é o valor `Value::Type(Type::Selector)`, chamável
-pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
-`type(selector) == type` e `repr(type(selector)) == "type"`, enquanto valores
-construídos continuam com `type_name() == "selector"`. A representação interna
-da entidade e suas operações não mudam.
-
-## P1284 — inventário público congelado e gate `before`/`after`
-
-### Medição antes da decisão
-
-O consumer pré-candidato possui `Kind`, `Label`, `Location`, `And`, `Or`,
-`Regex`, `Where` e `Within { base, ancestor }`. Não possui `Before` nem
-`After`. A narrativa histórica no início deste L0 descreve P175 e não reduz o
-estado vigente às variantes daquele primeiro passo.
-
-### Decisão
-
-P1284 pode expor na linguagem `selector.and`, `selector.or` e
-`selector.within` sobre as variantes públicas já existentes, sem alterar este
-consumer. Este L0 não autoriza qualquer edição de `entities/selector.rs`.
-
-Adicionar `selector.before(self,end,inclusive:true)` ou
-`selector.after(self,start,inclusive:true)` exigiria novas variantes públicas,
-semântica de query e revisão de matches consumidores. Ambos permanecem
-fora do contrato vigente até novo L0 com desenho explícito. Simular por
-`Within`/`And`/`Or`/`Where` é `Violated`.
-
-## P1339 — identidade de elemento e grupo de filtros
-
-### Medição anterior à decisão
-
-Em HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer sem diff,
-`01_core/src/entities/selector.rs:28-61` não representa uma função de
-elemento com grupo de campos. `Kind(ElementKind)` não distingue filtro vazio
-de elemento nu e não contém identidades Strong/Emph/Text. Os resultados de
-As medições históricas incluem `strong.where(:)` e
-`text.where(text: "Hi")`; o antecedente os rejeita.
-
-Na sonda histórica, sobre esse HEAD, UTC
-`2026-09-10T00:04:21.279738+00:00`–`00:04:21.402736+00:00`, filtro vazio
-é diferente de `selector(elemento)`; aliases preservam igualdade;
-reordenar campos altera igualdade e repr; spread substitui o valor sem mover
-a primeira posição da chave. A fonte ratificada `a51e02804`,
-`foundations/selector.rs:75-81,309-321`, conserva identidade, presença do
-grupo e sua sequência; `foundations/func.rs:430-450` valida o elemento e os
-nomes dos campos. A medição registra fontes, estado e resultados observáveis.
-
-### Decisão proposta — contrato de dados
-
-Adicionar somente esta variante ao enum público existente:
-
-```rust
-Element {
-    function: crate::entities::func::Func,
-    fields: ecow::EcoVec<(ecow::EcoString, crate::entities::value::Value)>,
-},
-```
-
-- `function` conserva a função de elemento reconhecida pelo produtor; não é
-  uma callback a executar para descobrir tipo ou campos.
-- `fields` é um grupo ordenado de nomes e valores, com chaves únicas após
-  normalização pelo produtor. Vazio representa filtro explicitamente vazio;
-  não se reduz a `Kind`, `And([])`, regex, label ou campo sentinela.
-- O vetor é dado semântico do seletor, não registro extensível de tipos,
-  `PropMap`, vtable ou mecanismo de despacho dinâmico. A indirection de
-  `EcoVec` interrompe a recursão de armazenamento Selector↔Value.
-- Todas as variantes e seus campos atuais permanecem. Em particular,
-  `Where.value` continua `Box<Value>`, e `Regex`/`Within` continuam presentes.
-  O exemplo histórico P417 acima não redefine o enum vigente.
-- Preservar `Debug`, `Clone`, `PartialEq` e `Hash` estruturais do consumer;
-  não adicionar `Eq` à entidade que contém Value/NaN. A igualdade da
-  linguagem é responsabilidade de `compiler/eval/operators/equality.md`,
-  não motivo para mudar os derives de Func, Value ou Selector.
-- A entidade permanece pura, sem import de compiler, AST, avaliação de
-  funções ou leitura de campos de Content. Não recebe API pública adicional.
-
-Esta seção sucede, somente para a variante proposta, a proibição P1284 de
-editar o consumer. `before`/`after` permanecem bloqueados; `ElementKind`,
-`Func`, `Value` e traits não recebem novos campos ou assinaturas por esta
-proposta. Novo braço de enum quebra matches Rust externos exaustivos e por
-isso exige aprovação ADR-0127, mesmo sendo aditivo na linguagem.
-
-### Aceitação e fronteira da minuta
-
-Após aprovação, testes de dados devem conservar grupo vazio, ordem, valores
-e alias através de clone e composição. A aceitação pública exige os casos
-medidos de criação, repr, igualdade e aplicação; teste estrutural sozinho
-não fecha `function.where` (ADR-0107). A representação escolhida é mecânica;
-o significado do grupo e a forma pública são linguagem.
-
-Inferência: este carrier comporta as identidades e filtros medidos sem
-alargar Content/ElementKind. Refutação: um caso público que exija informação
-não recuperável da função e do grupo, ou uma identidade não distinguível
-pelo reconhecimento estático de funções aceitas. Nesse caso reabrir o L0,
-não introduzir metadados públicos incidentalmente.
-
-Esta minuta cobre a fronteira pública de `where` dentro de P1339, não o L0
-integral das dez rotas. Antes de materializar, atualizar individualmente os
-owners de repr, query/introspector e counter para consumir a nova variante;
-não aceitar wildcard silencioso, novo retorno vazio incondicional ou perda
-de filtro. O inventário desses consumidores fica em diagnósticos. A aprovação
-da entidade não autoriza escrever consumers cujo L0 ainda esteja pendente.
-
-## P1401 — seletores contextuais `before` e `after` (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline P1401, `Selector` termina em `Within`; P1400 mede que a construção
-base existe bilateralmente, mas o cristalino rejeita os métodos. Na fonte
-vanila pinada, as variantes guardam seletor base, limite e `inclusive`, cujo
-default público é `true`.
-
-### Contrato público proposto
-
-O enum ganha `Before { base: Box<Selector>, end: Box<Selector>, inclusive:
-bool }` e `After { base: Box<Selector>, start: Box<Selector>, inclusive: bool
-}`. Os campos participam integralmente de clone, igualdade e hash estruturais;
-ordem e aninhamento nunca são normalizados. Box é mecânica interna, sem efeito
-na linguagem. Os novos variants são públicos e aguardam confirmação ADR-0127.
-
-## D08A — seletor bare de table.cell (PROPOSTO, gate ADR-0127)
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
-Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
-selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
-é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
-por CodeBlock conserva esses resultados. A fixture anterior que definiu alias
-apenas no documento não disponibilizava a variável à expressão eval e não
-prova alias positivo; table-aliases-before corrige a fixture.
-
-Fonte: lab/typst-original/crates/typst-library/src/foundations/selector.rs:309–321
-distingue dict None de Some; :421–450 valida locatabilidade separadamente.
-No Tekt, entities/selector.rs:34–37 só representa grupo Element presente;
-stdlib/foundations/selector.rs:69–77,348–354 omite a nativa cell; os demais
-limites atuais e hashes estão em d08-owner-audit.json.
-
-Classificação: formato, identidade e rejeição de consulta são linguagem;
-o novo carrier fechado é mecânica escolhida para preservar esses observáveis.
-A distinção do vanilla é explícita na fonte; não se infere intenção apenas
-da saída. Inferência: a nova variante basta à fatia de seleção/locatabilidade;
-a hipótese será refutada por um caso público cuja ausência de grupo ou
-identidade não caiba nela. Não se presume correção de realização de células.
-
-### Contrato materializável somente após ratificação
-
-Adicionar exatamente NativeElement(crate::entities::func::Func) ao enum Selector, com grupo where ausente. Conservar Element { function, fields } para where explicitamente presente, inclusive vazio. A entidade apenas transporta dados, sem imports de compiler, introspector ou execução de Func. Conservar todos os variants, campos, derives e assinaturas atuais. Não adicionar ElementKind/NodeKind de cell. Derives Rust não definem igualdade linguística. A extensão pública do enum exige este gate ADR-0127 e pode quebrar matches exaustivos externos.
-
-### Fronteira incompleta e aceitação
-
-D08A cobre apenas carrier, construção, repr, igualdade, composição e
-locatabilidade. D08 permanece incompleto: D08B completa show direto, projeção
-de body/campos e preparação de células explícitas/implícitas, incluindo
-posições, padding, spans, header/footer e escopo lexical. D08B precisa de
-seus L0s medidos e de gate próprio caso mude contrato ou fase; esta ratificação
-não o autoriza. Não esconder negativos D08B ou declarar paridade universal.
-
-Após ratificação: promover este conjunto atomicamente; escrever testes
-linguísticos e verificar RED válido antes do código; materializar com
-despacho estático e Rust seguro; validar 1:1/V26 antes de ressellar somente
-owners deste manifesto; build, suíte core e linter sem erros. Revalidar
-selector cell bare/where/alias, igualdade true/false, query/counter diretos
-e compostos, função homônima, partial/closure; preservar D05, D07 e query.
+Archive: `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/selector.md`.

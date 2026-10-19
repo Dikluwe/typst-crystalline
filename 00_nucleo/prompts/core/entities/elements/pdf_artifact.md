@@ -1,27 +1,20 @@
 # Prompt L0 — `entities/elements/pdf_artifact` — `PdfArtifactElem`
 Hash do Código: 60446855
 
-**Estado:** consumer materializado; o metadado de implementação é atualizado pelo
-`crystalline-lint --fix-hashes`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/pdf_artifact.rs`
+**Governance:** ADR-0029, ADR-0107, ADR-0108, ADR-0127, ADR-0129.
 
-**Camada:** L1 domínio
-**Consumer exclusivo:** `01_core/src/entities/elements/pdf_artifact.rs`
-**Origem do contrato:** medição vanilla e decisão P1293 incorporadas abaixo.
-**Gate humano:** confirmado em 2026-08-30 — “Siga a engenharia da refatoração
-e pode implementar”.
-**ADRs:** ADR-0029, ADR-0107, ADR-0108, ADR-0127, ADR-0129.
+## Evidence before specification
 
-## Medição anterior à decisão
+Historical upstream pdf/accessibility.rs:36–93 defines kind/body and twelve
+kinds. Layout preserves visual/text while PDF uses /Artifact without
+MCID/StructElem. The recorded measurement covered other, Header and Background;
+real assistive-technology behavior was Unknown. Existing Formula support is
+not permission to erase artifact kind. Human approval was recorded on
+2026-08-30; the archive preserves the original authorization wording.
 
-O vanilla pinado define `ArtifactElem { kind, body }` e doze kinds em
-`pdf/accessibility.rs:36-93`; o layout conserva visual/texto e o PDF mantém a
-identidade `/Artifact` sem MCID/StructElem. A medição anterior cobriu
-`other`, Header e Background, e registrou AT real como `Unknown`. A árvore
-cristalina já possui Formula P1140.6; passthrough que perca o kind é incorreto.
-
-## Contrato do consumer
-
-Este ficheiro é o owner único dos dados abaixo:
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -47,34 +40,30 @@ pub struct PdfArtifactElem {
 }
 ```
 
-`ArtifactKind::Other` é o default de linguagem. O enum é fechado e preserva
-os doze nomes kebab-case validados pela nativa; não aceitar string arbitrária
-nem colapsar kinds distintos.
+ArtifactKind::Other is the language default. Preserve the twelve closed
+kebab-case names validated by the native constructor; accept no arbitrary
+string and do not collapse distinct kinds. This owner alone owns these data.
+The approved fragment is a non-locatable container: element_kind, to_payload,
+and dyn_kind_name use defaults. A new ElementKind/query payload needs new
+measurement and approval. Plain text and emptiness delegate to body.
+map_content transforms body exactly once and rewraps with the same kind;
+map_text recurses and preserves kind. get_field("body") returns body;
+get_field("kind") returns its kebab-case name; unknown fields return None.
+Public repr omits Other and otherwise prints kind before body. Explicit
+kind:"other" versus default was not distinguished and remains Unknown.
+Equality/hash are structural over kind and body.
 
-## `Element` e morfologia
+## Acceptance and limits
 
-- É contentor não-locatável no fragmento aprovado:
-  `element_kind`/`to_payload`/`dyn_kind_name` usam defaults. Não criar
-  `ElementKind` ou payload de query sem nova medição/gate.
-- `plain_text()` e `is_empty()` delegam ao body.
-- `map_content` transforma o body exatamente uma vez e reembrulha o mesmo
-  kind; `map_text` desce no body e também preserva o kind.
-- `get_field("body")` devolve o body e `get_field("kind")` devolve o nome
-  kebab-case. Outros campos devolvem `None`. A representação pública omite o
-  kind quando `Other` e inclui `kind` antes de `body` nos demais casos,
-  conforme a morfologia P1286 medida; `kind:"other"` explicitamente assente
-  não foi distinguido do default e permanece `Unknown`.
-- Igualdade/hash são estruturais sobre `kind` e `body`.
+Pure L1 imports no Layouter, stream, or exporter. Never return bare body:
+semantic identity must survive to layout/PDF. Body visual/plain text does not
+prove AT, reflow, or copy/paste behavior. Nested artifacts, multipage splitting,
+and per-PDF-version fallbacks for all twelve kinds remain Unknown outside the
+measured fragment. Local tests prove the twelve-name bijection, Other default,
+and preserved kind/morphology when mapping. Ownership remains 1:1; this prompt
+does not authorize content, layout, or export implementation.
 
-## Restrições e aceitação
+## Historical record
 
-- L1 puro; não importar Layouter, stream ou exporter.
-- Nunca devolver apenas o body: a identidade semântica precisa sobreviver até
-  o layout/PDF.
-- Visual e plain-text são os do body; isso não implica comportamento provado
-  em AT, reflow ou copy-paste.
-- Nested artifacts, fragmentação multipágina e fallbacks dos doze kinds por
-  versão PDF permanecem `Unknown` fora do fragmento medido.
-- O consumer mantém testes co-localizados que provam a bijeção dos doze nomes,
-  o default `Other` e a preservação de `kind`/morfologia ao mapear o body.
-- Ownership é 1:1. Este prompt não legitima content, layout ou export.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/pdf_artifact.md`. Historical observations are not a new parity certification.

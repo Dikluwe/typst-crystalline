@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "fb849b1edbb30586959ac8b79908fe43ca8e6243daa7a4781ae027d6c2a67425",
+    "result_sha256": "12e0728b4a2c3e5a0af44fe61e454b48db16dadc5ed709d36699a2aa427a5639",
+    "disposition": "Full observation element owner translated: SmartQuote gate, actual Cell A/B/presence approvals, private properties/derived stroke base and physical-versus-observed span distinctions; Raw/Transform ratifications preserved with all evidence and acceptance."
+  }
+]

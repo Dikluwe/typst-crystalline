@@ -8,10 +8,10 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
-- 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:fb383f227b0bcd8b1e61899942fa0383a4cda66093da58bda2e87844e2895d2a
-- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
-- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
+- 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:4b9f69ff41790a55a5b2d6a7b9982da858092e4bb2f0c503d6332a14a510e3ec
+- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:e9d6623a18ffc35f36051b280d96a75a0e4c1bd1768361a3a50c98587c568aef
 ```
 
 ## Current evidence
@@ -33,42 +33,42 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Identidade de documento e expressão — gate confirmado 2026-10-06
+## Document and expression identity
 
-### Evidência anterior à decisão
+### Evidence and approval
 
 `lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
-conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
-Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
-separam erro/warning do documento de erro da expressão: o documento perde sua
-fonte, enquanto a expressão recebe indevidamente o nome do documento.
-`01_core/src/compiler/eval/mod.rs:609-615` usa world.main() para Source e base;
-`04_wiring/src/eval.rs:66-95` repete esse id ao fornecer o primary ao formatter.
-`03_infra/src/world/cache.rs:58-78` registra arquivos e recicla o contador;
-`lab/typst-original/crates/typst-cli/src/eval.rs:159-179` e
-`lab/typst-original/crates/typst-cli/src/world.rs:176-190` distinguem expressão,
-stdin e ausência de entrada por identidade. A igualdade dos inteiros e o
-interner global upstream são mecânica, não requisito (ADR-0107). A origem
-mostrada, fonte, posição e resolução relativa são observáveis de linguagem.
+retains commands/sources/UTC/HEAD/changed tree and Tekt/vanilla binary hashes at
+historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Separate document
+error/warning and expression-error controls showed the document losing its source
+and the expression receiving the document's name. `compiler/eval/mod.rs:609–615`
+used world.main() for Source/base; `wiring/eval.rs:66–95` repeated that id for the
+formatter's primary source. `world/cache.rs:58–78` registers files/recycles the
+counter; upstream `typst-cli/src/eval.rs:159–179` and `world.rs:176–190` distinguish
+expression, stdin and absent-input identity. Integer equality/global upstream
+interning is mechanics, while displayed origin/source/position/relative resolution
+are language observables (ADR-0107). No new comparison with the current pin is
+claimed.
 
-### Decisão e escopo do gate
+Human `confirmo` on 2026-10-06 approved ADR-0127 gate, recorded in
+`lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json`.
 
-Compor for_stdin para documento vindo de stdin e source_for_expression para
-a expressão em todos os modos de eval. Compor as novas fachadas Source-based
-L3; não analisar expressão, alocar ids nem implantar lógica de eval em L4.
-Falha da fábrica de Source é erro de aquisição (exit 2) com mensagem explícita.
+### Contract and acceptance boundary
 
-No formatter existente, a Source primary é exclusivamente a expressão com
-nome <input-expression>. Documento físico, stdin, imports e callbacks são
-resolvidos pelo World por seus ids distintos. Preservar Source e bytes durante
-toda a execução e drenagem; nunca remapear todos os erros pelo input_path.
-Manter ordem de mensagens, hints/traces, códigos de saída e formato/pretty.
-Não modificar query/compile/stdin, flags ou fases neste pacote.
+Compose for_stdin for a stdin document and source_for_expression for every eval
+expression mode, using the Source-based L3 facades. L4 must not parse expressions,
+allocate ids or implement eval. A Source-factory failure is acquisition failure,
+exit 2 with an explicit message.
 
-Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
-Consumer exclusivo preservado; Hash do Código acompanha a materialização.
+The formatter's transient primary source is exclusively the expression, displayed
+as `<input-expression>`. World resolves physical document, stdin, imports and
+callbacks by distinct ids. Preserve Source and bytes throughout execution and
+diagnostic drain; never remap all errors through input_path. Preserve message
+order, hints/traces, exit codes and format/pretty. This package does not modify
+query, compile, stdin outside this composition, flags or phases.
 
-A composição de stdin fornece a cwd absoluta adquirida por std::env::current_dir
-para que seu caminho de diagnóstico seja <stdin> e a base física permaneça a cwd.
-Falha dessa aquisição segue exit 2; não adivinhar raiz alternativa.
+For stdin, supply absolute cwd acquired through `std::env::current_dir`: diagnostic
+name remains `<stdin>` and the physical import/read base remains cwd. Acquisition
+failure exits 2; do not guess another root. Preserve exclusive ownership; the code
+hash follows materialization. Source identity/presentation controls and existing
+eval diagnostics remain the acceptance boundary.

@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/bib_csl.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated private bibliography-plan preparation with preserved public cache/facades and explicit physical hanging/attribution/citation-grouping limits.",
+  "original_sha256": "453c3c6179f2cf11146d8217c9b3bd2556ec57e0f67a8cfa873d21dc1c248129",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/bib_csl.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

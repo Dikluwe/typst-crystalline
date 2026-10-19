@@ -1,0 +1,23 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/outline.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "45e84f4f0e5e1fe4ff62dfc445d5e60ec09d392a4c925c8f414ec64e860b0b64",
+    "result_sha256": "67180c510facb602601db3b5992a9f2bd8c2cbc5a2556e36e7cd4ab181fb15d1",
+    "disposition": "Full outline owner translated: causal Located projection, actual-application reuse and borrowed absence proof/fallback errors retained, quantitative allocation evidence unchanged."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/intercept.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "b3221e337133864d3201cd506ccb86a44cd4347d99407f41018d1e9a45d8f5d0",
+    "result_sha256": "4afd6725452a96d076978ffb0186dce2156bc4a898ca6981d42ae8738789eb8d",
+    "disposition": "Full interception translated with ratified A receipt and narrow Table-root-before-child contract; all broader scope exclusions retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/textual/matching/projection.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "7b5a4c61f6d1784d0c9c1a6ebb1e6a79530be7338a8d89d3016b88109efd83a9",
+    "result_sha256": "07c42e03be6a3db310b2fdfdfec6f7bf4cd6652552dc2ea3389ea35622dc9ddb",
+    "disposition": "Full pure projection reviewed, earlier unbounded flattening constrained by ratified causal boundaries; Source/UTF8/authored Sequence and Empty preservation/approval controls retained."
+  }
+]

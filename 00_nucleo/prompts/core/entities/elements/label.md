@@ -1,53 +1,45 @@
 # Prompt L0 — `entities/elements/label` — `LabelElem`
 Hash do Código: 228486e2
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/label.rs`
-**Origem**: P460 (destino nomeado para referências cruzadas). Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável** (sem `element_kind`/`to_payload`);
-`locatable.rs` lista `Content::Label` no bloco não-locatável.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/label.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
+## Evidence before specification
 
-## Struct
+The archived extraction record preserves the original source observations.
+These are historical anchors, not a fresh current-pin parity measurement.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct LabelElem {
-    pub name: EcoString,       // nome do destino: "sec1", "fig1", ...
-    pub body: Content,         // conteúdo ao qual o label está associado
+    pub name: EcoString,       // destination name: "sec1", "fig1", ...
+    pub body: Content,         // content associated with the label
 }
 ```
 
-`Content::Label { name, body }` → `Content::Label(Arc<LabelElem>)`.
-Construtor ergonómico: `Content::label(name, body)`. **Deriva `Hash`**
-(`EcoString` deriva `Hash`; `Content` tem `impl Hash` manual).
+## Behavior and acceptance
 
-## P1140.2 — distinção do valor `label`
+Preserve `Content::Label(Arc<LabelElem>)` and `Content::label(name, body)`.
+Derive Hash using EcoString and Content's existing hash. PartialEq compares
+name and body. Text and emptiness delegate to body; both maps recurse into
+body and preserve name. Field/kind/payload use defaults: non-locatable;
+locatable.rs explicitly classifies this variant in the non-locatable group.
 
-Medição: o vanilla rejeita `label("x", [body])`; o cristalino aceitava essa
-extensão. `LabelElem` não é o resultado do construtor público `label(name)`:
-esse resultado é `Value::Label`. `Content::Label`, `Content::label` e
-`Content::label_auto` permanecem mecanismos internos de associação,
-introspecção e fixtures Rust. Nenhum deles autoriza uma função pública de
-dois argumentos.
+The recorded vanilla probe rejects `label("x", [body])`. Public `label(name)`
+returns Value::Label, not LabelElem. Content::Label, Content::label, and
+Content::label_auto are internal association/introspection/Rust-fixture
+mechanisms; none authorizes a public two-argument constructor.
 
-## `impl Element for LabelElem`
+Layout boundary obligation: this wrapper renders body transparently and records
+the destination page/position in LayouterRuntimeState. Layouter::finish exposes
+it through PagedDocument.extracted_label_pages and extracted_label_positions.
+The entity does not implement this rendering/registration. Verify body
+transparency, recursive maps, name preservation and equality.
 
-| método | comportamento |
-|---|---|
-| `plain_text` | `self.body.plain_text()` |
-| `is_empty` | `self.body.is_empty()` |
-| `map_content` | **recursivo** no `body`, preserva `name` |
-| `map_text` | **recursivo** no `body`, preserva `name` |
-| `get_field`/`element_kind`/`to_payload` | default |
+## Historical record
 
-## `eq`
-
-`#[derive(PartialEq)]` compara `name`/`body`.
-
-## Semântica de layout
-
-`Content::Label` é um wrapper transparente: o `body` é renderizado
-normalmente. O layout regista o destino (página + posição) em
-`LayouterRuntimeState`, que `Layouter::finish()` expõe via
-`PagedDocument.extracted_label_pages` e `extracted_label_positions`.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/label.md`. Historical observations are not a new parity certification.

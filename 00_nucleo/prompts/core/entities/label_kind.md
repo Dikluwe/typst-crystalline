@@ -5,7 +5,7 @@ Hash do Código: f91e98da
 **Exclusive consumer:** `01_core/src/entities/label_kind.rs`
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml sha256:5dde6e7f84150a121e671dab0d174798e8b56f24355147c1bcc471d6babd69ed
+- 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml sha256:b19634c84ea14e71d8e352c96bbe5097a02a074b8c5a3009e80d761d1a90a182
 
 ## Contract
 

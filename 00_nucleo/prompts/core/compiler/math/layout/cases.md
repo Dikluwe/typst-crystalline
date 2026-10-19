@@ -38,23 +38,30 @@ Acceptance covers row order, late alignment splitting, denominator style,
 both orientations, optional sides, relative gap and explicit/cascade/default
 precedence, with no public carrier mutation.
 
-## Identidade do delimitador de cases
+## Semantic delimiter identity
 
-Na sonda `.typ/sec_09.typ` do diagnóstico `typs-teste-2026-09-30`, a
-chave montada é extraída como glifos de construção (`⎧`, `⎨`, `⎩` e barra),
-embora seu sinal na linguagem seja a chave de abertura. Ao compor a caixa de
-`cases`, preservar os itens visuais da peça delimitadora num único
-`TextReplacement` com o caractere pedido pelo carrier. Não alterar a
-política comum de seleção/estiramento nem a geometria da grade.
+The .typ/sec_09.typ probe in typs-teste-2026-09-30 extracts an assembled brace as
+construction glyphs (`⎧`, `⎨`, `⎩` and bar), although its language sign is the
+opening brace. When composing cases, retain the delimiter's visual items in
+one TextReplacement with the character requested by the carrier. Do not alter
+shared selection/stretching policy or grid geometry.
 
-## Helpers e armazenamento sem uso — 2026-10-13
+## Unused local wrapper boundary
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`01_core/src/compiler/math/layout/cases.rs` nas linhas 23 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+compiler/math/layout/cases.rs:23 contains the historical Clippy inventory item.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`
+retains sources, owners, references, UTC, status and diffstat. Call-site research
+and productive paths precede classification; this is neither new parity nor
+performance evidence.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Compilar o helper interno `layout_cases` somente sob `#[cfg(test)]`, conservando assinatura e corpo para os testes existentes. O despacho produtivo usa layout_cases_elem; o wrapper de rows/delim/reverse/gap continua disponível somente para testes.
-
-Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.
+Compile internal layout_cases only under `#[cfg(test)]`, preserving signature
+and body for existing tests. Productive dispatch uses layout_cases_elem; the
+rows/delim/reverse/gap wrapper is test-only. Preserve productive routes, existing
+test names/bodies, external APIs, defaults and phase. ADR-0127 internal continuous
+flow applies. Revalidate all workspace-target build/check, core suite, test
+inventory, Clippy and lineage; do not remove expectations to pass the gate.

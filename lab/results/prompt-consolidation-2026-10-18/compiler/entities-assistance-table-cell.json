@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/entities/elements/table_cell.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "84ace7cf40c5e24d9dd606fcf7bbb99ad69ce899c3122189451f550699224d24",
+    "result_sha256": "cb13b4c6ca194cce15b9833702d4c2ef636c8135897051bd4a8454c9b285a941",
+    "disposition": "Full338-line entity read/translated: preserved exact public carriers/presence types, accessibility proposal approval gap, actual A/B/presence/Memory5 gates, C coexistence supersedes mutual exclusion, active visual versus generic map priority distinguished, stroke/base/plan-paint and change-aware map gates retained."
+  }
+]

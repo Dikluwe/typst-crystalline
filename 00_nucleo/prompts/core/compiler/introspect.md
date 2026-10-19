@@ -3,7 +3,7 @@ Hash do Código: 7d367f7e
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
 ```
 
 ## Ownership and evidence
@@ -23,7 +23,7 @@ This owner retains the public `introspect` compatibility wrapper and
 coordinates the static child units. The behavioral owners for bibliography
 conversion, concrete queries, entrypoints, outline synthesis, time
 materialization, store population, parent indexing, target classification and
-causal traversal are respectively the individual Prompt L0 files under `00_nucleo/prompts/compiler/introspect/`.
+causal traversal are respectively the individual Prompt L0 files under `00_nucleo/prompts/core/compiler/introspect/`.
 Their extraction preserves the contracts below as shared context and does not
 introduce a second implementation. The parent wrapper remains the sole
 productive behavior of this owner. Child owners specify payload extraction
@@ -48,8 +48,11 @@ They do not evaluate deferred functions.
 
 `introspect_with_runtime(content, engine, ctx) -> SourceResult<TagIntrospector>`
 performs that preparation and one walk, then coordinates the child-owned
-runtime passes: state functions, counter functions, state displays, counter
-displays, equation numbering, equation supplements, equation realization.
+runtime passes: counter functions, fallible State runtime reads/displays, counter
+displays, equation numbering, equation supplements, equation realization and
+Heading finalization before queries. The separately ratified demand-driven State
+reader contract supersedes automatic eager State replay; the explicit legacy
+helper remains child-owned.
 Fallible passes propagate diagnostics. This API processes supplied content;
 it does not reevaluate the whole document or establish pipeline convergence.
 
@@ -113,7 +116,11 @@ retain absent snapshots and their contracted projections; equation runtime
 realization belongs to the postprocessing child. Never recover a snapshot
 from body equality, a later caller's styles or synthetic TOC labels.
 
-Time materialization freezes location-aware CounterDisplay text while keeping\nsemantic container structure and existing Boxed width_fraction data. It does\nnot query the counter anew at outline render time or reinterpret box fractions.\n\n## Indexes, actions and labels
+Time materialization freezes location-aware CounterDisplay text while keeping
+semantic container structure and existing Boxed width_fraction data. It does
+not query the counter anew at outline render time or reinterpret box fractions.
+
+## Indexes, actions and labels
 
 The effective chain is the source of numbering gates; payload fields freeze
 their values for consumers that no longer have that chain.
@@ -212,48 +219,53 @@ are recorded in
 `lab/results/construction/diagnostics/sanitization-introspection-columns-history.md`.
 
 
-## Realização com avaliação única
+## Single-evaluation identity reservation boundary
 
-Serviço interno de reserva de IDs do walk é acessível a layout, mantendo ownership do algoritmo em introspect/walk.
+The internal walk identity-reservation service is accessible to layout, while
+algorithm ownership remains in
+`00_nucleo/prompts/core/compiler/introspect/walk.md`.
 
-## A1-S2 — import nominal de operações State
+## State import evidence and current facade boundary
 
-Medição: state-green.log do diagnóstico lote-a1-callbacks-reflexao-seletores-2026-10-17
-registra import StateUpdate sem uso após populate delegar ações ao registry.
-Retirar somente esse import do hub; from_tags conserva seu import próprio e o
-helper público de aplicação explícita legada. A fase automática de leitura foi
-ratificada em A1-S2, revisão SHA-256
-6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
-Não mover a lógica dos filhos nem ampliar qualquer contrato deste hub.
+state-green.log in
+`lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17`
+records an unused StateUpdate import after populate delegates actions to the
+registry. Remove only that import from this hub. from_tags retains its own
+import and public legacy explicit-application helper. The automatic read phase
+was separately ratified in
+`lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md`,
+SHA-256 `6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4`.
+Move no child logic and expand no hub contract.
 
+## Ratified Heading finalization before queries
 
-## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
+### Evidence and approval
 
-### Medição anterior à decisão
+HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted working tree;
+`final-freeze.json.gz` and `target-controls.json.gz` in
+`lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17`
+record UTC/diffstat/sources/argv. Pin:
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`.
+`heading-raw-constructor-func` passes on baseline/vanilla and fails on the
+candidate because transport `Styled` changes `func`. Query also observes a
+temporary causal wrapper; HTML ignores a panic callback. Sources:
+`walk.rs:930–945`, `pipeline/paged.rs:419–427`, `pipeline/html.rs:101–106`
+prepare queries through the pure walk. These are language values/errors, not a
+requirement to copy vanilla's structure or algorithm. The owner confirmed A1-H2
+on 2026-10-17 in
+`lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md`,
+SHA-256 `66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c`.
 
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
-final-freeze.json.gz e target-controls.json.gz no diagnóstico
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
-UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
-Styled de transporte altera func. Query também vê wrapper causal temporário;
-HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
-pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
-de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
-Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
-SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
+### Exclusive facade and acceptance
 
-### Responsabilidade exclusiva
+Reexport entrypoints' new realize_heading_supplements facade with its exact
+ratified A1-H2 public contract. No realization logic belongs in this hub and no
+new trait is authorized.
 
-Reexportar a nova fachada realize_heading_supplements de entrypoints, com o
-contrato público exato A1-H2. Sem lógica de realização neste hub nem novo trait.
-
-### Aceitação e limites
-
-H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
-público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
-cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
-callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
-fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
-comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
+Require H1–H8 in the ratified review, with bilateral RED before code. No public
+contract beyond the Heading facade is authorized by H2; A1-S2 separately covers
+five State helpers. No new public fields. Ordinary `Styled` and other callbacks
+retain their boundaries. Require workspace/doctests/build/Clippy/Rustdoc, fmt,
+V1/V5/V15/V26/reverse lineage and no V16 increase; use
+12GiB/High 8 GiB/swap0/jobs1 with heavy commands sequential. RAM gain requires
+measurement, not intention.

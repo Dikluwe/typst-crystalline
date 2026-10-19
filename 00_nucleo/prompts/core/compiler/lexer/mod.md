@@ -3,7 +3,7 @@ Hash do Código: 68015269
 
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml sha256:aae80d538980eeec87b884712269e3b777fe44c0dae6b3503b5fa9ee4f9ad76f
+- 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml sha256:8ac65bcca69910f497bdf8a35ad55ac1fdeb628ae05aca729295caf22d213a31
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/lexer/mod.rs`
@@ -44,14 +44,34 @@ boundaries, mode isolation, newline/column behavior and pending diagnostics.
 Do not infer language parity from matching tokenization code.
 
 
-## Nomes de domínio e traits Rust — 2026-10-16
+## Domain method and Rust trait boundary
 
-### Medição anterior à decisão
+### Evidence before decision
 
-Lexer.next aparece no inventário Clippy de 13 avisos. A assinatura e o corpo vigentes foram lidos antes desta decisão; snapshot lab/results/construction/diagnostics/clippy-traits-formatacao-2026-10-16/before.json.gz conserva fontes/L0 completos, hashes globais, HEAD, working tree não commitado, UTC e diffstat. O contrato de retorno difere do trait sugerido. É comparação de interfaces Rust, sem nova medição de paridade ou benefício de leitura por IA.
+Lexer.next appears in the historical Clippy inventory of 13 warnings. The
+existing signature/body were read before this decision;
+`lab/results/construction/diagnostics/clippy-traits-formatacao-2026-10-16/before.json.gz`
+preserves complete sources/L0, global hashes, HEAD, uncommitted working tree,
+UTC and diffstat. Its return contract differs from the suggested trait. This
+is Rust-interface comparison, not new parity evidence or a measured AI-reading
+benefit.
 
-### Responsabilidade exclusiva e aceitação
+### Exclusive responsibility and acceptance
 
-Preservar next(&mut self) -> (SyntaxKind, SyntaxNode), token End explícito inclusive em chamadas repetidas ao fim, erros/newline e mudança de modo pelo parser. Não implementar Iterator nem alterar o retorno para Option. Corrigir somente a descrição do tipo para tokenizer com sentinela explícita; next recebe expectativa nominal de should_implement_trait.
+Preserve next(&mut self) -> (SyntaxKind, SyntaxNode), explicit End tokens even
+on repeated calls after EOF, errors/newline and parser-controlled mode changes.
+Do not implement Iterator or change the return to Option. Correct only the
+type's description to tokenizer with an explicit sentinel; next receives the
+named should_implement_trait expectation.
 
-Usar somente #[expect(clippy::should_implement_trait, reason="S001: tokenizer com token End explícito e modo/cursor controlados pelo parser; retorno não é Option")] sobre o método nomeado. Não suprimir módulo/impl/crate, elevar limiar ou estender a exceção a Styles::from_iter. Implementar o trait proposto aqui exigiria contrato novo ou semântica diferente; a exceção preserva o contrato existente. Fluxo contínuo ADR-0127 para metadados/documentação, sem API, default ou fase novos. L0 primeiro e resselo restrito; RED do lint e GREEN incluindo unfulfilled_lint_expectations como erro; preservar corpos e usar os testes funcionais existentes sem alterar esperados. Validar workspace/build/Clippy/doc/fmt/linhagem sob 12 GiB, swap zero e um job.
+Use only the exact attribute
+`#[expect(clippy::should_implement_trait, reason="S001: tokenizer com token End explícito e modo/cursor controlados pelo parser; retorno não é Option")]`
+on the named method. The Portuguese reason is machine metadata and remains
+verbatim. Do not suppress the module/impl/crate, raise a threshold or extend
+this exception to Styles::from_iter. Implementing the suggested trait here would
+require a new contract or different semantics; the exception preserves the
+existing contract. ADR-0127 continuous flow applies to metadata/documentation,
+with no new API, default or phase. L0 first and restricted resealing; measure
+lint RED and require GREEN with unfulfilled_lint_expectations as an error.
+Preserve bodies and existing functional tests without changing expectations.
+Validate workspace/build/Clippy/doc/fmt/lineage under 12 GiB, zero swap and one job.

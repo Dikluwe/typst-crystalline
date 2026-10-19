@@ -1,29 +1,24 @@
 tekt = 1
 kind = "nucleus"
 id = "svg-destination-context"
-title = "Contexto de destinos internos para SVG paginado"
-
+title = "Internal destination context for paged SVG"
 [[claims]]
 id = "same-page-registry"
 level = "must"
-statement = "O contexto SVG de uma página deriva labels e posições do PagedDocument e inclui somente destinos pertencentes à página exportada."
-
+statement = "A page SVG context derives labels and positions from PagedDocument and includes only destinations on the exported page."
 [[claims]]
 id = "closed-edge"
 level = "must"
-statement = "Uma aresta LinkTarget::Destination só é emitida como link interno quando o mesmo contexto contém um nó de destino correspondente e resolvido."
-
+statement = "A LinkTarget::Destination edge is emitted as an internal link only when the same context contains a matching resolved destination node."
 [[claims]]
 id = "single-identity"
 level = "must"
-statement = "A aresta e o nó usam a mesma identidade local determinística; a ortografia concreta do id não é observável da linguagem."
-
+statement = "Edge and node use the same deterministic local identity; concrete id spelling is not a language observable."
 [[claims]]
 id = "no-dangling-cross-page"
 level = "must-not"
-statement = "Destino ausente, cross-page ou sem rota externa explícita é emitido como fragmento href pendente ou como falso link preservado."
-
+statement = "A missing, cross-page destination or one without explicit external routing is emitted as a dangling href fragment or falsely preserved link."
 [[claims]]
 id = "routing-authority"
 level = "must"
-statement = "Política de nomes de ficheiro, bundle ou rota cross-page pertence ao caller de composição e não é inventada pelo exporter SVG de uma página."
+statement = "Filename, bundle and cross-page routing policy belongs to the composition caller and is not invented by a single-page SVG exporter."

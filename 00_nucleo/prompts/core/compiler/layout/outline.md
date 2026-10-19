@@ -2,7 +2,7 @@
 Hash do Código: 61b301dc
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:4e487a99ea1f1e82a67dfaced0958f98392fb26b1a7d292355230d6ffa7f2d0b
+- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/outline.rs`
@@ -12,7 +12,9 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/outline.rs:23`, `01_core/src/compiler/layout/outline.rs:78`, `01_core/src/compiler/layout/outline.rs:192`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
+
+`lab/results/construction/diagnostics/links-paginacao-2026-10-14.md` and receipts under `posicoes-compostas-2026-10-14/automatic-boundary-probes` record sources, HEAD/dirty tree/UTC, binaries and vanilla pin. On a 160×40pt page with 10pt margins, ordinary text crosses the break; Link URL, Ref and Ref Page abort with a stale index after buffers are emptied. `references.rs:270` appears in the stack; `link.rs:22-32` uses the same mechanism. `outline.rs:28-50` likewise saves indices before the body. Clamping the index proves neither preservation of prefix/order/fragments/destination nor geometry. The pre-repair snapshot is `lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz`. Content, destination, regions and bounds are observables; private boundaries are mechanics.
 
 ## Ownership and contract
 
@@ -20,31 +22,10 @@ This prompt owns only the named consumer. State storage and general coordination
 
 For Figures and Tables targets retain the existing LoF/LoT paths, optional title or English default, numbered caption text and page suffix from the corresponding known-page vector by document-order index. For Headings, dispatch an available realized body rather than rebuilding entries; close a material exterior line before it and the realized terminal line after it, rearming the block boundary. The current consumer also retains a legacy fallback when no realized body exists: localized title, depth/active-indent filtering, stored heading number without supplement, cloned rich body and known label page, under the existing read-only flag. Do not remove this fallback under the guise of documentation. The private destination-link helper dispatches its body, requests fractional/repeat expansion through `00_nucleo/prompts/core/compiler/layout/line_commit.md` before closing the private capture scope; terminal geometry computes fragment bounds through `00_nucleo/prompts/core/compiler/layout/link.md`, preserving all copies and their internal destination. It does not implement repeat allocation itself. The realized-outline fail-closed proposal and the surviving fallback are a contract ambiguity requiring separate resolution.
 
+The internal-link helper uses the shared private scope. Preserve required fraction/repeat expansion before closing that scope, and every destination, copy and outline rule. Do not move committed emission into the pending line. This internal correction under ADR-0127 introduces no API, default or phase.
+
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-## Captura de links através de fronteiras — 2026-10-14
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
-posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
-HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
-texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
-antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
-link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
-antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
-fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
-Os observáveis são conteúdo, destino, regiões e bounds; limites privados
-são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
-
-### Contrato deste owner
-
-O helper de link interno usa o escopo privado comum. Preservar a expansão já exigida de fractions/repeats antes do fechamento do escopo e todos os destinos, cópias e regras de outline. Não mover emissão comitada para a linha pendente.
-
-Aceitação: RED→GREEN de quebras antes/dentro do corpo, preservação de
-prefixo/sufixo, regiões, destinos/bounds, corpo rico/aninhamento/colunas,
-conteúdo diferido, contexto/rollback e ausência de limites privados na saída.
-Revalidar os controles sem quebra e a suíte, build e linhagem.
+Require RED→GREEN for breaks before/within the body, preserved prefix/suffix, regions, destinations/bounds, rich body/nesting/columns, deferred content, context/rollback and no private boundaries in output. Revalidate no-break controls, the suite, build and lineage. The realized-outline fail-closed proposal versus the surviving fallback remains explicitly unresolved.

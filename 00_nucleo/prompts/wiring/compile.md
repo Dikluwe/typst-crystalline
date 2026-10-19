@@ -2,12 +2,12 @@
 Hash do Código: 561e2ab5
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
-- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
-- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
-- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:391cd1604976262b1b6e019b802ed72e78782260d2788bb04999297559605509
-- 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:7ec137b6996e0ea442e3cdda52ce723fd32cb67338ab363b7ff2d733458ef8fa
-- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:4b9f69ff41790a55a5b2d6a7b9982da858092e4bb2f0c503d6332a14a510e3ec
+- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0f2985807cc3c7b4aeed9a5a26b77ad66dbbdb67ccfb43ba8336dbc8e8eea1a5
+- 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:c7f9b3d18b112b1d725e082b7da75b886bf7120346ffbca911c236ea65c52986
+- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:e9d6623a18ffc35f36051b280d96a75a0e4c1bd1768361a3a50c98587c568aef
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/compile.rs`
@@ -44,233 +44,204 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## `--pdf-standard` no target bundle — proposta pendente de gate ADR-0127 (2026-09-30)
+## Evidence supporting specialized contracts
 
-### Medição anterior à decisão
+The original clauses and construction limits are archived at
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/wiring/compile.md`.
+The following measurements are historical evidence, not fresh certification of
+the current upstream pin.
 
-A sonda `lab/results/construction/diagnostics/pdf-standard-bundle-2026-09-30/results.json`
-mede PDF isolado sem título rejeitado sob `--pdf-standard=ua-1` e PDF de
-bundle sem título publicado sob a mesma flag. `04_wiring/src/compile.rs:155`
-limita a construção de `standard_override` ao target PDF direto; em
-`04_wiring/src/compile.rs:325`, o campo homólogo de `BundleCompileOptions`
-recebe consequentemente `None`. `03_infra/src/pipeline/bundle.rs` já resolve
-esse campo por entrada. A hipótese de falta de fio é refutada se o bundle
-receber Some(PdfStandards) para essa flag; o código medido envia None.
+- `lab/results/construction/diagnostics/pdf-standard-bundle-2026-09-30/results.json`
+  observes missing-title direct PDF rejection under `--pdf-standard=ua-1` while a
+  bundle PDF is published. `compile.rs:155` constructs standard_override only for
+  direct PDF; `:325` therefore passes None into BundleCompileOptions. L3 bundle
+  already resolves the field per entry. The missing-connection hypothesis is
+  refuted by Some(PdfStandards) reaching bundle; the measured code sent None.
+- `compile-stdin-2026-10-06/before.json.gz` retains HEAD/tree/UTC, sources/commands/
+  binary SHA-256. With physical file `-` containing #unknown_physical and separate
+  stdin, Tekt read the file; historical vanilla
+  `9f2b6e8715237cb086899a42873660fe744622e8` read stdin. `compile.rs:223–270` always
+  built SystemWorld::new; `world.rs:102–106` already offered for_stdin without a
+  physical read. Upstream `args.rs:164` explicitly documents `-` as stdin,
+  world.rs:222–242 validates root/selects stdin identity, :282–290 acquires bytes.
+  The documented option establishes intent; FileId/lazy acquisition is mechanics.
+  Origin/diagnostics/resources/results are observable. The World-selection cause
+  is refuted if only that composition change fails to preserve control inputs/results.
+  green.log records residual RED for stdout, where compile.rs:487–492 wrote all
+  non-bundle outputs with std::fs::write. after.json.gz root_error refutes an
+  unconditional `<stdin>` caption: root project under parent cwd displays
+  `project/<stdin>:1:1`.
+- `plano-debitos-2026-10-06/before.json.gz` measures warning/error order;
+  upstream compile.rs:779 chains errors before warnings, contrary to the old
+  local/ADR-0045 §8 order. Human `confirmo` on 2026-10-06 approved the amendment,
+  candidates/hashes in
+  `lab/history/construction/records/00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json`.
+  `warnings-cli-2026-10-06/before.json.gz` HTML warning/error/only controls refute
+  placing experimental warnings after domain warnings. Internal warning order
+  survives; only errors move ahead.
+- `watch-retencao-2026-10-07.md` records HEAD/tree/binaries/UTC, actual edits,
+  recovery and dynamic acquisition counts. `watch-validacao-2026-10-07/measurement.json`
+  compares discovery validation versus full acquisition at the same state;
+  controls.json covers added/removed/replaced/restored-mtime fonts, links and
+  configuration. Costs are isolated, not a CLI speedup or upstream-intent proof.
+  FontBook/slots/coverage must preserve language selection/content/diagnostics/
+  render; Arc/duration are mechanics. Cost, stale resources, regression or unbounded
+  retention refute the possible-benefit inference. Fixtures/provenance/limits
+  remain in those reports. Owner `Confirmo` ratified
+  `lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json`;
+  receipt `watch-catalogo-execucao-2026-10-07/ratification.json`, under ADR-0127
+  §2.1/§2.2 with 1:1 ownership.
+- `incremental-prioridade6-2026-10-08/{before.json.gz,measurement.json.gz,control-measurement.json.gz,count.json}`
+  records tree/HEAD/UTC/commands/releases. Source::new rebuilds CST and new World
+  rebuilds main/import Sources per edit; a minimal import also costs eval_ms, so
+  not all of that metric is parsing. Source/id/path identity follows existing
+  owners; reuse is mechanics preserving language observables. Cost, diagnostics,
+  effects, stale source, geometry or different identity refute the benefit
+  hypothesis. No upstream intent is inferred; the source-session contract is
+  ratified as recorded in the archive.
 
-### Contrato proposto, ainda não vigente
+## Bundle-standard proposal: gate remains pending
 
-Se autorizado, L4 valida a lista explícita de standards por
-`PdfStandards::new` nos targets PDF e Bundle, mantendo ausência como `None`.
-Passa esse `Option<PdfStandards>` a `BundleCompileOptions` sem reconstruir
-opções por entrada. A pipeline L3 aplica a precedência caller > documento >
-default e suas validações PDF somente às entradas PDF; erros impedem a
-publicação da coleção. O gate CLI-only de standard acessível versus tags
-permanece no PDF direto; o bundle usa o gate documental por entrada. O
-resto da ordem pré-World e dos targets não PDF permanece igual. Esta
-proposta altera o efeito observável da flag no bundle e **não autoriza L4**
-antes da confirmação ADR-0127. Depois da confirmação, atualizar o contrato
-vigente, ressellar este owner e verificar RED→GREEN.
+If authorized, L4 validates explicit standards with PdfStandards::new for direct
+PDF and Bundle, preserving absence as None, and passes Option<PdfStandards> to
+BundleCompileOptions without rebuilding each entry's options. L3 applies
+caller > document > default and PDF validation only to PDF entries; errors block
+publication of the collection. Accessible-standard/tag CLI-only checks remain
+for direct PDF; bundle validates documents per entry. Other pre-World order and
+non-PDF targets stay the same. This changes the flag's observable effect and
+requires owner ADR-0127 confirmation before implementation. After approval,
+update/reseal the current owner and verify RED→GREEN. No other historical
+unratified proposal is authorized by the session or carrier work below.
 
-## Compilação de stdin com saída explícita — 2026-10-06
+## Stdin and stdout composition
 
-### Medição anterior à decisão
+For input exactly `-`, validate/canonicalize the root already resolved by L2,
+acquire stdin bytes once, accept partial BrokenPipe as the pin does and validate
+UTF-8. Missing root exits 1 with `root directory not found (searched at ...)`;
+invalid UTF-8 exits 1 with `file is not valid UTF-8` and the extensionless-file
+hint. Other acquisition failures exit 2 with operational diagnostics. Invoke
+the status callback once before diagnostics on exits in this branch.
 
-`lab/results/construction/diagnostics/compile-stdin-2026-10-06/before.json.gz` conserva
-HEAD/árvore/UTC, fontes, comandos e SHA-256 dos binários. Com arquivo físico
-`-` contendo #unknown_physical e stdin independente, compile - abre esse
-arquivo no Tekt; o pin 9f2b6e8715237cb086899a42873660fe744622e8 usa stdin.
-`04_wiring/src/compile.rs:223-270` compõe SystemWorld::new para toda entrada;
-`03_infra/src/world.rs:102-106` já fornece for_stdin sem leitura física.
-`lab/typst-original/crates/typst-cli/src/args.rs:164` documenta explicitamente
-`-` como stdin; world.rs:222-242 valida raiz e seleciona a identidade stdin,
-world.rs:282-290 adquire bytes. A opção documentada comprova intenção;
-a estrutura de FileId e a aquisição lazy upstream são mecânica (ADR-0107).
-Origem, diagnóstico, recursos e resultado são observáveis. A inferência de
-que a seleção de World causa a diferença é refutada se trocar somente essa
-composição não preservar a entrada/resultado nos controles.
+Compose SystemWorld::for_stdin using acquired text and unchanged font/input/CA/
+plugin builders. Never open physical `-` or create a document file. Imports/read
+use the supplied root; stdin retains causal identity and cwd-relative diagnostics/
+traces without renaming import origins. Feed the existing Source through all
+format/timing branches, preserving publication/warnings/phases and public
+signatures/flags. Root/caption uses the existing formatter and World's synthetic
+root/<stdin>, not an overriding primary: cwd-root displays `<stdin>`, a child root
+displays `project/<stdin>`. Preserve both bilateral controls and explicit-root
+traces; correct expectations from the recorded upstream refutation.
 
-### Contrato e aceitação
+Publish output exactly `-` through stdout.lock().write_all at the existing
+non-bundle publication point using identical exported bytes/error handling.
+This also applies to physical input. Bundle refuses stdout before World;
+watch also refuses stdout. The physical file `-` must not be overwritten.
 
-Para input exatamente `-`, validar/canonicalizar a raiz já resolvida por L2,
-adquirir bytes de stdin uma vez, aceitar BrokenPipe parcial como o pin e
-validar UTF-8. Raiz ausente sai 1 com root directory not found (searched at ...);
-UTF-8 inválido sai 1 com file is not valid UTF-8 e o hint de arquivo sem extensão.
-Outras falhas de aquisição saem 2 com diagnóstico operacional. Status callback
-é chamado uma vez antes do diagnóstico nos exits deste ramo.
-Compor SystemWorld::for_stdin com texto adquirido e os mesmos builders de
-fontes/inputs/CA/plugins. Não abrir `-` nem criar arquivo para o documento.
-Imports/read usam a raiz fornecida; diagnósticos e traces mantêm a identidade
-stdin com caminho relativo à cwd, sem renomear origens de imports.
-Passar a Source existente aos mesmos braços de formato/timings, preservando
-publicação, avisos e fases. Não alterar assinaturas públicas ou flags.
+Black-box regressions distinguish stdin from file `-`, PDF file/stdout,
+SVG/PNG/HTML, inputs/import/read under explicit root, causal error/trace,
+`**` warning and invalid UTF-8. Assert success/status/stderr and PDF signature
+on stdout; compare language/diagnostics, not entire PDF/SVG bytes or internal ids.
+This internal parity repair follows continuous ADR-0127 without public/default/
+phase changes. The original stdin slice explicitly left required-output parsing
+incomplete; that separate L2 obligation is now specified by
+`00_nucleo/prompts/shell/cli.md`, not implemented here. The earlier slice's
+warning/error-order preservation is superseded only by the approved order below.
 
-Regressões black-box devem distinguir stdin de um arquivo `-`, validar PDF
-em arquivo/stdout, SVG/PNG/HTML, inputs/import/read com raiz explícita, erro
-e trace causal, warning de ** e UTF-8 inválido. Comparar conteúdo de linguagem
-e diagnósticos, não bytes inteiros de PDF/SVG nem números internos de ids.
-O parser ainda deriva output quando omitido; a validação de output obrigatório
-para stdin não pertence a este recorte e permanece pendência explícita.
-Correção interna de paridade em fluxo contínuo ADR-0127, sem contrato público,
-default novo ou mudança de fase. Não alterar a ordem warning/error existente.
+## Diagnostic order
 
-### Saída stdout — evidência adicional antes do reparo
+Observed status precedes every diagnostic. Failure drains errors, experimental
+format warnings, domain warnings and finally operational errors. Success keeps
+experimental warnings before domain warnings. Preserve message/span/hint/trace,
+color, exit and publication. The approved amendment changes only error placement;
+warning order remains intact.
 
-`green.log` mantém o RED residual: compilação aceita stdin, mas a saída `-`
-não chega a stdout. `04_wiring/src/compile.rs:487-492` usa std::fs::write
-para todos os outputs não-bundle; before.json.gz conserva PDF em stdout no
-vanilla. Encaminhar output exatamente `-` a stdout.lock().write_all no mesmo
-ponto de publicação, com os mesmos bytes exportados e tratamento de falha.
-Vale também para entrada física; bundle continua rejeitado antes do World e
-watch continua rejeitando stdout. Exigir que o arquivo físico `-` não seja
-sobrescrito, com sucesso/status/stderr e assinatura de PDF em stdout.
+## Optional watch-resource sessions
 
-### Refutação de legenda incondicional — coleta after.json.gz
+Keep public run_compile and run_compile_observed compatible, delegating ordinary
+compile without sessions. A private/pub(super) observed helper accepts optional
+Arc<FontCatalogSession>; None retains with_fonts_and_system, Some uses
+with_font_catalog_session with unchanged font_paths. Only watch supplies it.
+Build a new SystemWorld every call; preserve validations/inputs/CA/plugins/source
+before pipeline, existing deps/exit/input-kind/Published return, stdout/stdin,
+all targets and option/export/PDF-publication precedence. No phase/diagnostic/
+flag/timer change, global session or prior-World reuse.
 
-O controle root_error refuta a expectativa inicial <stdin> sob qualquer raiz:
-com --root project e cwd pai, o pin apresenta project/<stdin>:1:1. Usar o
-formatter existente e o caminho sintético root/<stdin> do World, sem primary
-que substitua o caminho por <stdin>. Na raiz cwd o nome é <stdin>; em raiz
-filha é project/<stdin>. O conteúdo e o id causal permanecem os mesmos.
-Corrigir a expectativa de teste pela sonda upstream, preservando os dois
-nomes no controle bilateral, inclusive o trace sob raiz explícita.
+Transport optional Arc<SourceSession> through the same private helper alongside
+the catalog session. Public compile/observed signatures do not change and pass
+no syntax session. Physical input with a session uses new_with_source_session
+before eager reading; no session/transient input keeps the existing path. L4
+implements no validation/cache algorithm. Preserve errors, inputs/font_paths/
+plugins/cert/targets/staging/deps/timers and diagnostic order.
 
-## Ordem de diagnósticos de compile — gate confirmado ADR-0127
+Acceptance: RED→GREEN; production counts separate from timing; three paired CLI
+rounds against the archived prior release, startup/RSS and invalidation/identity/
+effects/Unicode/diagnostic/assets/font/geometry controls. Reseal only this owner,
+run relevant builds/suites and lint with zero errors. Do not close full
+incrementality or call unrepeatable/regressing retention an optimization.
 
-before.json.gz/plano-debitos-2026-10-06 mede warning-error contra o pin:
-compile.rs:779 upstream usa errors.iter().chain(warnings). O contrato local e
-ADR-0045 adendo §8 mandam o contrário, a substituição foi confirmada pelo dono no gate de 2026-10-06.
-Status observado continua antes de qualquer diagnóstico. Em falha, drenar
-errors primeiro; depois warnings experimentais de formato, warnings do domínio,
-e por último erros operacionais. Em sucesso, preservar warnings experimentais
-antes dos warnings do domínio. Não alterar mensagem/span/hint/trace, cor, exit ou publicação.
+## Internal Rust expression and lint boundaries
 
-Gate confirmado pelo humano em 2026-10-06 (resposta confirmo), com candidatos
-e hashes preservados em lab/history/construction/records/00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
+### Evidence
 
-Refinamento medido antes da materialização: warnings-cli-2026-10-06/before.json.gz,
-controles compile-html-warning-error/only, refuta colocar experimental após domínio.
-A ordem interna dos avisos upstream permanece preservada; somente errors passam à frente.
+`ci-simplificacoes-2026-10-14/before.json.gz` retains source/owner/spans, HEAD/
+uncommitted tree/UTC/diffstat; red.log records selected lints as errors before
+editing. compile.rs lines 523/547 contain the flagged expressions, with types/
+uses checked under pinned toolchain 1.92.0. `type-complexity-2026-10-15/before.json.gz`
+retains HEAD/tree/UTC/diffstat/sources/owners/hashes; red-clippy.log fails before
+editing at compile.rs:174 (archived inventory item C128). Inspection distinguishes
+positional tuples, repeated FontKey aliases and existing explicit static contracts.
+These are Rust-representation maintenance, not new parity, functional bug or
+AI-benefit measurements.
 
+### Contracts and acceptance
 
-## Medição anterior à decisão de retenção ratificada
+Both timing-write paths already have &PathBuf: pass path directly to std::fs::write,
+preserving calls/path/JSON/error handling/publication/status order. No acquisition/
+pipeline change, new public API/default/phase/unsafe/dependency/lint suppression.
+L0 first, owner-only resealing. Use existing functional controls without fixture/
+expectation/tolerance changes or tests merely mirroring simplification. Require
+selected-lint RED→GREEN then full suite/build/all-targets/Rustdoc/fmt/lineage/
+full inventory.
 
-lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
-edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
-descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
-remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
-não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
-preservar seleção, conteúdo, diagnóstico e render na linguagem; duração/Arc são
-mecânica. Inferimos benefício possível, refutado por custo, stale resources,
-regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do relatório.
+Keep local ACCESSIBLE as its four existing PdfStandard/label-factory pairs without
+a new L4 type. Only that const may carry
+`#[expect(clippy::type_complexity, reason = "ACCESSIBLE: composição estática de standards e labels existentes")]`.
+Preserve entries/order/lazy label evaluation/message/hint and pre-World CLI
+validation. Type abbreviation is allowed only with provably identical expansion;
+incompatibility/new public type requires another gate. This nominal exception is
+only type_complexity, never module/impl/crate suppression or a higher threshold.
+It narrowly supersedes prior generic bans only for the three justified historical
+batch items; other correction cases remain unsuppressible. No resolved public
+entity/signature/default/phase change. Existing functional expectations remain;
+selected gate RED→GREEN includes unfulfilled_lint_expectations as error, followed
+by build/all-target Clippy/workspace suite/fmt/Rustdoc/lineage and scoped resealing.
+No tests merely mirroring aliases/field names.
 
-### Decisão ratificada sob ADR-0127 §2.1/§2.2
+## Publication carrier boundary
 
-Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
+### Evidence
 
-## Composição com sessão opcional, somente helper privado
+`tekt-v12-2026-10-16/before.json.gz` retains HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/sources/L0/hashes/
+status/diffstat. The hash-checked inventory reported 19 V12: one productive local
+Published enum at main.rs:22, 18 auxiliary test declarations. Html(String) and
+Bundle(Vec<BundleFile>) are produced at compile.rs:90/99/363/539/541 and dispatched
+at watch.rs:103/104. This explicitly supersedes the former private-L4-carrier
+permission, a Rust ownership decision without new parity/upstream-intent claim.
 
-Preserve run_compile e run_compile_observed como wrappers compatíveis, sem sessão,
-para compile comum. Um helper privado/pub(super) do owner aceita opção de Arc da
-FontCatalogSession; sem Arc mantém with_fonts_and_system, com Arc aplica o novo
-with_font_catalog_session com os mesmos font_paths. Construa SystemWorld novo em
-toda chamada, mantendo validações/inputs/CA/plugins/source antes do pipeline e
-retorno atual de deps/exit/input-kind/Published. Não reordenar fases ou diagnósticos,
-alterar flags/timers, tornar a sessão global ou reutilizar um World anterior.
-Somente watch passa a sessão. O handler mantém stdout, stdin, todos os targets e
-precedência/export/PDF-publicação atuais. Propostas históricas não ratificadas
-deste prompt continuam fora do escopo.
+### Contract and acceptance
 
-## Reuso sintático de watch — lote A
+The internal return remains Option<Published>, now resolved through the parent's
+private `typst_infra::watch::Published` import. Preserve Html/Bundle producers,
+every success/error condition, moved payloads, order and absent None. Add no
+conversion/method/publication logic or target inference from extensions.
 
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/incremental-prioridade6-2026-10-08/before.json.gz,
-measurement.json.gz, control-measurement.json.gz e count.json registram árvore,
-HEAD, UTC, comandos e releases. Source::new reconstrói CST; World novo constrói
-Source main/import a cada edição. O import mínimo já absorve recursos no eval_ms;
-não atribuir toda a métrica a parsing. O contrato causal de Source/id/caminho vem
-dos owners existentes; o reuso é mecânica e precisa preservar observáveis de língua.
-Hipótese de benefício refutada por custo, diagnóstico, efeito, stale source,
-geometria ou identificação diferente. Não inferir intenção upstream.
-
-### Contrato ratificado
-
-Transportar Arc opcional SourceSession por helper observado privado, junto da
-sessão de fontes existente. APIs públicas compile/observed conservam assinatura
-e delegam sem sessão sintática. Para physical input com sessão, usar constructor
-new_with_source_session antes da leitura eager; sem sessão/transiente, caminho
-existente. Não executar validação ou lógica de cache em L4. Preservar erros,
-inputs/font_paths/plugins/cert/targets/staging/deps/timers e ordem de diagnóstico.
-
-Aceitação: RED→GREEN, contagem de produção separada de tempos, três rodadas CLI
-pareadas contra release P5, startup/RSS e controles de invalidação/identidade/
-efeitos/Unicode/diagnóstico/assets/fontes/geométricas. Resselo apenas deste owner,
-build/suítes pertinentes e lint zero erros; não fechar incrementalidade completa.
-
-
-## Expressões equivalentes e CI estrito — 2026-10-14
-
-### Medição anterior à decisão
-
-`04_wiring/src/compile.rs` nas linhas [523, 547] contém as expressões apontadas pelo inventário
-Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
-conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
-red.log registra os lints selecionados como erros antes de alterar código.
-Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.
-Esta é manutenção da expressão Rust; não é medição nova de paridade upstream.
-
-### Responsabilidade e aceitação
-
-Nos dois caminhos de gravação de timings, path já é &PathBuf; passá-lo diretamente a std::fs::write. Preservar chamadas, path, JSON, tratamento de erro e sua ordem de publicação/status. Não mudar aquisição ou pipeline.
-
-Correção interna em fluxo contínuo ADR-0127, sem API pública, default, fase,
-unsafe, dependência ou supressão de lint novos. L0 precede código e resselo
-fica restrito ao owner. Usar os controles funcionais existentes; não alterar
-fixtures, expectativas, tolerâncias ou registrar testes que apenas espelhem
-esta simplificação. Os lints selecionados devem passar como erros, seguidos
-de suíte completa, build, all-targets, rustdoc, fmt, linhagem e inventário total.
-
-
-## Tipos explícitos e leitura local — type_complexity (2026-10-15)
-
-### Medição anterior à decisão
-
-04_wiring/src/compile.rs:174 (C128).
-O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
-conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
-O gate red-clippy.log falha com este lint promovido a erro antes da edição.
-A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
-estáticos já explícitos. É manutenção de representação Rust; não medição de
-benefício da IA, bug funcional ou paridade nova.
-
-### Responsabilidade e aceitação
-
-Manter o const local ACCESSIBLE como tabela de quatro pares PdfStandard/factory de label existentes, sem novo tipo L4. Autorizar #[expect(clippy::type_complexity, reason = "ACCESSIBLE: composição estática de standards e labels existentes")], somente no const. Preservar entradas, ordem, avaliação lazy da label, mensagem/hint e validação CLI antes de World.
-
-Correção interna em fluxo contínuo ADR-0127: nenhuma entidade, assinatura pública
-resolvida, default ou fase é alterada. Uma abreviação de tipo só é permitida com
-expansão comprovadamente idêntica; incompatibilidade ou tipo público novo exige
-outro gate. As exceções são nominais apenas para type_complexity; não autorizar
-supressão em módulo/impl/crate nem elevar limiar. Esta permissão pontual supera
-proibições genéricas anteriores somente para os três itens justificados neste lote;
-continuam proibidas supressões dos demais casos destinados à correção.
-Usar os controles funcionais existentes sem mudar seus esperados. O gate selecionado
-deve passar RED→GREEN, incluindo unfulfilled_lint_expectations como erro; revalidar
-build, Clippy all-targets, suíte workspace, formato, Rustdoc e linhagem com resselo
-restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
-
-
-## Transporte de publicação em L3 — V12, 2026-10-16
-
-### Medição anterior à decisão
-
-O snapshot before.json.gz em lab/results/construction/diagnostics/tekt-v12-2026-10-16 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC, fontes, L0, hashes, status e git diff HEAD --stat. O inventário anterior, conferido por hashes, emite 19 V12: um enum produtivo em 04_wiring/src/main.rs:22 e 18 declarações auxiliares de testes. O enum privado Published tem exatamente Html(String) e Bundle(Vec<BundleFile>); compile.rs:90/99/363/539/541 o produz e watch.rs:103/104 despacha os dois braços. O proprietário atual é wiring.md, que autoriza o carrier privado em L4: esta proposta atualiza explicitamente essa decisão, em vez de contrariá-la sem registro. É propriedade/representação Rust, sem nova alegação de paridade ou intenção upstream.
-
-### Verificação comum
-
-T1: preservar os controles reais de watch HTML e bundle HTTP/reload, sucesso/erro, no-serve/no-reload e último snapshot válido; testes p1485_watch_bundle_http_reload_e_preserva_snapshot_apos_erro e p1485_watch_flags_no_reload_no_serve_e_porta_ocupada em 04_wiring/tests/cli.rs, mais controles HTTP de 03_infra/src/watch.rs. T2: preservar compile de HTML/bundle, árvore completa, assets byte-exatos, stdout, warnings, exit e ausência de publicação em erro nos testes CLI existentes, sem editar esperados. T3: V12 RED real antes e zero produtivo depois; conferir por diff que só houve transferência do enum e ajuste do import, sem inferir modalidade por extensão. Verificar build, Clippy workspace/all-targets -D warnings e -D unfulfilled_lint_expectations, suíte workspace, formato, Rustdoc -D warnings e quatro índices, linhagem V1/V5/V15/V26 e reversa, SARIF e diff --check. Não escrever testes que apenas espelhem a sintaxe da mudança de owner. Execuções pesadas sequenciais sob MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não publicar release.
-
-### Responsabilidade exclusiva
-
-A assinatura interna continua com Option<Published>, agora resolvido pelo import privado do pai para typst_infra::watch::Published. Conservar produtores Html/Bundle, todas as condições de sucesso/erro, payloads por move, ordem e ausência None. Nenhuma nova conversão, método ou lógica de publicação.
+Preserve real watch HTML/bundle HTTP/reload/flags/success/error/last-snapshot
+controls and compile full-tree/byte-exact assets/stdout/warnings/exit/no-publication-
+on-error controls specified in `00_nucleo/prompts/wiring/main.md`, including its
+exact named watch tests and L3 HTTP controls. Require real V12 RED before and zero
+productive V12 after, transfer/import-only diff, no owner-transfer syntax tests.
+Validate build, strict workspace/all-target Clippy (-D warnings and
+-D unfulfilled_lint_expectations), workspace suite/fmt, Rustdoc -D warnings/four
+indexes, V1/V5/V15/V26/reverse lineage, SARIF and diff --check. Heavy runs are
+sequential under MemoryMax=12 GiB, MemorySwapMax=0, CARGO_BUILD_JOBS=1; no release.

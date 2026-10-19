@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "intrinsic-literal-width"
-title = "Extensão intrínseca do container e espaço literal"
-
+title = "Intrinsic container extent and literal space"
 [[claims]]
 id = "intrinsic-extent"
 level = "must"
-statement = "Na extensão intrínseca de um frame textual, combinar a extensão visual com pos.x + advance dos TextSeparator Literal efetivamente emitidos; não somar cursor global, inventar espaço nem duplicar tracking."
-
+statement = "For a text frame's intrinsic extent combine visual extent with pos.x + advance of actually emitted Literal TextSeparator items; never add global cursor, invent space or duplicate tracking."
 [[claims]]
 id = "ink-distinction"
 level = "must-not"
-statement = "A projeção intrínseca não altera line_content_right usada para alinhamento de linha/tinta; separadores Markup/Newline terminais não ampliam a extensão intrínseca."
+statement = "Intrinsic projection does not change line_content_right used for line/ink alignment; terminal Markup/Newline separators do not enlarge intrinsic extent."

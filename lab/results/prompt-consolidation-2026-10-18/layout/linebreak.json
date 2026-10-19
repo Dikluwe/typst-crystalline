@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/linebreak.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated logical bidi-boundary consumption, authorial empty-line admission, approved quote newline observation and private-link marker exclusion, preserving technical flush no-op and all certification limits.",
+  "original_sha256": "95c620ebfe753151b60f7ccab8725fc505b0f38884b41fc3e5a58ed15482025a",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/linebreak.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

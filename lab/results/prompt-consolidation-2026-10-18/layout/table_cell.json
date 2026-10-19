@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/table_cell.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated approved A/B Complete visual dispatch and final nonzero-inset surviving default as Block, preserving separate Cell-set/open scope, stale-gate ratifications and both geometry refuters.",
+  "original_sha256": "1609e5908457a4e2e9855f5b609358fd97ddea0bb517a676aadc48f6a38e6a00",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/table_cell.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

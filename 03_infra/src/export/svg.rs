@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash 00cab541
+//! @prompt-hash f891c06d
 //! @layer L3
 //! @updated 2026-09-28
 //! SVG facade and exhaustive renderer dispatcher.

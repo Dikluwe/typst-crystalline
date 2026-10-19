@@ -2,227 +2,48 @@
 Hash do Código: 80389f2d
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/layout/prepared-text-carriers.toml sha256:b2899862f439550920cdee8b3aec6a63c441b9bd2770e563d0a8fd49f93572d2
-- 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:77528cd6193277b9f776b29da06327d974f5cea26fb89abf821879b363185b0a
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/layout/prepared-text-carriers.toml sha256:447289c8c45df27081c71b98e7aa32b1fbaab3883018f585540285e658122090
+- 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:68203377765579bc29327c7d8fded6f4f831d11682b6b7c9abbf2dbf65b28bad
 
-## Medição anterior à decisão
+## Evidence before specification
 
-No HEAD ea7ae25ab (árvore limpa, 2026-09-30), a implementação vigente está em `01_core/src/compiler/layout/sequence.rs:73-558`. A medição identifica o limite do bloco a extrair; não mede desempenho nem altera a paridade de linguagem.
+At HEAD `ea7ae25ab` (clean tree,2026-09-30), implementation is at `sequence.rs:73-558`; this delimits extraction without new performance/language parity.
 
-## Owner e contrato
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/working tree/UTC/sources/argv/binaries against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Existing ShowRecipe/Located/Realized branches contain the corresponding transparent operation; Source must not leak as observable content. Human approval `confirmo` was received 2026-10-07; contract: `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md`.
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/layout/sequence/inline_prefix.rs`. Certificar prefixos inline e a reserva vertical antes do primeiro bloco fracionário. Preservar os limites de estilos, largura, wrap e boundary descritos em sequence.md. Esta extração mantém contrato público, defaults, fase do pipeline, compatibilidade e pureza L1.
+workspace-second refutes treating Source as another typographic fragment; prefix inspects transparent body even under Styled/Strong/Emph with unchanged measurement/leading/style/width limits.
 
-## Aceitação
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/scope-tail-before/results.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, dirty tree/UTC/status/diffstat/source/binary hashes against historical pin 9f2b6e871; block-par-spacing-after/block-par-extra-after refute run-size consensus (one 18pt wrapper differs from two adjacent 18pt wrappers). sequence.rs:196-245 closes in exterior chain while paragraph.rs:12-90 already finds lexical common ancestor; pinned flow/collect.rs:129-145 resolves shared style before spacing. Tail after 1fr spills despite fitting, Styled18 height is wrong, explicit Linebreak overflows; cursor.rs:127-135 rejects exact bound, fractional_preflight.rs:170-211 separately measures nodes/direct Text correction. Source/L0 before-edit.json.gz and wrap/font 8-18/Strong/sibling/Align/column probes support whole-segment measurement, not copied Rust/bytes or universal too-tall-tail parity.
 
-O despacho permanece estático. Testes L1, build e crystalline-lint devem passar. Não inferir ganho de desempenho da separação.
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz` preserves same HEAD/uncommitted state/status/stat/UTC/source/binary/historical pin. Multiword21 gains page/line leading, par 40/8-fill gains page, OUTER18/INNER8 shifts BODY/upshrinks auto page. fractional_preflight.rs:151-171 refuses multiline; word_layout.rs:49 closes in local style; line_commit.rs:398-480 uses it for floor/leading/predicted top; sequence.rs:239 refuses partial closure and missing prior chain uses spacing 8. Pinned flow/collect.rs:129-145,179-214 resolves shared trunk/spacing/leading, each frame contributing geometry. These are language text/geometry/pages without buffer/algorithm/byte or historical-intent obligation.
 
+At HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, dirty tree, sequence-constructor-2026-10-17/complete5/complete-alias-layout.log preserves UTC/state and with/without identity-show Sequence control: strong Lead before 1fr Block in columns gains second Tekt page but not vanilla `bd5ebec285505889e8ff1d4f68804ab147a699f3`; simple prefix matches. inline_prefix.rs:181-231 sees source_body only, apply.rs:551-688 locates Strong without transforming it, paragraph.rs:19-98 accepts Located but refuses Realized. carriers-before.json.gz preserves sources/L0/HEAD/diffstat/UTC; identity must not erase tags/Locations to repair a certificate.
 
-## D08B3-C2 — responsabilidade ratificada
+carriers-green.log proves visual chain but rejects Styled16 singleton under existing larger-first-fragment gate (historical P1381/P1384). It is prospective fixture, not regression: use admitted Styled8 and compare raw/prepared Styled16 rejection. complete-attempt6.json.gz shows final assert assumed 12pt but Layouter chain starts 11pt; capture/require exact actual initial style restore rather than changing production constructor. carriers-pdf shows zero delta in six prefix/compiler pairs.
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+`lab/results/construction/diagnostics/sequence-r3-2026-10-18/{markup-geometry-before.json.gz,markup-geometry-before-resources.json,prefix-before-sources.json.gz}` preserves UTC/HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`/dirty tree/diffstat/sources/argv/binary hashes against current oracle. R3 correctly retains interpolated Sequence and None real child, but #(strong[Lead]+[]) and #[#none;*Lead*] before 1fr Block in columns gain Tekt page, max 212.762pt shift; vanilla/plain/Styled controls preserve geometry. inline_prefix.rs:172-246 refuses Sequence even with one nonempty visual unit; paragraph::shared_chain already accepts Empty/Sequence, while fallback loses prior scalar reserve. This does not justify erasing value children.
 
-workspace-second refuta Source como novo fragmento tipográfico: certificado de prefixo inspeciona body transparente de Source, inclusive sob Styled/Strong/Emph, preservando medidas/leading/estilos/limites de largura.
+R3 validation-attempt1.json.gz/prefix-exhaustiveness-before.json.gz records 8,979 tests/five doctests/strict Clippy-Rustdoc passing but differential Tekt failure: baseline 106 V16 versus candidate 107, new outer Content wildcard at inline_prefix.rs:363. Three body wildcards at 330/342/354 are latent despite nonreporting. Formula is not failing; hiding type is no solution.
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+## Exclusive ownership and current contract
 
+Layer L1. Sole consumer: `01_core/src/compiler/layout/sequence/inline_prefix.rs`. Certify inline prefix and vertical reserve before first fractional Block under the exact style/width/wrap/boundary gates owned by `00_nucleo/prompts/core/compiler/layout/sequence.md`. Preserve public contract/default/phase/compatibility/purity/static dispatch, no inferred separation gain.
 
-## Escopo textual e cauda fracionária — 2026-10-14
+Private runtime distinguishes paragraph-certified geometric prefix from legacy scalar, preserving legacy formulas/gates so Sequence performs lexical closure only once on new route. Add private multiline bool false for prior certificates, true only for positively measured multiline route; no new public entity/field or removal of old gates.
 
-### Medição anterior à decisão
+Use borrowed prepared visual projection from `00_nucleo/prompts/core/compiler/layout/paragraph.md` at the node and Styled/Strong/Emph bodies, replacing four old source_body inspection points. No Content reconstruction/callback/greater admitted typography depth, and emitted carriers/tags remain. Preserve style/size/width/wrap/formula/hooks/Location and opaque fallback. Do not broaden ParagraphBody projection or promote opaque body to Par/Empty. Shared lexical style through Realized follows existing projection, not a new source scan.
 
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
-registra HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
-UTC/status/diffstat e hashes de fontes/binários contra vanilla pinado9f2b6e871.
-Os lotes block-par-spacing-after e block-par-extra-after anteriores já
-refutam escopo por consenso de runs: um wrapper18 em Lead More exige margem
-21.6pt, enquanto dois wrappers18 adjacentes mantêm o escopo exterior.
-sequence.rs:196–245 fecha prefixos na chain exterior; paragraph.rs:12–90 já
-resolve direção pelo ancestral lexical comum. Fonte vanilla flow/collect.rs:
-129–145 resolve estilos comuns antes de compor linhas e espaçamento.
-A cauda TAIL top10/bottom0 após Block1fr ocupa página2 contra página1 no pin:
-cursor.rs:127–135 rejeita igualdade com o limite embora a cauda esteja
-certificada. Cauda Styled18 fica10.52pt acima; fractional_preflight.rs:170–211
-mede nós individualmente e só corrige a altura de Text direto. Linebreak
-explícito também excede a região. A nova sonda inclui wraps, fonte8/18,
-Strong, wrappers irmãos, Align e colunas. Isso é geometria e paginação de
-linguagem; não exige estrutura ou bytes iguais. before-edit.json.gz em
-scope-tail conserva os consumers/owners anteriores.
+After prepared Source/Located/Realized projection, private scalar_prefix_body returns None only for Empty or entirely-Empty groups. Recursively unwrap Sequence with exactly one non-Empty unit by borrow; leave two-or-more Sequence intact for prior scalar refusal. Explicit nominal forwarding returns every other variant intact with one V19 policy. Do not drop Space/empty Text/Linebreak/Styles/other real child or emit/rebuild/execute callbacks. Loop skips None exactly as previous Empty while preserving original part_index. Styled/Strong/Emph bodies use same projection before same Content match, without relaxed depth/size/style/width/wrap gate. No value normalization/new public signature/phase/default; two texts or Space+Strong never become scalar certificate.
 
-### Classificação
+Make four Content matches exhaustive: outer positives Text/Styled/Strong/Emph/Space/SpaceFromNewline/Empty remain; replace only wildcard with explicit nominal complement. Three body matches retain Text positive and explicitly enumerate every other variant as refusal. Each V19 group shares return None with unchanged body/guard/return/order/formula/certificate; future variant needs explicit Rust decision. No suppression/if-let/threshold change.
 
-Correção interna de paridade ADR-0127: L0 primeiro, RED→GREEN e revalidação.
-Sem API pública, nova entidade, fase eval/layout ou default novo. Refutar
-por wrappers irmãos, preservação da ordem, última linha, corpos opacos,
-colunas e ausência de efeitos/estado vazando da medição. Não copiar defeito
-upstream nem declarar paginação universal para cauda maior que a região.
+## Acceptance and limits
 
-### Responsabilidade exclusiva
+Internal continuous-flow ADR-0127 corrections need L0 before RED→GREEN/restricted reseal/valid owner graph. Shared whole-segment/multiline scope refutes sibling/order/last-line/opaque/column/effect leakage; preserve scalar certificates and no opaque/bidi/float/universal-pagination claim.
 
-O registro runtime privado distingue prefixo geométrico certificado pelo
-owner paragraph do prefixo escalar legado. Preservar as fórmulas e gates
-legados; o marcador permite que Sequence faça somente o fechamento lexical
-na nova rota e não repita sua boundary. Sem entidade pública nova.
+Prepared-carrier RED covers Strong/Emph/Styled with Source/Located/Realized, visual differing from original, Link refusal and exact lexical-style restore. GREEN adds with/without alias PDFs within each compiler, three prefixes/tolerance 1e-6pt and retained tags/carriers. Styled8 admitted versus raw/prepared Styled16 refused controls preserve legacy gate rather than broaden to make a fixture green. Full suite/gates under 12GiB/zero swap/one job, unchanged prior expectations.
 
+Singleton Sequence RED covers Strong/Emph/Styled with Empty/nested Empty/prepared carriers and Strong body None. Refuse two Texts, real empty Text+Strong, Space+Strong and Link. Repeat 18 PDFs/12 geometric comparisons within each compiler with exact pages/words/tolerance 1e-6pt; this is not cross-compiler geometric equality proof. Require strict Clippy/Rustdoc/lineage/differential/full gates under 12GiB/High8GiB/swap0/jobs1.
 
-## Prefixo multiline e aninhamento parcial — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
-registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
-commitado, status/stat/UTC, fontes e binários contra o pin vanilla
-9f2b6e8715237cb086899a42873660fe744622e8. Multiword21 gera duas páginas
-contra uma; Long/More estão 6.5/13pt abaixo. O prefixo40/8 com fill gera duas
-páginas; More está39.906pt abaixo. Nested OUTER18/INNER8 tem BODY12pt acima
-e página auto12pt menor. sequence/fractional_preflight.rs:151–171 recusa
-multiline; word_layout.rs:49 fecha dentro do estilo local; line_commit.rs:
-398–480 usa esse estilo para floor/leading/top previsto. sequence.rs:239
-recusa fechar segmento parcial; Block sem cadeia anterior usa spacing8pt.
-Vanilla flow/collect.rs:129–145,179–214 resolve trunk dos filhos, spacing e
-leading comuns; cada frame contribui sua geometria. Esses são observáveis
-textuais, geométricos e de paginação da linguagem (ADR-0107), não obrigação
-de copiar buffers, algoritmos ou bytes. A intenção histórica não é inferida.
-
-### Decisão e limite
-
-Correção interna de paridade ADR-0127 em fluxo contínuo: sem entidade,
-trait/assinatura pública, nova flag/default ou fase. O núcleo text-segment-scope
-pinado define as invariantes compartilhadas. Aceitação RED→GREEN dos três
-casos, controles de fontes, cores, margens, colunas, restauração, checkpoint
-e subframes, mais suíte completa e linhagem. A nova rota só amplia prefixos
-multiline textuais positivamente certificados; não declara paginação universal,
-bidi/floats nem conteúdo opaco. Preservar os certificados escalares anteriores.
-
-### Responsabilidade exclusiva
-
-Adicionar bool multiline privado ao InlinePrefixRuntime; false nos certificados anteriores, true somente na nova medição positiva. Não remover gates legados nem inventar novo campo público.
-
-
-## R2-S — envelopes preparados e prefixo fracionário (2026-10-18)
-
-### Medição anterior à decisão
-
-No HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
-commitado, complete5/complete-alias-layout.log em
-lab/results/construction/diagnostics/sequence-constructor-2026-10-17/ registra UTC,
-estado exato e o controle com/sem show sequence identidade. Prefixo *Lead*
-antes de Block1fr em columns passa de uma para duas páginas no Tekt;
-o mesmo alias conserva uma página no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Prefixo simples conserva geometria nos dois. inline_prefix.rs:181–231
-inspeciona somente source_body; apply.rs:551–688 localiza a ocorrência
-Strong mesmo sem transformação aplicável. paragraph.rs:19–98 aceita Located
-mas recusa Realized. Isso refuta transparência da identidade no certificado,
-não justifica remover tags ou a localização. carriers-before.json.gz guarda
-fontes/L0 antes deste reparo, HEAD, diffstat e UTC.
-
-### Decisão e aceitação
-
-Correção interna de paridade em fluxo contínuo ADR-0127, sem contrato público,
-nova fase/default ou entidade. Projeção visual emprestada conforme núcleo
-pinado; nenhum callback executado. Fórmulas, gates de estilo, largura, wrap,
-profundidade tipográfica e fallback opaco permanecem. Não ampliar a projeção
-ParagraphBody nem promover corpo opaco a Par/vazio. Inferência refutada se o
-alias mudar páginas, palavras ou coordenadas, ou se conteúdo opaco for aceito.
-RED funcional de prefixo Strong/Emph/Styled com Source/Located/Realized,
-escolha visual diferente do original e recusa de Link; GREEN mais controles
-PDF com/sem alias dentro de cada compilador, três prefixos, tolerância 1e-6pt.
-Conteúdo emitido conserva seus carriers e tags. Suíte completa e gates sob
-12GiB, swap zero, jobs1, sem alterar esperados anteriores.
-
-Responsabilidade exclusiva: consultar a projeção do owner paragraph no nó
-e no body de Styled/Strong/Emph, nos quatro pontos que antes usavam
-source_body. Não reconstruir conteúdo nem aumentar a profundidade dos
-wrappers tipográficos admitidos. Testes cfg(test) neste consumer verificam
-a reserva legada igual à do conteúdo cru, seleção de visual em vez de original,
-recusa de Link e estilo lexical compartilhado através de Realized.
-
-Refinamento da fixture: carriers-green.log confirma a cadeia visual mas
-recusa o baseline Styled16 singleton. O gate legado P1381/P1384 exige o
-segundo fragmento quando o primeiro é maior; esse teste prospectivo não
-constitui regressão. Usar Styled8 na célula admitida e testar recusa de
-Styled16 tanto cru quanto preparado. Não ampliar o certificado para fazer
-passar a fixture. Os dois REDs anteriores de transparência continuam válidos.
-
-complete-attempt6.json.gz confirma as comparações de certificado, mas a
-asserção final da fixture pressupunha 12pt; Layouter inicializa sua StyleChain
-vigente em 11pt. Capturar o estilo inicial antes de medir e exigir a sua
-restauração exata. Não mudar o constructor ou o estilo de produção. O controle
-PDF carriers-pdf confirma delta zero nos seis pares de prefixo/compilador.
-
-
-## R3 — Sequence com uma unidade visual no prefixo escalar (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/sequence-r3-2026-10-18/markup-geometry-before.json.gz,
-markup-geometry-before-resources.json e prefix-before-sources.json.gz registram
-UTC, HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c/working tree/diffstat,
-fontes, argv e hashes de binários contra bd5ebec285505889e8ff1d4f68804ab147a699f3.
-O R3 preserva corretamente a Sequence interpolada no valor de markup e
-None como filho real. Com prefixo strong e Block1fr em columns, as formas
-#(strong[Lead]+[]) e #[#none;*Lead*] passam de uma para duas páginas no Tekt;
-vanilla conserva a geometria, assim como os controles de prefixo simples e
-Styled. Maior delta observado212.762pt, por migração de página. O dispatch
-escalar em inline_prefix.rs:172–246 recusa Sequence mesmo quando contém só
-uma unidade visual entre Empty. paragraph::shared_chain já certifica Empty e
-Sequence; recorrer ao fallback geométrico perde a reserva escalar vigente.
-Isso é geometria da linguagem, não razão para apagar filhos reais do valor.
-
-### Decisão e responsabilidade exclusiva
-
-Reparo interno de certificado, ADR-0127 contínuo. Depois da projeção preparada
-Source/Located/Realized existente, helper privado scalar_prefix_body devolve
-None para Empty e grupos inteiramente Empty. Para Sequence com exatamente
-uma unidade não Empty, devolver por empréstimo essa unidade, recursivamente;
-com duas ou mais, devolver a Sequence intacta, que o certificado anterior
-recusa. As demais variantes são enumeradas e devolvidas intactas numa única
-política de forwarding V19. Não descartar Space, Text vazio, Linebreak,
-Styles ou outro elemento. Não emitir, reconstruir ou executar callback.
-
-O loop ignora projeção None como o Empty anterior, mantendo part_index do vetor
-original. Os bodies de Styled/Strong/Emph usam a mesma projeção; em seguida
-continuam o match Content anterior, sem ampliar profundidade tipográfica,
-gates de estilos/size/largura/wrap, fórmulas, hooks, Location ou tags emitidas.
-Nenhum campo/assinatura pública, nova fase/default ou normalização de valor.
-Não promover grupo com dois textos ou Space+Strong a certificado escalar.
-
-RED de reserva para Strong/Emph/Styled em Sequence singleton, com Empty,
-Empty aninhado e carriers preparados, incluindo body Strong com None; controles
-de recusa de dois textos, Text vazio real+Strong, Space+Strong e Link.
-GREEN e repetição dos18 PDFs/12 comparações geométricas dentro de cada
-compilador, páginas/palavras exatas e tolerância1e-6pt. Não é prova de igualdade
-geométrica entre Tekt e vanilla. Exigir suíte completa, Clippy/Rustdoc estritos,
-linhagem/diferencial e demais gates sob12GiB/High8GiB/swap0/jobs1.
-
-
-## V16 após tornar a projeção explícita — 2026-10-18
-
-### Medição anterior à decisão
-
-validation-attempt1.json.gz/prefix-exhaustiveness-before.json.gz no diagnóstico
-R3 preservam a rodada completa: 8979 testes e5 doctests passaram, Clippy e
-Rustdoc estritos passaram, mas o diferencial Tekt falhou. O baseline R2 tem
-106 V16 e nenhum neste owner; o candidato tem107, com V16 no wildcard externo
-em inline_prefix.rs:363. O match part agora é reconhecido pelo linter como
-Content. As três recusas dos bodies também usam wildcard (linhas330/342/354),
-embora a ferramenta não as reporte nesta forma. Não se trata de falha da
-fórmula nem de razão para ocultar o tipo ao linter.
-
-### Responsabilidade exclusiva e aceitação
-
-Fechar os quatro matches Content do certificado: no externo, manter braços
-positivos Text/Styled/Strong/Emph/Space/SpaceFromNewline/Empty e substituir só
-o wildcard pela lista explícita de todas as outras variantes. Nos três
-bodies, manter Text e enumerar todas as demais variantes na recusa. Cada
-grupo V19 compartilha return None; preserve integralmente corpos, guards,
-returns, ordem, fórmulas e os critérios do certificado. Sem supressão, if-let
-ou alteração do limiar. Variante futura exige decisão Rust explícita.
-
-Registrar replay nominal dos padrões/complementos e fonte anterior. O finding
-novo deve desaparecer, sem atribuir remoção de débito do baseline ao reparo:
-106→107→106, nenhum novo erro/warning. O forwarding de append, embora agora
-exaustivo, não emitia V16 no baseline e não pode receber crédito106→105.
-Resselo após ownership/núcleos válidos; repetir os gates completos no mesmo
-freeze final e conservar a tentativa anterior, sob12GiB/High8GiB/swap0/jobs1.
+Record nominal pattern/complement replay/prior source and preserve failed validation attempt. Remove only introduced V16 (106→107→106), with no new error/warning; already-exhaustive append forwarding emitted none before and earns no 106→105 debt-removal credit. V19 stays informative, V20 grows no hidden projection depth. Reseal only after valid ownership/nuclei and rerun complete gates in same final freeze.

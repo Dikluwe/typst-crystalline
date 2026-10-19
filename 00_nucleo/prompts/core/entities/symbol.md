@@ -1,75 +1,19 @@
-# Prompt L0 — `Symbol` — grapheme Unicode nomeado com modifiers e constructor
+# Prompt L0 — `Symbol` — named Unicode grapheme, modifiers and construction
 Hash do Código: 1caf8923
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/symbol.rs`
-**Dependências e consumidores históricos (não owners deste L0)**:
-`01_core/src/entities/value.rs`, `01_core/src/compiler/eval/bindings.rs`,
-`01_core/src/compiler/eval/closures.rs`, `01_core/src/compiler/eval/repr.rs`,
-`01_core/src/compiler/stdlib/sym.rs` e
-`01_core/src/compiler/stdlib/foundations.rs`.
-**Origem**: Passo 471 — `Value::Symbol` subset minimal (S); Passo 765a — modifiers encadeados e constructor.
-**ADRs**: ADR-0017 (portão aberto P395), ADR-0107 (paridade linguagem), ADR-0108 (medir antes de decidir), ADR-0029 (pureza L1).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/symbol.rs`
+**Governance:** ADR-0017, ADR-0107, ADR-0108, ADR-0029.
 
----
+## Evidence before specification
 
-## 1. Contexto
+Historical ratified pin `586e1bd43fae6c9a973218163d3165c53ab8d16d`, foundations/symbol.rs:19–37,51–129,176–196,219–310,339–400, documents symbolic field access, custom constructor, sym names without prefix in math, and emoji. Probes accept one extended grapheme including woman-technologist, skin-tone and flag sequences; empty string/ab reject with `variant value must be exactly one grapheme cluster`. emoji.heart renders U+2764 U+FE0F but differs in equality from runtime symbol("❤️") despite equal codepoints; two equal runtime constructions compare equal. Concatenation retains the full cluster. Identity and variant lists are language data, not reducible to visible text. Upstream SymbolInner/Arc/static-runtime representation is mechanics.
 
-O Typst vanila expõe `Symbol` como tipo de runtime para caracteres simbólicos acessíveis via notação de ponto (`sym.arrow.r`, `sym.eq.not`) e via constructor `symbol(...)`.
+At 2026-09-14T17:24:42-03:00, clean HEAD `762e95025a76cb8dec4b58097ca57aa878e05243`, local baseline SHA-256 `50c137a42d8a0da4ba43213c2a04e0f8896478a8fc05e25da7e9fee9247a873c`, oracle `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f` at that pin, serial 512 MiB probes found excess escaping for apostrophe/double quote and abbreviated NUL. Backslash/newline/tab/carriage return/VS/ZWJ controls already agreed. Upstream symbol.rs:339–390 delegates to string repr; str.rs:718–753 defines character escaping. repr.rs:170–223 specifies pretty_array_like(...,false), byte width 50 and multiline two-space indentation/trailing commas. These are historical measurements, not current-pin certification.
 
-> **Fonte de paridade (P1031, revalidada em P1398)** — **citação literal** do doc
-> comment `#[ty]` do vanila ratificado
-> (`586e1bd43fae6c9a973218163d3165c53ab8d16d`),
-> `crates/typst-library/src/foundations/symbol.rs:19-37`, publicado
-> em `typst.app/docs/reference/foundations/symbol/`:
->
-> *"A Unicode symbol. Typst defines common symbols so that they can easily be written with
-> standard keyboards. The symbols are defined in modules, from which they can be accessed
-> using **field access notation**: - General symbols are defined in the `sym` module and are
-> accessible without the `sym.` prefix in math mode. - Emoji are defined in the `emoji`
-> module. Moreover, **you can define custom symbols with this type's constructor
-> function**."*
->
-> ```example
-> #sym.arrow.r \
-> #sym.gt.eq.not \
-> $gt.eq.not$ \
-> #emoji.face.halo
-> ```
->
-> Confirma as três afirmações do contexto: tipo de runtime, acesso por notação de ponto
-> (com os exemplos `sym.arrow.r` e a forma composta), e o construtor. Acrescenta duas
-> precisões que este L0 não regista: (a) em **modo math** os símbolos de `sym` são
-> acessíveis **sem o prefixo `sym.`**; (b) existe um segundo módulo, `emoji`. Ambas são
-> **lacunas documentadas** do subset minimal de P471.
-
-Passo 471 implementou o subset minimal: `Symbol` como `{ ch, name }`, módulo `sym` com nomes simples/compostos planos, e `Value::Symbol`.
-
-Passo 765a acrescenta:
-1. Modifiers encadeados via field access (`sym.arrow.r.filled`).
-2. Constructor `symbol(...)` para symbols runtime.
-3. `repr()` de symbols com variants.
-
-**P1161 — medição anterior à decisão, revalidada por P1398.** No vanila
-ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-`emoji.heart` serializa/renderiza `U+2764 U+FE0F`; `symbol("👩‍💻")`,
-`symbol("👍🏽")` e `symbol("🇧🇷")` são aceites, enquanto `symbol("")` e
-`symbol("ab")` falham com `variant value must be exactly one grapheme
-cluster`. `emoji.heart == symbol("❤️")` é `false` mesmo com codepoints
-idênticos, e duas construções runtime
-iguais são `true`, e concatenação preserva o cluster inteiro. Fonte ratificada:
-`foundations/symbol.rs:51-129,176-196,219-310,339-400`.
-
-Classificação: o cluster, constructor, `repr`, concatenação, modifiers,
-igualdade e erros são semântica/morfologia observável. `SymbolInner`,
-`Arc<Modified>` e strings estáticas/runtime do vanila são mecânica e não são
-copiados. A igualdade observada não é reduzida ao texto visível: a identidade
-e a lista de variants permanecem parte do valor da linguagem.
-
-## 2. Tipo L1
+## Carrier and constructors
 
 ```rust
-// 01_core/src/entities/symbol.rs
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Symbol {
     pub value: EcoString,
@@ -79,144 +23,32 @@ pub struct Symbol {
 }
 ```
 
-- `value`: valor efectivo após modifiers aplicados; contém **exactamente um
-  extended grapheme cluster**, que pode ter múltiplos Unicode scalar values.
-- `name`: nome canónico base (vazio para symbols runtime).
-- `variants`: lista de variantes `(modifiers_dotted, value)`. Cada valor tem
-  exactamente um grapheme cluster; a variante base usa modifiers vazios.
-- `applied`: modifiers já aplicados via field access.
+value and every variant value contain exactly one nonempty extended grapheme, possibly multiple scalars. name is the canonical base name, empty for runtime symbols. variants pairs dotted modifiers with values; the base has empty modifiers. applied retains field-access modifiers. EcoString preserves clusters, is permitted pure L1 and clones O(1). Reject Scalar|Cluster semantic splitting, upstream static/runtime enum copying, and char-plus-suffix fragmented representation.
 
-`EcoString` é a representação escolhida: preserva o cluster sem I/O, já é
-permitida em L1 e clona O(1). Um enum `Scalar | Cluster` é rejeitado porque a
-linguagem só distingue “um grapheme válido”, não duas classes semânticas.
-Copiar o enum estático/runtime e o `Arc` do vanila é rejeitado como mecânica
-sem ganho observável. Manter `char` mais um sufixo é rejeitado porque permite
-estados partidos e obriga cada consumer a reconstruir a morfologia.
+new(value,name) accepts value:impl Into<EcoString> and creates a simple empty-modifier variant; with_variants(value,name,variants) serves native sym/emoji tables; runtime(variants) serves the language constructor. Internal inputs are validated/static; runtime diagnostic ownership belongs to the language constructor. Value::Symbol stores this Symbol, reports type_name `symbol`, supports From<Symbol>, and retains its specified Debug-format hash integration.
 
-## 3. Variant `Value::Symbol`
+modified(&str)->Option<Symbol> rejects simple symbols, appends the modifier, filters variants containing every applied modifier, chooses the fewest extra modifiers and returns updated value without normalization or loss of variation selectors/ZWJ. Bindings field access returns the resulting Value::Symbol or `unknown symbol modifier`. Global symbol is Value::Type(Type::Symbol); static type dispatch calls native_symbol, whose positional base strings or (modifiers,value) arrays must contain exactly one nonempty grapheme. Markup emits Content::Text(value.clone()); string/content/math conversion never truncates with chars().next().
 
-```rust
-// 01_core/src/entities/value.rs
-Symbol(crate::entities::symbol::Symbol),
-```
+## Representation
 
-Actualizações:
-- `type_name()` → `"symbol"`.
-- `From<Symbol> for Value`.
-- `Hash` via `format!("{:?}", self)`.
+repr emits symbol(inner) from variants compatible with applied modifiers, removing those modifiers from displayed variant keys. Escape every internal string uniformly, including simple/base/variant values: apostrophe stays literal, double quote is `\"`, NUL is `\u{0}`, backslash/newline/tab/carriage return are `\\`, `\n`, `\t`, `\r`. Preserve canonical `\u{fe0f}` and `\u{200d}` without normalization. Do not special-case witness names/modules/modifiers/glyphs. The historical repair authorizes only private repr helpers/local tests, without constructor/grapheme validation/modifier/table/equality/layout/other-type repr changes.
 
-## 4. Construtores
+Use compact output when the byte sum of pieces/separators fits 50; otherwise one variant per line, two-space indentation, trailing comma. emoji.heart is multiline while repr(emoji.heart.arrow) is `symbol("💘")`; short runtime symbols stay compact. Textual syntax is observable; helper placement is mechanics.
 
-- `Symbol::new(value, name)` — symbol simples, uma só variante vazia; `value`
-  aceita `impl Into<EcoString>` para conservar call sites de um codepoint.
-- `Symbol::with_variants(value, name, variants)` — symbol nativo dos módulos
-  `sym`/`emoji`.
-- `Symbol::runtime(variants)` — symbol criado pelo utilizador via `symbol(...)`.
+## Integration and unresolved scope
 
-Os constructors internos recebem valores já validados ou tabelas estáticas e
-mantêm a invariante de um grapheme por variante. O constructor de linguagem é
-o dono dos diagnósticos para input runtime.
+Keep SYM_SIMPLE and the measured arrow variant subset; sym_lookup("arrow.r.filled") applies modifiers sequentially. Value, bindings, closures, repr and stdlib sym/foundations are consumers with their own owners, not additional consumers of this L0. The original missing math-prefix/emoji support belongs to historical subset scope and must not erase later native constructors. A full upstream variant catalog, deprecation warnings and Symbol::func callable accents remain outside this owner slice. Preserve supplied codepoints; NFC/NFD requires new measurement and decision.
 
-## 5. Modifiers encadeados
-
-`Symbol::modified(modifier: &str) -> Option<Symbol>`:
-
-1. Rejeita symbols simples.
-2. Adiciona o modifier a `applied`.
-3. Filtra variants que contenham todos os modifiers aplicados.
-4. Selecciona a variante com o menor número de modifiers extra.
-5. Devolve novo `Symbol` com `value` actualizado sem normalizar nem remover
-   variation selectors/ZWJ.
-
-## 6. Field access em `Value::Symbol`
-
-Em `bindings.rs::eval_field_access`, o arm `Value::Symbol(s)` chama `s.modified(field)` e devolve `Value::Symbol`. Erro `unknown symbol modifier` quando `None`.
-
-## 7. Constructor `symbol(...)`
-
-- `eval/mod.rs`: `scope.define("symbol", Value::Type(Type::Symbol))`.
-- `closures.rs`: `Value::Type(Type::Symbol)` despacha para `native_symbol(...)`.
-- `foundations/cast.rs::native_symbol`: aceita variantes posicionais (string
-  base ou array `(modifiers, value)`), valida **um grapheme cluster não vazio**
-  preservando a string completa e devolve `Symbol::runtime(variants)`.
-
-## 8. Conversão em markup
-
-`Value::Symbol(s)` em markup converte-se em `Content::Text(s.value.clone())`.
-Conversões para string/content e math usam sempre o cluster integral, nunca
-`chars().next()`.
-
-## 9. Representação `repr()`
-
-`eval/repr.rs` formata `Value::Symbol` como `symbol({inner})`, onde `inner`
-lista as variants compatíveis com os modifiers aplicados, removendo os
-modifiers já aplicados. O escape percorre a string completa; VS16 aparece
-como `\u{fe0f}` e ZWJ como `\u{200d}` conforme a medição.
-
-**P1398 — escape canônico de toda string interna.** Medição em
-`2026-09-14T17:24:42-03:00`, sobre HEAD limpo
-`762e95025a76cb8dec4b58097ca57aa878e05243`, comparou o binário cristalino
-baseline SHA-256
-`50c137a42d8a0da4ba43213c2a04e0f8896478a8fc05e25da7e9fee9247a873c`
-com o vanila ratificado
-`586e1bd43fae6c9a973218163d3165c53ab8d16d`, binário SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
-As sondas seriais, limitadas a 512 MiB, mediram que o cristalino acrescenta
-uma barra indevida ao apóstrofo e às aspas duplas e abrevia NUL como `\0`,
-enquanto os controles de barra invertida, nova linha, tab, carriage return,
-variation selector e ZWJ já coincidem. A fonte ratificada
-`foundations/symbol.rs:339-390` delega cada valor à representação de string;
-`foundations/str.rs:718-753` torna explícita a regra por caractere. Portanto,
-a obrigação geral para **toda string emitida dentro de `Symbol::repr`** é:
-
-- apóstrofo U+0027 permanece literal, sem escape;
-- aspas duplas U+0022 tornam-se exatamente `\"`;
-- NUL U+0000 torna-se exatamente `\u{0}`;
-- barra invertida, nova linha, tab e carriage return usam respectivamente
-  `\\`, `\n`, `\t` e `\r`;
-- ZWJ e variation selectors preservam os escapes Unicode canônicos já
-  vigentes, sem perda ou normalização do grapheme.
-
-A regra é uniforme para valores simples, bases e valores de variantes; não
-reconhece nomes como `quote`, módulos `sym`/`math`, modifiers ou glyphs
-testemunha. P1398 pode alterar somente os helpers privados de representação e
-testes locais deste consumer. Não altera constructor, validação de grapheme,
-seleção de modifiers, tabelas, igualdade, layout nem outros tipos de `repr`.
-É correção interna de paridade em fluxo contínuo conforme ADR-0127.
-
-**P1163 — forma compacta/multilinha.** Medição revalidada em P1398 contra o
-vanila ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`
-(`foundations/symbol.rs:339-390` e
-`foundations/repr.rs:170-223`): a lista resultante passa por
-`pretty_array_like(..., false)`. A soma em bytes das peças e separadores cabe
-horizontalmente até 50; acima disso, cada variant ocupa uma linha indentada
-por dois espaços, com vírgula final. Assim `repr(emoji.heart)` é multilinha,
-enquanto `repr(emoji.heart.arrow) == "symbol(\"💘\")"` e symbols runtime
-curtos permanecem compactos. Esta forma textual é sintaxe observável; o helper
-e a sua localização são mecânica interna (ADR-0107).
-
-## 10. Módulo `sym`
-
-`stdlib/sym.rs` mantém `SYM_SIMPLE` e adiciona `arrow` como symbol com variants. `sym_lookup("arrow.r.filled")` aplica modifiers sequencialmente.
-
-## 11. Scope-out
-
-- Tabela completa de variants do vanila: apenas `arrow` materializado com subset medido.
-- Variantes com deprecation/warnings.
-- `Symbol::func()` para math accents callable.
-- Normalização Unicode: os codepoints fornecidos são preservados; NFC/NFD não
-  é introduzido sem nova medição e decisão.
-
-## 12. Critérios de verificação
+## Acceptance
 
 ```
-sym.arrow.r → Value::Symbol com value="→"
-sym.arrow.r.filled → Value::Symbol com value="➡"
+sym.arrow.r → Value::Symbol with value="→"
+sym.arrow.r.filled → Value::Symbol with value="➡"
 symbol("🖂", ("stamped", "🖃")).stamped → "🖃"
-symbol("♥️") → value U+2665 U+FE0F, sem truncamento
-symbol("❤️") → value U+2764 U+FE0F, sem truncamento
-symbol("👩‍💻"), symbol("👍🏽"), symbol("🇧🇷") → aceites
-symbol(""), symbol("ab") → erro de exactamente um grapheme cluster
+symbol("♥️") → value U+2665 U+FE0F, without truncation
+symbol("❤️") → value U+2764 U+FE0F, without truncation
+symbol("👩‍💻"), symbol("👍🏽"), symbol("🇧🇷") → accepted
+symbol(""), symbol("ab") → exactly-one-grapheme-cluster error
 repr(symbol(("bold", "α"), ("italic", "α"))) == "symbol((\"bold\", \"α\"), (\"italic\", \"α\"))"
 repr(symbol("'")) → symbol("'")
 repr(symbol("\"")) → symbol("\"")
@@ -227,3 +59,7 @@ repr(symbol("\t")) → symbol("\t")
 repr(symbol("\r")) → symbol("\r")
 repr(symbol("👩‍💻")) → symbol("👩\u{200d}💻")
 ```
+
+## Historical record
+
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/symbol.md` preserves the original evidence and chronology.

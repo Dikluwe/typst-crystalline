@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "table-cell-projection"
-title = "Projeção da célula já representada"
-
+title = "Projection of an already represented cell"
 [[claims]]
 id = "native-identity"
 level = "must"
-statement = "A identidade pública da célula é cell; func e show reconhecem native_table_cell por identidade tipada real."
-
+statement = "Cell public identity is cell;func/show recognize native_table_cell by actual typed identity."
 [[claims]]
 id = "known-fields"
 level = "must"
-statement = "Body está conhecido; os getters projetam valores efetivamente conservados, sem inventar defaults ou presença para Option None."
-
+statement = "Body is known;getters project actually retained values without inventing defaults/presence for Option None."
 [[claims]]
 id = "bounded-scope"
 level = "must-not"
-statement = "Esta projeção não cria campos públicos no carrier nem realiza posições, estilos ou preenchimento do grid em uma fase nova."
+statement = "This projection creates no public carrier fields or new-phase position/style/grid-fill realization."

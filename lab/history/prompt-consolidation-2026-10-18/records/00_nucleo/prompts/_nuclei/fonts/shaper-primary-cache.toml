@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "shaper-primary-cache"
+title = "Reuso limitado das candidatas primárias do shaper"
+
+[[claims]]
+id = "bounded-lifetime"
+level = "must"
+statement = "Keep at most the last complete nonempty primary candidate chain in the existing per-instance FaceCache, initially empty and scoped to the same immutable World/catalog as its cached faces; never share it across new instances or Worlds. Retain only full key, slots and units per em, no new font buffers."
+
+[[claims]]
+id = "exact-key"
+level = "must"
+statement = "Key reuse by equality of the complete ordered FontList, effective FontVariant and math boolean, without hash-only or pointer equality. The cached chain includes the existing conditional MATH and common fallback additions; size, language, direction, tracking and axes remain inputs of later shaping, not part of primary selection."
+
+[[claims]]
+id = "failed-face"
+level = "must-not"
+statement = "Do not publish empty or partial resolutions: conservatively skip publishing when the face cache contains any failed load or parse. Preserve existing slot-negative caching, previous complete entries and subsequent catalog queries for requests that cannot be cached; do not introduce new negative selection caching."
+
+[[claims]]
+id = "preserve-selection"
+level = "must"
+statement = "Reuse preserves family and regex matching, variant ranking, declared order, class fallback, the existing conditional MATH branch, common fallback order and slot deduplication. Global coverage, similarity, script segmentation, actual variation instancing and run-cache keys remain outside this cache."

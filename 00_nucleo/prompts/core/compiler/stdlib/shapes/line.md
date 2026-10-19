@@ -1,29 +1,39 @@
 # L0 — stdlib/shapes/line
 Hash do Código: 1e3a12bb
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/shapes/line.rs`. No HEAD `a5c6b93c258acb7cb378b9b147a8c6cd0e8d17b9` e árvore limpa, `01_core/src/compiler/stdlib/shapes.rs:351-506` contém o comportamento extraído. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-shapes-2026-09-30-before.json.gz`. Esta é separação interna por comportamento.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/stdlib/shapes/line.rs`. At HEAD `a5c6b93c258acb7cb378b9b147a8c6cd0e8d17b9` with a clean tree, `01_core/src/compiler/stdlib/shapes.rs:351-506` contains the extracted behavior. SHA-256, time and state are recorded in `lab/results/construction/diagnostics/atomizacao-shapes-2026-09-30-before.json.gz`. This is internal separation by behavior.
 
-## Contrato
+## Contract
 
-Construir line com start/end/length/angle e extensão dx/dy. Preservar precedência, incompatibilidades, Path para origem não-zero e dimensões da caixa causal.
+Construct line with start/end/length/angle and dx/dy extension. Preserve precedence, incompatibilities, Path for nonzero origin and causal box dimensions.
 
-As regras detalhadas, evidências históricas, limites de paridade e diagnósticos continuam em `00_nucleo/prompts/core/compiler/stdlib/shapes.md`. A extração não altera assinatura pública, defaults, fase ou compatibilidade. Nenhum I/O ou estado global mutável.
+Detailed rules, historical evidence, parity limits and diagnostics remain in `00_nucleo/prompts/core/compiler/stdlib/shapes.md`. Extraction preserves public signatures, defaults, phase and compatibility. No I/O or mutable global state is permitted.
 
-## Aceitação
+## Acceptance
 
-Preservar a suíte L1 e os testes de shapes, compilar e passar `crystalline-lint .` com ownership e hashes corretos. Não inferir ganho de desempenho.
+Preserve the L1 suite and shapes tests, build, and pass `crystalline-lint .` with correct ownership and hashes. Do not infer performance gains.
 
 
-## Operações numéricas puras — 2026-10-13
+## Pure numeric projection
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`01_core/src/compiler/stdlib/shapes/line.rs` nas linhas 134, 135 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+shapes/line.rs:134–135 contains disallowed_methods calls reported by current
+Clippy. HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz`
+retains source/owner/config/libm/compiler/UTC/status/diffstat. host-math compares
+backends before choosing: 4968 cases, 69 trig/atan2 differences up to 1 ULP,
+without numeric-class or signed-zero changes; powers/hypot agree in the sample.
+This is host measurement, not universal proof or new vanilla parity.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Usar libm::cos/sin para projetar length e angle em dx/dy. Preservar start/end, precedência de argumentos, rejeições, origem do Path e dimensões causais. Não introduzir arredondamento, clamp ou novo default.
-
-Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, default ou fase. Preservar testes de geometria/linguagem existentes e comparar os exemplos SVG medidos antes/depois, declarando diferenças. A comparação geométrica não certifica todos os casos ou plataformas. Validar build, todos os targets, core, Clippy e linhagem. Não suprimir o lint nem substituir aceitação por identidade de bytes do compilador.
+Use libm::cos/sin to project length/angle into dx/dy. Preserve start/end, argument
+precedence, rejections, Path origin and causal dimensions. Add no rounding,
+clamp or default. ADR-0127 internal continuous flow adds no public contract,
+default or phase. Preserve existing geometry/language tests, compare measured
+SVG examples before/after and report differences. Geometry comparison does not
+certify all cases/platforms. Validate build/all targets/core/Clippy/lineage.
+Do not suppress the lint or substitute compiler-byte identity for acceptance.

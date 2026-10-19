@@ -5,14 +5,14 @@ Hash do Código: e4e15534
 **Exclusive consumer:** `01_core/src/compiler/layout/text_measure.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Evidência anterior à decisão
+## Evidence before specification
 
-A inspeção de `01_core/src/compiler/layout/text_measure.rs:85`, `word_layout.rs:89` e `space.rs:162` encontrou respectivamente fronteira textual, admissão de baseline e teste de integração de espaços iniciais em owners de outras responsabilidades. O estado exato, fontes e prompts anteriores estão em `lab/results/construction/diagnostics/separacao-tracking-2026-09-29/initial.json` e `before/`. A correção já medida encontra-se em `lab/results/construction/diagnostics/correcao-tracking-2026-09-29.md`; esta separação conserva seus resultados e limites. Posições, texto e estilos são observáveis da língua; localização das funções é mecânica. A inspeção não demonstra intenção histórica nem nova paridade bilateral.
+Inspection of `01_core/src/compiler/layout/text_measure.rs:85`, `word_layout.rs:89` and `space.rs:162` found, respectively, a textual boundary, baseline admission and an initial-space integration test owned by other responsibilities. Exact state, sources and prior prompts are in `lab/results/construction/diagnostics/separacao-tracking-2026-09-29/initial.json` and `before/`. The previously measured correction is in `lab/results/construction/diagnostics/correcao-tracking-2026-09-29.md`; this separation preserves its results and limits. Positions, text and styles are language observables; function placement is mechanical. Inspection establishes neither historical intent nor new bilateral parity.
 
-## Contrato vigente
+## Current contract
 
-Possuir apenas default_text_width, word e space. default_text_width usa advance_shaped quando disponível, senão advance, e conserva a ordem da fórmula existente: largura base mais tracking resolvido vezes número de pares de codepoints Unicode. word delega a FontMetrics.text_width e respeita overrides injetados; space mede advance(" ") com tamanho/estilo ativos. Não consultar Layouter, decidir fronteiras, selecionar quebras, emitir itens ou solicitar métricas verticais. A fórmula de codepoints é fallback, não prova de seleção completa por clusters.
+Own only `default_text_width`, `word` and `space`. `default_text_width` uses `advance_shaped` when available, otherwise `advance`, preserving the existing formula order: base width plus resolved tracking times the number of Unicode codepoint pairs. `word` delegates to `FontMetrics.text_width` and respects injected overrides; `space` measures `advance(" ")` with the active size/style. Do not consult Layouter, decide boundaries, select breaks, emit items or request vertical metrics. The codepoint formula is a fallback, not proof of complete cluster-based selection.
 
-## Aceitação e limites
+## Acceptance and limits
 
-Preservar os testes causais existentes e o texto, posições, estilos, páginas e diagnósticos dos controles anteriores à separação. Ownership 1:1, pins válidos, build e lint sem erros. Movimentação interna ADR-0109/0127: funções estáticas descendentes, sem estado novo. As limitações de tracking em estilos mistos, RTL, seleção global e contagem de clusters permanecem as registradas no diagnóstico da correção.
+Preserve existing causal tests and the text, positions, styles, pages and diagnostics of controls preceding the separation. Require 1:1 ownership, valid pins, and error-free build and lint. This is internal movement under ADR-0109/0127: static descendant functions and no new state. Tracking limits for mixed styles, RTL, global selection and cluster counting remain as recorded in the correction diagnostic.

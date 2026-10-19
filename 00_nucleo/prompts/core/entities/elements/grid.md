@@ -1,14 +1,16 @@
 # Prompt L0 — `entities/elements/grid` — `GridElem`
 Hash do Código: e7f36621
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/grid.rs`
-**Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).
-Trait e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**. Contentor —
-`map_*` recursam em `cells` (Vec), `header` e `footer`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/grid.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
+## Evidence before specification
 
-## Struct
+The archived extraction record preserves the original source observations: `content.rs:1648`, `content.rs:1795`, `content.rs:1925`, `content.rs:2237`, `content.rs:2490`.
+These are historical anchors, not a fresh current-pin parity measurement.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
@@ -19,34 +21,27 @@ pub struct GridElem {
     pub gutter:  Option<Length>,
     pub align:   Option<Align2D>,
     pub inset:   Sides<Length>,
-    pub header:  Option<Content>,         // era Option<Box<Content>>
-    pub footer:  Option<Content>,         // era Option<Box<Content>>
+    pub header:  Option<Content>,
+    pub footer:  Option<Content>,
     pub stroke:  Option<Stroke>,
     pub fill:    Option<Color>,
 }
 ```
 
-`Content::Grid { … }` → `Content::Grid(Arc<GridElem>)`. Construtor ergonómico:
-`Content::grid(...)`.
+## Behavior and acceptance
 
-> **`Hash` manual via Debug**: `TrackSizing`/`Length`/`Align2D`/`Sides<Length>`/
-> `Stroke`/`Color` carregam `f64` → `impl Hash { format!("{self:?}").hash(state) }`.
-> `PartialEq` deriva.
+Preserve `Content::Grid(Arc<GridElem>)` and `Content::grid(...)`.
+Manual Hash uses Debug because TrackSizing, Length, Align2D, Sides<Length>,
+Stroke, and Color contain f64; PartialEq compares all ten fields.
+Plain text joins cell plain texts with one space. Emptiness checks only whether
+the cells vector is empty. Both maps recurse through cells, header, and footer,
+preserving columns, rows, gutter, align, inset, stroke, and fill; map_content
+collects SourceResult. Header/footer may themselves be Content::GridHeader or
+GridFooter, with ordinary transparent element dispatch. Field/kind/payload
+retain defaults; non-locatable. Verify all fields, cell order/text joining,
+vector-based emptiness, nested header/footer mapping, and structural equality.
 
-> **Interação com Lote 5**: `header`/`footer` contêm `Content` que pode **ser**
-> um `Content::GridHeader`/`GridFooter` (já `Arc<…Elem>` desde o Lote 5 P320).
-> `map_*` recursam neles de forma transparente (despacho normal ao elemento).
+## Historical record
 
-## `impl Element for GridElem`
-
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.cells.iter().map(\|c\| c.plain_text()).collect::<Vec<_>>().join(" ")` (`content.rs:1795`) |
-| `is_empty` | **override**: `self.cells.is_empty()` (`content.rs:1648`) |
-| `map_content` | **recursivo** em `cells` (collect `SourceResult`), `header`, `footer`; preserva columns/rows/gutter/align/inset/stroke/fill (`content.rs:2237`) |
-| `map_text` | **recursivo** em `cells`, `header`, `footer`; preserva os mesmos cosméticos (`content.rs:2490`) |
-| `get_field`/`element_kind`/`to_payload` | default |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara os 10 campos (paridade `content.rs:1925`).
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/grid.md`. Historical observations are not a new parity certification.

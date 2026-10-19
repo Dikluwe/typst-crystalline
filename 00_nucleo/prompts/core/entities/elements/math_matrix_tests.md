@@ -1,48 +1,44 @@
 # L0 — core/entities/elements/math_matrix_tests
 Hash do Código: 92800067
 
-## Dono test-only
+**Layer:** L1 test-only
+**Exclusive consumer:** `01_core/src/entities/elements/math_matrix_tests.rs`
 
-Consumer único: `01_core/src/entities/elements/math_matrix_tests.rs`.
+## Contract and acceptance
 
-## Obrigação
+Construct the carrier through its public boundary. Discriminate rows/cells,
+optional delimiter sides, alignment, horizontal/vertical offsets and their
+order, stroke, relative gaps, and all five presence bits. Clone, equality,
+hash, repr, plain_text, both maps, and reconstruction preserve every field.
+MathAlignPoint stays inside its cell until layout.
 
-Construir o carrier pela fronteira pública e discriminar rows/células, lados
-opcionais do delimitador, alinhamento, offsets hline/vline e sua ordem, stroke,
-gaps relativos e os cinco bits de presença. Clone, igualdade, hash, `repr`,
-`plain_text`, `map_content`, `map_text` e reconstruções preservam todos os
-campos. `MathAlignPoint` permanece dentro da célula até layout.
+Compare pairs differing only in cell order/content, an optional delimiter
+side, alignment, offset axis/order, stroke component including cap, gap axis/
+component, or one presence bit. Both equality and hash must discriminate each
+pair. Also hold presence identical while changing only align:left/right, or
+only the relative/absolute component of each row-gap/column-gap. Eq and Hash
+must change independently of presence-bit discrimination.
+Zero/multiple carriers, inseparable cascade, or unreadable extraction are
+Unknown, never success or mutation kills.
 
-P21 compara pares que diferem isoladamente em ordem e conteúdo de células,
-lado opcional do delimiter, alinhamento, eixo/ordem de offsets, componente de
-stroke inclusive cap, eixo/componente de gap e cada bit de presença. Tanto
-igualdade quanto hash devem discriminar cada par.
+## Ratified compact Value adaptation
 
-Contra M17c/M17h, há pares adicionais com presença idêntica e diferença única:
-`align:left` versus `align:right`; para cada `row-gap` e `column-gap`, varia-se
-separadamente o componente relativo e o absoluto. Tanto `Eq` quanto `Hash`
-devem mudar sem apoio discriminatório dos bits de presença.
+Before the decision,
+`lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/before.json.gz`
+and inventory.json froze this consumer and every Value::Stroke file:line.
+sizes.json measured 272→144 bytes in an external Value model, not RSS.
+The public carrier belongs exclusively to
+`00_nucleo/prompts/core/entities/value.md`.
 
-Zero ou múltiplos carriers, cascata não separável ou extração ilegível são
-`Unknown`; nunca contam como sucesso nem como mutante morto.
+The human confirmed manifesto SHA-256
+`6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237`
+with `confirmo` on 2026-10-08; the earlier pending ADR-0127 gate is satisfied.
+This owner adapts only stroke Value construction to From<Stroke>, preserving
+all independent morphology/presence/hash pairs and expectations. Preserve
+existing oracles/tests; add pertinent RED→GREEN for new isolation behavior,
+reseal only the owner and revalidate. No enlarged semantics, defaults, or phase.
 
-## Adaptação Memória 5 — proposta pendente ADR-0127
+## Historical record
 
-Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
-before.json.gz e inventory.json congelam este consumer e cada ocorrência
-file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
-Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
-00_nucleo/prompts/core/entities/value.md; esta unidade apenas o consome e não
-compartilha ownership. Nenhuma implementação/adaptação antes da confirmação
-do manifesto deste pacote.
-
-Responsabilidade desta unidade: Atualizar somente construtores Value de stroke para From<Stroke>; preservar todos os pares independentes de morfologia/presença/hash e expectativas vigentes.
-
-Após confirmação: conservar testes/oráculos vigentes, adicionar o RED→GREEN
-pertinente quando houver comportamento de isolamento novo, resselo só do owner
-e revalidação. Esta cláusula não amplia semântica, defaults ou fase.
-
-Ratificação Memória 5: o dono confirmou o manifesto SHA-256
-6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237
-com “confirmo” em 2026-10-08. O gate ADR-0127 deste pacote está satisfeito;
-suas cláusulas propostas passam a vigorar nesta materialização.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/math_matrix_tests.md`. Historical observations are not a new parity certification.

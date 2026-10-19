@@ -1,0 +1,50 @@
+{
+  "tree": "9f52b2d7ebf9c5b73796b7a1b099ecce4634074d",
+  "prior_archived_tree": "d43f1a7aab0f894f8228fb1bee17e9cb47f4d419",
+  "method": "Existing isolated Git archive refreshed with changed tracked paths from exact staged tree; tracked deletions removed. No ignored working-tree files copied.",
+  "changed_files": 3108,
+  "deleted_files": 0,
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "lab/tools/ci/check_mature_layout.py"
+      ],
+      "exit": 0,
+      "utc": "2026-10-19T02:47:55.658227+00:00"
+    },
+    {
+      "command": [
+        "python3",
+        "lab/tools/ci/check_reverse_lineage.py"
+      ],
+      "exit": 0,
+      "utc": "2026-10-19T02:47:56.136040+00:00"
+    },
+    {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/target/linter/debug/crystalline-lint",
+        ".",
+        "--checks",
+        "v1,v5,v15,v26",
+        "--fail-on",
+        "warning"
+      ],
+      "exit": 0,
+      "utc": "2026-10-19T02:48:01.276729+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "metadata",
+        "--offline",
+        "--locked",
+        "--no-deps",
+        "--format-version",
+        "1"
+      ],
+      "exit": 0,
+      "utc": "2026-10-19T02:48:01.296336+00:00"
+    }
+  ]
+}

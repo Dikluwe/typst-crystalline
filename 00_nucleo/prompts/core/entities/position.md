@@ -1,147 +1,58 @@
 # Prompt L0 — `entities/position`
 Hash do Código: 4c766ec7
 
-**Camada**: L1.
-**Fase**: M8 / P204D.
-**ADRs vinculantes**: ADR-0033 (paridade observable), ADR-0073
-(comemo Introspector — paridade vanilla literal).
-**Cross-references**: ADR-0066 (Introspection runtime adiada —
-ACEITE com nota "intermediário até M8"; superseded em P204H).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/position.rs`
+**References:** ADR-0033, ADR-0073. The earlier ADR-0066 runtime deferral is superseded.
 
----
+## Evidence before contract
 
-## Contexto
+The historical introspection audit identified upstream PagedPosition as
+{ page:NonZeroUsize, point:Point }. Upstream builds its PagedIntrospector after
+finalizing pages; crystalline intentionally records locations during layout.
+This is an implementation difference, with equivalent location-to-position
+observables required for a document, not a new equality measurement.
 
-ADR-0066 (ACEITE em P192B com nota "intermediário até M8")
-adia Position runtime concreta para M8. P203 consolidado §13
-confirmou Position como concern ortogonal coberto por M8.
-P204A diagnóstico (auditoria A2 + A16) mapeou vanilla
-`PagedPosition { page: NonZeroUsize, point: Point }` como
-forma canónica.
+For HTML, HEAD `b5abe9b288ce168c494a4c5172830e325b9aedae` still had only mandatory
+page/point Position. The then-pinned upstream distinguished paged and HTML
+positions, projecting coordinates only inside html.frame. Simple/multiple/
+nested probes found local points without a page; exposing intrinsic page 1
+would contradict location.page() == none.
 
-P204D materializa Position concreta no cristalino.
+## Paged contract and integration
 
----
+Position has public page:NonZeroUsize (one-based) and point:Point, deriving
+Debug/Clone/Copy/PartialEq. Hash is manual through f64 coordinate to_bits,
+not derive over Pt(f64). Preserve Send+Sync, deterministic hashing, no I/O or
+mutable globals and no new external dependencies (std::num::NonZeroUsize).
 
-## Decisão
+LayouterRuntimeState.positions is HashMap<Location,Position>.
+advance_locator_if_locatable inserts at the same gating that sets
+current_location; insert replaces the entry on relayout/TOC fixpoint.
+Introspector::position_of returns Option<Position>, superseding Option<()>.
+TagIntrospector returns None because positions live in the layout runtime;
+consumers needing them access the Layouter. A future runtime-aware/post-layout
+implementation may return Some through its own contract.
 
-Tipo `Position` em L1 (`01_core/src/entities/position.rs`)
-réplica vanilla `PagedPosition`:
+## Ratified HTML carrier
 
-```text
-pub struct Position {
-    pub page: NonZeroUsize,  // 1-based
-    pub point: Point,         // coordenada 2D na página
-}
-```
+Human ratification on 2026-09-24 authorizes HtmlPosition: a pure L1 Copy
+carrier containing only Point, with PartialEq and manual x/y Hash. Normalize
+signed zeros before hashing bits to preserve equality-implies-equal-hash in
+tracked returns. It represents html.frame-local position, without page,
+DOM path or origin fallback. Paged Position and all fields stay intact.
+External absence stays None, never HtmlPosition::ZERO.
 
-Bounds derivados:
-- `Debug`, `Clone`, `Copy`, `PartialEq`.
-- **Hash manual** (não derive — `Pt(f64)` bloqueia derive).
-  Hash via `to_bits()` de cada `f64` (determinístico;
-  evita NaN issues em layout coordinates).
+## Acceptance
 
----
+Verify the exact Position shape and runtime map, matching locatability gating,
+Option<Position> trait result, an entry for locatable content and none for
+nonlocatable content. Sentinel tests assert type/field existence; structural
+comparisons test manual coordinate hashing. Preserve HTML page absence and
+signed-zero hash consistency. Historical source:
+`lab/typst-original/crates/typst-library/src/introspection/position.rs`.
 
-## Pipeline
+## Historical record
 
-### Vanilla
-
-`PagedIntrospector::new(pages: &[Page])` constrói post-layout
-sobre páginas finalizadas (per P203A A7).
-
-### Cristalino — divergência intencional
-
-Layouter popula `runtime.positions: HashMap<Location, Position>`
-durante layout single-pass (per P203A C5; P204D C5):
-
-- `LayouterRuntimeState` ganha 4º campo `positions`.
-- `Layouter::advance_locator_if_locatable` (mirror do gating
-  que set `current_location`) emite Position no momento da
-  detecção de locatable.
-- Idempotência: `insert` substitui em re-layout (TOC fixpoint).
-
-Saída observable equivalente — mapping
-`Location → Position` idêntico para um documento.
-
----
-
-## Trait API
-
-`Introspector::position_of` migra de stub `Option<()>` para
-`Option<Position>` per ADR-0073 (paridade vanilla literal —
-`fn position(&self, loc: Location) -> Option<DocumentPosition>`).
-
-`TagIntrospector` impl retorna sempre `None` — Position vive
-em `Layouter.runtime.positions` (single-pass populated).
-Consumers que precisem de Position acedem via Layouter
-directamente.
-
-Future trait impl que tenha acesso a Layouter runtime
-(ex: PagedIntrospector pós-layout, análogo vanilla) pode
-override e retornar `Some(Position)`.
-
-Per ADR-0073 §C6a (P204D diagnóstico).
-
----
-
-## Restrições absolutas
-
-- L1 (sem I/O, sem global mutável).
-- Sem dependências externas novas (apenas `std::num::NonZeroUsize`).
-- Hash determinístico (via `to_bits()` em f64).
-- `Position: Send + Sync` (auto-trait — todos os fields são).
-
----
-
-## Plano de validação
-
-`Position` é considerado materializado quando:
-
-1. Tipo existe em `01_core/src/entities/position.rs` com forma
-   `{ page: NonZeroUsize, point: Point }`.
-2. `LayouterRuntimeState.positions` campo existe e é
-   `HashMap<Location, Position>`.
-3. `Layouter::advance_locator_if_locatable` popula
-   `runtime.positions` no mesmo gating que set
-   `current_location`.
-4. `Introspector::position_of` retorna `Option<Position>`.
-5. Tests E2E confirmam:
-   - Locatable → entry em `runtime.positions`.
-   - Non-locatable → sem entry.
-6. Tests sentinela confirmam tipo + field existem.
-7. Hash impl (manual via `to_bits()`) testado por igualdade
-   estrutural.
-
----
-
-## Cross-references
-
-- P204A diagnóstico C8 (Position concrete sub-passo M8).
-- P204D spec (este materializa).
-- P203 consolidado §13 (concern ortogonal pós-M8 lacunas).
-- ADR-0066 (superseded em P204H).
-- ADR-0073 (paridade vanilla literal).
-- Vanilla: `lab/typst-original/crates/typst-library/src/introspection/position.rs`.
-
-## P1493 — posição local HTML discriminada (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
-
-### Medição anterior à decisão
-
-No HEAD `b5abe9b288ce168c494a4c5172830e325b9aedae`, `Position` contém
-obrigatoriamente página não nula e ponto. O vanilla pinado distingue
-`PagedPosition` de posição HTML e só projeta coordenadas quando a posição
-HTML pertence a um `html.frame`. As sondas simples, múltipla e aninhada
-confirmam pontos locais sem página; usar a página intrínseca 1 como linguagem
-refutaria `location.page() == none`.
-
-### Contrato ratificado
-
-Adicionar `HtmlPosition` como carrier L1 puro, `Copy`, composto somente por
-`Point`, com `PartialEq` e Hash manual de x/y; zeros assinados normalizam para
-o mesmo hash antes de usar bits, preservando `Eq => Hash` no retorno tracked.
-`html.frame`; não possui página, path DOM nem fallback de origem.
-
-`Position` paginada e todos os seus campos permanecem intactos. Ausência
-externa continua `None`, nunca `HtmlPosition::ZERO`. A nova entidade pública
-é mudança de contrato ratificada pelo dono em 2026-09-24.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/position.md`. Historical observations are not a new parity certification.

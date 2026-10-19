@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/textual.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "a071fb248ce8a3d3150a170100ea3df02ef786c1599b1377e30e4fb1b1ca48a2",
+    "result_sha256": "908124287cebdb4436fce39ba66c78a3d3c131f62f21c733c4dbfaa8fd0888fc",
+    "disposition": "Full textual coordinator translated: deferred causal snapshots, shared single-evaluation/scalar/EOF controls, consumed-mask separation and open reflection debts, later complete-body pure coalescing/emitted flat view/private Context contribution; temporary predicate removal explicitly supersedes introduction."
+  }
+]

@@ -3,7 +3,7 @@ Hash do Código: d6b56900
 
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:c8f920865f8895a89d9c42659c15e773e9bb2603bd614e390805f620834babd9
+- 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:9dda215eac16294572a1775094e5ecf6dc4b1118d9b2e5300e3ce668dcf65494
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/lang/figure_supplement.rs`

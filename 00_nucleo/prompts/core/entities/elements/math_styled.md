@@ -2,67 +2,75 @@
 Hash do Código: 8c315d27
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_styled.rs`
-**Origem**: modelo D (ADR-0105), lote piloto P316. Trait, regras partilhadas e glossário (§A.0):
-ver `entities/elements/_comum.md`. É o **meio** do piloto (campos + math layout;
-os prompts stdlib/layout math já são finos desde P314). Mecanismo do variant:
-ADR-0102/0103.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/math_styled.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
+## Evidence before specification
 
-## Struct
+ADR-0102/0103 specify the variant mechanism; historical Content anchors
+1642,2145,2636,1826 record text/maps/equality. The original math-layout handler
+and apply_math_style used these fields with outer-wins Option::or composition;
+that boundary behavior remains with its layout owner, not implemented here.
+
+## Contract and acceptance
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathStyledElem {
-    pub kind:    Option<MathStyleKind>,
-    pub bold:    Option<bool>,
-    pub italic:  Option<bool>,
-    pub body:    Content,        // era Box<Content>
+    pub kind: Option<MathStyleKind>,
+    pub bold: Option<bool>,
+    pub italic: Option<bool>,
+    pub body: Content,
     pub cramped: Option<bool>,
 }
 ```
 
-O `Content` passa de `MathStyled { kind, bold, italic, body, cramped }` para
-`MathStyled(Arc<MathStyledElem>)`. Campos agrupados (compat-F, A.1.4).
+Preserve grouped fields and Content::MathStyled(Arc<MathStyledElem>).
+Plain text delegates to body; is_empty defaults false. map_content recursively
+transforms body and preserves all four optional style fields. map_text is
+terminal, cloning the same carrier. Field/kind/payload default None;
+non-locatable. Derived equality compares all five fields through structural
+Arc equality. Verify recursive body mapping with flags preserved, terminal
+text map, equality and the unchanged math-layout suite; the historical count
+of roughly 58 tests is not a current suite-size claim. Do not alter layout
+composition while changing carrier access.
 
-## `impl Element for MathStyledElem`
+## Container reuse without replacement
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.body.plain_text()` — transparente (`content.rs:1642`) |
-| `is_empty` | default `false` |
-| `map_content` | recursivo no body preservando kind/flags: `Content::MathStyled(Arc::new(MathStyledElem { kind: self.kind, bold: self.bold, italic: self.italic, body: self.body.map_content(f)?, cramped: self.cramped }))` (`content.rs:2145`) |
-| `map_text` | **terminal** (math structural; `content.rs:2636`): devolve `Content::MathStyled(Arc::new(self.clone))` |
-| `get_field` | default `None` |
-| `element_kind`/`to_payload` | default `None` (não-locatável) |
+Evidence before specification:
+`lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz`
+records HEAD, working tree, UTC, complete sources, owners, and release.
+`01_core/src/entities/elements/math_styled.rs:34` preserves traversal but materializes the element even when
+descendants do not change. `01_core/src/entities/content/traversal.rs:111–192`
+unconditionally wraps results from these owners in Some. This is mechanical
+cost; language behavior and element semantic identity remain preserved.
+Refutable inference: propagating explicit absence of change reduces allocations
+and temporary retention. Probes and timing controls may refute that gain.
 
-## `eq` estrutural (A.1.1.b)
+Internal refinement under ADR-0127: provide only a crate-private
+map_content_if_changed helper for elements already owned by this consumer.
+Return None only when no actually visited child was replaced; childless
+terminals return None. Transform children once in the existing map_content
+order and stop at the first error. A callback Some, even containing equal
+content, always means change. Preserve every field, value, explicit presence,
+omitted/none/present slot, flag, span, and metadata item. Do not use equality,
+hash, or address as a certificate. Allocate vectors/rows only after the first
+changed child/row; unchanged siblings retain shared content. Public signatures
+and trait methods remain unchanged, with internal adaptation to this proof;
+map_content_pre and map_text retain their previous contracts. This refinement
+does not expand any ratification of historically proposed contracts.
 
-`#[derive(PartialEq)]` compara `kind + bold + italic + body + cramped`
-(paridade `content.rs:1826`). Via `Arc<MathStyledElem>: PartialEq` → estrutural.
+Specific logic remains with this owner; Content's exhaustive match only
+delegates statically. No vtable, new enum/fields, global state, I/O, or new
+phase. Acceptance requires RED→GREEN for reuse, order, errors, equal-value
+replacement, optional fields/slots, and metadata; core suite, builds and lint;
+text/morphology/render/query qualification against the previous release and
+pinned vanilla; and paired allocation/timing measurements with provenance.
+Do not infer a universal improvement from isolated cases.
 
-## Layout (inalterado, em `rules/math/layout`)
-
-`rules/math/layout/mod.rs:336` (handler) + `apply_math_style` (`:695`, composição
-outer-wins via `Option::or`) usam os campos do elemento — **mesma lógica**, só
-destructuring de `Arc<MathStyledElem>`. Ver `rules/math/layout/_comum.md`
-(handler `Content::MathStyled`).
-
-## Critério
-
-`map_content` recurse e preserva kind/flags; `map_text` terminal; igualdade
-estrutural; suíte math layout (~58 tests) passa sem alteração.
-
-## Reuso de contêineres sem substituição — 2026-10-10
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/math_styled.rs:34` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
-
-Refinamento interno ADR-0127: disponibilizar somente helper crate-private map_content_if_changed nos elementos já owned por este consumer. Retornar None apenas se nenhum filho efetivamente visitado foi substituído; terminais sem filhos retornam None. Transformar filhos na mesma ordem do map_content vigente, uma única vez, e interromper no primeiro erro. Some do callback, inclusive conteúdo igual, sempre é mudança. Preservar todos os campos, valores, presença explícita, slots omitidos/none/presentes, flags, spans e metadados; não usar igualdade/hash/endereço como certificado. Vetores/linhas só alocam após o primeiro filho/linha alterado; os irmãos conservam seu conteúdo compartilhado. Assinaturas públicas e métodos de trait ficam iguais, com adaptação interna à nova prova; map_content_pre e map_text mantêm seu contrato anterior. Nenhuma ratificação de contratos históricos propostos é ampliada por este refinamento.
-
-A lógica específica permanece neste owner; o match exaustivo em Content apenas delega estaticamente. Sem vtable, enum novo, campos novos, estado global, I/O ou fase nova. Aceitação: RED→GREEN de reuso, ordem, erro, substituição igual, opcionais/slots e metadados; suite core, builds e lint, qualificação de texto/morfologia/render/query contra release anterior e vanilla pinado; alocações e tempos pareados com proveniência. Não alegar ganho universal a partir de casos isolados.
-
-
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+The shared proof of absence of change follows the pinned nucleus claims.
+This prompt and its sole consumer still own the algorithm, transformed fields,
+visit order, and their specific preservation obligations.

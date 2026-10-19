@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated intrinsic final-space correction, full inline-frame measurement, realized/Source transparency, explicit returned inline extents and total nonfractional Box dimensions; retained fallback/simple Text paths, all refuters and fractional limit.",
+  "original_sha256": "d47546071702b2c4f7b6a1a88f69faf2b523fc961d4b1efacdd3112c9f7096a4",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/measurement.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

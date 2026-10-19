@@ -4,7 +4,7 @@ Hash do Código: ef92c831
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/color.rs`
 
-Após a atomização, este consumer possui o despacho estático do tipo color, o mapa pinado e os testes históricos. Os Prompts L0 individuais em `00_nucleo/prompts/compiler/stdlib/color/` possuem paleta, validação de argumentos, operações de luz, mix, transformações, inspeção, alpha e Spot. As cláusulas abaixo permanecem contexto normativo, sem nova semântica.
+This consumer owns static color-type dispatch, the pinned map and historical tests. Individual owners under `00_nucleo/prompts/core/compiler/stdlib/color/` own palette, argument validation, light operations, mix, transformations, inspection, alpha and Spot. The clauses below remain normative boundary criteria for those owners, without transferring their productive ownership or introducing semantics.
 
 ## Evidence and classification
 

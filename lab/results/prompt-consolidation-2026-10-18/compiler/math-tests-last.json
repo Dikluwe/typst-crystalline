@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/tests.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "9fccd71833c1544d76e871cabe6aa9c8813b98a7b2b7c056381aa994998cd052",
+    "result_sha256": "46c038936f4236ce797bcc0aa6aa20ae0b298c5d1387a75e15ab828e95c647b2",
+    "disposition": "Full base tests, extraction identity, bidi/test maintenance and ratified size adapter translated; exact F043\u2013F049 complement/guard counts retained with all Unknown/gate limits."
+  }
+]

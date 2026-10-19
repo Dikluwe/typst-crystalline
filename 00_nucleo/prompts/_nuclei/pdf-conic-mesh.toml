@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "pdf-conic-mesh"
-title = "Domínio e codificação da malha cônica PDF"
-
+title = "PDF conic mesh domain and encoding"
 [[claims]]
 id = "encoding"
 level = "must"
-statement = "A malha Type 6 usa flag de 8 bits, doze pontos de coordenadas de 16 bits big-endian e quatro cores de componentes de 8 bits. Decode e payload provêm do mesmo domínio calculado; o dicionário não presume [0,1] para coordenadas."
-
+statement = "Type6 mesh uses8-bit flag, twelve16-bit big-endian coordinate points and four8-bit component colors. Decode/payload derive from same computed domain; dictionary never assumes[0,1] coordinates."
 [[claims]]
 id = "coverage"
 level = "must"
-statement = "A extensão da malha cônica deve cobrir a área potencialmente pintada na página, inclusive stroke e caminhos fora da caixa nominal, sem limitar a cobertura a um círculo inscrito. O coletor transporta tamanho físico da referência e limites do canvas no espaço do padrão; o emissor de malha determina centro, raio e Decode."
-
+statement = "Conic mesh extent covers potentially painted page area including stroke/paths outside nominal box, not limited to inscribed circle. Collector transports physical reference size/canvas bounds in pattern space; mesh emitter determines center/radius/Decode."
 [[claims]]
 id = "orientation"
 level = "must"
-statement = "O centro autoral é relativo à referência; no espaço unitário Y-up do Pattern, cy=1-center.y. O início está à esquerda para angle=0 e o percurso das cores e a rotação positiva são horários. A direção é medida no espaço físico da referência antes da transformação de grupos, sem deformar ângulos pela razão largura/altura."
+statement = "Author center is reference-relative; in Pattern unit Y-up space cy=1-center.y. Start is left for angle=0; color progression/positive rotation clockwise. Direction is measured in physical reference space before group transforms without width/height aspect deforming angles."

@@ -2,13 +2,13 @@
 Hash do Código: e1cbb84f
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
-- 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:42175932c75f37ed19205d1d82526969999e18fba8fed16f1b1dcff6e418bc0f
-- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
-- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:ff71dfc6648d6deb4b2b8054e3d58a93777d17837129f0f1b1e7e138ffb6943c
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
+- 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/boxed.rs`
@@ -16,511 +16,72 @@ Núcleos Tekt:
 
 ## Evidence before specification
 
-The current consumer implements the operations specified below at `01_core/src/compiler/layout/boxed.rs:17`, `01_core/src/compiler/layout/boxed.rs:387`, `01_core/src/compiler/layout/boxed.rs:415`.
+`01_core/src/compiler/layout/boxed.rs:17,387,415` was inspected. It establishes current behavior/ownership, not upstream intent or new parity. Historical probes do not certify current oracle `bd5ebec285505889e8ff1d4f68804ab147a699f3`. All chronological measurements remain in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/boxed.md`; language geometry/text/styles/errors govern, representation mechanics may diverge.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+box-dimensoes-2026-10-13/probe.json.gz, containers-clip-2026-10-13 and box-composicao-2026-10-13/before.json.gz preserve sources, exact HEAD/dirty tree/status/diffstat/UTC, binaries and pinned oracle. They refute missing right inset, tail-only collection/double Shape translation, added outset advance, vertical-only clip/no radius and proxy baseline. Measured upstream container.rs:96-127, inline/box.rs:26-50 and flow/block.rs:255-295 support full-frame composition. stroke/before/results.json, first-validation.json.gz, stroke/after/results.json and radius-legacy-before.json.gz distinguish mask inner stroke edge and external/central/internal radii; pinned shapes.rs:617-662,1163-1178 supplies source evidence. The constrained-measurement agreement is separately owned by `00_nucleo/prompts/core/compiler/layout/measurement.md`.
 
-## Ownership and contract
+`lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz` inventories the unused local at 263; no new parity follows. Installed-line-ascent and position-frame-carrier probes distinguish geometric first baseline from fictitious font strut and sealed document coordinates from paint-only observation.
 
-This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/core/compiler/layout/mod.md`; the contract below defines this unit's operations, not ownership of that hub.
+Source→PDF RED probes in `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` and inspection of this consumer's FrameItem handlers precede textual-separator changes. Public-contract approval in `00_nucleo/prompts/core/entities/layout_types.md` was received on 2026-09-28 and recorded in materialization provenance.
 
-Own inline Box geometry: explicit dimensions, insets/outsets, baseline shift, clipping, radius, fill/stroke and parent bbox. Measure through the existing constrained helper but obtain natural text baseline/inline extents from composition. A body with a text baseline uses inset plus actual ascent; a non-text body retains its box-bottom fallback. The baseline may lie outside the box; aggregate nonnegative ascent/descent without clipping its meaning.
+Bilateral probes/exact state in `lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json` and before/ measure U+002D versus SHY with coincident geometry in eight controls. This consumer's FrameItem traversal is archived in approved-before/. The owner confirmed `00_nucleo/prompts/core/entities/layout_types.md`.
 
-Isolate the parent's pending line, horizontal fractions, natural widths and repeats while composing the body, then restore and append body-local boundaries rebased by the parent prefix once. A fractional box registers its boundary only after body emission and records its provisional natural width; `00_nucleo/prompts/core/compiler/layout/line_commit.md` replaces that occupancy by the allocation rather than adding both. Child repeats remain associated with their real boundaries.
+The human approved manifest`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d` for historical T1–T3; receipt: `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`. Bilateral Parent evidence and Solid controls remain in the approved contract; structural inspection does not replace them. `lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` preserves sources, dirty state, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC, diffstat and binary hashes; it covers containers, Place and Rotate with Solid and Gradient Parent. The before-source/syntax-nodes inventory records this consumer's Group constructions/destructurings before editing: [299,330,525,555,576,717]. `layout_types.rs:531–539` does not distinguish roots from technical groups; `helpers.rs:253–269` rebuilds Group and must preserve the field. Box groups background/body; Block leaves body flat except for clipping. Preserving coordinates is a language requirement; envelope form is mechanics. Approval does not close previously measured general Rotate/Box geometry divergences.
 
-Preserve the existing paragraph-to-box calibration branch and its size-scaled values at the source evidence anchor. It is an empirical compatibility behavior, not a vanilla-derived general typography formula; replacement requires separate evidence. Ignore only direct private HTML markers when deciding an empty line. Restore outer bbox/width; the composition correction below supersedes preservation of defective shape/group emission for non-fractional boxes.
+AST spans, patterns/guards/bodies and complements were checked before code. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC, sources/L0/configuration, hashes, status and git diff HEAD --stat. classification.json records 70 cases/complements across 26 owners using pinned CI-parser tree. Relevant L0 clauses were read with source; this proposes neither new architecture nor inferred upstream intent. Rust patterns/exhaustiveness are mechanics; product semantics/morphology/geometry/effects/diagnostics remain unchanged.
 
-## Acceptance and limits
+AST sites: F002 first_baseline at 623; F003 frame_items_have_text_baseline at 668; F004 inspect at 763. Prepared Shape transport is covered by the approved tiling package, without carrier-only rendering certification.
 
-Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+`lab/results/construction/diagnostics/par-box-fronteira-2026-10-17/` before.json.gz, before-measurement.json.gz, before-analysis.json, supplement-before-measurement.json.gz and finite-before-measurement.json.gz preserve HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, dirty tree, UTC/status/stat, sources/argv/binaries and historical `9f2b6e8715237cb086899a42873660fe744622e8`. EmptyPar/Block boundaries refute normalized calibration for nonfractional Box; finite60–70 exposes lost AFTER and terminal extra pages, and first Box45/region 30 must not create an empty page. Pinned inline/box.rs:35-68 and flow/distribute.rs:321-373 admit actual frame geometry. regions-before-measurement.json.gz identifies the old CLI binary separately from observed source tree and regions-before-analysis.json records pdftocairo per-page argv/SHA. Native SVG template output literally writes {p}/only first page, so cannot measure later-page geometry; that CLI issue remains open. Regional RED exposes stale weak margin selecting legacy calibration without an active chain.
 
-## Separadores textuais — materialização autorizada em 2026-09-28
+TS1 evidence in `lab/results/construction/diagnostics/text-argumentos-2026-10-17/` precedes human approval of manifest `771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba`: typed full text-size implementation/tests under 12GiB/zero swap, no release/merge/push. Size/em folding, typed arguments and contextual values are separate from refuted styled-equality assumptions/RG1.
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz` preserves HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree, status/diffstat/UTC and 2,099 sources/L0s. before.json.gz contains 92 pairs; extra-before.json.gz 26; boundary-before.json.gz 10; repeat-before.json.gz 4. Oracle commit: `bd5ebec285505889e8ff1d4f68804ab147a699f3`; binary SHA-256: `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`; initial Tekt: `2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095`. At width 160pt/margin 8/font12, hanging10 leaves first-line x8 and moves continuations x8→18; negative-5 requires x3. RTL leaves first right edge 152 and moves continuations to 142. Tekt ignores the length. MLA defaults to 18pt (1.5em); ambient set 3em does not replace it, while show-set3em requires 36pt; IEEE/Plain do not acquire hanging indent through that show-set. bibliography.where(style:"mla") does not match in the vanilla probe: preserve selector choice rather than forcing override.
 
-`01_core/src/compiler/layout/boxed.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
-dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
-2026-09-28 e registrada na proveniência da materialização.
+Inline-only Block/Box bodies ignore hanging10; explicit Par inside them and Block with Parbreak apply it. Simple Heading/Raw/List/Quote do not. Partial, zero, repeated and empty-scope declarations close boundaries: FIRST/MIDDLE/LAST at 5.168/27.464/49.76 versus all 5.168 in Tekt. The first lexical probe used literal brackets; it was refuted, corrected to #[...] and retained as extra-before-initial, not evidence of Styled scope. Extreme values produce extractor-clipped paint; missing pdftotext output does not mean Content deletion. A partial 24pt font does not change the shared length's 12pt em, as partial-font records.
 
-### Responsabilidade deste owner
+Pinned source: `typst-realize/src/lib.rs:1061–1085,1190–1219` distinguishes fragment/Par and interruption; `typst-layout/src/flow/collect.rs:72–134` selects flow; `inline/mod.rs:174,216–221` and `collect.rs:141–147` resolve shape; `inline/line.rs:496–503` positions; `rules.rs:510–523` provides CSL inset/compensation. `typst-library/src/model/bibliography.rs:112–127,367` determines default/precedence. This measures language/geometry, requiring neither vanilla Rust structure nor inferred historical intent. Lost boundaries, run-relative em, double indent, page reset, imposed greedy fallback, lost copies, reexecuted callbacks or control regressions refute closure.
 
-Transportar posição, avanço já consumido, estilo e origem do TextSeparator sem criar tinta, baseline ou novo avanço; manter ordem dos filhos.
+## Exclusive ownership and current contract
 
-Conservar as responsabilidades existentes; a aceitação segue texto e geometria
-observáveis, incluindo os controles de adjacência e os invariantes pinados.
+Own inline Box geometry: dimensions/inset/outset/baseline shift/clip/radius/fill/stroke/parent bbox. General hub state remains in `00_nucleo/prompts/core/compiler/layout/mod.md`. Nonfractional boxes compose the full body once through isolated geometric-origin subframe, including committed items and pending tail, without parent's pending line/cursor/fractions/natural widths/repeats. Measure using existing constrained helper, obtain actual baseline/inline extents from composition. Explicit dimensions are total before outset, inset reduces inner region and positions body; Auto uses real union/advance plus inset. Outset changes paint only, never advance/ascent/descent. No probe number becomes a typography formula.
 
-## Identidade textual — materialização aprovada
+First effective text baseline, including wrappers/transforms, plus top inset determines natural baseline; nontext uses box bottom. Apply existing shift without clamping baseline inside the box; aggregate nonnegative ascent/descent. At a first pending geometric line, nonfractional Box does not preinstall font ascent: compose body, install max(baseline,0), and position top as origin+installed_ascent-baseline. Existing baselines retain their route. Textless origin does not acquire a font strut.
 
-### Medição anterior à decisão
+Keep backing/body/clip on the same inline box during line movement. Logical frame dimension can be smaller than painted region. Clip always constrains both axes, including Auto height, with resolved radii; body mask does not clip backing/stroke. Insets/outsets are explicit local translations, without reflecting or adding parent origin twice. Preserve Semantic/Link/Image wrappers and local parent bbox; restore outer bbox/width afterward. Own bbox only when both dimensions are explicit remains a bounded legacy policy, not complete relative-gradient parity.
 
-As sondas bilaterais e o estado exato em
-`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
-e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
-A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
+For represented uniform stroke, inset mask by half nonnegative thickness and shrink each dimension by full thickness, clamped nonnegative. Body global position stays fixed by relative clip compensation. Resolve external radius capped at half smaller painted dimension plus half thickness; derive central/internal radii by concentric contour distance, clamped nonnegative. Backing ShapeKind uses central radius, mask internal radius: external 4/stroke 2 requires internal 2, not 3. Outset remains paint-only. Preserve total constrained measurement agreement through its canonical owner.
 
-### Responsabilidade exclusiva
+Restore parent pending-line/fraction/repeat state, append body-local boundaries rebased by parent prefix once, and retain repeat associations. Fractional Box registers its real boundary only after body emission and stores provisional natural width; `00_nucleo/prompts/core/compiler/layout/line_commit.md` replaces occupancy with allocation rather than adding both. Its legacy calibration path remains explicitly incomplete; nonfractional paths cannot select it from inherited prev_margin_is_parbreak. Preserve the empirical paragraph-to-fractional-Box size-scaled calibration until separate evidence, never claim it is a universal upstream formula.
 
-Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
+Reinsert decoration segments at body origin and resolve known-size local fixups without indexing parent line using child-relative paths. Only direct private HTML markers are ignored when deciding empty line. Treat TextReplacement as a transparent visual envelope in this owner's traversals; descend into children preserving text, order, coordinates and existing calculations, without a new algorithm or advance. The pinned text-replacement nucleus shares invariants only; this prompt owns only its declared consumer. Transport TextSeparator position/style/origin/consumed advance without ink/baseline/new advance, retaining child order. After gathering body and prefix, State::interrupt ends lexical tracking continuity: inline Box is an object barrier even if emitted as transparent text leaves. Do not add an outside gap or alter nominal advance/dimensions/clips/fr/repeats/SHY.
 
-O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
-possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
-transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+For nonfractional Box at line start after an active Block chain, enter at prior causal boundary plus pending margin. Weak paragraph margin collapses against active-size par.spacing; strong uses previous margin alone. Clear consumed chain/margins and leave baseline pending at geometric top for actual Box ascent; outside chain retain ordinary admission. Whole-line settlement aggregates real top/descent even for baseline outside box.
 
-## Continuidade lexical do tracking — 2026-09-29
+An empty ordinary finite root after a region transition may replace prepared typography baseline with useful geometric top and clear inherited weak margin only with no current line/causal unit, flow witness/last flush, subframe/cell/columns, floats/reservations, exterior decoration collector or transaction/checkpoint. Literal causal separators/current-region units forbid recertification. This is not generalized to excluded regional mechanisms, which retain their own protocols.
 
-### Medição anterior à decisão
+In nonfractional composition, wrap body including technical clip in paint_root of total box_w/box_h at local zero before inset; outer positioning/baseline Group remains technical and backing is preceding sibling outside because it uses parent. Fractional provisional mask is not a certified full root. Preserve received paint_root and prepare backing stroke through Layouter in both paths before emission; Color fill becomes FramePaint::Solid without widening Box.fill. Retain geometry/clip/advance/baseline/decor and legacy gradient policy. Remove only unused local box_h sum in explicit-height branch, preserving h_pt/Group inner_height/content fallback/inset/clip/line contribution.
 
-`lab/results/construction/diagnostics/correcao-tracking-escopos-2026-09-29/before-pdf/results.json` e `summary.json` registram 30 fontes/90 PDFs, comandos, fontes e estado exato em initial.json e before-pdf/provenance.json, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Escopos iguais repetidos acumulam cerca de 0.4pt e aninhados 0.8pt; wrap positivo muda a linha. `text_tracking.rs:50` compara apenas TextStyle resolvido. Vanilla `inline/collect.rs:287-295` conserva segmentos de cadeias distintas; `inline/shaping.rs:1269-1295` soma tracking apenas dentro de cada run. Isto mede fronteiras textuais observáveis, não exige copiar PartialEq ou representação da chain. Hide/Box também são fronteiras: hide.rs:21-24 e boxed.rs:157-208 substituem/restauram buffers sem preservar essa distinção.
+F002 nominal complement is TextSeparator/Line/Image/Shape; F003 TextSeparator/Line/Image/Shape/Link; F004 TextSeparator/Line/Glyph/Image. Replace only wildcard patterns with in-scope FrameItem alternatives, preserving prior body/arms/guards/transforms/calls/returns/order. F003 belongs to retained fractional legacy and does not recurse Link; do not silently certify/fix that distinction. Preserve callbacks/effects/metadata/clipping/fonts/positions/paint/width under their current owners. This work does not expand traversals, turn wrappers into leaves or substitute text/ActualText for geometry. Test helpers preserve fixtures/expected outputs/tolerances/counts/Unknown failure; cleanup cannot accept missing observation. Nominal alternatives retain the prior shared body and visible informative V19 notes; one arm's execution does not prove every alternative.
 
-### Contrato interno da correção
+TS1 changes only this owner's test fixtures/adapters from Style::Size(Pt) to Size(absolute Length), and StyleDelta.size expectations to Option<Length>; preserve language geometry rather than taking representation snapshots. Exterior slot checks use effective current-line bounds for hanging; isolated inline body does not inherit generic indent. Subframe owns local context; an already-present Box receives only relevant exterior application.
 
-Depois de reunir body e prefixo da caixa inline, interromper a continuidade via State::interrupt. A caixa é barreira de objeto mesmo quando seus itens são materializados como folhas textuais transparentes. Não somar intervalo adicional ao exterior nem alterar avanço nominal, dimensões, clipping, fr/repeats ou SHY.
+## Acceptance and explicit remaining scope
 
-Correção interna de paridade ADR-0127 em fluxo contínuo. Aceitação RED→GREEN, controles bilaterais de texto/posições/linhas e preservação dos controles de tracking uniforme; build e lint sem erros, resselo somente destes owners. Demais limites abertos mantidos.
+Require RED→GREEN for dimensions/inset/outset, committed Shape+Text collection, prefix/suffix baselines, horizontal clip/Auto height/radius/stroke and no-clip controls. Preserve complete stroke and logical dimensions, compare actual constrained measures with explicit totals. Older flat/no-mask tests measure language geometry/content rather than defective mechanics. Include sealed positions through located body/inset/prefix/nesting/Shape/labels in final document and ensure private carriers cannot escape; paint alone is insufficient. Compare source→PDF/SVG/PNG, unchanged expected values/tolerances and causal marker positions.
 
+Finite root admission includes EmptyPar boundaries, finite60–70, larger following font, first tall Box, regional small/textual-tall Box, textual prefix, double breaks and inline controls, with no lost/duplicated body. Baseline offsets, strong margins, font changes, late settlement, positions, reservations and rollback refute expansion. Fractional width:1fr zero-width versus 145.849609pt remains an explicit refutation; composition/clip/inset/outset/paint-root completion is still assigned to the fractional follow-up recorded in `lab/history/construction/records/00_nucleo/materialization/box-frame-composition-2026-10-13.md`. Finite certification excludes columns/floats/reservations/pending transactions/checkpoints/external decoration collectors. General relative gradients, tiling/resource integration and unrelated Box/Rotate baseline/RTL failures retain their own gates; the SVG page-template defect remains open.
 
-## Caminhos residuais internos — 2026-10-13
+Preserve observable text/geometry, adjacency controls and pinned invariants. TextReplacement acceptance covers text/boxes, causal tests, recursive transport and literal-hyphen controls, never PDF bytes or new selection.
 
-### Medição anterior à decisão
+L0 comes first, with RED→GREEN and restricted resealing. Preserve geometry/text in source→PDF/SVG controls and revalidate suite/build/doc/check/fmt/lineage. This metadata migration neither replaces Shape.fill/stroke with FramePaint nor implements PDF/SVG/raster patterns. Prepared paint transport, native exporter integration and verification (historical T1c/T2/T3) remain explicitly open and already authorized. Build success does not establish tiling parity or production readiness.
 
-`01_core/src/compiler/layout/boxed.rs` nas linhas 263 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
-### Decisão e aceitação
+Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
 
-Eliminar somente a soma local box_h sem consumidor no ramo de altura explícita. Manter h_pt, inner_height do Group, fallback de conteúdo, inset, clip e contribuições à linha.
+Internal continuous-flow ADR-0127 maintenance introduces no enum/field, trait method/public signature, default, dependency, compatibility or phase. Do not materialize historical pending proposals. L0 precedes restricted bilateral resealing. Add no suppression, threshold change or match→if-let rewrite to hide V16.
 
-Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.
+Before code, run new FrameVisitor control and workspace suite with unchanged expected outputs, and establish structural RED for 70 family warnings through AST reading. Afterwards require zero covered-family V16 and no new warning, retaining external V16 as pending. For productive core matches reached by cargo check -p typst-core, use a disposable copy with a sentinel FrameItem variant to measure absent E0004 barriers before/present after. The probe covers only compiled sites, not cfg(test) helpers or L3 blocked by dependency. Across the whole package replay patterns/guards/bodies, verify unchanged enum/signatures, real build/tests and no stub bodies.
 
-## Composição geométrica da caixa — 2026-10-13
-
-### Medição anterior à decisão
-
-box-dimensoes-2026-10-13/probe.json.gz e containers-clip-2026-10-13
-preservam sondas fonte→PDF, pin vanilla, binários, fontes, HEAD/working tree,
-status/diffstat e UTC. boxed.rs:99-107 omite o limite direito ao instalar
-width; :164-202 coleta só a cauda da linha e translada novamente formas
-comitadas; :219-225 soma inset/outset à largura explícita; :261-329 clipa
-apenas por overflow vertical e ignora radius; :337-383 usa fundo separado
-da linha e altura proxy. O texto Q após forma fica em outra baseline;
-inset/outset deslocam Q mesmo com tamanho explícito fixado. O controle
-da caixa vazia sem inset/outset coincide. Fonte normativa medida:
-upstream container.rs:96-127, inline/box.rs:26-50, flow/block.rs:255-295.
-A composição interna é mecânica; tamanho, baseline e recorte são geometria
-observável. Snapshot inicial desta correção: box-composicao-2026-10-13/
-before.json.gz.
-
-### Contrato proprietário
-
-Caixas não fracionárias compõem o corpo completo uma vez pelo subframe
-isolado de origem geométrica. Capturar tanto itens comitados quanto a
-cauda; o cursor/linha e pendentes do pai não pertencem ao corpo. Largura e
-altura explícitas são dimensões totais antes de outset; inset reduz a região
-interior e posiciona o corpo dentro dela. Em auto, a dimensão natural é
-a união/avanço real do corpo mais inset. Outset só expande pintura, não
-avanço nem ascent/descent da linha. Não impor medidas de probe como fórmula.
-
-A primeira baseline textual efetiva do corpo, incluindo wrappers e
-transformações, determina a baseline natural com inset superior; sem
-baseline, usar a base da caixa. Aplicar o shift existente sem limitar a
-baseline ao interior e informar extensões não negativas ao pai. Fundo,
-corpo e recorte acompanham a mesma caixa inline quando a linha é deslocada.
-O frame lógico tem as dimensões de layout; a região pintada pode excedê-lo.
-Clip sempre restringe os filhos à região de pintura declarada, em ambos os
-eixos e com height auto; a máscara usa os mesmos raios resolvidos. Fundo
-e stroke não são recortados pela máscara do corpo. Insets e outsets são
-translações locais explícitas, sem refletir ou somar a origem externa duas
-vezes. Preservar wrappers semânticos, links, imagens e parent bbox local;
-restaurar bbox externa após compor o corpo. A política existente de só
-instalar bbox própria quando ambos os tamanhos são explícitos permanece
-limitada, não é declarada paridade completa de gradientes relativos.
-
-Reinserir segmentos de decoração com a origem do corpo. Resolver fixups
-locais quando as dimensões da caixa são conhecidas, sem indexar a linha
-pai com paths relativos ao filho. Conservar a calibração empírica de
-parágrafo→box até medição própria. Sem contrato público ou fase novos.
-
-### Etapas e limites explícitos
-
-A composição permanece **incompleta** enquanto a etapa B de
-`lab/history/construction/records/00_nucleo/materialization/box-frame-composition-2026-10-13.md` não migrar
-caixas width_fraction. Essa largura só é conhecida no fechamento da linha;
-seu caminho atual de índices de frações/repeats permanece separado e
-identificado, sem tratar como resolvido o clip/inset/outset fracionário.
-A etapa A trata a composição não fracionária integral, sem limitar corpos
-a texto/shape de probes. Esta divisão não reduz o objetivo final.
-
-Exigir testes RED→GREEN de dimensões, inset/outset, coleta de formas e texto,
-baseline do prefixo/sufixo, clip horizontal/height auto/radius e controle
-sem clip. Medir novamente PDFs e preservar semântica das suites. Testes
-antigos que exigem representação flat ou ausência de máscara quando o corpo
-cabe devem medir geometria/conteúdo, não conservar a mecânica defeituosa.
-
-### Borda interna do recorte — refutação da primeira composição
-
-Após os oito controles sem stroke coincidirem pixel a pixel, as quatro
-sondas stroke/before/results.json mostram a tinta do corpo cobrindo metade
-do stroke de 2pt. Na caixa 20×14pt sem radius/outset, a tinta ocupa 1120
-pixels contra 864 no controle pinado; a borda preta conserva bounds externos
-mas perde área. Upstream shapes.rs:617-662 resolve clip_rect pela borda
-interna do stroke, enquanto o candidato usa o contorno central do fundo.
-Fontes/L0 anteriores e gates estão em first-validation.json.gz.
-
-Para o stroke uniforme já representado pela entidade, deslocar o clip
-para dentro por metade da espessura não negativa, reduzindo ambos os
-tamanhos em sua espessura (sem negativos). A semântica dos raios externos, centrais e internos é qualificada abaixo.
-Outset continua expandindo somente a pintura. A posição do corpo não muda;
-sua translação relativa ao clip compensa o novo início da máscara.
-Exigir RED→GREEN e sondas com/sem radius/outset, conservar o traço completo
-e o tamanho lógico. Nenhuma nova representação pública de stroke.
-
-A regressão proprietária também compara o resultado de medição restrita
-com as dimensões totais da caixa explícita, para impedir que pré-layout
-e composição discordem sobre inset/overflow. A fórmula de medição pertence
-exclusivamente a `00_nucleo/prompts/core/compiler/layout/measurement.md`.
-
-### Raios com stroke — refutação da primeira redução
-
-Medição anterior: stroke/after/results.json ainda distingue os casos rounded
-e rounded-outset do oráculo; rect/outset já coincidem. Fonte pinada
-lab/typst-original/crates/typst-layout/src/shapes.rs:1163-1178 define o raio
-resolvido como externo; o central subtrai meia espessura e o interno uma
-espessura inteira. A primeira correção confundiu raio externo com central.
-Snapshot da implementação e da suíte: radius-legacy-before.json.gz.
-
-Resolver cada raio externo, limitado a metade da menor dimensão de pintura
-mais meia espessura; derivar raio central e interno pela distância entre
-contornos concêntricos (todos não negativos). ShapeKind do fundo recebe o
-raio central; o clip recebe o interno. Manter posições, dimensões e origem
-do corpo. Teste exige raio interno 2pt para raio externo 4pt/stroke 2pt;
-não conservar 3pt como esperado da implementação anterior. Correção interna.
-
-## Baseline inicial de caixa sem strut fictício — 2026-10-14
-
-### Medição anterior à decisão
-
-box-baseline-inicial-2026-10-14/before/results.json.gz registra doze fontes
-contra o vanilla pinado, binários, estado sujo, HEAD e UTC. Caixa 8×6pt
-sozinha começa em y pixel 22 contra 20 a 144dpi; com Q adjacente ambos
-começam em 22. Shift baseline 10pt sem texto revela a mesma contribuição
-fictícia. boxed.rs:21-38 instala fonte antes de conhecer a caixa;
-line_commit.rs:421-437 e sub_frame.rs:292-300 confundem zero com ausência
-e só consideram texto em condições parciais. Fonte pinada inline/line.rs:
-559-568 acumula top/bottom dos frames realmente presentes. A posição é
-observável; Option e buffers são mecânica. Snapshot fonte/L0: before.json.gz.
-Hipótese: diferir a baseline da primeira Box e combinar somente conteúdo
-real elimina o deslocamento. Refutar se controles de texto, transformações,
-Raw, HTML causal ou caixas aninhadas passarem a se deslocar.
-
-### Contrato deste owner
-
-Na primeira linha de origem geométrica ainda pendente, caixa não fracionária não instala ascent de fonte antecipado. Compor primeiro o corpo isolado, determinar sua baseline e instalar max(baseline,0) como ascent inicial (inclusive zero); o topo da caixa é origem + ascent instalado - baseline. Preservar o caminho fracionário, a calibração parágrafo→box e as linhas que já têm baseline. Informar ascent/descent próprios sem consumir a altura de fonte fictícia. A decisão é geométrica, não uma classificação por tipo do corpo.
-
-Correção interna ADR-0127, sem API, default ou fase novos. L0 primeiro,
-RED→GREEN, controle de ascent zero, sondas de geometria e suíte completa.
-Não substituir esperados de regressão para conservar o defeito.
-
-## Posições no referencial composto — 2026-10-14
-
-### Medição anterior à decisão
-
-box-contexto-2026-10-14/probe.json.gz, fontes/binários/HEAD/working tree/UTC
-preservados: Box, inset2pt, prefixo e aninhamento publicam (0,0), mesmo
-quando a tinta se desloca. A diferença da baseline do context direto é
-uma questão separada: não copiar o vanilla apenas por diferir. mod.rs:
-1131-1148/1180-1200 escreve pontos locais em runtime.positions; Box agrupa
-o corpo em outro referencial; finish.rs:295-302 sela o mapa sem recompor
-esses pontos. Realized escreve com or_insert; labels têm mapa paralelo.
-HTML já transporta markers privados pelo frame em html_frame.rs:30-199.
-O registro single-pass e sealing por sub-store são preservados, ADR-0073/
-0074 §§posição/modelo híbrido; não se adota introspecção global vanilla.
-A inspeção do núcleo coordinates e seus owners mostrou usos absolutos
-em grid e explicitamente locais em Place/Box. A qualificação do núcleo
-conserva ambos e exige transformação até a página, sem dupla origem.
-Snapshot anterior: posicoes-compostas-2026-10-14/before.json.gz.
-Geometria/identidade são observáveis; o carrier e seu índice são mecânica.
-
-### Contrato deste owner
-
-A aceitação deve incluir posições seladas de corpo localizado, inset, prefixo, aninhamento, shape e labels; não basta observar tinta. Testes consultam o documento final e verificam que carriers privados não escapam. A composição geométrica do consumer permanece a mesma nesta correção.
-
-Correção interna ADR-0127: sem API/campo público, flag/default ou mudança
-de fase. L0 primeiro; RED→GREEN de coordenadas, ausência de tinta/altura
-fictícia, identidade, ordem, clones visuais e rollback; revalidar os
-controles HTML, geometria, contexto/queries e suíte completa.
-
-## Referencial de pintura — transporte aprovado T1b — 2026-10-14
-
-### Medição anterior à decisão
-
-O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
-foi aprovado pelo humano para T1–T3; recibo em
-`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A evidência bilateral de Parent e controles Solid está no contrato aprovado;
-ela não é substituída por inspeção estrutural. A rodada
-`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
-fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
-diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
-e Gradient Parent. O inventário before-source/syntax-nodes registra neste
-consumer as construções/desestruturações antes da edição: [299, 330, 525, 555, 576, 717].
-layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
-reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
-Block mantém body plano exceto no clip. Preservação do referencial é requisito
-de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
-divergências gerais de geometria previamente medidas em Rotate/Box.
-
-### Responsabilidade exclusiva
-
-No caminho não fracionário, envolver somente o body (incluindo seu recorte técnico) numa raiz de pintura de tamanho total box_w/box_h e origem local zero, antes do inset. O Group externo de posição/baseline continua técnico. O backing permanece irmão anterior, fora da raiz criada para os filhos, pois usa o pai. Não mudar geometria, clipping, avanço, baseline, decoração ou política legada de gradientes. Box fracionário continua incompleto até sua composição no fechamento da linha; não marcar sua máscara provisória como raiz completa.
-
-### Aceitação e incompletude
-
-L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
-nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
-A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
-implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
-e já autorizados. Não alegar paridade de tiling ou produção a partir do build.
-
-
-## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
-HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
-layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
-materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
-prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
-`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
-comprovam que dense-open e stroke-open ainda divergem nos três targets.
-O contrato foi aprovado no manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A preparação/contagem de objetos é mecânica de transporte; render, contornos,
-texto, geometria e diagnósticos são obrigações observáveis de linguagem.
-
-### Responsabilidade exclusiva desta unidade
-
-Nos dois caminhos de Box, preparar o stroke do backing com o Layouter antes do emit; fill Color torna-se FramePaint::Solid. Preservar radius, clip, inset/outset, pos e distinção entre raiz dos filhos e paint do próprio container. Não ampliar o tipo declarativo Box.fill.
-
-### Aceitação e continuidade
-
-Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
-aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
-somente no âmbito do contrato aprovado. Preservar os demais comportamentos
-vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
-fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
-carriers e sem fallback sólido para obter build verde. Não elevar o limite
-antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
-clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
-página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
-quando integrados e verificados; estado intermediário quebrado ou parcial
-não é certificação de produção. T4 e publicação continuam fora deste pacote.
-
-
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
-
-### Medição anterior à decisão
-
-F002: 01_core/src/compiler/layout/boxed.rs:623 (first_baseline); F003: 01_core/src/compiler/layout/boxed.rs:668 (frame_items_have_text_baseline); F004: 01_core/src/compiler/layout/boxed.rs:763 (inspect). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
-
-### Prescrição exclusiva desta unidade
-
-- **F002 — `first_baseline`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Line`, `Image`, `Shape`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
-
-- **F003 — `frame_items_have_text_baseline`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Line`, `Image`, `Shape`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
-
-- **F004 — `inspect`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Line`, `Glyph`, `Image`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
-A diferença entre first_baseline e frame_items_have_text_baseline é mantida: o segundo é do caminho fracionário legado preservado pelo contrato vigente e não recursa em Link. Esta manutenção não certifica nem corrige essa limitação de geometria; não tratá-la como nova decisão de paridade.
-
-
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
-
-### Gate e aceitação
-
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
-
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
-
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
-
-## Fronteira Par/Box e região finita — 2026-10-17
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/par-box-fronteira-2026-10-17/before.json.gz`,
-`before-measurement.json.gz`, `before-analysis.json`,
-`supplement-before-measurement.json.gz` e `finite-before-measurement.json.gz`
-guardam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
-commitado, status/diffstat, UTC, fontes, argv, hashes de binários e o pin
-vanilla 9f2b6e8715237cb086899a42873660fe744622e8.
-Em EmptyPar→Box8×7→AFTER, Tekt yMin31.108413 contra22.400001pt;
-em BEFORE→EmptyPar→Box→AFTER,54.625613 contra45.917187pt.
-Espaçamento30pt inverte o erro:70.225613 contra77.117188pt.
-Block8 abaixo0 seguido só de Box tem altura33.1172 contra31pt.
-Em alturas finitas60–63pt, AFTER desaparece no Tekt e fica visível na página2
-no pin;64–70pt deixam tinta na página1 mas página terminal extra no Tekt.
-Box alto45pt na primeira região30pt cria duas páginas contra uma no pin.
-boxed.rs:22–42 usa constantes normalizadas e ensure_initial_baseline;
-line_commit.rs:501–539 só admite antes do commit em altura reduzida;
-region_progress.rs:118–133 pode avançar após tinta já comitada fora da página.
-Fonte pinada inline/box.rs:35–68 publica a baseline do frame;
-flow/distribute.rs:321–373 admite frames pela geometria real.
-São posições, dimensões e páginas da linguagem, não exigência de copiar
-buffers/algoritmos Rust ou bytes PDF. A intenção histórica não é inferida.
-A hipótese de fronteira geométrica é refutada por controles inline,
-margens fortes, fontes, baseline deslocada, assentamento tardio, posições,
-primeiro frame alto, subframes ou reservas/rollback alterados.
-
-### Decisão e limites
-
-Correção interna/de paridade ADR-0127: L0 primeiro, RED→GREEN e resselo
-restrito, sem API pública, novo modo/default, dependência ou fase.
-A composição fracionária de Box permanece incompleta na etapa B anterior:
-a testemunha width:1fr tem largura0 contra145.849609pt. Sua rota de
-calibração é conservada neste reparo e não recebe crédito de paridade.
-A admissão nova certifica somente página raiz finita ordinária, sem colunas,
-reservas/floats, transação/checkpoint pendente ou collector externo de
-decoração. Esses mecanismos conservam os protocolos próprios, não são
-silenciados nem declarados corrigidos. Aceitação inclui matriz bilateral,
-controles sem fronteira, finite60–70, fonte maior posterior, primeira caixa
-alta e rebase de origem/contexto; suíte completa, build, Clippy, rustdoc,
-linhagem bidirecional e inventário SARIF diferencial sob12GiB e swap zero.
-
-### Responsabilidade exclusiva deste owner
-
-Para Box não fracionário no começo de linha após cadeia de bloco, usar a
-fronteira causal anterior mais a margem pendente. Se a margem anterior é
-fraca de parágrafo, colapsar com par.spacing resolvido no tamanho ativo;
-se é forte, usar apenas a margem anterior. Deixar a baseline pendente no
-topo geométrico e limpar a cadeia/margens consumidas; layout_sized instala
-o ascent real não negativo da caixa. Não consultar fontes para inventar
-strut de caixa sem texto nem executar seu corpo duas vezes. Fora dessa
-cadeia, preservar admissão ordinária. Box fracionário conserva a rota
-anterior explicitamente incompleta. Topo e descida reais, inclusive baseline
-fora da caixa, continuam agregados para o assentamento da linha inteira.
-
-### Primeira caixa após transição regional — evidência adicional
-
-`regions-before-measurement.json.gz` identifica explicitamente o binário CLI
-anterior (SHA idêntico a before-measurement, build_source_hashes do checkpoint)
-e separa os hashes da árvore observada durante a sonda. Sua conversão de
-cada página PDF por pdftocairo está em regions-before-analysis.json, com
-argv/SHA por página. Em EmptyPar→pagebreak→Box7, topo32.4375 contra8pt;
-em texto→pagebreak→Box7,10.117188 contra8pt; Box45 após EmptyPar/pagebreak
-fica em31.109375 contra8pt. Os controles pagebreak→Box7→texto e duas quebras
-explícitas coincidem. Os SVGs nativos com template são evidência separada:
-Tekt grava literalmente {p} e só a página inicial; não usar isso como
-medição de geometria das demais páginas. Essa limitação CLI permanece aberta.
-O RED regional após o primeiro reparo conserva duas páginas, mas ainda
-mede topo31.182703 em vez10pt com FixedMetrics: o braço legado é alcançado
-por prev_margin_is_parbreak herdado mesmo sem cadeia causal vigente.
-
-A calibração remanescente deve ser condicionada explicitamente a Box
-fracionário. Em raiz finita ordinária vazia após transição, sem linha/unidade
-causal na região, sem flow witness, último flush, subframe/célula/colunas,
-floats/reservas, collector externo ou transação/checkpoint, substituir a
-baseline tipográfica preparada pelo topo útil geométrico e deixar a própria
-caixa instalar seu ascent. Limpar a margem fraca herdada nesse ramo.
-Separadores literais causais e unidades da região vigente impedem essa
-recertificação; conservar suas posições. A hipótese é refutada por Box
-pequeno sem texto, Box alto com texto, prefixo textual, duas quebras e
-controles de linha inline. Não ampliar a certificação a regiões excluídas.
-
-
-## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
-`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
-fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
-Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
-mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
-mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
-Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
-estabelece busca tipada, preferência nomeada, body restante e composição.
-style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
-style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
-É tamanho/escopo observável da linguagem; a representação Rust é escolha
-interna. Não inferir intenção histórica. Refutar por restauração, Raw,
-heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
-A sonda de igualdade refutou a hipótese de comparar os valores declarados:
-no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
-content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
-própria correção; o tipo completo não é prova de fechamento desse eixo.
-
-### Ratificação
-
-O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
-771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
-Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
-Resselo somente após implementação e grafo válido. RG1 continua independente.
-
-### Responsabilidade exclusiva adicional
-
-Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length absoluto), e expectativas de StyleDelta.size por Option<Length>. Conservar os observáveis linguísticos e os contratos funcionais existentes; não trocar geometria correta por snapshots da representação nova.
-
-## Recuo francês — aplicação física (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
-status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
-extra-before.json.gz contém26; boundary-before.json.gz contém10 e
-repeat-before.json.gz contém4. Oracle bd5ebec285505889e8ff1d4f68804ab147a699f3,
-binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
-Tekt inicial2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095.
-Em160pt/margem8/font12, hanging10 mantém a primeira linha x8 mas move
-continuações x8→18; negativo-5 exige x3. RTL mantém primeira borda direita152
-mas continuações vão para142. O Tekt ignora o comprimento. MLA tem default
-18pt (1.5em), set ambiente3em não o troca, show-set3em exige36pt; IEEE/Plain
-não adquirem recuo de hanging por esse show-set. bibliography.where(style:"mla")
-não casa na sonda vanilla: conservar a decisão do seletor, não forçar override.
-
-Block/Box com body apenas inline ignoram hanging10; Par explícito dentro
-deles e Block com Parbreak aplicam. Heading/Raw/List/Quote simples não o
-aplicam. Declaração parcial, zero, repetida e escopo vazio fecham fronteiras:
-FIRST/MIDDLE/LAST em5.168/27.464/49.76, contra todos5.168 no Tekt. A primeira
-sonda lexical usou colchetes literais: foi refutada, corrigida para #[...] e
-preservada como extra-before-initial; não é evidência de escopo Styled.
-Valores extremos geram tinta recortada pelo extrator: não equiparar ausência
-em pdftotext a apagamento de Content. Fonte parcial24pt não muda o em do
-comprimento compartilhado12pt, como partial-font registra.
-
-Fontes pinadas: typst-realize/src/lib.rs:1061–1085,1190–1219 distinguem
-fragmento/Par e interrupção; typst-layout/src/flow/collect.rs:72–134 escolhe
-fluxo, inline/mod.rs:174,216–221 e collect.rs:141–147 resolvem forma;
-inline/line.rs:496–503 posiciona; rules.rs:510–523 faz inset/compensação CSL.
-typst-library/src/model/bibliography.rs:112–127,367 determina o default e
-precedência. Isso mede língua/geometria; não exige a estrutura Rust vanilla
-nem atribui intenção histórica. Refutação por fronteira perdida, em de run,
-recuo duplo, reset em página, fallback greedy imposto, cópia perdida, callbacks
-reexecutados ou regressões dos controles impede fechamento.
-
-### Classificação e limites
-
-Correção interna/de paridade ADR-0127, fluxo contínuo: sem campo ou assinatura
-pública, flag/default externo novo, fase ou ordem de realização diferente.
-A nova forma inicial/continuação supersede somente a limitação correspondente
-de largura constante; RTL latino certificado segue as condições do núcleo,
-sem BidiCursor ativo/tracking e sem inventar BidiSpan. Os demais limites
-anteriores continuam. Os valores/cópia fora da página requerem inspeção dos
-frames ou SVG, não igualdade de extração recortada. Não antecipar R3-T1.
-
-### Responsabilidade exclusiva deste owner
-
-Preservar admissão/layout de Box; verificações horizontais do slot exterior usam os limites efetivos da linha atual, sem propagar recuo genérico para body inline isolado. Subframe governa o contexto local; Box já presente na linha recebe somente a aplicação exterior pertinente.
-
-### Aceitação
-
-RED→GREEN antes da implementação; controles fonte→layout e bilaterais dos sinais,
-fronteiras, variantes e restauração pertinentes. Não deduzir cobertura de todas
-as alternativas por executar um arm agrupado: classificações nominais fechadas
-do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
-Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
-e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.
+Revalidate full workspace suite, cargo build, Clippy workspace/all-targets -D warnings and -D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes, strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/configuration during commands. Heavy commands run sequentially with MemoryMax 12GiB/MemorySwapMax 0/CARGO_BUILD_JOBS1. Structural cleanup does not establish new global parity, memory gain or measured AI benefit.

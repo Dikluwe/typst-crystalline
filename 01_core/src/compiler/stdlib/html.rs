@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/html.md
-//! @prompt-hash e85e6756
+//! @prompt-hash d52a08d3
 //! @layer L1
 
 use std::sync::Arc;

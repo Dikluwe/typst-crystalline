@@ -25,32 +25,55 @@ The embedded asset set makes Libertinus Serif and the bundled math/code faces av
 
 Verify embedded slots load without disk access, Libertinus Serif and New Computer Modern occur in text, and New Computer Modern Math/DejaVu Sans Mono occur in math/code. Positive membership controls must accompany exclusion checks; an absent family must not make an exclusion test pass vacuously.
 
-## Transferência única para o slot — medição 2026-10-08
+## Static asset storage
 
-`03_infra/src/embedded_fonts.rs:92-96`, congelado em `lab/results/construction/diagnostics/embedded-fonts-memoria2-2026-10-08/before.json.gz`, copia slice estático para Vec, clona o Vec ao construir o slot e descarta o primeiro Vec após obter os metadados. São dois buffers por iteração de carga; não afirmar duplicação persistente de todo o catálogo por esse clone temporário.
+### Evidence
 
-Extrair os mesmos metadados diretamente do slice de typst_assets. Somente com metadados válidos, copiar uma vez os bytes para o Vec transferido ao new_embedded existente. Conservar composição, classificação, ordem e pareamento slot/book. Não substituir a representação pública dos assets/fonts, não alterar descoberta ou default de linguagem. Aceitação: classificação e carregamento existentes, compartilhamento source/get do owner fonts, controles de exportação e medição conjunta com proveniência.
+`embedded-fonts-memoria2-2026-10-08/before.json.gz` freezes embedded_fonts.rs:92–96:
+static slice copied to Vec, cloned into the slot and discarded after metadata.
+Those are two buffers per load iteration, not proof of persistent whole-catalog
+duplication. `custo-fixo-fontes-item2-2026-10-08/probe-results.json` measures
+9, 682, 300 bytes across 17 assets, about 9.24 MiB of owned retained allocation plus
+resident executable static pages. Copy site :92–94 contrasts with pinned upstream
+typst-kit/fonts.rs:136–141 passing static slices to Bytes without Vec. A simple
+CLI comparison observed Tekt 41.83 MiB and vanilla 29.21 MiB with equal visible
+text; do not attribute the entire gap here without a post-change experiment.
+These are storage/observable-output facts, not historical-intent evidence. Full
+provenance and old single-transfer proposal are archived in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/infra/embedded_fonts.md`.
 
-## Catálogo por fatias estáticas — 2026-10-08
+### Current contract and acceptance
 
-### Medição anterior à decisão
+The static-slice decision supersedes mandatory asset→Vec transfer, including the
+earlier one-copy interim rule. Extract the same metadata directly from the original
+typst_assets slice, then create a static-origin slot through the internal fonts
+owner constructor; no copy for unselected assets. Preserve composition/classification/
+order/book, `<embedded>` display path and paired slots/metadata. The fonts owner
+alone materializes a selected face lazily in get; do not duplicate that here.
+No public asset/font representation, discovery/language default/API/mode/phase
+change. Continuous ADR-0127 acceptance preserves loading/classification and fonts
+source/get sharing, export controls, bilateral text/style/geometry/raster wherever
+baseline agreed, and paired RSS/time measurements with exact provenance. No
+unmeasured allocation or CLI-gain claim.
 
-`lab/results/construction/diagnostics/custo-fixo-fontes-item2-2026-10-08/probe-results.json` mede 9.682.300 bytes nos 17 assets embutidos, ~9,24 MiB de alocação própria retida e páginas estáticas residentes do executável. O ponto de cópia está em `03_infra/src/embedded_fonts.rs:92-94`; o loader vanilla pinado em `lab/typst-original/crates/typst-kit/src/fonts.rs:136-141` passa os slices estáticos a Bytes sem Vec. A comparação de CLI simples atual reproduziu 41,83 MiB Tekt e 29,21 MiB vanilla, com texto visível igual; a lacuna não é atribuída toda a este ponto sem ensaio após mudança. Estes são fatos de armazenamento e saída observável, não intenção histórica.
+## Executable fixture controls
 
-### Decisão
+### Evidence
 
-Supersede a transferência obrigatória de cada asset para Vec: após extrair metadados do slice original, criar slot de origem estática pelo construtor interno do owner `fonts.md`. Não copiar assets não selecionados. Conservar classificação, ordem, book, path de exibição `<embedded>` e pareamento. O owner fonts possui a materialização lazy de uma face no `get`; este loader não a duplica. Correção interna ADR-0127, sem API pública, modo ou fase novos. Aceitação bilateral de texto/estilo/geometry/raster onde o baseline já coincidia, e ensaio pareado RSS/tempo com proveniência.
+`fixtures-ativos-ci-2026-10-13/before.json.gz` retains sources/owners/diagnostics,
+HEAD/uncommitted tree/UTC/status/diffstat. embedded_fonts.rs:192 has New Computer
+Modern Math presence/exclusion assertions without #[test]; :135 only prints
+family metadata; :235 observes DejaVu text exclusion without math/code presence.
+The actual pre-edit suite confirms the missing mathematical test. This is not a
+new upstream comparison.
 
-## Fixtures ativos e resíduos de CI — 2026-10-13
+### Contract and acceptance
 
-### Medição anterior à decisão
-
-`03_infra/src/embedded_fonts.rs:192` possui uma função com asserções de exclusão e presença de New Computer Modern Math, mas sem `#[test]`. Em `:135`, a sonda de famílias só imprime metadados e não contém asserção. Em `:235`, o controle DejaVu observa apenas exclusão de texto, sem presença em math/code.
-
-Fontes, owners, diagnósticos, HEAD, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/fixtures-ativos-ci-2026-10-13/before.json.gz`. O registro real da suíte antes da edição confirma ausência do teste matemático. Estas evidências não constituem nova comparação com upstream.
-
-### Decisão e aceitação
-
-Registrar p754_newcm_math_is_not_in_text_group como teste executável, conservando suas asserções. Retirar somente p797_probe_list_all_embedded_families: o inventário impresso é diagnóstico, não verificação. Acrescentar controle positivo de DejaVu Sans Mono em math/code ao teste de exclusão existente, como já exige o contrato. Conservar todos os outros testes. A lista deve trocar exatamente o nome da sonda pelo teste matemático; validar também que a presença positiva não é satisfeita por uma lista vazia.
-
-Manutenção interna de testes (ADR-0127), sem assinatura pública, default ou fase nova. L0 precede código; resselo limitado aos owners envolvidos. Executar suítes shell e infra, compilar todos os targets, verificar formato, linhagem e inventário de Clippy. Contagens de testes não certificam paridade.
+Register p754_newcm_math_is_not_in_text_group as an executable test with unchanged
+assertions. Remove only p797_probe_list_all_embedded_families, whose printed
+inventory is diagnostic. Add positive DejaVu Sans Mono math/code membership to
+the existing exclusion control; keep every other test. The list replaces exactly
+the probe name with the math-test name; empty lists cannot satisfy positive
+membership. Internal ADR-0127 test maintenance adds no public/default/phase
+change. L0 first, affected-owner resealing; shell/infra suites, all-target compile,
+fmt/lineage/Clippy inventory. Test counts do not certify parity.

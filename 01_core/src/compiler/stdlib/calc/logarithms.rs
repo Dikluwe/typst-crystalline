@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/logarithms.md
-//! @prompt-hash 573d72de
+//! @prompt-hash ea406eb8
 //! @layer L1
 //! @updated 2026-09-30
 

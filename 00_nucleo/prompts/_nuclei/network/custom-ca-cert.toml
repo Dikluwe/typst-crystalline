@@ -1,23 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "network-custom-ca-cert"
-title = "Certificado de autoridade customizado para downloads"
+title = "Custom certificate authority for downloads"
 [[claims]]
 id = "precedence"
 level = "must"
-statement = "A opção --cert, quando presente, prevalece sobre TYPST_CERT; a ausência de ambas preserva as raízes TLS normais."
-
+statement = "Present --cert overrides TYPST_CERT; absence of both preserves normal TLS roots."
 [[claims]]
 id = "tls-validation"
 level = "must"
-statement = "Certificados PEM fornecidos são acrescentados às raízes normais sem desativar validação TLS nem verificação de hostname."
-
+statement = "Supplied PEM certificates append to normal roots without disabling TLS validation or hostname checking."
 [[claims]]
 id = "confidentiality"
 level = "must-not"
-statement = "Expor o caminho ou os bytes do certificado em Debug, diagnósticos remotos ou info; somente a presença da configuração pode ser observável."
-
+statement = "Expose certificate path or bytes in Debug, remote diagnostics or info; only configuration presence may be observable."
 [[claims]]
 id = "download-scope"
 level = "must"
-statement = "A CA customizada alcança todo download de pacote ou índice controlado pelo cristalino através da injeção L2 para L4 e L3."
+statement = "Custom CA reaches every Crystalline-controlled package/index download through L2 injection into L4/L3."

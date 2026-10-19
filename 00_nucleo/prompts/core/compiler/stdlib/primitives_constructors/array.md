@@ -2,7 +2,7 @@
 Hash do Código: 967ea757
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736
+- 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:b7a180bc63908fdeadc405b120c0db8b1c2587f2217d815980b9db35f0e282c4
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/primitives_constructors/array.rs`

@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/slicing.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated separator/replacement/bidi/effective-face and paint_root transport; retained clipped-image clip_rect=None unresolved discrepancy and current projection conventions.",
+  "original_sha256": "fca8a384362ddce8b70513d4ab3692b61f89238657a6337a3ef2a37904533beb",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/slicing.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

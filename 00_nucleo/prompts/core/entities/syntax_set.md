@@ -1,76 +1,30 @@
 # Prompt L0 — `entities/syntax_set`
 Hash do Código: 75bc8564
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/syntax_set.rs`
-**Criado em**: 2026-03-22 (Passo 4)
-**Atualizado em**: 2026-04-12 (restauro — expandido com constantes pré-definidas e macro)
-**ADRs relevantes**: nenhum ADR dedicado; parte integrante do parser (Passo 4)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/syntax_set.rs`
 
----
+## Contract
 
-## Contexto e Objetivo
+SyntaxSet is a u128 bitset of SyntaxKind u8 discriminants for O(1) parser/error
+recovery membership. Supported discriminants are 0–127, checked with a
+compile-time assertion. No I/O, heap allocation or external crates; depend
+only on SyntaxKind. Inspired by rust-analyzer TokenSet; historical source:
+`lab/typst-original/crates/typst-syntax/src/set.rs`.
 
-Durante as fases de *parsing* e recuperação de erros (*error recovery*), o
-parser precisa de verificar em O(1) se o token atual pertence a um conjunto
-de tokens esperados (ex: "pode este token iniciar uma expressão de código?").
+`pub struct SyntaxSet(u128)` derives Default/Copy/Clone. All methods are const:
+new()->Self yields 0; add(self,kind)->Self ORs a bit; remove(self,kind)->Self
+ANDs its complement; union(self,other)->Self ORs sets;
+contains(&self,kind)->bool checks a nonzero masked bit.
+syntax_set! accepts comma-separated kind identifiers with an optional trailing
+comma and constructs compile-time constants without runtime cost.
 
-`SyntaxSet` implementa um conjunto ultra-rápido de variantes `SyntaxKind`
-como um **bitset de `u128`**. Cada bit corresponde ao discriminante `u8` de
-uma variante de `SyntaxKind`. Apenas variantes com discriminante < 128 podem
-ser armazenadas (verificado por `assert!` em tempo de compilação).
+## Required constants
 
-Inspirado no `TokenSet` do `rust-analyzer`.
-
-Origem: `lab/typst-original/crates/typst-syntax/src/set.rs`
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: zero I/O, zero alocação no heap.
-- `SyntaxSet` é `Copy + Clone + Default` — nunca aloca.
-- Todos os métodos são `const fn` — podem ser chamados em contextos `const`.
-- Dependências: apenas `SyntaxKind` (L1 interno). Zero crates externas.
-- A macro `syntax_set!` gera constantes em tempo de compilação (sem custo em runtime).
-- Discriminante máximo suportado: 127 (limite do `u128`).
-
----
-
-## Instrução
-
-### Estrutura e interface pública
-
-```rust
-/// Bitset de SyntaxKind baseado em u128.
-/// Cada bit corresponde ao discriminante u8 de uma variante SyntaxKind.
-#[derive(Default, Copy, Clone)]
-pub struct SyntaxSet(u128);
-
-impl SyntaxSet {
-    pub const fn new() -> Self                          // conjunto vazio (0u128)
-    pub const fn add(self, kind: SyntaxKind) -> Self   // OR bit
-    pub const fn remove(self, kind: SyntaxKind) -> Self // AND NOT bit
-    pub const fn union(self, other: Self) -> Self      // OR dois sets
-    pub const fn contains(&self, kind: SyntaxKind) -> bool // (mask & bit) != 0
-}
-```
-
-### Macro de conveniência
-
-```rust
-/// Gera um SyntaxSet constante dos kinds indicados.
-macro_rules! syntax_set {
-    ($($kind:ident),* $(,)?) => {{ ... }}
-}
-```
-
-### Constantes pré-definidas
-
-| Constante | Conteúdo |
+| Constant | Contents |
 |-----------|---------|
 | `STMT` | `Let, Set, Show, Import, Include, Return` |
-| `MATH_EXPR` | Tokens que iniciam expressões matemáticas |
+| `MATH_EXPR` | Tokens that begin mathematical expressions |
 | `CODE_EXPR` | `CODE_PRIMARY ∪ UNARY_OP` |
 | `ATOMIC_CODE_EXPR` | `ATOMIC_CODE_PRIMARY` |
 | `CODE_PRIMARY` | `ATOMIC_CODE_PRIMARY ∪ {Underscore}` |
@@ -84,59 +38,17 @@ macro_rules! syntax_set {
 | `PATTERN` | `PATTERN_LEAF ∪ {LeftParen, Underscore}` |
 | `PATTERN_LEAF` | `ATOMIC_CODE_EXPR` |
 
----
 
-## Critérios de Verificação
+## Acceptance
 
-```
-SyntaxSet::new().contains(k)           = false para qualquer k
+new contains no kind; add(k) contains k; add(k).remove(k) does not.
+Union of {Plus} and {Minus} contains both and not Star. Copying {Text} leaves
+both original and copy containing Text. STMT contains Let/Set/Import and not
+Text/Ident. UNARY_OP contains Not/Plus and not Star. CODE_EXPR contains
+Ident/Not/Int. Preserve all constants and colocated #[cfg(test)] checks,
+with lineage pointing to this owner.
 
-set.add(k).contains(k)                 = true
-set.add(k).remove(k).contains(k)       = false
+## Historical record
 
-// union sem alocação
-let a = SyntaxSet::new().add(SyntaxKind::Plus);
-let b = SyntaxSet::new().add(SyntaxKind::Minus);
-a.union(b).contains(Plus)              = true
-a.union(b).contains(Minus)             = true
-a.union(b).contains(Star)              = false
-
-// SyntaxSet é Copy
-let x = SyntaxSet::new().add(SyntaxKind::Text);
-let y = x; // cópia, não move
-x.contains(SyntaxKind::Text)           = true
-y.contains(SyntaxKind::Text)           = true
-
-// Constantes
-STMT.contains(SyntaxKind::Let)         = true
-STMT.contains(SyntaxKind::Set)         = true
-STMT.contains(SyntaxKind::Import)      = true
-STMT.contains(SyntaxKind::Text)        = false
-STMT.contains(SyntaxKind::Ident)       = false
-
-UNARY_OP.contains(SyntaxKind::Not)     = true
-UNARY_OP.contains(SyntaxKind::Plus)    = true
-UNARY_OP.contains(SyntaxKind::Star)    = false
-
-CODE_EXPR.contains(SyntaxKind::Ident)  = true
-CODE_EXPR.contains(SyntaxKind::Not)    = true
-CODE_EXPR.contains(SyntaxKind::Int)    = true
-```
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/syntax_set.rs` com `SyntaxSet`, `syntax_set!`, e todas as constantes
-- Testes co-localizados em `#[cfg(test)]` cobrindo os critérios acima
-- Cabeçalho de linhagem apontando para este ficheiro
-  (`@prompt 00_nucleo/prompts/core/entities/syntax_set.md`)
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-03-22 | Criação — Passo 4: bitset de SyntaxKind para o parser | `syntax_set.rs` |
-| 2026-04-12 | Restauro — expandido com constantes pré-definidas, macro e critérios completos | `syntax-set.md` |
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/syntax_set.md`. Historical observations are not a new parity certification.

@@ -1,29 +1,24 @@
 tekt = 1
 kind = "nucleus"
 id = "table-cell-occurrence"
-title = "Defaults isolados e consumo nominal de regras por ocorrência Cell"
-
+title = "Standalone defaults and nominal per-Cell rule consumption"
 [[claims]]
 id = "prepared-defaults"
 level = "must"
-statement = "Cell crua conserva omissão; Cell isolada preparada conhece defaults intrínsecos sem posição fictícia nem herança de Table; nenhuma preparação torna Cell locatable."
-
+statement = "Raw Cell retains omission;prepared standalone Cell knows intrinsic defaults without fictitious position/Table inheritance;no preparation makes Cell locatable."
 [[claims]]
 id = "rule-consumption"
 level = "must"
-statement = "Aliases do argumento Cell preparado conservam as regras consumidas dessa ocorrência e admitem regras anteriores não consumidas; Cell recém-construída é nova ocorrência sem revogação global herdada."
-
+statement = "Aliases of prepared Cell argument retain occurrence-consumed rules and permit earlier unconsumed rules;newly constructed Cell is fresh occurrence without inherited global revocation."
 [[claims]]
 id = "fresh-depth"
 level = "must"
-statement = "Morfologia igual não encerra a nova geração Cell; produtos emitidos seguem o limite causal de show e seu erro com origem, enquanto produtos ocultados não são realizados. A política dos outros elementos permanece com seus owners."
-
+statement = "Equal morphology never ends fresh Cell generation;emitted products follow causal show-depth limit/origin error,while hidden products are unrealized. Other-element policies remain their owners' responsibility."
 [[claims]]
 id = "visual-once"
 level = "must"
-statement = "Apenas visual completo é publicado, percorrido, indexado e renderizado; body lexical continua fonte de linguagem e não um segundo produto emitido."
-
+statement = "Only complete visual is published,traversed,indexed/rendered;lexical body remains language source,not a second emitted product."
 [[claims]]
 id = "language-versus-reuse"
 level = "must"
-statement = "Igualdade da linguagem observa propriedades conhecidas e corpo, sem guards, estágio ou visual derivado; prova de reuso conserva todo estado causal."
+statement = "Language equality observes known properties/body without guards,stage or derived visual;reuse proof retains complete causal state."

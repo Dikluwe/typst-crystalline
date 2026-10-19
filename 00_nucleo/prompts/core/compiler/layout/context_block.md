@@ -2,9 +2,9 @@
 Hash do Código: faae0241
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
-- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:ff71dfc6648d6deb4b2b8054e3d58a93777d17837129f0f1b1e7e138ffb6943c
-- 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:2baf472bb540640d571ae618aa218e5f2b166839a2070f8a4a907ec65d7ded20
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
+- 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:b9012d07e2d22b7c3984963a6d4e90eedbb9b925280f4136f8db8aaa9459bbc8
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/context_block.rs`
@@ -14,7 +14,13 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/context_block.rs:11`, `01_core/src/compiler/layout/context_block.rs:42`, `01_core/src/compiler/layout/context_block.rs:47`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
+
+`box-contexto-2026-10-14/probe.json.gz` preserves sources/binaries/HEAD/working tree/UTC: Box, inset2pt, prefix and nesting publish (0,0) despite displaced paint. The direct-context baseline difference is separate; do not copy vanilla merely because it differs. `mod.rs:1131-1148/1180-1200` writes local points to runtime.positions; Box groups its body in another coordinate system; `finish.rs:295-302` seals the map without recomposing those points. Realized writes through or_insert; labels have a parallel map. HTML already carries private markers through the frame at `html_frame.rs:30-199`. Preserve single-pass registration and per-sub-store sealing under ADR-0073/0074 position/hybrid-model sections; do not adopt vanilla global introspection. Inspection of coordinates and its owners found absolute uses in Grid and explicitly local uses in Place/Box; nucleus qualification preserves both and requires page transformation without doubled origin. Earlier snapshot: `posicoes-compostas-2026-10-14/before.json.gz`. Geometry/identity are observables; carrier/index are mechanics.
+
+`place-origem-local-2026-10-14/html-failures.log` reproduces four existing historical P1493 failures: aqui() publishes y11.2 rather than 20 inside Place(Box HTML), an ascender8.8 difference with FixedMetrics. `html_frame.rs:219` composes at the legacy baseline; `context_block.rs:16–22` subtracts the active ascender even when Place/Box use geometric origin 0. Pipeline tests explicitly preserve x30/y20, no page and same-target fixpoint. Earlier state: `html-before.json.gz`; `workspace-interrupted` preserves the first occurrence and full state. Capture/drawing must share geometry under coordinates; this does not justify a paginated HTML pipeline or changing ADR-0128.
+
+The pre-revision refuter `html-green-attempt1.log` keeps two transform/link tests RED: translation 5 becomes-3.8. Transform recomposes the legacy frame by removing origin 8.8; normalizing the carrier beforehand removes it twice. The HTML island already enters at geometric origin.
 
 ## Ownership and contract
 
@@ -22,49 +28,12 @@ This prompt owns only the named consumer. State storage and general coordination
 
 Ordinary paginated layout is a no-op and never executes the closure. When detailed HTML context capture is enabled, append the private marker supplied by `00_nucleo/prompts/core/compiler/layout/html_frame.md`, identified by the element id, at `(cursor_x, cursor_y - ascender)` using the active injected metrics. Do not advance the cursor or extract positions here.
 
+Paginated operation remains a no-op; only the HTML marker is opt-in, without closure execution. Tests distinguish the HTML carrier from the paged registration emitted by the hub: neutrality, cursor and nonexecution remain required, while total Vec length is not a language contract.
+
+Within a subframe, register the physical cursor without subtracting ascender: the caller already has the recomposition translation, including removal of legacy origin. Outside a subframe, preserve the legacy active-metrics formula. A subframe marker carries the physical cursor coordinate like other items, never a prenormalized coordinate. This supersedes unconditional ascender subtraction only when the body uses geometric origin. Do not execute closures, advance cursors or change paged capture.
+
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-## Posições no referencial composto — 2026-10-14
-
-### Medição anterior à decisão
-
-box-contexto-2026-10-14/probe.json.gz, fontes/binários/HEAD/working tree/UTC
-preservados: Box, inset2pt, prefixo e aninhamento publicam (0,0), mesmo
-quando a tinta se desloca. A diferença da baseline do context direto é
-uma questão separada: não copiar o vanilla apenas por diferir. mod.rs:
-1131-1148/1180-1200 escreve pontos locais em runtime.positions; Box agrupa
-o corpo em outro referencial; finish.rs:295-302 sela o mapa sem recompor
-esses pontos. Realized escreve com or_insert; labels têm mapa paralelo.
-HTML já transporta markers privados pelo frame em html_frame.rs:30-199.
-O registro single-pass e sealing por sub-store são preservados, ADR-0073/
-0074 §§posição/modelo híbrido; não se adota introspecção global vanilla.
-A inspeção do núcleo coordinates e seus owners mostrou usos absolutos
-em grid e explicitamente locais em Place/Box. A qualificação do núcleo
-conserva ambos e exige transformação até a página, sem dupla origem.
-Snapshot anterior: posicoes-compostas-2026-10-14/before.json.gz.
-Geometria/identidade são observáveis; o carrier e seu índice são mecânica.
-
-### Contrato deste owner
-
-A operação produtiva continua no-op para página e opt-in apenas para marker HTML, sem executar closure. Seu teste deve distinguir carrier HTML desse registro paginado emitido pelo hub: neutralidade, cursor e ausência de execução continuam obrigatórios, mas o comprimento total do Vec não é contrato de linguagem.
-
-Correção interna ADR-0127: sem API/campo público, flag/default ou mudança
-de fase. L0 primeiro; RED→GREEN de coordenadas, ausência de tinta/altura
-fictícia, identidade, ordem, clones visuais e rollback; revalidar os
-controles HTML, geometria, contexto/queries e suíte completa.
-
-## Origem geométrica da ilha e do carrier — 2026-10-14
-
-### Medição antes da decisão
-
-place-origem-local-2026-10-14/html-failures.log reproduz quatro falhas P1493 existentes: aqui() publica y11.2 em vez de20 dentro de Place(Box HTML), diferença de ascender8.8 em FixedMetrics. O entrypoint html_frame.rs:219 compõe em baseline legada; context_block.rs:16–22 subtrai ascender ativo mesmo quando Place/Box usam origem geométrica0. Os testes de pipeline preservam explicitamente x30/y20, nenhuma página e fixpoint do mesmo target. O estado anterior está em html-before.json.gz; workspace-interrupted conserva a primeira ocorrência e o estado integral. Captura e desenho devem usar a mesma geometria, como exige o núcleo coordinates; não é motivo para converter HTML em pipeline paginado nem mudar ADR-0128.
-
-### Responsabilidade exclusiva
-
-No subframe, registrar o cursor físico sem descontar ascender: o caller já possui a tradução de recomposição, inclusive a retirada da origem legada. Fora de subframe, preservar a fórmula legada com métricas ativas. Não executar closure, avançar cursor nem mudar a captura paginada. Isso substitui a subtração incondicional de ascender quando o body usa origem geométrica.
-
-Correção interna ADR-0127 para preservar o contrato HTML já vigente. As expectativas P1493 permanecem iguais. Validar todos os testes p1493, contexto/HTML e suíte completa, além dos controles PDF/SVG e gates de linhagem; sem mudança pública ou de fase.
-
-Refutador anterior à revisão: html-green-attempt1.log mantém dois testes de transform/link vermelhos: a translação5 vira-3.8. Transform recompõe o frame legado retirando sua origem8.8; normalizar o carrier antes disso a retira duas vezes. Assim, um marker em subframe deve portar a coordenada física do cursor como os demais itens, e não uma coordenada pré-normalizada. A ilha HTML já entra em origem geométrica. Os dois testes permanecem inalterados.
+This is an internal correction under ADR-0127 preserving the existing HTML contract: no new public field/API, flag/default or phase. L0 precedes RED→GREEN for coordinates, no fictitious paint/height, identity, order, visual clones and rollback. Revalidate HTML, geometry, context/queries and complete suite. Keep all historical P1493 and the two transform/link expectations unchanged. Validate all p1493 tests, context/HTML, full suite, PDF/SVG controls and lineage gates.

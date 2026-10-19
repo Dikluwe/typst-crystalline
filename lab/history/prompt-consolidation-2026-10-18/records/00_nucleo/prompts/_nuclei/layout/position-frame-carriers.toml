@@ -1,0 +1,14 @@
+tekt = 1
+kind = "nucleus"
+id = "position-frame-carriers"
+title = "Posições capturadas acompanham a composição visual"
+
+[[claims]]
+id = "capture-once-project-before-sealing"
+level = "must"
+statement = "Identidade e ordem de capturas são determinadas durante o layout existente, sem reexecutar conteúdo ou alocar Location na projeção. Carriers privados transportam os pontos no mesmo referencial e transformações dos frames; a projeção atualiza apenas os sub-stores existentes antes do sealing e remove todos os carriers da saída pública."
+
+[[claims]]
+id = "no-material-no-new-observation"
+level = "must"
+statement = "Um carrier posicional direto é neutro para tinta, dimensões, baseline, espaçamento e condição de linha vazia. Uma cópia visual do mesmo carrier não cria outra observação; prevalece a última captura lógica, com a primeira ocorrência geométrica de cada captura. Checkpoints conservam o registro e os frames coerentemente."

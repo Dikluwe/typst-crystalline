@@ -5,7 +5,7 @@ Hash do Código: 30bbe264
 **Exclusive consumer:** `01_core/src/entities/elements/test_callout.rs`
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/entities/element-boundary.toml sha256:cafcd80a58c3e84a9b44a49eb92a93cd2422ddbcf530d295c3645ae54bf1e41b
+- 00_nucleo/prompts/_nuclei/entities/element-boundary.toml sha256:eddb0b1b680907d9db343169884ebcc6e668d4d46a7e94146c6ddc018d4fe4f7
 
 ## Evidence and test-only contract
 

@@ -1,18 +1,18 @@
 # Prompt L0 — `entities/elements/counter_display_callback` — `CounterDisplayCallbackElem`
 Hash do Código: 5f98e175
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/counter_display_callback.rs`
-**Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:
-ver `entities/elements/_comum.md`. Comportamento idêntico (P241).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/counter_display_callback.rs`
+**Architecture:** ADR-0105. The trait contract is owned by
+`00_nucleo/prompts/core/entities/elements/mod.md`.
 
-> **Fronteira: LOCATÁVEL**. `element_kind` → `ElementKind::CounterDisplay`
-> (kind **partilhado** com o legacy `CounterDisplay`); `to_payload` →
-> `ElementPayload::CounterDisplay`. Valor pré-renderizado em
-> `apply_counter_displays` pós-fixpoint (consumo por payload, inalterado).
+## Evidence before specification
 
----
+Original extraction anchors: `content.rs:1660`, `content.rs:2008`, `extract_payload.rs:67`.
+These historical coordinates support the ownership boundary; they are not
+fresh current-pin language-parity measurements.
 
-## Struct
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
@@ -22,25 +22,26 @@ pub struct CounterDisplayCallbackElem {
 }
 ```
 
-`Content::CounterDisplayCallback { key, callback }` →
-`Content::CounterDisplayCallback(Arc<…Elem>)`. Construtor:
-`Content::counter_display_callback(key, callback)`.
+## Behavior and acceptance
 
-> **`Hash` manual via Debug**: `Func` não implementa `Hash` (tem `Arc<FuncRepr>`)
-> → `impl Hash { format!("{self:?}")… }`. `PartialEq` deriva (`Func` tem
-> `impl PartialEq` manual via `Arc::ptr_eq`).
+Preserve `Content::CounterDisplayCallback(Arc<CounterDisplayCallbackElem>)`
+and `Content::counter_display_callback(key, callback)`. Hash is manual via
+Debug; derived PartialEq compares key and callback, using Func's Arc::ptr_eq.
+The hub dispatches matching CounterDisplayCallback variants to entity equality.
+Plain text is empty, emptiness defaults false, and maps are terminal.
+Kind is CounterDisplay and payload CounterDisplay carries key/callback.
+The element is locatable. Post-fixpoint `apply_counter_displays` consumes the
+payload to pre-render the value; that algorithm belongs to its compiler owner.
 
-## `impl Element`
+### Preserved boundary ambiguity
 
-| método | comportamento |
-|---|---|
-| `plain_text` | `String::new()` (`content.rs:1660`) |
-| `is_empty` | default `false` |
-| `map_*` | **terminais** |
-| `element_kind` | `Some(ElementKind::CounterDisplay)` |
-| `to_payload` | `Some(ElementPayload::CounterDisplay { key, callback })` (absorve `extract_payload.rs:67`) |
+The original says kind is shared with legacy CounterDisplay, while
+`00_nucleo/prompts/core/entities/elements/counter_display.md` describes that
+legacy carrier as non-locatable with default None kind. This cleanup preserves
+the callback's CounterDisplay kind without silently resolving the legacy
+claim. Verify callback identity, terminal maps, kind/payload, and hub equality.
 
-## `eq`
+## Historical record
 
-`#[derive(PartialEq)]` compara `key + callback` (Func via ptr_eq; paridade
-`content.rs:2008`) → **dispatch** `(CounterDisplayCallback(a), …(b)) => a == b`.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/counter_display_callback.md`. Historical observations are not a new parity certification.

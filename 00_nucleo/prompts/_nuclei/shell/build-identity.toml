@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "shell-build-identity"
-title = "Identidade cristalina do build no CLI"
-
+title = "Crystalline build identity in CLI"
 [[claims]]
 id = "compile-time-channel"
 level = "must"
-statement = "A identidade do commit flui por TYPST_COMMIT_SHA em tempo de compilação."
-
+statement = "Commit identity flows through TYPST_COMMIT_SHA at compile time."
 [[claims]]
 id = "human-display"
 level = "must"
-statement = "O commit exibido deriva do valor do build e só a apresentação humana pode abreviá-lo."
-
+statement = "Displayed commit derives from build value;only human presentation may abbreviate it."
 [[claims]]
 id = "runtime-fallback"
 level = "must"
-statement = "Ausência de Git ou variável possui fallback explícito sem I/O em runtime."
-
+statement = "Missing Git or variable has explicit fallback without runtime I/O."
 [[claims]]
 id = "provenance-distinction"
 level = "must-not"
-statement = "Não confundir commit cristalino, commit vanilla e versão do crate."
+statement = "Do not confuse Crystalline commit,vanilla commit and crate version."

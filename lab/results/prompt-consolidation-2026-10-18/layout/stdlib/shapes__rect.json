@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/shapes/rect.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated full rect/square presence and uniform stroke dictionary rules, preserving side-dictionary and dimensions/defaults gaps.",
+  "original_sha256": "a1c65e700a7684da694b8df3cf3a6edee862a264b1d053c8a66d2a3d469f31e6",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/shapes/rect.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

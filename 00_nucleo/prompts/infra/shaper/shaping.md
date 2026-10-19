@@ -2,12 +2,12 @@
 Hash do Código: 63280d13
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:3c6209895df993843d15259c7ee95195e7f0dc732ee56cf3cc553257e30298b0
-- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:faf6c20021b467fdb2a864625f4f6dd4386b5ef28c137b946e5cb4e4ce073d52
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
-- 00_nucleo/prompts/_nuclei/fonts/ssty-math-size.toml sha256:661b7b74b7601c1b4fb11dda93fea95ee8ebcd62f9e3605507e5ce1373334808
-- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:b234a166cefeba71803da8bcc3cb5e3daf4d7bed8313f5883bcc7bf12bf95f15
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:300b35e6b7c70e79742d5edc4cda0f3419b15a41662e194fd1516b33b8cae1bb
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/fonts/ssty-math-size.toml sha256:283876383094ef7a2af90ad0598b9ca3ca5cbe0f7fc7714546cc8758da40878d
+- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/shaper/shaping.rs`
@@ -53,268 +53,194 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## SHY autoral — controle de glifos invisíveis
+## Authored invisible-control shaping
 
-### Medição anterior à decisão
+### Evidence
 
 `lab/results/construction/diagnostics/shy-autoral-2026-09-28/first-round/after/`
-refuta a primeira materialização: trailing e ligature conservam os codepoints
-mas ampliam a caixa de ActualText em 3.12pt e perdem o espaço na extração comum.
-O caso tracking também inclui um intervalo derivado do placeholder invisível.
-`first-round/final-receipt.json` conserva o estado e as falhas.
-Rustybuzz 0.20.1, src/lib.rs:32-35, documenta que o tratamento padrão troca
-Default_Ignorable por glifo de espaço com avanço zero; REMOVE_DEFAULT_IGNORABLES
-remove esse placeholder depois do shaping. Um cluster compartilhado de f+SHY+fi
-também pode dar hex vazio ao GID de espaço, bloqueando seu mapeamento posterior.
-A decisão é refutável por alteração de glyphs visíveis/ligaduras no controle
-com a flag documentada ou por contaminação de runs sem SHY.
-
-### Responsabilidade
-
-Configurar REMOVE_DEFAULT_IGNORABLES nos sub-runs cujo texto autoral
-contém U+00AD ou um controle bidi especificado abaixo, em medição e emissão. Delegar a configuração a text_identity,
-antes de shape; não remover SHY do texto de entrada, não filtrar por GID
-ou avanço zero e não alterar shaping de runs sem SHY nem controles bidi. Os caracteres lógicos
-completos continuam na ocorrência. A flag remove placeholders, não glyphs
-visíveis de seleção de quebra. Tracking incide nos clusters que restam e
-não acrescenta intervalo por um placeholder que não existe mais.
-Cache permanece por texto completo; a política é determinística pelo texto.
-Não mudar assinatura pública, fase, fallback, features OpenType ou fontes.
-Texto exclusivamente invisível e seleção de quebras continuam fora do escopo.
-
-## Correção de tracking — 2026-09-29
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tracking-residual-2026-09-29/initial.json`, `results.json`, `summary.json` e `causal-checks.json` registram 36 entradas/108 PDFs contra vanilla pinado, fontes, UTC, HEAD e working tree completa. A palavra isolada acumula +0.052pt com tracking 0.2pt, mas fronteiras perdem um intervalo na adjacência, dois com um espaço e quatro com três espaços literais. ±1.2pt elimina a quantização sem eliminar as fronteiras. O código shaper/shaping.rs:225-232,319-326 arredonda em i32; text.rs:49-83 divide palavras; space.rs:15-33 aplica somente avanço nominal. O estado anterior à materialização está em `lab/results/construction/diagnostics/correcao-tracking-2026-09-29/initial.json`.
-
-### Decisão interna e responsabilidade
-
-Correção interna de paridade em fluxo contínuo ADR-0127, sem contrato público, flag ou fase nova. As cláusulas desta rodada supersedem somente a preservação dos limites de tracking descritos abaixo; demais políticas de render permanecem.
-
-Conservar representação/cache do tracking i32. Ao posicionar o próximo sub-run, usar width derivada pelo owner tracking, que acrescenta somente o resíduo fracionário nos pares de clusters elegíveis. Não alterar glyph IDs, texto, features ou seleção de fontes. O measured shaped_width sem tracking mantém seu contrato.
-
-Aceitação: testes RED→GREEN de fronteiras/seleção e interpretação independente Tc/TJ, controles bilaterais de tracking ±/zero, repetidos, adjacência e wrap; build e lint sem erros, resselo restrito.
-
-## Migração do carrier bidi ratificado (2026-10-05)
-
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
-
-## Contexto integral bidi ratificado — 2026-10-05
-
-Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
-
-Para spans certificados, usar registry proprietário local de strings auxiliares e mapas por input Arc, depois views BidiInfo emprestadas normais; não usar unsafe/self-reference. Embeddings virtuais LRE/RLE/PDF só quando dir do segmento difere da base; espaços reais e Linebreak não justificado LF (justify=true fora do certificado). Não retirar controles autorais. Resolver uma vez por input em cada registry; o pipeline paginado compartilha registry/views entre reorder e shape. Wrappers públicos existentes podem construir registry local.
-
-Reorder consulta intervalo real da linha, intersects exatas por segment/range e níveis com regras de fim de linha; não midpoint nem espaços inventados. Text misto divide por fronteiras originais, preserva estilo e subspan. Itens não textuais e fontes desconhecidas não ganham certificado. Reorder conserva âncora física aceita por L1, largura/avanço reais; não aplicar fallback de suffix/coalescing ao contexto certificado.
-
-Shape consulta os runs do input completo para span original e não auto-detecta direção de fragmento; manter offsets de subruns por travessia sequencial, emitir subspan exato para cada TextShaped. Chave de cache existente já discrimina direção; não pôr contexto em TextStyle. Reconciliation usa base do input quando existe em vez de qualquer run RTL. Fallback None anterior permanece. Testes RED→GREEN da refutação de 456 789, overrides/neutral, extração sem controles auxiliares e medição bilateral.
-
-
-## Face efetiva de TextShaped — materialização ratificada 2026-10-05
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
-
-Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
-
-A associação é por bytes da face original e pedido de eixos; nomes e slots não bastam. A tabela local dura a exportação e conserva ordem dos recursos fornecidos, anexando faces faltantes. Para multifont, distribuir itens pelos bindings uma vez antes de coletores por fonte; não reutilizar GIDs/CMap globais em faces diferentes. Código deste owner continua 1:1 com seu L0; referências a outros owners não compartilham propriedade. Aceitação RED→GREEN e controles bilaterais incluindo miss/hit/VF, sem promessa de ganho de tempo.
-
-Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
-
-
-Conservar a Font carregada no CachedRun e retorná-la com os glyphs: miss carrega a fonte uma vez, hit usa a fonte do resultado memoizado. O carrier não resolve World::font novamente depois de produzir/consultar os GIDs. Medição e contrato do cache estão no owner `00_nucleo/prompts/infra/shaper/cache.md`; sem unsafe novo ou API nova.
-
-## Controles bidi autorais — identidade de espaço (2026-10-06)
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/controles-bidi-pdf-2026-10-06/before.json` registra
-HEAD, working tree, fontes de código/L0 e binário anterior. As sondas
-`bidi-contexto-rtl_literal_embedding-cmap-before.json` e
-`bidi-contexto-rtl_forced_mark-cmap-before.json` mostram CID 0001 associado
-respectivamente a U+202C e U+200F: espaços posteriores extraem controles e
-fundem palavras. A extração bilateral com fontes e comandos está no lote
-`lab/results/construction/diagnostics/block-align-2026-10-06/verification.json.gz`.
-`lab/typst-original/crates/typst-layout/src/inline/shaping.rs:992-997`, pin
-9f2b6e8715237cb086899a42873660fe744622e8, remove placeholders Default_Ignorable
-após shaping. `03_infra/src/export/fonts.rs:307-328` mantém controles na
-substring global por GID; `03_infra/src/export/builder/fonts.rs:523-535`
-retém o primeiro mapeamento. São observáveis de texto e geometria, não
-paridade de bytes ou obrigação de copiar o algoritmo upstream.
-Hipótese refutável por persistência da colisão após remover placeholders e
-controles apenas do mapa visual. Não inferir intenção histórica.
-
-### Decisão interna e limites
-
-Correção interna de paridade ADR-0127, sem campo/assinatura pública, fase,
-flag, default de produto ou unsafe novo. As invariantes compartilhadas pertencem ao núcleo bidi-visual-identity pinado acima. SHY conserva envelope ActualText existente por ocorrência.
-Controles bidi não ganham envelope ActualText: o vanilla não os copia como
-identidade dos espaços nestas sondas. Aceitação exige espaços/letras separados,
-clusters Unicode preservados e controle visual; extratores podem inserir seus
-próprios marcadores de direção, logo texto bruto não prova identidade autoral.
-
-Este owner delega a configuração ao owner text_identity nos dois pontos de buffer, medição e emissão; cache conserva texto autoral completo.
-
-### Resultado vazio válido versus falha
-
-A primeira extração após remover placeholders, preservada em
-`lab/results/construction/diagnostics/controles-bidi-pdf-2026-10-06/first-verification.json.gz`,
-mostra RLM residual no CID 000D. `shaping.rs:389-393` devolve None quando
-items está vazio, e `traversal.rs:98-109` conserva o Text como fallback.
-Para entrada não vazia composta exclusivamente do conjunto bidi, ao fim do
-shaping bem-sucedido retornar Some(Vec vazio). Falhas anteriores de fonte,
-resolução de contexto ou buffer conservam None; demais entradas vazias ou
-não certificadas conservam política existente. Não fabricar glifo/envelope.
-
-A saída antecipada por paragraphs sem runs também precisa distinguir o
-resultado vazio válido: com primária legível e texto não vazio exclusivamente
-bidi, retornar Some(Vec vazio). A inspeção first-raster.json refuta o fechamento
-apenas do final da função: LRI voltou como Text e desenhou notdef. Sem primária,
-sem contexto resolvido ou para outros textos, conservar fallback anterior.
-
-
-## Auxiliares de teste e bindings produtivos — 2026-10-14
-
-### Medição anterior à decisão
-
-`03_infra/src/shaper/shaping.rs` nas linhas [113] apresenta os avisos selecionados.
-`lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/before.json.gz`
-conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
-references-before.json.gz registra chamadas, imports, módulos e referências;
-o estado da suíte/inventário anterior foi verificado por hashes. A lista de
-testes foi capturada antes da edição. Não se infere inutilidade funcional
-apenas de dead_code: as chamadas privadas e sua compilação foram auditadas.
-
-### Responsabilidade e aceitação
-
-try_shape é fachada pub(super) sem contexto usada apenas pela suíte. Compilar essa fachada somente em cfg(test), conservando assinatura e delegação integral a try_shape_context. try_shape_context, shaped_width e todos os caminhos de produção permanecem compilados normalmente. Não limitar os controles de SHY/bidi/fontes ou mudar None versus resultado vazio válido.
-
-Manutenção interna em fluxo contínuo ADR-0127: nenhuma API pública, campo,
-default de produto, fase, dependência ou supressão de lint muda. O gate de
-diagnósticos selecionados deve falhar antes e passar depois; ele não é um
-novo teste funcional nem prova de paridade. Preservar a lista e as expectativas
-dos testes existentes, executar a suíte completa, compilar lib/all-targets,
-verificar build/rustdoc/fmt/linhagem e registrar o inventário total. Não criar
-testes que apenas espelhem cfg ou remoção de bindings. Resselo restrito ao owner.
-
-
-## Aridade das fronteiras — `clippy::too_many_arguments`
-
-### Evidência anterior à decisão
-
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
-
-- `C117`: `03_infra/src/shaper/shaping.rs:124`, `try_shape_context`, 8 argumentos contados pelo Clippy (limiar 7).
-
-### Prescrição exclusiva por função
-
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
-
-#### `C117` — `try_shape_context`: Exceção pontual justificada
-
-Owner do shaping recebe dois caches com lifetimes próprios, serviços e dados da ocorrência, mais BidiSpan causal e view resolvida compartilhada. O L0 proíbe redetectar direção do fragmento ou pôr contexto em TextStyle; manter a injeção explícita.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C117: Owner do shaping recebe dois caches com lifetimes próprios, serviços e dados da ocorrência, mais BidiSpan causal e view resolvida compartilhada")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-### Limite da exceção
-
-Autorizar somente `#[expect(clippy::too_many_arguments, reason = "...")]` no item
-nominal acima, com o motivo arquitetural indicado. Não aplicar no módulo, impl,
-crate ou configuração global; não elevar o limiar nem abranger outro lint.
-Nos casos com remoção de argumento morto, a exceção residual depende dessa correção.
-Se a função deixar de exceder o limiar, retirar/revisar a expectativa; não silenciar
-`unfulfilled_lint_expectations`. Esta permissão específica supera proibições
-genéricas de supressão em seções anteriores somente para este lint e os itens
-nominais justificados aqui. As demais obrigações de correção permanecem.
-
-### Fronteira de materialização
-
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
-
-
-## Exceções nominais materializadas — 2026-10-16
-
-### Medição anterior à decisão
-
-O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
-
-### Responsabilidade e aceitação
-
-Materializar somente as expectativas diretas nominais já justificadas neste owner: C117. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
-
-Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
-
-
-## V16 — projeção nominal de MathSize para ssty (2026-10-17)
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/tekt-v16-ssty-2026-10-17/before.json.gz conserva UTC,
-status, git diff HEAD --stat, fontes/L0 e 2128 hashes conferidos do fechamento
-anterior. O SARIF em lab/results/construction/diagnostics/import-syntax-2026-10-17/validation-architecture.log
-registra 117 V16, incluindo font_metrics/math.rs:337 e shaper/shaping.rs:28.
-MathSize em 01_core/src/entities/layout_types.rs:147 possui Display, Text,
-Script e ScriptScript. math.rs:330–338 e shaping.rs:21–30 retornam Some(1/2)
-para Script/ScriptScript; o wildcard devolve None para os dois tamanhos atuais
-restantes e ocultaria uma variante futura. Os L0 vigentes já exigem esses
-níveis e gates de math/TextItem/elegibilidade; não há decisão linguística nova.
-before-probe-result.json conserva fontes/hashes, rustc/argv/UTC e 224 controles
-com resultados atuais. A sonda extrai funções e declaração real de MathSize,
-modelando somente os três campos de TextStyle lidos; no mutante descartável,
-a variante TektSstyFuture é aceita em ambos os matches (zero E0004). O RED é
-essa falta de proteção estrutural; controles funcionais atuais passam.
-
-É mecânica de manutenção Rust: enum crescente precisa de decisão explícita;
-não é medição nova de paridade nem de velocidade de leitura por IA. Os níveis
-ssty continuam o contrato de linguagem/render anterior. A inferência de que o
-reparo conserva os quatro casos atuais é refutada por qualquer controle,
-replay textual ou regressão divergente. Não substituir uma decisão semântica
-por enumeração cosmética: Display/Text são ausência intencional de pedido,
-justificada no núcleo pinado; Script/ScriptScript mantêm níveis distintos.
-
-### Responsabilidade exclusiva
-
-Em ssty_level_for_subrun, conservar assinatura/guard e predicado canônico; importar MathSize no use privado de layout_types existente, usar os nomes MathSize nas quatro variantes e substituir somente o wildcard por MathSize::Display | MathSize::Text => None. Não alterar shape, medição/emissão, caches ou transporte.
-
-A política compartilhada está em 00_nucleo/prompts/_nuclei/fonts/ssty-math-size.toml,
-pinada neste owner. Fluxo contínuo ADR-0127: nenhuma mudança de contrato público,
-comportamento padrão ou fase; campos e enum público permanecem byte a byte.
-
-### Aceitação
-
-Primeiro registrar o RED estrutural e os controles antes do código. Depois,
-a mesma sonda com variante futura precisa produzir exatamente dois E0004 nos
-matches auditados; controles 224/224 idênticos. O modelo parcial de TextStyle
-não prova shaping integral: conferir também os testes reais existentes de
-font_metrics e integração ssty/TextItem, a suíte workspace e os gates finais.
-Não adicionar testes que apenas reescrevam o match; o guard de crescimento é
-a nova propriedade verificada. Replay do código permite somente o reparo
-nominal prescrito e o hash do header. SARIF: retirar precisamente os dois V16,
-adicionar duas notas V19 dos grupos Display/Text com motivo e cobertura dos
-dois tamanhos; todos os outros diagnósticos devem permanecer por fonte, regra,
-severidade e mensagem. Sem V20 novo, supressão ou alteração de configuração.
-Grafo V15/V26 antes de resselo restrito aos dois pares; build, fmt, Clippy
-all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc estrito,
-V1/V5/V15/V26, reverse lineage, suíte completa, diff --check e integridade.
-Comandos pesados sequenciais sob MemoryMax12GiB/High10GiB/swap0/jobs1; sem
-commit/push/merge/release. O objetivo global continua além deste lote.
+refutes the initial materialization: trailing/ligature preserve codepoints but
+expand ActualText bbox 3.12pt/lose space in ordinary extraction; tracking adds a
+placeholder-derived interval. first-round/final-receipt.json retains state/failures.
+Rustybuzz0.20.1 src/lib.rs:32–35 documents default Default_Ignorable→zero-advance
+space placeholder and REMOVE_DEFAULT_IGNORABLES removal after shaping. Shared
+f+SHY+fi cluster can assign empty hex to a space GID, blocking later mapping.
+Changed visible glyphs/ligatures under the documented flag or contaminated non-SHY/
+non-bidi runs refute the fix.
+
+`controles-bidi-pdf-2026-10-06/before.json` retains HEAD/tree/code/L0/old binary.
+rtl_literal_embedding-cmap-before/rtl_forced_mark-cmap-before probes map CID 0001
+to U+202C/U+200F, contaminating later spaces/word separation; block-align-2026-10-06/
+verification.json.gz retains bilateral extraction/fonts/commands. Historical vanilla
+`9f2b6e8715237cb086899a42873660fe744622e8` inline/shaping.rs:992–997 removes
+placeholders; export/fonts.rs:307–328 retains controls per GID substring and
+builder/fonts.rs:523–535 keeps first map. Observable text/geometry, not bytes/
+upstream algorithm, matters. Persisting collision after placeholder removal/visual-
+map filtering refutes the cause; no historical intent inferred.
+
+### Contract and limits
+
+Private configure_authored_ignorables_buffer applies REMOVE_DEFAULT_IGNORABLES
+before shaping both measurement/emission subruns with author U+00AD or explicitly
+pinned bidi control, preserving prior flags/full logical input. Do not remove
+characters or filter GIDs/zero advances; runs without SHY/bidi keep behavior.
+It removes placeholders, not visible selected-break glyphs; tracking uses remaining
+clusters without an interval for removed placeholders. Cache uses full author text,
+policy deterministic from text, no public signature/phase/fallback/OpenType-feature/
+font change. Entirely invisible SHY and narrow break selection remain outside SHY
+certification; later explicit bidi-only empty-result rule is separate.
+
+SHY retains per-occurrence ActualText. Isolated bidi controls gain no replacement
+envelope or copied space identity; only the mixed-cluster certificate below may
+add one. Keep letters/spaces separated/Unicode clusters/ink controls. Extractors
+may invent direction markers, so raw text alone proves no author identity. Internal
+ADR-0127 adds no public field/signature/phase/flag/default/unsafe, consumes pinned
+bidi-visual-identity and text-replacement without sharing productive ownership.
+
+## Tracking and actual-font materialization
+
+`tracking-residual-2026-09-29/{initial.json,results.json,summary.json,causal-checks.json}`
+retains 36 inputs/108 PDFs/vanilla/sources/UTC/HEAD/full dirty tree and quantization/
+boundary refuters; correcao-tracking-2026-09-29/initial.json fixes pre-change state.
+Keep rounded i32 tracking/cache representation. Next subrun placement uses
+tracking owner's width adding only fractional residual at eligible cluster pairs.
+No glyph/text/feature/font-selection change; no-tracking measured shaped_width
+retains its contract. Continuous ADR-0127 supersedes only prior preservation of
+those tracking limits, no public/flag/phase addition. RED→GREEN boundaries/
+selection/independent Tc-TJ, bilateral ±/zero/repeated/adjacent/wrap controls,
+build/lint zero errors/scoped seals.
+
+Retain actual loaded Font in CachedRun, returned with glyphs: one miss load, hit
+uses memoized Font, no World::font at carrier construction after GID production/
+lookup. Evidence/contract belongs to `00_nucleo/prompts/infra/shaper/cache.md`;
+no new unsafe/API. Approved TextShaped.font field is a cross-owner boundary,
+not extra ownership here.
+
+Ratified bidi inventory/manifesto 1ae7513e requires uncertified constructors None/
+read `..`, preserving observables with no phase/API change.
+
+## Full-paragraph bidi context
+
+### Evidence
+
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{initial,probe}.json.gz`
+retains bilateral cases/Unicode refutation and sources/state/binaries.
+`layout_bidi.rs:73–82,227–240` redetects base/invents separators;
+`shaper/bidi.rs:34` redetects a fragment, losing the human-ratified complete input.
+This internal parity correction adds no phase or external public signature.
+
+### Boundary contract and acceptance
+
+For certified spans, use the compilation-local registry of auxiliary strings/maps
+by input Arc, then normally borrowed BidiInfo views; no unsafe/self-reference.
+Virtual LRE/RLE/PDF is inserted only when segment direction differs from base.
+Retain real spaces, nonjustified Linebreak LF and author controls; justify=true
+is outside certification. Resolve once per input per registry; paged pipeline
+shares registry/views between reorder/shape. Existing public wrappers may create
+a local equivalent registry.
+
+Reorder queries the actual line interval, exact segment/range intersections and
+end-of-line levels, never midpoints or invented spaces. Split mixed Text at original
+boundaries preserving style/subspan. Nontext items and unknown sources gain no
+certificate. Preserve the L1-accepted physical anchor and actual width/advance;
+certified context cannot use suffix/coalescing fallback.
+
+Shaping queries full-input runs for each original span without fragment direction
+redetection, preserving sequential subrun offsets and exact TextShaped subspans.
+The existing cache key already distinguishes direction; add no context to
+TextStyle. Reconciliation uses input base when present, not any RTL run; retain
+prior None fallback. Require RED→GREEN for `456 789` refutation, overrides/neutrals,
+no auxiliary controls in extracted text and bilateral measurements. Registry
+implementation is exclusively owned by `00_nucleo/prompts/infra/bidi_context.md`;
+reordering and shaping remain with their own canonical owners.
+## Successful empty bidi-only output
+
+first-verification.json.gz in controles-bidi-pdf-2026-10-06 retains residual RLM
+CID 000D after placeholder removal. shaping.rs:389–393 returns None for no items,
+traversal.rs:98–109 keeps fallback Text. After successful shaping of nonempty
+bidi-only text return Some(empty Vec), not None/fabricated glyph/envelope. Earlier
+font/context/buffer failures retain None and all other inputs their existing policy.
+The early no-paragraph-runs path also returns Some(empty) only with readable primary
+and nonempty bidi-only input: first-raster.json refutes final-return-only repair
+because LRI fell back to notdef Text. No primary/resolved context/other text keeps
+old fallback. Later certified mixed-cluster identity is owned separately and
+supersedes only older blanket “bidi gets no envelope” wording for valid certificates.
+
+## Test-only wrapper and nominal arity metadata
+
+ci-helpers-testes-2026-10-14/before.json.gz/references-before.json.gz retains
+source/owner/HEAD/tree/UTC/diffstat/calls/imports/modules/references/test list and
+hash-checked suite/inventory at :113. Private compilation/usage was audited, not
+dead_code alone. Only pub(super) try_shape contextless test facade is cfg(test),
+with unchanged signature/delegation to productive try_shape_context; shaped_width/
+production paths and SHY/bidi/font/None-versus-valid-empty controls remain.
+Selected diagnostic RED→GREEN, unchanged tests/full suite/lib/all-target build/
+Rustdoc/fmt/lineage/full inventory and scoped seals; no API/default/phase/dependency/
+suppression or cfg/binding-removal mirror tests.
+
+Arity audit before.json.gz/classification.json in too-many-arguments-2026-10-15
+retains checked full sources/L0/signatures/hashes/UTC/status/diffstat, HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, dirty tree captured
+2026-10-15T16:39:18.873477+00:00. try_shape_context :124 has eight arguments,
+threshold seven, historical C117. Two caches have independent lifetimes, services/
+occurrence data, causal BidiSpan/shared resolved view. Do not redetect fragments
+or put context in TextStyle; explicit injection justifies only this expectation:
+`#[expect(clippy::too_many_arguments, reason="C117: Owner do shaping recebe dois caches com lifetimes próprios, serviços e dados da ocorrência, mais BidiSpan causal e view resolvida compartilhada")]`.
+Keep signature/order/body/calls/cfg/other attributes, no module/impl/crate/global
+scope/threshold/other lint. Remove/review if arity drops, never suppress unfulfilled
+expectation. The nominal materialization receipt clippy-excecoes-2026-10-16/
+before.json.gz plus clippy-locais/clippy-inventory.json (79 warnings) supersedes
+its old audit-only pending status only for C117; pending corrections including
+C047/C066 stay visible. Rust structure proves no functional/parity/cognitive benefit.
+
+Metadata-only continuous ADR-0127: no executable/public/default/phase/dependency/
+architecture change. Removing added attributes/header recovers old rustfmt source.
+Real RED then historical batch inventory exactly 46 arities/five test warnings/
+49 expectations, no new warnings/unfulfilled expectations; 11 correction arities
+visible. Existing Counter/coverage tests, build/fmt/strict-reverse lineage/Tekt
+no new warnings under 12 GiB/zero swap/one job, no attribute mirror/performance tests.
+Private signature corrections require caller/L0 migration; any new external/public
+need requires concrete ADR-0127 approval.
+
+## Explicit MathSize ssty decisions
+
+### Evidence
+
+`lab/results/construction/diagnostics/tekt-v16-ssty-2026-10-17/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/
+status/diffstat/sources/L0 and 2, 128 hashes verified against previous closure.
+import-syntax-2026-10-17/validation-architecture.log has 117 V16 including
+font_metrics/math.rs:337 and shaping.rs:28. Actual MathSize at layout_types.rs:147
+is Display/Text/Script/ScriptScript. Existing functions return Some(1/2) for script
+sizes, wildcard None for other two, silently admitting future variants. Existing
+L0 already defines math/TextItem/eligibility, no new language decision.
+before-probe-result.json retains sources/hashes/rustc/argv/UTC and 224 controls;
+probe extracts actual functions/enum, models only three read TextStyle fields.
+Disposable future TektSstyFuture compiles both matches (zero E0004): that missing
+growth protection is structural RED while current functional controls pass.
+
+Rust enum maintenance is mechanics, no new parity or measured AI-reading speed.
+Display/Text intentionally request no ssty under pinned nucleus; Script/ScriptScript
+retain distinct levels. Any control/text replay/regression divergence refutes
+preservation. No cosmetic enumeration replacing semantic judgment.
+
+### Contract and acceptance
+
+In ssty_level_for_subrun keep signature/guard/canonical predicate. Import MathSize
+through existing private layout_types use, name all four variants and replace only
+wildcard with MathSize::Display | MathSize::Text => None. No shape/measurement/
+emission/cache/transport change.
+
+Pinned fonts/ssty-math-size supplies shared policy. Continuous ADR-0127 changes no
+public/default/phase; public fields/enum remain byte-identical. Record structural
+RED/functional controls before code. Same future-variant probe afterward must
+produce exactly two E0004 at audited matches and preserve 224/224 observations.
+Partial TextStyle model does not prove full shaping: existing real font_metrics/
+ssty/TextItem integration/workspace/final gates remain required. No match-mirror
+tests; growth guard is the verified new property. Replay allows only prescribed
+nominal repair/header hash. Differential SARIF removes precisely two V16, adds two
+V19 Display/Text notes with rationale/coverage for both sizes; every other source/
+rule/severity/message unchanged. No V20/suppression/config change. V15/V26 graph
+before two-pair scoped seals; build/fmt/strict all-target Clippy (-D warnings,
+-D unfulfilled_lint_expectations)/strict Rustdoc/V1/V5/V15/V26/reverse lineage/
+full suite/diff --check/integrity. Heavy commands sequential MemoryMax12GiB/
+High10GiB/swap0/jobs1; no commit/push/merge/release. General objective remains open.

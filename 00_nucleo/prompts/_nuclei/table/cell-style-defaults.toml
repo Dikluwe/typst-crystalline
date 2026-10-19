@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "table-cell-style-defaults"
-title = "Defaults declarados e propriedades efetivas da Cell"
-
+title = "Declared Cell defaults and effective properties"
 [[claims]]
 id = "source-and-effective"
 level = "must"
-statement = "Constructor e presença lexicais permanecem intactos; a preparação conserva propriedades efetivas tipadas privadas e getters/igualdade observam campos conhecidos, enquanto prova de reuso inclui estado causal."
-
+statement = "Constructor/lexical presence remain intact;preparation retains private typed effective properties,getters/equality observe known fields,and reuse proof includes causal state."
 [[claims]]
 id = "precedence"
 level = "must"
-statement = "Constructor explícito (incluindo auto e none) vence defaults declarados; componentes de stroke e alignment fazem fold com Table, não com o estilo da Cell; campos ausentes usam o estilo de inserção. Declarações são avaliadas uma vez e publicadas somente após validação."
-
+statement = "Explicit constructor(including auto/none) overrides declared defaults;stroke/alignment components fold with Table,not Cell style;absent fields use insertion style. Evaluate declarations once,publish only after validation."
 [[claims]]
 id = "placement-and-padding"
 level = "must"
-statement = "Defaults de Cell são resolvidos antes de ocupação/grupos da Table; padding recebe spans explícitos 1 e as demais propriedades de estilo. Célula posicionada usa propriedades já resolvidas e show-set posterior da Cell não redefine ocupação."
-
+statement = "Resolve Cell defaults before Table occupancy/groups;padding receives explicit spans1 and other style properties. Positioned cell uses already resolved properties;later Cell show-set never redefines occupancy."
 [[claims]]
 id = "scope-and-identity"
 level = "must"
-statement = "Aliases crus recebem defaults no ambiente de inserção; snapshots preparados preservam propriedades e regras consumidas, inclusive ao entrar em Table. Escopo local e show-set não vazam nem executam conteúdos ocultados."
+statement = "Raw aliases receive defaults in insertion environment;prepared snapshots preserve properties/consumed rules,including Table insertion. Local scope/show-set never leaks or executes hidden content."

@@ -2,8 +2,8 @@
 Hash do Código: b1ea9c03
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 Layer: L3. Exclusive consumer: `03_infra/src/export/stream/separator.rs`.
 
@@ -27,44 +27,38 @@ fragments. Preserve grouping and resource mappings. Tests and PDF extraction
 must retain lexical spaces while the adjacency control remains ABC and visible
 letter positions remain unchanged.
 
-## Espaço literal terminal em embedding LTR (2026-10-06)
+## Terminal literal space in an LTR embedding
 
-### Medição anterior à decisão
+### Evidence
 
-`lab/results/construction/diagnostics/espaco-terminal-2026-10-06/before.json` conserva
-working tree, HEAD, código/L0 e binários. O caso literal-terminal-space no
-lote bidi-identidade-ocorrencia tem glifos posicionados corretamente, mas
-caixa extraída de 123 termina em 121.49581pt versus 125.000002pt no oracle.
-O PDF emite o carrier de espaço em 121.50342pt; separator.rs:10-14 apenas
-emite U+0020, que Poppler descarta no fim do run. O vanilla pinado 9f2b6e871
-usa ActualText 0020202C nesse espaço, encerrando o embedding de exportação.
-`pdf-boundary-probe.json` mede que apenas ActualText 0020 não resolve, mas
-0020202C conserva a caixa até 125.00142pt sem mudar glifos/avanços. A sonda
-alternativa word-envelope-refutation.json refuta envolver o texto anterior
-com o espaço cruzando restaurações gráficas: a extração muda de linha.
-São identidade textual/geometria observáveis; não obrigação de copiar bytes
-ou reproduzir todos os operadores. Hipótese refutável por perda/duplicação de
-espaços, alteração da tinta ou regressão de markup/base LTR após a correção.
+`lab/results/construction/diagnostics/espaco-terminal-2026-10-06/before.json`
+retains working tree/HEAD/code/L0/binaries. literal-terminal-space in the bidi-
+identity batch positions glyphs correctly, but extracted 123 bbox ends at
+121.49581pt versus oracle 125.000002pt. PDF emits the space carrier at 121.50342pt;
+separator.rs:10–14 emits U+0020, which Poppler drops at run end. Historical vanilla
+9f2b6e871 uses ActualText 0020202C to close the export embedding. pdf-boundary-
+probe.json shows 0020 alone fails while 0020202C retains bbox to 125.00142pt without
+glyph/advance changes. word-envelope-refutation.json refutes wrapping preceding
+text plus space across graphic restorations: extracted line changes. These are
+observable text identity/geometry, not byte/operator equality requirements. Lost/
+duplicated spaces, changed ink or markup/LTR-base regression refutes the correction.
 
-### Classificação e limites
+### Contract and acceptance
 
-Correção interna ADR-0127, sem campo/API pública/fase/flag/dependência/unsafe.
-U+202C é formatação derivada **somente do PDF ActualText**, para fechar o
-embedding de exportação comprovado pelo span; não conteúdo autoral, não
-carrier, glifo, input bidi nem ToUnicode global. Não fabricar controle virtual
-na representação autoral. L0 de paragraph-bidi-origin permanece integral.
+Internal ADR-0127: no public field/API/phase/flag/dependency/unsafe addition.
+U+202C is derived only in PDF ActualText to close the embedding certified by span;
+it is not author content/carrier/glyph/bidi input/global ToUnicode. No virtual
+control in author representation; preserve the paragraph-bidi-origin L0 intact.
 
-### Responsabilidade exclusiva
+Private emit receives explicit origin and optional BidiSpan. Certify only Literal
+with exact U+0020 span at the end of a nonempty Text segment with preceding prefix,
+LTR segment direction and RTL input base. Use original segment/range. None,
+markup/newline/other ranges/directions and Space without Text segment retain old
+emission; never infer boundary from distance/font/visualization.
 
-O emit privado recebe origem e BidiSpan opcional explicitamente. Certificar
-somente Literal com span exato U+0020 no fim de segmento Text não vazio
-com prefixo anterior, dir LTR e input base RTL. Usar segmento/range originais;
-None, markup/newline, outros ranges/direções e Space sem segmento Text mantêm
-emissão existente. Não inferir fronteira por distância, fonte ou visualização.
-Para o certificado, abrir ActualText com espaço+PDF, emitir somente o glifo
-original U+0020 uma vez pelos helpers de texto com restauração gráfica
-diferível, fechar EMC e só então o Q pendente. Compacto e verboso usam mesma
-identidade e seus helpers respectivos. Fonte, x, baseline e avance intactos.
-Nenhuma mutação do documento, clonagem de texto anterior ou reenquadramento.
-Testar certificado positivo/negativos e fronteira EMC antes de Q; PDF fonte
-inclui extração bruta, bbox, raster e controles top/local/markup/LTR.
+For the certificate, open ActualText space+PDF, emit original U+0020 exactly once
+through text helpers with deferred graphic restoration, close EMC before pending
+Q. Compact/Verbose preserve identity through their own helpers. Font/x/baseline/
+advance remain unchanged; no document mutation/previous-text clone/reframing.
+Positive/negative certificate and EMC-before-Q tests plus raw PDF extraction/bbox/
+raster/top/local/markup/LTR controls are required.

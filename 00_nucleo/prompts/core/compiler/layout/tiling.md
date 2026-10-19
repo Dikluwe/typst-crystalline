@@ -2,8 +2,8 @@
 Hash do Código: a84e2e4d
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
-- 00_nucleo/prompts/_nuclei/tiling-placement.toml sha256:9c88c9c3bde8b005623fa70b5213400655a9a741b1a140b6b76c7225fc16edb4
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
+- 00_nucleo/prompts/_nuclei/tiling-placement.toml sha256:d6e2fba3d2143daec23bcf7a8d959ce59600f3b8ccc5fa35a853c4f6831e51e0
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/tiling.rs`
@@ -13,272 +13,50 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/tiling.rs:15`, `01_core/src/compiler/layout/tiling.rs:124`, `01_core/src/compiler/layout/tiling.rs:144`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Historical pins do not certify current ratified `bd5ebec285505889e8ff1d4f68804ab147a699f3` without new measurement.
 
-## Ownership and contract
+Full historical numerical/coverage/render observations and failed intermediate adapters remain in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/tiling.md`. `lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz` preserves source/owner/config/libm/compiler/UTC/status/diffstat at HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree. Host 4,968-case comparison found 69 trig/atan2 differences<=1 ULP, unchanged class/zero sign and matching sampled powers/hypot, not universal/new vanilla parity. Former diagonal libm::hypot 0.2.11 method was superseded by inverse-corner coverage, never a current required algorithm or permission for overflow-prone sqrt(w*w+h*h).
 
-This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/core/compiler/layout/mod.md`; the contract below defines this unit's operations, not ownership of that hub.
+`lab/results/construction/diagnostics/tiling-cobertura-2026-10-14/before/results.json.gz` preserves source/owners/same HEAD/dirty diffstat/binaries/UTC at historical pin `9f2b6e8715237cb086899a42873660fe744622e8`, full-canvas Poppler 144dpi. Empty painted unexpectedly, dense coverage/cell-width/origin/offset controls failed. tiling.rs:35 used baseline origin,`:47` terminal cursor rather than Shape width,`:57` rejected no-items,`:76` used origin-centered square not inverse target corners. These were causal hypotheses needing RED/recollection, not prior parity.
 
-Materialize only supported Content-backed tiling fills into existing Groups. Reject invalid/nonpositive/nonfinite target, explicit cell dimensions, pitches, offsets or angle without a loop; None means unsupported, not a successful transparent paint. Lay out the body once in an isolated region, derive auto cell dimensions from its actual width/height, and compute pitch as cell size plus resolved spacing. Use the pinned tiling-placement geometry contract. Shapes' Auto/Itself phase is local; explicit Parent cancels the supplied shape-origin translation in the target basis, separately from grid rotation. Preserve cell clipping and the enclosing shape clip, clone the already-laid-out cell in the bounded lattice (current maximum 10000 cells), and keep default/unsupported text-parent cases outside this owner. Do not execute body per copy, rasterize or change public Paint types. Shape owns invocation and stroke behavior.
+`lab/results/construction/diagnostics/tiling-transformacao-2026-10-14/before/results.json.gz` preserves corresponding state/binaries/pin.90°+offset(3,5) yields vanilla SVG matrix(0 1 -1 0 3 5) versus rotated offset(-5,3). Pinned visualize/tiling.rs:173-174,375-377/layout/transform.rs:334-343 describes rotation about offset and T*R. render-comparison.json.gz distinguishes targets: quarter/no-offset Tekt PDF/SVG matches vanilla SVG while vanilla PDF differs 414 pixels>16; quarter-offset SVG differs 1,764. Full 240×192 white canvas uses librsvg/Poppler without approving crops/tolerances. Do not copy vanilla PDF defect or claim composed-parent/all-PDF parity.
 
-## Acceptance and limits
+The human approved manifest`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d` for historical T1–T3; receipt: `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`. Bilateral Parent evidence and Solid controls remain in the approved contract; structural inspection does not replace them. `lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` preserves sources, dirty state, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC, diffstat and binary hashes; it covers containers, Place and Rotate with Solid and Gradient Parent. The before-source/syntax-nodes inventory records this consumer's Group constructions/destructurings before editing: [85, 130, 147, 153]. `layout_types.rs:531–539` does not distinguish roots from technical groups; `helpers.rs:253–269` rebuilds Group and must preserve the field. Box groups background/body; Block leaves body flat except for clipping. Preserving coordinates is a language requirement; envelope form is mechanics. Approval does not close previously measured general Rotate/Box geometry divergences.
 
-Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+`lab/results/construction/diagnostics/tiling-preparacao-2026-10-14/before.json.gz` preserves HEAD/UTC/tree/diffstat/source-owner bytes/hashes. tiling.rs:35–81 mixed cell layout/validation/placement with target coverage,`:124–145` capped/cloned lattice; frame_paint.rs:40–48 already has approved TilingFrame; sub_frame.rs:358 returns causal width and checkpoint.rs:192,311 restores runtime. Pinned visualize/tiling.rs:235–299 validates size/spacing/offset/angle before/after layout and distinguishes empty Auto. Messages below come from that source where matching; pitch/legacy-body bridges are explicit Tekt choices, not inferred intent.
 
+checkpoint.rs:409–415 clears suffix transaction/replay/depth on restore, while flow_suffix.rs:41–43 increments/decrements parent depth. tiling-preparacao-2026-10-14/isolation-red.log refutes initial extraction that erased parent's transaction. Preparation must preserve the surrounding envelope independently of unchanged shared checkpoint protocol.
 
-## Operações numéricas puras — 2026-10-13
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` records HEAD, working tree, diffstat/UTC and sources/owners before migration. `layout_types.rs:510–511` still transports Paint/Stroke; `shape.rs:151–191` materializes only fill in groups; `tiling.rs:85` limits/clones the grid. `prepare_cell` already returns TilingFrame once per occurrence. Probes `tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz` establish that dense-open and stroke-open still diverge in all three targets. The contract was approved in manifest `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`; receipt: `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`. Preparation/object counts are transport mechanics; render, contours, text, geometry and diagnostics are observable language obligations.
 
-### Medição anterior à decisão
+## Exclusive ownership and current native preparation contract
 
-`01_core/src/compiler/layout/tiling.rs` nas linhas 74 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+Own only `01_core/src/compiler/layout/tiling.rs`, pure layout-phase Paint/Stroke preparation and one-cell TilingFrame, never exporter rendering/rasterization or Paint language mutation. Human-approved transport manifest `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d` and pinned nuclei govern exact scope.
 
-### Decisão e aceitação
+Private prepare_cell returns SourceResult<TilingFrame>, receives no target dimensions and enumerates no repetitions. Store one visual cell with physical size, signed spacing, offset resolved against pitch, angle and RelativeTo (Auto/Itself→Self_; Parent stays Parent). Lay out Content once at geometric origin, text installing its own baseline. Auto width combines causal width/item line_content_right extent with legacy terminal advance; height uses subframe extent. Establish local cell parent_bbox during layout and restore parent; Auto keeps legacy parent_bbox None until final implicit cell-root dimensions are known. TilingFrame itself is implicit paint root regardless of body groups.
 
-Historicamente, o raio diagonal usava libm::hypot (0.2.11 pinada). A fórmula por raio foi substituída pelo inverso dos cantos em Célula geométrica e cobertura da repetição; não é obrigação vigente de algoritmo. Não substituir por sqrt(width*width+height*height), que perde robustez em extremos. Preservar validações de finitude/positividade, contagem máxima 10000, ordem das transformações e layout único do body.
+Checkpoint existing flow/runtime, without labels/positions/counters duplicated or promoted into document page. Suspend parent transaction pending/active/rejected/checkpoint/replay/depth, prepare under neutral local envelope, then restore every field after checkpoint even on body diagnostic. Do not change checkpoint owner contract. Return newly produced causal body errors without consuming earlier document errors. Preserve visual items; annotation filtering/specialized resource collectors belong to native exporters.
 
-Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, default ou fase. Preservar testes de geometria/linguagem existentes e comparar os exemplos SVG medidos antes/depois, declarando diferenças. A comparação geométrica não certifica todos os casos ou plataformas. Validar build, todos os targets, core, Clippy e linhagem. Não suprimir o lint nem substituir aceitação por identidade de bytes do compilador.
+Before body, reject explicit size nonpositive/nonfinite with `tile size must be non-zero and non-infinite`; nonfinite spacing with `tile spacing must be finite`; font-relative offset with `tile offset must not be font-relative`; nonfinite components/resolved offset with `tile offset must be finite`; nonfinite angle with `tile angle must be finite`. Nonpositive/nonfinite pitch gives `tile pitch must be positive and finite`, checked before body when explicit size permits. Auto empty/zero gives `tile size must be non-zero`, hint `try setting the size manually`; nonfinite Auto uses nonfinite-size message. Valid explicit size with empty body is successful transparent cell. Current Rust Tiling lacks source span, so detached span remains boundary; invent no source position. Return SourceResult, never representative color/transparent success on unsupported invalid input.
 
+Legacy Image body bridges to Content::Image and same layout. Color/Gradient require explicit size and become rectangular original-paint Shape without fallback sampling; absence errors `tile size must be explicit for a color or gradient body`. This L1 bridge supersedes Content-only scope only as specified, never a general From<Paint> conversion.
 
-## Célula geométrica e cobertura da repetição — 2026-10-14
+Private prepare_paint/prepare_stroke preserve all Solid/Gradient data; Tiling calls prepare_cell and Arc without copy lattice. FrameStroke retains every geometric field/presence. Register causal SourceResult errors at emission rather than substitute color.
 
-### Medição anterior à decisão
+Final approved native transition removes materialize_fill and 10000-copy limit from productive path, replacing old temporary Group/clip lattice. Earlier Content-only/Some-empty-Group/declared-fill fallback/repeated-cell algorithms survive as archived construction, not current productive instructions. Do not raise old limit or restore copy-grid tests as production proof; replace mechanical grid tests with cell/placement/transport and preserve all visual refuters in native corpus. The one-cell preparation/isolation obligations remain.
 
-`lab/results/construction/diagnostics/tiling-cobertura-2026-10-14/before/results.json.gz`
-conserva fontes/owners, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
-working tree não commitado com diffstat, binários e UTC. No canvas inteiro
-Poppler 144 dpi: empty pinta 3840 pixels Tekt/0 vanilla; empty-dense
-40000/0; dense 40000/10000; self e offset-control 0/960. O pin vanilla
-é 9f2b6e8715237cb086899a42873660fe744622e8. O controle large-offset
-não pinta em nenhum binário; isto não legitima perder periodicidade.
-A fonte deste owner:35 usa a origem de baseline do helper; :47 usa
-last_sub_frame_width, que é apenas avanço final de cursor (sub_frame.rs:350),
-não a largura de um shape em bloco; :57 rejeita conteúdo sem itens e :76
-usa um quadrado centrado na origem, não o inverso do recorte transformado.
-São hipóteses causais a discriminar por RED e recoleta, não paridade já provada.
+## Placement, paint roots and exporter boundary
 
-### Decisão e responsabilidade exclusiva
+Pinned tiling-placement geometry remains language obligation independent of old lattice: `translate(offset - suppliedShapeOriginForParent) * rotate(angle)`; Self/Auto subtract no origin and parent origin is not rotated with grid. Periodic normalization transforms translation into inverse-rotation basis, reduces by pitches and returns to placement basis preserving linear coefficients, with finiteness checks first. This preserves large-offset periodic phase rather than saturating indices. Native target/cell coverage uses transformed geometry without body relayout; historical inverse-four-corner target coverage and candidate validation explain old adapter, not a newly imposed copy loop.
 
-Conservar a materialização privada na fase layout e os FrameItems existentes.
-Usar o helper isolado com origem geométrica; texto adquire sua própria baseline.
-Na dimensão automática, medir a largura dos itens retornados com o helper
-line_content_right existente e conservar também o avanço final; não executar
-body novamente. Altura usa a extensão devolvida pelo sub-layout. Dimensões
-explícitas inválidas são rejeitadas antes de executar o body.
+Preserve cell clipping/enclosing shape clip, paint order and actual size/spacing/offset/angle. Technical Groups/legacy fixtures use paint_root:false; reconstruction retains received value rather than inferring from dimensions/clip/matrix. Legacy copied cells were local roots while outer mask/matrix groups technical; current TilingFrame root is implicit. Do not reset true→false during projection/marker removal/rebase. Shape owns invocation and stroke geometry; exporters consume prepared paints/root/resources without moving layout into L3. Composed Parent/Place/nested coordinate parity requires its own bilateral proof, not merely local available origin/transport metadata.
 
-Com tamanho/pitch/offset/ângulo válidos, body sem itens é um preenchimento
-transparente materializado com sucesso (Some grupo vazio), nunca None/fallback
-preto. Não construir uma grelha vazia só para atingir o limite de células.
+## Acceptance and incomplete scope
 
-A grelha cobre o inverso dos quatro cantos do recorte alvo pela transformação
-de placement, incluindo o tamanho da célula nas bordas. Reduzir deslocamentos
-periódicos pelo pitch antes de combiná-los, evitando saturação de índices por
-offsets grandes. Isto conserva a fase periódica; a ordem do offset é retificada abaixo pelo núcleo tiling-placement;
-não ratifica todo o referencial parent/rotação como paridade bilateral.
-Verificar finitude e spans antes de conversões/loops e manter o máximo de
-10000 células efetivamente candidatas. O limite residual continua Unknown,
-não sucesso de render nem prova de produção; não elevá-lo para esconder erro.
+Internal numeric/geometric corrections use ADR-0127 continuous flow with L0 first/RED→GREEN/restricted reseal, no new public signature/default/phase outside recorded approval. Preserve finite/positive validations, layout once and transformation order. Compare measured SVGs before/after declaring differences; host probe/structural transport does not certify every platform/global parity or compiler-byte identity. Build/all targets/core/Clippy/lineage pass without suppression.
 
-### Aceitação e limites
+Cell controls cover origin, Auto/explicit/empty, signed spacing, relative offset, angle/Parent, prebody validation, flow/runtime/transaction isolation and error propagation plus Image/Color/Gradient bridges without reduction. Count body once per occurrence, no target-area repetition cost. Keep transparency/Shape-auto-width/dense-below-old-limit/inverse-clip coverage/large-offset periodicity/rotation-pivot/cell-and-target clip/invalid-input/no-extra-layout historical refuters in native corpus. Old rotated-offset expected output is corrected only to invariant pivot under measured source, not a new tolerance. Recollect full bilateral PDF/SVG/canvas and validate workspace/build/fmt/lineage.
 
-RED→GREEN para transparência, geometria da célula, size:auto de shape em
-bloco, padrão denso abaixo do limite real, cobertura parent deslocado/rotacionado
-e periodicidade de offset grande. Controles preservam recorte de cada célula,
-ordem de pintura, layout único e rejeição de entradas inválidas. Recolher o
-corpus bilateral e validar build, workspace, formato e linhagem. Stroke ainda
-não transporta corpo materializado ao exporter; esta correção não o encerra.
-Sem campo/assinatura pública nova, default ou mudança de fase (ADR-0127).
+Preparation tests cannot substitute for integrated fill/stroke/resources/clipping/affine Parent/native targets/Solid-Gradient/page semantics and complete suite/build/doc/fmt/lineage. Metadata alone closed neither stroke transport nor native PDF/SVG/raster patterns; final native migration supersedes temporary-adapter incompleteness only when all approved transport/integration/verification are demonstrated. No production/tiling parity from build or one-cell structure alone. Remaining publication scope is separate.
 
-
-## Origem da rotação de tiling — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-transformacao-2026-10-14/before/results.json.gz`
-conserva fontes/owners, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
-working tree não commitado, diffstat, UTC e binários. Referência pinada
-9f2b6e8715237cb086899a42873660fe744622e8. Para angle90 e offset(3pt,5pt),
-o SVG vanilla emite matrix(0 1 -1 0 3 5); o Tekt emite (0 1 -1 0 -5 3).
-No pin, visualize/tiling.rs:173-174 descreve rotação em torno do offset;
-:375-377 concatena translate(offset) com rotate(angle), e
-layout/transform.rs:334-343 calcula T*R. O texto histórico "offset antes de
-angle" foi interpretado incorretamente como rotação do próprio offset.
-Semântica geométrica é obrigação de linguagem; ordem de chamadas Rust não é.
-
-before/render-comparison.json.gz discrimina targets: em quarter sem offset,
-Tekt PDF e SVG coincidem exatamente com vanilla SVG, enquanto vanilla PDF
-difere em 414 pixels >16. Não copiar essa diferença do PDF como requisito.
-Em quarter-offset, os SVGs diferem em 1764 pixels >16. Rasterizações usam
-canvas inteiro 240×192, branco, librsvg e Poppler, sem recortes/tolerâncias
-criadas para aprovar. A evidência não certifica parent composto nem todo PDF.
-
-### Responsabilidade deste owner
-
-Materializar o contrato do núcleo tiling-placement. placement_transform compõe
-translate(offset - origem fornecida do shape para Parent) * rotate(angle).
-Self/Auto não subtraem a origem. A origem do pai não é rotacionada junto com
-a grade. Antes de gerar a grelha, transformar a translação para a base inversa
-da rotação, reduzir pelos pitches, retornar à base de placement e manter
-os coeficientes lineares. Validar finitude antes de normalizar ou iterar.
-Conservar a cobertura pelo inverso dos cantos, recortes, tamanho auto, corpo
-vazio transparente, layout único e limite 10000 do reparo anterior.
-Não confundir a origem local disponível com o referencial composto do pai:
-Place/aninhamentos continuam abertos até transporte e medição próprios.
-O teste histórico que esperava offset girado passa a exigir pivô invariável;
-novos RED discriminam Parent com rotação e periodicidade na base correta.
-Recolher PDF e SVG e revalidar workspace, build e linhagem.
-
-Correção interna/de paridade ADR-0127 em fluxo contínuo: L0 primeiro,
-RED→GREEN e resselo restrito. Nenhuma mudança pública ou nova fase.
-
-## Referencial de pintura — transporte aprovado T1b — 2026-10-14
-
-### Medição anterior à decisão
-
-O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
-foi aprovado pelo humano para T1–T3; recibo em
-`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A evidência bilateral de Parent e controles Solid está no contrato aprovado;
-ela não é substituída por inspeção estrutural. A rodada
-`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
-fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
-diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
-e Gradient Parent. O inventário before-source/syntax-nodes registra neste
-consumer as construções/desestruturações antes da edição: [85, 130, 147, 153].
-layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
-reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
-Block mantém body plano exceto no clip. Preservação do referencial é requisito
-de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
-divergências gerais de geometria previamente medidas em Rotate/Box.
-
-### Responsabilidade exclusiva
-
-Migrar construções e padrões de Group para o campo paint_root aprovado. Grupos técnicos novos e fixtures legadas são false; reconstruções transportam o valor recebido, sem inferir raiz a partir de dimensão, clipping ou transformação. Preservar os demais campos e o comportamento de desenho/recursos. Exportadores ainda não usam este metadado para patterns; essa integração é T2 e não está certificada aqui. Cópias legadas de células são raízes locais; máscaras externas e o grupo da matriz de repetição são técnicos. O limite/clonagem legados permanecem pendentes até o transporte nativo T1c/T2, sem crédito de correção por este metadado.
-
-### Aceitação e incompletude
-
-L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
-nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
-A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
-implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
-e já autorizados. Não alegar paridade de tiling ou produção a partir do build.
-
-
-## Preparação única de célula — transição T1c aprovada — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-preparacao-2026-10-14/before.json.gz` conserva
-HEAD, UTC, working tree, diffstat e bytes/hashes das fontes e owners.
-Neste consumer:35–81 o layout do body, validação de célula e resolução de
-placement estão misturados com a cobertura do alvo; :124–145 limita a grade
-e clona os itens. `frame_paint.rs:40–48` já declara TilingFrame aprovado,
-mas não recebe células preparadas. `sub_frame.rs:358` fornece a largura
-causal, distinta de cursor terminal; `checkpoint.rs:192,311` salva/restaura
-runtime. Na fonte vanilla pinada 9f2b6e871, visualize/tiling.rs:235–299
-valida size, spacing, offset e angle antes/depois do layout e distingue
-size:auto vazio. As mensagens abaixo provêm dessa fonte onde coincidem;
-pitch e corpos Rust legados são decisões explícitas Tekt, não inferência
-de intenção upstream. O manifesto aprovado é d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d.
-
-### Contrato de preparação e transição
-
-Extrair a preparação para função privada que retorna SourceResult<TilingFrame>.
-Ela não recebe dimensão do alvo e não enumera repetições. Retém apenas uma
-célula com tamanho físico, spacing assinado, offset resolvido contra pitch,
-angle e RelativeTo (Auto/Itself → Self_; Parent preservado). Lay out Content
-uma vez em origem geométrica. Auto usa largura causal e extensão dos itens,
-conservando o avanço terminal legado; height usa extensão do subframe.
-O próprio frame é raiz implícita, independentemente dos grupos do body.
-Estabelecer parent_bbox local da célula durante layout, restaurando o pai.
-Isolar estado de fluxo/runtime pelo checkpoint existente; devolver erros
-causais produzidos pelo body, sem consumir os erros anteriores do documento.
-Não duplicar nem promover labels/posição/counters da célula à página.
-A célula continua contendo seus itens visuais; filtros de anotações e
-coletores especializados dos exporters são responsabilidade de T2.
-
-Antes de executar body, rejeitar size explícito não positivo/não finito com
-`tile size must be non-zero and non-infinite`, spacing não finito com
-`tile spacing must be finite`, offset font-relative com
-`tile offset must not be font-relative`, componentes não finitos ou offset
-resolvido não finito com `tile offset must be finite`, angle não finito com
-`tile angle must be finite`. Rejeitar pitch não positivo/não finito com
-`tile pitch must be positive and finite`; se size explícito, checar antes
-do body. Auto vazio/zero usa `tile size must be non-zero` e hint
-`try setting the size manually`; auto não finito usa a mensagem de size
-não finito. Célula vazia com size explícito válido é transparente e válida.
-Span detached é a fronteira atual do Tiling Rust sem span; não inventar
-localização de fonte. O helper devolve SourceResult, nunca cor representativa.
-
-Corpos legados Image tornam-se Content::Image e usam o mesmo layout. Color e
-Gradient exigem size explícito: criar shape retangular com paint original,
-sem consultar fallback; sem size, diagnóstico
-`tile size must be explicit for a color or gradient body`. A ponte é L1,
-não responsabilidade do exporter.
-
-Transição explícita: materialize_fill usa esta preparação e mantém apenas
-como adaptador temporário a grade/clip legados. Erros entram em layout_errors,
-portanto não são sucesso silencioso; o limite 10000 ainda é incompletude.
-A troca de Shape.fill/stroke, remoção deste adaptador, preparação de stroke e
-consumidores nativos completam T1c/T2 já aprovados. Este passo NÃO os substitui
-nem certifica tiling de produção. A cláusula antiga Content-only é supersedida
-pela ponte explícita; nenhuma conversão From<Paint> é autorizada.
-
-### Aceitação
-
-RED→GREEN de célula única e origem, auto/explicit, empty, spacing assinado,
-offset relativo, rotação/parent, validação antes de executar body, isolamento
-de fluxo/runtime e propagação de erro, pontes Image/Color/Gradient sem redução.
-Preservar os controles geométricos da grade temporária e revalidar core/build/
-linhagem; suíte e targets completos continuam gates de integração. Estrutura
-de célula é evidência de transporte limitado, não prova de paridade visual.
-
-
-### Isolamento de transação externa
-
-A inspeção de `checkpoint.rs:409–415` mostrou que restore_flow_suffix_checkpoint
-limpa a transação/replay/depth do sufixo de fluxo. `flow_suffix.rs:41–43`
-incrementa/decrementa esse depth em torno do layout; usar o checkpoint durante
-uma célula sem preservar seu envelope apagaria a transação do pai. O RED
-`tiling-preparacao-2026-10-14/isolation-red.log` refuta a primeira extração.
-Este owner deve suspender os campos privados de transação do pai (pending,
-active, rejected, checkpoint, replay, depth), preparar a célula com envelope
-local neutro e restaurá-los integralmente depois do checkpoint, também quando
-o body produz diagnóstico. Não alterar o contrato do checkpoint compartilhado.
-Para size:auto, parent_bbox legado fica None durante a preparação; a raiz
-implícita do TilingFrame será consumida por T2 após conhecer a dimensão final.
-
-
-## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
-HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
-layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
-materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
-prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
-`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
-comprovam que dense-open e stroke-open ainda divergem nos três targets.
-O contrato foi aprovado no manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A preparação/contagem de objetos é mecânica de transporte; render, contornos,
-texto, geometria e diagnósticos são obrigações observáveis de linguagem.
-
-### Responsabilidade exclusiva desta unidade
-
-Preparar Paint/Stroke por helpers privados de layout: Solid/Gradient mantêm todos os dados; Tiling usa prepare_cell e Arc, sem grade de cópias. FrameStroke preserva todos os campos geométricos e presença. Devolver SourceResult e registrar erros causais ao emitir, sem trocar por cor. Remover materialize_fill e seu limite de repetição do caminho produtivo. Retirar testes mecânicos da grade e substituir por testes de célula/placement/transporte; conservar refutadores visuais no corpus nativo. A preparação e o isolamento já especificados permanecem.
-
-### Aceitação e continuidade
-
-Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
-aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
-somente no âmbito do contrato aprovado. Preservar os demais comportamentos
-vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
-fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
-carriers e sem fallback sólido para obter build verde. Não elevar o limite
-antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
-clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
-página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
-quando integrados e verificados; estado intermediário quebrado ou parcial
-não é certificação de produção. T4 e publicação continuam fora deste pacote.
+Apply the pinned nucleus.Ratification supersedes older clauses awaiting approval or requiring declarative Paint/Stroke inside Shape only within the approved contract. Preserve all other existing behavior. L0 comes first, followed by RED→GREEN; explicitly migrate fixtures/consumers without a total From<Paint> conversion, PartialEq on carriers or a solid fallback merely to obtain a green build. Do not raise the old limit or move layout into L3. Validate fill/stroke transport, resources, clipping, affine Parent, native targets, Solid/Gradient controls, page semantics and the complete suite/build/doc/fmt/lineage. Prepared transport, native target integration and verification (historical T1c/T2/T3) are complete only together; a broken or partial intermediate state does not certify production. The remaining historical T4 scope and publication remain outside this package.

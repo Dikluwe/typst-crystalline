@@ -1,219 +1,48 @@
-# L0 — core/compiler/layout/set_page
+# L0 — Page configuration adapter
 Hash do Código: c2f82370
 
-**Camada**: L1  
-**Ficheiros alvo**: `01_core/src/entities/content.rs`, `01_core/src/entities/layout_types.rs`, `01_core/src/compiler/eval/rules.rs`, `01_core/src/compiler/eval/mod.rs`, `01_core/src/compiler/layout/set_page.rs`, `01_core/src/compiler/layout/mod.rs`, `01_core/src/compiler/layout/tests.rs`  
-**Origem**: Passo 537b — fecha a ligação entre `#set page(columns: N)` e o consumer `Content::Columns` já corrigido em P537.  
-**ADRs**: ADR-0107 (paridade linguagem vs mecânica), ADR-0108 (medir antes de decidir), ADR-0109 (atomização forma B), ADR-0054 (perfil graded / scope-outs).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/set_page.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130, ADR-0131.
 
----
+## Evidence before specification
 
-## 1. Contexto
+The historical construction specification measured `01_core/src/compiler/eval/rules.rs:743-779`: page read width/height/margin/numbering but ignored columns; `layout/mod.rs:858-860` delegated SetPage to an adapter updating those fields; `entities/layout_types.rs:433-449` had no PageConfig.columns; `layout/columns.rs:59-161` rendered real side-by-side columns split by Colbreak; `eval/mod.rs:407-566` built Sequence with SetPage followed by sibling content. The original construction interface examples and test scaffolding are preserved in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/set_page.md`.
 
-P537 implementou colunas reais (com `colbreak()` e notas de rodapé por coluna) para a forma-função explícita `#columns(2)[...]`. A sintaxe `#set page(columns: 2)`, no entanto, continua ignorada: o eval descarta o argumento `columns` e o layout renderiza o documento como uma coluna só.
+The historical footnote correction distinguishes explicit columns() from page(columns:). Source documentation at historical ratified snapshot `e0e8ca4d`, `crates/typst-library/src/layout/columns.rs:28-35`, also published at `typst.app/docs/reference/layout/columns/#page-level`, says page-level columns avoid an enclosing layout container and therefore keep pagebreaks, footnotes and line numbers working as expected. This supports the distinction and rationale for page_columns, but does not specify exact explicit-container footnote geometry. The claim that explicit columns() stacks notes at the container end in the left column remains an inference without a recorded direct bilateral measurement; direct measurement of both forms against the ratified reference could refute it. See `00_nucleo/prompts/core/entities/elements/columns.md` for the same qualification. These historical snapshots do not certify the current pinned reference without new measurement.
 
-Este L0 autoriza a ligação: `#set page(columns: N)` deve produzir o mesmo observable de `#columns(N)[...]` — N colunas reais na página, `colbreak()` separando colunas, e notas de rodapé no fundo da coluna correcta.
+Consolidation source inspection found the current exclusive consumer at `01_core/src/compiler/layout/set_page.rs:17-139` accepts `&SetPageDelta`, not the historical independent parameter list. It folds paper/flip/binding/dimensions/margins through page_geometry, plus numbering/alignment/marginals/supplement/columns/bleed/fill/canvas. On changed configuration it flushes and opens a page if material exists, then installs configuration/region dimensions and margins. Initial-baseline-pending uses margin.top only; otherwise current text_edges supplies top. `entities/content.rs:169-183,684` has SetPageDelta.columns: Option<usize> and SetPage(Arc<SetPageDelta>); `entities/layout_types.rs:803` has PageConfig.columns; `eval/mod.rs:934` applies wrap_page_columns. This inspection establishes observed current code, not upstream intent, new parity or authorization to discard conflicting historical requirements.
 
----
+## Exclusive ownership and adapter contract
 
-## 2. Medições (file:line) que sustentam a decisão
+This prompt owns only `01_core/src/compiler/layout/set_page.rs`, layer L1. Architecture: ADR-0107/0108/0109/0127/0129/0130/0131 and the graded-scope principle cited historically as ADR-0054. Shared public entities, eval and tests have their own owners; this contract does not authorize their reimplementation under a shared prompt.
 
-- `01_core/src/compiler/eval/rules.rs:743-779` — `target == "page"` lê `width`/`height`/`margin`/`numbering`, mas **não lê `columns`**. O argumento é silenciosamente ignorado.
-- `01_core/src/compiler/layout/mod.rs:858-860` — `Content::SetPage` delega a `set_page::layout`, que só altera `page_config.width/height/margin/numbering`.
-- `01_core/src/entities/layout_types.rs:433-449` — `PageConfig` não tem campo `columns`.
-- `01_core/src/compiler/layout/columns.rs:59-161` — `columns::layout` já sabe renderizar N colunas reais lado a lado, dividindo o `body` pelos `Content::Colbreak`.
-- `01_core/src/compiler/eval/mod.rs:407-566` — `eval_markup` constrói uma `Sequence` de `Content`; `#set page(...)` produz um `Content::SetPage` seguido do conteúdo subsequente como irmãos na `Sequence`.
+Apply supplied typed page-configuration deltas through the existing static adapter. Propagate columns to PageConfig and mark change when it differs. Reuse the existing real-column consumer rather than recreating column mechanics. Preserve the page-level versus explicit-container distinction: the synthetic ColumnsElem emitted by wrap_page_columns carries page_columns:true. The original broad equivalence claim applies only to real N-column content/colbreak behavior, not to identical footnote placement.
 
-**Decisão**: reaproveitar `Content::Columns` existente. Não recriar mecânica de colunas. A diferença entre `#columns(2)[body]` e `#set page(columns: 2)` é apenas **quem fornece o body**: na forma-função o body é explícito; na set-rule o body é o resto do documento (até próxima fronteira de página/colunas).
+The observed current adapter also preserves existing geometry-helper delegation, lexical direction resolution, independent optional marginal/numbering/supplement/bleed/fill/canvas updates and auto-margin refresh. State synchronization follows the existing region width/height/cursor/line-start boundary. Do not add I/O, callbacks or a new column algorithm.
 
-**P552 — correcção**: as notas de rodapé de `#columns(2)[body]` e `#set page(columns: 2)` **não** têm o mesmo observable. O vanilla coloca as notas de `#columns()` empilhadas no final do contentor (coluna esquerda), enquanto `#set page(columns:)` coloca cada nota no fundo da coluna onde é referenciada. Para preservar esta distinção, o `ColumnsElem` sintético produzido por `wrap_page_columns` deve ser marcado com `page_columns: true` (ver L0 `rules/columns` P552).
+## Cross-owner boundary requirements retained from construction
 
-> **Fonte de paridade (P1031)** — a afirmação acima sobre as notas de rodapé estava sem
-> citação nem medição. A documentação oficial sustenta-a: doc comment `#[func]` do vanilla
-> ratificado (`e0e8ca4d`), `crates/typst-library/src/layout/columns.rs:28-35`, publicado em
-> `typst.app/docs/reference/layout/columns/#page-level`:
->
-> *"= Page-level columns — If you need to insert columns across your whole document, use the
-> `{page}` function's `columns` parameter instead. This will create the columns directly at
-> the page-level rather than wrapping all of your content in a layout container. **As a
-> result, things like pagebreaks, footnotes, and line numbers will continue to work as
-> expected.**"*
->
-> **Natureza da citação — contextual, não literal.** A documentação afirma que na forma
-> page-level as notas de rodapé *"continuam a funcionar como esperado"*, e nomeia a causa
-> (não há contentor de layout a envolver o conteúdo). Isso confirma que **as duas formas
-> diferem no comportamento das notas** e qual delas é a "normal", que é o que justifica o
-> campo `page_columns`. A documentação **não** descreve o layout exacto da forma-função
-> (*"empilhadas no final do contentor (coluna esquerda)"*) — essa parte da frase continua
-> sem fonte citável e sem medição registada; fica marcada como **inferência**, refutável por
-> uma medição directa dos dois casos contra o vanilla ratificado. Ver também
-> `entities/elements/columns.md` §"Fonte de paridade da distinção `page_columns`".
+`00_nucleo/prompts/core/entities/content.md` owns the public content/delta representation; `00_nucleo/prompts/core/entities/layout_types.md` owns PageConfig. Historical columns:Option<usize> requirements remain: None represents absence/clear behavior, default None, and Some(0) must not be produced by validated eval. Historical struct-shaped SetPage and PageConfig snippets are archival examples, not instructions to regress the current delta/Arc or other existing fields.
 
----
+`00_nucleo/prompts/core/compiler/eval/rules.md` owns page argument handling: the historical specification requires Int(n>=1)→Some(n as usize), Int(n<1)→`columns must be at least 1`, None→None, and other types ignored under the existing inherited/ignore behavior. Preserve that requirement as a boundary criterion rather than silently inventing a new validation policy here.
 
-## 3. Alterações autorizadas
+`00_nucleo/prompts/core/entities/content.md` and `00_nucleo/prompts/core/compiler/eval/mod.md` own the pure wrap_page_columns transformation and its invocation. Recursively traverse Content. In a Sequence at any level, each SetPage with columns:Some(n) groups subsequent siblings until another SetPage (with/without columns), Pagebreak or Sequence end into Columns with count n and Sequence body. Keep original SetPage immediately before Columns so configuration is installed before consumption. Recurse into produced body for nested set-pages and ordinary containers. A single body bridges bodyless set-rule to the existing column consumer with limited scope; the transformation remains pure L1. It wraps the remainder of lexical scope, not each physical page.
 
-### 3.1 `Content::SetPage` — adicionar `columns`
+The eval invocation is after run_pass(true), before module.set_content(rendered_content), and affects rendered_content only. Historical rationale: original_content serves TagIntrospector locatable elements; SetPage is not locatable and Columns is not expected to change heading/label location observables. This is an explicit inference/limit: revise the alignment decision if discrepant introspection is measured, rather than assuming a second transformation already occurs.
 
-Em `01_core/src/entities/content.rs`:
+## Explicit unresolved conflicts and scope
 
-```rust
-SetPage {
-    width:     Option<f64>,
-    height:    Option<f64>,
-    margin:    Option<f64>,
-    numbering: Option<EcoString>,
-    /// **P537b** — número de colunas definido por `#set page(columns: N)`.
-    columns:   Option<usize>,
-},
-```
+The original adapter requirement said not to force a fresh page solely for columns changes; its certified case was a top-of-document set on an already-empty page. Current source marks differing columns changed and takes the same nonempty-page transition path as other changed configuration. No explicit superseding decision was found in this owner. Preserve this as an unresolved columns-only transition contract conflict; inspection alone does not settle it or authorize a behavior change.
 
-- `columns: None` ↔ propriedade ausente (comportamento actual de uma coluna).
-- `columns: Some(0)` não deve ser produzido (validado no eval).
+The historical cursor requirement used margin + FontMetrics::cap_height(style.size), explicitly excluding ascender. Current source instead defers pending baseline to later effective-font admission and otherwise uses active text_edges. This is another explicit unresolved historical-versus-current contract conflict; do not reinstate cap-height, add top twice or certify one formula solely from source. General baseline ownership remains `00_nucleo/prompts/core/compiler/layout/mod.md` and relevant text-baseline owners; a substantive resolution needs evidence before decision.
 
-### 3.2 `PageConfig` — adicionar `columns`
+Mid-document real pagination when page columns change remains outside the original certified scope; another SetPage/Pagebreak terminates lexical grouping. page(gutter:...) is out of scope. Explicit columns:none clearing was declared supported, not future work. The inferred exact explicit-container footnote layout and rendered/original-content location alignment remain qualified as above.
 
-Em `01_core/src/entities/layout_types.rs`:
+## Acceptance and provenance
 
-```rust
-pub struct PageConfig {
-    pub width:     f64,
-    pub height:    f64,
-    pub margin:    f64,
-    pub numbering: Option<EcoString>,
-    /// **P537b** — colunas activas para páginas desta configuração.
-    pub columns:   Option<usize>,
-}
-```
+`00_nucleo/prompts/core/compiler/layout/tests.md` owns integration tests. Preserve an eval→layout source case `#set page(columns: 2)` followed by A, colbreak(), B: A/B must have distinct x positions, or use equivalent direct Content construction if E2E is too costly. Preserve the source test identifier p537b_set_page_columns_produz_colunas_reais and its archival scaffold without treating it as this owner's test-file ownership.
 
-Default: `columns: None`.
+For page-level per-column footnotes, construct SetPage(columns:Some(2)), Hello/Nota A/world., colbreak(false), Goodbye/Nota B/moon., transform/evaluate, and check distinct note x positions and y near each column bottom under the established p537_footnotes_columns_colbreak_posicionam_por_coluna criterion. Keep regression controls p537_footnotes_columns_colbreak_posicionam_por_coluna and p220_colbreak_dentro_columns_separa_colunas_reais unchanged. Reject page(columns:0) with exact `columns must be at least 1`; page(columns:-1) errors.
 
-### 3.3 Eval — reconhecer `columns`
-
-Em `01_core/src/compiler/eval/rules.rs`, no arm `target == "page"`:
-
-- Adicionar `let mut columns: Option<usize> = None;`.
-- No loop dos named args, tratar `"columns"`:
-  - `Value::Int(n)` com `n >= 1` → `columns = Some(n as usize)`.
-  - `Value::Int(n)` com `n < 1` → erro `"columns must be at least 1"`.
-  - `Value::None` → `columns = None`.
-  - Outros tipos → ignorar (preservar comportamento de herança/ignorar).
-- Incluir `columns` no `Content::SetPage { ... }` retornado.
-
-### 3.4 Layout de `SetPage` — propagar `columns` para `PageConfig`
-
-Em `01_core/src/compiler/layout/set_page.rs`:
-
-- Adicionar parâmetro `columns: &Option<usize>`.
-- Se `columns != &new_config.columns`, actualizar `new_config.columns` e marcar `changed = true`.
-- **Não forçar nova página só por mudança de `columns`** nesta fase (scope-out: paginação real por set-page columns é diferida; o teste de P537b usa `#set page(columns: 2)` no topo do documento, onde a página já está vazia).
-- **P750** — quando `SetPage` muda a configuração de página e reinicia o cursor,
-  o `cursor_y` deve ser posicionado a `margem + cap_height(style.size)`, usando
-  `FontMetrics::cap_height`, não o ascender. Isto aplica a regra geral de
-  inicialização do cursor do L0 `compiler/layout.md` também ao ponto onde SetPage
-  reconfigura a região.
-
-### 3.5 Transformação AST pós-eval — envolver o body implícito
-
-Adicionar helper puro `wrap_page_columns(content: Content) -> Content` (pode viver em `01_core/src/entities/content.rs` como método de `Content`, ou como função privada em `01_core/src/compiler/eval/mod.rs`).
-
-**Semântica**:
-
-- Percorrer recursivamente o `Content`.
-- Quando encontrar `Content::Sequence(parts)` (qualquer nível), procurar elementos `Content::SetPage { columns: Some(n), .. }`.
-- Para cada ocorrência, agrupar os elementos subsequentes na mesma `Sequence` até:
-  - encontrar outro `Content::SetPage` (com ou sem `columns`);
-  - encontrar `Content::Pagebreak`;
-  - chegar ao fim da `Sequence`.
-- Substituir esse grupo de elementos por um único `Content::Columns { count: n, body: Content::Sequence(grupo) }`.
-- O `Content::SetPage` original permanece imediatamente antes do `Columns`, para que `set_page::layout` actualize `page_config` antes de `columns::layout` consumir.
-- Recursar no `body` do `Columns` produzido (para tratar nested set-pages) e nas outras variantes container normalmente.
-
-**Porquê transformação AST e não estado do Layouter?**
-- O consumer `columns::layout` precisa de um `body` único para dividir pelos `colbreak`. O `SetPage` não tem body — o body é o resto do escopo. Transformar a AST é a ponte de menor blast radius entre a set-rule e o consumer existente.
-- A transformação é pura (sem I/O), portanto permanece em L1.
-
-**Limitação consciente (paridade linguagem, não mecânica)**:
-- A transformação envolve o resto do escopo léxico, não "cada página". Isso é suficiente para o caso de uso do topo do documento e preserva o observable de duas colunas reais. Paginação real com mudança de colunas a meio do documento é scope-out per ADR-0054 graded.
-
-### 3.6 Aplicar a transformação
-
-Em `01_core/src/compiler/eval/mod.rs`, `eval_with_full_error`:
-
-- Após `run_pass(true)` e antes de `module.set_content(rendered_content)`, aplicar `wrap_page_columns` ao `rendered_content`.
-- A transformação deve ser aplicada **também** ao `original_content` (introspection content) para manter alinhamento entre as duas passagens? Não — `original_content` é usado pelo `TagIntrospector` para elementos locatable; `SetPage` não é locatable, e `Columns` não altera a localização de headings/labels no observable. Aplicar apenas em `rendered_content` é suficiente. Se surgirem discrepâncias, igualar na revisão.
-
----
-
-## 4. Testes
-
-### 4.1 Teste E2E de eval + layout
-
-Adicionar em `01_core/src/compiler/layout/tests.rs`:
-
-```rust
-#[test]
-fn p537b_set_page_columns_produz_colunas_reais() {
-    let source = Source::new(
-        FileId::new(None, std::path::Path::new("/test.typ")),
-        r#"#set page(columns: 2)
-A
-#colbreak()
-B"#.to_string(),
-    );
-    let world = crate::compiler::eval::tests::NullWorld;
-    let module = eval_for_test(&world, &source).unwrap();
-    let content = module.content().expect("módulo deve ter content");
-    let doc = layout(content);
-    // Verificar que A e B têm x distinto (duas colunas).
-    // ...
-}
-```
-
-Alternativa construir `Content` directamente se o teste E2E for pesado.
-
-### 4.2 Teste de footnotes por coluna via `#set page(columns:)`
-
-Construir:
-
-```
-Content::Sequence([
-    Content::SetPage { ..., columns: Some(2) },
-    Content::text("Hello "),
-    Content::footnote(Content::text("Nota A")),
-    Content::text(" world."),
-    Content::colbreak(false),
-    Content::text("Goodbye "),
-    Content::footnote(Content::text("Nota B")),
-    Content::text(" moon."),
-])
-```
-
-Aplicar `wrap_page_columns` (ou invocar via eval) e verificar que as notas A e B têm x distinto e y próximo do fundo (mesmo critério de `p537_footnotes_columns_colbreak_posicionam_por_coluna`).
-
-### 4.3 Regressão `#columns(2)[...]`
-
-- Confirmar que `p537_footnotes_columns_colbreak_posicionam_por_coluna` continua a passar sem alteração.
-- Confirmar que `p220_colbreak_dentro_columns_separa_colunas_reais` continua a passar.
-
-### 4.4 Teste de `columns` inválido
-
-- `#set page(columns: 0)` → erro `"columns must be at least 1"`.
-- `#set page(columns: -1)` → erro.
-
----
-
-## 5. Validação final
-
-- `cargo test --workspace` limpo.
-- `crystalline-lint .` limpo.
-- Header de linhagem `@prompt` / `@prompt-hash` actualizado nos ficheiros tocados.
-- Relatório em `lab/results/construction/diagnostics/paridade-producao-p537b.md`.
-
----
-
-## 6. Scope-outs
-
-- Paginação real com `#set page(columns:)` a meio do documento (nova página só quando outros campos de `SetPage` mudam).
-- `columns: none` explicitamente já é suportado (limpa o campo).
-- Gutters via `#set page(gutter: ...)` não fazem parte deste passo.
+Require clean cargo test --workspace and crystalline-lint, valid @prompt/@prompt-hash lineage in every affected owner and retained report `lab/results/construction/diagnostics/paridade-producao-p537b.md`. Historical tests/report paths and identifiers are provenance, not execution-step organization in the active owner. These acceptance obligations do not close the explicit conflicts or scope exclusions above.

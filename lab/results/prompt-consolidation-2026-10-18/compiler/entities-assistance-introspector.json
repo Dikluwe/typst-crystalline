@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/entities/introspector.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "80e738a4e7d9b20d38d50b7a4c1ec62ee6d8d04d4c375e5929c913ffcb122e55",
+    "result_sha256": "99405ca88f27fb8f8b52184162daf9ad53280c0bb955b31b5af63a4892057c74",
+    "disposition": "Full592-line owner consolidated: every trait/store/bibliography/counter/State/label/caption contract, snapshot proposal+approval gap, concrete-impl boundary, Equation materialization, private outline data, ratified typed Page/HTML/Page-counter packages, doctests and original staging provenance retained; explicit HTML clone vs general snapshot conflict remains pending."
+  }
+]

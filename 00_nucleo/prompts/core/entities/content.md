@@ -2,9 +2,8 @@
 Hash do Código: 91785886
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
-
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:cf64af6ef56faaa1ba19fa32ec6c134dc3f4f16a4a74fde21eca40259cf3b6ba
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/content.rs`
@@ -201,39 +200,39 @@ Preserve public paths and observable results. Ownership, nucleus integrity and
 lineage checks must remain valid; no unrelated consumer is authorized by this prompt.
 
 
-## Realização com avaliação única
 
-Content possui ShowRecipe(Arc<ShowRecipeContent>) com body, rules Arc<[ShowRule]>, styles StyleChain, guards Vec<RuleId>, file FileId; Realized(Arc<RealizedContent>) com original e visual; Located(Arc<LocatedContent>) com location Location e body. São transportes internos imutáveis; Located conserva a ocorrência durante receitas, Realized conserva a origem consumida sem emitir seu visual anterior. Projeções da linguagem são transparentes. Locator permanece único construtor de Location.
+## Immutable occurrence transport
 
+Content additionally declares ShowRecipe(Arc<ShowRecipeContent>), Realized(Arc<RealizedContent>) and Located(Arc<LocatedContent>). ShowRecipeContent retains body, rules:Arc<[ShowRule]>, styles:StyleChain, guards:Vec<RuleId>, file:FileId, textual:bool and context_id_floor:u64. Realized retains original and visual; Located retains location:Location and body. These additions supplement the base enum excerpt, not replace its variants.
 
-## Realização com avaliação única
+Located preserves a prepared occurrence through recipes and aliases. Fresh insertion creates occurrences before preparation without merging ordinary equal content. Realized retains consumed origin without reemitting its previous visual. Language projections are transparent. Locator remains the sole Location constructor. textual distinguishes captured causal text groups from element recipes; text realization reuses its owner's grouping/splice after group elements are realized. context_id_floor is the captured environment's contextual-ID watermark; realization begins after that range to avoid collisions with captured bindings.
 
-ShowRecipeContent inclui textual: bool para distinguir captura de grupo textual causal da receita de elemento. A realização textual reutiliza agrupamento/splice do owner vigente depois de realizar elementos do grupo.
+## Source-origin evidence and approval
 
-Located é referência a uma ocorrência já preparada: múltiplos aliases conservam a identidade. A criação de novas ocorrências por inserção acontece antes de essa preparação, sem colapsar conteúdo comum por igualdade.
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` preserves eight complete probes, sources/commands/UTC/HEAD/tree/diffstat/hashes/binaries at historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. The validated C executable was frozen; source-verification.json matches productive/L0 hashes to C's tested-final snapshot. The root target was unavailable, so no rebuild was claimed.
 
+bare/alias/spread-conflict matched messages/hints but differed in caret/trace. Vanilla points to alias definition [a] on line 1 rather than call line 3, and [a] rather than the whole spread. local-body is local sequence(metadata+prepared Cell) versus upstream styled(raw Cell), with matching fixture colors/effects. plain-func agrees on cell; set-func/show-func/set-show-func differ cell/sequence versus styled. The first before round used str(function) and was invalid for morphology; only baseline uses repr(function).
 
-## Realização com avaliação única
+Upstream eval/code.rs:148 applies Value.spanned; value.rs:210–216 handles Content/Func, content/mod.rs:109–114 preserves existing origin, table.rs:436–437 transfers value.span to implicit Cell, and eval/code.rs:26–57 retains set/show as styled tail. Local expression_dispatch.rs:125–136 realized Cell during join, table_grid.rs:160–175 omitted child origin, realize/table_cells.rs:176–183 fabricated detached spans and row_groups.rs:109 consumed them. These are diagnostic/morphology/effect observations, not upstream intent, Rust equality or PDF-byte requirements.
 
-ShowRecipeContent transporta context_id_floor: u64, watermark de ids contextuais já alocados no ambiente capturado. A realização começa depois dessa faixa; não colidir produtor novo com conteúdo contextual capturado em bindings.
+The owner confirmed `confirmo` on 2026-10-07 in the final record `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`; the exact contract `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md` remains the earlier candidate text. The earlier candidate gate is satisfied for this exact Source contract and causal insertion boundary.
 
+## Source declaration and boundary
 
-## D08B3-C2 — candidato não vigente antes do gate ADR-0127
+```rust
+#[derive(Debug, Clone)]
+pub struct SourceContent {
+    pub body: Content,
+    pub span: crate::entities::span::Span,
+}
+// Additional Content variant:
+// Source(Arc<SourceContent>),
+```
 
-### Medição anterior à decisão
+Source is transparent origin metadata, never a new language element or introspectable location. This owner declares data only; projection/traversal remain with their exclusive owners. Capture lexical value and realize at effective insertion, superseding immediate Cell realization at join. Retain Table→placement→Cell→body and surviving-content effects; no eval/layout phase move is authorized. Preserve first origin through reference/clone/spread, distinct from location; synthetic unproven origin remains detached. New public additions beyond the approved declaration need a separate gate.
 
-`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` registra oito sondas completas: fontes, comandos, UTC, HEAD, working tree/diffstat, hashes e binários. Pin 9f2b6e8715237cb086899a42873660fe744622e8. Executável Tekt congelado do C validado; `source-verification.json` confirma hashes produtivos/L0 iguais ao snapshot tested-final do C. O target da raiz não estava disponível nesta retomada; não foi fingido um rebuild.
+Acceptance includes baseline probes and cross-Source/import aliases, multiple cells/headers, reuse/spread/forwarded Args, synthetic detached origin, raw-field equivalence, explicit-constructor origin, hidden/replaced Cell, metadata order/count and local/global guard/depth. Preserve C geometry/text/paints and Table/Raw/math/matrix/query macros; debug/release builds, appropriate suites and no owner V5/V6/V15/V26. Record state/hashes/UTC for measurements. The original implementation package's no-commit/reset/automatic-cleanup restriction is historical logistics, not additional authority to alter data here.
 
-bare/alias/spread-conflict: mensagens e hints iguais, caret/trace divergentes. No alias o vanilla usa a definição [a] (linha 1), não a chamada (linha 3). No spread usa [a], não o spread inteiro. local-body publica sequence com metadata+Cell preparada no Tekt, styled contendo Cell crua no vanilla; cores/efeitos coincidem no fixture. plain-func coincide cell; set-func/show-func/set-show-func medem cell/sequence contra styled. A primeira rodada `before` tinha str(function), foi invalidada para decidir morfologia; somente baseline usa repr(function).
+## Historical record
 
-Fonte: vanilla `typst-eval/src/code.rs:148` aplica Value.spanned; `typst-library/src/foundations/value.rs:210–216` só assenta Content/Func; `foundations/content/mod.rs:109–114` preserva span já assentado. `model/table.rs:436–437` transporta value.span ao fabricar Cell. `typst-eval/src/code.rs:26–57` conserva set/show como styled sobre a cauda. Tekt `eval/expression_dispatch.rs:125–136` realiza Cell no join; `stdlib/structural/table_grid.rs:160–175` guarda children sem origem; `realize/table_cells.rs:176–183` fabrica Cell com span detached; `layout/grid/row_groups.rs:109` usa esse span. É língua (diagnóstico/morfologia/efeitos), não igualdade Rust ou bytes PDF. Não inferir intenção upstream.
-
-### Responsabilidade exclusiva candidata
-
-Declaração pública exata SourceContent e Content::Source conforme contract.md; preservação da transparência e separação de origem/localização. Este owner só declara dados; projeções e travessias permanecem nos owners exclusivos existentes.
-
-A especificação detalhada e limites estão no contrato candidato do pacote C2. Antes de materializar, instalar este conteúdo no caminho canônico do owner, auditar seus núcleos e selar hashes somente depois de RED→GREEN. A fonte vigente permanece intacta até aprovação.
-
-A cláusula C2 supersede a realização imediata da Cell no join descrita pelo refinamento A: capturar valor lexical e realizar somente na inserção efetiva. Essa mudança de fronteira/ordem também integra o gate ADR-0127 §2.3; preservar a ordem Table→placement→Cell→body do núcleo vigente.
-
-Ratificação C2: dono confirmou `confirmo` em 2026-10-07; contrato Source e fronteira causal aprovados.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content.md` preserves the original evidence and chronology.

@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "watch-source-generation"
-title = "Reuso sintático validado por edição"
-
+title = "Syntax reuse validated per edit"
 [[claims]]
 id = "exact-current-source"
 level = "must"
-statement = "Um hit sintático exige leitura atual bem-sucedida, caminho canônico físico, FileId atribuído pelo World corrente e texto UTF-8 integral iguais; hash ou metadata não bastam."
-
+statement = "Syntax hit requires successful current read,equal physical canonical path,current-World FileId/full UTF-8 text;hash/metadata insufficient."
 [[claims]]
 id = "fresh-world"
 level = "must"
-statement = "IDs/mapas/dependências/bytes/inputs/plugins/clock e caches restantes continuam por World; a sessão nunca restaura IDs ou dispensa resolução e registro atuais."
-
+statement = "IDs/maps/dependencies/bytes/inputs/plugins/clock/other caches remain per World;session never restores IDs or skips current resolution/registration."
 [[claims]]
 id = "syntax-only"
 level = "must-not"
-statement = "Não guardar Module, Func, efeito, diagnóstico emitido, frame, Location, fonte ou transiente na sessão; somente Source markup física imutável, sem mudar fase ou avaliação."
-
+statement = "Do not store Module,Func,effect,emitted diagnostic,frame,Location,font/transient in session;only immutable physical markup Source,without phase/evaluation change."
 [[claims]]
 id = "bounded-lifetime"
 level = "must"
-statement = "A sessão pertence a uma chamada watch, sem estado global/disco/unsafe, com LRU limitada a 8 entradas, 1 MiB de texto agregado e 512 KiB por entrada; orçamento não promete RSS."
+statement = "Session belongs to one watch call,no global/disk/unsafe,LRU bounded to8 entries,1MiB total text,512KiB per entry;budget promises no RSS bound."

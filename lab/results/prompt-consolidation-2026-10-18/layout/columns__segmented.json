@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/columns/segmented.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated extraction and link-boundary obligations into current contract; retained full provenance, all controls, exclusive ownership and, where applicable, approved source-origin semantics.",
+  "original_sha256": "ef947ac032002d90034a2011c27f7b277b3a7ba2acd017cde954d5fa8bdb0156",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/columns/segmented.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

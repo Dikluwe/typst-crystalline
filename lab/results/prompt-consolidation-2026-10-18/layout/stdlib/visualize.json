@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/visualize.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Reconciled historical whitelist/fallback scopes against approved declarative tiling contract and T*R clarification; preserved callable Type identity, phase/units/defaults and bounded render evidence.",
+  "original_sha256": "5e0edbef969209d845fc27c7ac62d777c9865e575318868f57667dcc88438a87",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/visualize.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/references.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated Label composed-position and Ref fragment-capture boundaries; retained Pattern physical-index versus logical-store ambiguity, exact precedence and linked unknown-page fallback.",
+  "original_sha256": "bef6c0383b0e1cade1107e4378c41273611af8a72f647c2f3b913517ec3aac02",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/references.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

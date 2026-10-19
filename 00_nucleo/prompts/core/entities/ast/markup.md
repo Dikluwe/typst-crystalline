@@ -1,172 +1,125 @@
 # Prompt L0 — `entities/ast/markup`
 Hash do Código: d0b381b0
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/ast/markup.rs`
-**Criado em**: 2026-03-25 (Passo 5)
-**Atualizado em**: 2026-04-12 (restauro — prompt dedicado criado; antes coberto por `ast/mod.md`)
-**ADRs relevantes**: ADR-0006 (zero-copy AST)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/ast/markup.rs`
+**Reference:** ADR-0006.
 
----
+## Contract and complete interface
 
-## Contexto e Objetivo
-
-Define os nós tipados do modo de formatação textual (Markup). A ordem e
-aninhamento dos nós é delegada à árvore sintática (`SyntaxNode`); este módulo
-apenas providencia a **lente de acesso** tipada via `AstNode<'a>`.
-
-Todos os nós são gerados pela macro `node!` de `ast/mod.rs` e implementam
-`AstNode<'a>` automaticamente. Os métodos adicionados a cada struct extraem
-propriedades essenciais de forma tipada e segura.
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: zero I/O. Depende de `AstNode`, `SyntaxNode`, `SyntaxKind`, `Scanner` (todos L1).
-- Nenhum nó aloca memória — todos são wrappers de `&'a SyntaxNode`.
-- `exprs()` de `Markup` usa `Expr::cast_with_space` (de `expr.rs`) para incluir
-  espaços entre statements e filtrar `Space` pós-statement.
-
----
-
-## Instrução — Nós públicos e interface
+Typed markup views borrow &'a SyntaxNode without allocating nodes; SyntaxNode
+owns ordering/nesting. node! generates AstNode implementations. Pure L1,
+no I/O; depend on AstNode/SyntaxNode/SyntaxKind/Scanner.
+Markup::exprs uses Expr::cast_with_space to include interstatement spaces and
+filter post-statement Space according to is_stmt.
 
 ```rust
-// ── Trivia ──────────────────────────────────────────────────────────────────
-node! { struct LineComment }   // "// ..."
-impl LineComment<'a>  { fn text(self) -> &'a str }  // sem o prefixo "//"
+node! { struct LineComment }
+impl LineComment<'a>  { fn text(self) -> &'a str }
 
-node! { struct BlockComment }  // "/* ... */"
-impl BlockComment<'a> { fn text(self) -> &'a str }  // sem "/*" e "*/"
+node! { struct BlockComment }
+impl BlockComment<'a> { fn text(self) -> &'a str }
 
-// ── Estrutura do documento ──────────────────────────────────────────────────
-node! { struct Markup }        // raiz do documento / corpo de strong/emph/etc.
+node! { struct Markup }
 impl Markup<'a> {
     fn exprs(self) -> impl DoubleEndedIterator<Item = Expr<'a>>
-    // Itera exprs, filtrando Space pós-statement (is_stmt())
 }
 
-// ── Texto e espaço ──────────────────────────────────────────────────────────
 node! { struct Text }
 impl Text<'a>       { fn get(self) -> &'a str }
 
 node! { struct Space }
-node! { struct Linebreak }     // "\"
-node! { struct Parbreak }      // linha em branco
+node! { struct Linebreak }
+node! { struct Parbreak }
 
-// ── Caracteres especiais ────────────────────────────────────────────────────
 node! { struct Escape }
-impl Escape<'_>     { fn get(self) -> char }  // resolve "\#", "\u{1F5FA}"
+impl Escape<'_>     { fn get(self) -> char }
 
 node! { struct Shorthand }
 impl Shorthand<'_>  {
-    const LIST: &'static [(&'static str, char)]  // "..." → '…', "~" → NBSP, etc.
-    fn get(self) -> char                          // lookup em LIST
+    const LIST: &'static [(&'static str, char)]
+    fn get(self) -> char
 }
 
 node! { struct SmartQuote }
-impl SmartQuote<'_> { fn double(self) -> bool }   // true se \"
+impl SmartQuote<'_> { fn double(self) -> bool }
 
-// ── Conteúdo formatado ──────────────────────────────────────────────────────
-node! { struct Strong }        // "*bold*"
+node! { struct Strong }
 impl Strong<'a>     { fn body(self) -> Markup<'a> }
 
-node! { struct Emph }          // "_italic_"
+node! { struct Emph }
 impl Emph<'a>       { fn body(self) -> Markup<'a> }
 
-// ── Raw ─────────────────────────────────────────────────────────────────────
-node! { struct Raw }           // "`code`" ou "```block```"
+node! { struct Raw }
 impl Raw<'a> {
     fn lines(self) -> impl DoubleEndedIterator<Item = Text<'a>>
-    fn lang(self) -> Option<RawLang<'a>>   // None se delim len < 3
-    fn block(self) -> bool                 // true para delim >= 3 backticks com newline
+    fn lang(self) -> Option<RawLang<'a>>
+    fn block(self) -> bool
 }
 node! { struct RawLang }
 impl RawLang<'a>    { fn get(self) -> &'a str }
-node! { struct RawDelim }      // pub(crate) len()
+node! { struct RawDelim }
 
-// ── Hiperligações e Etiquetas ───────────────────────────────────────────────
 node! { struct Link }
-impl Link<'a>       { fn get(self) -> &'a str }   // URL literal
+impl Link<'a>       { fn get(self) -> &'a str }
 
-node! { struct Label }         // "<intro>"
+node! { struct Label }
 impl Label<'a> {
-    fn get(self) -> &'a str   // texto sem < e >
-    // strip_prefix('<').trim_end_matches('>')
+    fn get(self) -> &'a str
 }
 
-node! { struct Ref }           // "@target" ou "@target[supplement]"
+node! { struct Ref }
 impl Ref<'a> {
-    fn target(self) -> &'a str             // strip_prefix('@') do RefMarker
+    fn target(self) -> &'a str
     fn supplement(self) -> Option<ContentBlock<'a>>
 }
 
-// ── Estruturas de documento ─────────────────────────────────────────────────
-node! { struct Heading }       // "== Título"
+node! { struct Heading }
 impl Heading<'a> {
     fn body(self) -> Markup<'a>
-    fn depth(self) -> NonZeroUsize   // número de '=' em HeadingMarker
+    fn depth(self) -> NonZeroUsize
 }
 
-node! { struct ListItem }      // "- item"
+node! { struct ListItem }
 impl ListItem<'a>   { fn body(self) -> Markup<'a> }
 
-node! { struct EnumItem }      // "+ item" ou "1. item"
+node! { struct EnumItem }
 impl EnumItem<'a> {
-    fn number(self) -> Option<u64>   // None se não tiver número explícito
+    fn number(self) -> Option<u64>
     fn body(self) -> Markup<'a>
 }
 
-node! { struct TermItem }      // "/ Termo: Descrição"
+node! { struct TermItem }
 impl TermItem<'a> {
     fn term(self) -> Markup<'a>
     fn description(self) -> Markup<'a>
 }
 
-node! { struct ContentBlock }  // "[*conteúdo*]"
+node! { struct ContentBlock }
 impl ContentBlock<'a> { fn body(self) -> Markup<'a> }
 ```
 
----
+LineComment::text strips //; BlockComment::text strips /* and */.
+Text::get returns terminal text. Linebreak and Parbreak represent explicit
+line break and blank line. Escape::get resolves escaped characters and Unicode
+escapes. Shorthand::LIST is static (e.g. ...→… and ~→NBSP); get looks it up.
+SmartQuote::double identifies a double quote. Strong/Emph bodies are Markup
+without delimiters. Raw::lines is double-ended Text; lang is None with fewer
+than three delimiter backticks; block requires at least three and a newline.
+RawDelim retains crate-private len. RawLang/Link expose language/URL text.
+Label::get strips leading < and trailing >; Ref::target strips @ from RefMarker
+and supplement is optional ContentBlock. Heading depth is the nonzero count
+of = in HeadingMarker. EnumItem number is None without an explicit number;
+list/enum/content-block bodies and term/description expose Markup.
 
-## Critérios de Verificação
+## Acceptance
 
-```
-// Strong body acessível
-Source::detached("*bold*").root().children().find_map(Strong::from_untyped)
-    .is_some() = true
-strong.body() → Markup (corpo sem os *)
+Real parsing of *bold* finds Strong and its delimiter-free Markup body.
+"= Heading" depth is 1, "== Sub" depth 2. Parsing hello yields Text::get
+Some("hello"). Label exists and strips delimiters; Markup::from_untyped(Text)
+returns None. Preserve all documented nodes/accessors and canonical lineage.
 
-// Heading depth
-Source::detached("= Heading") → heading.depth().get() = 1
-Source::detached("== Sub")    → heading.depth().get() = 2
+## Historical record
 
-// Text get
-Source::detached("hello").root().children().find_map(Text::from_untyped)
-    .map(Text::get) = Some("hello")
-
-// Label.get() remove < e >
-// (contrato: ast::markup::Label.get() retorna &str sem delimitadores)
-Label::from_untyped; // tipo existe
-
-// from_untyped errado retorna None
-Markup::from_untyped(text_node) = None
-```
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/ast/markup.rs` com todos os nós documentados
-- Cabeçalho de linhagem apontando para este ficheiro
-  (`@prompt 00_nucleo/prompts/core/entities/ast/markup.md`)
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-03-25 | Criação — Passo 5: nós de markup básicos | `ast/markup.rs` |
-| 2026-04-12 | Restauro — prompt dedicado; interface completa, Shorthand::LIST, Raw.block(), EnumItem.number() | `ast/markup.md` |
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/ast/markup.md`. Historical observations are not a new parity certification.

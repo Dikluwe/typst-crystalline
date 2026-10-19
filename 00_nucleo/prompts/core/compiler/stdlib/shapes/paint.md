@@ -2,48 +2,44 @@
 Hash do Código: 3c4ed4ca
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/stroke-paint-inputs.toml sha256:eef6bb1d6fb79379c1e42e22ef305bc31d31dab01539ba4e9fcffe49587c3c4f
+- 00_nucleo/prompts/_nuclei/stroke-paint-inputs.toml sha256:b92ae8f26e4ebe8d5b7d0f1ee0e346e97210a9afb4c00ed1c9c184f690a263a8
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/shapes/paint.rs`. No HEAD `a5c6b93c258acb7cb378b9b147a8c6cd0e8d17b9` e árvore limpa, `01_core/src/compiler/stdlib/shapes.rs:26-76` contém o comportamento extraído. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-shapes-2026-09-30-before.json.gz`. Esta é separação interna por comportamento.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/stdlib/shapes/paint.rs`. At HEAD `a5c6b93c258acb7cb378b9b147a8c6cd0e8d17b9` with a clean tree, `01_core/src/compiler/stdlib/shapes.rs:26-76` contains the extracted behavior. SHA-256, time and state are recorded in `lab/results/construction/diagnostics/atomizacao-shapes-2026-09-30-before.json.gz`. This is internal separation by behavior.
 
-## Contrato
+## Contract
 
-Converter cores tipadas, Paint e Stroke para shapes, preservando tipo, espessura, diagnostics e o fallback somente quando contratado.
+Convert typed colors, Paint and Stroke for shapes, preserving type, thickness, diagnostics and fallback only where contracted.
 
-As regras detalhadas, evidências históricas, limites de paridade e diagnósticos continuam em `00_nucleo/prompts/core/compiler/stdlib/shapes.md`. A extração não altera assinatura pública, defaults, fase ou compatibilidade. Nenhum I/O ou estado global mutável.
+Detailed rules, historical evidence, parity limits and diagnostics remain in `00_nucleo/prompts/core/compiler/stdlib/shapes.md`. Extraction preserves public signatures, defaults, phase and compatibility. No I/O or mutable global state is permitted.
 
-## Aceitação
+## Acceptance
 
-Preservar a suíte L1 e os testes de shapes, compilar e passar `crystalline-lint .` com ownership e hashes corretos. Não inferir ganho de desempenho.
+Preserve the L1 suite and shapes tests, build, and pass `crystalline-lint .` with correct ownership and hashes. Do not infer performance gains.
 
-## Contornos com Paint e dicionário uniforme — 2026-10-14
+## Paint and uniform-dictionary strokes
 
-### Medição anterior à decisão
+### Evidence before decision
 
-before/results.json.gz no diagnóstico stroke-paint-2026-10-14 conserva HEAD,
-working tree, diffstat, UTC, fontes/owners, comandos e hashes dos dois binários.
-layout/stroke.rs:53-63 limita named paint a Color; shapes/paint.rs:45-64 entrega
-os demais paints ao caster legado que só aceita Length/Color/Stroke;
-shapes/rect.rs:40-43 descarta todos os Dict. O controle uniforme renderiza 1pt
-preto em Tekt; named Gradient/Tiling/Auto e circle Gradient são rejeitados.
-O binário vanilla pinado 9f2b6e871 aceita esses valores. Dict vazio desenha
-contorno preto em Tekt e nenhum contorno no vanilla. A fonte pinada stroke.rs:
-236-243 e sides.rs:238-258 distingue Paint smart, dict vazio e dict uniforme.
-A medição de square(size:...) falha por dimensão no Tekt e não prova cast de
-stroke; suas dimensões e defaults permanecem abertos, sem mudar este contrato.
+stroke-paint-2026-10-14/before/results.json.gz retains HEAD/working tree/diffstat/
+UTC/sources/owners/commands and both binary hashes. layout/stroke.rs:53–63 limits
+named paint to Color; shapes/paint.rs:45–64 sends other paints to the legacy
+Length/Color/Stroke caster; shapes/rect.rs:40–43 discards all Dict. The uniform
+control renders 1pt black in Tekt; named Gradient/Tiling/Auto and circle Gradient
+are rejected. Historical vanilla pin 9f2b6e871 accepts them. Empty Dict draws a
+black Tekt stroke and no vanilla stroke. Pinned stroke.rs:236–243 and
+sides.rs:238–258 distinguish smart Paint, empty and uniform dictionaries.
+square(size:...) fails Tekt dimensions and is not stroke-cast evidence; its
+dimensions/defaults remain open and outside this contract.
 
-### Responsabilidade e aceitação
+### Exclusive contract and acceptance
 
-parse_shape_stroke encaminha Gradient, Tiling e Dict uniformes ao conversor
-positional_stroke existente, sem reduzir Paint para cor. Preservar os caminhos
-legados Color/Length/Stroke e seu tratamento de espessura, além da rejeição
-específica de String. O argumento de ausência é responsabilidade do constructor.
-A conversão uniforme já implementada valida campos ricos e chaves desconhecidas.
-Não modificar o caster genérico de layout nem introduzir lógica de render.
-
-Correção interna de paridade ADR-0127 em fluxo contínuo: L0 primeiro, RED→GREEN,
-resselo restrito, build, suíte e linhagem. Aceitação preserva significado da
-pintura e sua forma disponível; igualdade binária com vanilla não é requisito.
-Recolher PDF/raster e erros, conservando as divergências não corrigidas.
+parse_shape_stroke forwards Gradient, Tiling and uniform Dict to existing
+positional_stroke without reducing Paint to Color. Preserve legacy Color/Length/
+Stroke and thickness behavior and String-specific rejection. The constructor
+owns absence. Existing uniform conversion validates rich fields/unknown keys.
+Do not change the generic layout caster or add render logic. ADR-0127 internal
+parity flow requires L0 first, RED→GREEN, restricted resealing, build/suite/
+lineage. Preserve paint meaning and available form; vanilla byte equality is not
+a requirement. Collect PDF/raster/errors and retain unfixed discrepancies.

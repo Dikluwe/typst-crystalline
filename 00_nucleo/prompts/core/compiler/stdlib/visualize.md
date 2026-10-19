@@ -1,175 +1,28 @@
-# Prompt L0 — `stdlib/tiling` — constructor `tiling(...)`
+# L0 — stdlib/visualize — tiling constructor
 Hash do Código: 4fe030af
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/tiling-placement.toml sha256:9c88c9c3bde8b005623fa70b5213400655a9a741b1a140b6b76c7225fc16edb4
+- 00_nucleo/prompts/_nuclei/tiling-placement.toml sha256:d6e2fba3d2143daec23bcf7a8d959ce59600f3b8ccc5fa35a853c4f6831e51e0
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/visualize.rs`
-**Origem**: Passo 396 — materialização do constructor `tiling()` (M); depende P395.
-**ADRs**: ADR-0017 (portão aberto por P395), ADR-0107 (paridade linguagem), ADR-0054 (graded scope-out).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/stdlib/visualize.rs`
 
----
+## Evidence before specification
 
-## 1. Contexto
+Historical tiling declaration/carrier work first admitted Color/Image/path with Color fallback and stored Parent without implementing it; those constructor/body/layout scope-outs are superseded only by the explicitly approved complete declarative constructor below. The P1140 public type probes againsta51e02804 and structural-replay 22 cases distinguish Type from Func without changing constructor semantics. Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
-P395 modelou `Value::Tiling`, `TilingBody`, `TilingRelative` e `Paint::Tiling`. Este passo
-materializa o constructor user-facing `tiling(...)` e activa o consumer layout (fallback
-Color) para provar que o tipo funciona no pipeline.
+Human confirmation of complete declarative public constructor is recorded in historical P1245, prevalidated/materialized P1254. Prior visualize.rs:27-113 Color/Image/path whitelist/no offset-angle contrasts pinned a51e02804 tiling.rs:99-185,250-315 Content/units/unresolved layout frame. This approved public surface is current; a focused SVG fill success does not approve unrelated Stroke/targets.
 
-## 2. Função nativa
+`lab/results/construction/diagnostics/tiling-transformacao-2026-10-14/before/results.json.gz` preserves dirty HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, source/owners/UTC/stat/binaries and historical 9f2b6e871. angle90/offset 3,5 requires matrix(0 1 -1 0 3 5), not rotated offset(-5,3); pinned tiling 173-174,375-377 and transform 334-343 establish T*R. Full 240×192 white-canvas librsvg/Poppler comparison has quarter-no-offset Tekt PDF/SVG equal oracle SVG but oracle PDF414 pixels>16 different; quarter-offset SVG1764 pixels differ. No cropped/added-tolerance approval or complete Parent/PDF certification.
 
-`native_tiling(ctx, args, world, current_file)`:
+## Exclusive current constructor contract
 
-- `body` (positional obrigatório):
-  - `Value::Color(c)` → `TilingBody::Color(c)`.
-  - `Value::Content(Content::Image(img))` → `TilingBody::Image(*img)`.
-  - `Value::Str(path)` → resolve via `world.read_bytes(current_file, path)` e constrói
-    `ImageElem` (graded — se não houver world, retorna erro claro).
-  - `Value::Tiling(t)` → identidade (devolve o mesmo `Value::Tiling`).
-  - `Value::Gradient(_)` → erro `"gradient em tiling não suportado — scope-out ADR-0054"`.
-  - outro → erro de tipo.
-- `size` (named, opcional):
-  - `Value::Length(l)` → `Size::uniform(Pt(l.abs.to_pt()))`.
-  - `Value::Array([w, h])` com dois `Length` → `Size { width, height }`.
-  - `Value::None` | `Value::Auto` → `None`.
-  - outro → erro.
-- `spacing` (named, opcional): mesmo formato que `size`.
-- `relative` (named, opcional):
-  - `"self"` → `TilingRelative::Itself`.
-  - `"parent"` → `TilingRelative::Parent`.
-  - outro → erro.
+Global tiling is Value::Type(Type::Tiling), callable through same native_tiling(ctx,args,world,current_file); preserve type identity and results, no new render/entity logic. Required arbitrary Content body follows normal public Content conversion, no separate Color/Image/Gradient whitelist or implicit world file-loading branch. Preserve tiling(t)==t identity without incompatible overrides. Return declarative Arc-backed Tiling value; injected World pass-through introduces no direct L1 I/O/globals.
 
-Devolve `Value::Tiling(Arc::new(tiling))`.
+Named size/spacing/offset/angle/relative defaults Auto/zero/zero/zero/Auto. Size Auto remains unresolved in eval; spacing finite with language absolute-unit restrictions; offset finite, rejects prohibited font-relative component and preserves percentages for pitch resolution; angle finite. Relative admits Auto/Self/Parent, no constructor-context Auto choice. Distinguish invalid type/nonfinite/prohibited unit errors; exact wording is required when measured public surface. Existing internal extract_size/parse_relative helpers only serve validated declarative construction, without resurrecting superseded whitelist rules.
 
-## 3. Helpers
+Eval validates/builds only, no frame/raster/Auto-size resolution/exporter import. Layout alone composes cell Content/derives size/resolves percentages and applies pinned tiling-placement rotation around offset, T(offset)*R(angle), never rotate offset itself. Resolved structures private to phase; exporters consume normal prepared output without body eval/layout repetition. Constructor retains offset/angle declaratively, including percentages, without precomposition/materialization or changed branch/signature/error/default/validation.
 
-- `extract_size(value, fn_name, field) -> SourceResult<Option<Size>>`.
-- `parse_relative(value) -> SourceResult<TilingRelative>`.
+## Acceptance and limits
 
-## 4. Registo
-
-Registar em `make_stdlib`:
-
-```rust
-scope.define("tiling", Value::Func(Func::native("tiling", native_tiling)));
-```
-
-## 5. Consumer layout
-
-`Paint::Tiling` já existe em `entities/paint.rs` com `to_color()` fallback. Verificar que
-consumers de `Paint` em layout/export não dão panic — usam `to_color()` ou match
-exhaustivo. Não adicionar pattern fill real (scope-out ADR-0054).
-
-## 6. Scope-out
-
-- Pattern fill PDF real — ADR-0054 graded (XL futuro).
-- `Gradient` como body de `tiling` — rejeitado com erro.
-- Semântica real de `relative: "parent"` — armazenado, mas consumer igual a `"self"`.
-
-## 7. Testes
-
-- `tiling(red)` → `Value::Tiling` com `TilingBody::Color`.
-- `tiling(red, size: 50pt)` → `size` uniforme.
-- `tiling(red, size: (50pt, 30pt))` → `Size` diferenciado.
-- `tiling(red, relative: "parent")` → `TilingRelative::Parent`.
-- `tiling(tiling(red))` → identidade.
-- `tiling(123)` → erro de tipo.
-- `tiling(gradient.linear(...))` → erro ADR-0054.
-- `#rect(fill: tiling(red))` → layout aceita e emite shape com fallback Color.
-
-
-## P1140.1-B — medição anterior à decisão (2026-08-23)
-
-No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
-cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `lab/results/construction/diagnostics/superficie-linguagem-p1140*`
-medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
-`tiling` e `version`. Os construtores atuais foram novamente executados após
-a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
-baseline estrutural. Esta é divergência de semântica pública da linguagem,
-não de mecânica Rust (ADR-0107).
-
-## P1140.1-B — `tiling` como tipo chamável
-
-O binding global `tiling` passa a `Value::Type(Type::Tiling)`. A chamada
-delega ao mesmo `native_tiling`, preservando corpo, size, spacing, relative e
-resultado. Nenhuma lógica de render ou entidade muda neste lote.
-
-## P1245 — construtor declarativo completo proposto
-
-**Gate ADR-0127 (histórico):** o dono confirmou a mudança pública no P1245.
-O contrato observável foi pré-validado e materializado no P1254. Esta decisão é
-vigente; qualquer ampliação para stroke ou outro target exige evidência própria
-e não pode ser inferida do sucesso focal de fill SVG.
-
-### Medição que precede a decisão
-
-O construtor anterior em `01_core/src/compiler/stdlib/visualize.rs:27-113`
-aceita Color/Image/path, rejeita Gradient e não analisa offset ou angle. O
-vanilla ratificado `a51e02804`, em
-`crates/typst-library/src/visualize/tiling.rs:99-185,250-315`, recebe Content,
-valida size/spacing/offset/angle e deixa a produção do frame dependente do
-layout. Esta superfície é linguagem pública (ADR-0107).
-
-### Contrato do construtor
-
-- O argumento posicional obrigatório é `Content` arbitrário. Valores já
-  convertíveis a Content seguem a conversão pública normal; não se cria uma
-  whitelist paralela Color/Image/Gradient no construtor.
-- Named args: `size`, `spacing`, `offset`, `angle` e `relative`, com defaults
-  auto, zero, zero, zero e auto, respetivamente.
-- `size:auto` permanece não resolvido durante eval. `spacing` deve ser finito e
-  obedecer às restrições absolutas da linguagem. `offset` deve ser finito,
-  rejeitar componente font-relative proibido e preservar percentuais para
-  resolução contra o pitch. `angle` deve ser finito.
-- `relative` aceita auto, self e parent. O construtor não decide o auto sem
-  contexto de layout.
-- `tiling(t) == t` permanece identidade quando não há overrides incompatíveis.
-- Eval apenas valida e constrói a entidade declarativa. Não materializa frame,
-  não rasteriza, não resolve `size:auto` e não importa lógica de exporter.
-- Erros são observáveis e devem manter distinção entre tipo inválido, valor não
-  finito e unidade proibida; a redação exata só é obrigação quando medida como
-  superfície pública.
-
-### Fronteira de fase
-
-A fase de layout existente é a única autoridade para materializar o Content da
-célula, derivar size auto, resolver percentuais e aplicar a geometria do núcleo
-tiling-placement, com rotação em torno do offset.
-Qualquer estrutura resolvida é privada dessa fase. Exporters recebem somente a
-saída normal do layout e não repetem avaliação ou layout do corpo.
-
-
-## Origem da rotação de tiling — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-transformacao-2026-10-14/before/results.json.gz`
-conserva fontes/owners, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
-working tree não commitado, diffstat, UTC e binários. Referência pinada
-9f2b6e8715237cb086899a42873660fe744622e8. Para angle90 e offset(3pt,5pt),
-o SVG vanilla emite matrix(0 1 -1 0 3 5); o Tekt emite (0 1 -1 0 -5 3).
-No pin, visualize/tiling.rs:173-174 descreve rotação em torno do offset;
-:375-377 concatena translate(offset) com rotate(angle), e
-layout/transform.rs:334-343 calcula T*R. O texto histórico "offset antes de
-angle" foi interpretado incorretamente como rotação do próprio offset.
-Semântica geométrica é obrigação de linguagem; ordem de chamadas Rust não é.
-
-before/render-comparison.json.gz discrimina targets: em quarter sem offset,
-Tekt PDF e SVG coincidem exatamente com vanilla SVG, enquanto vanilla PDF
-difere em 414 pixels >16. Não copiar essa diferença do PDF como requisito.
-Em quarter-offset, os SVGs diferem em 1764 pixels >16. Rasterizações usam
-canvas inteiro 240×192, branco, librsvg e Poppler, sem recortes/tolerâncias
-criadas para aprovar. A evidência não certifica parent composto nem todo PDF.
-
-### Responsabilidade deste owner
-
-O constructor conserva offset e angle declarativos, inclusive percentuais,
-sem os pré-compor ou materializar body. A fronteira de fase referencia o
-núcleo pinado: o layout aplica a rotação em torno do offset. Nenhum ramo,
-assinatura, erro, default ou decisão de validação do constructor é alterado.
-Retificar somente a formulação ambígua de P1245 e o selo do owner.
-
-Correção interna/de paridade ADR-0127 em fluxo contínuo: L0 primeiro,
-RED→GREEN e resselo restrito. Nenhuma mudança pública ou nova fase.
+Preserve callable type/identity, arbitrary Content body and declared fields/defaults, Auto versus explicit/pitch-relative geometry and diagnostic distinctions. Superseded Color-fallback/Gradient-body-rejection tests remain archival witnesses, not current acceptance. Meaningful RED→GREEN/restricted reseal/build/suites/lineage follow L0 first. No public/phase change from offset wording correction. Real patterns/Parent resources/Stroke/other targets require current layout/export owners' independently approved integrated gates, never early Color fallback or successful fill SVG as production proof. Do not copy oracle PDF defect as desired language.

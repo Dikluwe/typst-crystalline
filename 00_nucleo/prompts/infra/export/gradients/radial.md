@@ -31,14 +31,21 @@ Check independent focal circles, unequal bbox dimensions, centered defaults and
 bounded multispace RGB samples. Do not claim alpha-preserving SVG support from
 this PDF sampler or exact upstream algorithm parity.
 
-## Imports e documentação de CI — 2026-10-13
+## Private import maintenance
 
-### Medição anterior à decisão
+### Evidence
 
-`03_infra/src/export/gradients/radial.rs` nas linhas 12, 13, 14 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`
+retains sources/owners/spans/original compiler output, HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/status/diffstat.
+Selected warnings occur at radial.rs:12,13,14. Inspection distinguishes productive
+references, descendant-test imports and comments; no new parity measurement.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Remover somente os imports privados comprovadamente sem uso neste consumer; manter os reexports públicos e os imports exigidos por chamadas ou contratos. A lista exata de spans anterior à edição está no diagnóstico citado.
-
-Manutenção interna sem mudança de assinatura pública, default, fase, fórmulas ou critérios de aceitação (fluxo contínuo ADR-0127). Não introduzir supressões de lint. Revalidar compilação de todos os targets, nomes e execução da suíte de infraestrutura, build, Clippy do workspace, Rustdoc e linhagem com resselo restrito. Não criar testes que apenas espelhem remoção de imports ou formatação de comentários.
+Remove only private imports proven unused here; keep public reexports and imports
+required by calls/contracts. Exact pre-edit spans remain in the diagnostic.
+Internal continuous ADR-0127 maintenance changes no public signature/default/
+phase/formula/acceptance. No lint suppressions. Revalidate all-target compile,
+infra test names/execution, build/workspace Clippy/Rustdoc/lineage with scoped
+resealing. No import-removal/comment-format mirror tests.

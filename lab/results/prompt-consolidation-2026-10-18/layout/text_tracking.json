@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/text_tracking.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated tracking formula, private lexical State, restricted later RTL supersession and continued-terminal correction; retained all historical measurements, refuters, exclusions and V17 obligations.",
+  "original_sha256": "b8dfae6ebd3d04678d3514a8209d3ee6d935e25bdc1859d72d4b5c07ae622ad7",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/text_tracking.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

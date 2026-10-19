@@ -2,13 +2,13 @@
 Hash do Código: 066b77c6
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
-- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:199640afc0a7243ca509288840d9c9e0c431f850f67919148fc8dac3b1cb33a0
+- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/svg.rs`
@@ -56,205 +56,111 @@ Bundle/file routing stays outside this page exporter. No filesystem or new layou
 - `00_nucleo/prompts/infra/export/svg/serialization.md` owns `03_infra/src/export/svg/serialization.rs`.
 - `00_nucleo/prompts/infra/export/svg/tests.md` owns `03_infra/src/export/svg/tests.rs`.
 
-## Separadores textuais — materialização autorizada em 2026-09-28
+## Text identity carriers
 
-### Medição anterior à decisão
+This FrameItem consumer was inspected before the RED source→PDF probes in `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/`; public layout_types approval was received2026-09-28 and recorded. TextSeparator has no visual outline; HTML-frame emits U+0020 in the same text coordinate system.
 
-`03_infra/src/export/svg.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
-dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
-2026-09-28 e registrada na proveniência da materialização.
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/{initial.json,before/}` records U+002D versus SHY with coincident geometry in eight bilateral controls; approved-before archives traversal inspection, and owner confirmed layout_types. TextReplacement is visually transparent: descend children preserving text/order/coordinates/current calculation without new algorithm/advance. Pinned text-replacement owns shared claims, not this consumer. Require text/boxes/causal/recursive/literal-hyphen controls, not PDF byte equality or a new selection policy.
 
-### Responsabilidade deste owner
-
-TextSeparator não possui contorno visual; no frame HTML emitir U+0020 no mesmo referencial textual.
-
-Conservar as responsabilidades existentes; a aceitação segue texto e geometria
-observáveis, incluindo os controles de adjacência e os invariantes pinados.
-
-## Identidade textual — materialização aprovada
-
-### Medição anterior à decisão
-
-As sondas bilaterais e o estado exato em
-`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
-e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
-A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
-
-### Responsabilidade exclusiva
-
-Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
-
-O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
-possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
-transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
-
-## Migração do carrier bidi ratificado (2026-10-05)
-
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+## Ratified bidi and effective face binding
 
 
-## Face efetiva de TextShaped — materialização ratificada 2026-10-05
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json`
+records unit references/1:1 owners; confirmed manifesto 1ae7513e requires None for
+uncertified constructors and `..` read patterns, preserving language observations
+under the pinned origin nucleus without phase/API expansion.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
+`identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}`
+distinguishes regular GIDs from Oblique selection. Human approval of public
+TextShaped.font: Option<Font> is manifesto
+`f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409`;
+implementation state/inventory: identidade-fonte-shaped-implementacao-2026-10-05/.
 
-Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
+Migrate only this owner's references: legacy constructors None, transforms preserve
+Font, shaped comparison/join distinguishes face/axes. The shaper supplies the actual
+Font clone even on hits without semantic/style changes to force selection. Collectors/
+subset/CMap/PDF bind the same original face and style coordinates. PNG/SVG prepare
+local bindings and instance once per face/request before render, keeping original
+resource index separate from instanced bytes; None follows legacy resolution.
+Preserve public APIs/FontKey, no fabricated fonts/unsafe/globals/new phase; private
+functions may receive Font/bindings explicitly.
 
-A associação é por bytes da face original e pedido de eixos; nomes e slots não bastam. A tabela local dura a exportação e conserva ordem dos recursos fornecidos, anexando faces faltantes. Para multifont, distribuir itens pelos bindings uma vez antes de coletores por fonte; não reutilizar GIDs/CMap globais em faces diferentes. Código deste owner continua 1:1 com seu L0; referências a outros owners não compartilham propriedade. Aceitação RED→GREEN e controles bilaterais incluindo miss/hit/VF, sem promessa de ganho de tempo.
+Association uses original face bytes plus axes, never names/slots alone. Table
+lifetime is export-local; preserve supplied resource order and append missing faces.
+For multifont distribute items once before per-font collectors; no cross-face
+GID/CMap reuse. References never share ownership. Require RED→GREEN/bilateral
+miss/hit/variable-font controls without a promised speedup. Shared invariants remain
+in pinned shaped-face-identity, no second productive owner.
 
-Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
+## Approved paint-root transport
 
-## Referencial de pintura — transporte aprovado T1b — 2026-10-14
+### Evidence and scope
 
-### Medição anterior à decisão
-
-O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
-foi aprovado pelo humano para T1–T3; recibo em
+Manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
+was approved for the native-tiling package; receipt
 `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A evidência bilateral de Parent e controles Solid está no contrato aprovado;
-ela não é substituída por inspeção estrutural. A rodada
-`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
-fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
-diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
-e Gradient Parent. O inventário before-source/syntax-nodes registra neste
-consumer as construções/desestruturações antes da edição: [323].
-layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
-reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
-Block mantém body plano exceto no clip. Preservação do referencial é requisito
-de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
-divergências gerais de geometria previamente medidas em Rotate/Box.
+Its bilateral Parent/Solid evidence cannot be replaced by structural inspection.
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz`
+retains sources/dirty tree/HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC/
+diffstat/binary hashes for containers/Place/Rotate with Solid/Gradient Parent.
+This unit's before-source/syntax-nodes anchors: [323]. layout_types.rs:531–539
+lacks technical-root distinction; helpers.rs:253–269 reconstructs Group. Box groups
+background/body; Block stays flat except clipping. Reference-frame preservation is
+language, envelope representation mechanics; prior general Rotate/Box geometry
+divergences remain open.
 
-### Responsabilidade exclusiva
+### Contract and acceptance
 
-Migrar construções e padrões de Group para o campo paint_root aprovado. Grupos técnicos novos e fixtures legadas são false; reconstruções transportam o valor recebido, sem inferir raiz a partir de dimensão, clipping ou transformação. Preservar os demais campos e o comportamento de desenho/recursos. Exportadores ainda não usam este metadado para patterns; essa integração é T2 e não está certificada aqui.
+Adapt Group construction/patterns to approved paint_root. New technical/legacy
+fixture groups are false; reconstruction preserves received value, never inferring
+root from dimensions/clipping/transforms. Keep other fields/drawing/resources.
+Metadata migration alone does not certify exporter pattern integration or replace
+Shape.fill/stroke with FramePaint. Independently authorized prepared-transport/
+native-target/parity slices (historical T1c/T2/T3) stay incomplete until integrated
+verification, no production/parity claim from a successful build. L0 first,
+RED→GREEN/scoped resealing; preserve source→PDF/SVG text/geometry and revalidate
+suite/build/doc/check/fmt/lineage.
 
-### Aceitação e incompletude
+## Prepared Shape fixture transport
 
-L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
-nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
-A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
-implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
-e já autorizados. Não alegar paridade de tiling ou produção a partir do build.
+### Evidence and approval
 
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz`
+retains HEAD/tree/diffstat/UTC/sources/owners before migration. layout_types.rs:510–511
+carried Paint/Stroke; shape.rs:151–191 materialized only group fills; tiling.rs:85
+limited/cloned its grid. prepare_cell already returns TilingFrame once per
+occurrence. `tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
+shows dense-open/stroke-open divergences across all three targets. Manifesto
+`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d` was approved;
+receipt `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+Preparation/object counts are transport mechanics; rendering/outlines/text/geometry/
+diagnostics are language observables.
 
-## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
+### Contract and acceptance
 
-### Medição anterior à decisão
+Consume prepared Shape paints. PaintDefs owns local_to_root: paint_root Group resets base, technical Group concatenates T(pos)*matrix then restores on exit. Page/cell are roots. Render paint definitions with identical font bindings. Inside cells links/semantics are decorative, with no annotations/destinations but all visual items preserved. Other dispatch/context behavior stays.
+Consume the pinned nucleus. Approval supersedes only old approval-pending or
+Shape-declarative-Paint/Stroke clauses within this package; other behavior survives.
+L0 first, RED→GREEN, explicit fixture/consumer migration, no total From<Paint>,
+carrier PartialEq or solid fallback merely to compile. Do not raise the old limit
+or move layout to L3. Validate fill/stroke/resource/clipping/affine Parent/native-
+target/Solid/Gradient/page semantics and full suite/build/doc/fmt/lineage. The
+prepared transport, native-target integration and parity slices recorded as
+T1c/T2/T3 are complete only after integrated verification; broken/partial states
+are no production certificate. T4 and publication remain out of scope.
 
-`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
-HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
-layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
-materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
-prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
-`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
-comprovam que dense-open e stroke-open ainda divergem nos três targets.
-O contrato foi aprovado no manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A preparação/contagem de objetos é mecânica de transporte; render, contornos,
-texto, geometria e diagnósticos são obrigações observáveis de linguagem.
+## Private SVG render session and exact maintenance scope
 
-### Responsabilidade exclusiva desta unidade
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/{before.json.gz,classification.json}` records full source/prior L0/signatures/hashes/UTC/status/diffstat at HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree2026-10-15T16:39:18.873477+00:00. svg.rs:233 render_item has 9 arguments (threshold7, historical C071). Audited contracts/spans support internal maintenance, not a functional defect/new parity. `lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/before.json.gz` records sources/callers/contracts/spans/28-warning inventory; its six nominal changes removed only text from the outline-helper call while preserving author text extraction/render_html_text in html_frame. Conditional residual exceptions C047/C066 require their dead-argument removal first; the other five correction arities stay visible. No raised threshold/module/impl/crate silence. Preserve public signatures/fields/values, PNG/SVG/PDF/precedence/diagnostics/resources/MCIDs and no global mutation.
 
-Consumir os paints preparados da Shape. Manter local_to_root no contexto privado PaintDefs; Group com paint_root true reinicia a base, Group técnico concatena T(pos)*matrix e restaura a base ao sair. Page e célula são raízes. Renderizar as definições de paint com os mesmos bindings de fontes; dentro da célula, links/semântica são decorativos e não emitem anotações/destinos, mas preservam os itens visuais. Manter os demais dispatches e contextos.
+`lab/results/construction/diagnostics/clippy-aridade-final-2026-10-16/before.json.gz` and callers.txt preserve checked source/L0/HEAD/tree/UTC/status/diffstat/global hashes/workspace fixtures; MathLayouter homonyms are another engine. Inventory22 warnings/five arities. This follow-up materializes only the specified SVG session, superseding its former audit-only pending status.
 
-### Aceitação e continuidade
+Own one private borrowed SvgRenderSession per export: fonts Option<&PreparedFonts>, glyph_defs &mut GlyphDefs, paint_defs &mut PaintDefs, clip_next_id &mut usize, destinations &SvgDestinationContext, glyph_fonts &SvgGlyphFontContext, html_frame bool. render_item(xml,item,session) retains exhaustive static match, all leaves and background/body/foreground order. Groups/links/paint cells reborrow the same caches/IDs, no clones/globals/vtables/new public API. Group passes existing Size with Pt(inner_width/height), saves/restores local_to_root. Decorative Link temporarily disables html_frame for its children, restoring it for siblings. Preserve reference frames, target/navigation contexts and private call behavior.
 
-Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
-aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
-somente no âmbito do contrato aprovado. Preservar os demais comportamentos
-vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
-fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
-carriers e sem fallback sólido para obter build verde. Não elevar o limite
-antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
-clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
-página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
-quando integrados e verificados; estado intermediário quebrado ou parcial
-não é certificação de produção. T4 e publicação continuam fora deste pacote.
+svg.rs:47 and `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz` preserve source/L0/hashes/HEAD/tree/UTC/diffstat and consumer/use audit. Derive existing public SvgOptions Default without changing fields or pretty=false/render_bleed=false; no added/removed Rust contract. No new lint suppression. Verify exact inventory reduction/no new warnings, selected lint RED→GREEN and denied unfulfilled_lint_expectations; existing tests retain fixtures/expectations and bbox cases require real observation, no derive/Entry/module-position mirror tests.
 
-
-## Aridade das fronteiras — `clippy::too_many_arguments`
-
-### Evidência anterior à decisão
-
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
-
-- `C071`: `03_infra/src/export/svg.rs:233`, `render_item`, 9 argumentos contados pelo Clippy (limiar 7).
-
-### Prescrição exclusiva por função
-
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
-
-#### `C071` — `render_item`: Correção interna prescrita
-
-O dispatcher SVG cria e retransmite a mesma sessão de fontes, definições, contador de clip, destinos, glyph context e modo HTML por vários caminhos recursivos. Deve possuir o contexto privado por exportação, conservando match exaustivo e chamadas estáticas.
-
-Definir no hub SVG uma sessão privada emprestada contendo fonts, glyph_defs, paint_defs, clip_next_id, destinations, glyph_fonts e html_frame; render_item recebe xml/item/sessão. Grupos, links e células de paint a reutilizam com reborrow.
-
-Aceitação: Uma sessão por exportação, sem global/clone de caches, sem vtable ou public API nova; manter ordem das três camadas, match exaustivo e restauração dos referenciais de paint.
-
-### Fronteira de materialização
-
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
-
-
-## Manutenção local e observação de testes — 2026-10-16
-
-### Medição anterior à decisão
-
-`03_infra/src/export/svg.rs` nas linhas 47 contém os avisos registrados em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
-
-### Responsabilidade e aceitação
-
-Conservar SvgOptions público, campos e Default preexistente, apenas derivando Default no struct; pretty e render_bleed continuam false. Não adicionar nem retirar contrato Rust.
-
-Fluxo contínuo ADR-0127: sem contrato público, default de produto ou fase novos. L0 precede código e resselo restrito. Nenhuma supressão de lint nova. Conferir redução exata do inventário e ausência de avisos novos, gate Clippy RED→GREEN e unfulfilled_lint_expectations como erro; executar suíte workspace, build, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job. Não criar testes que apenas espelhem derive, Entry ou posicionamento de módulos. O caso de bbox exige observação real conforme especificado; os demais controles existentes mantêm fixtures e expectativas.
-
-
-## Aridade interna — materialização de seis casos, 2026-10-16
-
-### Medição anterior à decisão
-
-As fontes, chamadores, cláusulas vigentes, spans e inventário de 28 avisos foram conferidos antes da decisão. `lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/before.json.gz` guarda fontes/L0 completos, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A auditoria anterior classifica estes casos como correção; não são exceções diretas. O RED deve observar as aridades atuais antes de alterações; controles funcionais existentes serão corridos antes/depois. É refatoração de representação privada, sem nova paridade ou ganho de performance medido.
-
-### Responsabilidade exclusiva e aceitação
-
-Migrar somente a chamada ao helper de contornos para não fornecer text. Preservar a extração text e a chamada render_html_text no ramo html_frame, que continua usando conteúdo autoral. Não alterar a assinatura pública ou o futuro contexto de sessão C071, que permanece pendente.
-
-Fluxo contínuo ADR-0127: nenhuma API externamente pública, default do produto, fase, dependência ou semântica é alterada. Tipos/constructors novos ficam internos; contratos públicos existentes permanecem. Este adendo concretiza somente os seis casos nominais; substitui proibições genéricas de supressão apenas para as duas expectativas residuais condicionadas C047/C066 após remover _text. As outras cinco aridades a corrigir continuam visíveis. Não elevar limiar ou silenciar no módulo/impl/crate. L0 precede código e resselo restrito. Confirmar preservação das assinaturas externamente públicas, campos/valores transportados, controles PNG/SVG/PDF, precedência/diagnósticos/recursos/MCIDs e ausência de mutações globais. Usar os testes existentes sem relaxar fixtures/esperados; não escrever testes que espelhem os carriers privados. Revalidar suíte workspace completa, build, Clippy all-targets e unfulfilled_lint_expectations, Rustdoc, fmt e linhagem estrita/reversa, mantendo 12 GiB, swap zero e um job.
-
-
-## Aridade final — materialização interna, 2026-10-16
-
-### Medição anterior à decisão
-
-Fontes e L0 vigentes conferidos antes do código; snapshot lab/results/construction/diagnostics/clippy-aridade-final-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, status, diffstat e hashes globais. callers.txt registra busca no workspace, incluindo fixtures; as chamadas homônimas do math::MathLayouter são outro motor e permanecem intactas. Inventário anterior tem 22 avisos, cinco destas aridades. Trata-se de estrutura privada Rust, sem nova afirmação de paridade ou intenção upstream.
-
-### Responsabilidade exclusiva e aceitação
-
-Concretizar C071 com SvgRenderSession privado e emprestado: fonts Option<&PreparedFonts>, glyph_defs &mut GlyphDefs, paint_defs &mut PaintDefs, clip_next_id &mut usize, destinations &SvgDestinationContext, glyph_fonts &SvgGlyphFontContext e html_frame bool. Uma coleção real de caches/IDs por exportação; render_item(xml,item,session) mantém match exaustivo, ordem background/body/foreground e todos os leaves. Grupo envia Size existente com Pt(inner_width/height), salva/restaura local_to_root. Link decorativo desliga html_frame apenas durante seus filhos, restaurando-o para irmãos; referências/caches são reemprestados, nunca clonados.
-
-Este adendo materializa somente o escopo nominal e supersede seu estado pendente da auditoria. Fluxo contínuo ADR-0127: sem contrato externo, default, fase ou compatibilidade novos. L0 primeiro e resselo restrito. RED de too_many_arguments antes do código, GREEN sem novas supressões ou alteração de limiar; expectativas anteriores devem continuar satisfeitas. Conferir corpos e transporte de valores, preservar fixtures/esperados, sem testes que espelhem carriers. Executar controles existentes de Grid/Table/outline e SVG/tiling antes/depois, suíte workspace completa, build, Clippy all-targets, Rustdoc, formato, linhagem estrita/reversa e Tekt sem novos avisos, sob 12 GiB, swap zero e um job. Resultados não certificam paridade global ou conformidade PDF/UA.
+All maintenance uses continuous flow with unchanged external contracts/defaults/phases/compatibility/layers/static dispatch. L0 and private-caller L0 precede code, scoped lineage maintenance. New public/compatibility needs a separate concrete ADR-0127 gate. Require real too_many_arguments RED→GREEN, no new suppression/threshold changes, previous expectations fulfilled, body/value transport review and existing Grid/Table/outline/SVG/tiling/integration/call controls before/after without relaxed fixtures/tolerances or private-carrier mirror tests. Full workspace/build/Clippy all-targets/expectations/Rustdoc/fmt/strict reverse lineage/Tekt no new warnings, 12GiB/swap0/jobs1. No global parity/PDF-UA certification or unmeasured benefit.
 
 ## Owned test module declarations
 
-This consumer declares the following separately owned test modules: `pretty_serialization_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+This consumer declares separately owned `pretty_serialization_tests`; its name describes its responsibility. Delegate test bodies without absorbing their L0 ownership.

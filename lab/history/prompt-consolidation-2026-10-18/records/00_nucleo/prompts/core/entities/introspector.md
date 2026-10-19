@@ -1,0 +1,592 @@
+# Prompt L0 — `entities/introspector`
+Hash do Código: f83e99bd
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:bdbe23b72d7083b7672d71e851dc3d35baa8ed7ccb66f009f61edcf770d0aeff
+
+
+## P1470 — exemplos executáveis de injeção pós-layout
+
+Os exemplos públicos de `inject_positions` e `inject_pages` são doctests Rust
+executáveis, não pseudocódigo ignorado. Cada exemplo declara imports e entradas
+completos e verifica o observável correspondente: uma posição real para a
+`Location` locatável e o total não nulo de páginas injetado. Não usar `no_run`,
+I/O, fixture externa nem API privada para obter verde.
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline histórico R5:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`entities/introspector.rs:372,727` guarda HashMap<Location, Content> e
+projeta diretamente element_at. R5 e `introspect.rs:1350` mostram que o
+payload de tags não basta para reconstruir campos públicos.
+
+### Decisão proprietária
+
+O campo público passa a
+`pub elements: HashMap<Location, IntrospectedContent>`, mantendo o tipo de
+hasher vigente e a chave Location. Este é o único store de elementos públicos.
+`Introspector::element_at(&self, location: Location) -> Option<&Content>`
+conserva sua assinatura e retorna `entry.content()`. Não acrescentar método
+obrigatório ao trait; query L1 já dispõe do TagIntrospector concreto.
+empty/default/clone incluem o novo tipo. Nenhum callback é executado aqui.
+
+A realização existente de Equation (§P1140.5-A) continua atualizando a mesma
+entrada: não criar outro mapa paralelo de campos nem substituir seus valores
+realizados por defaults de Heading. Mapas auxiliares históricos de cálculo de
+Equation conservam seu papel, não se tornam um segundo store de fields.
+
+Aceitação: element_at e a entrada completa referem-se à mesma árvore; clone
+preserva snapshots; ausência sintética de elemento continua ausência. Mudança
+do tipo público de elements aguarda aprovação ADR-0127.
+
+---
+
+
+**Camada**: L1
+**Ficheiro alvo**: `01_core/src/entities/introspector.rs`
+**Criado em**: 2026-04-30 (P165 sub-passo .D — núcleo de M3)
+**ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
+
+---
+
+## Contexto
+
+`Introspector` é o trait que expõe queries sobre elementos indexados durante introspecção. `TagIntrospector` é a implementação concreta construída em `from_tags` (P165 .E) a partir de `Vec<Tag>`.
+
+Vanilla equivalente: `lab/typst-original/.../introspection/introspector.rs::Introspector` trait + `ElementIntrospector<P>` impl genérica em P (target paged vs html). Cristalino simplifica:
+
+- **Plain trait** (sem `#[comemo::track]` em M3) — tracking fica para M7+ quando fixpoint exigir memoização cross-iteration. Decisão consciente registada em P165.A.
+- **Concrete struct `TagIntrospector`** — sem genérico em P (cristalino é paged-only); composta de sub-stores explícitos (`LabelRegistry`, `CounterRegistry`, índice por `ElementKind`, mapa Location→Position futuro).
+
+Position vazio em M3 — `position_of` retorna sempre `None`. Mecanismo de população só virá quando layout integrar (M5+ ou M9).
+
+## P1140.4-A — número de equação materializado
+
+O contrato read-only expõe o `Content` de numbering por `Location`.
+`TagIntrospector` mantém mapa determinístico preenchido no pós-fixpoint. O
+valor é fonte única para calha visual e referências: string e função já chegam
+materializadas; `none`, ausência e equações inline não têm entrada. O trait não
+expõe `Func` ao layout e não executa callbacks.
+
+---
+
+## Restrições Estruturais
+
+- Camada **L1**: sem I/O, sem estado global.
+- Trait com 5 métodos (todos read-only sobre `&self`).
+- Struct concreta read-only após construção. Sub-stores como fields privados.
+- Ordering determinístico: `query_by_kind` retorna `Vec<Location>` em ordem de inserção (preservada pelo construtor `from_tags`).
+- Sem `Clone` no trait (object-safe não é requisito M3); `Clone` derivado na struct.
+
+---
+
+## Interface pública
+
+```rust
+use crate::entities::element_kind::ElementKind;
+use crate::entities::label::Label;
+use crate::entities::location::Location;
+
+pub trait Introspector {
+    fn query_by_kind(&self, kind: ElementKind) -> Vec<Location>;
+    fn query_by_label(&self, label: &Label) -> Option<Location>;
+    fn query_first(&self, kind: ElementKind) -> Option<Location>;
+    fn query_unique(&self, kind: ElementKind) -> Option<Location>;
+    fn position_of(&self, location: Location) -> Option<()>;
+    // Position é () em M3 — mapa Location→Position fica vazio.
+    // Tipo Position concreto será introduzido em M5/M9.
+
+    /// **P168 (M5 sub-passo 2)**: número 1-based de figura associada a label.
+    /// Apenas figuras numeradas+captioned (`is_counted=true`) são indexadas.
+    /// Equivalente a `state.figure_label_numbers.get(label).copied()` legacy.
+    fn figure_number_for_label(&self, label: &Label) -> Option<usize>;
+
+    /// **P169 (M9 sub-passo 1)**: todos os values embebidos via
+    /// `metadata(value)` vanilla, na ordem de aparecimento no walk.
+    fn query_metadata(&self) -> &[Value];
+
+    /// **P170 (M9 sub-passo 2)**: formato hierárquico do counter
+    /// como string. Equivalente a `state.format_hierarchical(key)`.
+    /// Resolve lacuna #5.
+    fn formatted_counter(&self, key: &str) -> Option<String>;
+
+    /// **P171 (M9 sub-passo 3)**: valor do state `key` na Location
+    /// indicada (aplica updates ordenados até `location`).
+    fn state_value(&self, key: &str, location: Location) -> Option<&Value>;
+
+    /// **P171 (M9 sub-passo 3)**: valor final do state `key` (último
+    /// update aplicado).
+    fn state_final_value(&self, key: &str) -> Option<&Value>;
+
+    /// **P175 (M9 sub-passo 5)**: queries via `Selector`. P175 minimal —
+    /// só `Selector::Kind(kind)` que delega a `query_by_kind`. Future
+    /// variants (`Label`, `And`, `Or`, `Where`) adiados.
+    fn query(&self, selector: &Selector) -> Vec<Location>;
+
+    /// **P177 (M9 sub-passo 7)**: formato hierárquico do counter na
+    /// `Location` indicada. Equivalente a `formatted_counter` (P170)
+    /// mas para um snapshot histórico em vez do estado final. `None`
+    /// se key inexistente, history vazia, ou todas as updates estão
+    /// depois de `location`.
+    fn formatted_counter_at(&self, key: &str, location: Location) -> Option<String>;
+
+    /// **P181F** — entry bibliográfica por chave. Read-only;
+    /// delega para `BibStore::entry_for_key`. Replica
+    /// `state.bib_entries.iter().find(|e| e.key == *key)` legacy.
+    /// `None` em introspector vazio ou key inexistente.
+    fn bib_entry_for_key(&self, key: &str) -> Option<&BibEntry>;
+
+    /// **P181F** — número 1-based associado à chave bibliográfica.
+    /// Read-only; delega para `BibStore::number_for_key`. Replica
+    /// `state.bib_numbers.get(key).copied()` legacy. Order de
+    /// assignment respeita cláusula 3 P181A — primeiro número de uma
+    /// key persiste em multi-Bibliography (`or_insert`).
+    fn bib_number_for_key(&self, key: &str) -> Option<u32>;
+
+    /// **P182B (M9)** — flag de numeração activa para `key`. Replica
+    /// `CounterStateLegacy::is_numbering_active(key)` legacy via
+    /// `StateRegistry`: lê `state.final_value(key)` e devolve `true`
+    /// apenas se for `Some(Value::Bool(true))`. Default `false`
+    /// (state ausente, `Bool(false)`, ou variant não-Bool).
+    /// Resolve lacuna #4 (cf. P182A diagnóstico). Convenção de chave:
+    /// `numbering_active:<feature>` — ex. `numbering_active:heading`.
+    fn is_numbering_active(&self, key: &str) -> bool;
+
+    /// **P184C** — número 1-based da figure na posição `idx` (0-indexed)
+    /// entre as figures do `kind` indicado, processadas em ordem de
+    /// aparecimento no walk. Suporta C3 desbloqueio (consumer em
+    /// `mod.rs:435–439`). Convenção de chave: `figure:{kind}` (P184B);
+    /// chamada interna constrói `format!("figure:{}", kind)` e delega
+    /// a `CounterRegistry::value_at_index`. Default kind `"image"` é
+    /// responsabilidade do caller (per `mod.rs:431` que resolve
+    /// `kind.as_deref().unwrap_or("image")`). `None` se kind ausente
+    /// do registry ou idx fora de range.
+    fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize>;
+
+    /// **P185B** — flag de numeração activa para `key` na `Location`
+    /// indicada. Variante location-aware de `is_numbering_active`
+    /// (P182B): em vez de consultar `state.final_value` (snapshot
+    /// final pós-walk), delega a `state.value_at(key, location)` e
+    /// devolve `true` apenas se for `Some(Value::Bool(true))`. Default
+    /// `false` (state ausente em `location`, `Bool(false)`, ou variant
+    /// não-Bool). Convenção de chave idêntica a `is_numbering_active`:
+    /// `numbering_active:<feature>`. Suporta C1 desbloqueio
+    /// (consumer migrará em P187 quando Layouter ganhar
+    /// `current_location` em P185C). Resolve eixo 1 da regra dos 2
+    /// eixos (cf. ADR-0068 PROPOSTO).
+    fn is_numbering_active_at(&self, key: &str, location: Location) -> bool;
+
+    /// **P185B** — valor 1-based de counter flat para `key` na
+    /// `Location` indicada. Variante location-aware de `formatted_counter`
+    /// para counters de 1 elemento. Delega a
+    /// `counters.value_at(key, location)?.last().copied()`. `None` se
+    /// key inexistente em `location` ou history vazia. Para counters
+    /// flat (figure, equation), `.last()` é o número 1-based actual.
+    /// Para counters hierárquicos (heading), `.last()` retorna apenas
+    /// o nível mais profundo — caller deve usar `formatted_counter_at`
+    /// (P177) em vez deste método. Suporta C2 desbloqueio (consumer
+    /// migrará em P188 quando Layouter ganhar `current_location` em
+    /// P185C).
+    fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize>;
+
+    /// **P462** — chave do counter associada a uma `Label` (ex:
+    /// `"heading"`, `"figure:image"`, `"equation"`, `"table"`). `None`
+    /// se a label não existe ou não está associada a um elemento
+    /// numerado via `Content::Label`. Delega a
+    /// `label_to_counter_key.get(label)`.
+    fn counter_key_for_label(&self, label: &Label) -> Option<&str>;
+
+    /// **P472** — lista de posições de citação (1-based) para todas as
+    /// ocorrências da key `key`. Vec vazia se nunca citada. Delega a
+    /// `bib_store.back_refs_for_key(key)`. Suporta renderização de
+    /// back-refs em `bibliography.rs` (` ↑[1][3]` após o corpo da entry).
+    fn back_refs_for_key(&self, key: &str) -> Vec<usize>;
+
+    /// **P472** — slice de `(counter_value, caption_text)` para todas as
+    /// figuras indexadas no walk (populado em `introspect.rs` arm Figure quando
+    /// `caption_text.is_some()`). Suporta `layout_lof` em `outline.rs`.
+    fn figures_for_lof(&self) -> &[(usize, String)];
+
+    /// **P472** — slice de `(counter_value, caption_text)` para todas as
+    /// tabelas indexadas no walk (populado em `introspect.rs` arm Table quando
+    /// `caption_text.is_some()`). Suporta `layout_lot` em `outline.rs`.
+    fn tables_for_lot(&self) -> &[(usize, String)];
+
+    /// **P193B** (M5 sequência §9 P189 passo 1) — texto resolvido
+    /// para a `Label` indicada. `Some(&str)` se label registada no
+    /// `ResolvedLabelStore`; `None` caso contrário. Delega a
+    /// `resolved_labels.get(label)`. Sub-store **vazio em produção**
+    /// até P195 adicionar arm de populate em `from_tags`. Consumer
+    /// C4 (`layout/references.rs::layout_ref`) migra em P194 com
+    /// substitution-with-fallback. Sem variante `*_at` —
+    /// resolução label→text é determinística (snapshot final per
+    /// análise dos 2 eixos P193A §1.8).
+    fn resolved_label_for(&self, label: &Label) -> Option<&str>;
+
+    /// **P207B (M9c)** — todos os labels registados com a respectiva
+    /// `Location`, ordenados alfabéticamente por `Label` para
+    /// determinismo. Delega a `LabelRegistry::iter()` + clone+copy
+    /// (custo O(n) sobre `n` labels). Vazio se nenhum label foi
+    /// adicionado.
+    ///
+    /// Equivalente vanilla: `Introspector::query_labelled()
+    /// -> EcoVec<Content>`. Cristalino retorna handles
+    /// `(Label, Location)` em vez de `Content` por coerência com
+    /// design pattern handle-based (ADR-0073 §C6 + ADR-0074):
+    /// consumers fazem lookup via `Location` quando precisam do
+    /// elemento materializado. Primeiro item C1 do roadmap M9c
+    /// (per ADR-0076).
+    fn query_labelled(&self) -> Vec<(Label, Location)>;
+
+    /// **P207C (M9c)** — Número de Locations associadas a `label`.
+    /// 0 se label nunca foi registado. Delega a
+    /// `LabelRegistry::count(label)`. Em multi-label (P207C),
+    /// devolve `lookup_all(label).len()`.
+    ///
+    /// Equivalente vanilla: `Introspector::label_count(Label) ->
+    /// usize`. Resolve item 7 da auditoria P207A. Permite distinguir
+    /// entre "label inexistente" (0), "label única" (1) e "label
+    /// duplicado" (≥2) sem percorrer `query_labelled` completo.
+    fn label_count(&self, label: &Label) -> usize;
+
+    /// **P207D (M9c)** — Total de páginas no documento. Vanilla
+    /// `PagedIntrospector::pages` ignora o argumento `location`
+    /// e devolve sempre o total; cristalino segue a mesma
+    /// semântica. `None` pre-injecção (`PageStore::empty()`);
+    /// `Some(N)` pós-injecção via `inject_pages`.
+    fn pages(&self, location: Location) -> Option<NonZeroUsize>;
+
+    /// **P207D (M9c)** — Número de página (1-based) onde `location`
+    /// aterra. Delega a `SealedPositions::position_of(location)?.page`.
+    /// `None` pre-injecção ou se Location não-locatable.
+    fn page(&self, location: Location) -> Option<NonZeroUsize>;
+
+    /// **P207D (M9c)** — Pattern de numbering para a página onde
+    /// `location` aterra. Combina `page(location)?` com
+    /// `PageStore::numbering_for_page(page)`. `None` se:
+    /// - Location não-locatable (sem `page`).
+    /// - PageStore não tem numbering capturado para a página
+    ///   (Bloco VIII parcial — captura no walk de layout é
+    ///   deferred a passo futuro; até lá retorna sempre `None`
+    ///   pós-injecção minimal).
+    ///
+    /// Vanilla devolve `Option<&Numbering>` (enum); cristalino
+    /// devolve `Option<&EcoString>` (pattern directo) per
+    /// ADR-0024. Divergência intencional registada em
+    /// `page_store.md`.
+    fn page_numbering(&self, location: Location) -> Option<&EcoString>;
+
+    /// **P207D (M9c)** — Supplement para a página onde `location`
+    /// aterra. Combina `page(location)?` com
+    /// `PageStore::supplement_for_page(page)`. `None` se Location
+    /// não-locatable ou PageStore sem supplement capturado para
+    /// a página. Vanilla retorna `Option<&Content>` (cristalino
+    /// preserva tipo idêntico per ADR-0026).
+    fn page_supplement(&self, location: Location) -> Option<&Content>;
+
+    /// **P472** — back-refs para key. Delega a `bib_store.back_refs_for_key`.
+    fn back_refs_for_key(&self, key: &str) -> Vec<usize>;
+    /// **P472** — slice de figuras para LoF: `(counter, caption)`.
+    fn figures_for_lof(&self) -> &[(usize, String)];
+    /// **P472** — slice de tabelas para LoT: `(counter, caption)`.
+    fn tables_for_lot(&self) -> &[(usize, String)];
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct TagIntrospector {
+    pub labels:                LabelRegistry,
+    pub counters:              CounterRegistry,
+    pub kind_index:            HashMap<ElementKind, Vec<Location>>,
+    /// **P168**: indexação Label→1-based para figuras numeradas+captioned.
+    /// Populado por `from_tags` quando `ElementPayload::Figure.is_counted == true`
+    /// E há label associada. Suporta `references.rs::layout_ref` figure-arm.
+    pub figure_label_numbers:  HashMap<Label, usize>,
+    /// **P462** — mapeamento `Label → chave de counter` (ex: `"heading"`,
+    /// `"figure:image"`, `"equation"`, `"table"`). Populado durante o walk
+    /// quando um elemento numerado é etiquetado via `Content::Label`.
+    /// `Content::Labelled` (P329) usa caminho legacy e NÃO popula este mapa.
+    pub label_to_counter_key:  HashMap<Label, EcoString>,
+    /// **P169 (M9 sub-passo 1)** — values embebidos via `metadata()`.
+    pub metadata:              MetadataStore,
+    /// **P171 (M9 sub-passo 3)** — runtime mutable state.
+    pub state:                 StateRegistry,
+    /// **P181B** — sub-store para entries bibliográficas + numeração
+    /// 1-based. Vazio em P181B; popula em P181E (`from_tags` arm
+    /// `ElementPayload::Bibliography`); consumer migrará em P181G
+    /// (Layouter cite-arm via trait methods adicionados em P181F).
+    pub bib_store:             BibStore,
+    /// **P193B** (M5 sequência §9 P189 passo 1) — sub-store para
+    /// mapeamento Label → texto resolvido. Vazio em P193B (janela
+    /// compat); popula em P195 (`from_tags` arm Labelled emitido
+    /// após walk arm migrar); consumer C4 migra em P194
+    /// (`layout/references.rs::layout_ref`) com
+    /// substitution-with-fallback. Suporta cadeia E2-E6 P189B
+    /// fechar incrementalmente.
+    pub resolved_labels:       ResolvedLabelStore,
+    /// **P205C (F3)** — sub-store sealed Location → Position
+    /// injectado pós-layout via `inject_positions`. Default
+    /// empty.
+    pub positions:             SealedPositions,
+    /// **P207D (M9c)** — sub-store sealed para metadata
+    /// page-level (`total_pages`, `numberings`, `supplements`)
+    /// injectado pós-layout via `inject_pages`. Default empty
+    /// (pre-injecção, queries page-aware retornam `None`).
+    pub page_store:            PageStore,
+    /// **P472** — lista de `(counter, caption)` para figuras com caption,
+    /// populada em `introspect.rs` arm Figure via `ElementPayload::Figure.caption_text`.
+    pub figures_for_lof:       Vec<(usize, String)>,
+    /// **P472** — lista de `(counter, caption)` para tabelas com caption,
+    /// populada em `introspect.rs` arm Table via `ElementPayload::Table.caption_text`.
+    pub tables_for_lot:        Vec<(usize, String)>,
+}
+
+impl TagIntrospector {
+    pub fn empty() -> Self;
+}
+
+impl Introspector for TagIntrospector { /* ... */ }
+```
+
+`pub` nos sub-stores: caller (testes ou consumers em M4+) pode aceder
+directamente. Equivalente a getters por delegação mas sem boilerplate.
+Imutabilidade garantida pela ausência de `pub(crate)` nos métodos
+mutadores dos sub-stores expostos a clientes externos.
+
+---
+
+## Semântica dos métodos
+
+- `query_by_kind(kind)`: vector de todas as `Location`s do kind, em ordem de inserção (= ordem de aparecimento no walk). Vazio se nenhum.
+- `query_by_label(label)`: `Some(location)` se label existir; `None` caso contrário. Delegação para `LabelRegistry::lookup`.
+- `query_first(kind)`: `Some(primeira location)` ou `None`. Equivalente a `query_by_kind(kind).first().copied()`.
+- `query_unique(kind)`: `Some(loc)` apenas se houver **exactamente** 1 location desse kind; `None` se 0 ou >1.
+- `position_of(loc)`: M3 retorna sempre `None` — mapa de positions vazio.
+
+---
+
+## Invariantes
+
+- Construção via `from_tags`: índice por kind preserva ordem de tags.
+- `query_first`/`query_unique` são derivados de `query_by_kind` — comportamento consistente.
+- `query_by_label` ↔ `LabelRegistry::lookup` 1:1.
+- M3: `position_of` é stub.
+
+---
+
+## Tests obrigatórios (sub-passo .D P165)
+
+- `TagIntrospector::empty()` retorna struct com sub-stores vazios; todos os queries retornam `None`/`Vec::new()`.
+- Construir struct com `LabelRegistry` populado (1 par) + `CounterRegistry` populado (1 kind) + `kind_index` populado (1 kind, 2 locations) — verificar:
+  - `query_by_kind(kind)` retorna 2 locations em ordem.
+  - `query_first(kind)` retorna a primeira.
+  - `query_unique(kind)` retorna `None` (porque há 2).
+  - `query_by_label(label)` retorna a location associada.
+  - `position_of(loc)` retorna `None`.
+- Caso unique: 1 location → `query_unique` retorna `Some(loc)`.
+
+---
+
+## Consumers actuais
+
+Nenhum no momento da criação. Construído em paralelo a `CounterStateLegacy` por `from_tags` (P165 .E) mas descartado em `pub fn introspect()` (M3 não expõe — M4 começará).
+
+## Consumers planeados
+
+- M4: `pub fn introspect_with_introspector(content) -> (CounterStateLegacy, TagIntrospector)` ou similar.
+- M5: primeiro consumer real de `Introspector` migra de `CounterStateLegacy.resolved_labels` para `query_by_label`.
+- M9: features novas (`metadata`, `state`, `query`) consultam Introspector como source-of-truth.
+
+---
+
+## Sobre paridade
+
+Vanilla `Introspector` trait com `#[comemo::track]` + `ElementIntrospector<P>` genérica. Diferenças cristalinas:
+
+- Sem `#[comemo::track]` em M3 (deferido para M7+).
+- Sem genérico `P` (cristalino paged-only).
+- Sub-stores explícitos como fields públicos (composição visível) vs vanilla com fields privados via getters.
+- `Position` ainda não materializado — em M3 o método é stub; vanilla tem `DocumentPosition::Paged | Html`.
+
+Ver `lab/results/construction/diagnostics/inventario-tipos-introspection-vanilla.md` (2026-04-30) para mapa completo.
+
+Fan-in baixo: M3 não tem consumers externos ainda.
+
+---
+
+## Resultado Esperado
+
+- `01_core/src/entities/introspector.rs` — trait + struct + impl + tests.
+- Re-export em `01_core/src/entities/mod.rs` (trait + struct).
+
+---
+
+## Histórico de Revisões
+
+| Data | Motivo | Arquivos afetados |
+|------|--------|-------------------|
+| 2026-04-30 | P165 sub-passo .D: trait + impl concreta para queries sobre tags | `introspector.rs`, `introspector.md` |
+| 2026-04-29 | P175 sub-passo .C: método `query(&Selector) -> Vec<Location>` no trait + impl | `introspector.rs`, `introspector.md` |
+| 2026-04-29 | P177 sub-passo .C: método `formatted_counter_at(key, location) -> Option<String>` no trait + impl | `introspector.rs`, `introspector.md` |
+| 2026-05-01 | P181B sub-passo .G: field `pub bib_store: BibStore` em `TagIntrospector` (composição visível); população começa em P181E | `introspector.rs`, `introspector.md`, `bib_store.rs`, `bib_store.md` |
+| 2026-05-01 | P181F sub-passo .E: trait estendido com `bib_entry_for_key` + `bib_number_for_key`; impl em `TagIntrospector` delega para `bib_store` | `introspector.rs`, `introspector.md` |
+| 2026-05-02 | P182B sub-passo .C–.E: trait estendido com `is_numbering_active(key)`; impl delega a `state.final_value(key)` + match `Value::Bool(true)`; default `false`. Resolve lacuna #4 (cf. P182A diagnóstico). | `introspector.rs`, `introspector.md` |
+| 2026-05-03 | P184C sub-passo .D: trait estendido com `figure_number_at_index(kind, idx)`; impl em `TagIntrospector` delega via `CounterRegistry::value_at_index` (helper P184C .C) sob chave `figure:{kind}` populada em P184B. Suporta C3 desbloqueio (consumer migrado em P184D). | `introspector.rs`, `introspector.md` |
+| 2026-05-03 | P185B sub-passo .B–.E: trait estendido com 2 métodos location-aware: `is_numbering_active_at(key, location)` (delega a `state.value_at`) e `flat_counter_at(key, location)` (delega a `counters.value_at(...).last().copied()`). Padrão P177/P184C replicado. ADR-0068 PROPOSTO: suporte ao Layouter location-aware (consumer migra em P187+P188 após P185C). Layouter **não** consulta ainda. | `introspector.rs`, `introspector.md` |
+| 2026-05-04 | P193B sub-passo .D-.F: field `pub resolved_labels: ResolvedLabelStore` adicionado a `TagIntrospector`; trait estendido com `resolved_label_for(&Label) -> Option<&str>` (delega a `resolved_labels.get(label)`). Sem variante `*_at` — snapshot final. **Sub-store vazio em produção** até P195 adicionar arm de populate em `from_tags`. Consumer C4 migra em P194. Passo 1 da sequência §9 P189 consolidado. | `introspector.rs`, `introspector.md`, `resolved_label_store.rs`, `resolved_label_store.md` |
+| 2026-05-12 | P207B (M9c — primeiro item Bloco I do roadmap ADR-0076): trait estendido com `query_labelled() -> Vec<(Label, Location)>`; impl em `TagIntrospector` delega para `LabelRegistry::iter()` (introduzido em P207B) com clone+copy O(n). Vanilla retorna `EcoVec<Content>`; cristalino preserva handle-based design (ADR-0073/0074). Trait passa de 20 para 21 métodos. | `introspector.rs`, `introspector.md`, `label_registry.rs`, `label_registry.md` |
+| 2026-05-12 | P207C (M9c — Bloco III sub-store refactor + Bloco II item 7): trait estendido com `label_count(&Label) -> usize`; impl em `TagIntrospector` delega para `LabelRegistry::count` (novo P207C). Resolve item 7 da auditoria P207A (distinguir 0/1/N locations por label). Refactor `LabelRegistry` para multi-label semântica (P207C) é pré-condição. Trait passa de 21 para 22 métodos. | `introspector.rs`, `introspector.md`, `label_registry.rs`, `label_registry.md` |
+| 2026-06-25 | P468 (Bibliography Phase 2): trait estendido com `citation_number_for_key(key) -> Option<u32>` (posição 1-based por primeira citação, delega a `bib_store.citation_number_for_key`) e `citation_order() -> &[String]` (slice da ordem de citação, delega a `bib_store.citation_order()`). Suporte a citação numérica `[1]`/`[2]` em `layout/cite.rs` e ordenação de `layout/bibliography.rs`. | `introspector.rs`, `introspector.md`, `bib_store.rs`, `bib_store.md` |
+| 2026-05-12 | P207D (M9c — Bloco II page-aware + Bloco VIII infraestrutura parcial per ADR-0076): trait estendido com 4 métodos page-aware: `pages` (total via `PageStore::total_pages`), `page` (via `SealedPositions`), `page_numbering` (via `PageStore::numbering_for_page` — `Option<&EcoString>` per ADR-0024), `page_supplement` (via `PageStore::supplement_for_page`). Novo field `pub page_store: PageStore` em `TagIntrospector` + novo método `inject_pages` paralelo a `inject_positions` (P205C). Opção 2 fixada em C2 (sub-store dedicado paralelo a `SealedPositions`). Pre-injecção: todos retornam `None`. Trait passa de 22 para 26 métodos. | `introspector.rs`, `introspector.md`, `page_store.rs`, `page_store.md` |
+| 2026-06-25 | P462: `TagIntrospector` ganha `label_to_counter_key: HashMap<Label, EcoString>`; trait estende `counter_key_for_label(&Label) -> Option<&str>`. População no walk de `introspect.rs` para elementos numerados etiquetados via `Content::Label`. Suporte ao layout de `ref` com resolução numérica. | `introspector.rs`, `introspector.md`, `introspect.rs`, `references.rs`, `ref.rs`, `content.rs` |
+| 2026-06-26 | P472: `TagIntrospector` ganha `figures_for_lof: Vec<(usize, String)>` e `tables_for_lot: Vec<(usize, String)>`; trait estendido com `back_refs_for_key`, `figures_for_lof`, `tables_for_lot`; `ElementPayload::Figure/Table` ganham `caption_text: Option<String>`; `introspect.rs` popula os 2 novos campos. Suporte a LoF/LoT em `outline.rs`. | `introspector.rs`, `introspector.md`, `element_payload.rs`, `introspect.rs`, `outline.rs`, `measurements.rs` |
+
+---
+
+## §P788 — `heading_numbering`: flag de numbering por `Location`
+
+**Decisão:** `TagIntrospector` ganha store `heading_numbering:
+HashMap<Location, bool>` populada no arm `Heading` de
+`populate_intr_from_tag_start` a partir de `ElementPayload::Heading {
+numbering_active, .. }` (element_payload.md §P788). Consumer:
+`compiler/layout/references.rs` — distingue "heading com counter mas sem
+numbering" (erro vanilla `cannot reference heading without numbering`) do
+caso feliz (suplemento + counter formatado).
+
+---
+
+## P844 (achados #47/#49 de P831) — sub-store `elements`, `element_at`, `counter_final_values`
+
+- Novo sub-store `TagIntrospector.elements: HashMap<Location, Content>`, populado pelo walk no momento da emissão da `Tag::Start` (compiler/introspect.rs). Alimenta o novo método de trait `element_at(location) -> Option<&Content>` — `query()` devolve o elemento com campos acessíveis (paridade vanilla), com fallback para `Value::Location` em introspectors sintéticos sem walk.
+- Novo método de trait `counter_final_values(key) -> Option<&[usize]>` (delega a `CounterRegistry::value`) — alimenta `counter.final()`. `CountingIntrospector` (L3 measurements) ganhou entrada `counter_final_values` (índice 27, total 28); `element_at` delega sem `record_call` (padrão de `heading_has_numbering`).
+
+## P1140.4-C — suplemento de equação materializado
+
+### Medição antes da decisão
+
+O consumidor atual escolhe default pela língua da referência
+(`layout/references.rs:235-237`), enquanto vanilla sintetiza pelo alvo
+(`math/equation.rs:173-188`). Isso diverge quando a língua muda entre ambos.
+
+### Decisão
+
+`Introspector` expõe `equation_supplement_content(Location) ->
+Option<Content>`. `TagIntrospector` mantém o mapa preenchido antes do layout.
+`Some(Content::Empty)` distingue `none`/conteúdo vazio de ausência técnica; o
+default auto também é materializado para toda equação locatável. Funções nunca
+são expostas ao layouter. Implementações instrumentadas/de teste delegam ou
+retornam `None` explicitamente e atualizam contagens quando aplicável.
+
+## P1140.5-A — `alt` e query realizada
+
+`TagIntrospector` guarda o `alt` efetivo por Location como `Option<EcoString>`
+(string vazia preservada). `element_at` devolve a visão realizada da equação,
+não o filho nu que perdeu styles. O trait não expõe callback nem cria método
+de exportação: o layout consome a mesma entrada/store semântico e query continua
+read-only.
+
+## P1339 — fronteira de dados e implementação da consulta
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
+`entities/introspector.rs:559` contém o impl Introspector for TagIntrospector;
+query em `:634-724` tem Where/Regex vazios. O store `elements` já guarda
+IntrospectedContent; a identidade nativa e igualdade linguística pertencem a
+compiler, não a entities. A medição histórica demonstra que uma chamada
+entities→compiler continuaria reversa mesmo com helper inerente.
+
+### Decisão proprietária
+
+Conservar aqui trait, struct, campos, derives, construtores e métodos
+inerentes de injeção. Transferir integralmente o bloco
+`impl Introspector for TagIntrospector` para o consumer existente
+`01_core/src/compiler/introspect.rs`, owner `compiler/introspect.md`.
+Nenhum método do trait muda assinatura ou default; implementações externas
+continuam válidas. A localização Rust do impl não faz parte da API de uso.
+Não importar compiler, nem instalar callback/comparador no dado para evitar
+a transferência. Não adicionar store de campos, Kind genérico ou cache global.
+
+As cláusulas anteriores de semântica do trait permanecem normativas para
+suas assinaturas e observáveis; os corpos e algoritmo da implementação
+concreta pertencem ao owner de compiler. Testes de construção/clone continuam
+aqui; testes do algoritmo transferido passam ao owner concreto. Esta mudança
+não transfere autoridade do trait nem legitima alterar os métodos de counters.
+Leituras borrowed ainda devolvem slices materializados, sem Func ou mutação
+oculta. A extensão de consulta Element é definida no owner concreto.
+
+## P1157 — contrato page-aware tipado
+
+### Medição antes da decisão
+
+`loc.page-numbering()` sobre callback retornou repr `(..) => ..`; portanto o
+trait não pode continuar `Option<&EcoString>`.
+
+### Decisão
+
+`page_numbering(location)` passa a `Option<&Numbering>`. Métodos read-only
+adicionais devolvem `Option<&Content>` para as vistas visível e de referência
+realizadas por página. Nenhum método executa callback. Esta alteração de trait
+público exige gate ADR-0127; mocks e implementações L3 só mudam em P1158.
+
+# P1402 — configurações de outline para materialização de entries
+
+O store concreto conserva, em ordem de ocorrência, clones dos `OutlineElem`
+vistos pelo walk. É dado privado de construção para gerar uma entry por outline
+realizado e por heading incluído; não altera o trait público `Introspector`.
+O store conserva também as Locations dos headings efetivamente `outlined`, na
+mesma ordem de `headings_for_toc`, evitando inferir Location por auto-label.
+
+# P1405 — máximos privados de prefixo
+
+O store concreto conserva `outline_prefix_widths`, indexado pela chave opaca
+do outline e pelo nível 1-based, com o maior inset absoluto observado em
+carriers `outline.prefix-info`. A leitura é emprestada e interna ao crate; não
+altera o trait público `Introspector`, não cria resultados de query e não
+executa callbacks. Nível zero e payloads malformados são ignorados.
+
+## P1493 — store e consulta de posição local HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+`Introspector::position_of` e `TagIntrospector::positions` transportam
+somente `Position { page, point }`. O target HTML externo não possui posição
+física; dentro de `html.frame`, o vanilla devolve somente x/y. Reusar o store
+paginado exigiria uma página sintética e tornaria possível seu vazamento.
+
+### Contrato ratificado
+
+Acrescentar ao trait tracked
+`html_position_of(Location) -> Option<HtmlPosition>`, com default `None`
+para implementações sem HTML. `TagIntrospector` mantém store separado
+`Location -> HtmlPosition` e uma injeção por geração que substitui o mapa
+inteiro. `position_of`, `positions`, `PageStore` e as consultas paginadas
+não mudam.
+
+A consulta HTML só é consumida quando o `EvalTarget` causal é `Html`;
+feature ativa não escolhe o store. Clone/default começam vazios. Colisão de
+Location entre ilhas, posição não associável à topologia ou mistura de
+gerações falha fechado em L3, não é resolvida pelo trait. O novo método público
+foi confirmado pelo dono em 2026-09-24.
+
+
+## Snapshot realizado de Page — ratificado em 2026-10-05
+
+Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
+
+Decisão proposta: aplicar o Núcleo page-counter-snapshot. Esta unidade substitui o scope-out histórico de final apenas após ratificação. Contrato público e realização page-aware de updates exigem gate ADR-0127; não materializar ou ressellar antes da confirmação. Preservar as assinaturas existentes, ciclos e budget; não adivinhar página/total antes do snapshot conhecido.
+
+Extensão pública proposta de TagIntrospector, mantendo ownership deste consumer e os demais campos:
+```rust
+pub page_counter_values: HashMap<Location, Vec<usize>>,
+pub page_counter_final_values: HashMap<Location, Vec<usize>>,
+```
+Ambos começam vazios. São vistas completas da geração realizada, por ocorrência existente, incluídos contextos, updates e aliases já reconhecidos. Armazenar estado inteiro, inclusive vetor vazio; ausência difere de estado vazio. Final de cada Location é do seu documento. Clone/Default/igualdade copiam e comparam ambas; não se muda o trait público Introspector. O producer não reutiliza entradas de geração anterior para completar outra. A memória retida deve ser contabilizada; não introduzir global ou cache persistente nesta correção.
+
+Ratificação: o humano confirmou o conjunto do manifesto `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.

@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "place-coordinate-origin"
+title = "Origem geométrica do body de Place e referencial do pai"
+
+[[claims]]
+id = "body-origin"
+level = "must"
+statement = "O corpo de Place não flutuante é composto uma vez com origem geométrica; texto instala sua própria baseline e forma não adquire strut de fonte. A translação ao pai ocorre uma vez em itens, decoração, posições e fixups."
+
+[[claims]]
+id = "parent-origin"
+level = "must"
+statement = "O subframe conserva explicitamente a origem vertical de recomposição esperada pelo chamador: zero no caminho geométrico, start_y no legado de baseline. Place usa essa origem ao ancorar no subframe, sem inferi-la da fonte corrente ou do estado mutável de baseline pendente."
+
+[[claims]]
+id = "pending-flow"
+level = "must"
+statement = "Sem alinhamento vertical explícito, uma linha pendente ancora Place na sua baseline física corrente; o corpo geométrico acrescenta somente sua própria geometria. Top explícito ancora no topo da região e não segue a linha pendente."
+
+[[claims]]
+id = "lifo-checkpoint"
+level = "must"
+statement = "Origem do subframe é estado interno puro salvo/restaurado em LIFO e capturado/restaurado com o checkpoint da cauda; não vaza entre irmãos ou tentativas. Não muda fase, API pública, default ou topologia."

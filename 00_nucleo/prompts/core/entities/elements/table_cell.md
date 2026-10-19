@@ -2,28 +2,30 @@
 Hash do Código: 65edc838
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:d207e8a3a934b2eff2b67c4bfc7f15b9af0c0f3abc83acdfaf774326e7b242eb
-- 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:afbe9da9643b22adaaaedbff55495488d3ceac311999a5cdec8a3d005f50ef7c
-- 00_nucleo/prompts/_nuclei/table/cell-projection.toml sha256:71d4b43f260cff61fffa8ba7831733e7a62f2517109911c8af346458d64cbd5b
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
-- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:1d697fae328277525e44cad674cecc537ceb23a1bb3ae11bb68a0a9575411ae4
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
+- 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221
+- 00_nucleo/prompts/_nuclei/table/cell-projection.toml sha256:8388731d50379499612641a70a85695c0e7139ec605289c29161e12086abd78a
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
 
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table_cell.rs`
-**Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).
-Trait e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**. Contentor —
-`map_*` recursam no `body`.
+Layer L1. Sole productive consumer:
+`01_core/src/entities/elements/table_cell.rs`. Origin: model D (ADR-0105),
+historical grid/table-cell extraction P327. The former glossary reference
+entities/elements/_comum.md §A.0 is historical, not another current productive
+owner. Cell is nonlocatable. Container operations preserve lexical body and use
+prepared visual contributions according to the operation-specific contracts below.
 
----
+## Baseline data and invariant preservation
 
-## Struct
+The original extraction shape, before ratified additions below, was:
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableCellElem {
-    pub body:      Content,               // era Box<Content>
+    pub body:      Content,               // formerly Box<Content>
     pub x:         Option<usize>,
     pub y:         Option<usize>,
     pub colspan:   Option<usize>,
@@ -36,94 +38,73 @@ pub struct TableCellElem {
 }
 ```
 
-`Content::TableCell { … }` → `Content::TableCell(Arc<TableCellElem>)`.
-Construtor ergonómico preservado: `Content::table_cell(...)`.
+Content::TableCell's former inline variant becomes Arc<TableCellElem>; preserve
+ergonomic Content::table_cell constructor. Manual Debug-based Hash
+format!("{self:?}").hash(state) accommodates floating Stroke/Color/Align2D/
+Sides<Length>, retaining content_hash parity and −0.0≠0.0 caveat. PartialEq derives.
+Original ten-field equality remains extended by all subsequently ratified fields;
+no silent omission. Baseline plain_text/body.is_empty and recursive body maps
+preserved nine cosmetics; prepared-visual contract below supersedes body-only
+consumption for prepared Cells. Original get_field/element_kind/to_payload default
+is superseded only by the measured getter contract below. Baseline source readings:
+content.rs:1813,1662,2289,2530,1953 (runtime-only spans in old plain_text).
 
-> **`Hash` manual via Debug**: `Stroke`/`Color`/`Align2D`/`Sides<Length>`
-> carregam `f64` → `impl Hash { format!("{self:?}").hash(state) }`
-> (paridade `content_hash`; ressalva `-0.0`≠`0.0`). `PartialEq` deriva.
+## Pending accessibility classification candidate
 
-## `impl Element for TableCellElem`
+Before deciding, table_cell.rs:20–33 contains body/geometric-visual fields only.
+Pinned vanilla pdf/accessibility.rs:274–310 measures closed
+TableCellKind::{Header(NonZeroU32, TableHeaderScope), Footer, Data}, scopes
+Both/Column/Row; table.cell.kind starts auto, model/table.rs:772–778.
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.body.plain_text()` (transparente; spans runtime-only, `content.rs:1813`) |
-| `is_empty` | **override**: `self.body.is_empty()` (`content.rs:1662`) |
-| `map_content` | **recursivo** no `body`, preserva os 9 cosméticos (`content.rs:2289`) |
-| `map_text` | **recursivo** no `body`, preserva os 9 cosméticos (`content.rs:2530`) |
-| `get_field`/`element_kind`/`to_payload` | default |
+Historical P1288 proposes explicit Auto, Header{positive level,scope Column|Row|
+Both}, Data. Auto lets header/footer context derive class; explicit Header/Data
+wins. pdf.data-cell inside header stays Data. map_content/map_text/constructors/
+clone/Hash retain kind/level/scope; unchanged body/plain text/visual render.
+Closed enum allowed instead of three fields, never strings/visual style/inferred
+position. No explicit human receipt was verified for this public classification
+candidate. Preserve complete candidate and approval-evidence gap; later Cell
+presence/realization approvals do not authorize accessibility classification by
+implication.
 
-## `eq`
+## Existing Cell projection mapping
 
-`#[derive(PartialEq)]` compara os 10 campos (paridade `content.rs:1953`).
+Before deciding, table-cell-realizacao-2026-10-07/before.json.gz retains HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/exact diffstat/
+source-binary hashes/argv/cwd/results at historical pin9f2b6e871. Vanilla
+table.rs:734–778 declares body/properties; local table_cell.rs:62–109 lacks getter;
+content/identity.rs:107 uses table.cell; content_methods.rs:226–254 lacks real
+function projection; show.rs:300–320 omits native. body/fields/func-eq/explicit
+show refute parity. Language semantics/morphology, not Rust/PDF equality or
+structure-inferred intent.
 
-## P1288 — classificação semântica explícita da célula (PROPOSTO; gate ADR-0127)
+Element getter exposes body/known x-y-colspan-rowspan-stroke-fill-align-inset-
+breakable. Uniform inset projects Relative with zero ratio; nonuniform projects
+ordered left/top/right/bottom dict. Internal kind is not public field.
+RED→GREEN/bilateral collection/
+build/crystalline-lint without error, no public type/signature/phase change.
+Lexical omitted/auto/none and position/style/padding/show realization retain
+separate measured contracts. Option None proves neither omission nor explicit
+none; do not certify them through this mapping.
 
-### Medição anterior à decisão
 
-`01_core/src/entities/elements/table_cell.rs:20-33` mede apenas body e campos
-geométrico-visuais. A fonte vanilla pinada mede o carrier fechado
-`TableCellKind::{Header(NonZeroU32, TableHeaderScope), Footer, Data}` e scopes
-Both/Column/Row em `pdf/accessibility.rs:274-310`, enquanto `table.cell.kind`
-começa em auto em `model/table.rs:772-778`.
 
-### Decisão proposta
+## Ratified lexical TableCell presence
 
-Adicionar classificação explícita capaz de distinguir `Auto`,
-`Header { level positivo, scope: Column|Row|Both }` e `Data`. `Auto` permite
-que o contexto `table.header`/`table.footer` derive a classe; Header/Data
-explícitos vencem essa derivação. Em particular, `pdf.data-cell` dentro de
-header permanece Data e nunca é promovido de volta a Header.
+### Evidence before decision
 
-`map_content`, `map_text`, constructors, clone e hash preservam kind/level/
-scope junto dos campos existentes. `plain_text`, body e render visual não são
-alterados. A representação Rust pode usar enum fechado em vez de três campos;
-não pode codificar a classe por string, style visual ou posição inferida.
+`lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz`
+and presence-refuters.json retain HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree/diffstat/UTC/binaries/argv
+against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Upstream
+model/table.rs:734–778 uses Smart/Option; local table_cell.rs:40–51 keeps only
+value Option. x:auto/omitted collapse; fill:none/stroke:none lose presence.
+Refuters: auto is accepted for x/y/fill/align/inset/breakable and rejected for
+colspan/rowspan/stroke; none is accepted only for fill/stroke. These are language
+observables, not required upstream representation.
 
-## D08B1 — projeção existente, fluxo contínuo ADR-0127
+### Exclusive responsibility and acceptance
 
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz
-registra UTC, diff HEAD --stat, hashes de fontes/binários, argv/cwd e resultados
-contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8.
-Vanilla model/table.rs:734–778 declara body e propriedades; Tekt
-entities/elements/table_cell.rs:62–109 não implementa getter; content/identity.rs:107
-usa table.cell; content_methods.rs:226–254 não projeta a função real;
-rules/show.rs:300–320 omite a nativa. Body/fields/func-eq e show explícito
-refutam paridade. É semântica/morfologia, não igualdade Rust ou bytes PDF.
-Não se infere intenção da estrutura upstream.
-
-### Responsabilidade exclusiva
-
-Getter Element expõe body e valores Some de x/y/colspan/rowspan/stroke/fill/align/inset/breakable. Inset uniforme projeta Relative com rel zero; não uniforme projeta dict left/top/right/bottom. Não expor kind interno.
-
-### Limites e aceitação
-
-RED→GREEN e coleta bilateral; cargo build e crystalline-lint sem erros.
-Esta correção não muda contrato público de tipos/assinaturas nem fase.
-D08B permanece incompleto: D08B2 completa presença omitido/auto/none por
-contrato próprio; D08B3 completa realização de posições/estilos/padding/show.
-Option None não prova omissão nem none explícito: não certificar esses casos.
-
-## D08B2 — presença lexical ratificada em 2026-10-07
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz e
-presence-refuters.json conservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
-working tree, diffstat, UTC, binários e argumentos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
-Upstream model/table.rs:734–778 possui campos Smart/Option; o Tekt
-entities/elements/table_cell.rs:40–51 conserva apenas Option de valor.
-X:auto e x omitido colapsam; fill:none e stroke:none perdem presença.
-Os refutadores medem auto permitido em x/y/fill/align/inset/breakable,
-rejeitado em colspan/rowspan/stroke; none permitido só em fill/stroke.
-São observáveis da linguagem, sem obrigação de copiar a estrutura upstream.
-
-### Contrato ratificado e responsabilidade exclusiva
-
-Adicionar ao owner da entidade os tipos públicos fechados:
+This entity exclusively declares the ratified public closed types:
 
 ```rust
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -138,52 +119,42 @@ pub struct TableCellPresence {
 }
 ```
 
-TableCellElem recebe `pub presence: TableCellPresence`; todos os campos
-atuais conservam seus tipos. Body permanece sempre conhecido. Omitted não
-projeta campo; Auto projeta Value::Auto; Explicit projeta o valor conservado.
-Somente fill/stroke explícitos podem ter Option None e projetam Value::None.
-X/y/align/inset/breakable Explicit exigem Some; Auto exige None. Colspan e
-rowspan presentes exigem Some positivo. Não codificar presença no kind,
-em strings, Value genérico, PropMap ou registry. map_content/map_text,
-clone/Hash preservam presence. Getter desconhecido continua None.
+
+Add pub presence: TableCellPresence, keeping all prior field types. Body always
+known. Omitted exposes no field; Auto Value::Auto; Explicit stored value.
+Only explicit fill/stroke may be Option None projecting Value::None.
+Explicit x/y/align/inset/breakable require Some; Auto None. Present colspan/
+rowspan require positive Some. No presence in kind/strings/generic Value/PropMap/
+registry. map_content/map_text/clone/Hash retain presence; unknown getter None.
+
+Require RED→GREEN for body/presence/methods/JSON,
+clone/map/observation and span-anchored negatives, build/suites/lint, D08A/D05/D07
+and new refuters with exact provenance. The human approved new public fields/
+types on 2026-10-07; receipt
+`lab/history/construction/records/00_nucleo/materialization/table-cell-presenca-aprovacao-2026-10-07.json`.
+This changes no render phase/default. Position/style/padding/show realization is
+the separately ratified insertion package, not implicit scope of lexical presence.
 
 
-### Aceitação e limite
+empty-body in table-cell-presenca-2026-10-07/after.json.gz records Tekt body
+{func:empty} versus pinned{func:sequence,children:[]}, with HEAD/tree/source/UTC/
+binaries. Getter projects stored Empty as language empty Sequence without body
+mutation/phase/new property. Nonempty original morphology stays. RED→GREEN/fresh
+bilateral measurement mandatory.
 
-RED→GREEN para body/presença/métodos/JSON, clone/map/observação e rejeições com span. Build/suítes/lint, coletas D08A/D05/D07 e novos refutadores; proveniência exata obrigatória. D08B3 completa realização por posição/estilo/padding/show em proposta separada. Contrato público por campo/tipos novos confirmado pelo humano em 2026-10-07; recibo table-cell-presenca-aprovacao-2026-10-07.json. Não altera fase/defaults de render.
+## Ratified Table insertion and incomplete Cell scope
 
-### Morfologia do corpo vazio — refinamento interno medido
+The approval receipt `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-aprovacao-2026-10-07.json` records user confirmation `comfirmo`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`, and materialization with documented metric residuals. This satisfies the original D08B3-A gate; it does not complete the Cell domain or promote the excluded scope. Retain the receipt’s limitations on raw default typography, D08B3-B isolated Cell/fresh reconstruction, and generic Table equality/rich properties.
 
-Antes da decisão, table-cell-presenca-2026-10-07/after.json.gz, caso
-empty-body, registra body {func:empty} no Tekt e {func:sequence,children:[]}
-no vanilla pinado, com HEAD/working tree/fontes/UTC/binários.
-Getter body projeta Content::Empty armazenado como Sequence vazio da linguagem,
-sem mutar body, alterar fase ou fabricar propriedades. Body não vazio permanece
-com sua morfologia original. RED→GREEN e nova medição bilateral obrigatórios.
+### Measurement before the proposal
 
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree. `lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` records pin `9f2b6e8715237cb086899a42873660fe744622e8`, UTC, diffstat/status, sources/binaries, arguments, and results. Oracle binary SHA-256: `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt binary: `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`.
 
-### Medição anterior à decisão
+Vanilla `lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278` resolves fields, `:1500–1530` rejects conflicts in order, `:1665–1703` creates empty cells, and `:1945–1988` derives breakability. Tekt `grid_placement.rs:91–112` prioritizes explicit placement and `:262–270` knows only `GridCell`; `realize/mod.rs:160–200` visits recipes bottom-up; `table.rs:127–152` discards wrappers without attributes. `order` measures zero cell effects when a table is replaced and zero heading effects when a cell hides it; `aliases` measures `LOCAL a`, `OUTER LOCAL a`, and `NEW a`. These are language observables, not requirements to copy mechanics, bytes, or Rust equality. Unknown fields, hidden effects, or wrong order after a change would refute the hypothesis; cache/pagination equivalence is not inferred.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
+### Exclusive public positioned carrier
 
-### Responsabilidade exclusiva proposta
-
-Adicionar em entities/elements/table_cell os tipos/carrier exatos:
+Declare exact types:
 
 ```rust
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -199,47 +170,75 @@ pub struct TableCellResolved {
 }
 ```
 
-TableCellElem recebe `pub source_span: Span` e
-`pub resolved: Option<Arc<TableCellResolved>>`. Os campos anteriores e presence
-permanecem lexicais. Constructor cru tem resolved=None; source_span é causal,
-não propriedade da linguagem. Body getter conserva o corpo original (incluindo
-Sequence vazia canônica); resolved Some faz os demais nove getters projetarem
-valores conhecidos. Align None resolvido é Auto conhecido, fill/stroke None
-resolvidos são None conhecidos. A projeção visual usa resolved.visual, nunca
-substitui body lexical. Clone/maps/hash/observação conservam o carrier e stage.
-Somente stage Complete pode chegar à publicação/render; Prepared é estado de
-resolução e RecipeApplied é snapshot de it cuja regra já foi consumida, mas cujo
-corpo ainda deve ser realizado se emitido. Aliases desse snapshot não reaplicam
-a própria receita. Essa marca é nominal, privada à crate, sem Location/registry.
+
+Add pub source_span: Span and pub resolved: Option<Arc<TableCellResolved>>.
+Prior fields/presence stay lexical. Raw constructor resolved=None; causal source
+span is not language property. Body getter keeps original/empty-Sequence projection.
+Resolved Some makes other nine getters known; resolved align None known Auto,
+fill/stroke None known None. Visual uses resolved.visual, never overwrites lexical
+body. clone/maps/Hash/observation preserve carrier/stage. Only Complete publishes/
+renders. Prepared is resolution stage; RecipeApplied it snapshot consumed own rule
+but body must realize if emitted. Aliases never reapply own recipe. Nominal crate-
+private stage, no Location/registry.
+
+### Ratified gate, acceptance, and explicit scope split
+
+The ratified package adds five public fields, two public carriers, and one new public facade, and changes the logical phase before Cell show. The receipt above establishes ratification for this scope. Continue to require RED→GREEN, suites/build/lint/restricted preservation, and D08A/B2, D05/D06/D07/query collections. Acceptance is language, effect, and actual geometry behavior; byte equality or whitespace normalization cannot close render acceptance.
+
+This first package D08B3-A is incomplete in the Cell domain: D08B3-B is to complete isolated Cell defaults (`raw-cell-no-placement`/`outside-fields`) and the separate decision on fresh generation by `show-cell-reconstruct`. Generic Table defaults/fields (`table-root-equality`), rich styles/functions/paint/strokes/insets, rich rows/gutters, multi-page spans, and PDF/UA conformance remain outside certification. Do not change additional legacy D08B2 casts, syntax, flags, or global non-locatable policy in this package.
 
 
-### Gate, aceitação e divisão explícita
 
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
+## Ratified prepared-Cell occurrence termination
 
-## D08B3-B — candidato, não vigente antes de ratificação
+### Evidence before decision
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz`
+contains 53 probes collected 2026-10-07T14:47:56.340144+00:00 through
+14:48:12.375245+00:00. HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted
+working tree, diffstat/status/hashes/sources/argv/cwd/environment and full outputs
+are recorded. Historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`,
+binary SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`;
+Tekt `6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f`.
+Do not count before/refuters/complete as additional independent rounds.
 
-lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
+isolated-default exposes vanilla x/y/inset/align/fill/breakable auto, spans 1 and
+empty stroke dict; Tekt omits defaults and emits two metadata versus one.
+isolated-x fails only in Tekt; raw-fields remains body-only in both and raw-x
+fails in both. isolated-table-style proves Table defaults are not standalone
+Cell defaults. raw-vs-prepared is false in vanilla, true in Tekt.
+nested-effects/body-effects/late-rule refute once-only execution/lexical origin.
+Tekt wrongly accepts fresh-isolated/table, fresh-block, fresh-styled and
+multi-fresh; vanilla rejects `maximum show rule depth exceeded` at the new
+constructor. identity/body/alias and fresh-conditional/hidden remain valid.
+multi-identity/multi-return-table show that returning it must permit an earlier
+unconsumed recipe. isolated-query remains `cell is not locatable` and location
+none in both, without false Location. cell-set is separately excluded.
 
-isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
+Upstream model/table.rs:734–778 declares defaults/properties;
+typst-realize/src/lib.rs:367–386 prepares/guards arguments, :418–429 visits
+products with depth, :491–505 distinguishes per-element guards, :571–586
+materializes properties. Local table_cell.rs:111–143 projects only lexical or
+positioned plans; realize/table_cells.rs:110–129 reapplies raw Cell unprepared;
+:280–304 terminates the whole snapshot; show_rule_termination.rs:65–70 treats
+equal form as fixed point; rules/apply.rs:139–166 revokes globally during callback.
+Fields/effects/order/termination/causal error are language; upstream guard/storage
+structure is mechanics. Infer no upstream intent. Aliases/two rules/new
+generations/hidden content can refute the nominal policy.
 
-Fonte vanilla lab/typst-original/crates/typst-library/src/model/table.rs:734–778 declara defaults e propriedades; typst-realize/src/lib.rs:367–386 prepara/guarda o argumento, :418–429 visita produto com profundidade, :491–505 distingue guards por elemento, :571–586 materializa propriedades. Tekt entities/elements/table_cell.rs:111–143 só projeta lexical ou plano posicionado; compiler/realize/table_cells.rs:110–129 reaplica Cell crua sem preparo; :280–304 termina snapshot inteiro; eval/show_rule_termination.rs:65–70 trata mesma forma como ponto-fixo; eval/rules/apply.rs:139–166 revoga regra globalmente durante callback. Classificação: campos, efeitos, ordem, terminação e erro causal são língua. A estrutura de guards e materialização upstream é mecânica e não é requisito. Não se infere intenção do upstream; a escolha nominal abaixo é inferência refutável pelos controles de aliases, duas regras, novas gerações e conteúdo ocultado.
+### Ratification and exclusive responsibility
 
-### Responsabilidade exclusiva proposta
+The human confirmed manifest
+`3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`;
+`lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-aprovacao-2026-10-07.json`
+records 2026-10-07T14:53:19.127601+00:00 and materialization completed
+2026-10-07T15:21:50.581533+00:00 with documented scope limits. The original public
+field/type gate is satisfied by this receipt, not by the earlier Table package.
+Historical candidate-only prose remains archived rather than a fresh stop gate.
 
-Adicionar somente `pub standalone: Option<Arc<TableCellStandaloneResolved>>` a TableCellElem, preservando source_span/resolved/body/presence e todos os campos atuais. O owner da entidade declara o tipo público fechado:
+Add only pub standalone: Option<Arc<TableCellStandaloneResolved>> to TableCellElem,
+keeping source_span/resolved/body/presence/all prior fields. This owner declares
+public closed carrier:
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
@@ -250,89 +249,227 @@ pub struct TableCellStandaloneResolved {
 }
 ```
 
-TableCellResolved existente recebe somente `pub(crate) guards: Vec<RuleId>`; stage continua privado Prepared/RecipeApplied/Complete. Não acrescentar campo, método ou assinatura pública adicional. `resolved` e `standalone` são mutuamente exclusivos; constructor novo tem ambos None e nenhum guard consumido. Cell colocada usa somente resolved, Cell isolada usa somente standalone. Ao colocar uma Cell ainda lexical em Table, a preparação de Table substitui qualquer estado de inserção anterior pelo estado da nova ocorrência conforme a origem aceita; nunca fabricar x/y=0 para auto. Aliases do argumento preparado conservam guards da ocorrência. Recém-construída não herda guards da Cell externa, mesmo com body igual.
 
-Apenas Cell preparada avulsa projeta defaults intrínsecos através de getters: x/y/fill/align/inset/breakable omitidos viram Auto; colspan/rowspan omitidos viram Int(1); stroke omitido vira dict vazio. Propriedade lexical explicitamente conhecida vence default, preservando None/Auto e valores tipados existentes. Body permanece fonte lexical/morfologia original. Nenhum default da Table é herdado fora de sua ocupação. Getter cru segue unknown/omission de D08B2. Default stroke vazio não é Stroke default nem None. O estado visual não expõe propriedade nova da linguagem. Não usar Value/strings/styles como armazenamento genérico de carrier nem registry; Value é somente projeção dos getters.
+Existing TableCellResolved gains only crate-private guards: Vec<RuleId>; stage
+remains Prepared/RecipeApplied/Complete private. No other public field/method/
+signature. New constructor both carriers None/no consumed guard. Initially B
+prescribed mutually exclusive positioned resolved versus standalone; later C
+explicitly permits coexistence only for observed recipe-property projection, with
+resolved retained as active physical plan. Do not retain two conflicting current
+exclusivity rules. Placing lexical Cell replaces prior insertion state with new
+occurrence state according to accepted origin; never fabricate auto x/y0. Prepared
+argument aliases preserve guards; fresh constructor inherits no external Cell
+guard even same body.
 
-Possuir defaults/getters e carrier; plain_text/is_empty/map_content/map_text consomem visual preparado exclusivo e preservam body lexical. Helpers de visual/estado privados à crate podem evitar duplicação, sem dependência de compiler/render. Não mudar assinatura pública de Element ou constructor.
+Prepared standalone getters project omitted x/y/fill/align/inset/breakable Auto,
+omitted colspan/rowspan Int1, omitted stroke empty dict (not default Stroke/None).
+Known lexical value wins, preserving None/Auto/typed values. Body remains lexical
+morphology, no Table defaults outside occupancy. Raw unknown/omission follows
+presence contract. Visual state exposes no new language property; no generic
+carrier Value/string/styles/registry store (Value getter projection only).
 
-### Gate, aceitação e incompletude explícita
+Own carrier/default/getters. plain_text/is_empty/map_content/map_text consume
+prepared visual, preserving lexical body; helper private to crate without compiler/
+render dependency, no Element-trait/constructor public-signature change. Generic
+maps' later standalone-first priority is defined separately below; direct visual()
+uses active resolved plan before standalone as required by C coexistence.
 
-Candidato não vigente até confirmação humana do manifesto D08B3-B: há um campo público novo e um tipo público novo; o contrato A aprovado não os autoriza. Após ratificação instalar somente estes candidatos, escrever testes e confirmar RED antes de implementação; selar apenas owners mudados. Aceitação: coletas acima/revisões adicionais bilaterais, efeitos uma vez, igualdade/getters, seleção, produto HTML e texto/estilos/geometria reais; mensagens/spans sem apagar diferenças. Cargo build/debug/release e suítes core/infra/shell apropriadas; crystalline-lint sem erros e owners sem V5/V6/V15/V26. Revalidar D08A/B2/B3-A, Raw defaults/blocos, Equation/math/matrix/query. Preservar árvore anterior por snapshot/diff restrito, sem commit/reset/resselo global.
+### Acceptance and incomplete scope
 
-Este recorte completa defaults intrínsecos da Cell isolada e distingue alias de nova geração de show. Continua incompleto no universo Cell: D08B3-C completa set table.cell/defaults de estilo (cell-set), mediante medição e L0 próprios; nenhuma promessa de prazo/implementação é legitimada por este scope-out. Defaults/igualdade gerais de Table, casts/paint/strokes/insets ricos, linhas/gutters/span multipágina, PDF/UA e política geral não-localizável ficam abertos. O warning preexistente de eval de ficheiro vazio não é corrigido ou normalizado para afirmar paridade.
+Install only ratified candidates with language tests and valid RED before code;
+reseal only changed owners. Require the collections/additional bilateral reviews,
+once-only effects, equality/getters/selection, HTML product and real text/styles/
+geometry, with causal messages/spans and no erased differences. Validate debug/
+release builds and pertinent core/infra/shell suites; crystalline-lint without
+errors and no owner V5/V6/V15/V26. Revalidate D08A/B2/B3-A, Raw defaults/blocks,
+Equation/math/matrix/query. Preserve the previous tree through snapshot/restricted
+diff, without commit/reset/global resealing.
 
-## D08B3-C — defaults declarativos da Cell, fluxo contínuo
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/table-cell-styles-d08b3c-2026-10-07/before.json.gz registra 58 sondas, UTC 2026-10-07T15:24:58.038947+00:00 até 15:25:13.727872+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/status/fontes/argv/cwd/ambiente completos. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set, campos individuais, late/local/reuse/spread e rejeições refutam o warning de target vazio e a ausência dos defaults. padding-span-one/empty-fixed-rows fixam spans 1 em vazios; auto-table-fallback preserva Auto explícito como delegação à Table, não ao set da Cell. show-cell-set-self altera avulsa mas não fill conhecido da Cell posicionada. Stroke/alignment fazem fold. refuters-before.json.gz estende com header, partial inset, args/condição e snapshot em Table; alias-inside-table é válido no vanilla e recursa indevidamente no Tekt.
-
-Fonte: upstream typst-library/src/model/table.rs:734–778 declara campos, e layout/grid/resolve.rs:203–278 lê estilos antes de resolver/sobrescrever posições/fill; defaults de padding TableCell packed em model/table.rs:785–800 pinam spans 1. Tekt rules/set.rs:23–27 usa text_str de target e não reconhece FieldAccess; table_cells.rs:262–310 usa apenas propriedades lexicais no placement/herança; grid_placement.rs:80 lê x/y/spans diretamente; TableCell standalone não possui propriedades efetivas privadas. É língua (campos/ordem/efeitos/estilo/erros); a representação privada abaixo é decisão Tekt, não obrigação de copiar Packed ou igualdade Rust. Hipótese refutável por qualquer negativo destas coletas, perda de fonte lexical, mutação de valor cru, efeito repetido, guard de alias perdido ou regressão de geometria/cache.
-
-### Responsabilidade exclusiva
-
-Adicionar somente tipo pub(crate) TableCellProperties e campo pub(crate) properties: Option<TableCellProperties> a TableCellStandaloneResolved (que já contém campos privados e não admite literals externos). Tipo fechado possui x/y/colspan/rowspan Option<usize>, fill Option<Color>, stroke Option<Stroke>, align Option<Align2D>, inset Option<Sides<Option<Length>>>, breakable Option<bool>, presence TableCellPresence. Não adicionar ou alterar campo/método/tipo público, assinatura de trait ou TableCellElem. Campos lexicais continuam fonte; getters avulsos preparados delegam à propriedade privada efetiva, com defaults intrínsecos para omitidos. Métodos privados de projeção/cópia/placement podem compartilhar esse schema. map/clone transportam propriedades privadas sem callbacks/render. Source/body/kind originais conservados.
-
-### Gate, aceitação e limites
-
-Correção interna de paridade/mapeamento, ADR-0127 contínuo: nenhum contrato público, compatibilidade externa, flag/default de produto ou fase nova. Props e helpers são privados em carrier já não-construível externamente; lexicais não mudam. L0 editado primeiro, resselo restrito e RED→GREEN obrigatórios. Coletas bilaterais com erros/caret/efeitos, fonte/binaries/HEAD/UTC, geometria real; build debug/release/suítes e lint sem erros. Preservar árvore anterior sem commit/reset/resselo global. Subconjunto certificado: inteiros/autos, Color/None/Auto, Stroke uniforme/None, alinhamento, Length/inset parcial de Length/Auto, Bool/Auto e schemas já tipados. Gradient/tiling/functions, strokes por lado, inset percentuais e rich casts de constructor, grupos/spans multipágina/PDF-UA, set/text posicional e defaults gerais de Table continuam incompletos, com medição/L0 próprios antes de ampliar. Não certificar por warning fallback nem copiar defeitos upstream.
-
-Precisão medida em refuters-before: stroke-constructor-fold e align-constructor-fold preservam o construtor inteiro contra set da Cell. self-set-does-not-change-placement muda colspan observado para 2 após a ocupação já feita com 1; não é prova de nova ocupação.
-
-### Precisão dos spans observados após show-set (refutador C)
-
-Medição anterior: refuters-before.json.gz / self-set-does-not-change-placement, vanilla devolve colspan 2 na célula real x0 e colspan 1 nos paddings x1/x2. Fonte pinada layout/grid/resolve.rs:218–244 captura spans de ocupação mas não assenta seus campos no conteúdo; model/table.rs:785–800 assenta 1 nos paddings. Logo ocupação e getter posterior são observáveis distintos. Decisão privada: a Cell posicionada conserva TableCellResolved como plano físico; o carrier standalone privado pode coexistir apenas para propriedades observadas da receita, mantendo campos resolvidos e sobrescrevendo spans lexicalmente omitidos pela declaração de show-set. Getters/canonicalização consultam essa projeção; placement do plano completo continua usando TableCellResolved. Padding sem fonte tem spans lexicais 1 para que show-set não os altere. Guards/stage continuam causais, sem novo contrato público nem mutação da fonte original. RED de span getter antes de implementar, GREEN mais geometria/regressões obrigatórios.
-
-### Fold de declarações de Stroke — medição extra C
-
-extra-first.json.gz (fontes/HEAD/estado/UTC/binários completos) compara two-stroke-sets: set stroke:red seguido de 2pt produz 2pt + red no getter avulso e posicionado vanilla. stroke-render-inherits-cell-style resolve o constructor 2pt com paint red da Cell antes do fallback da Table 3pt, embora stroke-constructor-fold avulso exponha somente o constructor 2pt. Fonte pinada model/table.rs:765 declara #[fold]; resolve.rs:225–237 usa stroke.resolve(styles), distinto do getter cru. Decisão: declarações sucessivas foldam componentes specified ao publicar Value::Stroke declarativo; nenhum carrier/callback é guardado em Styles. Constructor stroke permanece inteiro no getter avulso; resolução posicionada folda o constructor com a base capturada Cell e depois Table. Adicionar somente campo privado stroke_inherited: Option<Stroke> em TableCellProperties para transportar essa base causal, sem assá-la no getter lexical. ObservationEq inclui base; canonicalização ignora base derivada de render. Table já resolvida tem base None. Clone/aliases conservam base anterior; None explícito vence. RED→GREEN antes de código; correção privada contínua ADR-0127, nenhum contrato público/fase/default novo. A cláusula de precedência inteira do constructor vale para o getter avulso, não para a resolução fold de stroke, conforme medição.
-
-### Show-set acumulado e bordas — precisão C
-
-show-fold-before.json.gz e geometry-final.json.gz registram perda de red ao acumular show-set e desenho preto 1pt com campos conhecidos red 2pt. Aplicar helper privado puro chain_styles da Cell na acumulação de deltas cell.stroke; delegar componente de desenho ao owner borders, que lê o plano externo conhecido, sem fallback de uma Cell resolvida. Todos os outros estilos/guards/ordem permanecem. Esse helper somente folda Value::Stroke declarativo, nunca carrier/layout/callback; não cria API pública, campo/fase/default novo. RED→GREEN e recoleta real de stroke são obrigatórios.
-
-## D08B3-C — tinta do plano da Table separada do default show da Cell
-
-Medição anterior à decisão: table-cell-styles-d08b3c-2026-10-07/physical-before.json.gz conserva PDF/SVG, fontes, HEAD/working tree, UTC/argv/hashes completos no pin 9f2b6e8715237cb086899a42873660fe744622e8. fill-with-body-recipe e fill-with-hidden-recipe conservam retângulo red no vanilla, ausente Tekt. stroke-with-body-recipe conserva red 2pt vanilla contra black 1pt Tekt; default-with-body-recipe conserva black 1pt nos dois. Fonte vanilla layout/grid/resolve.rs:218–237 e :270–282 retorna Cell.fill/stroke antes de seu body passar por show; typst-layout grid/layouter.rs desenha esses campos independentemente do default show. Tekt cell_body.rs:61–63 condiciona fill à sobrevivência do snapshot, borders.rs:43–48 lê stroke lexical. O refinamento A mediu espaçamento/ab, não tinta: sua generalização de sobrevivência para fill/stroke é refutada e supersedida por esta cláusula.
-
-Decisão contínua interna ADR-0127: TableCell posicionada usa fill/stroke/breakable do plano externo TableCellResolved, independentemente de recipe it/body/substituição; None conhecido vence qualquer fallback de container. Apenas inset/alignment derivados do default show continuam dependentes do snapshot sobrevivente reconhecido por prepared_default, com geometria/medidas sob owners existentes. Borders consome diretamente stroke externo conhecido; Cell body emite o fill externo antes do produto visual. Não executa conteúdo ocultado nem muda fonte lexical, API pública, fases, render default novo ou política Grid/crua. Mantém bounds/coalescência, clipping/caudas, ordem de efeitos e estado causal. RED→GREEN de tinta com produto substituído, células conhecidas None e regressão visual SVG real; builds/suítes/lint/preservação necessários.
+The scope completes intrinsic standalone-Cell defaults and distinguishes alias
+from a new show generation, not all Cell behavior. set table.cell/style defaults
+remain the separately measured/specifiable Cell-style package; no deadline or
+implementation promise follows from that scope-out. General Table defaults/
+equality, rich casts/paint/strokes/insets, rows/gutters/multipage spans, PDF/UA
+and general nonlocatable policy remain open. Do not fix/normalize the preexisting
+empty-file eval warning merely to claim parity.
 
 
-## D08B3-C2 — responsabilidade ratificada
+## Declarative Cell defaults
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+### Evidence before decision
 
-Medição regressions/presence empty-body: Source(Empty) deixou de projetar body como sequence vazia. Getter body conserva a canonicalização existente de Empty através de Source.body, sem alterar presença/casts/preparo ou campos públicos. Source não vira func empty onde body já era sequence na linguagem.
+`lab/results/construction/diagnostics/table-cell-styles-d08b3c-2026-10-07/before.json.gz`
+records 58 probes, UTC `2026-10-07T15:24:58.038947+00:00` through
+`2026-10-07T15:25:13.727872+00:00`, HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+full diffstat/status/sources/argv/cwd/environment. Historical vanilla pin
+`9f2b6e8715237cb086899a42873660fe744622e8`, SHA
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`;
+Tekt `721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3`.
+isolated/table-set, individual fields, late/local/reuse/spread and rejections
+refute empty-target warning/missing defaults. padding-span-one/empty-fixed-rows
+require padding spans1; auto-table-fallback preserves explicit Auto as delegation
+to Table, not Cell set. show-cell-set-self changes standalone, not positioned
+Cell's known fill. Stroke/alignment fold. refuters-before.json.gz adds header,
+partial inset, arguments/condition and Table snapshot; alias-inside-table is valid
+in vanilla but wrongly recurses in Tekt.
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+Upstream model/table.rs:734–778 declares fields; layout/grid/resolve.rs:203–278
+reads styles before resolving/overwriting positions/fill; model/table.rs:785–800
+pins packed padding spans1. Tekt rules/set.rs:23–27 uses target text_str, misses
+FieldAccess; table_cells.rs:262–310 uses lexical properties only for placement/
+inheritance; grid_placement.rs:80 directly reads x/y/spans; standalone Cell has
+no private effective properties. These fields/order/effects/style/errors are
+language. Private representation is Tekt's decision, not required Packed/Rust
+equality. Refuters: any negative control, lost lexical source, mutated raw value,
+repeated effect, lost alias guard or geometry/cache regression.
 
-## Adaptação Memória 5 — proposta pendente ADR-0127
+### Exclusive private effective-property schema
 
-Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
-before.json.gz e inventory.json congelam este consumer e cada ocorrência
-file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
-Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
-00_nucleo/prompts/core/entities/value.md; esta unidade apenas o consome e não
-compartilha ownership. Nenhuma implementação/adaptação antes da confirmação
-do manifesto deste pacote.
+Add only pub(crate) TableCellProperties and pub(crate)
+properties: Option<TableCellProperties> to standalone carrier, already private-
+field/external-literal restricted. Closed schema x/y/colspan/rowspan Option<usize>,
+fill Option<Color>,stroke Option<Stroke>,align Option<Align2D>,
+inset Option<Sides<Option<Length>>>,breakable Option<bool>,presence TableCellPresence.
+No new/changed public field/method/type/trait signature/TableCellElem shape in
+this internal correction. Lexical fields remain source. Prepared standalone getter
+delegates private effective properties/intrinsic defaults for omission. Private
+projection/copy/placement helpers may share schema; map/clone retains it without
+callbacks/render. Keep original Source/body/kind.
 
-Responsabilidade desta unidade: Getter projeta Stroke próprio via From<Stroke>. Fold do delta lê referências Stroke; substitui somente o Arc do delta pelo resultado completo, preservando o snapshot do base. Campos públicos TableCell/stroke continuam Option<Stroke>, presença e specified não mudam.
+### Acceptance and bounded completeness
 
-Após confirmação: conservar testes/oráculos vigentes, adicionar o RED→GREEN
-pertinente quando houver comportamento de isolamento novo, resselo só do owner
-e revalidação. Esta cláusula não amplia semântica, defaults ou fase.
+Internal mapping/parity correction, ADR-0127 continuous: no public contract/
+external compatibility/product flag-default/new phase. Props/helpers are private
+inside already externally nonconstructible carrier; lexical data unchanged.
+L0 first, restricted reseal and RED→GREEN. Require bilateral errors/caret/effects,
+source/binary/HEAD/UTC, real geometry, debug/release build/suites/lint without
+errors. Preserve prior tree without commit/reset/global reseal. Certified subset:
+integers/autos, Color/None/Auto, uniform Stroke/None, alignment, Length/partial
+Length inset/Auto, Bool/Auto and existing typed schemas. Gradient/tiling/functions,
+side strokes, percentage inset/rich constructor casts, groups/multipage spans/
+PDF-UA, positional set/text and general Table defaults remain incomplete and need
+measurements/L0 before expansion. Warning fallback proves no certification;
+copy no upstream defect.
 
-Ratificação Memória 5: o dono confirmou o manifesto SHA-256
-6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237
-com “confirmo” em 2026-10-08. O gate ADR-0127 deste pacote está satisfeito;
-suas cláusulas propostas passam a vigorar nesta materialização.
+### Observed spans versus occupied spans
 
-## Reconstrução somente após mudança — 2026-10-10
+refuters-before/self-set-does-not-change-placement measures vanilla colspan2
+for real Cell x0, colspan1 for padding x1/x2. resolve.rs:218–244 captures
+occupancy spans without setting content fields; model/table.rs:785–800 sets
+padding1. Thus occupancy and later getter are distinct. Keep positioned
+TableCellResolved as physical plan. Private standalone carrier may coexist only
+for recipe-observed properties, keeping resolved fields and overriding lexically
+omitted spans from show-set. Getters/canonicalization read that projection;
+complete-plan placement still uses TableCellResolved. Sourceless padding has
+lexical spans1 to prevent show-set changes. Guards/stage remain causal, no
+public contract/source mutation. Require span-getter RED then GREEN plus geometry/
+regressions. stroke-constructor-fold/align-constructor-fold preserve whole
+constructor against Cell set; observed colspan2 after placement with1 is no proof
+of new occupancy.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/change-aware-red-gate.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado/status/diffstat, UTC, script/fixtures/interpositor/CPU/comandos e release SHA-256 `29745a9e80ca43160b34f4807949f00e803070392653df0fc5e214b2f42ac33a`: 483.823 pedidos glibc em local-set-1600, acima do gate pré-fixado de 470.000. `entities/content/traversal.rs:25-55,235-264` reconstrói sequências/carriers/estilos/Table/Cell mesmo se todos os callbacks retornam None; `entities/elements/table.rs:85-118` e `entities/elements/table_cell.rs:308-344` clonam metadados e contribuições visuais. O vanilla pinado visita referências e materializa apenas após mudança (`lab/typst-original/crates/typst-realize/src/lib.rs:242-291,353-410`). Isso é uma hipótese de custo, sem exigir sua vtable ou igualdade Rust (ADR-0107/0026/0109).
+### Stroke declaration and rendering folds
 
-Decisão interna (ADR-0127): helper crate-private retorna None quando a contribuição visual fica inalterada. Prioridade de descida: standalone.visual, depois resolved.visual, senão body raw; nunca visitar a origem escondida junto com visual. Na mudança, clonar Cell e o plano aplicável preservando presence, stage, guards, props, origem e campos não-content; sem mudança, permitir ao owner `00_nucleo/prompts/core/entities/content/traversal.md` reutilizar o Arc original. O método público existente de Element conserva assinatura e usa a mesma implementação; não acrescentar método de trait, executar Engine ou preparar Cell em entidade. Testes de raw/resolved/standalone e gates pareados acima são obrigatórios.
+extra-first.json.gz (full source/HEAD/state/UTC/binaries) measures two-stroke-sets:
+stroke:red then2pt gives2pt+red in vanilla standalone/positioned getter.
+stroke-render-inherits-cell-style resolves constructor2pt with Cell red before
+Table3pt fallback, although standalone stroke-constructor-fold exposes constructor
+2pt alone. model/table.rs:765 has #[fold]; resolve.rs:225–237 uses
+stroke.resolve(styles), unlike raw getter. Successive declarations fold specified
+components when publishing declarative Value::Stroke, storing no carrier/callback
+in Styles. Standalone constructor getter stays whole; positioned resolution folds
+constructor with captured Cell base then Table. Add only private
+stroke_inherited: Option<Stroke> in TableCellProperties for that causal base,
+without baking into lexical getter. ObservationEq includes base; canonicalization
+ignores render-derived base. Already resolved Table has base None. Clone/aliases
+keep prior base; explicit None wins. RED→GREEN before code; private continuous
+correction, no public/phase/default change. Whole-constructor precedence applies
+to standalone getter, not positioned stroke fold.
+
+show-fold-before.json.gz/geometry-final.json.gz record lost red in accumulated
+show-set and black1pt drawing despite known red2pt. Use private pure Cell
+chain_styles to accumulate cell.stroke deltas; borders owner draws known external
+plan, never resolved Cell fallback. Keep other styles/guards/order. Helper folds
+only declarative Value::Stroke, no carrier/layout/callback/public API/field/phase/
+default. Require RED→GREEN and real stroke recollection.
+
+### Table-plan paint independent of default show
+
+physical-before.json.gz in Cell-style diagnostic retains PDF/SVG/source/HEAD/
+working tree/UTC/argv/full hashes at historical pin. fill-with-body-recipe and
+fill-with-hidden-recipe retain vanilla red rectangle absent Tekt.
+stroke-with-body-recipe retains red2pt versus black1pt; default-with-body-recipe
+keeps black1pt in both. resolve.rs:218–237,270–282 returns fill/stroke before body
+show; typst-layout grid/layouter.rs paints independently of default show. Tekt
+cell_body.rs:61–63 gates fill on snapshot survival; borders.rs:43–48 reads lexical
+stroke. Earlier refinement measured spacing/ab, not paint: its generalization to
+fill/stroke survival is refuted and superseded.
+
+Positioned Cell uses external TableCellResolved fill/stroke/breakable regardless
+of it/body/replacement recipe; known None beats every container fallback. Only
+default-show-derived inset/alignment depend on surviving prepared_default snapshot,
+with geometry/measurement in existing owners. Borders directly consumes known
+external stroke; Cell body emits external fill before visual product. Execute no
+hidden content; change no lexical source/public API/phase/new render default/
+Grid-raw policy. Preserve bounds/coalescing/clipping/tails/effect order/causal state.
+Require replaced-product paint RED→GREEN, known-None Cells, real SVG regression,
+build/suites/lint/prior-tree preservation.
 
 
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+## Ratified Source empty-body projection
+
+Before deciding, table-origens-d08b3c2-2026-10-07/baseline.json.gz records HEAD/
+working tree/UTC/sources/argv/binaries at historical9f2b6e871. Existing carriers'
+corresponding transparency forbids Source observable element. Human confirmo
+2026-10-07 final record
+`lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`;
+nested contract.md preapproval history.
+regressions/presence empty-body: Source(Empty) stops empty-Sequence body projection.
+Getter canonicalizes Empty through Source.body as existing, no presence/cast/
+preparation/public-field change; Source never changes previously-sequence body to
+func empty. Sole owner/static/no I/O/new signature/trait/flag/eval-layout phase;
+C2/C/macro tests/recollections/build/lineage required.
+
+## Ratified compact Value carrier adaptation
+
+Before deciding,
+`lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/before.json.gz`
+and inventory.json freeze this consumer/all Value::Stroke file:line occurrences.
+sizes.json measures external Value model272→144 bytes, no RSS proof. New public
+carrier belongs only to `00_nucleo/prompts/core/entities/value.md`; this unit
+consumes without shared ownership. Earlier implementation gate was satisfied by
+human `confirmo` on2026-10-08, manifest
+`6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237`;
+proposed clauses are current for materialization.
+
+Getter projects owned Stroke via From<Stroke>. Delta fold borrows Stroke references,
+replacing only delta Arc with full result/preserving base snapshot. Public
+TableCell/stroke remains Option<Stroke>, presence/specified unchanged.
+Keep tests/oracles, pertinent RED→GREEN if new isolation behavior exists,
+owner-only reseal/revalidation. No semantic/default/phase expansion.
+
+
+## Change-aware generic reconstruction
+
+Before deciding,
+`lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/change-aware-red-gate.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/
+status/diffstat/UTC/script-fixtures-interposer-CPU-commands/release SHA
+`29745a9e80ca43160b34f4807949f00e803070392653df0fc5e214b2f42ac33a`:
+local-set-1600 glibc483823 exceeds pre-fixed470000 gate. traversal.rs:25–55,
+235–264 rebuilds sequences/carriers/styles/Table/Cell even all callbacks None;
+table.rs:85–118/table_cell.rs:308–344 clone metadata/visual contributions. Pinned
+realize lib.rs:242–291,353–410 visits borrowed/materializes only changed. Cost
+hypothesis, no required vtable/Rust equality under ADR-0107/0026/0109.
+
+Private change-aware helper returns None if visual contribution unchanged. Generic
+mapping descent priority standalone.visual, then resolved.visual, else raw body;
+never visit hidden origin alongside visual. This mapping priority is distinct
+from active visual()'s resolved-first physical plan; preserve documented mismatch
+for separate audit, not silently reinterpret either operation. On change clone
+Cell/applicable plan keeping presence/stage/guards/props/origin/noncontent fields.
+No change lets `00_nucleo/prompts/core/entities/content/traversal.md` reuse original
+Arc. Existing Element method/signature uses same implementation, no trait method/
+Engine/Cell preparation in entity. Raw/resolved/standalone tests/paired gates
+mandatory. Shared pinned map-content-change nucleus owns absence proof; this owner
+retains algorithm/field/order/specific-preservation responsibility.

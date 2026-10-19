@@ -2,39 +2,88 @@
 Hash do Código: 028f69c4
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/math/layout/sequence_composition.rs`. O comportamento original estava em `01_core/src/compiler/math/layout/mod.rs:1729-1832,1834-1906` no HEAD `6fc546566`, árvore limpa, 2026-10-01 01:04:22 UTC. Esta é extração interna, não nova medição de paridade ou desempenho.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/math/layout/sequence_composition.rs`. The original behavior was in `01_core/src/compiler/math/layout/mod.rs:1729-1832,1834-1906` at HEAD `6fc546566`, clean tree, 2026-10-01 01:04:22 UTC. This is internal extraction, not a new parity or performance measurement.
 
-## Contrato
+## Contract
 
-Prepara sequências lineares de math, resolve espaços fracos e gaps de classe e concatena MathBox horizontalmente. Preserva a seleção do ramo de grelha, a ordem dos filhos, a translação dos itens relativa à baseline e o ajuste de texto. Preservar contrato público, fase do pipeline, defaults, compatibilidade e pureza L1.
+Prepare linear math sequences, resolve weak spaces/class gaps and concatenate MathBox horizontally. Preserve grid-branch selection, child order, baseline-relative item translation and text adjustment. Preserve the public contract, pipeline phase, defaults, compatibility and L1 purity.
 
-## Aceitação
+## Acceptance
 
-Suíte L1, `cargo build` e `crystalline-lint .` passam. Não inferir ganho de desempenho.
+The L1 suite, `cargo build` and `crystalline-lint .` must pass. Do not infer performance gains.
 
 
-## Exaustividade nominal e origem matemática — 2026-10-17
+## Nominal source-transparent sequence projection
 
-### Medição anterior à decisão
+### Evidence before decision
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado; UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz` (snapshot inicial preservado em initial-ten-owners.json.gz). AST/spans em contexts.json/all-contexts.json/wildcard-inventory.json, parser pinado do CI. A suíte anterior passou no mesmo código de entrada, revalidado por hashes.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz`
+retains UTC, sources/L0/hashes/configuration, status and exact git diff HEAD --stat;
+initial-ten-owners.json.gz preserves the first snapshot. contexts.json,
+all-contexts.json and wildcard-inventory.json retain AST/spans from the pinned
+CI parser. The previous suite passed on the same input code, reconfirmed by hash.
 
-source-probe-before.json mede limits inline com largura 7.2 pt versus 12.912 pt ao acrescentar Source. source-family-before.json preserva a primeira matriz de 12 pares (11 diferenças). source-family-supplement.json e sua análise preservam 23 pares com métricas atribuíveis (19 diferenças e 4 controles iguais): limites, kerns, Op.text, acentos/dotless, suportes, alinhamento de matriz, espaçamento, sequências, stretch e classe. source-lines-before.json mede a mesma equação com 2 linhas versus 1 e última baseline 16.2 versus 0 sob Source, apesar dos mesmos extents. São observáveis de geometria, identidade extraível e metadados da equação, não igualdade de bytes/pointers/Rust. A transparência já é obrigatória no núcleo content-source-origin; a inspeção mostra os helpers classificando o wrapper em vez do body. Não se infere intenção histórica ou paridade global a partir desses números. O erro de contagem do analisador complementar (24 em vez de 23 pares) foi corrigido usando o stdout original válido, sem refazer a medição nem contar o erro como RED funcional.
+source-probe-before.json measures inline limits at width 7.2pt versus 12.912pt
+with Source. source-family-before.json preserves the first 12 pairs (11
+differences). source-family-supplement.json and analysis preserve 23 attributable
+pairs (19 differences, 4 equal controls): limits, kerns, Op.text, accents/dotless,
+supports, matrix alignment, spacing, sequences, stretch and class.
+source-lines-before.json measures the same equation at two lines versus one and
+last baseline 16.2 versus 0 under Source despite equal extents. Geometry,
+extractable identity and equation metadata are observables; bytes/pointers/Rust
+equality are not. The content-source-origin nucleus already requires transparency;
+inspection finds helpers classifying wrappers instead of their bodies. Infer no
+historical intent or global parity. The supplemental analyzer's 24-versus-23
+count error was corrected from valid original stdout without rerunning or
+counting the analyzer error as functional RED.
 
-### Prescrição exclusiva
+### Exclusive prescription
 
-Normalizar Source nas leituras já existentes de AlignPoint/Linebreak, espaço fraco, próximo irmão material e MathText pontuacional. Na vista pontuacional derivada, reaplicar a origem comprovada pelo helper existente. A vista de spacing reconhece também Source(Text) e transporta sua origem ao produzir o MathText transitório. Não modificar os nós autorais, remover espaço explícito ou reutilizar texto extraível como geometria. Conservar a distinção de whitespace terminal sem material seguinte e espaço fraco entre materiais.
+Normalize Source in existing reads of AlignPoint/Linebreak, weak space, next
+material sibling and punctuation MathText. Reapply proven origin in the derived
+punctuation view through the existing helper. The spacing view also recognizes
+Source(Text) and carries its origin when producing transient MathText. Do not
+modify author nodes, remove explicit spaces or use extractable text as geometry.
+Preserve terminal whitespace without following material versus weak spaces
+between material.
 
-Trocar os fallbacks enumerados pelo complemento nominal atual dos braços **incondicionais**, sem alterar corpo/guard/ordem; variantes guardadas continuam no complemento para quando a condição falha. A projeção Option de attach é a única exceção estrutural: None retorna por ?, Some passa ao match nominal de Content normalizado, sem padrão profundo.
+Replace only the selected fallback with the current nominal complement of
+unconditional arms, preserving bodies/guards/order. Guarded variants remain in
+the complement when the guard fails. The attach owner's Option projection is
+the sole structural exception: None returns through ?, Some enters a nominal
+normalized-Content match without a deep pattern; that remains its own boundary.
 
-- **L27** — `01_core/src/compiler/math/layout/sequence_composition.rs:57`, `layout_sequence`, Content: excluir somente `Empty`; guardados `HSpace`. Mesmo corpo anterior para variantes fora da propriedade procurada; não ampliar a classificação além da transparência Source aqui prescrita. Variantes sob guard permanecem no complemento para conservar a condição recusada.
+L27: sequence_composition.rs:57, layout_sequence, Content. Exclude only Empty;
+HSpace is guarded and remains in the complement when its condition fails.
+Retain the previous body for variants outside the sought property and broaden
+classification only by the specified Source transparency.
 
-### Aceitação e limites
+### Acceptance and limits
 
-L0 antes de código. Correção interna/paridade ADR-0127 em fluxo contínuo: sem campo/assinatura pública, trait, dependência, flag/default novo, compatibilidade ou fase nova. Grupos V19 compartilham o corpo anterior explicitamente justificado por caso; as notas permanecem visíveis e não provam cobertura de execução por alternativa. Não adicionar allow/expect, elevar limiar, capturar @ ou esconder um match em if-let/matches!. Somente a transparência e as reestruturações rasas aqui nomeadas alteram o código funcional; não editar fórmulas/constantes ou relaxar expectativas anteriores. RED funcional das regressões Source e RED estrutural dos avisos/sondas antes do reparo. Após, regressões GREEN, zero V16 dos locais emitidos, revisão futura dos 36 locais (incluindo a nova projeção de Content sob Option) por sentinelas Content/Value/MathStyleKind/FrameItem em workspace descartável com cfg(test) compilado. Os scrutinees/funções atuais e a composição ganham só as alterações descritas; revalidar ast/replay, assinaturas e demais owners.
+L0 before code. This ADR-0127 internal parity correction adds no public field/
+signature/trait, dependency, product flag/default, compatibility break or phase.
+V19 groups share their previous body with per-case justification; notes remain
+visible and do not prove execution coverage per alternative. No allow/expect,
+threshold increase, @ capture or hidden match in if-let/matches!. Only named
+transparency/shallow restructuring changes functional code; do not change
+formulas/constants or relax expectations. Require functional Source RED and
+structural warning/probe RED before repair; afterwards regression GREEN, zero
+emitted-site V16 and future sentinel review of all 36 sites (including new
+Content-under-Option projection) using copied Content/Value/MathStyleKind/FrameItem
+in a disposable real workspace compiling cfg(test). Current scrutinees/functions/
+composition change only as specified; revalidate AST/replay, signatures and other
+owners.
 
-Gates: suíte workspace completa, build, fmt, Clippy workspace/all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings com quatro índices, V1/V5/V15/V26 estrito/reversa, SARIF diferencial completo e diff-check. V16 esperado 170→152; notas V19 novas somente dos grupos prescritos e do observador novo; V20 sem crescimento. As demais violações continuam pendentes. Fontes congeladas durante os gates; MemoryMax=12 GiB, swap zero, um job Cargo, comandos pesados sequenciais. Sem commit/push/release ou alteração do pin CI. Não alegar ganho de RAM, leitura de IA ou paridade integral por encerrar o lint.
+Gates: full workspace suite, build, fmt, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, Rustdoc -D warnings with four indexes,
+strict/reverse V1/V5/V15/V26, full differential SARIF and diff-check. Expected V16
+170→152; new V19 only from prescribed groups/new observer; no V20 growth.
+Other violations remain pending. Freeze sources during gates; MemoryMax 12 GiB,
+zero swap, one Cargo job, heavy commands sequentially. No commit/push/release or
+CI pin change. Lint closure does not prove RAM gain, AI-reading benefit or
+complete parity.

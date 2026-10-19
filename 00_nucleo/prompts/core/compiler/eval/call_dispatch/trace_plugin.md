@@ -2,25 +2,38 @@
 Hash do Código: 27a58f7a
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/trace_plugin.rs`. No HEAD `d5c563dfab39f789e8e2f72c9a9364f5a761e3ca` e árvore limpa, `01_core/src/compiler/eval/call_dispatch.rs:1215-1304` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-call-dispatch-2026-09-30-before.json.gz`.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/eval/call_dispatch/trace_plugin.rs`. At HEAD `d5c563dfab39f789e8e2f72c9a9364f5a761e3ca` with a clean tree, `01_core/src/compiler/eval/call_dispatch.rs:1215-1304` contains the extracted behavior. SHA-256, time and initial state are recorded in `lab/results/construction/diagnostics/atomizacao-call-dispatch-2026-09-30-before.json.gz`.
 
-## Contrato
+## Contract
 
-Adicionar traces causais e fundir argumentos de with; validar e executar chamadas a plugins. Preservar assinaturas públicas, diagnósticos, prioridades de intercepção, rastros e semântica de argumentos especificados em `00_nucleo/prompts/core/compiler/eval/call_dispatch.md`. A extração permanece em L1 com despacho estático, sem I/O ou estado global mutável.
+Add causal traces and merge with arguments; validate and execute plugin calls. Preserve public signatures, diagnostics, interception priorities, traces and argument semantics from `00_nucleo/prompts/core/compiler/eval/call_dispatch.md`. Extraction remains in L1 with static dispatch, without I/O or mutable global state.
 
-## Aceitação
+## Acceptance
 
-Preservar a suíte L1, os testes de call_dispatch e `crystalline-lint .` com ownership e hashes corretos. Não inferir ganho de desempenho.
+Preserve the L1 suite, call_dispatch tests and `crystalline-lint .` with correct ownership and hashes. Do not infer performance gains.
 
 
-## D08B3-C2 — responsabilidade ratificada
+## Ratified transparent source-origin trace boundary
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Prior evidence is
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz`,
+with HEAD/working tree/UTC/sources/argv/binaries at historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`. This unit has the corresponding
+transparent operation in existing ShowRecipe/Located/Realized branches; Source
+must not leak as an observable element. Human approval `confirmo` was given on
+2026-10-07. The final approval/execution record is
+`lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`;
+the nested contract.md retained there is the pre-approval candidate.
 
-Trace tardio da realização Table usa pai FuncCall da Args identificada por Span no CST da Source causal, não busca por nomes/texto/igualdade. Reutilizar regra trace_call de contenção; não fabricar trace sem âncora resolvível. Helper somente crate-private, não expõe API externa ou move fase.
+Late Table realization traces use the FuncCall parent of Args identified by
+Span in the causal Source CST, never names/text/equality search. Reuse trace_call's
+containment rule; do not fabricate traces without a resolvable anchor. The
+helper is crate-private and adds no external API or phase move.
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+Preserve exclusive ownership and static dispatch without I/O, new
+signature/trait/flag or eval↔layout phase change. C2/C/macro tests and
+collections, builds and lineage are required before certification.

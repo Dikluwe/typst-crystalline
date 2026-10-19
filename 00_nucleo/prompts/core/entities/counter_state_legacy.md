@@ -1,124 +1,64 @@
 # Prompt L0 — `entities/counter_state_legacy`
 Hash do Código: 66f7e722
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/counter_state_legacy.rs`
-**Criado em**: 2026-04-02 (Passo 57; nome original `counter_state.rs`)
-**Renomeado em**: 2026-04-30 (P161 sub-passo .2 — liberta o nome `CounterState` para tipo de paridade vanilla a introduzir em M3)
-**ADRs relevantes**: nenhum ADR dedicado; parte integrante do motor de introspecção single-pass (Passos 57–58)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/counter_state_legacy.rs`
 
----
+## Contract and legacy boundary
 
-## Contexto
+CounterStateLegacy is the mutable single-pass layout numbering aggregate.
+The rename from CounterState freed that name for the modern counter domain
+without changing behavior or signatures; existing walks still receive
+&mut CounterStateLegacy. It retains hierarchical HashMap<String,Vec<usize>>,
+flat HashMap<String,usize>, and numbering-active HashMap<String,bool>.
+Heading [1,2] means section 1.2; flat counters serve figures/equations/custom keys.
 
-`CounterStateLegacy` é o objecto de estado mutável que rastreia numeração de elementos durante o layout single-pass. Era originalmente `CounterState`; foi renomeado em P161 para libertar o nome `CounterState` para o tipo de paridade vanilla (`SmallVec<[u64; 3]>` em `Counter`, conforme `desenho-introspection-fixpoint.md` §2.1).
+Preserve accumulated auxiliary state: resolved_labels,headings_for_toc,
+label_pages,known_page_numbers,has_outline,is_readonly,figure_numbers,
+figure_label_numbers,local_figure_counters,lang,bib_entries,bib_numbers,
+auto_label_counter. The original specification delegates exact field types
+to its pre-rename history; this is an explicit specification gap, not permission
+to infer new contracts from the implementation.
 
-Não é alteração de comportamento. Apenas renomeação de tipo + ficheiro. Walk continua a operar sobre este struct via `&mut CounterStateLegacy`.
+CounterAction remains here, Debug/Clone/PartialEq with Step and Update(usize),
+for existing Content::CounterUpdate compatibility. The separate CounterUpdate
+owner does not silently replace it.
+CounterStateLegacy derives Debug/Clone/Default and preserves new()->Self,
+is_numbering_active(&self,&str)->bool,
+step_hierarchical(&mut self,&str,usize),
+format_hierarchical(&self,&str)->Option<String>, step_flat(&mut self,&str),
+update_flat(&mut self,&str,usize), get_flat(&self,&str)->usize and
+display_value(&self,&str)->String.
 
-Suporta os mesmos três modos de contagem:
+## Semantics and acceptance
 
-1. **Hierárquico** (`HashMap<String, Vec<usize>>`): numeração de headings multi-nível — `"heading"` → `[1, 2]` representa a secção `1.2`.
-2. **Plano** (`HashMap<String, usize>`): contadores lineares para figuras, equações e chaves arbitrárias.
-3. **Numeração activa** (`HashMap<String, bool>`): flag por chave que controla se a numeração está habilitada.
+Hierarchical steps advance at the specified level with truncation/push;
+flat steps add1, updates set exact values. Display renders hierarchy as 1.2
+and flat values as 5. is_readonly blocks every step/update, including TOC
+rendering with cloned syntax. Mutations go through explicit step/update/setter
+methods so the guard can block them globally. Default is a valid empty state.
+Pure in-memory L1 HashMap/Vec, no system I/O or shared mutable cross-thread Arc;
+usage is single-threaded layout.
 
-E todos os campos auxiliares acumulados nos Passos 60–159 (resolved_labels, headings_for_toc, label_pages, known_page_numbers, has_outline, is_readonly, figure_numbers, figure_label_numbers, local_figure_counters, lang, bib_entries, bib_numbers, auto_label_counter).
+Clone costs O(total map entries+TOC+bibliography size). The original acceptance
+rationale bounded cloning to a walk/materialize_time boundary (DEBT-18);
+do not treat that historical claim as a fresh performance measurement.
+Keep colocated tests and behavior unchanged. The historical claim that all
+fields contribute to observable output is recorded, not a blanket waiver of
+future measurement.
 
-`CounterAction` (enum vizinho com `Step` / `Update(usize)`) **permanece neste ficheiro** com nome inalterado. P161 sub-passo .6 adapta o nome do tipo da família "instrução de contador" mas via criação de `CounterUpdate` em ficheiro próprio (`counter_update.rs`); ver `entities/counter_update.md`. `CounterAction` mantém-se para retrocompatibilidade dos call-sites existentes em `Content::CounterUpdate` variant.
+## Pending modernization
 
-DEBT-10 e divergência single-pass vs duas-passagens vanilla mantêm-se documentadas — não são alteradas por este passo.
+DEBT-10 and single-pass versus upstream introspection differences remain
+separate. Introspection walk/materialize_time and layout counters/references/
+outline/figure use this aggregate. The planned final fixpoint migration may
+replace it or retain a flattened modern-state view through an explicit
+contract, not by deleting historical fields during editorial cleanup.
+The 2026-04-29 audit
+`lab/results/construction/diagnostics/auditoria-isolamento-vs-vanilla.md`
+records the original concentration of orthogonal responsibilities.
 
----
+## Historical record
 
-## Restrições Estruturais
-
-- Camada **L1**: zero I/O de sistema. Apenas `HashMap` e `Vec` em memória.
-- Sem `Arc` partilhado mutável entre threads — uso restrito a single-threaded layout.
-- Mutação só via métodos `step_*` / `update_*` / setters explícitos para que `is_readonly` possa bloquear globalmente.
-
----
-
-## Interface pública
-
-```rust
-#[derive(Debug, Clone, PartialEq)]
-pub enum CounterAction {
-    Step,
-    Update(usize),
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct CounterStateLegacy {
-    // Campos exactamente iguais aos do CounterState original.
-    // Ver código actual em counter_state.rs antes da renomeação.
-}
-
-impl CounterStateLegacy {
-    pub fn new() -> Self;
-    pub fn is_numbering_active(&self, key: &str) -> bool;
-    pub fn step_hierarchical(&mut self, key: &str, level: usize);
-    pub fn format_hierarchical(&self, key: &str) -> Option<String>;
-    pub fn step_flat(&mut self, key: &str);
-    pub fn update_flat(&mut self, key: &str, value: usize);
-    pub fn get_flat(&self, key: &str) -> usize;
-    pub fn display_value(&self, kind: &str) -> String;
-}
-```
-
-Sem alterações de assinatura face ao `CounterState` actual. Apenas o nome do tipo muda.
-
----
-
-## Semântica
-
-Inalterada. Ver `00_nucleo/prompts/entities/counter_state.md` antes da renomeação para histórico completo dos 12 fields agregados ao longo dos Passos 57–159.
-
-Resumo:
-- `step_hierarchical(key, level)`: avança contador hierárquico ao nível indicado, com truncamento e push.
-- `step_flat(key)`: incrementa contador plano em 1.
-- `update_flat(key, value)`: força contador plano para valor exacto.
-- `display_value(kind)`: lê valor actual em formato textual (hierárquico → "1.2", plano → "5").
-- `is_readonly` bloqueia mutações em qualquer step/update — usado durante renderização de TOC com clones de AST (Passo 63).
-
----
-
-## Invariantes
-
-- Nenhum field é redundante face ao output observable (P159G validado).
-- `CounterStateLegacy::default()` produz instância vazia válida — usada como ponto inicial pelo Layouter.
-- `Clone` é O(N) onde N = total de entries em hashmaps + tamanho de TOC + bib_entries; aceitável porque clone só ocorre na fronteira do walk de `materialize_time` (Passo 66, DEBT-18).
-
----
-
-## Consumers actuais
-
-- `01_core/src/compiler/introspect.rs` (walk + materialize_time).
-- `01_core/src/compiler/layout/mod.rs` (Layouter campo `counter`).
-- `01_core/src/compiler/layout/counters.rs`, `references.rs`, `outline.rs`, `figure.rs` (leitura/escrita per feature).
-
----
-
-## Sobre paridade
-
-Vanilla decompõe esta funcionalidade por 13 ficheiros em `introspection/` (Counter, State, Introspector, Locator, Tag, etc.). Cristalino mantém um único agregador legacy enquanto os tipos de paridade são introduzidos progressivamente nos Passos P161+ (Location, Locator, Tag, ElementInfo, ElementPayload). Quando o motor de introspecção fixpoint estiver completo (M9 do desenho), `CounterStateLegacy` pode ser totalmente substituído ou retido como vista achatada do estado moderno.
-
-Ver auditoria `lab/results/construction/diagnostics/auditoria-isolamento-vs-vanilla.md` (2026-04-29) para a classificação literal de `CounterState` (agora legacy) como concentrador de 12 razões orthogonais.
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/counter_state_legacy.rs` — implementação idêntica ao actual `counter_state.rs`, só com `pub struct CounterStateLegacy` em vez de `pub struct CounterState`.
-- Tests co-localizados em `#[cfg(test)]` permanecem inalterados — só os call-sites internos referem `CounterStateLegacy`.
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-04-02 | Criação — Passo 57: counter hierárquico para headings (nome original `CounterState`) | `counter_state.rs` |
-| 2026-04-12 | Passo 58: contadores planos (`step_flat`, `update_flat`, `get_flat`), enum `CounterAction`, campo `numbering_active` | `counter_state.rs`, `counter_state.md` |
-| 2026-04-13 | Passo 63: campos `label_pages`, `is_readonly`, motor de congelamento | `counter_state.rs`, `counter_state.md` |
-| 2026-04-20 | Passos 60–75: TOC, figure_numbers, label_pages, known_page_numbers | `counter_state.rs`, `counter_state.md` |
-| 2026-04-24..27 | Passos 131–159: lang, bib_entries, bib_numbers | `counter_state.rs`, `counter_state.md` |
-| 2026-04-30 | P161 sub-passo .2: renomeação `CounterState` → `CounterStateLegacy` + ficheiro renomeado | `counter_state_legacy.rs`, `counter_state_legacy.md` |
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/counter_state_legacy.md`. Historical observations are not a new parity certification.

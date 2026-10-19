@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "pdf-shaped-advances"
-title = "Avanços shaped como fonte única do espaçamento PDF"
-
+title = "Shaped advances as sole PDF spacing authority"
 [[claims]]
 id = "advance-authority"
 level = "must"
-statement = "Nos emissores PDF single e coalescido, TextShaped CIDFont/Multifont usa os avanços autoritativos fornecidos; tracking não é somado novamente pelo estado de character spacing."
-
+statement = "In single/coalesced PDF emission, CIDFont/Multifont TextShaped uses supplied authoritative advances; character-spacing state never adds tracking again."
 [[claims]]
 id = "explicit-spacing-state"
 level = "must"
-statement = "Emissão PDF shaped estabelece Tc=0 no bloco de texto antes de TJ, nos modos compacto e verboso, inclusive para tracking zero ou ausente; não depende do estado herdado."
-
+statement = "Shaped PDF emission sets Tc=0 inside the text block before TJ in Compact/Verbose, including zero/absent tracking, independently of inherited state."
 [[claims]]
 id = "boundary-authority"
 level = "must"
-statement = "Compensações TJ entre itens coalescidos conservam as posições absolutas fornecidas e o modelo existente de arredondamento; não substituem posição por avanço nominal."
-
+statement = "Inter-item TJ compensation preserves supplied absolute positions and existing rounding model, never substitutes nominal advance for position."
 [[claims]]
 id = "plain-and-bitmap-boundary"
 level = "must-not"
-statement = "Não aplicar a regra dos avanços shaped ao fallback Type1 ou Text que emite Tj sem avanços; bitmap mantém desenho por imagem. Não mudar fonte, glyphs, offsets ou seleção de layout para corrigir spacing PDF."
+statement = "Do not apply shaped-advance rules to Type1 fallback or Text emitting Tj without advances; bitmap remains image drawing. Do not change font, glyphs, offsets or layout selection to repair PDF spacing."

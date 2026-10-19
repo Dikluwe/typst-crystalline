@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/support/wiring/math_decoration_and_float_flush.md
-//! @prompt-hash 7cb2be8f
+//! @prompt-hash 693227c1
 //! @layer L3
 //! @updated 2026-10-16
 //! Infraestrutura de teste; compilada apenas pelo harness L4.

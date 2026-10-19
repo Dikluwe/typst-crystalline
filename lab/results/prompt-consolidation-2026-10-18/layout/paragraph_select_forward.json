@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/paragraph_select_forward.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated experiment/ablations/local repair/adaptive policy/iteration, preserving exact numeric thresholds, seed variants, complete-range fallback/ties and synthetic-only status.",
+  "original_sha256": "5dd64f1aa42221ebcefb1198cf088bcdbe773f6fc2a1db40e54e4f63f1067fda",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/paragraph_select_forward.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

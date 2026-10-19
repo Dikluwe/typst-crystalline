@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/outline.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated link capture evidence/contract/acceptance while retaining all LoF/LoT/heading and realized/legacy fallback behavior and unresolved fail-closed ambiguity.",
+  "original_sha256": "41228a5217842f3bcbb531ef09dc1efd0b478456ac34d1f64eae6cbc4d226d3b",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/outline.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

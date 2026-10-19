@@ -2,387 +2,71 @@
 Hash do Código: 6d2d31db
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:f10f7afaabd1b97f3048736842df89d0ba48d4daa0ae3cd453c9be317f32ef91
+- 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:c8570ec5f4f32c0805587230cafc796f35e5ee7c9f8e634e13d807db2afb6e00
 
-## Módulo
-`01_core/src/entities/style_chain.rs`
+**Layer:** L1, pure RAM; no system I/O. **Exclusive consumer:** `01_core/src/entities/style_chain.rs`.
 
-## Propósito
-`StyleChain` é uma lista ligada imutável de deltas de estilo.
-Permite que `#set text(bold: true)` afecte apenas o conteúdo subsequente,
-com herança: um nó filho herda todas as propriedades não definidas do pai.
+## Evidence before the current contract
 
-## Motivação (DEBT-1)
-`TextStyle { bold, italic, size }` era uma struct plana que não suportava
-`#set` rules. `StyleChain` substitui essa representação.
+Historical style audit2026-05-15 in `lab/results/construction/diagnostics/diagnostico-text-fase-a-passo-266.md` verified real StyleDelta/resolver/consumer wiring. The original inert annotations on weight/tracking/leading/lang were already obsolete: actual consumers included PDF Tc/cursor advance, line-height leading, language hyphenation/quote localization, and faux-bold/PDF2Tr. Its13/13 structural entries,100% subsystem coverage,four promoted consumers and aggregate≈86% Text coverage describe that snapshot,not current universal language parity. Additional subscript/superscript/highlight and baseline_offset were already in the bridge. Revision chronology and old ADR references remain in the archived original; current ADR0107/0108/0129/0131 govern interpretation.
 
-## Representação
+Historical upstream `e0e8ca4d`,text/mod.rs:180–182 declares FontList([Libertinus Serif]),:141–144 documents font-path→system→embedded priority. Embedded-family evidence is owned by `00_nucleo/prompts/infra/embedded_fonts.md`. On2026-08-13,pdffonts for one-line Ola mundo/no set text showed oracle `/usr/local/bin/typst`(e0e8ca4d)SGDIWK+LibertinusSerif-Regular-Identity-H versus local release at HEAD4f64e4e69/docs-only dirty tree AAAAAA+LibertinusSerif-Regular;both CIDType0C/embedded/subset. Family,face and embedding matched;subset tag/Identity-H spelling differed mechanically. This corrects historical exact-byte claims,not a new measurement against currentbd5ebec285505889e8ff1d4f68804ab147a699f3. Earlier FreeSerif default was replaced after accent decomposition/CFF subset defects,then Liberation Serif,then embedded Libertinus Serif;only the final default/fallback below remains active. Provenance:lab/results/construction/diagnostics/paridade-producao-p753.md and archived owner.
+
+style_chain.rs:779–784 called collapse solely for bold_from_strong/italic_from_emph,copying custom fields unnecessarily. table-local-scaling-followup-2026-10-09/stacks-after.json.gz,releasea01e3854b67abf7ec7902e14e0a695a3ea425a91ad13aab464247aade98b8491,records801collapse allocation samples under layout_styled/local-set-1600,64requests/sample. semantic-red-gate.json.gz records1067883requests in restored binary at HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b/uncommitted tree/UTC. Direct-bit resolution saving clones is a refutable inference,not assumed gain;allocation/precedence/bilateral output+time controls may reject it.
+
+performance-c2-2026-10-07/table-local-regression.json/three r*-table-local samples freeze source/argv/UTC/state/releaseac889581/historical9f2b6e871:font grows10%,second columnx60.880→38.999/overlap;table-local-c2r1-2026-10-07/red.log10pt/Auto gap fail while explicit11pt passes. Upstream eval/code.rs:32–43 applies declaration styles only;local expression_dispatch:132 collapses defaults(size11/boldfalse/italicfalse at style_chain:304–315),tracks:328 misses standalone-complete Cell,measurement lacks Cell visual. Joint cause is an inference refuted if source/font/size/position still differs after lexical isolation/complete visual measurement. This owner only supplies lexical-prefix extraction,not table measurement.
+
+style-font-capacity-2026-10-10/before.json.gz preserves HEAD/tree/files/diffstat/sources/baselinebb138eb8d2f8a5762ed693bfe2dda526c092780a47e0dc4c5e8e4f7af35b81a8. Earlier style-font-resolution-reuse memo was discarded:less requests gave no consistent speedup/higher RSS;no such cache exists here. style-scope-transfer-2026-10-10/stacks-current.json.gz has400inclusive periodic480-byte vector samples under font/local-set1600;capacity-probe.json measures FontFamily120bytes,filter_map/collect onefamily len1/capacity4/buffer480. Synthetic probe validates type/iterator,not time/exclusive cost. style_chain:641–653 has zero iterator lower bound;exact effective-string reservation benefit remains refutable by requested bytes,RSS/time,no upstream-intent/PDF-byte requirement.
+
+text-argumentos-2026-10-17/before.json.gz,before-measurement.json.gz,morph-before-measurement.json.gz,audit.json preserve HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b/tree/UTC/status/diffstat/source/L0/binaries/argv/historical9f2b6e8715237cb086899a42873660fe744622e8. named-em0versus24pt,affine3versus27,nested18→0versus36;six Size/Color/body orders rejected locally/accepted upstream,positional18pt ignored12versus18. Pinned text/mod.rs:290,303,924–930,1136–1142/args:178–247 typed search/named priority/restbody/affine fold versus local em loss at style_chain:513–517/constructor:123/top-wins collapse:394–395,419–422. Restoration/Raw/heading/math/capture-show/duplicates-spans/zero-negative/metrics refute incomplete correction. Upstream text2em==text24pt compares Styled child(content:779–782):equality defect needs its own correction,full Length is no equality closure.
+
+Human approved manifest771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba/two public contracts,S1–S16,12GiB/swap0,no release/merge/push,seal after implementation/valid graph;RG1 independent. This narrowly supersedes scalar-size/top-wins-size historical clauses;other properties retain their rules.
+
+## Persistent style representation and resolution
+
+StyleChain is an immutable linked list of style deltas. A set rule affects subsequent content only;children inherit unspecified properties. It replaces the former flat bold/italic/size representation. Preserve public StyleDelta field types:
 
 ```rust
 pub struct StyleDelta {
-    pub bold:   Option<bool>,
+    pub bold: Option<bool>,
     pub italic: Option<bool>,
-    pub size:   Option<Length>,    // tamanho declarado abs + em
-    pub fill:   Option<Color>,     // Passo 99 (ADR-0038)
-    pub heading_level: Option<u8>, // Passo 99 (ADR-0038) forward-compat
-    pub weight:   Option<u16>,     // Passo 126 — inerte
-    pub tracking: Option<Length>,  // Passo 127 — inerte; preserva abs+em
-    pub leading:  Option<Length>,  // Passo 128 — capturado em text; migra p/ par
-    pub lang:     Option<Lang>,    // Passo 131B (ADR-0052) — tipo semântico validado
-    pub font:     Option<FontList>,// Passo 132B (ADR-0053) — tipo agregador; covers deferido
-    pub subscript:   Option<bool>, // Passo 448 — subscrito
-    pub superscript: Option<bool>, // Passo 448 — sobrescrito
-    pub highlight:   Option<Option<Color>>, // Passo 449 — fundo colorido
+    pub size: Option<Length>,
+    pub fill: Option<Color>,
+    pub heading_level: Option<u8>,
+    pub weight: Option<u16>,
+    pub tracking: Option<Length>,
+    pub leading: Option<Length>,
+    pub lang: Option<Lang>,
+    pub font: Option<FontList>,
+    pub subscript: Option<bool>,
+    pub superscript: Option<bool>,
+    pub highlight: Option<Option<Color>>,
 }
-
 pub struct StyleChain(Option<Arc<StyleNode>>);
 ```
 
-`StyleDelta::empty()` — nenhuma propriedade definida.
-`StyleChain::default_chain()` — bold=false, italic=false, size=11.0pt.
-`StyleChain::push(delta)` — nova cadeia herdando desta, com delta por cima. O(1).
-`StyleChain::collapse() -> StyleDelta` (P352, show-set) — dobra **todos** os nós da
-cadeia num único `StyleDelta` preservando a semântica `Option` (top-wins por campo;
-`custom` mantém a primeira ocorrência por chave). Read-only. Usado pela captura do
-show-set para extrair, de uma cadeia construída sobre `StyleChain::empty()`, o efeito
-exacto do `#set` (sem os defaults de `default_chain`). Sobre `empty()` o resultado é
-apenas o que o `set` definiu — não os defaults.
+The listing preserves the original named field contract;later existing custom/provenance channels remain governed below rather than silently removed. StyleDelta::empty defines nothing;default_chain sets bold=false,italic=false,typed size11pt. push is O(1) with shared ancestor;clone is O(1),cloning top Arc only. For ordinary properties access traverses inner→outer,first defined wins,then accessor default. collapse is read-only over every node and retains Option presence/custom first occurrence per key. Show-set captured above StyleChain::empty contains only actual declarations,no default_chain values. Size is the explicit affine-fold exception,not ordinary top-wins.
 
-## Resolução de propriedades
+StyleDelta.size retains full declared abs+em Length;size() remains resolved f64 points. Fold typed/custom text.size lexically,typed wins in same node. collapse and local_delta_since preserve composed affine function without default completion when ancestor excluded. Diff/bridge read full Length;Pt appears only in resolved render. A captured prefix containing only custom text.size remains custom,never promoted to semantic typed presence;with a typed Size declaration the composed result stays typed. This preserves constructor presence/set's historical morphological transparency,no PartialEq Styled/equality fix implied. Across nodes contributions fold;other fields top-win. Test different-ancestor roundtrip,excluded base,explicit Size equal to default.
 
-Percorre a cadeia do topo para a raiz, retorna o primeiro valor encontrado.
-Se nenhum nó define a propriedade, usa o valor por defeito do accessor.
+## Bridge, fonts and causal provenance
 
-## Bridge para layout/export
+From<&StyleChain> for TextStyle bridges to flat resolved layout/export style. If no font defined,set Some(Libertinus Serif),which typst-assets provides with New Computer Modern/New Computer Modern Math/DejaVu Sans Mono via embedded-font owner. If unavailable(e.g.empty configured FontBook),shaper keeps DEFAULT_FALLBACK_FONTS_SERIF order Liberation Serif,DejaVu Serif,Bitstream Vera Serif,FreeSerif last,to avoid known accent defect. Family parity does not demand subset-name equality.
 
-`impl From<&StyleChain> for TextStyle` — converte para `TextStyle` plano,
-compatível com o layout e export actuais durante a migração.
+Bridge always sets math=false:equation layout entry sets true afterward. It always sets math_script=false:math attach's script_style construction sets true. It sets math_text_item=false:only mathematical layout's direct Content::Text emission marks TextItem. These are entry/construction provenance,not style-chain/configurable properties;no new StyleDelta/parser/eval channels. All other fields resolve normally. Canonical owners:`00_nucleo/prompts/core/entities/layout_types.md`,`00_nucleo/prompts/core/compiler/layout/equation.md`,`00_nucleo/prompts/core/compiler/math/layout/attach.md`.
 
-### Fonte por defeito (P753)
+StyleChain::variations()->Option<FontVariations> reads eval-validated custom text.variations Value::Dict inner→outer and folds with FontVariations::fold(inner wins tag,outer tags survive),matching historical text/mod.rs:846–850 #[fold]. Bridge consumes TextStyle.variations. No typed StyleDelta variations field;constructor/set converge on sole custom channel,as other text.<field> transport.
 
-Quando nenhum nó da cadeia define `font`, o bridge `From<&StyleChain> for TextStyle`
-deve fornecer uma fonte por defeito para que o shaper tenha sempre uma família primária.
+Morphological bold_from_strong/italic_from_emph already distinguish *strong*/_emph_ from set text(bold/italic:true);historical corpus QDF Strong/Em nodes and2026-09-23 approval in layout_types authorize semantic_strong/semantic_emph. Bridge walks inner→outer and takes first definition of each bit,stopping when both found/end;absent=false,Some(false) overrides outertrue. Do not call collapse in bridge solely for provenance;public collapse still complete for show-set. Do not change bold/italic render or infer semantics from weight/appearance. Representation/API/default/phase unchanged;require same language/raster and measured local-scope allocation/time reduction.
 
-- O vanilla usa `Libertinus Serif` como fonte por defeito.
+## Lexical-prefix and custom-font helpers
 
-> **Fonte de paridade (P1031)** — **citação literal** do vanilla ratificado (`e0e8ca4d`),
-> `crates/typst-library/src/text/mod.rs:180-182`:
->
-> ```rust
-> #[default(FontList(vec![FontFamily::new("Libertinus Serif")]))]
-> #[ghost]
-> pub font: FontList,
-> ```
->
-> Publicado em `typst.app/docs/reference/text/text/#parameters-font`. O mesmo doc comment
-> fixa a prioridade de descoberta (`text/mod.rs:141-144`): *"The priority is: `--font-path`
-> > system fonts > embedded fonts."* — o que sustenta a decisão de P753 de embutir
-> `Libertinus Serif` em vez de depender do sistema. Ver
-> `00_nucleo/prompts/infra/embedded_fonts.md` §"Fonte de paridade (P1031)" para a citação
-> do lado das fontes embutidas (`crates/typst-kit/src/fonts.rs:129-142`).
->
-> Nota de rigor: a versão ratificada é **`e0e8ca4d`**, não a tag "0.15.0" — a referência
-> solta a "vanilla 0.15.0" foi removida da frase acima (ver `CLAUDE.md`, §"Referência de
-> paridade").
-- O cristalino, a partir de **P753**, carrega as mesmas fontes embutidas que o
-  vanilla CLI (`Libertinus Serif`, `New Computer Modern`, `New Computer Modern Math`,
-  `DejaVu Sans Mono`) através de `typst-assets` (ver Prompt L0
-  `00_nucleo/prompts/infra/embedded_fonts.md`). `Libertinus Serif` está portanto
-  sempre disponível.
-- **Decisão P753**: a fonte por defeito do cristalino passa a ser `Libertinus Serif`,
-  batendo com o vanilla na família da fonte. Isto elimina a diferença visual e o resíduo de
-  paginação causado pelo uso anterior de `Liberation Serif`.
+Crate-private local_delta_since returns only nodes pushed after a proven shared ancestor,or None if ancestor not in chain. Internal Arc identity proves lexical boundary only,never exposed to callers/telemetry or replaced by value comparison. Explicit size11/boldfalse survives even equal to inherited default. Same-chain ancestor→empty delta;no ancestor/default copy. Preserve existing representation/public API/purity/O(1)clone;size uses affine rule above,other deltas top-win. Test shared ancestor,equal-default declaration,nonancestor. Internal parity continuous flow,L0 first/RED→GREEN/scoped lineage/builds/suites/lint/physical+timing recollection.
 
-> **Medição de confirmação (P1031, 2026-08-13)** — a alegação *"batendo exactamente com o
-> vanilla"* estava sem medição. Medida agora, documento de uma linha (`Ola mundo`, sem
-> nenhum `#set text`), lida com `pdffonts`:
->
-> | Binário | Fonte no PDF |
-> |---|---|
-> | Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) | `SGDIWK+LibertinusSerif-Regular-Identity-H`, CID Type 0C, embutida e subsetted |
-> | Cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`, árvore só com edições em `00_nucleo/prompts/**`) | `AAAAAA+LibertinusSerif-Regular`, CID Type 0C, embutida e subsetted |
->
-> **A família, o corte e o tipo de embutimento coincidem** — a decisão de P753 confirma-se
-> ao nível que interessa. **"Exactamente" era forte de mais** e foi corrigido para "na
-> família da fonte": o prefixo de subset difere (`SGDIWK+` vs `AAAAAA+`) e o sufixo
-> `-Identity-H` só aparece no vanilla. Ambos são mecânica de escrita do PDF (geração do tag
-> de subset e nomenclatura do descendente CID), não superfície de linguagem, logo divergem
-> de propósito (ADR-0107) — mas não devem ser tapados por uma alegação de igualdade exacta.
-- Se, por qualquer razão, `Libertinus Serif` não resolver (ex: `FontBook` vazio por
-  configuração especial), o shaper faz fallback pelas fontes serif definidas em
-  `DEFAULT_FALLBACK_FONTS_SERIF`, ordenadas para preferir fontes sem o bug de
-  decomposição de acentos (Liberation Serif, DejaVu Serif, Bitstream Vera Serif,
-  FreeSerif como último recurso). Esta salvaguarda preserva o comportamento de P558.
+For text.font custom Array,count Value::Str entries,reserve exactly that many FontFamily slots,fill in existing order/normalization via FontFamily::new. Zero strings allocates no buffer/returns None and stops inheritance as before. Typed delta.font precedes custom within node;custom first occurrence applies;nonArray ignored. Do not change legacy dict/regex,defaults,StyleDelta/public APIs/phase/cache. Two local Array scans only;push/nodes/chain unchanged. External RED→GREEN requires strictly fewer requested bytes/font controls with no allocation-count growth;separate mechanics from language. Preserve order/mixed-empty-invalid/precedence/typed regex/original declarations/text-markup-query-font-position-page-raster suites. Paired equivalent argv time/RSS without interposer and short/no-consumed-declaration controls;repeatable regression or changed observables refutes/requires exact prior source+L0 restoration. Fewer cumulative bytes proves no lower resident memory.
 
-### Histórico de decisões anteriores (P554/P558)
+## Verification, instrumentation and scope
 
-- **P554**: a fonte por defeito inicial do cristalino era `FreeSerif`, uma serif
-  amplamente disponível em sistemas Linux. Mantinha a mesma classe visual do vanilla
-  e atingia paridade de paginação no caso de teste de P553.
-- **P558**: `FreeSerif` descompõe caracteres acentuados em base + mark durante o
-  shaping, e o subsetter CFF do cristalino não reconstrói esses glifos correctamente.
-  A fonte por defeito passou para `Liberation Serif`, igualmente disponível e sem o
-  problema de acentos.
-- **P753**: com a adopção de fontes embutidas via `typst-assets`, o cristalino pode
-  finalmente usar `Libertinus Serif`, a fonte por defeito do vanilla.
+Test default11pt/boldfalse/italicfalse,push propagation/inherited None,O(1)clone,correct bridge/defaultfont,full13named resolver coverage and existing sub/super/highlight/baseline_offset transport. Historic coverage counts are archived evidence,not fixed modern acceptance totals. StyleChain exposes no allocation identity or p1339_observation-conditioned method;persistent storage/defaults/Arc/resolution/productive APIs remain telemetry-independent. No I/O or global mutable state. Font coverage discovery remains deferred to its owning layer;this owner does not certify all text/font equality/render behavior.
 
-### `math: false` sempre (P784)
-
-`From<&StyleChain> for TextStyle` sempre define `math: false` — `StyleChain`
-não carrega contexto matemático (é uma propriedade do *ponto de entrada* do
-layout math, não da chain de estilos). `layout/equation.rs::layout_equation`
-sobrepõe `math: true` explicitamente no `TextStyle` que passa ao motor de
-layout matemático, **depois** desta conversão. Ver `entities/layout_types.md`
-§P784 e `compiler/layout/equation.md` §P784.
-
-### `math_script: false` sempre (P891)
-
-Mesmo motivo de `math: false` acima: `From<&StyleChain> for TextStyle` sempre
-define `math_script: false` — `StyleChain` não carrega contexto de script
-(sub/super-índice), é uma propriedade do *ponto de construção* do
-`script_style` em `math/layout/attach.rs`, não da chain de estilos.
-`attach.rs::layout_attach` sobrepõe `math_script: true` explicitamente ao
-construir `script_style`. Ver `entities/layout_types.md` §P891.
-
-## Camada
-L1 — pura. Sem I/O de sistema. Usa apenas `Arc` (RAM).
-
-## Critérios de Verificação
-
-- `StyleChain::default_chain()` retorna bold=false, italic=false, size=11.0
-- `push(StyleDelta { bold: Some(true), .. })` propaga bold para filhos
-- Herança: filho com `bold: None` herda bold do pai
-- Clone de `StyleChain` é O(1) (só clona o Arc do topo)
-- `From<&StyleChain> for TextStyle` converte correctamente
-- P753: `TextStyle.font` de uma chain sem `font` definido é `Some(Libertinus Serif)`
-
----
-
-## Anotação cumulativa P266 — Cobertura empírica StyleChain confirmada (Fase A)
-
-**Data**: 2026-05-15.
-
-P266 audit Fase A confirmou estado real cumulativo `StyleDelta`
-+ resolvers + consumers. Anotações "inerte" originais em
-linhas 25-27 são **factualmente desactualizadas** — os campos
-têm consumers reais materializados em passos subsequentes:
-
-### Promoções implementado → implementado⁺ confirmadas
-
-| Campo | Consumer real | Passo | Status |
-|-------|---------------|-------|--------|
-| `tracking: Option<Length>` | PDF `Tc` operator + Cursor advance | P137 | implementado⁺ |
-| `leading: Option<Length>` | `line_height = default + leading` em cursor | P128 | implementado⁺ |
-| `lang: Option<Lang>` | Hyphenation hypher + smart-quotes localize | P144 + P155 | implementado⁺ |
-| `weight: Option<u16>` | Faux-bold `faux_bold_stroke_pt` + PDF `2 Tr` | P139 | implementado⁺ |
-
-### Estado actual 13 fields StyleDelta (P449)
-
-- 13 fields (10 pré-P448 + `subscript`/`superscript`/`highlight`).
-- 13 resolvers em `impl StyleChain` (bold/italic/size/fill/
-  heading_level/weight/tracking/leading/lang/font/subscript/superscript/highlight).
-- `impl From<&StyleChain> for TextStyle` materializado (inclui
-  `subscript`/`superscript`/`highlight` e `baseline_offset`).
-
-### Cobertura Text agregada empírica P266
-
-- 13/13 entradas StyleChain (A.1-A.13) fechadas (implementado
-  ou implementado⁺).
-- Cobertura StyleChain subset = **100%** estrutural.
-- StyleChain subsistema A: 4/12 promoções implementado⁺
-  (A.8 tracking + A.9 leading + A.12 lang + via E.1 faux-bold
-  consumer).
-
-### Cross-references
-
-- ADR-0038 — Content::Styled (consumer StyleChain via
-  `push_styles`).
-- ADR-0039 — TextStyle SR (bridge preservado).
-- ADR-0052 — Lang tipo (consumer StyleDelta.lang).
-- ADR-0053 — FontList (consumer StyleDelta.font; covers
-  inabitado).
-- ADR-0054 — Perfil graded (cobertura subsystem).
-- ADR-0080 — L0 minimal para refactors aditivos (esta anotação
-  preserva representação base).
-- ADR-0084 + 0085 — Auditoria condicional + diagnóstico
-  imutável (primeiro consumo directo P266).
-- `lab/results/construction/diagnostics/diagnostico-text-fase-a-passo-266.md`
-  — diagnóstico imutável Fase A (cobertura agregada ~86%).
-- P753 — `lab/results/construction/diagnostics/paridade-producao-p753.md`:
-  mudança da fonte por defeito para `Libertinus Serif` e
-  adopção de fontes embutidas via `typst-assets`.
-
-## P836 — resolver `variations()`
-
-Novo resolver `StyleChain::variations() -> Option<FontVariations>`:
-percorre a cadeia do nó interno para o externo, lê o canal custom
-`"text.variations"` (`Value::Dict` já validado no eval) e dobra os
-níveis com `FontVariations::fold` (interno vence por tag; tags de
-níveis externos sobrevivem) — paridade do `#[fold]` do campo ghost
-`TextElem::variations` no vanilla (`text/mod.rs:846-850`).
-
-Consumido pelo `From<&StyleChain> for TextStyle` (campo
-`TextStyle::variations`). Não há campo tipado em `StyleDelta`: o canal
-custom é a única via (constructor `text()` e set rule convergem nele),
-seguindo o precedente F-5b (P373) para `text.<campo>`.
-
-## Default da proveniência `TextItem`
-
-O bridge `StyleChain::to_text_style` define `math_text_item=false`. O
-StyleChain não origina essa proveniência: somente o layout matemático marca um
-`Content::Text` direto como TextItem ao emitir o item correspondente.
-
-Todos os demais campos continuam resolvidos da cadeia. O bit não entra em
-`StyleDelta`, parsing, eval ou defaults configuráveis pelo utilizador.
-
-## Fronteira de instrumentação
-
-`StyleChain` não expõe identidade de alocação ou método condicionado por
-`p1339_observation`. Estrutura persistente, defaults, `Arc`, clonagem O(1),
-resolução e APIs produtivas permanecem independentes de telemetria.
-
-## P1481 — origem morfológica no TextStyle (IMPLEMENTADO; confirmado em 2026-09-23)
-
-Medição: `StyleDelta.bold_from_strong` e `italic_from_emph` já distinguem
-`*strong*`/`_emph_` de `#set text(bold/italic: true)`; o
-`From<&StyleChain> for TextStyle` atual copia somente bold/italic. O
-vanilla QDF do corpus P1481 contém nós `/S /Strong` e `/S /Em`.
-
-Contrato confirmado: resolver os dois bits de proveniência na conversão
-única para `TextStyle.semantic_strong/semantic_emph` usando a regra
-top-wins da chain e valor falso por default. A resolução não altera
-bold/italic de render. Não criar semântica a partir do peso ou aparência.
-Os campos públicos são definidos pelo owner `entities/layout_types.md`
-e foram confirmados em 2026-09-23 sob ADR-0127.
-
-## Leitura direta da proveniência no bridge — 2026-10-09
-
-Medição antes da decisão: no release SHA-256
-`a01e3854b67abf7ec7902e14e0a695a3ea425a91ad13aab464247aade98b8491`,
-`stacks-after.json.gz` do diagnóstico `table-local-scaling-followup-2026-10-09`
-registra 801 amostras de alocação em `StyleChain::collapse` sob
-`layout_styled` no caso `local-set-1600`; cada amostra representa 64 pedidos.
-`01_core/src/entities/style_chain.rs:779-784` chama `collapse()` somente para
-ler `bold_from_strong` e `italic_from_emph`, mas `collapse()` copia também o
-canal custom e outras propriedades. O gate externo
-`semantic-red-gate.json.gz` registra 1.067.883 pedidos para esse caso no
-binário restaurado, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
-working tree não commitado e UTC da medição. Inferência refutável: resolver
-somente esses dois campos deve poupar clones sem mudar semântica; o gate de
-alocações, os testes de precedência e a comparação bilateral de saída e tempo
-podem refutá-la.
-
-Decisão interna: no bridge `From<&StyleChain> for TextStyle`, percorrer os nós
-do topo para a raiz e capturar a primeira definição de cada bit de origem.
-Parar quando ambos estiverem definidos ou acabar a cadeia; ausência equivale
-a `false`. Não chamar `collapse()` nesse bridge. O método público `collapse()`
-continua integral para captura de show-set. Não mudar representação, API,
-defaults, fase de pipeline ou interpretação de `bold`/`italic`. Aceitação:
-`semantic_strong` e `semantic_emph` mantêm top-wins, inclusive `Some(false)`
-interno sobre `Some(true)` externo; saída de linguagem/raster igual e redução
-mensurável de alocações e tempo no caso com escopos locais. Correção interna
-em fluxo contínuo conforme ADR-0127.
-
-
-## C2-R1 — correção interna de paridade
-
-Medição anterior à decisão: lab/results/construction/diagnostics/performance-c2-2026-10-07/table-local-regression.json, três samples/r*-table-local/samples.json com fontes/argv/UTC/estado/hash do release ac889581 e vanilla pin9f2b6e871. Tamanho cresce10%, segunda coluna x60.880→38.999 com sobreposição. RED semântico em lab/results/construction/diagnostics/table-local-c2r1-2026-10-07/red.log: tamanho10pt e separação Auto falham, tamanho local explícito11pt já passa.
-
-Fonte upstream typst-eval/src/code.rs:32–43 aplica somente styles da declaração set à cauda. Tekt expression_dispatch.rs:132 colapsa raiz/defaults e não só declarações locais; style_chain.rs:304–315 contém size11/boldfalse/italicfalse na raiz. tracks.rs:328 reconhece somente Cell com resolved, deixando a Cell standalone Complete na projeção; measurement.rs não mede TableCell. É semântica/estilo/posição observável, não obrigação de reproduzir árvore ou algoritmo upstream. A causa conjunta é inferência refutável por fonte/tamanho/posição ainda divergentes após isolar estilos locais e medir o visual completo.
-
-Classificação ADR-0127: reparo interno de paridade, sem API pública/trait/entidade/flag/fase nova. Fluxo contínuo autorizado por pedido de corrigir prioridade1; L0 primeiro, RED→GREEN, resselo restrito, builds/suítes/lint e recoleta física/temporal.
-
-Responsabilidade: adicionar helper crate-private local_delta_since que retorna somente o prefixo de nós empilhados após um ancestral compartilhado, ou None se o ancestral não pertence à cadeia. Usar identidade interna Arc exclusivamente para delimitar fronteira lexical comprovada, sem expor identidade a caller/telemetria e sem comparação dos valores como prova de declaração. Nó explicitamente size11/boldfalse deve sobreviver mesmo se igual ao valor herdado. Dobra top-wins existente dos deltas permanece; cadeia ancestral/defaults não são copiados ao resultado. Chain==ancestral retorna delta vazio. Pureza, representação pública, O(1) clone e APIs vigentes permanecem. Testar ancestral compartilhado, declaração igual ao default e não ancestral.
-
-## Capacidade exata na conversão de fontes custom — 2026-10-10
-
-### Medição antes da decisão
-
-`lab/results/construction/diagnostics/style-font-capacity-2026-10-10/before.json.gz`
-registra HEAD, working tree, arquivos/diffstat, fontes e o binário baseline
-bb138eb8d2f8a5762ed693bfe2dda526c092780a47e0dc4c5e8e4f7af35b81a8.
-O memo tentado em style-font-resolution-reuse-2026-10-10 foi descartado:
-menos pedidos não trouxeram aceleração consistente e o RSS dos alvos subiu.
-Não há cache desse experimento neste consumer.
-
-`lab/results/construction/diagnostics/style-scope-transfer-2026-10-10/stacks-current.json.gz`
-do mesmo binário inclui 400 amostras de pedidos480bytes no vetor sob
-StyleChain::font/local-set1600. `capacity-probe.json` desta rodada mede
-FontFamily=120bytes e reproduz filter_map/collect de uma família com
-capacidade4, len1 e buffer480bytes. A amostragem é periódica inclusiva,
-não custo exclusivo; a sonda sintética valida o tipo/iterator, não tempo.
-`entities/style_chain.rs:641–653` usa collect com limite inferior zero.
-Inferência: reservar apenas as strings efetivas evita capacidade excedente;
-bytes acumulados, RSS e tempo podem refutá-la. Não inferir intenção do
-vanilla nem impor igualdade de bytes PDF; capacidade é mecânica.
-
-### Decisão interna, fluxo contínuo ADR-0127
-
-Ao encontrar text.font como Array, contar somente Value::Str desse array
-e reservar esse número para o Vec<FontFamily>. Preencher na mesma ordem
-com FontFamily::new e normalização vigentes. Array sem strings não aloca
-buffer e continua retornando None, interrompendo a herança como antes.
-Typed delta.font continua antes do custom no mesmo nó; custom usa primeira
-ocorrência; tipo diferente de Array continua ignorado. Não alterar dict
-custom legado/regex, defaults, StyleDelta, public APIs, fase ou cache.
-A leitura faz duas travessias locais do array; push, nós e chain não mudam.
-
-### Aceitação e limites
-
-RED→GREEN do gate externo: bytes solicitados estritamente menores nos
-controles de fontes, sem crescimento da contagem de alocações. É gate
-mecânico, separado da linguagem. Testes de ordenação, mixed/empty/invalid,
-precedência, typed regex e declarações originais, controles de texto/
-markup/query/fontes/posição/páginas/raster e suites preservam os observáveis.
-Comparar tempo e RSS com argv equivalentes, rodadas pareadas sem
-interposer e controles curtos/sem declarações consumidas. Regressão
-persistente nesses custos ou mudança observável refuta o candidato e
-requer restauração exata do source e deste L0. Menos bytes acumulados não
-certifica memória residente menor.
-
-
-
-## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
-`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
-fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
-Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
-mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
-mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
-Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
-estabelece busca tipada, preferência nomeada, body restante e composição.
-style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
-style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
-É tamanho/escopo observável da linguagem; a representação Rust é escolha
-interna. Não inferir intenção histórica. Refutar por restauração, Raw,
-heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
-A sonda de igualdade refutou a hipótese de comparar os valores declarados:
-no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
-content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
-própria correção; o tipo completo não é prova de fechamento desse eixo.
-
-### Ratificação
-
-O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
-771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
-Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
-Resselo somente após implementação e grafo válido. RG1 continua independente.
-
-### Responsabilidade exclusiva adicional
-
-StyleDelta.size passa a Option<Length>. Default tipado11pt; size() continua f64 de pontos resolvidos. Dobrar contribuições typed/custom text.size na ordem lexical com precedência typed no mesmo nó. collapse e local_delta_since conservam a função afim, sem completar com default quando o ancestral foi excluído. Demais propriedades mantêm suas regras. Diff/bridge leem o comprimento completo; Pt existe só no render resolvido.
-
-### Presença de captura TS1
-
-A captura de prefixo composta só por custom text.size conserva esse canal custom,
-sem promover a declaração a campo semântico typed. Caso haja declaração Size tipada
-no trecho capturado, o tamanho composto permanece typed. Isso conserva a presença
-semântica do constructor e a transparência morfológica histórica do set; não muda
-PartialEq de Styled nem declara resolvido o achado de igualdade da linguagem.
-No mesmo nó typed prevalece sobre custom; em nós distintos as contribuições dobram
-na ordem lexical. Testar round trip com ancestral diferente, base excluída e Size
-explicitamente igual ao default. Demais propriedades conservam top-wins existente.
+Archive: `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/style_chain.md`.

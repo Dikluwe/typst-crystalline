@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/region_progress.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited all unique/repeated clauses; consolidated demand-before-text versus fitting-postline behavior, exact Admission candidate guards, column resets, subframe implicit-overflow isolation and reinstallation order for Block/hanging. Preserved note-clearance failed integration and KnownTop partial supersession.",
+  "original_sha256": "6f0ac33d593c07b7b3552211a523c6b37b9c2dc973ae340df4a095488df73898",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/region_progress.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

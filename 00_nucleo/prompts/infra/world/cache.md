@@ -2,8 +2,8 @@
 Hash do Código: 5dbfb07a
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:fb383f227b0bcd8b1e61899942fa0383a4cda66093da58bda2e87844e2895d2a
-- 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:7ec137b6996e0ea442e3cdda52ce723fd32cb67338ab363b7ff2d733458ef8fa
+- 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
+- 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:c7f9b3d18b112b1d725e082b7da75b886bf7120346ffbca911c236ea65c52986
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/world/cache.rs`
@@ -32,82 +32,70 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Identidade de documento e expressão — gate confirmado 2026-10-06
+## Source identity evidence and approval
 
-### Evidência anterior à decisão
+### Evidence and approval
 
 `lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
-conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
-Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
-separam erro/warning do documento de erro da expressão: o documento perde sua
-fonte, enquanto a expressão recebe indevidamente o nome do documento.
-`01_core/src/compiler/eval/mod.rs:609-615` usa world.main() para Source e base;
-`04_wiring/src/eval.rs:66-95` repete esse id ao fornecer o primary ao formatter.
-`03_infra/src/world/cache.rs:58-78` registra arquivos e recicla o contador;
-`lab/typst-original/crates/typst-cli/src/eval.rs:159-179` e
-`lab/typst-original/crates/typst-cli/src/world.rs:176-190` distinguem expressão,
-stdin e ausência de entrada por identidade. A igualdade dos inteiros e o
-interner global upstream são mecânica, não requisito (ADR-0107). A origem
-mostrada, fonte, posição e resolução relativa são observáveis de linguagem.
+retains commands/sources/UTC/HEAD/changed tree and Tekt/vanilla binary hashes at
+historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Separate document
+error/warning and expression-error controls showed the document losing its source
+and the expression receiving the document's name. `compiler/eval/mod.rs:609–615`
+used world.main() for Source/base; `wiring/eval.rs:66–95` repeated that id for the
+formatter's primary source. `world/cache.rs:58–78` registers files/recycles the
+counter; upstream `typst-cli/src/eval.rs:159–179` and `world.rs:176–190` distinguish
+expression, stdin and absent-input identity. Integer equality/global upstream
+interning is mechanics, while displayed origin/source/position/relative resolution
+are language observables (ADR-0107). No new comparison with the current pin is
+claimed.
 
-### Decisão e escopo do gate
+Human `confirmo` on 2026-10-06 approved ADR-0127 gate, recorded in
+`lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json`.
 
-Adicionar a fábrica pública de Source code transiente:
+## Expression Source factory and checked identity
 
 ```rust
 pub fn source_for_expression(&self, text: String) -> FileResult<Source>;
 ```
 
-Alocar um id novo sob next_id, construir uma única Source::new_with_parser
-com parse_code, publicar slot já carregado em slots com caminho
-root/<input-expression> e bytes UTF-8 em read_cache. Retornar o mesmo Source
-resolúvel por World::source; World::file usa os bytes em RAM. Não registrar o
-marcador em path_to_id, canonicalizá-lo ou lê-lo no disco. Chamadas distintas
-recebem ids distintos mesmo quando textos são iguais. A Source de stdin e o
-main vazio também têm bytes pré-carregados; os helpers privados de SourceSlot
-podem receber uma Source pronta sem alterar a API pública de Source.
+Allocate a new id under next_id, build one Source::new_with_parser using parse_code,
+publish preloaded slots entry at root/<input-expression> and UTF-8 bytes in
+read_cache. Return the same World::source-resolvable Source; World::file reads
+RAM. Never register/canonicalize/read the marker in path_to_id/on disk. Distinct
+calls have distinct ids even for equal text. Stdin/empty main also preload bytes;
+private SourceSlot helpers may accept a prepared Source without public Source API
+changes.
 
-Revogar preserve id allocation/wrapping: usar contador verificado comum a
-fontes físicas e transientes, nunca reutilizar id publicado. Limite FileId
-permanece NonZeroU16. Na exaustão, source_for_expression retorna
-FileError::Other("FileId counter exhausted") antes de publicar qualquer slot.
-register_file mantém a assinatura e retorna ids já conhecidos mesmo esgotado;
-se uma identidade física nova não cabe, falha com panic explícito
-"FileId counter exhausted", sem sobrescrever Source ou caches existentes.
-A mudança do comportamento extremo de exaustão também está incluída no gate.
-Preservar fast lookup e ordem de locks next_id → path_to_id → slots para
-registro físico; transientes usam next_id → read_cache → slots, sem caminho
-que adquira next_id depois de um desses locks. Não envenenar locks ao testar
-esgotamento: detectar a condição, soltar guards e só então emitir o panic.
-Dependências físicas e memoização de erros/sucessos mantêm o contrato anterior.
+The approved extreme-exhaustion behavior supersedes id wrapping/reuse. One checked
+physical/transient counter retains NonZeroU16 FileId. source_for_expression returns
+FileError::Other("FileId counter exhausted") before publishing any slot.
+register_file keeps signature/known-id lookup even exhausted; new physical identity
+without capacity panics exactly "FileId counter exhausted", never overwriting old
+Source/caches. Preserve fast lookup and physical next_id→path_to_id→slots order;
+transients next_id→read_cache→slots. No path takes next_id after another such lock.
+Detect exhaustion/drop guards before panic, avoiding lock poisoning in tests.
+Physical dependencies/Source error+success memoization retain prior contract.
 
-Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
-Consumer exclusivo preservado; Hash do Código acompanha a materialização.
+## Source reuse measurement and acceptance
 
-## Reuso sintático de watch — lote A
+`lab/results/construction/diagnostics/incremental-prioridade6-2026-10-08/{before.json.gz,measurement.json.gz,control-measurement.json.gz,count.json}`
+retains tree/HEAD/UTC/commands/releases. Source::new rebuilds CST; fresh World
+rebuilds main/import Source per edit. Minimal import also consumes eval_ms, so it
+is not purely parsing cost. Existing owners define causal Source/id/path identity;
+reuse mechanics must preserve language observations. Cost/diagnostic/effect/stale
+source/geometry/identity divergence refutes benefit; no upstream intent inferred.
 
-### Medição anterior à decisão
+Require real RED→GREEN, production counts apart from timing, three paired CLI
+rounds against archived prior release, startup/RSS and invalidation/identity/effects/
+Unicode/diagnostic/assets/fonts/geometry controls. Owner-only resealing, relevant
+build/suites/lint zero errors; no full-incrementality completion claim.
 
-lab/results/construction/diagnostics/incremental-prioridade6-2026-10-08/before.json.gz,
-measurement.json.gz, control-measurement.json.gz e count.json registram árvore,
-HEAD, UTC, comandos e releases. Source::new reconstrói CST; World novo constrói
-Source main/import a cada edição. O import mínimo já absorve recursos no eval_ms;
-não atribuir toda a métrica a parsing. O contrato causal de Source/id/caminho vem
-dos owners existentes; o reuso é mecânica e precisa preservar observáveis de língua.
-Hipótese de benefício refutada por custo, diagnóstico, efeito, stale source,
-geometria ou identificação diferente. Não inferir intenção upstream.
+## Physical syntax-session boundary
 
-### Contrato ratificado
-
-SourceSlot físico pode transportar Arc opcional privada da sessão. Após read_to_string
-normal, fornecer caminho canônico/id/texto completos ao owner source_session;
-sem sessão, usar Source::new vigente. Registrar IDs/deps normalmente. OnceLock de
-cada World mantém seu snapshot/error; nenhum erro de leitura persiste na sessão.
-Synthetic/from_source/code/expression permanecem fora do cache inter-World.
-Conservar interfaces privadas existentes quando isso evitar reparos externos.
-
-Aceitação: RED→GREEN, contagem de produção separada de tempos, três rodadas CLI
-pareadas contra release P5, startup/RSS e controles de invalidação/identidade/
-efeitos/Unicode/diagnóstico/assets/fontes/geométricas. Resselo apenas deste owner,
-build/suítes pertinentes e lint zero erros; não fechar incrementalidade completa.
+Physical SourceSlot may carry private optional Arc session. After ordinary
+read_to_string pass full canonical path/id/text to
+`00_nucleo/prompts/infra/world/source_session.md`; absent session uses existing
+Source::new. Register ids/dependencies normally; each World's OnceLock keeps its
+own snapshot/error and no read error enters session. Synthetic/from_source/code/
+expression stay outside cross-World cache. Keep private interfaces where possible
+to avoid external repairs.

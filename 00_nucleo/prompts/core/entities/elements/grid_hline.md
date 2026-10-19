@@ -1,44 +1,51 @@
 # Prompt L0 — `entities/elements/grid_hline` — `GridHLineElem`
 Hash do Código: f38d6d29
-**P739A** — `stroke` passou a `Option<Stroke>`: `stroke: none` compila e a linha não é desenhada (paridade vanilla, medido; zero-thickness seria hairline em PDF — achado P726). O render (`compiler/layout/grid.rs`) salta linhas com `stroke: None`.
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/grid_hline.rs`
-**Origem**: Passo 512 (linhas em grid/table). Trait e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/grid_hline.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
+## Evidence before specification
 
-## Struct
+The archived source records the measured distinction between `stroke: none`
+and zero thickness: zero thickness becomes a PDF hairline, whereas None must
+skip drawing. This is historical evidence, not a fresh current-pin probe.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct GridHLineElem {
     pub start:    usize,
-    pub end:      Option<usize>, // None = até à última coluna
-    pub row:      usize,          // linha do grid onde a hline se posiciona
-    pub stroke:   Option<Stroke>, // **P739A** — None = `stroke: none` (linha não desenhada; paridade vanilla)
-    pub position: EcoString,      // "top" | "bottom"
+    pub end:      Option<usize>,
+    pub row:      usize,
+    pub stroke:   Option<Stroke>,
+    pub position: EcoString,
 }
 ```
 
-`Content::GridHLine(GridHLineElem)`.
-Construtor ergonómico: `Content::grid_hline(start: usize, end: Option<usize>, row: usize, stroke: Option<Stroke>, position: EcoString)`.
+`end: None` extends through the last column; position uses top/bottom.
+Keep the `Content::GridHLine` variant and ergonomic `Content::grid_hline` constructor
+with arguments start, end, row, stroke, position in that order and the
+field types above. The `row` field is computed by `native_grid()` from
+child order, not a public argument of `grid.hline()`.
+`stroke: None` preserves `stroke: none`; the layout consumer skips drawing.
 
-O campo `row` não é argumento público de `grid.hline()`: é calculado por `native_grid()` a partir da ordem dos children durante o parsing.
+## Behavior and acceptance
 
-## `impl Element for GridHLineElem`
+Plain text is empty. `is_empty` is false because this is structural visual
+content. Both maps are terminal and reconstruct
+`Content::GridHLine(Arc::new(self.clone()))`. Field/kind/payload default to None;
+non-locatable. Verify empty text, terminal maps, and structural equality.
 
-| método | comportamento |
-|---|---|
-| `plain_text` | string vazia |
-| `is_empty` | `false` (linha é conteúdo visual) |
-| `map_content` | devolve `Content::GridHLine(Arc::new(self.clone()))` (terminal) |
-| `map_text` | devolve `Content::GridHLine(Arc::new(self.clone()))` (terminal) |
-| `get_field`/`element_kind`/`to_payload` | default `None` |
+## Pending documentary reconciliation
 
-## `eq` estrutural
+The original specifies derived PartialEq but enumerates only start, end,
+stroke, position in its equality summary, omitting row. Preserve the
+structural derive and all fields; this editorial cleanup does not authorize
+ignoring row in equality. Its shorter summary is not a new contract change.
 
-`#[derive(PartialEq)]` compara `start + end + stroke + position`.
+## Historical record
 
-## Critério
-
-`plain_text` vazio; `map_*` terminal; igualdade estrutural.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/grid_hline.md`. Historical observations are not a new parity certification.

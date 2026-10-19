@@ -2,146 +2,57 @@
 Hash do Código: 9a5d0522
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:ff71dfc6648d6deb4b2b8054e3d58a93777d17837129f0f1b1e7e138ffb6943c
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/realized.rs`
-**Governança:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Evidência antes da decisão
+## Evidence before specification
 
-O backtrace do binário da memoização, SHA-256 `70bb22e90f7b0fa1a660de1c8f0df0a89f8ebb6ddd82a77fd4794f753ebb07f5`, apontou duas chamadas de introspecção inicial vindas de layout_content_once ao emitir um heading transformado. A fonte em `01_core/src/compiler/layout/mod.rs:1163–1179` reconstruía o índice da origem de cada Realized para extrair suas Locations. No caminho aprovado de realização, origens frequentemente já são Located. A sonda e o estado RED estão em `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05/`; o backtrace bruto será preservado no recibo. Isso legitima a investigação de trabalho redundante, não um ganho ainda medido.
+The memoization binary backtrace (SHA-256 `70bb22e90f7b0fa1a660de1c8f0df0a89f8ebb6ddd82a77fd4794f753ebb07f5`) showed two initial-introspection calls from layout_content_once while emitting a transformed Heading. `01_core/src/compiler/layout/mod.rs:1163–1179` rebuilt each Realized origin's index to extract Locations, although approved realization often already supplies Located origins. Probe/RED state: `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05/`; preserve raw backtrace in receipt. This supports investigating redundant work, not an unmeasured gain.
 
-## Ownership e contrato interno
+`Equation-where-2026-10-06/delivered.json.gz`, historical pin 9f2b6e871 with binaries/HEAD/diff/UTC, shows show-block emitting 𝑎 DISPLAY on one Tekt line versus DISPLAY on its own vanilla line. Filter/product match but block boundary is lost. `layout/mod.rs:1172–1175` emits Realized visual without origin; `paragraph.rs:114–130` already gives a text segment its own boundary.
 
-Possuir a lógica de registro das âncoras das origens consumidas por Realized, como free function estática descendente de layout. O hub apenas delega ao helper e emite visual. Não criar trait, vtable, novos campos públicos ou API externa. Estado continua no Layouter e identidade continua nos owners existentes de Location/Locator/Content.
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/working tree/UTC/sources/argv/binaries at historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. This unit has transparent ShowRecipe/Located/Realized operations; Source must not leak as an observable element. Human approval `confirmo` was received 2026-10-07; contract: `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md`. regressions/equation show-block refutes treating Source as an unknown textual product.
 
-Colher Locations explícitas pela travessia existente, incluindo origens aninhadas de Realized. A coleta só qualifica quando cada locatable foi preparado: delegar classificação a extract_payload, nunca duplicá-la. Outline/Bibliography/Ref/Dynamic/Document/Asset conservam fallback, inclusive como body imediato de Located, pela síntese, conversão ou exclusão da introspecção. Located com body sem payload também conserva fallback. Erro da travessia invalida a prova e exige o caminho anterior. Não usar igualdade/hash visual ou endereço cru como chave.
+`box-contexto-2026-10-14/probe.json.gz`preserves sources/binaries/HEAD/working tree/UTC: Box, inset2pt, prefix and nesting publish (0,0) despite displaced paint. The direct-context baseline difference is separate; do not copy vanilla merely because it differs. `mod.rs:1131-1148/1180-1200` writes local points to runtime.positions; Box groups its body in another coordinate system; `finish.rs:295-302` seals the map without recomposing those points. Realized writes through or_insert; labels have a parallel map. HTML already carries private markers through the frame at `html_frame.rs:30-199`. Preserve single-pass registration and per-sub-store sealing under ADR-0073/0074 position/hybrid-model sections; do not adopt vanilla global introspection. Inspection of coordinates and its owners found absolute uses in Grid and explicitly local uses in Place/Box; nucleus qualification preserves both and requires page transformation without doubled origin. Earlier snapshot: `posicoes-compostas-2026-10-14/before.json.gz`. Geometry/identity are observables; carrier/index are mechanics.
 
-Sem prova de completude, reconstruir o índice da origem com introspect_with_introspector e extrair as keys de elements como antes. Com prova, usar as Locations colhidas sem reconstruir stores. Registrar no ponto de entrada do produto, com a mesma página e cursor, observe do Locator e positions.entry.or_insert. Conservar anchors previamente registradas, descendentes, aliases e IDs; não emitir a origem nem gerar um novo ID. Nenhum cache global, I/O, relógio ou unsafe.
+V17 T159 is at `01_core/src/compiler/layout/realized.rs:41`. Sources/L0 were read first; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC/status/git diff HEAD --stat are in `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. Hash-reconfirmed inventory has 28 guards across 21 owners; pinned CI requires splitting or moving conditions into bodies. This is Rust structure, proving neither functional defect, AI readability nor upstream intent.
 
-## Aceitação
+`lab/results/construction/diagnostics/tekt-v16-introspect-origins-2026-10-16/before.json.gz` preserves that HEAD, uncommitted tree/UTC/status/diffstat/full sources/hashes. Value has 39 variants, Content 120. `eval/mod.rs:956` has latent None fallback T027; `layout/realized.rs:14–45` implicit predicate/other binding T158/T160, and`:77–130` if-let chains with implicit false. `extract_payload.rs:18–98` dispatches without Source normalization; `locatable.rs:21` classifies Source by body. Pinned content/source-origin requires transparency/single occurrence; Source(Heading)→None and Located(Source(Heading)) losing preparedness are inferences requiring preimplementation RED. `entities/content/traversal.rs:79` map_content already treats Source transparently. These facts establish no upstream intent/new vanilla parity.
 
-RED→GREEN prova âncora de origem preparada sem walk de introspecção. Cobrir descendentes preparados e fallback para origem sem Located. Revalidar labels, contadores, contexto, outlines, bibliografia, targets e geometria nos controles pertinentes. Contagem de chamadas e tempos vêm acompanhados de HEAD, working tree, binários, fontes e timestamps. Ausência de ganho deve ser reportada.
+Pretest complement: needs_fresh_index must normalize Source through existing source_body. Corrected extraction must not fast-path Located(Source(Outline/Bibliography/Ref/Dynamic/Document/Asset)); missing Source payload had masked absent normalization. The special-class-with-Source test must be RED first.
 
-Extração/otimização interna na mesma fase e assinatura de fachada: fluxo contínuo ADR-0127. O L0 precede o código; interface externa e linguagem permanecem.
+preview-architecture.log and flattening-before.json.gz preserve initial state/HEAD/tree/UTC and sole new V20 at realized.rs:155, depth 3 in other @ (nominal group). This refutes extra capture syntax while retaining the evolution barrier.
 
-## D05 — fronteira do produto textual de equação de bloco
+`lab/results/construction/diagnostics/tekt-v16-introspect-walk-2026-10-16/before.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/exact diffstat/sources/hashes/binaries. Earlier CLI measurement-before.json/measurement-fields-before.json against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`: direct entry once, synthesized once, mixed twice; Tekt direct query 0 versus 1, mixed 1 versus 2, direct body() fails `cannot outline heading`. `entities/elements/outline_entry.rs:61` body accepts only bare Heading;`:99` supplies NativeElement; `introspect/extract_payload.rs:148` drops OutlineEntry; `walk.rs:805` treats entry terminal; `outline_entries.rs:38–61` synthesizes after walk. Generic map_content visits semantic element/fill (`traversal.rs:221`); `realized.rs:139–281` uses it to certify origins, motivating a referenced Located Heading test distinct from rendered descent. Pinned upstream `outline.rs:472–481` declares OutlineEntry Locatable. These measure language semantics/morphology/errors, not Rust/bytes/PDF/mechanics equality. Wrong query/fields/body, phantom headings, duplication or synthesis/order/label regression refute correction.
 
-### Medição antes da decisão
+## Exclusive ownership and current contract
 
-Equation-where-2026-10-06/delivered.json.gz, pin 9f2b6e871, binários/HEAD/diff/UTC
-preservados: show-block emite 𝑎 DISPLAY na mesma linha no Tekt e DISPLAY em linha
-própria no vanilla. O filtro e produto coincidem; a fronteira de bloco perde-se.
-layout/mod.rs:1172–1175 emite visual de Realized sem considerar a origem;
-paragraph.rs:114–130 já realiza o segmento textual em fronteira própria.
+Own static descendant free-function logic for registering consumed Realized origin anchors and emitting their visual. The hub delegates; state remains in Layouter and Location/Locator/Content identity in existing owners. No trait/vtable/new public field/external API, global cache, I/O, clock or unsafe.
 
-### Decisão e aceitação
+Collect explicit Locations through existing traversal, including nested Realized origins. Certify collection only when every locatable is prepared, delegating classification to extract_payload rather than duplicating it. Located without payload retains fallback; traversal error invalidates proof and requires prior path. No visual equality/hash or raw address keys. Without completeness proof, rebuild origin through introspect_with_introspector and read elements keys as before; with proof, use collected Locations without store reconstruction. Register at visual-product entry with same page/cursor, Locator observe and positions.entry.or_insert. Preserve prior anchors/descendants/aliases/IDs; emit no origin and allocate no new ID.
 
-A unidade agora orquestra registro da origem e emissão do visual. Se a origem
-é Equation com block:true e o visual é textual certificado (Text, Empty, espaços,
-Linebreak, Sequence, Styled, Strong/Emph e wrappers Located/ShowRecipe),
-com texto não-vazio, manter fronteiras
-de parágrafo antes/depois do produto usando a unidade paragraph existente.
-Registrar âncora após fechar a linha anterior; não criar Content/Location nova,
-não emitir a origem nem repetir recipe. Outros tipos de origem e visuais fora
-desse recorte conservam caminho anterior. Não reinterpretar Equation intacta
-como texto. Sem novo campo/API/fase; correção de render na camada vigente.
+Normalize Source through source_body before needs_fresh_index. The current true classes are Outline/Bibliography/Ref/Dynamic/Document/Asset and OutlineEntry; every other variant is an explicit nominal false group. OutlineEntry's later correction supersedes only this owner's prior pending qualification: walk is terminal for entry while map_content visits semantic element. A referenced Heading Location must not count as rendered origin, nor a bare entry as prepared. Preserve all six original special classes and Source normalization. Special/unprepared input retains fresh-index fallback, including immediate Located bodies.
 
-Fluxo contínuo ADR-0127, L0 primeiro e RED→GREEN; manter fallback fora do
-recorte, build/lint e nova medição bilateral. Não é novo modo/default deliberado.
+prepared_locations retains Located/Realized arms, order/effects; the nominal complement uses existing node without additional capture. Delegate extract_payload. Merge visitor catchall and decide needs_fresh_index || extract_payload.is_some in the body, retaining short-circuit, complete=false and no improper collection. The later flat refinement supersedes other @ capture: enumerate nominal alternatives flat and alpha-rename needs_fresh_index(other)/extract_payload(other) to node; no helper, discarded variant or changed short-circuit. V19 may remain informative; V20 must not increase.
 
-Visual Realized aninhado, Empty isolado e conteúdo só de espaços não qualificam
-este recorte; conservam fallback, evitando certificar remoção/dupla fronteira.
+block_equation_origin/textual_product use complete nominal matches instead of implicit-false if-let/matches, preserving exact classes/recursion: Source normalized by source_body; Realized unwrapped only for equation origin, never within textual certificate; Sequence uses all. Empty/spaces are textual but emission still requires nonempty plain_text. No new Source callback: map_content already handles it. With corrected extractor, Located(Source(Heading)) qualifies with the same Location; exterior Source and Realized original create no duplicate visits/Locations. Do not change registration/point/page/order/IDs/pipeline/carriers.
 
+If origin is Equation block:true and visual is certified nonempty textual content (Text, Empty, spaces, Linebreak, Sequence, Styled, Strong/Emph and Located/ShowRecipe wrappers, transparently through Source), maintain paragraph boundaries before/after visual via `00_nucleo/prompts/core/compiler/layout/paragraph.md`. Register anchor after closing preceding line. No new Content/Location, original emission or recipe replay; intact Equation is not reinterpreted as text. Other origins/uncertified visuals retain fallback. Nested Realized visual, isolated Empty and space-only content do not qualify, avoiding certified removal/double boundaries. Preserve target/equation phase.
 
-## D08B3-C2 — responsabilidade ratificada
+For every origin, use position registration only-if-absent: do not create a new capture or overwrite existing registration. Position helper transports captured point without replaying origin. Preserve collection/observe algorithm and causal effects.
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+## Acceptance and limits
 
-regressions/equation show-block refuta Source como produto textual desconhecido: classificar origem Equation/block e produto por body transparente, preservando fronteira de parágrafo e âncora do Realized. Não alterar alvo/fase de equação.
+Internal extraction/optimization/parity/maintenance follows continuous flow under ADR-0127 in the same phase/facade signature, with no new public API/field/trait/default/compatibility. L0 precedes code and restricted resealing. Nominal identical consequences share bodies with informative V19, not global suppression or duplicated bodies; structural barriers imply neither every fallback defective nor every alternative executed.
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+RED→GREEN proves prepared-origin anchoring without an introspection walk. Cover prepared descendants and non-Located fallback; revalidate labels/counters/context/outlines/bibliography/targets/geometry. Timings/call counts require HEAD/working tree/binaries/sources/timestamps, and absent gain must be reported. Textual block-Equation correction needs RED→GREEN, retained out-of-scope fallback, build/lint and new bilateral measurement. Source-origin tests/C2/C/macro collections/builds/lineage are required before certification.
 
+Position controls require RED→GREEN for coordinates/no fictitious paint/height/identity/order/visual clones/rollback; revalidate HTML/geometry/context/queries/full suite. V17 controls run existing functional expectations before code; actual RED 28 warnings, GREEN zero V17. No helper hiding conjunction, suppression or linter change; check success/fallback/error/short-circuit/effects. Revalidate full build/workspace suite, Clippy all-targets warnings/unfulfilled expectations as errors, fmt, strict Rustdoc, strict/reverse V1/V5/V15/V26 lineage and SARIF without new warnings, under 12GiB/zero swap/one job. Claim no global gain/parity without separate measurement.
 
+Write colocated Source producer/nonproducer, Located/Source, no-duplicate collection, fallback and predicate tests; establish Source transparency RED first. Existing preservation/single_evaluation_ controls pass before/after. Separate real-workspace Value/Content sentinel copies require E0004 at six selected points after correction, preserving prior absence/other errors/sources. Reseal edited pairs only; SARIF removes only selected V16, preserves other diagnostics and allows only prescribed equivalent V19. Heavy commands sequential under 12GiB/zero swap/one Cargo job. Origin cleanup alone does not close the overall objective.
 
-## Posições no referencial composto — 2026-10-14
-
-### Medição anterior à decisão
-
-box-contexto-2026-10-14/probe.json.gz, fontes/binários/HEAD/working tree/UTC
-preservados: Box, inset2pt, prefixo e aninhamento publicam (0,0), mesmo
-quando a tinta se desloca. A diferença da baseline do context direto é
-uma questão separada: não copiar o vanilla apenas por diferir. mod.rs:
-1131-1148/1180-1200 escreve pontos locais em runtime.positions; Box agrupa
-o corpo em outro referencial; finish.rs:295-302 sela o mapa sem recompor
-esses pontos. Realized escreve com or_insert; labels têm mapa paralelo.
-HTML já transporta markers privados pelo frame em html_frame.rs:30-199.
-O registro single-pass e sealing por sub-store são preservados, ADR-0073/
-0074 §§posição/modelo híbrido; não se adota introspecção global vanilla.
-A inspeção do núcleo coordinates e seus owners mostrou usos absolutos
-em grid e explicitamente locais em Place/Box. A qualificação do núcleo
-conserva ambos e exige transformação até a página, sem dupla origem.
-Snapshot anterior: posicoes-compostas-2026-10-14/before.json.gz.
-Geometria/identidade são observáveis; o carrier e seu índice são mecânica.
-
-### Contrato deste owner
-
-Preservar o algoritmo de coleta e observe. Para cada origem, usar o registro de posição com política somente-se-ausente: não criar captura nem sobrescrever uma origem já registrada. O helper de posição transporta o ponto capturado sem reexecutar a origem.
-
-Correção interna ADR-0127: sem API/campo público, flag/default ou mudança
-de fase. L0 primeiro; RED→GREEN de coordenadas, ausência de tinta/altura
-fictícia, identidade, ordem, clones visuais e rollback; revalidar os
-controles HTML, geometria, contexto/queries e suíte completa.
-
-
-## Guards de domínio explícitos — V17, 2026-10-16
-
-### Medição anterior à decisão
-
-T159: 01_core/src/compiler/layout/realized.rs:41. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
-
-### Responsabilidade exclusiva e aceitação
-
-Unir o catchall da visita de prepared_locations e decidir no corpo needs_fresh_index || extract_payload.is_some. Preservar curto-circuito, complete=false e ausência de coleta indevida; Located/Realized e fallback de introspecção conservam ordem e chamadas.
-
-Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.
-
-
-## Exaustividade de origens e Source — 2026-10-16
-
-### Medição antes da decisão
-
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status, git diff HEAD --stat e fontes/hashes integrais em `lab/results/construction/diagnostics/tekt-v16-introspect-origins-2026-10-16/before.json.gz`. Value tem 39 variantes e Content 120. eval/mod.rs:956 conserva fallback None latente T027; layout/realized.rs:14–45 usa predicado implícito e binding other para T158/T160; :77–130 usa cadeias if-let com false implícito. extract_payload.rs:18–98 despacha sem normalizar Source; locatable.rs:21 classifica Source pelo body. O núcleo content/source-origin.toml exige transparência e ocorrência única. Inferência a refutar por teste RED antes da implementação: Source(Heading) retorna None pela extração atual, e Located(Source(Heading)) perde a prova de preparação. map_content em entities/content/traversal.rs:79 já trata Source transparentemente. Não se infere intenção upstream nem nova paridade vanilla destes fatos; não mudar a pendência OutlineEntry sem investigação própria.
-
-### Decisão exclusiva e aceitação
-
-needs_fresh_index torna explícitos os seis casos atuais Outline/Bibliography/Ref/Dynamic/Document/Asset (true) e o complemento nominal (false). prepared_locations preserva os braços Located/Realized, ordem e efeito; o complemento nominal usa o parâmetro node já disponível no corpo, sem captura adicional. Conservar a delegação a extract_payload e não duplicar sua tabela. block_equation_origin e textual_product passam de if-let/matches! com false implícito a matches nominais completos: manter exatamente as classes e recursões atuais, incluindo Source normalizado por source_body, Realized apenas na origem de equação e ausência de unwrap de Realized no certificado textual. Sequence usa all; Empty/espaços são textuais mas a emissão ainda exige plain_text não vazio no layout inalterado. Não criar Source callback novo: map_content já o trata transparentemente. Com o extractor corrigido, Located cujo body é Source(Heading) deve qualificar e colher a mesma Location; Source exterior a Located e original de Realized não duplicam visitas/Locations. Tipos especiais e conteúdo não preparado mantêm fallback. Não mudar registro, ponto/página, ordem, IDs, pipeline ou carriers.
-
-O grupo nominal com consequência idêntica pode permanecer como V19 informativo, prescrito por responsabilidade acima, sem duplicar corpos nem supressões globais. Correções estruturais adicionam barreira local contra variantes novas; não afirmam defeito funcional em todos os fallbacks nem cobertura de execução de todas as alternativas. Preservar firmas públicas e comportamento fora da transparência Source já contratada.
-
-Escrever testes co-localizados dos casos Source produtores/não produtores, Located/Source, coleta sem duplicação, fallbacks e predicados; confirmar RED da transparência antes do código. Controles de preservação e single_evaluation_ existentes passam antes/depois. Em cópias do workspace real, variantes sentinelas separadas em Value e Content devem produzir E0004 nos seis pontos selecionados depois da correção; guardar ausência dessas barreiras antes, demais erros e fontes. Resselo somente dos pares editados. Validar build, suíte workspace completa, Clippy all-targets com warnings/expectativas como erro, fmt, Rustdoc estrito, V1/V5/V15/V26 e reversa; SARIF remove somente V16 selecionado e mantém demais diagnósticos, admitindo apenas V19 equivalentes prescritos. Recursos: 12 GiB, swap zero, Cargo um job e comandos pesados sequenciais. Não declarar fechado o objetivo geral ou OutlineEntry por fechar este lote.
-
-Complemento medido antes dos testes: needs_fresh_index deve normalizar Source pelo source_body existente antes do match. A extração Source corrigida não pode permitir que Located(Source(Outline/Bibliography/Ref/Dynamic/Document/Asset)) passe pelo caminho rápido. Hoje a ausência de payload Source mascara essa falta de normalização. O teste de classe especial com Source deve ser RED antes; preservar fallback para as seis classes após transparência, sem criar callback Source (map_content já o omite).
-
-### Refinamento medido de sintaxe plana
-
-preview-architecture.log e flattening-before.json.gz preservam o estado inicial desta materialização, HEAD/árvore/UTC, e o único V20 novo em realized.rs:155: profundidade 3 da captura other @ (grupo nominal). Substituir somente essa captura pela enumeração nominal plana e reutilizar node no corpo, alpha-renomeando needs_fresh_index(other)/extract_payload(other) para node. Não criar helper, descartar variantes ou alterar curto-circuito; a barreira de evolução permanece. Isso supersede a opção de captura anteriormente descrita; V19 continua informativo, V20 não deve aumentar. O L0 deste refinamento precede o ajuste do código.
-
-
-## Alinhamento OutlineEntry e walk exaustivo — 2026-10-16
-
-### Medição anterior à decisão
-
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, lista exata git diff HEAD --stat, fontes/hashes e binários em `lab/results/construction/diagnostics/tekt-v16-introspect-walk-2026-10-16/before.json.gz`. Medições CLI anteriores em measurement-before.json e measurement-fields-before.json: no pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8, entry direta aparece uma vez, sintetizada uma vez e mista duas vezes; no Tekt, a direta some da query (0 contra 1), mista perde a direta (1 contra 2), e body() direto falha cannot outline heading. Fonte: entities/elements/outline_entry.rs:61 body só aceita Heading bruto; :99 fornece NativeElement; introspect/extract_payload.rs:148 descarta OutlineEntry; walk.rs:805 trata entry terminal; outline_entries.rs:38–61 sintetiza entries após walk. Generic map_content visita element/fill (traversal.rs:221); realized.rs:139–281 usa essa travessia para certificar origens, motivo para testar um heading referenciado Located sem confundi-lo com descendente renderizado. O upstream pinado declara OutlineEntry Locatable em outline.rs:472–481. Isto mede semântica/morfologia e erros observáveis da linguagem, não impõe igualdade Rust/bytes/PDF ou mecânica vanilla. A hipótese de correção é refutada por query/fields/body errados, headings fantasmas, duplicação ou regressão em síntese/ordem/labels.
-
-### Responsabilidade exclusiva vigente
-
-Adicionar OutlineEntry às classes que exigem índice fresco, retirando-a do complemento false. O walk é terminal para a entry, enquanto map_content visita o campo element semântico; o certificado genérico não pode tratar uma Location referenciada do heading como origem renderizada da entry, nem certificar entry nua como preparada. A nova extração não deve habilitar acidentalmente esse atalho. Preservar as seis classes especiais anteriores e Source normalizado; restantes decisões/coleta/registro/predicados inalterados. Testar entry nua com element Located, entry Located, Source e Realized; a prova deve recusar atalho e fallback conserva o índice causal, sem novos IDs de produto.
-
-Esta revisão supersede somente as ressalvas anteriores de pendência OutlineEntry neste owner; preserva os demais contratos vigentes.
-
-### Aceitação
-
-L0 primeiro, testes co-localizados antes da implementação e RED funcional real; manter controles existentes e a medição CLI anterior intacta. Repetir fixtures direct/synthesized/mixed com body() e com acesso ao campo, comparar resultados de linguagem, não bytes PDF. Sonda Content sentinela separada em cópia do workspace real: os seis pontos W1–W6 devem acrescentar E0004 após a correção e não antes, sem outros erros; preservar logs/inputs. Resselo só dos cinco pares afetados e grafo V15/V26 válido. Gates: build workspace, fmt, Clippy all-targets -D warnings e unfulfilled_lint_expectations, Rustdoc -D warnings, suíte workspace completa, V1/V5/V15/V26 e reversa, diff-check e SARIF diferencial. Esperado: seis V16 removidos (239→233), seis V19 informativos novos; V19 existente do complemento do extractor perde uma alternativa e os dois grupos de needs_fresh_index migram OutlineEntry de false para true. Nenhum V20 novo ou outro diagnóstico alterado após mapear deslocamentos. V19 é grupo de consequência uniforme prescrito aqui, não cobertura de execução de cada alternativa. Sem supressões ou configurações globais. 12 GiB, swap zero, um job Cargo, comandos pesados sequenciais; estado/UTC/hashes registrados. Correção interna/paridade ADR-0127, sem API/campo/trait/default/fase ou compatibilidade novos. Não publicar, commitar ou fazer push. O objetivo geral permanece aberto com os demais V16.
+OutlineEntry tests cover bare entry with Located element, Located entry, Source and Realized: no fast-path certification; fallback retains causal index without new product IDs. Preserve previous CLI measurements and expectations; repeat direct/synthesized/mixed fixtures with body() and field access at language level, never PDF bytes. Separate Content sentinel real-workspace copy adds E0004 at six W1–W6 points after, not before, without other errors; preserve logs/inputs. Reseal only five affected pairs after valid V15/V26. Require workspace build/fmt/Clippy all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings, full suite, strict/reverse lineage, diff-check and differential SARIF: six V16 removed 239→233, six new informative V19; extractor complement loses one alternative and both needs_fresh_index groups move OutlineEntry false→true. No new V20 or unrelated diagnostic change after line-shift mapping. V19 records uniform consequences, not per-alternative execution. No suppression/global configuration, publish/commit/push; record state/UTC/hashes. Other V16 leave the overall objective open.

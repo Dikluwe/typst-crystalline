@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash defcf503
+//! @prompt-hash dac9f11d
 //! @layer L3
 //! @updated 2026-10-09
 //!

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md
-//! @prompt-hash b8912b5b
+//! @prompt-hash c042006c
 //! @layer L4
 //! @updated 2026-09-01
 //!

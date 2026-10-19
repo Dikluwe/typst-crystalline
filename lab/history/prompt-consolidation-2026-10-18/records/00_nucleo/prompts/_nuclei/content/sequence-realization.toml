@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "sequence-realization"
+title = "Realização de Sequence preservando escopo e ocorrência"
+
+[[claims]]
+id = "capture-before-flatten"
+level = "must"
+statement = "Inserção e cauda lexical Sequence selecionável conservam corpo e ambiente antes do aplanamento. Captura não executa receita; prefixos anteriores à regra não recebem regras futuras."
+
+[[claims]]
+id = "parent-before-hidden-children"
+level = "must"
+statement = "Uma receita Sequence marcada é decidida antes das receitas e preparações dos filhos que pode ocultar. Somente conteúdo emitido continua sua realização. O transporte é privado em RAM, com tipos públicos existentes."
+
+[[claims]]
+id = "nominal-guards"
+level = "must"
+statement = "Alias de it conserva a proteção dos RuleIds já aplicados à ocorrência; reconstrução nova não herda essa proteção só por ter children iguais. A profundidade existente de show limita novas gerações, sem ponto-fixo morfológico ou Location fabricada."
+
+[[claims]]
+id = "preserve-other-owners"
+level = "must-not"
+statement = "Não mudar limites de Route, interfaces públicas, fase de State/Counter/Heading, transparência de Styled comum ou política de terminação dos demais não-localizáveis. Capturas mantêm regras/styles/guards/file lexicais e Source causal."

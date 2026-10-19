@@ -5,7 +5,7 @@ Hash do Código: bbd624bd
 **Exclusive consumer:** `01_core/src/entities/state.rs`
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/state/language-semantics.toml sha256:27acb21a5e0b2e0cb3b65de61bba5266158f3e9828392fe92a1a3b160e9d61a4
+- 00_nucleo/prompts/_nuclei/state/language-semantics.toml sha256:58a1e343cd346a842c0e0a2760c8b7438e89054b228d00a1b4972019320996e5
 
 ## Contract
 

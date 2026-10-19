@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "raw-block-boundary"
-title = "Fronteira física de Raw bloco"
-
+title = "Physical boundary of block Raw"
 [[claims]]
 id = "boundary-once"
 level = "must"
-statement = "Raw block e seu produto substituído por show preservam a fronteira física uma vez, sem executar receita no layout. Markers privados Styles transportam block, overrides de tamanho como Length e margens existentes; coordenadas permanecem no render."
-
+statement = "Block Raw and its show replacement preserve physical boundary once without executing recipe in layout. Private Styles markers transport block, size overrides as Length and existing margins; coordinates remain in render."
 [[claims]]
 id = "local-and-pending"
 level = "must"
-statement = "O bloco começa na origem horizontal da região, usa margens colapsadas com a baseline anterior e mantém abaixo pendente para a próxima unidade. A margem final não aumenta a altura terminal do bloco. Medição e emissão usam a mesma fronteira."
-
+statement = "Block begins at region horizontal origin, uses margins collapsed with previous baseline and retains pending below for next unit. Final margin does not enlarge terminal block height. Measurement/emission use the same boundary."
 [[claims]]
 id = "font-and-overrides"
 level = "must"
-statement = "Margens default Raw usam seu tamanho efetivo e são fracas como par.spacing. O parágrafo vizinho contribui sua margem; blocos consecutivos colapsam suas próprias margens por máximo. Overrides block.above/below/spacing explícitos têm precedência sobre margem fraca de parágrafo. O Cursor consome a margem fraca em colapso com a margem do texto seguinte, conservando margens explícitas. Fontes/tokens continuam nos owners atuais."
+statement = "Raw default margins use effective Raw size and are weak like par.spacing. Neighboring paragraph contributes its margin; consecutive blocks collapse own margins by maximum. Explicit block.above/below/spacing overrides beat weak paragraph margin. Cursor collapses weak margin with following text margin while preserving explicit margins. Fonts/tokens remain with current owners."

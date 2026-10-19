@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "9f9b956c895598f27ec1094db91dcb1fec6ff42f6e3477bc7684ae690104049b",
+    "result_sha256": "aefb4514359dfc000f45c0e8cc889f57e3c2f928689a5ceb08f8e197067d834a",
+    "disposition": "Full invocation owner translated: raw Table/group/Sequence boundaries and approved gates, actual causal spans, acquired Args/noncallable-before-effects, deleted mat-name compensation and all39-case/flat-pattern acceptance preserved."
+  }
+]

@@ -1,0 +1,73 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/entities/content.md",
+    "status": "independent-full-original-and-consolidation-review",
+    "original_sha256": "f9a9845e38818c2acaa1affd83fad795729438c80668af86e04d12b3b67bcb99",
+    "review_input_sha256": "2b3ea02b4bc4c0353e1e3397270f01a84fc2c46eff9b419df5ba9a194eab2a96",
+    "result_sha256": "3f4ad4bcee364304224117eca5e8703f56764365f34ea59bf18775da02a3866a",
+    "findings": [
+      "Corrected Source approval citation from preapproval nested candidate to final ratification record; bounded approval unchanged."
+    ],
+    "disposition": "All archived and current clauses fully read. No dropped public schema, acceptance or improperly broadened approval found beyond the concrete repairs listed; proposal/gate and partial supersession boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/state_registry.md",
+    "status": "independent-full-original-and-consolidation-review",
+    "original_sha256": "188d9f936521cb859f25593d3fe16b244d1c962148b1573e5ec202d20f8572fb",
+    "review_input_sha256": "5589069e28ff0281bda48475f87d7d144a63170ec41e4b0256670b6ff3f20cab",
+    "result_sha256": "5589069e28ff0281bda48475f87d7d144a63170ec41e4b0256670b6ff3f20cab",
+    "findings": [],
+    "disposition": "All archived and current clauses fully read. No dropped public schema, acceptance or improperly broadened approval found beyond the concrete repairs listed; proposal/gate and partial supersession boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/counter_registry.md",
+    "status": "independent-full-original-and-consolidation-review",
+    "original_sha256": "9c7fd0c26430d66d786e27d7b452960407017260195c2901978e0baee30a5390",
+    "review_input_sha256": "fdb48a89930aa87372fc1eea8efc5df0a443a196fbd958a9f9016379a68478b5",
+    "result_sha256": "47b94ce08d59e9fd225ba68352422d095abed62e745d790723d4ee43da3dd53e",
+    "findings": [
+      "Restored explicit callback construction phase, existing StateUpdate channel and field-access prohibition from original complete-action clause."
+    ],
+    "disposition": "All archived and current clauses fully read. No dropped public schema, acceptance or improperly broadened approval found beyond the concrete repairs listed; proposal/gate and partial supersession boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/element_payload.md",
+    "status": "independent-full-original-and-consolidation-review",
+    "original_sha256": "a95afd65b10966235a5ac268a1b240db818687d9248835fcda0e8d0992d6614c",
+    "review_input_sha256": "dda6d25ba6a80910b16e374002e5e10b39a704134d8844bfb643ccc4de807ba7",
+    "result_sha256": "01e07d1137835de5f2bce308d889a8e526b1c9628a1077544a7806942589feee",
+    "findings": [
+      "Restored exact legacy Equation block/state numbering predicate and equation key; retained its bounded fallback provenance."
+    ],
+    "disposition": "All archived and current clauses fully read. No dropped public schema, acceptance or improperly broadened approval found beyond the concrete repairs listed; proposal/gate and partial supersession boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/style.md",
+    "status": "independent-full-original-and-consolidation-review",
+    "original_sha256": "4325c79d358f1791a56b84130d0e1b784e91d0fe061df9e077b12a7c7fe123b3",
+    "review_input_sha256": "90ea6de53c6ea8318f9162397da78845884febd9abf04564b5c699c8f2718848",
+    "result_sha256": "90ea6de53c6ea8318f9162397da78845884febd9abf04564b5c699c8f2718848",
+    "findings": [],
+    "disposition": "All archived and current clauses fully read. No dropped public schema, acceptance or improperly broadened approval found beyond the concrete repairs listed; proposal/gate and partial supersession boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/math_constants.md",
+    "status": "independent-full-original-and-consolidation-review",
+    "original_sha256": "96f1f050c6bf524f07bd1039d5fc6e6e7c2b3534199dcc5755fee4ff186765f2",
+    "review_input_sha256": "bf92cf95748b2b25121cc0ca6a25c77c65c8d50c471ad345452ef7b7d4146886",
+    "result_sha256": "bf92cf95748b2b25121cc0ca6a25c77c65c8d50c471ad345452ef7b7d4146886",
+    "findings": [],
+    "disposition": "All archived and current clauses fully read. No dropped public schema, acceptance or improperly broadened approval found beyond the concrete repairs listed; proposal/gate and partial supersession boundaries retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/content/morphology.md",
+    "status": "independent-full-original-and-consolidation-review",
+    "original_sha256": "9c05e6623e6df981057170c3bc02d1028004d2534f54e5abf4ba53089e1a9eaf",
+    "review_input_sha256": "d89f75ebcff725a4be959feee27d9e06ab93750b1fdfa6afa316eb06bdb27a8f",
+    "result_sha256": "ff0b774ad891d94827a027604410daba12b18e5b4418248fc5300290b345caa8",
+    "findings": [
+      "Corrected Source approval citation from preapproval nested candidate to final ratification record; bounded approval unchanged."
+    ],
+    "disposition": "All archived and current clauses fully read. No dropped public schema, acceptance or improperly broadened approval found beyond the concrete repairs listed; proposal/gate and partial supersession boundaries retained."
+  }
+]

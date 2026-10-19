@@ -2,9 +2,9 @@
 Hash do Código: b9f4af2c
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
-- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:4e487a99ea1f1e82a67dfaced0958f98392fb26b1a7d292355230d6ffa7f2d0b
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
+- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 
 **Layer:** L1
@@ -15,7 +15,11 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/page_commit.rs:18`, `01_core/src/compiler/layout/page_commit.rs:174`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
+
+The inventory `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifies this unit's references and 1:1 owners. Manifest `1ae7513e` was confirmed.
+
+`lab/results/construction/diagnostics/links-paginacao-2026-10-14.md` and receipts under `posicoes-compostas-2026-10-14/automatic-boundary-probes` record source, HEAD/dirty tree/UTC, binaries and vanilla pin. On a 160×40pt page with 10pt margins, ordinary text crosses the break; Link URL, Ref and Ref Page abort with a stale index after buffers are emptied. `references.rs:270` appears in the stack; `link.rs:22-32` uses the same mechanism. `outline.rs:28-50` also saves indices before the body. Clamping an index proves neither prefix/order/fragment/destination preservation nor geometry. The pre-repair snapshot is `lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz`. Content, destination, regions and bounds are observables; private boundaries are mechanics.
 
 ## Ownership and contract
 
@@ -25,35 +29,12 @@ Own intermediate Page assembly only, receiving dimensions already chosen by its 
 
 When the selected marginal is Auto, format a unary pattern using the known logical current number if available, otherwise the physical index. Defer compound patterns with the current marginal geometry to the hub's terminal total-number coordinator. Function numbering uses the already-realized visible PageStore Content, never Func execution. Append the completed Page without draining floats/footnotes, advancing a region or resetting the next cursor. Final-page composition remains in `00_nucleo/prompts/core/compiler/layout/mod.md`; its terminal lifetime is not a second consumer of this prompt.
 
+For the ratified bidi-carrier migration, use None in uncertified constructors and `..` in read patterns, preserving existing language observables. Transformations follow the pinned origin nucleus, with no broader phase/API.
+
+Close active segments in the committed buffer before taking it for the physical page; reopen continuations in the new buffer. Do not move already committed content into another page. Keep fixup/composition order. This link correction is internal under ADR-0127, with no new API, default or phase.
+
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-## Migração do carrier bidi ratificado (2026-10-05)
-
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
-
-## Captura de links através de fronteiras — 2026-10-14
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
-posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
-HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
-texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
-antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
-link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
-antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
-fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
-Os observáveis são conteúdo, destino, regiões e bounds; limites privados
-são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
-
-### Contrato deste owner
-
-Fechar segmentos ativos do buffer comitado antes de retirá-lo para a página física; reabrir sua continuação no buffer novo. Não transportar conteúdo já comitado para outra página. Manter ordem de fixups e composição.
-
-Aceitação: RED→GREEN de quebras antes/dentro do corpo, preservação de
-prefixo/sufixo, regiões, destinos/bounds, corpo rico/aninhamento/colunas,
-conteúdo diferido, contexto/rollback e ausência de limites privados na saída.
-Revalidar os controles sem quebra e a suíte, build e linhagem.
+Require RED→GREEN for breaks before/within the body; preserve prefix/suffix, regions, destinations/bounds, rich body/nesting/columns, deferred content and context/rollback, with no private boundaries in output. Revalidate no-break controls, suite, build and lineage.

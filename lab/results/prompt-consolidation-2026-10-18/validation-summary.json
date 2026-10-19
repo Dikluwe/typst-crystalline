@@ -1,0 +1,269 @@
+{
+  "utc": "2026-10-19T02:59:22.805988+00:00",
+  "checkpoint": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+  "state": "Frozen uncommitted tree; exact input hashes/diff stat/status and tool identities in validation-state.json.gz",
+  "jobs_passed": 12,
+  "input_count": 2130,
+  "changed_inputs": [],
+  "python_tests_passed": 34,
+  "unit_integration_passed": 9128,
+  "unit_integration_ignored": 7,
+  "doctests_passed": 5,
+  "doctests_ignored": 0,
+  "test_groups": {
+    "tests-domain-infra": {
+      "log": "lab/results/prompt-consolidation-2026-10-18/validation/tests-domain-infra.log",
+      "sha256": "e1ab6a31201aa66c9b6156a2ee1c376eb9845cdaae8c7c0b6e996640685c26eb",
+      "binaries": 14,
+      "passed": 8904,
+      "failed": 0,
+      "ignored": 7,
+      "summaries": [
+        {
+          "line": 7404,
+          "status": "ok",
+          "passed": 7390,
+          "failed": 0,
+          "ignored": 5
+        },
+        {
+          "line": 7418,
+          "status": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8795,
+          "status": "ok",
+          "passed": 1369,
+          "failed": 0,
+          "ignored": 2
+        },
+        {
+          "line": 8808,
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8818,
+          "status": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8828,
+          "status": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8839,
+          "status": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8848,
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8858,
+          "status": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8865,
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8872,
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8884,
+          "status": "ok",
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8989,
+          "status": "ok",
+          "passed": 99,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 8998,
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    "tests-wiring": {
+      "log": "lab/results/prompt-consolidation-2026-10-18/validation/tests-wiring.log",
+      "sha256": "c28cd07635d92f53a64c44c129265cc530eff76345584ff6e610f2afaf24efd4",
+      "binaries": 15,
+      "passed": 224,
+      "failed": 0,
+      "ignored": 0,
+      "summaries": [
+        {
+          "line": 103,
+          "status": "ok",
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 235,
+          "status": "ok",
+          "passed": 126,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 243,
+          "status": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 251,
+          "status": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 261,
+          "status": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 271,
+          "status": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 289,
+          "status": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 305,
+          "status": "ok",
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 321,
+          "status": "ok",
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 334,
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 347,
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 363,
+          "status": "ok",
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 374,
+          "status": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 391,
+          "status": "ok",
+          "passed": 11,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 401,
+          "status": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    "doctests": {
+      "log": "lab/results/prompt-consolidation-2026-10-18/validation/doctests.log",
+      "sha256": "bf8f50e4e077d1376c5e8d2bef9dbc8db53c58d6788e6f66585890931a4f0d24",
+      "binaries": 3,
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0,
+      "summaries": [
+        {
+          "line": 13,
+          "status": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 19,
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "line": 25,
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    }
+  }
+}

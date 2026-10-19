@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/binom.md
-//! @prompt-hash 389d4eb5
+//! @prompt-hash 009984e6
 //! @layer L1
 //! @updated 2026-09-30
 //!

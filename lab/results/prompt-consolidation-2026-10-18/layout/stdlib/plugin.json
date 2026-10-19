@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/plugin.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated complete plugin/module/call/cache/transition/errors/spans and injection boundaries, reconciled confirmed Path gate and private Default cleanup; preserved exact diagnostic literals and known cross-owner gaps.",
+  "original_sha256": "a3be17eaf4ed2630befa0c1d213a60119a835a32d5c35b0609a64e8740d95ea4",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/plugin.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

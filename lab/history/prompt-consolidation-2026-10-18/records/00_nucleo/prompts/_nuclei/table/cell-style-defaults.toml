@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "table-cell-style-defaults"
+title = "Defaults declarados e propriedades efetivas da Cell"
+
+[[claims]]
+id = "source-and-effective"
+level = "must"
+statement = "Constructor e presença lexicais permanecem intactos; a preparação conserva propriedades efetivas tipadas privadas e getters/igualdade observam campos conhecidos, enquanto prova de reuso inclui estado causal."
+
+[[claims]]
+id = "precedence"
+level = "must"
+statement = "Constructor explícito (incluindo auto e none) vence defaults declarados; componentes de stroke e alignment fazem fold com Table, não com o estilo da Cell; campos ausentes usam o estilo de inserção. Declarações são avaliadas uma vez e publicadas somente após validação."
+
+[[claims]]
+id = "placement-and-padding"
+level = "must"
+statement = "Defaults de Cell são resolvidos antes de ocupação/grupos da Table; padding recebe spans explícitos 1 e as demais propriedades de estilo. Célula posicionada usa propriedades já resolvidas e show-set posterior da Cell não redefine ocupação."
+
+[[claims]]
+id = "scope-and-identity"
+level = "must"
+statement = "Aliases crus recebem defaults no ambiente de inserção; snapshots preparados preservam propriedades e regras consumidas, inclusive ao entrar em Table. Escopo local e show-set não vazam nem executam conteúdos ocultados."

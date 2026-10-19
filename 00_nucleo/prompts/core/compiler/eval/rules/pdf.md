@@ -1,19 +1,19 @@
-# L0 — compiler/eval/rules/pdf — Validação de opções PDF
+# L0 — compiler/eval/rules/pdf — PDF option validation
 Hash do Código: 4dcc845d
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/eval/rules/pdf.rs`
 
-## Medição antes da decisão
+## Evidence before decision
 
-A working tree não commitada capturada em `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` contém as rotinas desta família em `01_core/src/compiler/eval/rules.rs`. A suíte L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem prova bilateral nova contra o vanilla. As medidas históricas e ressalvas do pin continuam em `00_nucleo/prompts/core/compiler/eval/rules.md`.
+The uncommitted working tree captured in `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` contains this family's routines in `01_core/src/compiler/eval/rules.rs`. The L1 suite passed with 6401 tests and 2 ignored before extraction. This is structural measurement, not a benchmark or new bilateral vanilla parity evidence. Historical measurements and pin qualifications remain in `00_nucleo/prompts/core/compiler/eval/rules.md`.
 
-## Contrato de linguagem
+## Language contract
 
-Preservar validação de pages e standard, nomes fechados, ranges, conflitos tipados PdfStandards, ordem do primeiro erro, hints, spans e o Value original validado. Não realizar export PDF.
+Preserve pages and standard validation, closed names, ranges, typed PdfStandards conflicts, first-error order, hints, spans and the original validated Value. Do not perform PDF export.
 
-As assinaturas, identidades, casts, defaults, precedência de erros e fase de avaliação observados permanecem. O parent mantém diagnóstico compartilhado e bindings estáticos; outros owners de selector matching, terminação e textual realization continuam exclusivos. Não duplicar esses algoritmos.
+Preserve observed signatures, identities, casts, defaults, error precedence and evaluation phase. The parent retains shared diagnostics and static bindings; selector matching, termination and textual realization retain their exclusive owners. Do not duplicate those algorithms.
 
-## Aceitação
+## Acceptance
 
-Suíte L1 e `crystalline-lint .` sem regressão. Paridade em semântica, sintaxe e morfologia (ADR-0107/0108), ownership exclusivo e pins válidos (ADR-0129/0130).
+The L1 suite and `crystalline-lint .` must remain regression-free. Parity concerns semantics, syntax and morphology (ADR-0107/0108); preserve exclusive ownership and valid pins (ADR-0129/0130).

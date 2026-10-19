@@ -6,18 +6,18 @@ Hash do Código: da9bcfda
 **Governance:** ADR-0026, ADR-0029, ADR-0030, ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, and ADR-0130.
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
-- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
-- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
+- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
+- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 ## Measured basis and domain decision
 
 The measurement preceding this decision was taken at HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`. `01_core/src/compiler/eval/mod.rs:872–880` evaluates the program without show and then with show. `03_infra/src/query_helpers.rs:511–520` chooses between original and rendered indexes by cardinality. The audit `lab/results/construction/diagnostics/dupla-avaliacao-auditoria-2026-10-05.md` preserves controls and provenance: a recipe producing one heading makes Crystalline lose the generated item; a recipe producing two headings makes it lose the original. Full cases and commands are in `lab/results/construction/diagnostics/dupla-avaliacao-auditoria-2026-10-05/results.json.gz`.
 
-Pinned vanilla `9f2b6e8715237cb086899a42873660fe744622e8` evaluates the main program before stabilization (`lab/typst-original/crates/typst/src/lib.rs:124–132`). Its realization prepares identity before applying a recipe and preserves tags from the original while visiting the product (`lab/typst-original/crates/typst-realize/src/lib.rs:353–430`). This establishes a reference mechanism; it does not require copying vtables, unsafe code, Rust equality, or the exact algorithmic steps.
+Historical pinned vanilla `9f2b6e8715237cb086899a42873660fe744622e8` evaluates the main program before stabilization (`lab/typst-original/crates/typst/src/lib.rs:124–132`). Its realization prepares identity before applying a recipe and preserves tags from the original while visiting the product (`lab/typst-original/crates/typst-realize/src/lib.rs:353–430`). This establishes a reference mechanism; it does not require copying vtables, unsafe code, Rust equality, or the exact algorithmic steps.
 
 Separate program execution from recipe realization. Evaluation executes common code once and transports content and recipes with an immutable lexical environment. Pure realization applies recipes, preserves original and generated occurrences, and returns visual content associated with the semantic index. Layout and export are outside this consumer. Do not recover the original by re-evaluating the file, comparing tree sizes, or rebuilding records from final text. Rust/morphological equality cannot identify an occurrence: two elements with equal fields and bodies can still be distinct occurrences.
 
@@ -101,7 +101,7 @@ Measurement: `observe_occurrences` in `mod.rs:89–107` reserves Locations and `
 
 The approval receipt `lab/history/construction/records/00_nucleo/materialization/math-bare-aprovacao-2026-10-06.json` records human confirmation `confirmo` of manifest `149d6535b442a9275aa6612647ad79eac460351808ea1858175d09d1cf07e1f6`, promoted before tests/code. This satisfies the original ADR-0127 gate for the package below. It does not ratify general parity, D07, math labels, or other debt.
 
-### Measurement before the proposal — D06, 2026-10-06
+### Historical insertion measurement
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree, UTC/state/diff/source/binaries are in canonical collections `lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz`. Vanilla pin: `9f2b6e8715237cb086899a42873660fe744622e8`; provenance report: `lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md`.
 
@@ -109,7 +109,7 @@ Before: bare `frac`, `mat`, `sqrt`, `lr`, and `op` produce one `Equation` in van
 
 `lab/typst-original/crates/typst-realize/src/lib.rs:245–265,302–334` transforms `Mathy` before show outside math. `01_core/src/compiler/layout/equation.rs:680–689` projects math `nu` to text; `compiler/realize/mod.rs:155–199` prepares show/identity without math normalization. `entities/content/traversal.rs:14–108` is bottom-up and recurses into math bodies; `rules/apply.rs:564–607` handles only existing locatables. These are language semantic/morphology/render observables, not requirements for vtables, buffers, Rust equality, or PDF bytes.
 
-### Proposed exclusive responsibility and facade
+### Ratified exclusive responsibility and facade
 
 Install private descendant module `bare_math`, keeping this facade as coordinator for recipes, identity, and index. Before preparing occurrences or applying `ShowRecipe`, normalize math insertions with the `bare_math` owner's helper, respecting styles and rules from the recipe snapshot. Do not apply the final snapshot to all content or modify the consumed origin of `Realized`.
 
@@ -135,7 +135,7 @@ Deferred capture of `Mathy` stores the raw `Span` in custom `eval.math.origin`. 
 
 Measurement `delivered-infra.log` (`p1493_descendente_unico_leitor` and `fase_html_latched`) fails after `finish_occurrences` allocates extra identities in an HTML contribution without `Mathy`. `realize_math_insertions` is not general realization. If the helper finds no external `Mathy` and no lexical Equation snapshot, return the existing `Content` before observing/preparing/allocating or applying show. If an Equation snapshot exists but there is no math target, also preserve the product. Do not change budgets, execution, IDs, or context selection for content without math.
 
-## D08B3-A table resolution at insertion — ratified 2026-10-07
+## Ratified Table insertion and incomplete Cell scope
 
 The approval receipt `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-aprovacao-2026-10-07.json` records user confirmation `comfirmo`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`, and materialization with documented metric residuals. This satisfies the original D08B3-A gate; it does not complete the Cell domain or promote the excluded scope. Retain the receipt’s limitations on raw default typography, D08B3-B isolated Cell/fresh reconstruction, and generic Table equality/rich properties.
 
@@ -145,7 +145,7 @@ HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree. `lab/
 
 Vanilla `lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278` resolves fields, `:1500–1530` rejects conflicts in order, `:1665–1703` creates empty cells, and `:1945–1988` derives breakability. Tekt `grid_placement.rs:91–112` prioritizes explicit placement and `:262–270` knows only `GridCell`; `realize/mod.rs:160–200` visits recipes bottom-up; `table.rs:127–152` discards wrappers without attributes. `order` measures zero cell effects when a table is replaced and zero heading effects when a cell hides it; `aliases` measures `LOCAL a`, `OUTER LOCAL a`, and `NEW a`. These are language observables, not requirements to copy mechanics, bytes, or Rust equality. Unknown fields, hidden effects, or wrong order after a change would refute the hypothesis; cache/pagination equivalence is not inferred.
 
-### Proposed exclusive responsibility and facade
+### Ratified exclusive responsibility and facade
 
 Register private descendant `compiler/realize/table_cells` with its own owner. Add exactly this pure public facade:
 
@@ -169,7 +169,7 @@ This first package D08B3-A is incomplete in the Cell domain: D08B3-B is to compl
 
 Measurement before decision: `lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz`, with pin/binaries/HEAD/state/sources/UTC/argv/results. `after-second/context-table` and `nested`; `refuters-second/reused-prepared-table` show preparation with rules absent. `capture_table_insertion` in `realize/mod.rs` ignores `ctx.apply_show_rules`, unlike `eval/rules/intercept.rs:22–25`. The refutable hypothesis is that the original capture pass baked the plan without rules. Capturing a value with `apply_show_rules=false` neither prepares nor captures Table; the effective insertion and causal facade do that work. The facade also restores the `eval.context.recipe` snapshot when the product is a raw Table without a Styled wrapper. Acceptance is bilateral behavior, effects once, and geometry; do not normalize whitespace or alter ratified contracts.
 
-## Ratified D08B3-C2 responsibility
+## Ratified transparent source-origin boundary
 
 The prior measurement `lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/working tree/UTC/sources/argv and binaries at pin `9f2b6e8715237cb086899a42873660fe744622e8`. This unit has the corresponding transparent operation in existing `ShowRecipe`/`Located`/`Realized` branches; `Source` must not leak as a language-observable value. Human approval was `confirmo`, 2026-10-07; final approval and execution record: `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`. The nested `table-origens-d08b3c2-2026-10-07/contract.md` is the pre-approval candidate retained in that history directory.
 
@@ -225,7 +225,7 @@ Materialize only direct named expectations already justified in this owner: C020
 
 Continuous ADR-0127 flow: this batch adds lint metadata only; it changes no public contract, executable body, cfg, defaults, phase, dependencies, or architecture. It materializes only expressed named exceptions and supersedes generic suppression prohibitions only for those items/lints; it does not authorize silencing pending fixes. L0 comes first, followed by restricted resealing and proof that removing the added attributes and lineage header recovers the prior source after rustfmt. Measure RED first; then check all-targets inventory, exactly 46 arity warnings and five test warnings satisfied by 49 expectations, no new warning, and `unfulfilled_lint_expectations` treated as error. The 11 arities targeted for correction remain visible. Validate build, format, strict/reverse lineage, Tekt with no new errors/warnings, existing Counter tests and coverage under 12 GiB, zero swap, one job. The prior full suite remains evidence for the same executable code; do not create tests that mirror lint attributes or require a new performance comparison for metadata.
 
-## R2-S — nominal Sequence realization, ratified 2026-10-17
+## Ratified nominal Sequence realization
 
 ### Measurement before the decision
 
@@ -241,7 +241,7 @@ Ratified S1–S20, RED before code, bilateral GREEN, and regressions are require
 
 The existing `observe_occurrences` pass also sets private flag `has_deferred_show_rules` when it finds a marked Sequence recipe. The new realization context starts without it; set it before composition to avoid skipping empty/local bodies. With no Sequence marker/rule, the descendant returns a shallow clone without traversing/reconstructing the document. Do not create a public product field/flag or global state for this shortcut.
 
-## R3-T1 — causal realization, ratified 2026-10-18
+## Ratified causal realization
 
 ### Measurement before the decision
 
@@ -257,7 +257,7 @@ Delegate recipe execution to `compiler/realize/recipes.rs`. Replace the global S
 
 Require RED→GREEN for `acceptance.json` families, R2-S/R3 corpus, and one-evaluation controls. Revalidate PDF and HTML separately; build/workspace/doctests, strict Clippy/Rustdoc, fmt, V1/V5/V15/V26 and reverse lineage; differential SARIF with no new errors/warnings. Limit: 12 GiB/High8 GiB/swap0/jobs1, heavy commands sequentially. Do not claim RAM gain before paired trials or clear gates with suppression. No commit/push/release.
 
-### R3-T1 refinements
+### Causal realization refinements
 
 **Preserve final-normalization provenance.** Final normalization does not extract visual Sequence from a `Realized` whose original carries the private textual-product marker. This boundary preserves guards and provenance for later insertions. Ordinary sequences and legacy `Realized` continue through existing normalization. R3-T1's separate-product AB/X measurement supports the restriction; do not discard transport after causal coordination.
 
@@ -293,6 +293,11 @@ The human approved `review.md` under `lab/history/construction/records/00_nucleo
 
 Declare public module `context_occurrences`, owned by `00_nucleo/prompts/core/compiler/realize/context_occurrences.md`. `locate` keeps an existing `Located` intact and delegates only acquisition of a new Location to this module's private `next` helper; without an active frame it retains current `Locator::next`. Existing occurrence reservation continues observing Locator without emitting a node, running a callback, or inventing identity from offset/hash.
 
-## Revision history
+## Documentary provenance
 
-- 2026-10-18 — Consolidated the realization contract and dated refinements in English, preserving each clause's authority/status and evidence locator. A causal-realization correction, contextual lexical inheritance, and occurrence identity were added to the working owner; this edit does not expand their ratified scope. No public API or behavior is changed by this editorial consolidation.
+The pre-consolidation owner, including superseded implementation proposals and
+dated decision history, is preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/realize/mod.md`.
+All approval receipts, scope splits, current refinements and pending fixes above
+retain their original authority. Historical vanilla measurements do not certify
+the current pin without remeasurement.

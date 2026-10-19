@@ -29,14 +29,24 @@ Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do no
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
 
-## Inicialização explícita dos fixtures — field_reassign_with_default
+## Explicit fixture initialization
 
-### Medição anterior à decisão
+### Evidence
 
-`03_infra/src/font_metrics/basic.rs` nas linhas 505, 513, 520 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
+`lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`
+retains source/spans/prior L0/HEAD/working tree/UTC/diffstat; initial-diagnostics.json
+records defaults followed by test-local field assignments at basic.rs:505,513,520.
+This is Rust representation maintenance, no new parity measurement or product
+default change.
 
-### Responsabilidade e aceitação
+### Contract and acceptance
 
-Construir os três TextStyle locais com os mesmos top_edge/bottom_edge: comprimentos pt/em e métrica baseline, herdando os demais defaults. Conservar tamanho fornecido, conversão de unidades, chamadas text_edges e tolerâncias existentes.
+Construct the three local TextStyle values with unchanged top_edge/bottom_edge:
+pt/em lengths and baseline metric, inheriting remaining defaults. Preserve supplied
+size, unit conversion, text_edges calls and existing tolerances.
 
-Usar `..Tipo::default()` para os campos restantes e retirar `mut` apenas onde deixam de existir mutações. Sem novos tipos, builders, APIs ou supressões de lint. L0 precede código e resselo restrito (fluxo contínuo ADR-0127). O gate selecionado deve falhar antes e passar depois; preservar nomes, inputs, expectativas e tolerâncias dos testes. Revalidar Clippy all-targets, suíte workspace, build, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe do inicializador.
+Use ..Type::default() for remaining fields; remove mut only where no mutations
+remain. No new types/builders/APIs/lint suppression. L0 first and scoped resealing,
+continuous ADR-0127. Selected gate must fail before and pass after; preserve test
+names/inputs/expectations/tolerances. Revalidate all-target Clippy/workspace suite/
+build/fmt/Rustdoc/lineage. No tests merely mirroring initializer syntax.

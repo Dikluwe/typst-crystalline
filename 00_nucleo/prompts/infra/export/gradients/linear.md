@@ -14,8 +14,8 @@ export observables and ownership, not full upstream byte or algorithm equality.
 ## Axial coordinates and RGB samples
 
 Own compute_axial_coords and multispace_sample_stops for PDF axial shading.
-Endpoints are symmetric around (x0+w/2,y0+h/2), using dx=cos(angle), dy=sin(angle)
-and half offsets (w*dx/2,h*dy/2). Preserve horizontal/vertical cases and bbox units.
+Endpoints are symmetric around (x0+w/2, y0+h/2), using dx=cos(angle), dy=sin(angle)
+and half offsets (w*dx/2, h*dy/2). Preserve horizontal/vertical cases and bbox units.
 
 Sample max(n_samples,2) points uniformly from 0 to 1 in f32. Use Linear::sample
 in its declared color space, then to_rgba_f32; discard alpha in this PDF RGB
@@ -30,30 +30,51 @@ Check centered endpoints, sample endpoints/cardinality, each declared interpolat
 space and bounded RGB channels. The sampler's alpha omission is a limitation;
 SVG's adaptive alpha-preserving path has a different owner.
 
-## Imports e documentação de CI — 2026-10-13
+## Private import maintenance
 
-### Medição anterior à decisão
+### Evidence
 
-`03_infra/src/export/gradients/linear.rs` nas linhas 12 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`
+retains sources/owners/spans/original compiler output, HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/status/diffstat.
+Selected warnings occur at linear.rs:12. Inspection distinguishes productive
+references, descendant-test imports and comments; no new parity measurement.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Remover somente os imports privados comprovadamente sem uso neste consumer; manter os reexports públicos e os imports exigidos por chamadas ou contratos. A lista exata de spans anterior à edição está no diagnóstico citado.
+Remove only private imports proven unused here; keep public reexports and imports
+required by calls/contracts. Exact pre-edit spans remain in the diagnostic.
+Internal continuous ADR-0127 maintenance changes no public signature/default/
+phase/formula/acceptance. No lint suppressions. Revalidate all-target compile,
+infra test names/execution, build/workspace Clippy/Rustdoc/lineage with scoped
+resealing. No import-removal/comment-format mirror tests.
 
-Manutenção interna sem mudança de assinatura pública, default, fase, fórmulas ou critérios de aceitação (fluxo contínuo ADR-0127). Não introduzir supressões de lint. Revalidar compilação de todos os targets, nomes e execução da suíte de infraestrutura, build, Clippy do workspace, Rustdoc e linhagem com resselo restrito. Não criar testes que apenas espelhem remoção de imports ou formatação de comentários.
+## Platform-independent numeric components
 
-## Cálculos numéricos dos exportadores — 2026-10-13
+### Evidence
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/gradientes-numericos-ci-2026-10-13/before.json.gz`
+retains library/consumer/owner/manifest/lock/spans/HEAD/uncommitted tree/UTC/status/
+diffstat. linear.rs:21–22 uses Clippy-flagged methods; clippy.toml requires
+platform-independent math and libm =0.2.11 is already pinned in core/Cargo.lock.
+before-renders.json records 24 sources rendered to PDF/SVG by Tekt and historical
+vanilla `9f2b6e8715237cb086899a42873660fe744622e8`, binary hashes/commands;
+before-comparison.json measures whole canvases without error-adjusted masks.
+Pre-existing divergences prohibit complete parity claims. The initial invalid
+hsv-outside-color fixture failed parsing before productive edits and remains in
+initial-fixture-error.log; cases.json contains valid inputs.
 
-`03_infra/src/export/gradients/linear.rs` nas linhas [21, 22] usa métodos apontados pelo Clippy. `clippy.toml` exige alternativas sem dependência da matemática da plataforma; libm =0.2.11 já está pinado no core/Cargo.lock. Os fontes da biblioteca, consumer, owner, manifest/lock, spans, HEAD, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/gradientes-numericos-ci-2026-10-13/before.json.gz`.
+### Contract and acceptance
 
-`before-renders.json` registra 24 fontes renderizadas em PDF/SVG por Tekt e pelo vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, com hashes dos binários e comandos. `before-comparison.json` mede o canvas inteiro sem máscaras ajustadas pelo erro. Existem divergências anteriores; o corpus não é prova de paridade integral. A primeira tentativa de fixture usava hsv fora do namespace color, foi rejeitada pelo parser antes de qualquer mudança produtiva e está preservada em initial-fixture-error.log; cases.json contém as entradas válidas.
+Use libm::cos/libm::sin from 0.2.11 for f64 axis components. Preserve center/
+dimensions/signs/arithmetic order/all samplers; do not move formulas to L1 or add
+public signatures. Pin direct L3 dependency =0.2.11, reuse the locked version,
+without package upgrades/I/O. Continuous ADR-0127 changes no public/default/phase/
+strategy; L0 first, involved-owner resealing.
 
-### Decisão e aceitação
-
-Usar libm::cos e libm::sin de libm 0.2.11 nos componentes f64 do eixo. Preservar centro, dimensões, sinais, sequência aritmética e todos os samplers; não transferir fórmulas para L1 nem criar assinatura pública.
-
-Dependência direta interna de L3 fixada em =0.2.11 no manifest, reutilizando a versão já no lock. Não atualizar versões de pacotes nem adicionar I/O. Mudança interna em fluxo contínuo ADR-0127, sem contrato público, default, fase ou estratégia novos. L0 precede código e resselo é limitado aos owners envolvidos.
-
-Validar as fórmulas com a suíte existente, exportação dos mesmos 24 documentos antes/depois e leitura raster/estrutural de PDF/SVG. Comparar a preservação local separadamente das divergências contra o pin vanilla; nenhuma diferença nova de render é aceita sem análise. Não alargar tolerâncias/limites, mudar fixtures ou supressões para esconder uma falha. Compilar todos os targets, executar a suíte infra, verificar build, Clippy, Rustdoc, formato e linhagem. Contagens e identidade de arquivos não certificam a paridade da linguagem.
+Validate existing formula tests, before/after exports of those same 24 documents
+and raster/structural PDF/SVG observations. Separate local preservation from
+historical-vanilla divergences; analyze any new render difference. Do not expand
+tolerances/limits, change fixtures or suppressions to hide failure. All-target
+compile/infra suite/build/Clippy/Rustdoc/fmt/lineage; counts/file identity certify
+no language parity. Historical measurements do not certify the current oracle.

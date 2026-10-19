@@ -2,91 +2,37 @@
 Hash do Código: 17024a21
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/mod.rs`
 
-## Responsibility
+## Evidence before specification
 
-The consumer declares the static L1 entity modules, the inline `frame_visitor`
-reexport facade (`walk_frame_items`, `FrameVisitor` from `layout_types`) and
-the private `line_cap_tests` module, gated by its own inner `#![cfg(test)]`.
+The bidi evidence in `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/initial.json.gz` records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, the uncommitted working tree, UTC, sources, binaries and thirteen CLI inputs against historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`. In `rtl_auto_mixed`, ABC starts at x=124.020510 in Tekt and 152.949220 in vanilla; `ltr_numeric` places Arabic on the left and reverses 123/456, unlike vanilla. Historical `layout_bidi.rs:73–82,227–240` and `shaper/bidi.rs:34` resolve isolated lines/strings; the private paragraph context cannot reach them. Upstream `inline/mod.rs:189,232` shares direction, and `inline/collect.rs:156–178` preserves explicit embeddings. `probe.json.gz` preserves the recipe, rustc and unicode-bidi 0.3.18 hashes: the line `456 789` inside `ABC 123 456 789 مرحبا` is one LTR run; isolated with the same RTL base it becomes runs `789`, space, `456`. This refutes direction-only transport and isolated resolution, without certifying candidate geometry. Language semantics, syntax and morphology are obligations; library/ranges/Arc/cache are internal mechanics.
 
-Preserve its public module surface, including `font_variations` and
-`document_format_options`. Each child owns its domain behavior. The facade
-must not duplicate defaults, parsing, document extraction or export precedence.
-Format carriers belong to `00_nucleo/prompts/core/entities/document_format_options.md`;
-font axes belong to `00_nucleo/prompts/core/entities/font_variations.md`.
+The conditional-test evidence at the same HEAD with an uncommitted working tree is in `lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/{before,refinement-before}.json.gz`, including sources, L0, UTC, status and diffstat. `line_cap_tests.rs:5` and its parent at line 128 duplicated `cfg(test)`. Removing the inner condition retained Rust tests but caused architectural V2 because the pinned linter does not propagate the parent's condition.
 
-Verify static declarations and test-only gating. No new reexports, removal of
-modules or business logic is authorized by this documentary cleanup.
+Prepared-paint evidence in `lab/results/construction/diagnostics/tiling-transporte-2026-10-14/{parent-before,solid-controls}/results.json.gz` records the same HEAD/uncommitted provenance, sources, argv and binaries. Historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, tree `6ab8bb9434b1bd4d44e1a10fbf1e407b3b86a1a4`, oracle SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`, original P1489 recipe. `tiling.rs:124–127` returns None above 10000 cells; `shape.rs:151–185` materializes only fill; export `shape.rs:151,201` reduces tiling to color; `layout_types.rs:505,531` lacks cell/root transport; raster `render.rs:217,579` reduces fill and ignores clip_mask. The earlier coverage record's over-limit 200×100pitch1 solid/stroke observation uses unchanged sources and is not a fresh binary measurement. On 240×192 SVG rendered over white with librsvg, place-parent differs by 1194 pixels above 16, box-fixed/auto-parent by 1192, while Solid controls agree exactly; block-parent differs by 2, maximum 23. Upstream SVG `lib.rs:346–358`, inline `box.rs:35–49` and `frame.rs:459–474` establish offset/rotation, inherited-transform inverse and local roots before inset. They do not require copying FrameKind/Packed/Rust equality. Solid controls also refute general box-place/rotate geometry (3200/5296/3645 pixels above 16); transport cannot close those defects. The earlier quarter control agrees between Tekt PDF/SVG and vanilla SVG while vanilla PDF differs; do not copy that defect.
 
-## Fachada de contexto bidi — contrato ratificado ADR-0127, 2026-10-05
+## Facade contract
 
-### Medição anterior à decisão
+Declare static L1 entity modules, the inline `frame_visitor` facade reexporting `walk_frame_items` and `FrameVisitor` from `layout_types`, and private `line_cap_tests`. Preserve all existing public modules, including `font_variations` and `document_format_options`. Their child owners retain domain behavior, defaults, parsing, document extraction and export precedence. No general reexports, module removals or business logic are authorized.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree integral, UTC, fontes e binários; treze entradas CLI com vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. rtl_auto_mixed põe ABC em x=124.020510 no Tekt contra152.949220 no vanilla; ltr_numeric põe árabe à esquerda e inverte 123/456, contra números à esquerda no vanilla. `layout_bidi.rs:73–82` usa primeiro caractere forte da linha e `:227–240` usa qualquer style.dir RTL como nível padrão; `shaper/bidi.rs:34` resolve cada string novamente com base automática. O contexto privado de paragraph.rs não chega a esses consumers. Vanilla `inline/mod.rs:189,232` resolve direção compartilhada; `inline/collect.rs:156–178` conserva embedding explícito por TextElem com direção diferente da base. `probe.json.gz` registra receita, rustc, hashes da biblioteca unicode-bidi 0.3.18 e sonda independente: dentro de ABC 123 456 789 مرحبا, linha 456 789 é um run LTR; a mesma string isolada com a mesma base RTL tem runs 789, espaço, 456. Isso refuta o transporte somente de Dir e a resolução por linha/palavra isolada. Não é prova de geometria de um candidato produtivo. Semântica/sintaxe/morfologia são obrigações; biblioteca, ranges, Arc e estratégia de cache são mecânica interna (ADR-0107).
+The approved bidi addition is exclusively `pub mod bidi_context;`, owned by `00_nucleo/prompts/core/entities/bidi_context.md` for `01_core/src/entities/bidi_context.rs`. Do not reexport its types, decide Unicode levels, add state or duplicate child validation. The approved paint addition is exclusively `pub mod frame_paint;`, without child logic or general reexports. These bounded approvals supersede the earlier no-new-module restriction only for these declarations.
 
-### Ampliação pública ratificada
+Keep `line_cap_tests` unconditionally declared in this facade, retaining its own inner `#![cfg(test)]` to exclude its whole file, imports and helpers from production. Preserve module paths, names, visibility and path attributes. Its test bodies retain their separate L0 owner. Add no dependency, API, default mode or pipeline phase.
 
-Acrescentar somente `pub mod bidi_context;`, cujo consumer único é `01_core/src/entities/bidi_context.rs` e owner é `00_nucleo/prompts/core/entities/bidi_context.md`. Esta seção supersede a proibição de novos módulos da limpeza documental apenas para essa declaração após a confirmação do pacote. Não reexportar tipos, decidir níveis Unicode, adicionar estado ou duplicar as validações do filho. Manter todas as demais declarações.
+## Approval and incomplete integration
 
-Ratificação recebida: “confirmo”, manifesto 1ae7513eb3af426754909954aef165c97257a9f62d3911fbb111e2002fac4043, evidência em `lab/history/construction/records/00_nucleo/materialization/bidi-contexto-aprovacao-2026-10-05.json`. Versões congeladas estão no receipt before.json.gz da implementação; alterações de Hash do Código não substituem a prova da aprovação.
+Bidi approval is recorded as `confirmo` in `lab/history/construction/records/00_nucleo/materialization/bidi-contexto-aprovacao-2026-10-05.json`, manifest `1ae7513eb3af426754909954aef165c97257a9f62d3911fbb111e2002fac4043`. Frozen versions are in the implementation's before receipt; code hashes do not prove approval.
 
-## Integração condicional dos módulos de teste — 2026-10-13
+Paint approval is in `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`, manifest `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`. It satisfies the earlier public-contract gate without expanding scope. The original T1a slice installs pure carriers and this declaration; T1b must complete FrameItem fields and producers/consumers, T2 PDF/SVG/raster resources and clipping, and T3 geometric integration. Carrier presence is explicitly incomplete and proves no render correction or legitimacy of legacy fallbacks. Each implementation owner must be updated before its consumer, with pinned shared claims and RED→GREEN.
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
-working tree não commitado. A duplicação cfg(test) ocorre em `01_core/src/entities/line_cap_tests.rs:5` / pai :128.
-Fontes, L0, UTC, status e diffstat estão em
-`lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/before.json.gz` e
-`refinement-before.json.gz`. O Clippy pinado reproduz os atributos duplicados.
-A tentativa de retirar a condição interna mantém os testes Rust, mas o linter
-arquitetural pinado não propaga a condição do pai e acusa V2 nos helpers.
+## Acceptance
 
-Neste owner, retirar apenas o atributo externo cfg(test) das declarações
-listadas acima. Manter os caminhos, nomes e visibilidades dos módulos e seus
-atributos path. A condição interna `#![cfg(test)]` de cada arquivo listado
-continua a excluir integralmente o módulo do build de produção, inclusive
-seus imports e helpers. Os consumers de teste e seus L0 permanecem intactos.
-Não acrescentar dependências, lógica, API, modo padrão ou fase. Validar a
-mesma lista de testes, suíte core, build sem cfg(test), Clippy e arquitetura.
+Verify static declarations, the unchanged test inventory, core suite, production build, Clippy and architecture. Integration checks must retain full Solid/Gradient transport, prepared-cell Arc retention without repetition-proportional copying, full stroke geometry and Stroke::default equivalence. Offer no total conversion from declarative Paint/Tiling. Missing PartialEq on new carriers does not alter language equality. Compile tests verify the boundary; child tests remain separately owned.
 
-## Transporte de célula preparada — ratificado ADR-0127
+## Historical record
 
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/tiling-transporte-2026-10-14/{parent-before,solid-controls}/results.json.gz registra UTC, diffstat/status, fontes/owners, argv e hashes de binários. Pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8; SHA-256 do oráculo 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea, árvore 6ab8bb9434b1bd4d44e1a10fbf1e407b3b86a1a4, receita P1489.
-Layout tiling.rs:124–127 devolve None acima de 10000 células; shape.rs:151–185 só materializa fill, conservando stroke declarativo; export/stream/shape.rs:151/201 reduz Tiling a cor. layout_types.rs:505/531 não transporta célula nem raiz de pintura. render.rs:217 reduz fill a cor e :579 ignora clip_mask. Esses limites são do código/contrato de transporte, não só da fórmula do offset.
-A medição anterior tiling-cobertura-2026-10-14 registra over-limit200×100pitch1 sólido e stroke sem motivo. Fontes respectivas permanecem idênticas; esse registro não é uma nova medição de binário.
-No SVG atual 240×192 branco/librsvg, place-parent diverge em1194 pixels >16, box-fixed/auto-parent em1192; seus controles Solid coincidem pixel a pixel. block-parent tem2 pixels >16, máximo23. Os SVGs vanilla explicitam T(offset)*R e inversa de transformações herdadas. Fonte pinada typst-svg/src/lib.rs:346–358 e typst-layout/src/inline/box.rs:35–49 confirma raízes locais antes do inset final; FrameKind em typst-library/src/layout/frame.rs:459–474 distingue Hard/Soft. É semântica geométrica, não obrigação de copiar FrameKind, Packed ou igualdade Rust.
-Controles Solid também refutam geometria geral em box-place e rotate: respectivamente3200/5296/3645 pixels >16. Portanto o transporte não será usado para declarar essas diferenças automaticamente resolvidas. Registrar a separação e corrigi-las com seus owners. No controle anterior quarter, Tekt PDF/SVG coincide com vanilla SVG, mas vanilla PDF diverge; não copiar essa diferença conhecida.
-
-### Contrato exclusivo ratificado
-
-Acrescentar apenas pub mod frame_paint; não duplicar lógica do filho nem criar reexports gerais. Isto supersede a vedação histórica a módulo novo somente para o carrier aprovado.
-
-Gate obrigatório: campos e tipos públicos/compatibilidade mudam. Não escrever L1–L4 antes da aprovação humana do manifesto. Owners de implementação serão atualizados antes de cada consumer, com claims compartilhadas pinadas e RED→GREEN.
-
-## Ratificação e fronteira da etapa T1a — 2026-10-14
-
-O humano aprovou “Aprovar a proposta” para o manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`.
-O recibo está em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A exigência de aguardar aprovação acima está satisfeita, sem alterar o pacote
-aprovado. T1a instala os tipos puros e sua declaração na fachada. A migração
-dos campos de FrameItem e produtores/consumidores completa T1b; PDF/SVG/raster,
-recursos e clipping completam T2; integrações geométricas completam T3.
-Este estado é explicitamente incompleto e não comprova correção do render.
-Nenhum fallback legado é legitimado pelo novo carrier.
-
-Nesta unidade, testar transporte integral de Solid/Gradient, retenção da célula
-preparada por Arc sem cópia proporcional à repetição, geometria completa de
-contorno e equivalência dos defaults com Stroke::default. Não oferecer conversão
-total de Paint ou Tiling declarativo. Ausência de PartialEq nos novos carriers
-não altera igualdade da linguagem. Testes de compilação verificam a fronteira.
-
-## Owned test module declarations
-
-This consumer declares the following separately owned test modules: `line_cap_tests`. Their names describe their test responsibilities; each test module retains its own L0 owner. This module delegates the test bodies and does not absorb their ownership.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/mod.md` preserves the original evidence and chronology.

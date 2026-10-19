@@ -29,34 +29,38 @@ Canonical owners include `00_nucleo/prompts/core/compiler/eval/mod.md`,
 `00_nucleo/prompts/core/compiler/math/mod.md`, `00_nucleo/prompts/core/compiler/parse/mod.md`,
 `00_nucleo/prompts/core/compiler/scopes.md` and `00_nucleo/prompts/core/compiler/stdlib/mod.md`.
 
-## Custos textuais personalizados — 2026-09-28
+## Private text-cost boundary
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`correcao-custos-paragrafo-2026-09-28/before-pdf/` registra 66 entradas no
-estado `initial.json` e `before/`, contra pin 9f2b6e8715237cb086899a42873660fe744622e8.
-`text/mod.rs:1507-1564` valida Dictionary, Ratio por campo e composição parcial;
-`inline/mod.rs:240` lê costs do escopo compartilhado, não de cada fragmento;
-`inline/linebreak.rs:29-30,961-962` aplica defaults 135/100 vezes o ratio.
-O Tekt descarta costs em eval/rules e aceita sem transportar no constructor;
-paragraph_hyphen e paragraph_select usam defaults fixos. Os erros e spans
-estão no stderr vanilla, inclusive negativos aceitos. Não inferir intenção.
+`correcao-custos-paragrafo-2026-09-28/before-pdf/` records 66 entries with state
+initial.json and before/ against historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`. text/mod.rs:1507–1564 validates
+Dictionary, per-field Ratio and partial composition; inline/mod.rs:240 reads
+shared-scope costs rather than per-fragment costs; inline/linebreak.rs:29–30,961–962
+multiplies defaults 135/100 by the ratio. Tekt discarded costs in eval/rules and
+accepted them without constructor transport; paragraph_hyphen and
+paragraph_select used fixed defaults. Vanilla stderr retains errors/spans,
+including accepted negatives. Do not infer intent from that behavior.
 
-### Decisão vigente
+### Ownership and boundary criteria
 
-Correção interna/de paridade ADR-0127 em fluxo contínuo, sem novo contrato
-público, flag ou fase. Módulo privado compiler/text_costs possui owner único
-para cast, transporte por componente e resolução dos custos compartilhados.
-Hifenização/runt globais passam a consultar a configuração. Widow/orphan são
-validados e transportados, mas influência na paginação continua incompleta.
-Custos de fragmentos parciais não substituem o custo compartilhado; os quatro
-canais validados são neutros para glyphs na whitelist Styled. Um wrapper integral
-é fatorado pela realização existente antes de formar Par. Largura variável
-permanece limitada. Não deduzir custo pelo glyph. Preservar todos os defaults.
+Declare only private mod text_costs; the facade remains static with no new
+logic/reexports. `00_nucleo/prompts/core/compiler/text_costs.md` exclusively owns
+casting, per-component transport and shared-cost resolution. Global
+hyphenation/runt consult configuration; widow/orphan validation/transport and
+its limited certified regional effect belong to that owner and the pagination
+owner. General pagination remains incomplete.
 
-Declarar somente mod text_costs privado; manter fachada estática, sem lógica/reexports novos.
+Partial-fragment costs must not replace shared costs; four validated channels
+are glyph-neutral within Styled preparation. Existing realization factors a
+whole wrapper before Par. Variable-width support remains limited. Do not infer
+cost from glyphs; preserve defaults. This is an ADR-0127 internal parity
+correction without a new public contract, flag or phase.
 
+## Realization boundary
 
-## Realização com avaliação única
-
-Expor compiler::realize, fachada de domínio puro para realização após a execução comum.
+Expose compiler::realize as the pure domain facade for realization after common
+program execution. Its APIs, coordination and single-evaluation obligations
+belong to `00_nucleo/prompts/core/compiler/realize/mod.md`; this compiler hub
+adds no execution logic.

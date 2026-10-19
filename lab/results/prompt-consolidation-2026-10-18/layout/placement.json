@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/placement.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Full original reviewed via unique paragraphs and exact previously read repeats. Consolidated all origin, alignment, causal width/height, fixup, margin, private-state and helper contracts; preserved later partial supersessions and open Place/Block scope. Chronological measurements retained in archived original with causal evidence register before specification; no code or pins changed.",
+  "original_sha256": "378bb5f3445c5f6de2cc97caee22bf50cadb3f2dfca04af2f13bf68a7c77acae",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/placement.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

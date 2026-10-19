@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "page-counter-snapshot"
-title = "Estado realizado do contador de páginas por ocorrência e documento"
-
+title = "Realized page-counter state per occurrence and document"
 [[claims]]
 id = "document-scope"
 level = "must"
-statement = "Cada snapshot de Page pertence a um documento e uma geração. Current e final de uma ocorrência não herdam updates nem total de documentos vizinhos. HTML não consome páginas físicas de documentos paginados."
-
+statement = "Each Page snapshot belongs to one document/generation. Occurrence current/final inherits neither updates nor total from neighboring documents. HTML consumes no physical pages of paged documents."
 [[claims]]
 id = "realized-fold"
 level = "must"
-statement = "O estado realizado combina init Page, updates efetivamente inseridos em ordem causal e avanços físicos do documento. Um update posterior não altera leituras atuais anteriores; final inclui updates posteriores e páginas finais sem ocorrência. Não derivar final apenas do número de páginas ou do último logical_number do PageStore."
-
+statement = "Realized state combines Page init, actually inserted updates in causal order and document physical advances. A later update does not change prior current reads; final includes later updates and final pages without occurrences. Never derive final solely from page count or PageStore's last logical_number."
 [[claims]]
 id = "snapshot-lifecycle"
 level = "must"
-statement = "Current e final são produzidos conjuntamente a partir da mesma contribuição, posições e partição documental. Substituir ou invalidar conteúdo, posição, documento ou callback invalida a geração; snapshots parciais não certificam estabilidade. Replay consulta a mesma fórmula da leitura original. Não reduzir o orçamento de estabilização nesta correção."
-
+statement = "Current/final are produced together from same contribution, positions and document partition. Replacing/invalidating content, position, document or callback invalidates generation; partial snapshots never certify stability. Replay uses original-read formula. Do not reduce stabilization budget in this correction."
 [[claims]]
 id = "domain-boundary"
 level = "must"
-statement = "L1 dobra estados e executa callbacks pelo Engine já injetado, sem I/O ou estado global. L3 fornece limites e posições realizados e compõe gerações, sem duplicar a fórmula de CounterUpdate. Snapshots de páginas não substituem as fontes originais de shaping/exportação."
+statement = "L1 folds states and executes callbacks through already injected Engine without I/O/global state. L3 supplies realized boundaries/positions and composes generations without duplicating CounterUpdate formula. Page snapshots never replace original shaping/export sources."

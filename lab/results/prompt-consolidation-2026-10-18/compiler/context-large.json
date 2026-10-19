@@ -1,0 +1,30 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/closures.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "f9679376d7f237363abd0b72f7a4d9aaf6975d8388b5879e05cb832d8eeed653",
+    "result_sha256": "d9b145f9b313ffbd165391bd8253a13c33ea7f4c5a3709dd0a3f0a7b61528727",
+    "disposition": "Full English closure/occurrence/instrumentation contract retained; local contextual RuleId collision refinement translated with exact reservation and exceptions."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/context_reads.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "9aa996df8ae9ca6f736e6722110bcc4edbf31abe34b31b5bf5ed3ed2d20788fc",
+    "result_sha256": "261ce044545dfaf0d20e85f32a5ce93fe7eecabfe65015b46168a8c285dcf5d0",
+    "disposition": "Full context-read contract translated; bare-cell selector ratification verified against actual receipt, separate Cell scope retained; private boxing details and all size/lint acceptance preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/show_rule_termination.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "5fdeb9f2b6b1e3696ab9ce13aeb3a1b56a159501ac67b5f2b951a997f67b4a55",
+    "result_sha256": "4f221f62d339da36d565804da1c107f0d38b9ccfdc00e7c9e4163ad40b80fe73",
+    "disposition": "Prepared-Cell package fully translated, actual ratification receipt resolves stale candidate-only heading; all measurements, loop exception, broader pending scope and validation constraints retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/syntax_diagnostics.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "48efa392de80339add53a831a3fe89b339dfab39bd5b42705c50d714e040b097",
+    "result_sha256": "07a7230979a09bde56a33d1aa6dbdc580c59191cc9bdec62f865ee690b4102cc",
+    "disposition": "Full imported-syntax/context evidence and static five-kind classifier translated; no-effect-before-error, trace/warning, feature/bundle controls and separate unresolved axes retained."
+  }
+]

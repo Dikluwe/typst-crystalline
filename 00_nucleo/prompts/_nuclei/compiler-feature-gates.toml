@@ -1,34 +1,28 @@
 tekt = 1
 kind = "nucleus"
 id = "compiler-feature-gates"
-title = "Gates de features do compilador"
-
+title = "Compiler feature gates"
 [[claims]]
 id = "empty-default"
 level = "must"
-statement = "O conjunto efetivo de features do compilador é vazio quando nenhum pedido explícito é fornecido."
-
+statement = "The effective compiler feature set is empty when no explicit request is supplied."
 [[claims]]
 id = "explicit-enable"
 level = "must"
-statement = "Cada feature é ativada somente pelo seu nome em um pedido explícito; features independentes não se ativam mutuamente."
-
+statement = "Each feature is enabled only by its name in an explicit request; independent features do not enable one another."
 [[claims]]
 id = "target-orthogonality"
 level = "must-not"
-statement = "Selecionar target, formato ou exporter ativa implicitamente qualquer feature do compilador."
-
+statement = "Selecting a target, format or exporter implicitly enables any compiler feature."
 [[claims]]
 id = "gated-binding-absence"
 level = "must"
-statement = "Um binding gated não existe na superfície da linguagem quando a feature correspondente está desligada."
-
+statement = "A gated binding is absent from the language surface when its corresponding feature is disabled."
 [[claims]]
 id = "disabled-no-parity-credit"
 level = "must-not"
-statement = "Um caso desligado pelo perfil recebe crédito de MATCH, Preserved ou igualdade exercitada."
-
+statement = "A profile-disabled case receives MATCH, Preserved or exercised-equality credit."
 [[claims]]
 id = "active-incapability"
 level = "must"
-statement = "Incapacidade, execução opaca ou ausência do binding no perfil que ativa a feature resulta em Unknown ou Violated, nunca em sucesso nem em desligado pelo perfil."
+statement = "Inability, opaque execution or missing binding under a profile that enables the feature results in Unknown or Violated, never success or profile-disabled status."

@@ -1,39 +1,24 @@
 # Prompt L0 — `entities/metadata_store`
 Hash do Código: 8edf6fb4
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/metadata_store.rs`
-**Criado em**: 2026-04-30 (P169 sub-passo .B — feature `metadata(value)` M9)
-**ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/metadata_store.rs`
+**Governance:** ADR-0033, ADR-0066.
 
----
+## Evidence and responsibility
 
-## Contexto
+The original comparison used upstream MetadataElem and generic
+ElementIntrospector.elems. Crystalline intentionally isolates metadata in its
+own sub-store, alongside label/counter stores. This representation difference
+does not require copying upstream mechanics.
 
-`MetadataStore` é o sub-store de `TagIntrospector` que acumula os `Value`s embebidos no documento via `Content::Metadata` / `metadata(value)`.
-
-Pendência registada em P165 (M3 sub-passo 1): `MetadataStore` adiado para M9 quando feature `metadata()` for adicionada. P169 (primeira feature M9) materializa-o.
-
-Vanilla equivalente: `MetadataElem` em `lab/typst-original/.../introspection/metadata.rs` + indexação via `ElementIntrospector.elems`. Cristalino isola num sub-store dedicado por simetria com `LabelRegistry`/`CounterRegistry`.
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: struct puro, sem I/O.
-- Read-only após construção (mutação só via `pub(crate) fn add` durante construção em `from_tags`).
-- `Clone` derivado.
-- Order-preserving: `query()` retorna `&[Value]` na ordem de inserção.
-
----
-
-## Interface pública
+## Contract
 
 ```rust
 use crate::entities::value::Value;
 
 #[derive(Debug, Clone, Default)]
-pub struct MetadataStore { /* Vec<Value> interno */ }
+pub struct MetadataStore { /* private Vec<Value> */ }
 
 impl MetadataStore {
     pub fn empty() -> Self;
@@ -45,60 +30,24 @@ impl MetadataStore {
 }
 ```
 
----
+Store embedded metadata Values in insertion/appearance order using a private
+Vec. empty() equals Default and query() yields an empty slice. add is
+crate-private, append-only, for construction through from_tags; afterwards
+external callers see read-only queries. No deduplication: equal metadata
+values create separate entries. Keep Debug/Clone/Default, len and is_empty,
+with no I/O. from_tags handles ElementPayload::Metadata; TagIntrospector's
+metadata/query_metadata exposure belongs to its introspector owner.
+The facade reexport belongs to `00_nucleo/prompts/core/entities/mod.md`.
+Rich metadata.where(predicate) queries remain separate future scope; the old
+creation-time "no consumers" status is history, not a present restriction.
 
-## Semântica
+## Acceptance
 
-- `empty()`: store vazio. Equivalente a `Default::default()`.
-- `query()`: slice das values na ordem de aparecimento. Vazio se nenhum `metadata` foi embebido.
-- `add(value)` (pub(crate)): apenas usado pelo construtor `from_tags` em `rules/introspect/from_tags.rs`. Append-only.
+empty().query() is &[]; one add yields &[value]; three adds yield three
+entries in order; heterogeneous Int/Str/Bool coexist. Preserve duplicate
+values, local tests, and read-only external access.
 
----
+## Historical record
 
-## Invariantes
-
-- Após construção, store é read-only para callers externos.
-- Ordem é preservada (Vec interno).
-- Sem deduplication: dois `metadata` com mesmo value produzem duas entradas.
-
----
-
-## Tests obrigatórios (sub-passo .B P169)
-
-- `MetadataStore::empty()` retorna `&[]`.
-- Após `add(value)`, `query()` retorna `&[value]`.
-- 3 `add`s produzem 3 entradas em ordem.
-- Values heterogéneos (Int, Str, Bool) coexistem.
-
----
-
-## Consumers actuais
-
-Nenhum no momento da criação. Consumidor imediato em P169 .B:
-`rules/introspect/from_tags.rs` arm `ElementPayload::Metadata`.
-
-## Consumers planeados
-
-- `entities/introspector.rs::TagIntrospector.metadata` field — exposição via `query_metadata()`.
-- M9+ features que possam referenciar `metadata` (ex: `metadata.where(predicate)` query rica em passos futuros).
-
----
-
-## Sobre paridade
-
-Vanilla armazena `MetadataElem` em `ElementIntrospector.elems` (Vec genérico de Content). Acesso via query. Cristalino isola num sub-store dedicado por simetria com `LabelRegistry`/`CounterRegistry` e composição visível.
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/metadata_store.rs` — struct + 5 métodos + 4 tests.
-- Re-export em `01_core/src/entities/mod.rs`.
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-04-30 | P169 sub-passo .B: sub-store de values metadata para Introspector M9 | `metadata_store.rs`, `metadata_store.md` |
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/metadata_store.md`. Historical observations are not a new parity certification.

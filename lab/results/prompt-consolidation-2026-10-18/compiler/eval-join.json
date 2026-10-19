@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/operators/join.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "6c29d5cc65e89fa68405245f0af8bbdabb69b06d69daed023979cc3d94da0d30",
+    "result_sha256": "b0b16d17a715fe75386d653a627745a5c5f7d8865e2bad3bf484bfe2d8050ec9",
+    "disposition": "Full join owner translated: first-level-only concat, Source precedence, Empty versus empty Text and None, debug-only stack evidence and separate Symbol/reflection debts all retained."
+  }
+]

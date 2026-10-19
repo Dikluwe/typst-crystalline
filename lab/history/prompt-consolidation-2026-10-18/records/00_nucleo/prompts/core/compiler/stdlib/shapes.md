@@ -1,0 +1,548 @@
+# Prompt L0 — `stdlib/shapes` — módulo `shapes`
+Hash do Código: 327466fd
+
+**Camada**: L1
+**Ficheiro alvo histórico**: `01_core/src/compiler/stdlib/shapes.rs`. Após a atomização, a fachada conserva testes e reexports; os Prompts L0 individuais em `00_nucleo/prompts/compiler/stdlib/shapes/` possuem pintura, rect/square, ellipse/circle, line, coordenadas, polygon e curve.
+**Origem**: Passo 96.5 (extraído de `stdlib.rs` conforme ADR-0037), com marcos
+P76 (rect/ellipse/circle/line/polygon), P277 (`path_bbox`), P293-P294 (`curve`
+c/ conversão quadratic→cubic), P396 (`parse_paint` com Tiling/Gradient),
+P727/P732 (fallback de stroke `Smart::Auto` em `curve`/`polygon`; vértices
+`Length` em `polygon`), P734 (`polygon` restringido a `Length` — rejeita
+Int/Float como o vanilla), P1221 (preservação do `Stroke` rico já avaliado
+em rectângulos, quadrados, elipses, círculos e linhas).
+**ADRs**: ADR-0033 (divergência intencional), ADR-0037 (coesão por domínio),
+ADR-0054 (perfil graded).
+**Convenções partilhadas**: ver `00_nucleo/prompts/core/compiler/stdlib/mod.md`.
+
+---
+
+## Módulo `shapes` — funções nativas geométricas
+
+Este módulo implementa as primitivas geométricas vetoriais de Typst expostas
+no escopo global: rectângulos, elipses/círculos, linhas, polígonos, caminhos
+de Bézier (`curve`) e o helper morfológico `square` sobre `Rect`.
+
+Todas as funções partilham a assinatura padrão de `native_*`:
+
+```rust
+fn native_X(
+    ctx: &mut EvalContext,
+    args: &Args,
+    world: &dyn World,
+    current_file: FileId,
+) -> SourceResult<Value>
+```
+
+Helpers partilhados no módulo:
+- `parse_color` — extrai somente `Value::Color`; constantes de cor nomeadas já
+  chegam tipadas pelo avaliador.
+- `parse_paint` — converte `Color`, `Tiling` e `Gradient` em `Paint`, preserva
+  `none` e rejeita outros tipos.
+- `parse_shape_stroke` — converte os shorthands de stroke da linguagem
+  (`Length`, `Color` e `Stroke`) sem perder paint nem espessura.
+
+---
+
+### `native_rect(width?, height?, fill?, stroke?)`
+
+**Assinatura**: `rect(width: Length?, height: Length?, fill: Paint?, stroke: Stroke?) -> Content`
+
+**Argumentos**:
+- `width`, `height`: `Length` (ou `Float`/`Int` coagidos para pt) opcionais.
+- `fill`: `Color`, `Tiling`, `Gradient` ou `none`.
+- `stroke`: shorthand `Length`, `Color` ou `Stroke` já
+  avaliado. Paint e espessura são preservados até o `Content::Shape`.
+- Sem argumentos posicionais.
+
+**Semântica**: Cria `Content::Shape { kind: Rect, width, height, fill, stroke }`.
+Fallback determinístico: se nem `fill` nem `stroke` forem fornecidos, aplica
+stroke preta de 1pt.
+
+**Paridade vanilla**: Equivalente a `#rect(width: 5cm, height: 3cm, fill: red)`.
+
+**Limitações / scope-outs**:
+- Campos de stroke ainda não representados por `entities::geometry::Stroke`
+  (como dash/cap/join) permanecem scope-out.
+- O dicionário por-lado de `rect(stroke:)` continua aceite pela superfície
+  por compatibilidade, mas permanece scope-out na entidade uniforme.
+- Strings não são convertidas em cores; a paleta canônica é resolvida antes
+  desta fronteira pelo avaliador.
+
+**Testes canónicos**:
+```
+rect(width: 5cm, height: 3cm) -> Shape Rect com stroke preto 1pt
+rect(fill: red) -> Shape Rect fill red, sem stroke
+rect(stroke: blue) -> Shape Rect stroke azul
+rect(foo: 1) -> Err "argumento nomeado inesperado"
+```
+
+---
+
+### `native_ellipse(width?, height?, fill?, stroke?)`
+
+**Assinatura**: `ellipse(width: Length?, height: Length?, fill: Paint?, stroke: Stroke?) -> Content`
+
+**Argumentos**: Idênticos a `rect`.
+
+**Semântica**: Cria `Content::Shape { kind: Ellipse, width, height, fill, stroke }`.
+Fallback de stroke preto 1pt quando `fill` e `stroke` ausentes.
+
+**Paridade vanilla**: Equivalente a `#ellipse(width: 4cm, height: 2cm)`.
+
+**Limitações / scope-outs**: Idênticas a `rect`.
+
+**Testes canónicos**:
+```
+ellipse(width: 4cm, height: 2cm, fill: green) -> Shape Ellipse
+ellipse() -> Shape Ellipse com stroke preto 1pt
+```
+
+---
+
+### `native_circle(radius?, fill?, stroke?)`
+
+**Assinatura**: `circle(radius: Length?, fill: Paint?, stroke: Stroke?) -> Content`
+
+**Argumentos**:
+- `radius`: `Length` (ou `Float`/`Int`) opcional.
+- `fill`, `stroke`: idênticos a `rect`.
+
+**Semântica**: Converte `radius` em `diameter = radius * 2` e cria
+`Content::Shape { kind: Ellipse, width: diameter, height: diameter, fill, stroke }`.
+Fallback de stroke preto 1pt quando necessário.
+
+**Paridade vanilla**: Equivalente a `#circle(radius: 2cm)`.
+
+**Limitações / scope-outs**: Idênticas a `rect`.
+
+**Testes canónicos**:
+```
+circle(radius: 2cm) -> Shape Ellipse width=height=4cm
+circle(fill: blue) -> Shape Ellipse fill blue
+```
+
+---
+
+### `native_line(dx?, dy?, stroke?, start?, end?, length?, angle?)`
+
+**Assinatura**: `line(dx: Length?, dy: Length?, stroke: Stroke?, start: Array?, end: Array?, length: Length?, angle: Angle?) -> Content`
+
+**Argumentos**:
+- `dx`, `dy`: deslocamento em pt (`Length`, `Float`, `Int`). Default `0.0`.
+- `stroke`: shorthand `Length`, `Color` ou `Stroke` já
+  avaliado. Default preto 1pt; paint e espessura explícitos são preservados.
+- **`end`** (P739B): ponto final como array de 2 coordenadas, ex. `(50pt, 50pt)`
+  (paridade vanilla — medido: `line(start: (0pt, 0pt), end: (50pt, 50pt))`
+  compila). Alternativa a `dx`/`dy` — combinar `end` com `dx`/`dy` é erro.
+- **`start`** (P739B): ponto inicial; default `(0pt, 0pt)`. Só admissível com
+  `end` ou com `length`/`angle`. Origem não-zero é preservada pelo lowering
+  P1286 para `ShapeKind::Path`, sem ampliar o carrier público.
+- **`length`** (P804): comprimento da linha (`Length`, `Float`, `Int` em pt).
+  Default `30pt` (paridade vanilla `#[default(Abs::pt(30.0))]`). **Só é
+  respeitado se `end` for `none`** — medido no vanilla 0.15.0:
+  `#line(length: 3cm, end: (1cm, 1cm))` compila e `length` é ignorado.
+  `Ratio` (`length: 100%`) — **scope-out**: o native não tem a região para
+  resolver percentagens; erro explícito.
+- **`angle`** (P804): direcção da linha (`Value::Angle`). Default `0deg`.
+  Só respeitado se `end` for `none` (como `length`). Tipo errado →
+  `expected angle, found {type}` (padrão do projecto).
+
+**Semântica**: Linhas não têm fill. Com `start=(0,0)`, o caminho legado pode
+criar `Content::Shape { kind: Line { dx, dy }, stroke: preto default }`. Com
+origem não-zero, cria path aberto `MoveTo(start), LineTo(end)` com os mesmos
+stroke e pontos absolutos; largura=`max(0,start.x,end.x)` e
+altura=`max(0,start.y,end.y)`, nunca `max-min` ou `abs(delta)`.
+Com `end`: `dx = end.x − start.x`, `dy = end.y − start.y`.
+Sem `end`, com `length`/`angle` (P804, paridade vanilla
+`typst-layout/src/shapes.rs::layout_line`): `dx = cos(angle) · length`,
+`dy = sin(angle) · length`. Combinar `length`/`angle` com o legado `dx`/`dy`
+é erro. Sem `end` e sem `length`/`angle`: legado `dx`/`dy` (default 0,0 —
+linha degenerada; NOTA: o vanilla desenharia 30pt a 0deg — divergência
+registada da interface legada, mantida).
+
+**Paridade vanilla**: o fragmento alegado é `start`/`end`/`length`/`angle`,
+incluindo origem não-zero conforme P1286. `dx`/`dy` são extensão cristalina
+legada preservada por compatibilidade e não pertencem à alegação vanilla.
+
+**Limitações / scope-outs**: campos de stroke não modelados pela entidade
+cristalina (dash/cap/join) continuam scope-out.
+`length:` como `Ratio` (percentagem) — scope-out (P804, sem região no native).
+
+**Testes canónicos**:
+```
+line(dx: 3cm, dy: 2cm) -> Shape Line dx=3cm dy=2cm stroke preto
+line(stroke: red) -> Shape Line dx=0 dy=0 stroke vermelho
+line(dx: -1cm) -> Shape Line dx=-1cm
+line(end: (50pt, 50pt)) -> Shape Line dx=50 dy=50  (P739B)
+line(start: (0pt, 0pt), end: (50pt, 50pt)) -> Shape Line dx=50 dy=50  (P739B)
+line(start: (10pt, 0pt), end: (50pt, 50pt)) -> Shape Path absoluto  (P1286)
+line(length: 3cm) -> Shape Line dx=3cm dy=0  (P804)
+line(length: 4cm, angle: 90deg) -> Shape Line dx≈0 dy=4cm  (P804)
+line(length: 3cm, end: (1cm, 1cm)) -> Shape Line dx=1cm dy=1cm (length ignorado)  (P804)
+line(length: 3cm, dx: 1cm) -> Err (não combinável)  (P804)
+```
+
+---
+
+### `native_polygon(pt1, pt2, ...; fill?, stroke?)`
+
+**Assinatura**: `polygon(..vertices: Array[Length, Length], fill: Paint?, stroke: Color?) -> Content`
+
+**Argumentos**:
+- `vertices`: variádicos posicionais, cada um array `[x, y]` de `Length`
+  (paridade vanilla — **P734**: o vanilla exige `Rel<Length>` e **rejeita**
+  Int/Float com "expected relative length, found integer/float", medido;
+  P732 tinha alargado a aceitação a `Length` mantendo números, P734
+  restringe a `Length` via `extract_vertex`, helper próprio de `polygon`).
+- `fill`, `stroke`: opcionais. **Fallback determinístico** (paridade vanilla
+  `Smart::Auto`, `lab/typst-original/crates/typst-layout/src/shapes.rs:336-339`,
+  corrigido no Passo 732): se nem `fill` nem `stroke` forem fornecidos,
+  aplica stroke preta de 1pt; se `fill` for fornecido sem `stroke`, o
+  polígono fica sem stroke — idêntico ao fallback de `native_rect` e de
+  `native_curve` (P727).
+
+**Semântica**: Constrói um path `MoveTo -> LineTo ... -> ClosePath`. Calcula
+bbox via `geometry::path_bbox` para `width`/`height`. Cria
+`Content::Shape { kind: Path, ... }`.
+
+**Paridade vanilla**: Equivalente a `#polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt))`.
+
+**Limitações / scope-outs**:
+- Vértices com componente `em` ou `Ratio` (`50%`): scope-out — o vanilla
+  aceita ratio (resolve no layout contra o contentor; medido em P734:
+  triângulo com `(50%, 0pt)` renderiza 2923 px), mas o constructor
+  cristalino corre em tempo de eval, sem dimensão de referência (mesmo
+  precedente de P513 em `curve`). Ratio produz erro explícito de
+  scope-out, não a mensagem vanilla.
+- **P741 — scope-out reforçado, com custo medido.** A sonda confirmou a
+  dimensão de referência do vanilla: o ratio resolve contra o
+  **contentor** em tempo de layout — `box(width: 200pt, height: 100pt,
+  polygon((0pt, 50%), ...))` ≡ `(0pt, 50pt)` (diff 0.0000% medido); fora
+  do box, contra a região de texto. O caminho real do utilizador chega
+  como `Value::Relative` (abs zero), não `Value::Ratio` — pré-P741 a
+  mensagem era absurda ("expected relative length, found relative
+  length"); agora o braço `Value::Relative` produz a mensagem de
+  scope-out. Custo da paridade completa (medido, não estimado): (1)
+  `ShapeKind::Path` carrega `Point` absoluto — exigiria ponto relativo
+  novo em `geometry.rs` + resolução em `layout/shape.rs` + alteração
+  dos 3 braços de `03_infra/src/export/stream.rs` + construtores
+  (`polygon` e `curve`); (2) **a altura de contentor inline não existe**
+  — o `Boxed` faz layout do body com `unconstrained_height: true`
+  (`layout/boxed.rs`), pelo que `50%` em y não teria referência sem
+  estender o mecanismo de sub-frame inline (partilhado por todo o
+  conteúdo em box). Sem consumidor em `cetz` (usa `Length` absolutos
+  via `transform-point`, P734) — custo desproporcional.
+- A restrição a `Length` **não** se aplica a `curve`: a interface por
+  tuples do cristalino (`("move", (0, 0))`) é divergência intencional
+  documentada (o vanilla rejeita tuples — "expected content, found array",
+  medido em P734 — e usa `curve.move`/etc.); `extract_coordinate` mantém
+  a aceitação de números para esse caminho. O `cetz` usa o caminho de
+  conteúdo (`curve.move`/`curve.line`) com `Length` (`transform-point`
+  aplica `* length`, `canvas.typ:141-156`) — confirmado sem consumidor de
+  números nus no builtin `polygon`/`curve`.
+
+**Testes canónicos**:
+```
+polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt)) -> Shape Path fechado, stroke preto 1pt (fallback)
+polygon((0pt,0pt), (2pt,0pt), (1pt,1pt), fill: blue) -> Shape Path fill blue, sem stroke
+polygon((0pt,0pt), (1pt,0pt), stroke: blue) -> Shape Path stroke azul (sem regressão)
+polygon((0, 0), (50, 0), (25, 40)) -> Err "expected relative length, found integer" (P734)
+polygon((0.0, 0.0), (50.0, 0.0), (25.0, 40.0)) -> Err "expected relative length, found float" (P734)
+polygon() -> Err "pelo menos um ponto"
+polygon((0pt,0pt), "x") -> Err "coordenada inválida"
+```
+
+---
+
+### `native_curve(seg1, seg2, ...; fill?, fill-rule?, stroke?)`
+
+**Assinatura**: `curve(..segments: Array, fill: Paint?, fill-rule: Str?, stroke: Stroke?) -> Content`
+
+**Argumentos**:
+- `segments`: variádicos posicionais, cada segmento é um array cujo primeiro
+  elemento é uma string `kind`:
+  - `("move", [x, y])` → `MoveTo`.
+  - `("line", [x, y])` → `LineTo`.
+  - `("cubic", [c1x, c1y], [c2x, c2y], [ex, ey])` → `CubicTo`.
+  - `("quadratic", [cx, cy], [ex, ey])` → convertido para `CubicTo` via
+    fórmula q→c paridade vanilla (`C1 = (P0 + 2C)/3`, `C2 = (P2 + 2C)/3`).
+  - `("close",)` → `ClosePath` reto. O default `Smooth` de P1226 aplica-se
+    somente ao constructor namespaced `curve.close()`; não altera a sintaxe
+    tuple legada P293/P294.
+  Desde o Passo 513, um segmento posicional pode também ser
+  `Value::Content(Content::Curve(e))` (produzido pelos constructores
+  `curve.move`/`curve.line`/`curve.cubic`/`curve.quad`/`curve.close` —
+  ver §"Namespace `curve`" abaixo); os seus
+  segmentos são concatenados ao path final.
+- `fill-rule`: `"non-zero"` por defeito ou `"even-odd"`; é preservado em
+  `ShapeElem` e no frame, não descartado durante eval.
+- `fill`, `stroke`: opcionais. `stroke` reutiliza `parse_shape_stroke`,
+  preservando paint, espessura, cap, join, dash e miter. **Fallback determinístico** (paridade vanilla
+  `Smart::Auto`, `lab/typst-original/crates/typst-layout/src/shapes.rs:126-129`,
+  corrigido no Passo 727): se nem `fill` nem `stroke` forem fornecidos,
+  aplica stroke preta de 1pt; se `fill` for fornecido sem `stroke`, a curva
+  fica sem stroke — idêntico ao fallback de `native_rect`.
+
+**Semântica**: Constrói um path arbitrário, calcula bbox via `path_bbox`,
+cria `Content::Shape { kind: Path, ... }`.
+
+**Paridade vanilla**: Interface por tuples descritivos em vez dos métodos
+`curve.move`/`curve.cubic` do vanilla (proc-macros de scope ainda não
+materializados em L1); desde o Passo 513 aceita também `Content::Curve`
+como segmento posicional.
+
+**P1226 — fechamento:** `curve.close()` produz `CloseMode::Smooth` por defeito;
+`curve.close(mode: "straight")` preserva o modo reto. O fechamento suave usa o
+último controle e o controle oposto ao início conforme a morfologia vanilla;
+não pode colapsar antecipadamente em `ClosePath` reto.
+
+**Testes canónicos**:
+```
+curve(("move", (0,0)), ("line", (1,0)), ("line", (1,1)), ("close",)) -> Shape Path
+curve(("quadratic", (0.5, 0.5), (1,0))) -> CubicTo equivalente
+curve(("move", (0,0)), ("line", (1,0))) -> Shape Path com stroke preto 1pt (fallback)
+curve(("move", (0,0)), ("line", (1,0)), fill: red) -> Shape Path fill red, sem stroke
+curve(curve.move((0,0)), curve.line((100,0)), curve.close()) -> Shape Path fechado
+curve("x") -> Err "array de segmento válido"
+```
+
+---
+
+### Namespace `curve` (P513; absorvido de `compiler/stdlib/curve.md` em P847)
+
+**Assinaturas**:
+
+```typst
+curve.move(point) -> content
+curve.line(point) -> content
+curve.cubic(control1, control2, end) -> content
+curve.quad(control, end) -> content
+curve.close() -> content
+```
+
+`point` é um array de 2 elementos (`(x, y)`) ou `Value::Array` de
+`Length`/`Float`/`Int`. Cada função devolve `Content::Curve` com um único
+segmento: `curve.move(p)` move a caneta para `p`; `curve.line(p)` linha
+recta até `p`; `curve.cubic(c1, c2, e)` cúbica de Bézier com control
+points `c1`, `c2` e ponto final `e`; `curve.quad(c, e)` quadrática com
+control point `c` e ponto final `e`; `curve.close()` fecha o path actual.
+
+**Implementação**: `native_curve_move`, `native_curve_line`,
+`native_curve_cubic`, `native_curve_quad`, `native_curve_close` em
+`shapes.rs`. Helper `extract_point(val, fn_name, arg_name)` aceita
+`Value::Array` com 2 elementos (`Length`, `Float` ou `Int` convertido
+para pt). O namespace é anexado à função `curve` em `eval/mod.rs`
+(`curve.move`, `curve.line`, `curve.cubic`, `curve.quad`, `curve.close`).
+
+**P803 — erro de tipo paridade vanilla**: argumento posicional que não é
+`Content::Curve` nem tuplo legado (array com primeiro elemento string)
+produz `expected content, found {type}` (padrão `type_name()`, paridade
+vanilla — ex.: `#curve((0pt, 0pt))` → `expected content, found array`,
+medido no vanilla 0.15.0). Os erros internos do tuplo legado (coordenada
+inválida, aridade, kind desconhecido) mantêm-se.
+
+**Casos de aceitação**:
+- `curve.move((0,0))` → `Content::Curve` com `Move`; `curve.line((100pt, 0pt))` → `Line`.
+- `curve.cubic((0,0), (50,50), (100,0))` → `Cubic`; `curve.quad((0,0), (50,50))` → `Quad`.
+- `curve.close()` → `Close`; `curve(curve.move((0,0)), curve.line((100,0)), curve.close())` produz path fechado.
+
+---
+
+### `native_square(width, height?, fill?, stroke?)`
+
+**Assinatura**: `square(width: Length, height: Length?, fill: Paint?, stroke: Color?) -> Content`
+
+**Semântica**: helper sintático sobre `rect` — constrói `ShapeKind::Rect`
+com `width == height` quando `height` é omitido. Sem tipo novo e sem
+layout/render novo: a saída é idêntica à de `rect(width: w, height: w)`
+por construção. Reutiliza `ShapeKind::Rect` e `Content::Shape` existentes.
+
+**Argumentos**:
+- `width`: primeiro argumento posicional ou nomeado `width`. Obrigatório.
+- `height`: nomeado `height`; se omitido, assume o valor de `width`.
+- `fill` / `stroke`: opcionais, mesmo parsing e fallback de `native_rect`.
+- Argumentos nomeados desconhecidos → erro (padrão das nativas do cluster).
+
+**Paridade vanilla**:
+- `square(1cm)` ≡ `rect(width: 1cm, height: 1cm)` (morfologicamente — mesma
+  forma `Rect`).
+- `square(1cm, height: 2cm)` comporta-se como `rect(width: 1cm, height: 2cm)`
+  (fallback aceite).
+
+**Scope-outs explícitos**:
+- Não criar `ShapeKind::Square`.
+- Não adicionar variant `Value` ou `Content`.
+- Não tocar em layout/render/export.
+
+**Testes canónicos**:
+```
+square(w) -> Shape Rect com width == height == w
+square(w, height: h) com h != w -> Rect genérico
+square() sem width -> Err
+square(w, named:{x:1}) -> Err "argumento nomeado inesperado"
+square(w) sem cores -> stroke preta 1pt (paridade com rect)
+```
+
+## P1286 — `line(start:)` não-zero sem novo carrier público
+
+### Medição anterior à decisão
+
+O vanilla resolve `start` e `end` contra a região, calcula `delta=end-start`,
+define a caixa por `max(start, start+delta, zero)` e insere a linha em `start`
+(`typst-layout/src/shapes.rs:28-51`). A medição P1286 cobriu origens positiva e
+negativa, vetor invertido, comprimento negativo e a precedência de `end` sobre
+`length`/`angle`. O cristalino já possui
+`ShapeKind::Path([MoveTo,LineTo])`; sua stdlib fornece dimensões ao layout.
+
+### Decisão
+
+- Remover a rejeição de origem não-zero.
+- Quando `start != (0,0)`, baixar internamente para path aberto
+  `MoveTo(start), LineTo(end)` com o mesmo stroke e sem fill.
+- A largura é `max(0,start.x,end.x)` e a altura
+  `max(0,start.y,end.y)`, exatamente a caixa medida do vanilla; não usar
+  `max-min`, `abs(delta)` nem normalizar os pontos pela origem da caixa.
+- Com `end`, ignorar `length`/`angle`. Sem `end`, calcular o endpoint como
+  `start + length*(cos(angle),sin(angle))`, inclusive comprimento negativo.
+- O legado `dx`/`dy` e o caso `start=(0,0)` podem conservar
+  `ShapeKind::Line`; a escolha interna não é observável da linguagem.
+- `dx`/`dy` permanecem incompatíveis com `end` e com `length`/`angle`, conforme
+  o contrato cristalino preexistente; removê-los seria quebra de
+  compatibilidade fora de P1286.
+
+Não se altera `ShapeKind`, `ShapeElem`, `FrameItem`, assinatura pública,
+default ou fase. Logo é correção interna de paridade em fluxo contínuo
+ADR-0127. Percentagens mistas, infinito e clipping continuam `Unknown`; esta
+rota só fecha os observáveis medidos.
+
+## P1455 — remover a paleta string hardcoded (CONFIRMADO)
+
+### Medição anterior à decisão
+
+No baseline `3360722a3eb3b63371d2ad9e2d1758d85cd9f98d`, `parse_color`
+contém um segundo catálogo literal de 19 spellings CSS (`red`, `green`,
+`blue`, `black`, `white`, `yellow`, `cyan`, `magenta`, `orange`, `purple`,
+`gray`, `grey`, `silver`, `maroon`, `navy`, `olive`, `teal`, `lime`,
+`aqua`). Ele diverge da paleta Typst canônica e torna strings aceites como
+paint somente no cristalino.
+
+Medição com os binários ratificados:
+
+- `rect(fill: "red")`: vanilla erra `expected color, gradient, tiling, or
+  none, found string`; cristalino produz shape;
+- `line(stroke: "red")`: vanilla erra com a união de stroke esperada;
+  cristalino produz shape.
+
+A inferência é que a tabela é compatibilidade cristalina histórica, não
+semântica Typst. Seria refutada por aceitação de qualquer string como paint no
+vanilla ratificado; as sondas representativas e a fonte tipada não a refutam.
+
+### Decisão confirmada
+
+- eliminar integralmente o match de nomes string em `parse_color`;
+- aceitar cores nomeadas somente como `Value::Color`, já resolvidas pela
+  paleta canônica do scope (`red`, `color.red`, etc.);
+- parsers de fill e stroke tornam-se fail-closed para `Value::Str` em vez de
+  converter ou ignorar silenciosamente;
+- preservar os tipos já aceites, `none` onde a assinatura o admite, fallback
+  quando o argumento é realmente omitido e o carrier/layout existentes;
+- não copiar a paleta canônica, não traduzir string para nome e não introduzir
+  outro catálogo local.
+
+A remoção revoga sintaxe pública antes aceite e, portanto, é quebra de
+compatibilidade. O dono confirmou explicitamente a materialização em
+2026-09-18, após o commit de proposta `e5505f17c`.
+
+## P1473 — `polygon.regular` (MATERIALIZADO)
+
+### Medição anterior à decisão
+
+Sonda bilateral (2026-09-21, vanilla ratificado `586e1bd43fae`):
+`type(polygon.regular)` → `function` no vanilla, `function polygon does not
+contain regular` no cristalino (`polygon` já é `Value::Func` bare, sem
+namespace).
+
+Fonte pinada integral
+(`lab/typst-original/crates/typst-library/src/visualize/polygon.rs:53-88`,
+`#[scope] impl PolygonElem { fn regular(...) }`), transcrita aqui porque é o
+algoritmo geométrico exato, não paráfrase:
+
+```rust
+pub fn regular(
+    span: Span,
+    #[named] fill: Option<Option<Paint>>,
+    #[named] stroke: Option<Smart<Option<Stroke>>>,
+    #[named] #[default(Em::one().into())] size: Length,
+    #[named] #[default(3)] vertices: u64,
+) -> Content {
+    let radius = size / 2.0;
+    let angle = |i: f64| {
+        let offset = Angle::rad(PI * (1.0 / 2.0 - 1.0 / vertices as f64));
+        let rotation = Angle::from_ratio(Ratio::new(i / vertices as f64));
+        offset + rotation
+    };
+    let (horizontal_offset, vertical_offset) = (0..=vertices)
+        .map(|v| ((radius*angle(v as f64).cos())+radius, (radius*angle(v as f64).sin())+radius))
+        .fold((radius, radius), |(min_x,min_y),(v_x,v_y)| (min_x.min(v_x), min_y.min(v_y)));
+    let vertices = (0..=vertices)
+        .map(|v| {
+            let x = (radius*angle(v as f64).cos())+radius-horizontal_offset;
+            let y = (radius*angle(v as f64).sin())+radius-vertical_offset;
+            Axes::new(x, y).map(Rel::from)
+        })
+        .collect();
+    let mut elem = PolygonElem::new(vertices);
+    if let Some(fill) = fill { elem.fill.set(fill); }
+    if let Some(stroke) = stroke { elem.stroke.set(stroke); }
+    elem.pack().spanned(span)
+}
+```
+
+Sondas bilaterais confirmam: `size` default `1em` (círculo circunscrito,
+diâmetro); `vertices` default `3`, tipo `u64` (`Int`, negativo →
+`number must be at least zero`, float → `expected integer, found float`);
+`vertices: 0`/`1`/`2` não erram — produzem formas degeneradas (1 ponto, 2
+pontos idênticos, etc., medido diretamente); `fill`/`stroke` ausentes
+preservam o default do `polygon` base (stroke preta 1pt se nem fill nem
+stroke forem dados — mesmo fallback P732 já implementado em
+`native_polygon`); nomeado desconhecido → `unexpected argument: <nome>`;
+qualquer positional → `unexpected argument`. O loop `0..=vertices` (**N+1**
+iterações, inclusive) fecha a forma automaticamente repetindo o primeiro
+vértice no fim — confirmado por sonda (`polygon.regular(vertices: 3)`
+devolve 4 pares, o último igual ao primeiro).
+
+### Decisão
+
+`polygon` passa de `Func::native("polygon", native_polygon)` para
+`Func::native_with_namespace("polygon", native_polygon, Arc::new(scope))`
+com namespace `{ "regular": Value::Func(Func::native("polygon.regular",
+native_polygon_regular)) }` (registo em `compiler/eval.md`, ver nota lá —
+mesmo mecanismo P493, sem novo tipo). `native_polygon_regular` implementa o
+algoritmo acima byte-a-byte (mesma fórmula de ângulo, mesmo offset/rotação,
+mesma normalização de bbox por `horizontal_offset`/`vertical_offset`) e
+constrói o **mesmo** `Content::Shape(ShapeElem { kind: ShapeKind::Path(...),
+fill, stroke, width, height })` que `native_polygon` já constrói — reutiliza
+`PathItem::MoveTo`/`LineTo`/`ClosePath`, `parse_paint`, `parse_shape_stroke`
+e `path_bbox` já existentes em `shapes.rs`, sem duplicar nenhum deles e sem
+criar `PolygonRegularElem` ou variante nova de `Content`. Fallback de
+fill/stroke reutiliza exatamente a lógica P732 já implementada (bloco
+citado em `native_polygon` acima nesta secção).
+
+### Gate ADR-0127
+
+Uma rota qualificada nova. Requer L0 causal (este), hashes ressealados,
+V5/V15/V26, commit documental e **confirmação humana explícita posterior**.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
+Agente A (`01a82593d`) implementou `native_polygon_regular` sem ver os
+testes; Agente B (`0258eab89`) escreveu 8 testes RED, incluindo um
+oráculo independente (`regular_polygon_points`) que reproduz a fórmula do
+L0 num teste Rust puro. **Correção descoberta na integração (papel C,
+2026-09-21):** `f64::cos`/`f64::sin` são métodos proibidos em L1
+(`clippy.toml`, não-determinismo de ponto flutuante) — tanto o código de
+produção quanto o oráculo de teste do Agente B usavam-nos diretamente.
+Corrigido para `libm::cos`/`libm::sin` (mesma família já usada em
+`entities/color.rs` para `cbrtf`/`fmaf`/`powf`); `crystalline.toml`
+(`l1_allowed_external.libm`) ampliado para incluir `cos`/`sin` — extensão
+mecânica da whitelist já existente, não decisão arquitetural nova.
+Suíte: GREEN, zero regressão.

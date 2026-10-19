@@ -1,29 +1,21 @@
 # Prompt L0 — `entities/elements/pdf_attach` — `PdfAttachElem`
 Hash do Código: 6375d6a2
 
-**Estado:** consumer materializado; o metadado de implementação é atualizado pelo
-`crystalline-lint --fix-hashes`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/pdf_attach.rs`
+**Governance:** ADR-0029, ADR-0107, ADR-0108, ADR-0127, ADR-0129.
 
-**Camada:** L1 domínio
-**Consumer exclusivo:** `01_core/src/entities/elements/pdf_attach.rs`
-**Origem do contrato:** medição vanilla e decisão P1293 incorporadas abaixo.
-**Gate humano:** confirmado em 2026-08-30 — “Siga a engenharia da refatoração
-e pode implementar”.
-**ADRs:** ADR-0029, ADR-0107, ADR-0108, ADR-0127, ADR-0129.
+## Evidence before specification
 
-## Medição anterior à decisão
+Historical upstream pdf/attach.rs:31–86 preserves virtual path, bytes,
+relationship, MIME and description; typst-layout/src/rules.rs:824 and
+typst-pdf/src/attach.rs:13–67 collect globally without visual content.
+Recorded tests cover required path, optional bytes as second positional,
+byte-identical extraction, and duplicate-path error. Human approval on
+2026-08-30 covers Content::PdfAttach(Arc<PdfAttachElem>) without a new Value,
+trait or phase; original authorization wording remains archived.
 
-O vanilla pinado preserva path virtual, bytes, relationship, MIME e descrição
-em `pdf/attach.rs:31-86`; coleta attachments globalmente e não gera conteúdo
-visual (`typst-layout/src/rules.rs:824`, `typst-pdf/src/attach.rs:13-67`). O
-A medição anterior cobriu path obrigatório, bytes como segundo posicional
-opcional, extração byte-idêntica e erro por path duplicado. O contrato público
-aprovado adiciona `Content::PdfAttach(Arc<PdfAttachElem>)` sem `Value`, trait ou
-fase novos.
-
-## Contrato do consumer
-
-Este ficheiro é o owner único dos dados abaixo:
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -44,34 +36,33 @@ pub struct PdfAttachElem {
 }
 ```
 
-`path` é o nome virtual já resolvido usado tanto como identidade de
-deduplicação quanto no Filespec. `data` contém o snapshot lido/fornecido em
-eval; este elemento nunca consulta `World`, filesystem ou L3. A validação de
-path, MIME, tipos e relationship pertence à nativa `pdf.attach`; o elemento
-não aceita nem corrige payload inválido silenciosamente.
+path is the resolved virtual name used for deduplication identity and
+Filespec. data is the snapshot read/provided during eval; the entity never
+queries World, filesystem, or L3. Native pdf.attach validates path, MIME,
+types and relationship; this element neither accepts nor silently repairs
+invalid payloads. This owner alone owns these data.
 
-## `Element` e morfologia
+The approved fragment is an invisible non-locatable leaf: element_kind,
+to_payload, dyn_kind_name, and get_field use defaults. New ElementKind/query
+payload/location requires new measurement and approval. Plain text is empty
+but is_empty is false so collection cannot prune the marker. Both maps are
+terminal and reconstruct Content::PdfAttach(Arc::new(self.clone())), preserving
+all fields. Equality/hash compare all five fields; duplicate error identity
+uses path, not whole-struct Rust equality.
 
-- É leaf invisível e não-locatável no fragmento aprovado:
-  `element_kind`/`to_payload`/`dyn_kind_name`/`get_field` usam os defaults. Não
-  acrescentar `ElementKind`, query payload ou location sem nova medição/gate.
-- `plain_text()` devolve string vazia, mas `is_empty()` devolve `false`: o
-  marker não pode ser podado antes da coleta.
-- `map_content` e `map_text` são terminais e reconstroem
-  `Content::PdfAttach(Arc::new(self.clone()))`, preservando todos os campos.
-- Igualdade/hash são estruturais sobre os cinco campos; identidade de erro por
-  duplicado, contudo, usa `path`, não igualdade Rust do struct inteiro.
+## Acceptance and limits
 
-## Restrições e aceitação
+Pure L1 may use Arc<Vec<u8>> as RAM; it performs no I/O. Create no frame,
+placeholder, text, approximate metadata, or fallback. Distinct elements with
+the same path remain distinct here; the global pipeline emits
+`attempted to attach file {path} twice`. Compression, all PDF standards and
+unmeasured PathOrStr variants remain Unknown; Unknown is never success.
+Local tests prove closed relationship parsing, textual invisibility without
+pruning, and byte-exact preservation of all five fields through terminal maps.
+Ownership is 1:1; this prompt cannot authorize content/layout/pipeline/export
+or be reused by another source.
 
-- L1 puro; `Arc<Vec<u8>>` é estado de RAM permitido, não I/O.
-- Não criar frame, placeholder, texto, metadata aproximada ou fallback.
-- Dois elementos distintos com o mesmo path continuam distintos aqui; a
-  pipeline global é quem emite `attempted to attach file {path} twice`.
-- Compressão, todos os standards PDF e variantes não medidas de `PathOrStr`
-  permanecem `Unknown`; `Unknown` nunca é sucesso.
-- O consumer mantém testes co-localizados que provam parsing fechado de
-  relationship, invisibilidade textual sem poda e preservação byte a byte dos
-  cinco campos nas operações terminais de `Element`.
-- Ownership é 1:1. Este prompt não legitima content, layout, pipeline ou
-  exporter e não pode ser reutilizado por outro source.
+## Historical record
+
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/pdf_attach.md`. Historical observations are not a new parity certification.

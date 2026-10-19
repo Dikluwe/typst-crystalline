@@ -2,110 +2,73 @@
 Hash do Código: af02d023
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
+- 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
 
-**Estado**: MATERIALIZADO (confirmação humana 2026-09-21, posterior ao commit
-causal somente-L0 `3ac60a578`; execução segregada A/B/C — ver
-`typst-passo-1473.md` §8).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/figure_caption.rs`
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/figure_caption.rs`
-**Origem**: **P1473** (`typst-passo-1473.md`), família das oito rotas públicas não
-matemáticas restantes. Owner do consumer: `compiler/stdlib/figure_image.md`
-(construção); síntese/realização permanecem fora desta fatia — ver lá.
-**Vanilla ratificado**: `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-`typst-library/src/model/figure.rs:511-591`.
+## Evidence and ratified scope
 
----
+The owner confirmed construction-only scope on 2026-09-21 after L0-only commit
+3ac60a578; receipt is in
+`lab/history/construction/records/00_nucleo/materialization/typst-passo-1473.md` §8.
+Historical upstream 586e1bd43fae6c9a973218163d3165c53ab8d16d,
+model/figure.rs:511-591, and the figure_image construction owner establish
+the phase boundary: public figure.caption construction, without synthesis
+or figure layout in this slice.
 
-## Escopo reduzido — construção sem síntese
+## Contract
 
-Ver `compiler/stdlib/figure_image.md` §P1473 para a medição completa e a
-justificação do corte de fase. Esta entidade só dá forma pública a
-`figure.caption(...)`; não participa da síntese (`kind`/`supplement`/
-`numbering`/`counter`) nem do layout de figuras nesta fatia.
+FigureCaptionElem derives Debug/Clone/PartialEq/Hash and has public
+position:Option<CaptionPosition>, separator:Option<Content>, body:Content.
+CaptionPosition is closed Top/Bottom; never substitute a broader generic
+alignment enum. Casts reject every other string with
+`expected `top` or `bottom`, found <valor>` (historical value placeholder).
+Position's language default is bottom, settable but without layout effect in
+this slice. Separator's language default is Auto by language/region; None
+means not explicitly supplied, not a resolved default.
 
-## Struct
+Content::FigureCaption carries Arc. Preserve the documented constructor
+Content::figure_caption(body:Content,position:Option<CaptionPosition>,
+separator:Option<Content>) and its payload. The historical arrow names
+FigureCaptionElem despite the Content constructor naming; that annotation
+mismatch is retained as a specification clarification, not a new return type.
+plain_text/is_empty delegate to body; content/text maps recurse into body and
+Some separator. Equality/hash include all three fields.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct FigureCaptionElem {
-    /// Vanilla default: `bottom`. Settable; sem efeito de layout nesta fatia.
-    pub position:  Option<CaptionPosition>,  // enum { Top, Bottom }
-    /// Vanilla default: Auto (idioma/região). `None` aqui = não definido
-    /// explicitamente; o default por idioma não é resolvido nesta fatia.
-    pub separator: Option<Content>,
-    pub body:      Content,
-}
-```
+## Existing-field reflection: evidence and contract
 
-`Content::FigureCaption(Arc<FigureCaptionElem>)`.
+caption-shape-before.json and caption-after.json in
+`lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17`
+preserve source/UTC/binaries, validation-result.json HEAD/tree, and pin
+9f2b6e8715237cb086899a42873660fe744622e8. Existing projection yielded only
+func:figure.caption in CLI, omitting body/getters/fields; json.encode had the
+same defect and kind metadata rejected the valid caption function. Upstream
+model/figure.rs:510-594 declares Locatable and public position/separator/body
+plus synthesized kind/supplement/numbering/counter and internal figure_location.
+This correction does not synthesize those additional fields.
 
-Construtor: `Content::figure_caption(body: Content, position:
-Option<CaptionPosition>, separator: Option<Content>) -> FigureCaptionElem`.
+Override only existing Element::get_field: body is always known; Some Top/
+Bottom yields vertical alignment; Some separator yields original Content;
+None stays unknown with no baked default. Content delegates to this owner.
+No struct, trait method, constructor, synthesis or phase change.
 
-`CaptionPosition` é um enum fechado de dois variantes (`Top`, `Bottom`) —
-não reutilizar `Align2D`/`OuterVAlignment` genérico de layout se esse tipo
-carregar mais variantes que os dois válidos aqui; cast deve rejeitar
-qualquer string fora de `"top"`/`"bottom"` com a mensagem medida
-(`` expected `top` or `bottom`, found <valor> ``).
+## Acceptance and excluded work
 
-## `Element` — mínimo viável
+Preserve local plain_text/is_empty, position/separator traversal, content/text
+mapping and equality/hash checks. The reflection correction follows ADR-0127
+continuous internal/parity flow: L0 before real getter/metadata/encoder/CLI
+RED→GREEN; external corpus keeps body/name expectations. Revalidate all package
+gates under 12GiB/no swap/one job; reseal only owners after V15/V26.
 
-`plain_text()` delega a `body.plain_text()`. `is_empty()` = `body.is_empty()`.
-`map_content`/`map_text` recursam em `body`; se `separator` vier `Some`,
-recursar nele também, por simetria com os demais elementos de conteúdo do
-crate.
+Synthesis of kind/supplement/numbering/counter/figure_location, realize() text
+combining supplement and Counter::display_at, regional separator defaults,
+and upstream's `not known at this point` for unsynthesized fields remain out
+of scope. Here absent synthesized data is an absent field, an intentional
+mechanical difference. Reopening requires its own measurement/ADR-0127 gate.
+FG1/SY1 remain incomplete per the package's follow-ups.md. No pending API is
+authorized by field reflection.
 
-## `eq`/`Hash`
+## Historical record
 
-`#[derive(PartialEq, Hash)]` sobre os três campos.
-
-## Não-objetivos
-
-Não implementa síntese (`kind`/`supplement`/`numbering`/`counter`/
-`figure_location`), `.realize()` (texto final combinando supplement +
-numeração via `Counter::display_at`), resolução do `separator` default por
-idioma/região, nem o erro "not known at this point" do vanilla para campos
-ainda não sintetizados (aqui, ausência de sintetizado é simplesmente
-ausência de campo — divergência mecânica aceitável, ADR-0107). Reabertura
-de qualquer um destes exige medição própria e gate ADR-0127.
-
-## Materialização
-
-Agente A (`01a82593d`) criou este ficheiro e a entidade `FigureCaptionElem`
-(struct, `Element`, `Content::FigureCaption`/constructor) sem ver os
-testes. O ficheiro não tinha nenhum teste próprio até a integração (papel
-C, 2026-09-21) — `crystalline-lint` V2 exige verificação simultânea por
-módulo do núcleo; acrescentados 5 testes locais (`plain_text`/`is_empty`,
-preservação de `position`/`separator`, `map_text`, `map_content`,
-`eq`/`Hash`), cobrindo o mesmo padrão já usado por `list_item.rs`. Suíte:
-GREEN.
-
-## Completar projeção da caption existente — 2026-10-17
-
-Medição anterior à decisão: caption-shape-before.json e caption-after.json em
-lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
-binários, HEAD/working tree de validation-result.json e pin
-9f2b6e8715237cb086899a42873660fe744622e8. Projeção de caption já produz o
-carrier, mas sua CLI imprime só func:figure.caption; body/getters/fields estão
-ausentes. json.encode tem o mesmo defeito. Metadata de kind rejeita a função
-de caption válida. O pin em model/figure.rs:510 declara caption Locatable e
-em :511-594 declara position,separator,body e kind/supplement/numbering/counter
-sintetizados públicos, com figure_location interno. Não sintetizar esses dados
-nesta correção; a função de elemento já existe desde a aprovação P1473.
-
-Responsabilidade exclusiva e aceitação:
-
-Sobrescrever apenas Element::get_field existente: body sempre conhecido;
-position Some Top/Bottom retorna alinhamento vertical, separator Some retorna
-Content original; Option None continua desconhecido, sem default assado. Não
-mudar struct, métodos do trait, construtor, síntese ou phase; não reabrir os
-não-objetivos de síntese/location desta entidade. É completar a reflexão dos
-campos que o contrato aprovado já conserva. Content delega ao owner.
-
-Correção interna/paridade em fluxo contínuo ADR-0127. Não há novo campo/trait/
-assinatura Rust pública, fase, modo ou default. L0 antes de testes/código, RED
-real de getters/metadados/encoder/CLI, GREEN e corpus externo sem relaxar
-expectativas de corpo/nome. Revalidar todos os gates da etapa sob 12 GiB, swap
-zero, jobs1. Resselo só dos owners após V15/V26. FG1/SY1 permanecem incompletos
-conforme follow-ups.md; nenhuma API pendente está autorizada por esta seção.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/figure_caption.md` preserves the original chronology and evidence.

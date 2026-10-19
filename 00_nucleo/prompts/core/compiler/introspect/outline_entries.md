@@ -1,32 +1,68 @@
 # L0 — introspect/outline_entries
 Hash do Código: 9bb45cb9
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/introspect/outline_entries.rs`.
-No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:922-988` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `lab/results/construction/diagnostics/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/introspect/outline_entries.rs`.
+At clean-tree state `df72a6c4a701917ab56a7c6169764a92ea775693`, `01_core/src/compiler/introspect.rs:922-988` contains the behavior assigned to this unit. Source and state are recorded in `lab/results/construction/diagnostics/atomizacao-introspect-2026-09-30-before.json.gz`. Separation is by behavior, preserving the API and without a performance claim.
 
-## Contrato
+## Contract
 
-Materializar entradas elegíveis depois da travessia, mantendo a Location causal do heading e a Location própria da entry, os limites de profundidade, o prefixo e o fill registrados.
+Materialize eligible entries after traversal, preserving the heading's causal Location, the entry's own Location, depth limits and recorded prefix/fill.
 
-As invariantes de linguagem, a ordem causal e os limites de paridade continuam definidos em `00_nucleo/prompts/core/compiler/introspect.md`; este owner não cria uma segunda interpretação. O código usa chamadas estáticas na camada L1, sem vtable, I/O ou estado global mutável.
+Language invariants, causal order and parity limits remain defined in `00_nucleo/prompts/core/compiler/introspect.md`; this owner must not create a second interpretation. Code uses static L1 calls without vtables, I/O or mutable global state.
 
-## Aceitação
+## Acceptance
 
-Preservar os testes de introspecção e a suíte L1, compilar e passar `crystalline-lint .` com hashes coerentes. Mudanças semânticas futuras exigem medição de linguagem e atualização do L0 antes do código.
+Preserve introspection tests and the L1 suite, build, and pass `crystalline-lint .` with consistent hashes. Future semantic changes require language measurement and an L0 update before code.
 
 
-## Entradas diretas e ordem da síntese — 2026-10-17
+## Direct entry indexing and causal synthesis order
 
-### Medição anterior à decisão
+### Evidence before decision
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; order-before.json.gz/before.json.gz preservam estado, UTC, hashes e diffstat. trace-runtime-result.json e trace-runtime.log mostram a entry direta no índice puro, runtime e L3 sob NativeElement; a linguagem bare converte outline.entry em Kind(OutlineEntry), conforme foundations/selector.rs:113. O walk terminal atual não preenche esse kind. measurement-order-before.json no pin 9f2b6e8715237cb086899a42873660fe744622e8 mede BARE [Heading] versus [Heading,Direct], FILTERED [Direct,Heading] versus [Heading,Direct], STATE 2 versus 1 e COUNTER ((2,),) versus ((1,),) na Location da entrada sintetizada. Esses são observáveis de linguagem; não se exige igualdade Rust/bytes. A síntese pós-walk aloca entradas depois dos updates, mas sua posição causal é dentro do outline anterior. O núcleo realization-order já proíbe tratar identidade numérica como ordem. A correção é refutada por ordem, prefixo temporal, duplicação ou dados de entry errados.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+order-before.json.gz/before.json.gz preserve state, UTC, hashes and diffstat.
+trace-runtime-result.json/trace-runtime.log show the direct entry in the pure,
+runtime and L3 index under NativeElement. Bare outline.entry converts to
+Kind(OutlineEntry), per foundations/selector.rs:113, which the current terminal
+walk does not populate. measurement-order-before.json at historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8` measures BARE [Heading] versus
+[Heading,Direct], FILTERED [Direct,Heading] versus [Heading,Direct], STATE 2
+versus 1 and COUNTER ((2,),) versus ((1,),) at the synthesized entry Location.
+These are language observables, not Rust/byte equality requirements. Post-walk
+synthesis allocates after updates, while its causal position is inside the
+preceding outline. The realization-order nucleus already prohibits treating
+numeric identity as order. Order, temporal-prefix, duplication or entry-data
+failures refute the correction.
 
-### Responsabilidade exclusiva
+### Exclusive responsibility
 
-Conservar a síntese na fase pós-walk, os mesmos campos, filtros, depth, prefix, fill, Location própria e Location causal do heading. Usar a ordem dos outlines em outline_elements alinhada a kind_index Outline para identificar a âncora real por índice, sem igualdade Rust/nomes/hashes de conteúdo e sem truncar a síntese. Colher as Locations recém-geradas por outline e registrar sua ordem imediatamente após a Location do outline, na ordem dos headings, por helpers internos de CounterRegistry e StateRegistry. Preservar todas as Locations e a ordem relativa das tags existentes; apenas a posição causal das ocorrências sintetizadas é integrada. Se faltar âncora em snapshot legado parcial, conservar o fallback anterior, sem omitir entradas. Ao fim, ordenar o kind_index OutlineEntry pela ordem causal registrada, tornando bare/where/nativo consistentes, inclusive múltiplos outlines e uma entry direta entre eles. Não reconstruir ou reexecutar o documento, não gerar nós extras, mudar fase, cardinalidade ou fórmula de campos.
+Keep synthesis post-walk with the same fields, filters, depth, prefix, fill,
+entry Location and causal heading Location. Use outline_elements order aligned
+with kind_index Outline to identify the real anchor by index, without Rust
+equality/names/content hashes or truncating synthesis. Collect new Locations per
+outline and register their order immediately after the outline Location in
+heading order through internal CounterRegistry/StateRegistry helpers. Preserve
+all Locations and existing tags' relative order; integrate only synthesized
+occurrences' causal position. A missing anchor in a partial legacy snapshot
+retains the previous fallback without omitting entries. Finally sort kind_index
+OutlineEntry by recorded causal order so bare/where/native agree, including
+multiple outlines and a direct entry between them. Do not reconstruct/reexecute
+the document, emit extra nodes or change phase, cardinality or field formulas.
 
-### Aceitação
+### Acceptance
 
-Testes funcionais antes da mudança: índice bare da entry própria e aliases; ordem de três entries (dois outlines com entry direta entre eles), where e ausência de heading fantasma; estado e contador lidos na Location sintetizada devem refletir o prefixo do outline. Depois, testes de contrato dos dois helpers internos antes da sua implementação, com âncora desconhecida, duplicatas/repetição, IDs não monotônicos e append denso. Repetir nove sondas CLI sem relaxar resultados (seis originais e order/state/counter). Suíte completa, build, fmt, Clippy estrito, Rustdoc estrito, V1/V5/V15/V26/reversa/diff e SARIF: seis V16 removidos, sete V19 previstos e três mensagens existentes atualizadas, nenhum V20 novo. 12 GiB, swap zero, um job e comandos pesados sequenciais. Esta é correção interna/paridade ADR-0127, com helpers crate-private e nove pares L0/consumer; nenhuma assinatura externa, default deliberado ou fase nova. Resselo restrito, sem commit/push/release. As demais pendências de V16 continuam abertas.
+Before change, functional tests cover the owned entry's bare index/aliases,
+three-entry order (two outlines with a direct entry between them), where and no
+phantom heading; State/Counter reads at the synthesized Location reflect the
+outline prefix. Then write the two internal helpers' contract tests before their
+implementation: unknown anchor, duplicates/repetition, nonmonotonic IDs and
+dense append. Repeat nine CLI probes without relaxed results: six original plus
+order/state/counter. Validate full suite/build/fmt, strict Clippy/Rustdoc,
+V1/V5/V15/V26/reverse/diff and SARIF: six V16 removed, seven expected V19, three
+existing messages updated and no new V20. Under 12 GiB, zero swap and one job,
+heavy commands run sequentially. This ADR-0127 internal parity correction uses
+crate-private helpers and nine exclusive L0/consumer pairs; no external
+signature, deliberate default or phase change. Restricted resealing only;
+no commit/push/release. Other V16 findings remain open.

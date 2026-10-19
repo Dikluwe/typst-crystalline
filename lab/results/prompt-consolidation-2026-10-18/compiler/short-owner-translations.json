@@ -1,0 +1,590 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/color.md",
+    "status": "translated-full-text",
+    "original_sha256": "c3f1b7de2ece2a091282d96c1134eac795cecd41a9d0a82f430c77bb81fce17a",
+    "result_sha256": "241b824919f691b682d07cd8e63ee5bc2e71eb3547d287050fcd0f89b48e61c8",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/counter.md",
+    "status": "translated-full-text",
+    "original_sha256": "5739aeaf27737340c7152c2c6ba013cca76a6000d8ab740a0570f754307c2657",
+    "result_sha256": "675cea3e1407e761a95f3d523a5ac5cc2f5f02b72c1c455adfff1bb3a8a4fa3c",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/version.md",
+    "status": "translated-full-text",
+    "original_sha256": "8fe1d60ef9a4b5d269158350a27460b8ac6094e50ed364bc6b4d501a7029fc33",
+    "result_sha256": "a1466957189daac5b44aa348f41a63aded48afc7bd4052fcb43fa6eb6a8246f6",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/location.md",
+    "status": "translated-full-text",
+    "original_sha256": "ef1966d79a0ce4e1c5bb2e4ecd1dbf78a22f9389db2caf76c0854d810103f36a",
+    "result_sha256": "dfdec51b9cb5f054d9ed60fded945360b3b7db2c29e89013054b56d19eab70ee",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/call_fallback.md",
+    "status": "translated-full-text",
+    "original_sha256": "7ff109860495d4f2b9039ede482cf449070caadd237b06d56213396b57816ee0",
+    "result_sha256": "c521687136d49fbce58ab9f15c751f261bc51bbe02814ffcae0ee903709694b6",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/callee.md",
+    "status": "translated-full-text",
+    "original_sha256": "4b32dd37a64e95f948f0a5eb8caf3d7d92e8a28ea961a08dbfd81d13d6668a7a",
+    "result_sha256": "6fc62fb945c442c512fd5c1a5dffe098a8533400751aa0dfaff82c365e42d47b",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/construct.md",
+    "status": "translated-full-text",
+    "original_sha256": "047b992a6a887f8074d55125ec5e92d413e215aa8200080944b3bbee002b43a8",
+    "result_sha256": "73d1117b00656f103eeebdfd64770dfc80f1d4c4111b4bc615a738ed3bb14500",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/entry.md",
+    "status": "translated-full-text",
+    "original_sha256": "7603933db40c57dda6b486fe67dd4f248a7a75408fd60a6b8f339bca09149d02",
+    "result_sha256": "2e97d841085e8d7388ed539e68f2f7f1e3884e2f756524b847300b376890d58d",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/expression.md",
+    "status": "translated-full-text",
+    "original_sha256": "aa1d9ddeb4dca4055e548bf5336f33a8f5c7c02cff1fb0af5c34febfdb063b80",
+    "result_sha256": "96c265545a8142b67e707571930352d103ff897e205103625a23155a8f1c837a",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/expression_call.md",
+    "status": "translated-full-text",
+    "original_sha256": "58fa6ad62a80b7d026fbfb0354bbbc950a563d79eb1de3e71b41aad6d90df02c",
+    "result_sha256": "090a4e19be205dc342a53e740ff331526bf694395ab813d121e42984f7d095f1",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/lookup.md",
+    "status": "translated-full-text",
+    "original_sha256": "fc150137a23fe9955300ee9e6bcccd3f1205a4abdc1a5f3c6a9820853d6687ff",
+    "result_sha256": "02fe7466d72788ee53dc11a578ed1109ff0c9299aa5d9b3c53f9d88050000574",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/native_attachments.md",
+    "status": "translated-full-text",
+    "original_sha256": "fada4ea703cc20285737c258caf84c205331a774cd6232f8f331c246af5c5a0a",
+    "result_sha256": "abd36db123fd9259fbec3f67a42896e2fcc2877f76880c30f2095ed4e903e6c7",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/native_decorations.md",
+    "status": "translated-full-text",
+    "original_sha256": "ee1ce81e10fc1f57b4514a8b0214b8ff5b3a0c507621b818adb6c00e0b79889a",
+    "result_sha256": "b4e6768eec6d36f3287cd447656fc09cc8b70c83d07be5de55aad3d46ae8f9d1",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/native_dispatch.md",
+    "status": "translated-full-text",
+    "original_sha256": "09ec160e1c3dbeee099e083786c425e3ef2384a9c696bcedbda0caa06b280b0e",
+    "result_sha256": "1285f7f8609b1fa144f5f8949e542e5659d11c7b0aa3875d70aaabf1f3757e3b",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/repr/format.md",
+    "status": "translated-full-text",
+    "original_sha256": "3b8b78d4ea0248af6a83f1d826b22f83f0d10071b02420137e7a4608cc0cea65",
+    "result_sha256": "17ff5cbfcc4c64a098e63a876916607fda83beba79ea8ba05b91f48d891b3919",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/repr/paint.md",
+    "status": "translated-full-text",
+    "original_sha256": "50241efc7543b88998f4d568c36602ad23d2dd8b258c0a9b312b4b85b3fcda64",
+    "result_sha256": "b112a4aed18517e05f9b2e5919a05133217ca50d2b028b3b41e134c341be5625",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/math_set.md",
+    "status": "translated-full-text",
+    "original_sha256": "4c7dd99356cf38c133346f75a9c841d3ac69513f590a420e84f8d2b40818380e",
+    "result_sha256": "ec4db59e4828c0a0d1e2f56dcdb6b5452b4af31e2ae3b8d8fffbf9339b566aee",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/pdf.md",
+    "status": "translated-full-text",
+    "original_sha256": "baef932dbaa303b8f552f7421bfb48fe0462a42817f29d0290258e73e9ce98ca",
+    "result_sha256": "aea347e2b912ba1db6bc06c32cbd53701b2419ffcfe008175f66681d48cab328",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/set/page.md",
+    "status": "translated-full-text",
+    "original_sha256": "f240b606f185a6dedc70bf141e77324ab387ebc21416286942e3ba2692eea44f",
+    "result_sha256": "fcc1f496e2ce797ccb6b0cfcc6ff93dd87eb7fc1d770a8e1fc55f8325bca02d3",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes. Follow-up complete translation of dispatcher evidence and title. Follow-up complete translation of dispatcher evidence and title. Follow-up complete translation of dispatcher evidence and title. Follow-up complete translation of dispatcher evidence and title. Follow-up complete translation of dispatcher evidence and title. Follow-up complete translation of dispatcher evidence and title."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md",
+    "status": "translated-full-text",
+    "original_sha256": "bbd7186cd2bcbbd8c57cda7e939ad635be781553ffc98e6f7ff5976814a6e259",
+    "result_sha256": "d9ff1a6d49363e9984be5d847f0de8ccbdc2709434f768d368cd2782f1151bf1",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/parent_index.md",
+    "status": "translated-full-text",
+    "original_sha256": "ddb78def3df05825b4c68c6d3b31973c39ae5fe6c03038ddadd2bd92d310b42a",
+    "result_sha256": "1940a2d4ded260f211667b8026a87aa69f4e8e93eebcc14cf9217226d4accb1b",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/grid_composition.md",
+    "status": "translated-full-text",
+    "original_sha256": "0be0beb0383cd1ee8b694024c1ba0a3f037194a14f91dac8b6f37e9938ba0d41",
+    "result_sha256": "960bab2fa3eb6f5b879a3ce67296c4fb4dd204dc7288316a0dd0f8a98a141937",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/line_decorations.md",
+    "status": "translated-full-text",
+    "original_sha256": "94080718264b343bf1ab6fff8d7cc138dec0c4345d108f26e970a27a1da9fd73",
+    "result_sha256": "2e15093ff3b51d399985dddf486002a2258b993851fcc69548c667ff2d364c3a",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/calc/combinatorics.md",
+    "status": "translated-full-text",
+    "original_sha256": "1487bdc6c87263b7a074fdd6d9beaa94083f4c372203dc96e096e388a3c4c17c",
+    "result_sha256": "d9c252e963173160b74760ac6012a294e12fd72556a5b845c90afbc55b69fff6",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/calc/erf.md",
+    "status": "translated-full-text",
+    "original_sha256": "fd8e47cbf826cd65d39b0b0fefc13717d7ee26bb4182db47d75a53241f1911b0",
+    "result_sha256": "2513d50dad3ee03d82c7caaad8d1c040355f8b14c2b48386dff91c4a7417557f",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/calc/extrema.md",
+    "status": "translated-full-text",
+    "original_sha256": "fc6ca5d5880333cd4018f553e187527e48a8bccd78f5e8d270b97af3f98f331b",
+    "result_sha256": "ac72351a60eb20656e549d1aa5bed1d9960e97c72b35ca7655b4222f3739e88f",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/calc/integer.md",
+    "status": "translated-full-text",
+    "original_sha256": "3c60cb63712055e9f19cf371fc7122ec0edf562f839240c029ad36406118add4",
+    "result_sha256": "670996a77788cb067fd2e6fcba602133ffe9595bf9495b0839fb5856a12a2768",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/calc/norm.md",
+    "status": "translated-full-text",
+    "original_sha256": "919e98c76eb42d52fd47b681f056630f47f5a9ff59370a8e6cf03949f760cb7c",
+    "result_sha256": "d80b4f5481038438ac68e39edf2cf57080b09dd99e876a364354de6c43963d76",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/calc/numeric.md",
+    "status": "translated-full-text",
+    "original_sha256": "fcc47850f601f49751b02474ec5cb2bb7fa750a4a0a750b4ffacb4e111a9486a",
+    "result_sha256": "1677cdf099db53e641f6b58f224d3105547b5a82400f276a53deb11fcf41f1b1",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/collections/arguments.md",
+    "status": "translated-full-text",
+    "original_sha256": "e088c7ca9e8fa92572ec0a05d2faf6abb66561c79b743904438afdebe106effb",
+    "result_sha256": "bd27a6f7e2ef9adb69c62ce38147221476ab1ae3d31c19924d4d66b3c576421a",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/collections/array_access.md",
+    "status": "translated-full-text",
+    "original_sha256": "c0b8d86499434bb89d23866ec2216623793ab79e3bd0f431624381f2f18392e9",
+    "result_sha256": "8fff4bad894dcf262bd95f9b1870090286a2de9e8edb69bbfc519527abdb53c1",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/collections/array_aggregate.md",
+    "status": "translated-full-text",
+    "original_sha256": "ec6d3c52ae081071d61e09bc9bc7224a97f57f7cdeb31961b6121cadc9b1927e",
+    "result_sha256": "c047a1d1a84eeb18a1c13d9050978a4951f9771ce14f125d6e27e88858f6e19d",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md",
+    "status": "translated-full-text",
+    "original_sha256": "09f53e65af2c338a453ed467939122349ba9580139fb6d030e37f96b2abb2195",
+    "result_sha256": "3eb4f76a1eb71b2160c5989cd368ee54f6d044964ed02defddad1d972ca4322c",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/collections/array_sequence.md",
+    "status": "translated-full-text",
+    "original_sha256": "1ebe58cb3facbbb529f122385cec6844878ae0afb70434bebdf0e0add1adb45a",
+    "result_sha256": "6537fc564dd8b275f5973066054ffdd853387d9acfbb224abb07c8de6881a90e",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/collections/dictionary.md",
+    "status": "translated-full-text",
+    "original_sha256": "7197453c061f83d51252842340e9ad67ac83e57e1591b2245e59ea9c6b5a9516",
+    "result_sha256": "3c44876020faa2057a5758fecc9552ab57a3eb568e9fda8afe8b5e464124dd64",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/collections/str_access.md",
+    "status": "translated-full-text",
+    "original_sha256": "8be1f7918e30e81cb878efb84b7d29495bf7a4ccd9a7deca1d4fc41dd3abec7c",
+    "result_sha256": "9934f5a034afcccb3412620313f425f4a021706ec82be3163ebb01bf1aa6b8e6",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/collections/str_search.md",
+    "status": "translated-full-text",
+    "original_sha256": "1ae0b27ab057e6e9d32684ffaead93410460a9c9035d9b9f5a4286658e7bebbc",
+    "result_sha256": "e657a71f60d855f21aab98122516748444deeea7f660d438f2d0aa8d9554e184",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/color/alpha.md",
+    "status": "translated-full-text",
+    "original_sha256": "996b1bc8aab8bf2c88798e86ec46d8d79a2a59215f6f7e223ff3676361086c56",
+    "result_sha256": "aa1c39ec69d1b6acc3c18525771a9edc4f9a6ea51582d4d44d5bbe4c4ed500ad",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/color/arguments.md",
+    "status": "translated-full-text",
+    "original_sha256": "417bbcb4e3030435d3ab77eefe4e77797e6d1d2cc8ee048065c7baa7c43af614",
+    "result_sha256": "393eae597eb05c5a73f42fd5f145c509b389518710c103add044a163e897c65a",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/color/inspect.md",
+    "status": "translated-full-text",
+    "original_sha256": "6eaf453eed36bb2925d8b421f7031025cffabba638eb7f9e908df765ff651ec9",
+    "result_sha256": "cec342bc0c858f3e531b784ca1980be09e9ade1948d6cf61be9cb62d31418be7",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/color/light.md",
+    "status": "translated-full-text",
+    "original_sha256": "b47497f2ae4db6cc6ac9be865741973666927312a47f74aeebb6a7bc76d3e672",
+    "result_sha256": "39d13343fc9e51e6d28a2cdf3e289f39537fad695956819213b797ec06b14df2",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/color/mix.md",
+    "status": "translated-full-text",
+    "original_sha256": "0a024019b3eaec72a32c62af0f0deab922c0c1e035196f4be66a3842d78c7c30",
+    "result_sha256": "04227b1977d6a9fd764b35585348af9edc7287a06a46261f5480a918d354a649",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/color/palette.md",
+    "status": "translated-full-text",
+    "original_sha256": "c214a3f6d94f1505c48c536143ab7cc00fca72acd33892b10a9a93b47f96a1ce",
+    "result_sha256": "7ecb1831dbcea7eea489fd47e43cce9c625a6d6a4d668fb9d09a296cd10f8cac",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/color/spot.md",
+    "status": "translated-full-text",
+    "original_sha256": "6dcde5349d2ce988f30e5bc10fdb8e1f20d3638edeb1a624392e3a688f9b80aa",
+    "result_sha256": "704c107ae9b5675a26ae65d447e5d2e0c16cf534dbb0877754ae838736425f41",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/color/transform.md",
+    "status": "translated-full-text",
+    "original_sha256": "00a4d9fd21e5b2180d8f2113e9305f48d64456c033026adf377509fe92b517d2",
+    "result_sha256": "3663e85b642e9472360c0d14e52b3a41d6758c6c91922c2cec268e8cd148bd5c",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/gradients/accessors.md",
+    "status": "translated-full-text",
+    "original_sha256": "7af93d53b175a257a4dc307af8703e0af34629ece1e180f0f2b7afe6d2fd4050",
+    "result_sha256": "af4255e64f47b040b91ad6b7e69d81e5d6f21efc00498f66c67885d5fc0eaa12",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/gradients/conic.md",
+    "status": "translated-full-text",
+    "original_sha256": "f0f6e677a83265fa90da11be3be9dec3aecdbf88eafe6bfc0b86929587639950",
+    "result_sha256": "f1f888bb9824716dd3c6aceeba46558d8d98654fa6d63d10d4c7184adef48d0e",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/gradients/dispatch.md",
+    "status": "translated-full-text",
+    "original_sha256": "dd9c1e41ad18880d95bd46e6a4e67b611153a2d6187a5e64ed385cabb67502d2",
+    "result_sha256": "801ed60436aeae8e467392b57b5b122010cd7d018870f19f58c1fc94d3eec152",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/gradients/linear.md",
+    "status": "translated-full-text",
+    "original_sha256": "64e92f9473a1998daacc6398a7cbdc443aeb4be7ee4fa06dddbf45fb62d4f0db",
+    "result_sha256": "02df3eccc153b915d5ba18ac950dc58b2fd523c9e05c495a3a55d630257bfde3",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/gradients/modifiers.md",
+    "status": "translated-full-text",
+    "original_sha256": "dcfec40fe19fdf497f7a434689c4c192a9393d89d7b3af8b05d4a055098ffc1f",
+    "result_sha256": "b80a97390a5c733e069ae9fa6ee67654bf2349e6a85a35c8f852c8169274df64",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/gradients/parsing.md",
+    "status": "translated-full-text",
+    "original_sha256": "f70fcd8340593886dabfa5167cf74cbb5174bbcec63c58cc851d9c73a6cc8d2b",
+    "result_sha256": "b41bfd44bf6f52d00f06945c2479e2edd3874a2a6ffedaef5e545d4d90aceccc",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/gradients/radial.md",
+    "status": "translated-full-text",
+    "original_sha256": "060c59081e7ca2c5050400414eee74ccd68a362432f5e2d6ec80b642966d0bab",
+    "result_sha256": "728cac586bf0aa89b11e4d66d1ad6732f99dadbb31ef1563b835b74484d7de99",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/gradients/sampling.md",
+    "status": "translated-full-text",
+    "original_sha256": "71eb4c3ce7aa7735659398819a5245751281d100493fecea421e6a9726c61aec",
+    "result_sha256": "e059ceb3b28566b0fe7382240eab4b5d10dc0f2155780988b39fbf2160e4e5d6",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md",
+    "status": "translated-full-text",
+    "original_sha256": "18e48ca236d259efd3640d39461b3e73d6f3ca833870405cddd1231201522b19",
+    "result_sha256": "229d9e9efe54e796817ec2fb25f942598beee1683bd9fe85d69dc53f8bfd3d9e",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/html/attr_specs.md",
+    "status": "translated-full-text",
+    "original_sha256": "3ac501a9b692c88e9b9cb2f29fd0176c95f85c72891dec83ef444cd4cc864e34",
+    "result_sha256": "165095db20d9a0edc24cbb5f805e083b4a891ac95f1f0debde7da0188a4d14bd",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/html/attr_values.md",
+    "status": "translated-full-text",
+    "original_sha256": "a77fd3eb1f45b4075db9d3d43b79dfcaa65bb0cddf9cdebc03acc21b3a000758",
+    "result_sha256": "5dc9b9d43532fc4d17523309cae0c359f0c6223a3271c04c70b2fc10a6bf3e79",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/html/elem.md",
+    "status": "translated-full-text",
+    "original_sha256": "57b7a7548dd57f8acfc8945fe49709c75ea8859329b3608bf4c44adc610c9a0a",
+    "result_sha256": "66a5c43f842f4c81cd61b405e9a64906e09a1c64c29bdfe88c12cf1438cab837",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/html/global_attrs.md",
+    "status": "translated-full-text",
+    "original_sha256": "e90818567af4c9eaa7b81fa9295405098488183048292bdf30fb3ad4d514a743",
+    "result_sha256": "bcda4cab932d83238b1f8127a75079ede26da2cb27fb71adbadd76c366a55c76",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/html/tag_attrs.md",
+    "status": "translated-full-text",
+    "original_sha256": "51468b2eebee3000afc578f3cff1de4bdb7f36dacd4387b10155e9a9c250774b",
+    "result_sha256": "1c8e93d574190e51217651e0569d92aa52197ac33ae7bab56fd40ad4aecdf935",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/html/typed_element.md",
+    "status": "translated-full-text",
+    "original_sha256": "e8abcdac5298a5f2f9abcf58ff90cd508caad837d7d73cbbe5f1d74f1510d187",
+    "result_sha256": "c4594d0b0417be60f4b1037f340ba848c2b2ae37b7eb8e13511ad74aea8daae3",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/html/typed_tags.md",
+    "status": "translated-full-text",
+    "original_sha256": "c8384cc2a71f69c2f1df262b228c50f83075fee8e633aef19a0cd44e3c3d8c7c",
+    "result_sha256": "6b8e939db3eb5cac653efad7cebeb967294f3d549ec2987e1126477e4062df11",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/block.md",
+    "status": "translated-full-text",
+    "original_sha256": "33bfc00f4379cc5d223903277c167af4873029790c72519d18d7db5cb42aea14",
+    "result_sha256": "3dfe00f005b5faabac256b9484ccd0f2e1eea1ba2a41a623703b2fd64321d51c",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/box_elem.md",
+    "status": "translated-full-text",
+    "original_sha256": "16a5b4389b3d7eace7a84c824da2799a5219f7b31070aec53f52af4f6df1de53",
+    "result_sha256": "26540c98e3103d08cbc307533d8a5954ac79cd0ae17831c309cb1409fd38648a",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/columns.md",
+    "status": "translated-full-text",
+    "original_sha256": "905c8000c33843ad228d3f6ffb6f2f835ee1846d054344504d7e335a5d328b8b",
+    "result_sha256": "744a5fea09c63617f0183815cd208cf61701be01bfe0180dc70c02d2a67008a7",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md",
+    "status": "translated-full-text",
+    "original_sha256": "cb04427095a12a0244d28a025de819663a60d2131b05e9508d592f2b388b2474",
+    "result_sha256": "2e8260431ab16e9b1ace106cee0e3b546d4ccaabcc3ed6552a9fb78355b56676",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/hide.md",
+    "status": "translated-full-text",
+    "original_sha256": "27310b0c5e234d909d56439781bcf33f8c4724a191fd33602014cf312007ee3b",
+    "result_sha256": "430d7e43d0ffa607b2de985a21216cecfc424154e54490b5fbc5cfddbe52f29e",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/measure.md",
+    "status": "translated-full-text",
+    "original_sha256": "08e3b8f3542e692e4e86cf620b3eba57adb85b66438c2b6da28343b7316b455d",
+    "result_sha256": "446dbd8e85e3de1ad3bc500605e1ec1f26a375612ad8adf04dd257a3bac805c3",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/pad.md",
+    "status": "translated-full-text",
+    "original_sha256": "942c2ff29dfdf7e968e3313641a3fc72df6a01dc62dafb4cbee66e14f28d078d",
+    "result_sha256": "a1e42aff80ddc90e71c5bb08067db82a30089f44f21121eb41291fb3fbfafbcf",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/page.md",
+    "status": "translated-full-text",
+    "original_sha256": "e0c195846cbfe74a9cc34be72a4c16563b064dad4008155d0ec03b5a4bbc0cdc",
+    "result_sha256": "72007de50a8dd199fb36d59c84326d9422afc8d975b035f7becd96c868ba912c",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/pagebreak.md",
+    "status": "translated-full-text",
+    "original_sha256": "bd55122f53ff1f461c504d0d20750d92e70801f674e3c0a603f172c802dd8d5d",
+    "result_sha256": "1b4e6a3fc5f5f9a7934bfba9495cb85be74f791f62cc641d6857ae4866b6c6ff",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/repeat.md",
+    "status": "translated-full-text",
+    "original_sha256": "391932441e2a5a7bc6923fef4ae300dad8f942f61655d90ca1b51aee803cfd8c",
+    "result_sha256": "16740e8c0358f00d9007b5c492455a1d995d64ddf7299e272545da904a123b3f",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/spacing.md",
+    "status": "translated-full-text",
+    "original_sha256": "8d048a1920542dba83ea30befee6fa40aed14279913d608b9ba17897a0fdd309",
+    "result_sha256": "8fb0ad53d7214da4951ae645ff2c5133c4e5432dd2665eb15bc31f5c18ca9bea",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/layout/stack.md",
+    "status": "translated-full-text",
+    "original_sha256": "57ea40616742fa82b522aed27018ec475eb7c1da0d5741ef85ee31f351f52499",
+    "result_sha256": "1c99d61c5c74389a68f9c27ca66762d3ce329efc929351e6e02505605f7215c2",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/loading/json.md",
+    "status": "translated-full-text",
+    "original_sha256": "5d9e0473a4588c08dc0bf6ffb300d8cdeb2b3f098861fa54a7593a3346d79c39",
+    "result_sha256": "14c88c8478223b07d5f1f14384d274972909effdc5bcfb8c3aedee30cd611c83",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/loading/json_encode.md",
+    "status": "translated-full-text",
+    "original_sha256": "d7f6a42bc14700d63fd7d49cce0cd8271aad36c7116f7ebee97ce4a86e6b32d5",
+    "result_sha256": "d60f4f942b8bccbaa26c9327d3efa49ac175cf17cb751f8d62db964157319fb4",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/loading/read.md",
+    "status": "translated-full-text",
+    "original_sha256": "9d0d96ea7e884915c92b3679fe72071bd43333747072684e30474981aa69909f",
+    "result_sha256": "d3200f48274f9fd25070dfa2fe6277c91717f7ca961a16b7b9f250443c8c075d",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/loading/toml.md",
+    "status": "translated-full-text",
+    "original_sha256": "dc96acc8eaf7466a2094be589036ff1e40e519a7782d77e344b4aba4316c13dc",
+    "result_sha256": "8e68abf449d4c979599c70e92733f423ade5a938926eb864da94198e0dc704dd",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/loading/toml_encode.md",
+    "status": "translated-full-text",
+    "original_sha256": "5caa790d284bb8fb238673c4e61120718eb78eeff674c0baa05b94ee1d8deb37",
+    "result_sha256": "e127287eb1cd1119f17a4cbbf54b24339fbcfc3a38cf9088f0e04cfbbd9fca1a",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/loading/xml.md",
+    "status": "translated-full-text",
+    "original_sha256": "a6a94d5fd371cdb3e1cad64a74ce4c1a49a4ed645c1047618232a71c10016880",
+    "result_sha256": "327935c7487285fe92f389db6e5f4a5c74c5a84d5720b9226c2580e0b5e9e377",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/loading/yaml.md",
+    "status": "translated-full-text",
+    "original_sha256": "6074c2ecfef7ac3e34724897f64ff76334b6a15824e13704e0a2a43093792151",
+    "result_sha256": "ee1da3354e3924c806bdc86003b71dfbab7fc914802c770be85d9bc9d40c2b33",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md",
+    "status": "translated-full-text",
+    "original_sha256": "7483dafa4f470fef1ba6ae3e3c8979e12be7e34168316db15c9082fbe6466ec2",
+    "result_sha256": "44a955a755e4a79638d46af4b577f38d9293cbe2b127623addaf5792535deffa",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/shapes/coordinates.md",
+    "status": "translated-full-text",
+    "original_sha256": "059c110f0a49369c9cb0486c4ed078c3c1b9823f958d3750d17167d3420b1481",
+    "result_sha256": "c76fe1084b102930008cfa0862ac131bc69d0700015cbf147e4ed42b758616b4",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md",
+    "status": "translated-full-text",
+    "original_sha256": "7a3824f2e53c1e822fad95b8bb2f3fffdb8cda8d37f677c127a0bc681ec8d80b",
+    "result_sha256": "044eb6968316208649f47f45588ed7c94d9b05893f2a32aa5dc18edaef98e179",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md",
+    "status": "translated-full-text",
+    "original_sha256": "ee3fc1ed64ec04fdbcf440d5faf319d8cb00f1f78e5b18be5af19da7b1ac6456",
+    "result_sha256": "dfc91aec59e70e46d328b8634f191b138782b148ba3b7adde724d665b258ae65",
+    "contract": "All behavior, evidence, boundary and acceptance clauses retained; common extraction prose translated, no code/seal changes."
+  }
+]

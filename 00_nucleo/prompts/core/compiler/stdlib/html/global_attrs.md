@@ -1,14 +1,14 @@
 # L0 — stdlib/html/global_attrs
 Hash do Código: 5de46df1
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/html/global_attrs.rs`. No HEAD `7a813038b9af2eca0eac7c9a0f808ae8f6509d5b`, a fonte estava em `01_core/src/compiler/stdlib/html.rs:475-1398`; o manifesto `lab/results/construction/diagnostics/atomizacao-html-2026-09-30-before.json.gz` registra a proveniência exata.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/stdlib/html/global_attrs.rs`. At HEAD `7a813038b9af2eca0eac7c9a0f808ae8f6509d5b`, the source was in `01_core/src/compiler/stdlib/html.rs:475-1398`; the manifest `lab/results/construction/diagnostics/atomizacao-html-2026-09-30-before.json.gz` records exact provenance.
 
-## Contrato
+## Contract
 
-Tabelas de atributos globais, ARIA, roles e enums aplicáveis a múltiplas tags. Preservar cada nome, categoria, valor permitido e ordem de especificação medidos no L0 principal `00_nucleo/prompts/core/compiler/stdlib/html.md`. A separação é interna, na mesma camada L1; não altera contratos públicos nem defaults.
+Own global attribute, ARIA, role and enum tables applicable to multiple tags. Preserve every name, category, permitted value and specification order measured in the parent L0 `00_nucleo/prompts/core/compiler/stdlib/html.md`. Separation is internal to the same L1 layer and preserves public contracts and defaults.
 
-## Aceitação
+## Acceptance
 
-A suíte L1, os testes de html e `crystalline-lint .` passam. Não inferir ganho de desempenho.
+The L1 suite, html tests and `crystalline-lint .` must pass. Do not infer performance gains.

@@ -1,39 +1,32 @@
 tekt = 1
 kind = "nucleus"
 id = "introspection-content-snapshot"
-title = "Campos públicos congelados de conteúdo introspectado"
-
+title = "Frozen public fields of introspected content"
 [[claims]]
 id = "authoritative-presence"
 level = "must"
-statement = "Um snapshot presente é a sequência completa e ordenada de campos públicos da família realizada, com nomes únicos; ausência de snapshot conserva a projeção legada. Não há fallback por campo dentro de um snapshot presente."
-
+statement = "A present snapshot is the complete ordered public-field sequence of the realized family, with unique names; absent snapshot retains legacy projection. A present snapshot has no per-field fallback."
 [[claims]]
 id = "immutable-causal-transport"
 level = "must"
-statement = "O valor consultado transporta consigo o snapshot imutável da ocorrência que o produziu; clone, arrays, closures e despacho de métodos preservam esse snapshot mesmo após mudanças de estilo ou contexto."
-
+statement = "Queried value carries the immutable snapshot of its producing occurrence; clone, arrays, closures and method dispatch preserve it after style/context changes."
 [[claims]]
 id = "no-reconstruction"
 level = "must-not"
-statement = "Consumidores de snapshot presente não reconstroem seus campos pelo estilo atual, igualdade do corpo, hash, label do selector ou primeira ocorrência. A ausência de snapshot conserva apenas os fallbacks legados explicitamente contratados. Encoders não executam callbacks nem realizam conteúdo."
-
+statement = "Consumers of present snapshots do not reconstruct fields from current style, body equality, hash, selector label or first occurrence. Snapshot absence retains only explicitly contracted legacy fallbacks. Encoders execute no callbacks or content realization."
 [[claims]]
 id = "separate-render-datum"
 level = "must"
-statement = "A árvore de render e o snapshot de campos são dados separados. Apenas uma conversão explícita para render pode descartar o snapshot, sem modificar o valor original; uma nova introspecção constrói nova entrada coerente."
-
+statement = "Render tree and field snapshot are separate data. Only explicit render conversion may discard the snapshot without changing original value; new introspection builds a coherent new entry."
 [[claims]]
 id = "function-and-label"
 level = "must"
-statement = "Um snapshot presente não contém func nem location. A função do elemento é projetada separadamente. Dentro desse snapshot, label causal presente é o último campo e label ausente não é substituída por none, selector ou label sintética de TOC. Famílias sem snapshot conservam a projeção de label legada explicitamente contratada."
-
+statement = "A present snapshot contains neither func nor location. Element function projects separately. Within snapshot, present causal label is last; absent label is not replaced by none, selector or synthetic TOC label. Families without snapshots retain their explicitly contracted legacy label projection."
 [[claims]]
 id = "identity-not-equality"
 level = "must"
-statement = "Location preserva a identidade exata da ocorrência, mas não integra a igualdade linguística de Content. Label também não integra essa igualdade; os campos públicos realizados podem integrá-la conforme o contrato proprietário de igualdade."
-
+statement = "Location preserves exact occurrence identity but is not part of Content language equality. Label is likewise excluded; realized public fields may participate under their owning equality contract."
 [[claims]]
 id = "single-entry"
 level = "must"
-statement = "O store canônico de elementos guarda em uma única entrada a árvore de conteúdo e seu snapshot opcional; não mantém um segundo store concorrente de campos públicos."
+statement = "The canonical element store keeps content tree and optional snapshot in one entry, without a competing second public-field store."

@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "cd9e85954afacf4546c0cb75c0584b8fd63c99a6f1bb1f48dfce7432d66f7037",
+    "result_sha256": "f2ad614488db02537400e7fedde0ab81924844c580416900ebb95af40d81a5a7",
+    "disposition": "Full arithmetic matrix retained, translated precise paint/thickness specified-bit fix, actually ratified carrier adaptation and canonical concat delegation without broadening domains."
+  }
+]

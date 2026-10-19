@@ -1,0 +1,37 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/lexer/mod.md",
+    "status": "translated-full-review",
+    "original_sha256": "dc6152b6ca4a4cf223804f78f504665fdbff707136dba09e47f46ba269eff920",
+    "result_sha256": "2b4accf8753b810b044d9658d38548d0094a0ea34ced10f54d0defb0d8d0ca5e",
+    "disposition": "Existing English lexer contract preserved; full trait exception addendum translated while retaining exact S001 reason string."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/lexer/code.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "886d9705a8979fb4242229c3c81e2cbffd95a3648ce3648a7a55f4f08cd31eda",
+    "result_sha256": "886d9705a8979fb4242229c3c81e2cbffd95a3648ce3648a7a55f4f08cd31eda",
+    "disposition": "Full text reviewed; diagnostic literals, grammar boundaries and scanner safety obligations retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/lexer/markup.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "5af09339f327751a6ef8de47436b038bc7f4c1471e02b1748eb0595b65ffef0d",
+    "result_sha256": "5af09339f327751a6ef8de47436b038bc7f4c1471e02b1748eb0595b65ffef0d",
+    "disposition": "Full text reviewed; diagnostic literals, grammar boundaries and scanner safety obligations retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/lexer/math.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "64493f48f96d28065df9dd34b9d558616cf06f46f6475883c930d26244996ba6",
+    "result_sha256": "64493f48f96d28065df9dd34b9d558616cf06f46f6475883c930d26244996ba6",
+    "disposition": "Full text reviewed; diagnostic literals, grammar boundaries and scanner safety obligations retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/lexer/scanner.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "570e0dbfb902f2e89a9174f31c1a6097c9e3d0f68e3d67de35c63f58d78ab768",
+    "result_sha256": "570e0dbfb902f2e89a9174f31c1a6097c9e3d0f68e3d67de35c63f58d78ab768",
+    "disposition": "Full text reviewed; diagnostic literals, grammar boundaries and scanner safety obligations retained."
+  }
+]

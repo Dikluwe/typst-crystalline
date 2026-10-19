@@ -2,16 +2,28 @@
 Hash do Código: 9cc7e161
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:a922bbaa9c3b4c8435708af8e68b4557801f93ba09188768d48c711ba35a0c15
+- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/collections.rs`
 
-## Evidence and classification
+## Evidence before specification
 
-`01_core/src/compiler/stdlib/collections.rs:37` (pubcrate) struct CollectionCallSpans {); `01_core/src/compiler/stdlib/collections.rs:66` (pubcrate) fn try_dispatch_collection_method); `01_core/src/compiler/stdlib/collections.rs:180` (fn try_dispatch_bytes_method) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
-## Contract and ownership
+`01_core/src/compiler/stdlib/collections.rs:37` (pub crate) struct CollectionCallSpans {); `01_core/src/compiler/stdlib/collections.rs:66` (pub crate) fn try_dispatch_collection_method); `01_core/src/compiler/stdlib/collections.rs:180` (fn try_dispatch_bytes_method) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
+
+
+
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+
+`lab/results/construction/diagnostics/atomizacao-stdlib-collections-2026-09-30-before.json.gz` records uncommitted 3542-line original, L1 suite 6401 pass/2 ignored; structural extraction, not benchmark/new parity. caminhos-residuais-ci-2026-10-13/before.json.gz records unused wrapper/import spans 519/553, dirty HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC/status/stat/sources/L0/uses.
+
+`lab/results/construction/diagnostics/tekt-v16-catalogos-2026-10-17/` before/before-measurement.json.gz fixes dirty HEAD/source/config/L0/binaries/UTC/stat,118fields(115CLI+3Location module tests),159 pairs/318invocations:141 match exit/stdout/main error+hints,18 retain prior diagnostic differences. Type 38/Value39 domain versus open string names is the structural distinction; invented completeness/omitted-field absence is not proved. Oracle binary `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+
+`lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz` records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, dirty tree/UTC/status/diff HEAD --stat/sources/L0/config/hashes;2124 predecessor hashes were checked exactly before baseline. before-probe.json.gz/before-math-probe.json.gz retain bilateral binaries/argv/fixtures/outputs (historical oracle 9f2b6e871 binary `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`). Receiver/args repeated, missing methods evaluate panic args before causal error, math.mat duplicates accumulation and empty-array truncate hid it. Local call/collection/context/content/selector/method/invoke paths violate existing call_dispatch once-only contract; pinned-source.json.gz fixes upstream call/methods evidence. Invalid initial reserved-word `or` fixture is retained separately, no call-effect credit; its import panic 101 remains parsing/import debt.
+
+## Exclusive composition and language boundary criteria
+
 
 Own CollectionCallSpans, try_dispatch_collection_method, collection_type_field, static_collection_call and the static operation catalogue. The algorithmic owners in `collections/*.md` own argument validation and collection behaviors for Array, Dictionary, String, Bytes and Arguments. Field access/call-dispatch owners discover and forward operations; l-value writeback belongs to the binding owner. Preserve the same native operation identity and self-first calling convention. Do not duplicate algorithms in eval.
 
@@ -39,148 +51,16 @@ Arguments.len counts occurrences when Some, otherwise items+named; this does not
 
 CollectionCallSpans remains private call metadata for the specifically supported byte-method corrections, not a universal source-origin policy. Full messages, hints, traces and spans remain observable; canonical repr belongs to its eval owner.
 
-## Acceptance
-
-Preserve the specified language semantics, syntax, morphology, diagnostics, spans, defaults and public identities. Do not change signatures, compatibility, feature defaults or phase ownership through this documentary revision. Shared pinned claims remain authoritative; this prompt owns only its exclusive consumer. Architectural decisions follow ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.
-
-## Atomização comportamental P1497
-
-**Medição:** a working tree não commitada identificada em `lab/results/construction/diagnostics/atomizacao-stdlib-collections-2026-09-30-before.json.gz` contém 3542 linhas neste consumer; a suíte do L1 passou com 6401 testes e 2 ignorados. Esta medição não é benchmark nem nova comparação com o vanilla.
-
-**Decisão:** manter neste owner o despacho exaustivo, a tabela estática de membros, os adaptadores de chamada estática e os metadados sintácticos de chamada. Os algoritmos são delegados aos owners exclusivos `collections/{validation,bytes,array_access,array_aggregate,array_predicate,array_sequence,dictionary,str_access,str_search,str_transform,arguments}.md`. As cláusulas de comportamento acima são o mapa de superfície; cada owner filho especifica sua família. A separação é de código e L0, sem alteração intencional da linguagem.
 
 
-## Caminhos residuais internos — 2026-10-13
+Private algorithms stay in canonical `00_nucleo/prompts/core/compiler/stdlib/collections/` owners for validation/bytes/array_access/array_aggregate/array_predicate/array_sequence/dictionary/str_access/str_search/str_transform/arguments. This hub keeps exhaustive dispatch/static catalog/static adapters/syntactic metadata only. Remove only unregistered native_array_all_static/native_str_clusters_static wrappers and orphan array_all_with_pred import; retain active collection_static/array_all_with_pred/str_clusters and existing exposed paths/validation/effects (array_all calls predicate child). No unrelated helper/test/body deletion.
 
-### Medição anterior à decisão
+Classify Value exhaustively before open method lookup; Array/Dict/Str/Args preserve RHS/results/callbacks and Bytes primitives/span metadata. Unknown name returns None/Unhandled, recognized error remains Some(Err)/Handled(Err). Explicit other 34-Value group is no-receiver-here policy, not discarded domain information. Type catalog exhaustively Array/Dictionary/Str/Bytes/Arguments with same callback identity/ABI, other 33-Type no-catalog-here group, not universal no-members. Family string lookup stays open. Preserve crystalline extensions/self-first/static forwarding/writeback/validators/no invented absent fields; new Value/Type must force compile classification.
 
-`01_core/src/compiler/stdlib/collections.rs` nas linhas 519, 553 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+Keep eager try_dispatch_collection_method signature as already-evaluated-Args adapter. Add crate-only CollectionDispatch{Handled(SourceResult<Value>),Unhandled(Value)} and try_dispatch_collection_method_with taking FnOnce(&mut Scopes,&mut EvalContext,&mut Engine)->SourceResult<Args>. Same static catalog, local bind_args(args,expr) evaluates only recognized arm/propagates arg error as Handled. Unknown name returns original receiver reconstructed by move, no clones/probes/second catalog. Exhaustive nominal complement retained. Integrate exactly bytes len/at/slice via existing primitives; eager adapter maps Handled→Some, Unhandled→None. No algorithm/catalog-Type/static-wrapper/extension changes.
 
-### Decisão e aceitação
+## Acceptance and limits
 
-Eliminar os wrappers privados não registrados native_array_all_static e native_str_clusters_static. Preservar o dispatcher e os wrappers collection_static ativos, array_all_with_pred e str_clusters; array.all e str.clusters continuam expostos pelo mesmo caminho com a mesma avaliação/validação. A primeira compilação após remover os wrappers mostrou um import órfão de array_all_with_pred no hub; remover só esse import. A função continua chamada por array_all dentro de array_predicate.rs.
+Structural current-pattern control compiles/future Value-Type rejects E0004 in isolated probe, not actual workspace/target mutation. Erased RHS/stubs isolate patterns, not functional equivalence; functional controls pass before/after, no invented functional RED. Global four V16 become three family decisions because first owner combines two matches; restricted two-owner reseal after V15/V26. Repeat 159 pairs preserving each backend's full stdout/stderr including 18 known negatives; test same-name different Func/constant-vs-function/cross misses/Location, no blanket diagnostic parity. Build/workspace/strict Clippy including unfulfilled/Rustdoc four indexes/fmt/diff/strict-reverse lineage/differential SARIF under 12GiB/High 10GiB/swap0/jobs1. No commit/push/merge/release.
 
-Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.
-
-### Medição anterior à decisão — catálogo V16, 2026-10-17
-
-lab/results/construction/diagnostics/tekt-v16-catalogos-2026-10-17/before.json.gz e
-before-measurement.json.gz fixam HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b,
-working tree não commitado, UTC/status/diffstat, fontes/L0/config e binários.
-O inventário contém118 campos,115 exercitados pelo CLI e três Location por
-teste no módulo. Há159 pares/318 invocações:141 coincidem em código/stdout/
-erro principal+hints,18 divergem no diagnóstico já existente. As funções/
-constantes inventariadas exercitadas são expostas nos dois backends. Isso
-não prova que todo campo omitido deva estar ausente upstream. O pin é
-9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-
-Type tem38 variantes e Value39 no value.rs deste snapshot. Os wildcards
-sinalizados misturam família fechada e nome aberto de campo/método. O estado
-e as localizações anteriores estão no inventário e no before.json.gz.
-
-### Decisão deste owner
-
-try_dispatch_collection_method deve classificar Value exaustivamente antes
-do lookup aberto de method:str. Array/Dict/Str/Args conservam os mesmos
-algoritmos/RHS, argumentos, chamadas de callback e resultados Some(Ok/Err);
-Bytes continua delegado integralmente ao owner filho, inclusive metadados
-de span. Nome de método não reconhecido em uma família retorna None para
-o caller continuar; erro de método reconhecido continua Some(Err), nunca None.
-O grupo V19 das outras34 variantes Value é coeso: nenhuma é receptor de
-coleção deste dispatcher. Não apagar informação por curinga de domínio.
-
-collection_type_field deve classificar Type exaustivamente: Array/Dictionary/
-Str/Bytes/Arguments mantêm seu catálogo, identidade de callback e ABI. O
-grupo V19 das outras33 variantes Type é coeso por ausência de catálogo
-de coleção neste owner; não representa ausência universal de membros.
-Dentro de cada família, str continua aberto e desconhecido retorna None.
-
-Não mover algoritmos, alterar static_collection_call/self-first/writeback
-ou validators. Preservar as extensões cristalinas declaradas. Não adicionar
-campos ausentes do pin ou esconder dívida de diagnóstico como equivalência.
-Uma variante nova de Value/Type exige classificação pelo compilador.
-
-### Aceitação e classe
-
-Correção interna estrutural ADR-0127 em fluxo contínuo, sem nova API, default,
-compatibilidade ou fase; intenção de runtime preservado, não nova certificação
-universal de paridade. O RED é estrutural: padrões produtivos antigos aceitam
-variante futura; após a mudança, o controle atual compila e a variante futura
-é rejeitada E0004. RHS apagados nos probes apenas para isolar cobertura de
-padrões; payloads são stubs, não testes de equivalência de execução. Não
-mutar workspace/target Cargo para testar variantes futuras. Os controles
-funcionais no módulo passam antes/depois; não alegá-los RED funcional.
-
-Quatro V16 dão lugar a três seleções de família fechada (o primeiro owner
-combina seus dois matches). Verificar159 pares antes/depois com stdout/
-stderr completos preservados dentro de cada backend, inclusive18 negativos
-já divergentes. Retê-los no inventário para correção própria. Nenhuma supressão
-ou relaxamento global do linter. Testar identidades de funções de mesmo nome,
-constante versus função, misses cruzados e Location. L0 primeiro, selos só
-dos dois owners após V15/V26 válido; build/suíte workspace/Clippy -D warnings
-/-D unfulfilled_lint_expectations, Rustdoc/quatro índices, formato/diff,
-linhagem estrita/reversa e SARIF diferencial sob12GiB/high10GiB/swap0/jobs1.
-Sem commit/push, merge ou release.
-
-
-## Avaliação única em chamadas — 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
-status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
-anterior foram verificados exatamente antes do baseline. before-probe.json.gz
-e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.
-Pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 do binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-calc.abs/array.len/str.from-unicode medem receiver=3/args=2 contra 1/1;
-module.measure/layout/within/before/after/func/has/body chegam a receiver=4;
-fallback mutante mede args=3 contra 1. Métodos ausentes executam panic de
-argumento antes do erro causal. math.mat soma duas vezes; array prévio (1,)
-fica (1,1,1) contra (1,1). Array vazio mascara o defeito com truncate.
-call.rs:70–118 perde receiver; collection_methods.rs:43 avalia args antes de
-reconhecer operação; contextual/content/selector reavaliam AST no fallthrough;
-method_dispatch.rs:247 descarta args; invoke.rs:66–120 compensa por nome.
-O L0 call_dispatch.md já exige receiver/args uma vez. pinned-source.json.gz
-fixa call.rs/methods.rs upstream: interesse é ordem/efeito/diagnóstico da
-linguagem, não copiar Vm, storage ou igualdade Rust.
-
-A primeira fixture declarava palavra reservada or como função: é inválida e
-está arquivada em invalid-fixture-attempt, sem crédito para efeitos de chamada.
-Ela revelou panic 101 em import inválido; manter aberto para correção causal
-própria no owner de parsing/import. O baseline válido substitui só a fixture.
-
-### Decisão e responsabilidade exclusiva
-
-Manter try_dispatch_collection_method com assinatura vigente como adapter para args já avaliados. Adicionar CollectionDispatch { Handled(SourceResult<Value>), Unhandled(Value) } restrito ao crate e try_dispatch_collection_method_with com o mesmo catálogo estático, recebendo FnOnce(&mut Scopes, &mut EvalContext, &mut Engine) -> SourceResult<Args> em vez de Args. Uma macro local bind_args(args, expr) resolve args somente no braço reconhecido e retorna Handled; falha de args propaga SourceResult. Nome desconhecido devolve receiver original (reconstruído por move na família) em Unhandled; sem clones/probes de execução/segunda tabela. O complemento nominal Value mantém enum exaustivo. Integrar somente os três nomes bytes len/at/slice na tabela principal, delegando aos mesmos primitives; não mover algoritmos. Adapter eager converte Handled a Some e Unhandled a None. Catálogo Type/static wrappers e extensões Tekt preservados.
-
-Consumir o núcleo eval/call-once.toml pinado. Mudança mecânica interna e
-correção de paridade ADR-0127 em fluxo contínuo. Assinaturas pub fn/pub use e
-structs públicos não mudam; os parâmetros novos/retornos/helpers acima têm
-visibilidade crate/eval, sem novo trait público, campo público, default ou
-fase. Esta cláusula supersede somente restrições históricas conflitantes de
-assinatura interna e compensação por nome; manter extensões Tekt existentes.
-
-### Aceitação e limites
-
-Testes funcionais co-localizados antes do código: efeitos de receiver/args,
-fallback mutante, erro antes de args, where/with/selector/coleções preservados
-e matriz sem truncar efeito legítimo. Confirmar RED funcional e GREEN.
-Comparar casos bilaterais válidos e controles; hits e misses de todos os
-métodos de coleção, erros, spans/occurrences e complementos de Value. Não
-mascarar dívida residual de diagnóstico como igualdade. Testar dispatch
-Unhandled sem perder receiver ou executar callback de args; contar avaliações
-pelo efeito observado, não por bytes de PDF, Rust Eq ou microbenchmark.
-
-Ownership/V26 antes de resselo só dos owners do lote. Build, suíte workspace,
-Clippy all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc estrito,
-fmt, V1/V5/V15/V26 e reverse, SARIF diferencial sem erro novo. V19 uniforme
-continua informativo, com matriz de alternativas e relação de comportamento;
-sem supressão nem mudança de configuração. Comandos pesados sequenciais com
-12 GiB/high10GiB/swap0/jobs1. Não publicar/commit/merge/release nem declarar o
-objetivo global fechado por esta etapa.
-
-
-Matrizes de aceitação do complemento V19: call_once_unhandled_keeps_every_value_and_does_not_evaluate_arguments e call_once_callable_classification_covers_all_value_variants_before_arguments constroem 39 discriminantes distintos de Value (36 via linguagem e Path/Location/LocatedContent pelos construtores puros RootedPath/Locator/IntrospectedContent existentes). A primeira testa retorno Unhandled para nome desconhecido, igualdade do payload transferido, ponteiro do Vec original e callback de args que panic se executado; a segunda testa 37 rejeições antes de args e os dois caminhos Func/Type com panic real do argumento. São testes do transporte/classificação interna; não certificam que toda categoria tem a mesma capacidade de cast upstream, nem paridade geral de todos os schemas.
+Call-once complement tests construct 39distinct Value discriminants (36language+pure RootedPath/Locator/IntrospectedContent). Unknown-name test preserves payload equality/original Vec pointer and panic-if-called Args; callable classifier checks 37pre-Args rejections and Func/Type actual-argument panic. This proves internal transport/classification, not upstream cast capability/all schema parity. Consume pinned call-once invariants. Internal ADR-0127 continuous-flow correction supersedes only conflicting internal-signature/name-compensation restrictions, retaining Tekt extensions, public functions/reexports/structs/traits/fields/default/phase. Functional co-located RED→GREEN for observed receiver/args effects, mutating fallback/error-before-args, where/With/selector/collections/matrix without truncating legitimate effects; hits/misses, spans/occurrences and Value complements. Unhandled preserves receiver and does not execute args callback; count effects, not PDF bytes/Rust Eq/benchmark. Preserve residual diagnostics explicitly. Ownership/V26 before restricted resealing; build/workspace/strict all-target Clippy including unfulfilled expectations/Rustdoc/fmt/strict-reverse V1/V5/V15/V26/global differential SARIF, no new error/config/suppression. Informative V19 retains alternatives matrix and behavioral relation. Sequential 12GiB/High 10GiB/swap0/jobs1. No publish/commit/merge/release/global-completion claim.

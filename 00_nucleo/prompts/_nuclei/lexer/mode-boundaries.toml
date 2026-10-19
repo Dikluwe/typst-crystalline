@@ -1,29 +1,24 @@
 tekt = 1
 kind = "nucleus"
 id = "lexer-mode-boundaries"
-title = "Fronteiras dos modos do lexer"
-
+title = "Lexer mode boundaries"
 [[claims]]
 id = "single-dispatch"
 level = "must"
-statement = "Depois dos tokens universais, o hub delega cada token exatamente ao handler do SyntaxMode ativo."
-
+statement = "After universal tokens the hub delegates each token exactly to the active SyntaxMode handler."
 [[claims]]
 id = "consumed-prefix"
 level = "must"
-statement = "O handler de modo recebe o byte inicial e o primeiro escalar já consumido, podendo avançar somente sobre o sufixo contíguo do mesmo token."
-
+statement = "Mode handler receives start byte and already consumed first scalar, advancing only through the same token's contiguous suffix."
 [[claims]]
 id = "parser-controls-mode"
 level = "must"
-statement = "Mudanças de SyntaxMode pertencem ao parser por set_mode; handlers léxicos não trocam o modo por conta própria."
-
+statement = "SyntaxMode changes belong to parser via set_mode; lexical handlers never change mode independently."
 [[claims]]
 id = "universal-precedence"
 level = "must"
-statement = "Espaço, shebang inicial, comentários e fim são reconhecidos pelo hub antes das regras específicas de modo; raw também é universal fora de Math."
-
+statement = "Hub recognizes whitespace, initial shebang, comments and end before mode-specific rules; raw is also universal outside Math."
 [[claims]]
 id = "no-mode-bleed"
 level = "must-not"
-statement = "Uma regra exclusiva de Code, Markup ou Math é aplicada enquanto outro SyntaxMode está ativo."
+statement = "A Code-, Markup- or Math-exclusive rule is applied while another SyntaxMode is active."

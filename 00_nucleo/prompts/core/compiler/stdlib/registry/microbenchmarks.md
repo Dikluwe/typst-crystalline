@@ -27,14 +27,25 @@ Verify the owned behavior through local tests and its existing integrations.
 Preserve public paths and observable results. Ownership, nucleus integrity and
 lineage checks must remain valid; no unrelated consumer is authorized by this prompt.
 
-## Fluxo de controle e verificações executáveis — 2026-10-13
+## Executable profile precondition
 
-### Medição anterior à decisão
+### Evidence before decision
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/registry/microbenchmarks.rs:203-206 contém o trecho medido. O inventário Clippy e a leitura dos owners distinguem código sem efeito, dados inválidos deliberados e verificações vazias. Fontes, L0, UTC, status, diffstat e comandos estão em `lab/results/construction/diagnostics/controle-fluxo-ci-2026-10-13/before.json.gz` e nas evidências do mesmo diretório. Não é nova medição de paridade nem inferência sobre intenção upstream.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+registry/microbenchmarks.rs:203–206 is the measured fragment. Clippy inventory and
+owner reading distinguish effectless code, deliberately invalid data and empty
+checks. `lab/results/construction/diagnostics/controle-fluxo-ci-2026-10-13/before.json.gz`
+and companion evidence retain sources/L0/UTC/status/diffstat/commands. This is
+neither new parity evidence nor inferred upstream intent.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Conservar exatamente a guarda que rejeita a execução explícita do runner em debug. O assert de cfg!(debug_assertions) é uma pré-condição intencional de perfil, não um teste de comportamento do produto. Usar expect(clippy::assertions_on_constants) exclusivamente sobre essa guarda, com justificativa; não silenciar o módulo nem outros avisos. Confirmar por execução ignorada selecionada que debug falha com a mensagem run with cargo test --release antes de Criterion. As asserções semânticas de fixtures e as medições release permanecem intactas.
-
-Preservar APIs públicas, comportamento padrão, fase e expectativas de linguagem existentes. Revalidar a suíte apropriada, Clippy, build e linhagem. Correção interna em fluxo contínuo ADR-0127.
+Preserve exactly the guard rejecting explicit debug runner execution.
+The cfg!(debug_assertions) assertion is an intentional profile precondition,
+not a product behavior test. Use expect(clippy::assertions_on_constants) only
+on that guard with justification; suppress neither module nor other warnings.
+Run the selected ignored runner and confirm debug fails with
+`run with cargo test --release` before Criterion. Semantic fixture assertions
+and release measurements stay intact. Preserve public APIs/defaults/phase and
+language expectations; validate the appropriate suite, Clippy, build and lineage.
+This internal correction follows ADR-0127 continuous flow.

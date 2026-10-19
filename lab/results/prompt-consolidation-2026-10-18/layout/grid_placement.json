@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/grid_placement.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated single policy-aware occupancy engine, effective coordinates, physical-vs-observed spans, stroke-fold cross-owner boundaries and iteration/dead-helper maintenance. Initial candidate gate is superseded only by verified A approval at archived record line3 (manifest5fec428...), standalone scope separately approved B manifest3375b0a...; retained all diagnostics/provenance and incomplete certification scopes.",
+  "original_sha256": "191abbe6589e2138b444847fbfa28a0e82f7a569550e699df3db487377850f38",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/grid_placement.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

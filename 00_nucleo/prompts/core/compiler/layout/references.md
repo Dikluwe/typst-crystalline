@@ -2,9 +2,9 @@
 Hash do Código: f1150194
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:4e487a99ea1f1e82a67dfaced0958f98392fb26b1a7d292355230d6ffa7f2d0b
-- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:ff71dfc6648d6deb4b2b8054e3d58a93777d17837129f0f1b1e7e138ffb6943c
-- 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml sha256:5dde6e7f84150a121e671dab0d174798e8b56f24355147c1bcc471d6babd69ed
+- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
+- 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml sha256:b19634c84ea14e71d8e352c96bbe5097a02a074b8c5a3009e80d761d1a90a182
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/references.rs`
@@ -14,7 +14,11 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/references.rs:77`, `01_core/src/compiler/layout/references.rs:283`, `01_core/src/compiler/layout/references.rs:30`, `01_core/src/compiler/layout/references.rs:54`, `01_core/src/compiler/layout/references.rs:249`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
+
+`box-contexto-2026-10-14/probe.json.gz`preserves sources/binaries/HEAD/working tree/UTC: Box, inset2pt, prefix and nesting publish (0,0) despite displaced paint. The direct-context baseline difference is separate; do not copy vanilla merely because it differs. `mod.rs:1131-1148/1180-1200` writes local points to runtime.positions; Box groups its body in another coordinate system; `finish.rs:295-302` seals the map without recomposing those points. Realized writes through or_insert; labels have a parallel map. HTML already carries private markers through the frame at `html_frame.rs:30-199`. Preserve single-pass registration and per-sub-store sealing under ADR-0073/0074 position/hybrid-model sections; do not adopt vanilla global introspection. Inspection of coordinates and its owners found absolute uses in Grid and explicitly local uses in Place/Box; nucleus qualification preserves both and requires page transformation without doubled origin. Earlier snapshot: `posicoes-compostas-2026-10-14/before.json.gz`. Geometry/identity are observables; carrier/index are mechanics.
+
+`lab/results/construction/diagnostics/links-paginacao-2026-10-14.md` and receipts under `posicoes-compostas-2026-10-14/automatic-boundary-probes` record source, HEAD/dirty tree/UTC, binaries and vanilla pin. On a 160×40pt page with 10pt margins, ordinary text crosses the break; Link URL, Ref and Ref Page abort with a stale index after buffers are emptied. `references.rs:270` appears in the stack; `link.rs:22-32` uses the same mechanism. `outline.rs:28-50` also saves indices before the body. Clamping an index proves neither prefix/order/fragment/destination preservation nor geometry. Earlier snapshot: `lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz`. Content, destination, regions and bounds are observables; private boundaries are mechanics.
 
 ## Ownership and contract
 
@@ -28,60 +32,14 @@ An explicit supplement, including empty Content, overrides the implicit one. Equ
 
 For Page form, preserve existing known-label/page lookup, missing-numbering diagnostic/hint, explicit-versus-PageStore supplement precedence and internal link. Function numbering consumes PageStore.reference_numbering without Func execution. The current Pattern branch still formats the physical page index locally; its conflict with the older shared unary logical-store promise is unresolved. A not-yet-known page retains the existing linked question-mark path rather than fabricated numbering. This cleanup does not authorize changes to numbering views or labels.
 
+Label keeps capture of the pre-body point and post-body page write; delegate capture/write to the position helper. Carrier shares the enclosing body's geometric result; projection applies its coordinate system before publication. Do not change selection/counters/effect order/Ref formatting.
+
+Both Ref text emissions (ordinary and Page/fallback) use the same private internal-destination scope. Preserve resolution/error precedence/supplement/numbering/labels, without Func execution. Remove stale-length drains rather than replacing them with a content-losing clamp. This is internal ADR-0127 without a new public API/field, flag/default or phase.
+
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-## Posições no referencial composto — 2026-10-14
+L0 precedes RED→GREEN on coordinates, no fictitious paint/height, identity/order/visual clones/rollback; revalidate HTML, geometry, context/queries and full suite.
 
-### Medição anterior à decisão
-
-box-contexto-2026-10-14/probe.json.gz, fontes/binários/HEAD/working tree/UTC
-preservados: Box, inset2pt, prefixo e aninhamento publicam (0,0), mesmo
-quando a tinta se desloca. A diferença da baseline do context direto é
-uma questão separada: não copiar o vanilla apenas por diferir. mod.rs:
-1131-1148/1180-1200 escreve pontos locais em runtime.positions; Box agrupa
-o corpo em outro referencial; finish.rs:295-302 sela o mapa sem recompor
-esses pontos. Realized escreve com or_insert; labels têm mapa paralelo.
-HTML já transporta markers privados pelo frame em html_frame.rs:30-199.
-O registro single-pass e sealing por sub-store são preservados, ADR-0073/
-0074 §§posição/modelo híbrido; não se adota introspecção global vanilla.
-A inspeção do núcleo coordinates e seus owners mostrou usos absolutos
-em grid e explicitamente locais em Place/Box. A qualificação do núcleo
-conserva ambos e exige transformação até a página, sem dupla origem.
-Snapshot anterior: posicoes-compostas-2026-10-14/before.json.gz.
-Geometria/identidade são observáveis; o carrier e seu índice são mecânica.
-
-### Contrato deste owner
-
-Label conserva a captura de ponto anterior ao corpo e a escrita de página após ele; delegar escrita/captura desses valores ao helper de posição. O carrier pertence ao mesmo resultado geométrico do corpo envolvente, e a projeção aplica seu referencial antes da publicação. Não alterar seleção, contadores, ordem de efeitos ou formatação de Ref.
-
-Correção interna ADR-0127: sem API/campo público, flag/default ou mudança
-de fase. L0 primeiro; RED→GREEN de coordenadas, ausência de tinta/altura
-fictícia, identidade, ordem, clones visuais e rollback; revalidar os
-controles HTML, geometria, contexto/queries e suíte completa.
-
-## Captura de links através de fronteiras — 2026-10-14
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
-posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
-HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
-texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
-antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
-link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
-antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
-fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
-Os observáveis são conteúdo, destino, regiões e bounds; limites privados
-são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
-
-### Contrato deste owner
-
-As duas emissões de texto de Ref (normal e Page/fallback) usam o mesmo escopo privado de destino interno. Preservar resolução, precedência de erros, supplement, numeração e labels; não executar Func aqui. Remover os drains por comprimentos obsoletos, sem substituir por clamp que perca conteúdo.
-
-Aceitação: RED→GREEN de quebras antes/dentro do corpo, preservação de
-prefixo/sufixo, regiões, destinos/bounds, corpo rico/aninhamento/colunas,
-conteúdo diferido, contexto/rollback e ausência de limites privados na saída.
-Revalidar os controles sem quebra e a suíte, build e linhagem.
+Require RED→GREEN for breaks before/within body; preserve prefix/suffix, regions, destinations/bounds, rich body/nesting/columns, deferred content and context/rollback, with no private boundaries in output. Revalidate no-break controls, suite, build and lineage.

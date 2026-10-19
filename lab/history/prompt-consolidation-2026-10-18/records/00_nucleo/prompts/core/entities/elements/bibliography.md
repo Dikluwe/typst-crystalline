@@ -1,0 +1,152 @@
+# Prompt L0 — `entities/elements/bibliography` — `BibliographyElem`
+Hash do Código: 2d2262d7
+
+**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/bibliography.rs`
+**Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver
+`entities/elements/_comum.md`. Contentor — `map_*` recursam no `title`.
+
+> **Fronteira: LOCATÁVEL** (P181C, M6). Absorve o braço de `extract_payload` no
+> trait (precedente Heading/Lote 6): `element_kind` → `ElementKind::Bibliography`,
+> `to_payload` → `ElementPayload::Bibliography { entries }`. O consumo por
+> `ElementPayload` (`from_tags` arm Bibliography → `BibStore`) é **inalterado**
+> (matcheia o payload, não o `Content`).
+
+---
+
+## Struct
+
+```rust
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct BibliographyElem {
+    pub entries: Vec<BibEntry>,          // P159A — input literal; P419 preenche via path
+    pub path:    Option<EcoString>,      // P419 — path do ficheiro .bib/.yaml/.json
+    pub title:   Option<Content>,        // era Option<Box<Content>>
+    pub style:   Option<EcoString>,      // P418 — CSL built-in ("ieee", "apa", ...)
+    pub locale:  Option<EcoString>,      // P418 — locale override ("en-US", "pt-PT", ...)
+}
+```
+
+`Content::Bibliography { entries, title }` →
+`Content::Bibliography(Arc<BibliographyElem>)`. Construtores ergonómicos:
+`Content::bibliography(entries, title)` (fallback local),
+`Content::bibliography_with_style(entries, title, style, locale)` (CSL),
+e `Content::bibliography_from_path(path, title, style, locale)` (P419 — carrega
+entries em eval time).
+**Deriva `Hash`** (`BibEntry` deriva `Eq + Hash` — `bib_entry.rs:80`; `Content`
+tem `impl Hash` manual).
+
+## `impl Element for BibliographyElem`
+
+| método | comportamento (idêntico ao braço atual) |
+|---|---|
+| `plain_text` | **custom** (`content.rs:1810`): `title` (se houver) + `\n`, depois cada entry formatada `"[{key}] {author}. {title} ({year}).\n"` |
+| `is_empty` | **override**: `self.entries.is_empty() && self.title.is_none()` (`content.rs:1654`) |
+| `map_content` | **recursivo** no `title`, preserva `entries` (`content.rs:2313`) |
+| `map_text` | **recursivo** no `title`, preserva `entries` (`content.rs:2564`) |
+| `get_field` | default `None` |
+| `element_kind` | `Some(ElementKind::Bibliography)` |
+| `to_payload` | `Some(ElementPayload::Bibliography { entries: self.entries.clone() })` (absorve `extract_payload.rs:77`) |
+
+## `eq`
+
+`#[derive(PartialEq)]` compara `entries`/`title` (paridade `content.rs:1967`).
+
+---
+
+## P418 (XL) — Renderização CSL real
+
+**Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
+- Usar `hayagriva` crate (Opção α) para parsing de `.bib`/`.yaml`/`.json` e CSL engine.
+- Paridade é linguística (`.bib` + `@key` → citações/bibliografia renderizadas), não mecânica.
+- Lógica de render vive em `compiler/layout/bibliography.rs` (forma B, free function).
+
+> **Fonte de paridade P418/P419/P420 (P1031)** — doc comments do vanilla ratificado
+> (`e0e8ca4d`), publicados em `typst.app/docs/reference/model/bibliography/`:
+>
+> - **Formatos aceites e path vs bytes** (sustenta P418 e P419) —
+>   `crates/typst-library/src/model/bibliography.rs:111-124`, campo `sources`:
+>   *"One or multiple paths to or raw bytes for Hayagriva `.yaml` and/or BibLaTeX `.bib`
+>   files. This can be a: - A path string or path to load a bibliography file from. - Raw
+>   bytes from which the bibliography should be decoded. - An array where each item is one
+>   of the above."* Confirma `.bib` e `.yaml` como superfície de linguagem. `sources` aceita
+>   **múltiplos** ficheiros, o que o cristalino declara como scope-out em P418
+>   (`path: Option<EcoString>`, um só).
+> - **`.json` não é formato de bibliografia do Typst — o título da secção P419 está errado.**
+>   O vanilla despacha por extensão em `bibliography.rs:428-441` e aceita apenas
+>   `"yml" | "yaml"` e `"bib"`, errando de outro modo com
+>   `"unknown bibliography format (must be .yaml/.yml or .bib)"`. Medido em 2026-08-13: o
+>   **código** do cristalino já concorda — `#bibliography("works.json")` dá
+>   `error: unsupported bibliography format 'json': expected .bib, .yaml or .yml`. Logo é
+>   deriva de redacção neste L0, não divergência de comportamento. O cabeçalho de P419
+>   mantém-se por ser histórico; vale como `.bib`/`.yaml`/`.yml`.
+>   (Nota lateral, fora deste achado: as duas mensagens de erro não coincidem à letra, e
+>   mensagem de erro é caso em que a mecânica **é** o observável — ADR-0108.)
+> - **Built-in vs ficheiro `.csl`** (sustenta P420) — `bibliography.rs:146-154`, campo
+>   `style`: *"This can be: - A string with the name of one of the built-in styles (see
+>   below). Some of the styles listed below appear twice, once with their full name and once
+>   with a short alias. - A path string or path to a CSL file. - Raw bytes from which a CSL
+>   style should be decoded."* Confirma literalmente a distinção nome-embutido / path `.csl`
+>   que o algoritmo de `resolve_style` implementa (tenta `ArchivedStyle::by_name`, depois
+>   trata como path). O default é `"ieee"` (`bibliography.rs:159-163`).
+> - **`@key` como sintaxe de citação** (sustenta P418) — `crates/typst-library/src/model/cite.rs:39-42`:
+>   *"= Syntax — This function indirectly has dedicated syntax. References can be used to
+>   cite works from the bibliography. The label then corresponds to the citation key."*
+>
+> **Natureza das citações**: literais para os formatos aceites, para a distinção
+> built-in/`.csl` e para `@key`. A resolução de path relativo *ao `current_file`* (P419) e a
+> forma dos erros (P420) **não** vêm da documentação — são decisões de implementação; a
+> documentação só diz "a path string or path".
+>
+> **Medição de suporte (2026-08-13)**: com `#bibliography("works.bib", style: "ieee")` o
+> cristalino produz output byte-idêntico ao vanilla ratificado (citações `A [1] B [1] C [2]
+> D [1]` e entradas `[1] J. Doe, At what cost. Fake Press, 2020.`), o que confirma o
+> caminho CSL real de P418/P420. Sem `style` explícito há divergência — ver
+> `compiler/layout/bibliography.md` §"Propósito" (achado escalado).
+
+**Scope-out P418:**
+- CSL style via URL; múltiplos arquivos de bibliografia no mesmo doc; `title` customizado; CSL locales.
+- `BibliographyElem` continua carregando `Vec<BibEntry>` interno; a conversão para hayagriva acontece no layout/eval.
+
+## P419 (M) — Loading de `.bib`/`.yaml`/`.json` de disco
+
+**Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
+- Loader específico para bibliography em `rules/eval/bibliography.rs` (forma B,
+  free function). Reusa `World::read_bytes(current_file, path)` (L3) para ler
+  bytes e `hayagriva::io` para parsear em L1.
+- `BibliographyElem` ganha `path: Option<EcoString>`; `entries` é preenchido em
+  eval time a partir do path. O campo `entries` é mantido para compatibilidade
+  com input literal P159A/P418 (scope-out parcial: paridade linguagem do path
+  sem remover a API interna de entries).
+- Path relativo resolvido pelo `World` (relativo ao `current_file`); path
+  absoluto usado diretamente.
+
+**Scope-out P419:**
+- File loader genérico para outras features (imagens/dados já têm; bibliografia
+  reusa o mesmo mecanismo via `World::read_bytes`).
+- URLs/network, watch/reload, encoding detection, macros BibTeX complexos.
+
+## P420 (M) — CSL customizado via path
+
+**Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
+- `BibliographyElem` **inalterado** — continua a armazenar `style: Option<EcoString>`. A
+  distinção entre built-in e ficheiro `.csl` é feita em *eval time*, não no struct
+  (atomização forma B).
+- A resolução de style vive em `rules/eval/bibliography.rs` como free functions
+  (`resolve_style`, `load_csl_from_path`, `resolve_csl_path`).
+- Algoritmo: tenta `hayagriva::archive::ArchivedStyle::by_name` primeiro; se falhar,
+  trata a string como path relativo/absoluto, lê via `World::read_bytes` e parseia com
+  `hayagriva::citationberg::IndependentStyle::from_xml`.
+- Erros legíveis: built-in desconhecido, file not found, encoding inválido, XML
+  malformado.
+
+**Scope-out P420:**
+- CSL via URL (`http://...`), diretórios de sistema (`~/.csl/`), múltiplos styles
+  simultâneos, hot-reload, validação completa RelaxNG, cache persistente cross-run.
+
+## Histórico de revisões
+
+| Data | Motivo | Arquivos |
+|------|--------|----------|
+| 2026-06-23 | P418 (XL): adicionar seção de renderização CSL real e scope-out. | `bibliography.md`, `bibliography.rs`, `cite.md`, `cite.rs`, `loading.md`, `loading.rs` |
+| 2026-06-23 | P419 (M): adicionar `path`, loading de disco e scope-out. | `bibliography.md`, `bibliography.rs`, `content.rs`, `rules/eval/bibliography.rs`, `rules/stdlib/structural.rs` |
+| 2026-06-23 | P420 (M): CSL customizado via path; `BibliographyElem` inalterado; resolução em eval. | `bibliography.md`, `rules/eval/bibliography.rs`, `compiler/layout/bib_csl.rs`, `rules/stdlib/structural.rs` |

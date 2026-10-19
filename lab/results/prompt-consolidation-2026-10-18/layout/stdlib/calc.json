@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/calc.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Preserved existing English numeric boundary contracts verbatim; translated atomization and unused-helper disposition; corrected active canonical child path.",
+  "original_sha256": "8cad6627bfedb9bea3c0e9921e8e58b5fcc4361d06faee4e90e0e8a15c94dad9",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/calc.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

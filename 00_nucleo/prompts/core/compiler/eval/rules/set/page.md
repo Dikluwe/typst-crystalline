@@ -1,19 +1,19 @@
-# L0 — compiler/eval/rules/set/page — Set page e transporte de geometria
+# L0 — compiler/eval/rules/set/page — Page settings and geometry transport
 Hash do Código: eaadc8e6
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/eval/rules/set/page.rs`
 
-## Medição antes da decisão
+## Evidence before decision
 
-O dispatcher em `01_core/src/compiler/eval/rules/set.rs` no estado após a extração P1499 mantém o braço page como bloco contíguo. O baseline L1 em `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` e a suíte após P1499 passaram com 6401 testes e 2 ignorados. Isto é medição estrutural, não benchmark nem nova medição bilateral com o vanilla.
+At the historical post-extraction state, the dispatcher in `01_core/src/compiler/eval/rules/set.rs` retained the page arm as a contiguous block. The L1 baseline in `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` and the post-extraction suite passed with 6401 tests and 2 ignored. This measures structure; it is neither a benchmark nor a new bilateral upstream measurement.
 
-## Contrato de linguagem
+## Language contract
 
-Preservar width/height/paper/flipped/binding, margens, numbering, header/footer, bleed/fill/background/foreground, casting, estilo lexical e o SetPageDelta produzido. O tamanho em em resolve contra estilo vigente em eval; a geometria posterior pertence a layout.
+Preserve width/height/paper/flipped/binding, margins, numbering, header/footer, bleed/fill/background/foreground, casts, lexical style and the produced SetPageDelta. em sizes resolve against the current eval style; subsequent geometry belongs to layout.
 
-A função deste owner é chamada estaticamente pelo dispatcher, sem mudança na ordem dos braços. Preservar erros, spans, avaliação de argumentos, identidade de valores, ausência versus presença de estilos e fase de execução. As decisões históricas e medições permanecem em `00_nucleo/prompts/core/compiler/eval/rules.md`.
+The dispatcher calls this owner statically without changing arm order. Preserve errors, spans, argument evaluation, value identity, absent versus present styles and execution phase. Historical decisions and measurements remain in `00_nucleo/prompts/core/compiler/eval/rules.md`.
 
-## Aceitação
+## Acceptance
 
-Suíte L1 e `crystalline-lint .` sem regressão. Paridade linguística conforme ADR-0107/0108; owner 1:1 e pins conforme ADR-0129/0130.
+The L1 suite and `crystalline-lint .` must remain regression-free. Preserve language parity under ADR-0107/0108, 1:1 ownership and pins under ADR-0129/0130.

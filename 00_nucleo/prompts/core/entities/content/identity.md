@@ -2,295 +2,80 @@
 Hash do Código: db961f0d
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:79283c9047419768139e0227b9ed7e34146a85706ed47731655736545c95306b
-- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
-- 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:afbe9da9643b22adaaaedbff55495488d3ceac311999a5cdec8a3d005f50ef7c
-- 00_nucleo/prompts/_nuclei/table/cell-projection.toml sha256:71d4b43f260cff61fffa8ba7831733e7a62f2517109911c8af346458d64cbd5b
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
-- 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:cbd8b56af347a35e867b2c4695581721d5983ec24ee7bb022e9f9987500d40f3
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735
+- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
+- 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221
+- 00_nucleo/prompts/_nuclei/table/cell-projection.toml sha256:8388731d50379499612641a70a85695c0e7139ec605289c29161e12086abd78a
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/content/identity.rs`
 **Governance:** ADR-0107, ADR-0129, ADR-0130.
 
+## Base identity contract
 
-## Contract
-
-Provide the stable diagnostic name and bounded structural debug representation
-of every closed `Content` variant through `Content::elem_name` and
-`Debug for Content`.
-
-- The implementation is a nominal, exhaustive, statically dispatched match
-  over `Content`.
-- It must not use a wildcard arm, dynamic dispatch, a registry, or a property
-  map.
-- Returned diagnostic names must remain stable.
-- `Space` and `SpaceFromNewline` both return `"space"`, because their origin
-  distinction is causal and not part of the public element identity.
-- The method remains public with the signature
-  `pub fn elem_name(&self) -> &'static str`.
-- Adding a `Content` variant must force this owner to classify its diagnostic
-  name at compile time.
-- Debug formatting remains depth-bounded and delegates to an exhaustive static
-  match. Existing output strings and payload formatting must not change.
+Own `pub fn elem_name(&self)->&'static str` and depth-bounded structural Debug for every closed Content variant. Use nominal exhaustive static matches without wildcard, dynamic dispatch, registry or property map. Adding a variant forces explicit diagnostic-name classification at compile time. Preserve existing names/output/payload formatting except the measured language-name corrections below. Space and SpaceFromNewline both identify as `space`: causal origin is not public element identity.
 
-## Acceptance
+Internal carrier names are transparent; Debug projects lexical/visual content without making carriers language elements. Never infer occurrence identity from Debug. Keep callers compiling, identity/field-access controls and core library tests green, with valid ownership/nuclei/direct+reverse lineage after restricted resealing.
 
-- Existing callers compile without changes.
-- Existing identity and field-access tests remain green.
-- `cargo test -p typst-core --lib` passes.
-- `crystalline-lint .` reports no ownership, lineage, or prompt-drift
-  violation after hashes are resealed.
-
-
-## Realização com avaliação única
-
-Nome de elemento dos carriers internos é transparente. Debug conserva o corpo lexical/visual sem transformar carrier em elemento da linguagem.
-
-
-## Realização com avaliação única
+## Semantic SmartQuote evidence and approval
 
-Debug de carriers internos projeta corpo/visual; identidade de ocorrência não é inferida de Debug.
 
+The historical smartquote-2026-10-06/{before,fields-before,partial-and-html,proposal-controls}.json.gz collection records pin `9f2b6e8715237cb086899a42873660fe744622e8`, binaries/HEAD/tree/diffstat/UTC/sources/argv/cwd/environment/output. PDF uses extracted text, HTML DOM/text/diagnostics, not PDF bytes. Eval converted markup quotes into Text, losing double/enabled and retaining English glyphs when reused under German/French/disabled styles. Primes6'/2-inch were misread as quotes. Native-function show/public-name corrections already passed separately; empty constructor has no fields upstream, explicit double:false is known while omission is Unset, and enabled:false remains SmartQuote. New set-double/show-filter positives distinguish presence. HTML literal worked through Text while programmatic SmartQuote rejected; literal titles render quotes but script title expects string and rejects Content before export in both binaries.
 
-## Aspa semântica e resolução tardia — ratificada em 2026-10-06
-
-O contrato desta seção é vigente e supersede as cláusulas históricas conflitantes
-das seções anteriores apenas para SmartQuote. A ratificação humana autoriza a
-materialização em fluxo RED→GREEN, com ownership exclusivo e pins abaixo.
+Historical markup_stream.rs:79–128 chooses glyph during eval; layout smartquote toggles two flags without preceding text; stdlib smartquote.rs:112–117 erases disabled elements; observation/elements.rs:242–250 compares current fields. Upstream eval/markup.rs:141–146 creates explicit-double elements, inline/collect.rs:196–211 resolves style/context and text/smartquote.rs:119–158 handles prime/apostrophe/nesting.
 
-### Medição anterior à decisão
+Human approval on 2026-10-06 covers double bool→Option<bool>, enabled:Option<bool>, pure shared helper/context and glyph selection moving eval→target composition. Keep identity/fields during eval. Paged and semantic HTML use their own target composition (ADR-0128), sharing one pure L1 contextual selector with per-stream/compilation state. No I/O/global/vtable/property registry/upstream memoization copying, new mode/flag/unsafe/watch API/math phase. HTML escaping remains separately owned. Stack representation is mechanics; fields/known-versus-omitted/glyph/style are acceptance. Other proposals/ADRs remain unchanged.
 
-smartquote-2026-10-06/{before,fields-before,partial-and-html,proposal-controls}.json.gz
-registra pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 dos binários,
-HEAD/working tree, diff HEAD --stat, UTC, fontes, argv/cwd/ambiente e stdout/stderr.
-PDF usa texto extraído, HTML usa DOM/texto e diagnósticos, não igualdade de bytes PDF.
-A avaliação converte aspas de markup para Text; campos double/enabled são perdidos.
-A variável contendo aspas mantém glyph inglês sob uso em alemão/francês ou
-smartquote(enabled:false). Primes 6'/2" viram aspas no Tekt. Show da função
-nativa e nome público foram corrigidos separadamente e passam antes deste gate;
-markup ainda não é SmartQuote. Constructor vazio tem fields vazio no vanilla;
-double:false é campo conhecido, mas double omitido é Unset. enabled:false
-permanece SmartQuote no vanilla. set double:false e show filtrado têm positivos
-novos. HTML literal funciona porque recebe Text; SmartQuote programática hoje
-é rejeitada. Título literal renderiza aspas; script recebe string, rejeitando
-Content antes da exportação nos dois binários.
 
-Fontes: markup_stream.rs:79–128 decide glyph em eval; smartquote.rs de layout
-alterna dois flags sem texto precedente; stdlib/text/smartquote.rs:112–117 apaga
-elemento disabled; observation/elements.rs:242–250 compara os campos atuais.
-Vanilla typst-eval/markup.rs:141–146 cria elemento com double explícito;
-typst-layout/inline/collect.rs:196–211 resolve estilo/contexto na coleta;
-typst-library/text/smartquote.rs:119–158 distingue prime/apóstrofo/nesting.
+Change only SmartQuote's public diagnostic elem_name to `smartquote`, as the measured .double behavior requires. Keep its Content variant, exhaustive signature and all unrelated names. Rust Debug may retain the historical internal form; it is neither JSON nor a language parity criterion.
 
-### Decisão ratificada e limites
+## Matrix and Cell diagnostic evidence
 
-Preservar identidade/campos de SmartQuote em eval e resolver glyph só na
-composição de render de cada target. Paged usa sua unidade; HTML permanece
-semântico e não chama layout paginado para aspas (ADR-0128). A lógica de
-seleção contextual é helper puro L1 único, com estado por fluxo/compilação,
-sem I/O, globais, vtable, registry de propriedades ou cópia do algoritmo de
-memoização upstream. Stack/estado é mecânica escolhida do Tekt; linguagem,
-campo conhecido/omitido, glyph e estilo são aceitação. Escaping HTML permanece
-com seus owners. Sem novos modos/flags, unsafe, API de watch ou math phase.
+`lab/results/construction/diagnostics/matrix-morfologia-2026-10-06/before.json.gz` records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/diff/source/binaries/cases at historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Raw/query mat lacked rows, getters/methods lost fields and func-equality failed. Upstream matrix.rs:91–221 declares fields/rows; local math_matrix.rs:45–52 retains rows/explicit but get_field defaults, content_methods.rs:151–191 omits mat and cli.rs:1154–1348 falls back to body. This is language morphology/semantics, not required Rust structure/PDF bytes or inferred intent. Change MathMatrix elem_name from `math.matrix` to `mat`; Rust Debug remains `math.matrix`.
 
-Este gate muda double público bool→Option<bool>, adiciona enabled:Option<bool>,
-expõe helper/contexto puro e move escolha de glyph eval→render. Confirmação humana recebida em 2026-10-06. O contrato ratificado abaixo
-supersede cláusulas históricas conflitantes apenas para aspas; ADRs/núcleos
-existentes e propostas alheias permanecem intactos.
-
-Corrigir apenas o nome diagnóstico/public elem_name de SmartQuote para
-smartquote, como a medição .double exige. Assinatura, dispatch exaustivo e
-nomes restantes ficam. Debug Rust pode conservar forma interna histórica;
-não usá-lo como JSON/critério de paridade. Não renomear variante Content.
+`lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz` freezes the same HEAD/tree provenance plus argv/cwd/results. Upstream table.rs:734–778 defines body/properties; local table_cell.rs:62–109 lacks getter, identity.rs:107 uses table.cell, content_methods.rs:226–254 loses native function and rules/show.rs:300–320 omits it. Body/fields/func-eq/explicit-show refute parity. Change TableCell elem_name to `cell`; Debug remains `table.cell`.
 
-## D07 — correção de morfologia de matriz, fluxo ADR-0127
+presence-refuters.json shows x:auto versus omitted collapse and lost fill:none/stroke:none. Auto is valid for x/y/fill/align/inset/breakable, invalid for colspan/rowspan/stroke; none is valid only for fill/stroke. The public presence gate was confirmed on 2026-10-07 in `lab/history/construction/records/00_nucleo/materialization/table-cell-presenca-aprovacao-2026-10-07.json`. Presence introduces no new element identity: retain cell and mechanical Debug. Option None alone proves neither omission nor explicit none.
 
-### Medição anterior à decisão
+Require measured fields/has/at/func/JSON/query/padding/presence RED→GREEN, span rejection/clone/map/observation, build/lint and D05/D06/query plus D08A/D05/D07/new-refuter collections with exact provenance. These internal corrections add no public Rust type/signature/phase. Matrix selectors/render/general Styled/unmeasured elements and positioned/style/padding/show Cell realization are not certified by name repair.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-lab/results/construction/diagnostics/matrix-morfologia-2026-10-06/before.json.gz guarda
-UTC/diff/fontes/binários e casos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
-Mat raw/query sai como {func:math.matrix} sem rows; getter/métodos perdem campos
-e func-equality retorna false. Fonte upstream math/matrix.rs:91–221 declara
-propriedades e rows. Tekt MathMatrixElem conserva rows/explicit em math_matrix.rs:45–52,
-mas Element.get_field é default; content_methods.rs:151–191 não enumera mat;
-cli.rs:1154–1348 cai no fallback body. É morfologia/semântica da linguagem,
-não exigência de estrutura Rust ou bytes PDF; nenhuma intenção foi inferida.
+## Prepared table evidence and approval
 
-### Responsabilidade exclusiva
+`lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/diffstat/status/sources/binaries/argv, historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, oracle SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea` and Tekt `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`. Upstream grid resolve.rs:204–278 resolves fields,1500–1530 ordered conflicts,1665–1703 empty cells and 1945–1988 breakable. Local grid_placement.rs:91–112 prioritizes explicit cells and 262–270 only knows GridCell; realize/mod.rs:160–200 visits bottom-up and table.rs:127–152 strips wrappers without attributes. Probes show zero cell effects when Table is replaced, zero hidden-heading effects and aliases `LOCAL a`, `OUTER LOCAL a`, `NEW a`. Unknown fields, hidden effects or wrong order refute the hypothesis. Cache/pagination equivalence is not inferred, and Rust mechanics/bytes are not the acceptance target.
 
-O nome diagnóstico público de MathMatrix passa de math.matrix para mat, por paridade medida. Debug Rust permanece math.matrix; sua mudança não é critério nem autorizada nesta frente.
+The original D08B3-A gate was satisfied by `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`. It covers the specified five public fields, two carriers, facade and logical phase before Cell show, without authorizing later extensions.
 
-### Aceitação
+## Prepared and source-carrier identity
 
-RED→GREEN e coleta bilateral de fields/has/at/func, JSON/query, padding e
-presença; build/lint e regressões D05/D06/query. Gate contínuo: contratos
-públicos de tipos/traits/assinaturas e fase ficam iguais. Não certificar
-mat selectors, render, Styled geral ou outros elementos não medidos.
+Keep public cell/table names and bounded mechanical Debug. Prepared carriers create neither ElementKind/NodeKind nor identity by name.
 
-## D08B1 — projeção existente, fluxo contínuo ADR-0127
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/tree/UTC/source/argv/binaries at the historical pin. Existing ShowRecipe/Located/Realized branches provide the corresponding transparent operation. The exact Source contract remains `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md`; human approval `confirmo` on 2026-10-07 is recorded in the final `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`. Source delegates to body without exposing span as language identity or executing recipes; segmentation retains origin where applicable. Keep exclusive ownership/static dispatch, no I/O/new signature/trait/flag/eval-layout phase. Require C2/C/macro collections/builds/lineage.
 
-### Medição anterior à decisão
+## Prepared table acceptance and incomplete scope
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz
-registra UTC, diff HEAD --stat, hashes de fontes/binários, argv/cwd e resultados
-contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8.
-Vanilla model/table.rs:734–778 declara body e propriedades; Tekt
-entities/elements/table_cell.rs:62–109 não implementa getter; content/identity.rs:107
-usa table.cell; content_methods.rs:226–254 não projeta a função real;
-rules/show.rs:300–320 omite a nativa. Body/fields/func-eq e show explícito
-refutam paridade. É semântica/morfologia, não igualdade Rust ou bytes PDF.
-Não se infere intenção da estrutura upstream.
+Require RED→GREEN, suites/build/lint, restricted preservation and the original D08A/B2, D05/D06/D07/query collections. Accept language, effects and actual geometry, never byte equality or whitespace normalization to close render defects. The isolated-cell package separately completes raw-cell-no-placement/outside-fields defaults and fresh show-cell-reconstruct generation; the first prepared-table package alone is explicitly incomplete.
 
-### Responsabilidade exclusiva
+Generic Table defaults/fields (`table-root-equality`), function styles, rich paints/strokes/insets, lines/gutters, multipage spans and PDF/UA remain outside certification. Do not change legacy extra casts, syntax, flags or global nonlocatable policy through this slice.
 
-Corrigir elem_name TableCell para cell. Debug Rust conserva table.cell.
+## Typed-transform identity
 
-### Limites e aceitação
+The transformacoes-2026-10-14/results.json.gz corpus and supplementary controls measure lost identity/presence in matrix/body; pre-migration source/L0 are in `lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14/base-files.json.gz`, hashes/lines in consumers.json. Approved manifest `960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d` authorizes typed representation/layout resolution. Name Transform by operation as move/rotate/scale/skew; Matrix stays transform. Never infer native identity from matrix values. Debug carries operation/body. Require RED→GREEN and dependent-path revalidation; build alone does not close X1–X5.
 
-RED→GREEN e coleta bilateral; cargo build e crystalline-lint sem erros.
-Esta correção não muda contrato público de tipos/assinaturas nem fase.
-D08B permanece incompleto: D08B2 completa presença omitido/auto/none por
-contrato próprio; D08B3 completa realização de posições/estilos/padding/show.
-Option None não prova omissão nem none explícito: não certificar esses casos.
+## Constructor Heading identity
 
-## D08B2 — presença lexical ratificada em 2026-10-07
+`lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/target-controls.json.gz` shows heading-raw-constructor-func regressing to styled because identity.rs:26 fixes that name for every Styled. Use only the nominal constructor_heading projection ratified by review SHA-256 `66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c` to return heading for that marked shape. External/unmarked Styled stays styled. Do not generally unwrap, change structural Debug/signatures or add API beyond that ratified facade. L0 precedes code and func/fields/errors/opaque-Styled controls.
 
-### Medição anterior à decisão
+## Empty and Sequence reflection
 
-lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz e
-presence-refuters.json conservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
-working tree, diffstat, UTC, binários e argumentos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
-Upstream model/table.rs:734–778 possui campos Smart/Option; o Tekt
-entities/elements/table_cell.rs:40–51 conserva apenas Option de valor.
-X:auto e x omitido colapsam; fill:none e stroke:none perdem presença.
-Os refutadores medem auto permitido em x/y/fill/align/inset/breakable,
-rejeitado em colspan/rowspan/stroke; none permitido só em fill/stroke.
-São observáveis da linguagem, sem obrigação de copiar a estrutura upstream.
+`lab/results/construction/diagnostics/sequence-reflection-2026-10-17/{before,before-sources}.json.gz` freezes HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree/UTC/diffstat/source/binary hashes at current pin `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Upstream content/mod.rs:724–728 requires Sequence children and 538–585 projects has/at/fields. empty-fields/empty-func/empty-children and sequence-fields/sequence-children/sequence-single/sequence-for refute local absent fields/empty name; fields.rs:317–322, identity.rs:24 and content_methods.rs:242 identify causes. Empty text stays Text and ordinary Styled remains opaque; Rust representation need not match upstream.
 
-### Contrato ratificado e responsabilidade exclusiva
+Name Empty `sequence`, like Sequence, for func and field errors, superseding only its historical `empty` name. Keep signature, other identities and Rust Debug. This reflection slice explicitly leaves Sequence construction and selector/where/show/counter admission to its separately measured successor, including argument/identity/limit refuters; generic invalid-method diagnostics are also outside scope. Do not claim total func/Sequence parity.
 
-Conservar elem_name cell e Debug mecânico; presença não cria elemento novo.
+Use continuous ADR-0127 with no fields/types/traits/signatures/phase/product mode added. Require L0 first, RED→GREEN/regressions/workspace/build/strict Clippy+Rustdoc, valid ownership/nuclei/strict+reverse lineage and no increased V16. V15/V26 must pass before restricted resealing. Heavy validation is sequential under MemoryMax 12 GiB/High 8 GiB/swap 0/jobs 1; record peak without inferring gain.
 
-### Aceitação e limite
+## Historical record
 
-RED→GREEN para body/presença/métodos/JSON, clone/map/observação e rejeições com span. Build/suítes/lint, coletas D08A/D05/D07 e novos refutadores; proveniência exata obrigatória. D08B3 completa realização por posição/estilo/padding/show em proposta separada. Contrato público por campo/tipos novos confirmado pelo humano em 2026-10-07; recibo table-cell-presenca-aprovacao-2026-10-07.json. Não altera fase/defaults de render.
-
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
-
-### Responsabilidade exclusiva proposta
-
-Conservar nome público cell/table e debug mecânico limitado; carriers não criam ElementKind/NodeKind nem identidade por nome.
-
-### Gate, aceitação e divisão explícita
-
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
-
-
-## D08B3-C2 — responsabilidade ratificada
-
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
-
-Source é transparente nesta projeção, delegando ao body; não expõe span como identidade de língua nem executa receitas. Segmentação conserva origem por segmento quando aplicável.
-
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
-
-## Transformações tipadas — contrato aprovado
-
-### Medição anterior à decisão
-
-O corpus transformacoes-2026-10-14/results.json.gz e controles suplementares
-registra identidade/presença perdida no carrier matrix/body. Fonte e owner
-pré-migração estão em lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14/base-files.json.gz
-com hashes e linhas em consumers.json. A aprovação do manifesto
-960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d autoriza
-a nova representação e resolução no layout. Semântica/morfologia são linguagem;
-formato Rust e mecanismo de reconstrução são mecânica.
-
-### Responsabilidade exclusiva
-
-O nome da variante Transform é move/rotate/scale/skew conforme operation, nunca inferido pela matriz. Matrix continua transform. Debug transporta operation e body.
-
-Testar RED→GREEN e revalidar os caminhos dependentes; o build não fecha X1–X5.
-
-## A1-H2 — identidade do transporte de construção Heading
-
-Medição anterior: target-controls.json.gz no diagnóstico
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 mostra
-heading-raw-constructor-func regressando para styled; identity.rs:26 fixa esse
-nome para todo Styled. Usar somente a projeção nominal constructor_heading,
-ratificada na revisão A1-H2 SHA-256
-66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c,
-para elem_name devolver heading nessa forma. Styled externo/não marcado mantém
-styled. Não remover wrappers em geral nem alterar debug estrutural ou assinaturas.
-Isso conserva nomes corretos de erro de campo; L0 antes do código e testes
-func/campos/erro/Styled opaco, sem nova API além da fachada já ratificada.
-
-## R1 — reflexão de sequência e vazio, fluxo contínuo ADR-0127
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-lab/results/construction/diagnostics/sequence-reflection-2026-10-17/before.json.gz e
-before-sources.json.gz guardam UTC, diffstat, fontes e SHA dos binários. Pin
-vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. No upstream
-lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:724–728,
-Sequence tem children requerido; :538–585 projeta has/at/fields. As sondas
-empty-fields/empty-func/empty-children e sequence-fields/sequence-children/
-sequence-single/sequence-for refutam o Tekt: campos ausentes e nome empty.
-fields.rs:317–322 deixa Empty/Sequence no complemento sem campos;
-identity.rs:24 usa empty; content_methods.rs:242 enumera somente body no
-fallback. São morfologia e semântica da linguagem, não exigência de copiar
-representação Rust. Text vazio continua texto; Styled comum permanece opaco.
-
-### Responsabilidade exclusiva
-
-O nome de elemento da variante Empty passa a sequence, como Sequence, para
-func e mensagens de campos. A assinatura elem_name, as demais identidades e
-o Debug Rust permanecem iguais. Esta seção supera a estabilidade histórica
-do nome empty apenas nesta variante, por medição de linguagem.
-
-### Aceitação e divisão explícita
-
-R1 é incompleto para a função Sequence: R2 completará construção e admissão
-em selector/where/show/counter, medindo argumentos, identidade e limites antes
-de alterar seus owners. before.json.gz registra esses refutadores abertos.
-Não anunciar paridade total de func() ou de sequência por este reparo.
-A mensagem genérica de método inválido também permanece fora de R1.
-
-Sem novos campos, tipos, traits ou assinaturas Rust públicas, fase ou modo
-de produto. L0 antes de código, RED→GREEN, testes de regressão, workspace,
-build, Clippy/Rustdoc estritos, ownership/núcleos/linhagem e reversa válidos;
-V16 não aumenta. Resselo somente após V15/V26 válido. Validação sequencial
-com MemoryMax12GiB/High8GiB/swap0/jobs1; registrar pico, não inferir ganho.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content/identity.md` preserves the original evidence and chronology.

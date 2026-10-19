@@ -1,288 +1,71 @@
-# Prompt L0 — Entidade `ShowRule` (Passo 68-70; atualizado P352)
+# L0 — Show rule data
 Hash do Código: f07493d1
 
-`NativeElement` e o grupo de filtros integram o contrato vigente de show rules.
+
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 
-**Vigência R3-T1 (2026-10-18):** a seção ratificada ao fim deste owner
-supersede as restrições históricas de Style sobre Text/Regex, matching por nó
-e realização eager descritas abaixo. Os tipos públicos permanecem existentes.
+**Layer:** L1, pure domain; no I/O or global state. **Exclusive consumer:** `01_core/src/entities/show.rs`.
 
-## Propósito
+## Evidence, ratifications and approval boundary
 
-Define as entidades de dados para o motor de show rules do cristalino.
-Uma show rule (`#show selector: transform`) interceta nós de conteúdo no
-momento da sua criação (eager) e aplica uma transformação declarativa.
+Historical rule-order measurement in f-recon-lacuna-ii-passo-357.md used upstream0.14.2 and found no accumulation of same-kind Func transformations:one applies if output changes kind,while same-kind output recurses/errors. Reference demand measured zero examples. The prior claim that vanilla accumulates Func was conflated with show-set style fold. The measured correction was innermost-first function order,not general accumulation. Earlier A2/A3 alternatives(accumulating where upstream errors,reopening morphological termination)were declined. Reopen only on a measured real package/document pattern requiring exact-order accumulation,then add parity tests;not by hypothetical demand. The old version-only record is historical,not certification of the current pinned target.
 
-## Tipos
+At HEAD2f42d64253547734564513a1159ee6b584c1c4b4 with no productive diff,show.rs:23–86 had NodeKind but no general native-function base;Text meant literal pattern,not function text. selector_matching.rs:43–65 rejected unconvertible identities. lab/results/construction/diagnostics/p1339-full-show-fixture-* measures historical ratified native strong/emph/text filters;final-*.json preserves state and nondefault-profile CLI limitation,not matching proof. NativeElement is explicitly named current by this owner's original introductory contract and exists in the consumer. Its historical additive-public-enum proposal still requires ADR-0127 approval evidence;none was located for this selector gate during consolidation. A separate approval assertion for ElementPayload NativeElement does not prove this ShowSelector gate. Preserve this unresolved approval-record gap;implemented code alone never ratifies it or authorizes additional changes.
 
-### `NodeKind`
+The compact Styles-payload gate below is independently ratified. Textual matching/style applicability is independently ratified by `lab/history/construction/records/00_nucleo/materialization/textual-realization-2026-10-18/review.md`,acceptance.json,manifest47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302. style-before.json.gz/unit-candidate3.log preserves rejection RED/color GREEN/full provenance. This ratification supersedes historical Style-on-Text/Regex rejection,per-node-only matching and eager pending-recipe realization only within textual scope;no new public type/field/method follows. Pinned textual-recipe-frontier governs it.
 
-Tipo de nó de conteúdo para selecção por tipo.
-Conjunto completo: `Heading`, `Figure`, `Strong`, `Emph`, `Raw`,
-`Equation`, `ListItem`, `Underline`, `Strike`, `Overline`, `Smallcaps`,
-`Subscript`, `Superscript`, `Highlight`, `Par`.
-Outros tipos (`EnumItem`, `Link`, etc.) adicionados em passos futuros.
+## Compact carrier evidence and approval
 
-### `Selector`
+`lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/before.json.gz` records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/source/L0/hashes/status/diffstat. probe-details.json records rustc1.92/argv/rlib/binary/probe hashes/output; probe-result.json records12 GiB/swap0/one-job/events. These synthetic real-domain-carrier/registration/copy probes are not compile/layout/RSS benchmarks or a measured workload distribution.
 
-Selector de uma show rule. Variantes:
-- `Text(String)` — substitui ocorrências literais de um texto. Aplicação
-  depende da `Transformation` (P790): `Str` via `map_text`; `Content`/`Func`
-  via splice em `map_content` (o texto à volta do match é preservado).
-- `NodeKind(NodeKind)` — interceta nós nativos de um tipo específico.
-- `DynKind(String)` — interceta um elemento **dinâmico** de utilizador
-  (fronteira E1) pelo **nome de kind** (`dyn_kind()`). Lote F-3 inc-2: o
-  selector `#show callout:` resolve para uma `FuncRepr::Element` sem fn-ptr
-  nativo e casa por nome. Viaja pela **mesma** travessia que `NodeKind`.
-- **P417** `Where { base: Box<Selector>, field: EcoString, value: Value }` —
-  filtra por campo de elemento. Ex.: `heading.where(level: 1)`. O `base` deve
-  ser `NodeKind` (nativo) em P417; outros bases são scope-out. Matching: o
-  nó casa `base` **e** o campo `field` existe **e** o seu valor é semanticamente
-  igual a `value` (via igualdade de `Value`, ADR-0107). Sem vtable — lógica em
-  free function na camada de render (`rules/show/where_match.rs`).
-- **P791** `Label(Label)` — casa um nó `Content::Label` pelo **nome** do label
-  (`#show <sp>: …`). Não viaja pela travessia principal de `apply_show_rules`:
-  o wrapper `Content::Label` é criado na associação retroactiva de `<label>`
-  (Passo 56) **depois** do corpo já ter sido interceptado, logo a aplicação é
-  dedicada (`intercept_labelled` em `rules/eval/rules.rs`) — só regras de label
-  casam nesse ponto, evitando dupla aplicação das outras regras. `it` = o
-  **corpo** (o elemento rotulado; o label é metadado, não nó — paridade
-  vanilla `target.label()`); a saída substitui o wrapper inteiro (label
-  consumido). Aplicação única, última-declarada primeiro (innermost-first,
-  P358) — sem loop de revisitação (equivalente à `Revocation` do vanilla).
-- **P423** `And(Vec<Selector>)` / `Or(Vec<Selector>)` — combinadores de
-  selectors em show rules. Ex.: `heading.or(figure)`, `heading.and(figure)`.
-  Semântica: `And` casa se **todos** os sub-selectors casarem; `Or` casa se
-  **pelo menos um** sub-selector casar. Ambos são recursivos e de curto-circuito
-  esquerda-para-direita. O contraditório (`heading.and(figure)`) retorna
-  `false` sem erro. N-ário para paridade com `Selector::And(EcoVec)`/
-  `Selector::Or(EcoVec)` de query; methods encadeáveis (`a.or(b).or(c)`).
-  Sem vtable — lógica na free function `selector_matches` em
-  `rules/eval/rules.rs` (forma B, ADR-0109).
+Tag is416 bytes, Box/Arc Start candidates48. For4096 Start/End pairs with heap-free Heading payload, inline requests3407872 bytes/1 allocation, Box2031616/4097 and Arc2097152/4097. Box clone allocates per Start, but inspected productive fixpoint.rs:86–136 and entrypoints.rs:44–66 use temporary Vec<Tag>/borrowed reads without vector clone; walk:325–356 indexes by reference before moving info. Synthetic clone frequency is not asserted productive.
 
-### `RuleId`
+Transformation/ShowRule are328/376 bytes; Box/Arc Styles candidates120/168. rules/show.rs:464–470 copies to_vec per registration; apply.rs:108–112,349–352 filters/clones. Across128 simple show-set registrations without old snapshots, inline requests12276960 bytes/384 allocations, Box8194560/8640 and Arc5530624/512. Retained-snapshot peak requests are3203856,4141744,1477808. With custom styles, copying4096 rules requests4107 allocations inline,8203 Box and11 Arc including Vec growth. apply/intercept/outline/table_cells borrow styles; application still clones deltas when needed.
 
-Tipo alias `pub type RuleId = u64`. Identificador único atribuído a cada
-`ShowRule` no momento da sua criação em `EvalContext` (campo `next_rule_id: RuleId`,
-incrementado a cada regra registada).
+Keep the counterexamples: building one collection of4096 simple show-set rules requests1540096 bytes inline,2031616 Box,2097152 Arc; rich128-registration final live bytes without old snapshots are78064 inline versus156432 Arc because Arc can retain spare custom capacity. Do not claim universal gain or hide atomic/indirection cost. A relevant real-workload memory/time regression refutes the favorable Arc copy-cycle inference. This is storage mechanics under ADR-0030/0107, not language parity or measured AI cognition.
 
-### `Transformation`
+The owner approved manifest `282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950` on2026-10-16, receipt `lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/approval-receipt.json`. It satisfies the original ADR-0127 public-payload/compatibility gate for this package and T1–T6, without release. Additional signatures/fields/phase changes require another proposal.
 
-A transformação que uma show rule aplica. Materializa o **S5** do spike-2
-(`Transformation = Content | Func | Style`, `f_fronteira_e1.md` §3c). Substitui
-o antigo `transform: Value` solto por um vocabulário fechado:
+## Data owned by this module
 
-- `Func(Func)` — closure `it => …`; recebe o nó e devolve `Content` (ou `Str`,
-  promovido a `Content::text`). Consome o passe de show.
-- `Content(Content)` — substituição estática direta. Consome o passe.
-- `Str(EcoString)` — substituição literal, **apenas** para `Selector::Text`
-  (aplicada por `map_text`). `Content`/`Func` sobre `Text` são suportados por
-  splice (P790 — ver invariantes); `Style` sobre `Text` falha explicitamente
-  no eval (DEBT-19 ENCERRADO).
-- `Style(Styles)` — **show-set** (`#show k: set …`, P352). Os styles do `set` são
-  **capturados** na declaração (sem mutar `engine.styles` globalmente) e
-  **transportados** embrulhando o conteúdo num `Content::Styled(…, styles)` — o
-  carregador `StyledElem`-scoped da fatia 1 (P339, `f_fronteira_e1.md` §3a.8).
-  **NÃO consome o passe** (espelha `map.apply(transform); continue` do vanilla,
-  `typst-realize/src/lib.rs:458-464`): o conteúdo renderiza sob a chain aumentada,
-  não é substituído. Paridade: `styles.rs:504` (`content.styled_with_map(styles)`).
+ShowRule is (id,selector,transform) stored in EvalContext;RuleId is public u64,unique per eval session/assigned next_rule_id at creation. Preserve Clone snapshots of Vec<ShowRule>/Arc<[ShowRule]> avoiding active borrow conflicts;this storage does not give entities evaluation/matching ownership.
 
-  **Ordem show-set-vs-func (P356, paridade `lib.rs:341,357,458-464`).** As show-set
-  que casam um elemento dobram com base no **elemento** (o nó que entra na
-  realização), **não** no output de uma func que também o transforme. Quando uma
-  show-set **e** uma func casam o mesmo elemento, o vanilla dobra a show-set na
-  chain (`map`) e aplica a func **sob** a chain aumentada (`chained =
-  styles.chain(&map)`); o crystalline espelha isto **embrulhando o output da func**
-  no `Styles` da show-set (a show-set fica ativa quando a func realiza). Casa o
-  **exemplo canônico** da referência (`docs/reference/language/styling.md`,
-  *Show rules*: 4× `#show heading`, "keeping styling composable", "good practice").
-  Sem este ordenamento, a show-set seria perdida (o output da func não casa o
-  seletor). Múltiplos show-set continuam a compor por `collapse`.
+NodeKind identifies native types by enum rather than names. Existing consumer inventory is Heading,Figure,Strong,Emph,Raw,Equation,ListItem,Underline,Strike,Overline,Smallcaps,Subscript,Superscript,Highlight,Link,Quote,Footnote,List,Enum,Par. The original shorter inventory and future-type annotations are historical;do not remove later existing variants or infer authority to add more.
 
-### `ShowRule`
+Show Selector remains a static closed vocabulary:
 
-Triplo `(id, selector, transform)` armazenado no `EvalContext` durante a avaliação.
-`id` é um `RuleId` único por sessão de avaliação.
-`transform` é uma `Transformation` (ver acima).
+- Text(String):literal text pattern,distinct from native text function. Str uses text replacement;Content/Func splice into matched ranges preserving surrounding text. Func receives matched Content::Text and emits Content or promoted Str once per occurrence.
+- NodeKind(NodeKind):native kind selection;DynKind(String):user Dynamic kind name/interned dyn_kind,including registered callout FuncRepr::Element without native fn pointer. Both follow owning compiler's static traversal;DynKind is not native-function authentication.
+- NativeElement(Func):native identity base,without executing Func. Existing Where composes filters over this base;do not duplicate public filter-group presentation here. QuerySelector/repr own that presentation. Preserve identity and Func equality;entity imports no compiler or builtin-address recognition.
+- Regex(Regex):existing regex text-pattern carrier,not a new entity extension from consolidation.
+- Where{base:Box<Selector>,field:EcoString,value:Box<Value>}:existing field filter,static not vtable/closure. The boxed Value reflects current recursive storage;the old unboxed example is historical. Matching requires base,known field and semantic Value equality through the canonical matching owner. Original native-NodeKind subset/dynamic-field exclusion is not permission to silently broaden unsupported bases;current NativeElement composition is separately specified by matching/conversion owners.
+- Label(Label):name-based association interception,not ordinary node traversal. Retroactive label wrapper is formed after body interception;dedicated intercept_labelled applies only label rules,preventing duplicate other recipes. it is labelled body,not a new label node;replacement consumes wrapper. Latest-declared eligible rule applies once with revocation,no generic label revisitation loop.
+- And(Vec<Selector>)/Or(Vec<Selector>):recursive left-to-right short circuit,all/any respectively;contradictory heading.and(figure) false,no error. Both empty false. Node traversal classification accepts a combinator only if all children are node-like. N-ary data supports chained a.or(b).or(c),without dynamic dispatch.
 
-## Invariantes
+Canonical behavior owner:`00_nucleo/prompts/core/compiler/eval/selector_matching.md`;capture/apply owners are `00_nucleo/prompts/core/compiler/eval/rules.md` and its separately owned descendants. Data references do not share productive ownership. Query selector is separately owned by `00_nucleo/prompts/core/entities/selector.md`.
 
-- `ShowRule` é `Clone` — o motor clona o `Vec<ShowRule>`/`Arc<[ShowRule]>` antes de
-  aplicar (snapshot explícito para evitar borrow conflict durante `apply_show_rules`).
-- `Selector::NodeKind` identifica o tipo pelo enum, não por string (DEBT-21 MITIGADO);
-  `Selector::DynKind` identifica o elemento dinâmico pelo nome de kind interned.
-- `Selector::Text` suporta `Transformation::Str` (via `map_text`) e, desde
-  **P790**, `Content`/`Func` por **splice**: o nó `Content::Text` é fatiado nas
-  ocorrências do padrão e o replacement é emendado entre as fatias, preservando
-  o texto envolvente (paridade vanilla `visit_regex_match`,
-  `typst-realize/src/lib.rs:1391`). A travessia é `map_content`, que **não
-  reentra** no nó substituído — equivalente à `Style::Revocation` do vanilla
-  (o output não é re-varrido pela mesma regra). `Func` recebe o texto do match
-  como `Content::Text` e o seu output (Content ou Str) é emendado por
-  ocorrência. O match é **por nó de texto individual** — o vanilla agrupa
-  elementos textuais adjacentes na mesma style chain antes de casar; match
-  cross-node é divergência registada (scope-out). `Style` sobre `Text` falha
-  explicitamente no eval (DEBT-19 ENCERRADO).
-- **P417** `Selector::Where` baseia-se em `NodeKind` (nativo) em P417; elementos
-  dinâmicos (`DynKind`) são scope-out. O matching delega a free function que
-  consulta `Content::get_field(field)` e compara com `value` via igualdade
-  semântica de `Value`.
-- **P423** `Selector::And`/`Or` aceitam sub-selectors de qualquer tipo suportado
-  (`NodeKind`, `DynKind`, `Where`, recursivamente `And`/`Or`). O matching é
-  recursivo e curto-circuito. `And` vazio retorna `false`; `Or` vazio retorna
-  `false`. Os combinadores viajam pela travessia de nós (`is_node_rule`) sse
-  todos os sub-selectors forem node-like.
-- `Transformation::Style` **não** consome o passe de show e **não** é válida para
-  `Selector::Text` (show-set é sobre elementos, não sobre texto literal). Show-set
-  **não** muta o estilo global na declaração — captura-o e transporta-o confinado.
-- Anti-recursão **durante a chamada** do recipe via `active_guards: Vec<RuleId>` no
-  `EvalContext` (DEBT-20): uma regra cujo `id` já está em `active_guards` é saltada —
-  impede re-entrada na criação aninhada. A **terminação da revisitação** (output que
-  re-casa) é o **ponto-fixo morfológico** (modelo α, P348, `morph_canon`), não o
-  `active_guards`; o teto `MAX_SHOW_RULE_DEPTH` é o backstop.
-- `apply_show_rules` faz uma única travessia `map_content` para todos os NodeKind +
-  DynKind rules (DEBT-23 ENCERRADO): itera o snapshot de regras dentro da closure.
-- **Ordem das `func` (P358, innermost-first).** A travessia de regras **func** tenta a
-  **última-declarada primeiro** (`node_rules.iter().rev()`), de modo que, no subconjunto
-  onde **uma** func é efetiva, a **última-declarada vence** — paridade com o vanilla
-  (recipes innermost-first, `styles.rs:835` `next_back`; ex.: `#show heading: it=>[A:]…`
-  ⨁ `…[B:]…` → `"B:T"`). É **reordenação**, **não** acumulação: o vanilla **não** acumula
-  múltiplos `func` same-kind (aplica um quando o output muda de kind; **erra** no caso
-  mesmo-kind) — medido no P357. O fold de **show-set** (`Transformation::Style`) mantém a
-  ordem de declaração + `collapse` (a **última-declarada sobrepõe**, como a referência
-  promove) — não é invertido.
+## Transformations and immutable style payload
 
-## Caso 1, lacuna (ii) — FECHADA (P358): ordem, não acumulação
+Preserve Func(Func),Content(Content),Str(EcoString),Style(std::sync::Arc<Styles>). Func receives it and returns Content or Str promoted to text;Content is direct static replacement. These consume the selected show pass;Str remains literal replacement rather than arbitrary node-element transformation. Style is captured show-set:declaration does not mutate global engine.styles;actual matched content/product receives confined Styles through existing Styled carrier. Style does not consume/rewrite the element transformation pass.
 
-A medição do P357 (`f-recon-lacuna-ii-passo-357.md`, vanilla 0.14.2 oráculo) estabeleceu
-que o vanilla **NÃO acumula** múltiplos `func` same-kind (aplica **um** quando o output
-muda de kind; **erra** no caso mesmo-kind) e que **não há demanda** na referência (0
-exemplos). Logo a única divergência real era de **ordem**, fechada pelo conserto
-innermost-first (ver invariante acima): a **última-declarada func vence** — paridade com
-o vanilla. **Não há acumulação a reconciliar** — a premissa "vanilla acumula func" (P354,
-herdada do B1) era um conflato com o **show-set** (fold de estilo, = lacuna (i), feita no
-P356). **A2/A3 declinados** (A2 acumularia onde o vanilla erra; A3 reabriria o α/P348
-validado — custo alto, demanda nula).
+Only compact Style payload supersedes historical Style(Styles) construction. External code constructs Style(Arc::new(styles));clones share immutable Styles instead of copying StyleDelta. &Styles reads deref normally;actual application still performs its existing needed delta copies in order. Arc::make_mut on a copy before push preserves original/custom styles and value isolation;no new shared mutability. Func/Content/Str,Selector,NodeKind,ShowRule,RuleId,other fields/signatures remain unchanged. No phase,extra captured state,precedence/guard/global-show-set/vtable change.
 
-**Residual (paridade de erro, não buraco).** 2+ `func` same-kind **mesmo-kind-returning**
-(o output re-casa o seletor) → **recursão** → ambos (vanilla e crystalline) **erram** no
-teto (`maximum show rule depth exceeded`) = **caso 2**, já tratado pelo α/teto. Não é
-acumulação; é paridade de erro.
+For element show-set+Func composition,match the entering element,not transformed output. Matched styles augment chain under which Func realizes,and wrap its output so style survives output-kind change. Multiple show-set declarations fold by existing collapse in declaration order,latest overriding;Func eligibility is tried latest-first(innermost). Reversing function order does not reverse style fold or authorize blanket accumulation. Same-kind fresh returns may depth-error;prepared it aliases retain protection under canonical occurrence/recipe owners. Existing during-call active_guards skip active RuleId to avoid nested reentry. Historical morphological fixpoint claims do not override separately ratified locatable/Sequence occurrence and depth contracts;legacy nonlocatable helper scope remains with `00_nucleo/prompts/core/compiler/eval/show_rule_termination.md`,not prescribed anew by this entity.
 
-**Gatilho de reabertura** (medido como zero hoje): se surgir um padrão real (pacote/doc)
-onde 2+ `func` same-kind **precisem** acumular com ordem exata, os casos viram testes de
-paridade contra o vanilla e A2/A3 entram nessa hora — não antes (ADR-0107/0108).
+For Text/Regex,ratified Style(Arc<Styles>) is valid and transports actual match/product styles. Literal/regex share eligible-group/UTF8-earliest/lexical precedence and causal product guards under pinned nucleus,not historical individual-Text-node matching. Source/prefix/suffix and distinct scopes remain,Str/Content/Func payloads unchanged. Entity defines data only;capture/grouping/splice/normalization/matching/application remain compiler-owned. No new Clone/equality/hash/enum-budget/State contract or unplanned mechanics. V19 explicit grouping notes do not require duplicated bodies.
 
-## Tests obrigatórios
+## Acceptance and limits
 
-- Construção estrutural de `Selector::And`/`Or`.
-- Eval de `heading.or(figure)` produz `Value::Selector(Or([Kind(Heading), Kind(Figure)]))`.
-- Eval de `heading.and(figure)` produz `Value::Selector(And([Kind(Heading), Kind(Figure)]))`.
-- `selector_matches` para `Or` positivo (heading casa, figure casa).
-- `selector_matches` para `And` positivo (`heading.where(level: 1).and(heading)` casa em heading nível 1).
-- `selector_matches` para `And` negativo/contraditório (`heading.and(figure)` não casa em nenhum nó).
-- E2E: `#show heading.or(figure): set text(red)` aplica a heading e figure, não a paragraph.
-- E2E: `#show heading.and(figure): set text(red)` não aplica a nada.
+Test structural And/Or construction;heading.or(figure) yields Value::Selector(Or([Kind(Heading),Kind(Figure)])),and likewise And. Test positive Or for either type,positive heading.where(level:1).and(heading),contradictory And false. E2E show heading.or(figure):set text(red) affects those types not paragraph;contradictory And affects nothing. Preserve NodeKind/DynKind identity/recursive field semantic equality,static one-pass node snapshot traversal and no substituted-node reentry by the same consumed rule under current recipe protocol.
 
-## Histórico de Revisões
+For native-function base,verify old/new paths on same node,including Par,not compilation alone. A measured native identity needing information unavailable from Func refutes sufficiency;reopen L0 rather than adding incidental public metadata. Preserve existing Where/group conversion,Label and all other variants;no new NodeKind/Content/interface/phase/order/revocation/recursion policy from this data extension. Unverified historical public gate above remains visible.
 
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-06-23 | P417 (M): +variant `Selector::Where { base, field, value }` para filtragem de show rules por campo de elemento. Integração com `Value::Selector`, parsing de `heading.where(level: 1)`, e matching via `Content::get_field`. | `show.rs`, `show.md`, `value.rs`, `selector.rs`, `selector.md`, `eval/closures.rs`, `eval/rules.rs`, `introspector.rs`, `stdlib/foundations.rs` |
-| 2026-06-23 | P423 (S-M): +variants `Selector::And(Vec<Selector>)`/`Or(Vec<Selector>)` e methods `.or()`/`.and()` em `Value::Selector`. Matching recursivo com curto-circuito em show rules; query já suporta And/Or (P209C). | `show.rs`, `show.md`, `eval/closures.rs`, `eval/rules.rs` |
-| 2026-06-25 | P467 (S — sonda A.0): confirma estado funcional de `Selector::Where` em show rules; inventário de cobertura atualizado; nenhuma alteração de código. | `show.md`, `cobertura-vanilla-vs-cristalino.md` |
-| 2026-06-27 | P474 (XS — sonda fecho): confirma wiring E2E completo de `#show elem.where(field: value)` desde P417 — `eval_show_rule` → `query_selector_to_show_selector` → `apply_show_rules` → `selector_matches(Where)`. **Trilha 3: 3/3 fechado.** 2 testes confirmatórios adicionados. | `show.md`, `show-regex.md`, `eval/tests.rs` |
+## Compact carrier acceptance
 
-## Layer
+L0 and tests precede implementation; require real RED→GREEN and restrict resealing to changed owners. Do not silence large_enum_variant, raise thresholds or add dependencies/flags/defaults/phases.
 
-L1 — domínio puro. Sem I/O, sem estado global.
+T1: Box<ElementInfo>/Arc<Styles> construction and relative carrier budgets (Tag at most three Locations; Transformation at most Content plus alignment) fail before and pass after, without asserting universal ABI. T2: preserve Start/End/Location/payload/label, value equality/structural hash, independent Box clone and mutation isolation; hashes do not become persisted formats. T3: existing introspection/convergence/nesting/heading/label/state/counter/query/metadata tests retain expectations/errors. T4: Transformation::Style clones share Arc; Arc::make_mut on a copy preserves original styles including custom, and Func/Content/Str variants remain. T5: show-set/func, precedence/scope/labels/outline/table.cell/textual/regex preserve semantics/morphology/errors and execute no extra rules. T6: full workspace/build/all-target Clippy and previously closed expectations/lints as errors, Rustdoc -D warnings and four HTML indices, fmt/diff/strict+reverse lineage/no increased Tekt diagnostics under12 GiB/swap0/one-job. Record HEAD/tree/hashes/diffstat/UTC; distinguish type sizes/requested bytes from RSS. No release.
 
-## P1339 — base de show por função nativa de elemento
-
-### Medição anterior à decisão
-
-Em HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, sem diff produtivo,
-`01_core/src/entities/show.rs:23-86` possui `NodeKind`, mas não uma base
-para toda função nativa de elemento; `Text(String)` significa padrão literal,
-não a função `text`. `selector_matching.rs:43-65` rejeita identidades que
-não consegue converter. As fixtures `lab/results/construction/diagnostics/p1339-full-show-fixture-*`
-comprovam no vanilla ratificado aplicação de filtros de strong/emph/text;
-registros `p1339-full-show-final-*.json` registram proveniência e a limitação
-CLI nos perfis cristalinos não-default, sem convertê-la em prova de matching.
-
-### Decisão proposta — somente o carrier
-
-Adicionar ao `entities::show::Selector`:
-
-```rust
-NativeElement(crate::entities::func::Func),
-```
-
-É uma base de regra sobre identidade nativa, não invocação da função. Não
-duplicar o grupo de filtros neste enum: o conversor pode compor a base com
-os `Where` já existentes. A apresentação pública do grupo pertence ao
-QuerySelector e ao owner de repr, não a essa forma interna de realização.
-
-Preservar `NodeKind`, `Text`, `DynKind`, `Regex`, `Where`, `And`, `Or`,
-`Label`, RuleId, Transformation, ShowRule e suas assinaturas. `DynKind`
-continua exclusivo de elemento dinâmico; `Text` continua padrão literal.
-Não acrescentar variantes a NodeKind nem modificar Content nesta proposta.
-
-O comportamento da nova base é propriedade de
-`compiler/eval/selector_matching.md`; a entidade não importa compiler,
-não reconhece endereços de builtins, não chama funções nem transforma nós.
-Clone/PartialEq continuam mecânicos; a variante não muda a igualdade de Func.
-
-A extensão é pública e afeta matches exaustivos: gate ADR-0127 obrigatório.
-Não muda fase, precedência de regras, revogação, guardas de recursão ou
-ordenação de show-set. Aplicação ao mesmo nó via caminhos antigos e novos
-precisa ser verificada, inclusive particularidades de Par; não basta fazer
-a variante compilar. Inferência de suficiência é refutada por um seletor
-nativo medido que precise de outra informação para identificar o nó.
-
-
-## Carriers compactos de introspecção/show — proposta 2026-10-16
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16 registra UTC, fontes/L0, hashes, status e git diff HEAD --stat. Os owners atuais foram lidos antes de propor esta alteração. probe-details.json registra rustc 1.92, argv, rlib/binário/sonda com SHA-256 e saída; probe-result.json registra teto de 12 GiB, swap zero, um job e eventos. A sonda é sintética de carriers e do algoritmo de registro/cópia, não benchmark de compilação/layout/RSS nem distribuição de workloads reais. Os candidatos são espelhos com tipos reais de domínio; o caso inline usa Tag e ShowRule produtivos.
-
-Tag mede 416 bytes; Start boxed e Arc medem 48. Para 4.096 pares Start/End com payload Heading sem heap, inline solicita 3.407.872 bytes numa alocação; Box solicita 2.031.616 em 4.097; Arc solicita 2.097.152 em 4.097. Clone de Tag boxed também aloca por Start; os caminhos produtivos lidos em introspect/fixpoint.rs:86–136 e entrypoints.rs:44–66 usam Vec<Tag> temporário e leituras emprestadas, sem clonar o vetor. Walk :325–356 popula o índice por referência antes de mover info para Start. A decisão não toma o clone sintético como frequência produtiva.
-
-Transformation mede 328 e ShowRule 376 bytes; candidatos com Box/Arc<Styles> medem 120 e 168. rules/show.rs:464–470 copia to_vec antes de cada registro; apply.rs:108–112,349–352 filtra/clona regras. Em 128 registros 100% show-set simples sem reter snapshots antigos, inline solicita 12.276.960 bytes/384 alocações, Box 8.194.560/8.640, Arc 5.530.624/512. Com snapshots retidos, picos solicitados são 3.203.856, 4.141.744 e 1.477.808. No controle com canal custom, as cópias de 4.096 regras solicitam 4.107 alocações inline, 8.203 Box e 11 Arc (crescimento do Vec incluído). As leituras de estilos são emprestadas em apply/intercept/outline/table_cells; a aplicação ainda clona o delta quando necessário.
-
-Contraexemplo obrigatório: construir uma única coleção de 4.096 regras 100% show-set simples pede 1.540.096 bytes inline, 2.031.616 Box e 2.097.152 Arc. Arc pode reter capacidade sobrante do canal custom; no controle rico de 128 registros sem snapshots antigos, o final vivo foi 78.064 bytes inline e 156.432 Arc. Não afirmar ganho universal ou ignorar custo atômico/indireção. É mecânica de armazenamento sob ADR-0030/0107, não paridade de linguagem ou ganho cognitivo por IA medido. A inferência favorável a Arc no ciclo de cópias seria refutada por regressão de memória/tempo em um workload real relevante; manter visíveis estes controles.
-
-### Responsabilidade exclusiva proposta
-
-Substituir exclusivamente Transformation::Style(Styles) por Transformation::Style(std::sync::Arc<Styles>). Manter Func/Content/Str, Selector/NodeKind/ShowRule/RuleId e os demais campos/assinaturas. Clone de Transformation/ShowRule compartilha os estilos imutáveis; não clona o StyleDelta neste transporte. Leituras via &Styles continuam por deref; aplicar estilos continua fazendo as cópias já necessárias no owner de aplicação, sem alterar sua ordem. Código externo constrói Style(Arc::new(styles)); para editar um estilo compartilhado usa Arc::make_mut antes de chamar push, preservando isolamento por valor. A mudança é mecânica de ownership, sem novo compartilhamento mutável. Não mover fase, capturar outro estado, mudar precedência/guards, tornar style de show-set global ou introduzir vtable. Esta cláusula supersede somente o payload Style anterior e preservações históricas que o congelavam.
-
-### Gate e aceitação
-
-Proposta não vigente até ratificação humana ADR-0127 §2.1/§2.4: há mudança de payload público e compatibilidade de construção/acesso. Não editar código ou owners ativos por este pacote antes da aprovação. Após ratificação instalar estes L0, testes primeiro e RED real, implementação e resselo estritamente dos owners alterados. Não silenciar large_enum_variant, alterar limiar ou adicionar dependências/flags/defaults/fases.
-
-T1: contratos de construção Box<ElementInfo>/Arc<Styles> e orçamento relativo dos carriers (Tag até três Location; Transformation até Content+alinhamento) devem falhar no estado antigo e passar no novo, sem fixar ABI universal. T2: Start/End/Location/payload/label, igualdade e hashes estruturais por valor, clone independente da Box e mutation isolation preservados; hash não vira formato persistido. T3: testes existentes de introspecção/convergência, nesting, heading/label, state/counter/query/metadata continuam com os mesmos esperados e erros. T4: clone de Transformation::Style compartilha o Arc; Arc::make_mut em cópia preserva estilos do original, incluindo custom, e as variantes Func/Content/Str permanecem. T5: controles existentes de show-set/func, precedência, escopo, labels, outline, table.cell e textual/regex mantêm semântica/morfologia/erros; nenhuma regra executa a mais. T6: workspace completo, build, Clippy all-targets e expectativas/lints já fechados como erro, rustdoc -D warnings com quatro índices, fmt, diff, linhagem estrita/reversa e Tekt sem aumento; 12 GiB, swap zero, um job. Registrar HEAD/working tree/hashes/diffstat/UTC e distinguir tamanhos/bytes solicitados de RSS. Não publicar release. Alguma mudança de assinaturas, campos ou fase além destes payloads exige outra proposta.
-
-## Ratificação humana — 2026-10-16
-
-Proposta aprovada pelo humano, manifesto SHA-256 `282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`. O contrato acima passa a vigente; inclui materialização/testes T1–T6, sem release. Registro em `lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/approval-receipt.json`.
-
-## R3-T1 — consumidores de selectors textuais ratificados
-
-Medição anterior: review.md e acceptance.json em lab/history/construction/records/00_nucleo/materialization/textual-realization-2026-10-18,
-manifesto aprovado 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302;
-style-before.json.gz e unit-candidate3.log no diagnóstico de materialização
-preservam o RED da rejeição e o GREEN das cores, com proveniência completa.
-As cláusulas do núcleo textual-recipe-frontier pinado governam este contrato.
-Transformation::Style(Arc<Styles>) é válido para selectors Text e Regex,
-transportando os estilos reais para o match/produto. Str, Content e Func
-permanecem os payloads atuais. Não adicionar campos/variantes/métodos nem
-alterar Clone, igualdade, hashes, orçamento de enums ou os contratos de State.
-A captura e aplicação pertencem aos respectivos owners do compilador; esta
-entidade apenas define os dados. A ratificação inclui a ordem causal R3 e
-supersede as proibições textuais antigas, sem legitimar alterações mecânicas
-não previstas. V19 é observação de grupos explícitos, não motivo para duplicar
-os corpos. Validar a aceitação R3 e os controles de enums/linhagem existentes.
+Ratified textual acceptance R3 and existing enum/lineage controls both remain required. Historical show-rule coverage/where wiring receipts and revision tables remain in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/show.md`;they do not establish full matching/parity or current universal termination by themselves.

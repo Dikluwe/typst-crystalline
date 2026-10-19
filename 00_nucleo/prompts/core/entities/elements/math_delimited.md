@@ -2,104 +2,91 @@
 Hash do Código: 1a006427
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_delimited.rs`
-**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
-partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
-P317). Comportamento idêntico ao braço atual do hub.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/math_delimited.rs`
+**Architecture:** ADR-0105 model D, nonlocatable math.
 
----
+## Mechanical delimiter contract
 
-## Struct
+MathDelimitedElem derives Debug/Clone/PartialEq/Hash with public open:char,
+body:Content,close:char. Content::MathDelimited holds Arc;
+Content::math_delimited(open,body,close) preserves its signature.
+plain_text is format!("{}{}{}",open,body.plain_text(),close);
+is_empty defaults false. map_content recurses only into body, preserving
+open/close; map_text is terminal and clones. get_field/kind/payload default
+None. Structural equality/hash include all three fields. Acceptance verifies
+that text order, recursive body-only map and terminal map_text.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct MathDelimitedElem {
-    pub open:  char,
-    pub body:  Content,   // era Box<Content>
-    pub close: char,
-}
-```
+## Ratified public lr carrier
 
-`Content::MathDelimited { open, body, close }` →
-`Content::MathDelimited(Arc<MathDelimitedElem>)`. Construtor ergonómico:
-`Content::math_delimited(open: char, body: Content, close: char)`.
+Pinned upstream LrElem has size:Rel<Length>,body:Content; the mechanical
+open/body/close carrier cannot preserve unfenced lr, exact variadic body,
+cascade and explicit size presence. Human approval 2026-09-17 authorizes
+separate MathLrElem with body:Content,size:Rel<Length>,size_explicit:bool,
+deriving Debug/Clone/PartialEq/Hash over all three fields.
+plain_text delegates; map_content transforms only body and preserves size/
+presence exactly; map_text stays terminal. Casts,positional joining,cascade
+and stretch remain outside this entity. Do not infer lr from delimiter equality
+or alter MathDelimited's existing mechanical constructor.
 
-## `impl Element for MathDelimitedElem`
+Field projection always exposes stored body, and size as Value::Relative only
+when size_explicit. Defaults/geometric cascade cannot manufacture presence.
+This applies to every MathLr construction including math.abs, without abs-only
+fields or changes to MathDelimited.
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `format!("{}{}{}", self.open, self.body.plain_text(), self.close)` (`content.rs:1629`) |
-| `is_empty` | default `false` (`content.rs:1568`) |
-| `map_content` | **recursivo** só no `body`, `open`/`close` preservados (`content.rs:2111`): `Content::MathDelimited(Arc::new(MathDelimitedElem { open: self.open, body: self.body.map_content(f)?, close: self.close }))` |
-| `map_text` | **terminal** (math structural; `content.rs:2624`): `Content::MathDelimited(Arc::new(self.clone()))` |
-| `get_field` | default `None` |
-| `element_kind`/`to_payload` | default `None` (não-locatável) |
+## Separately ratified mid carrier
 
-## `eq` estrutural
+Pinned MidElem has one required positional body, preserves repr identity and
+participates in nearest-lr resolution, distinct from a bare body or mechanical
+delimiters. MathMidElem { body:Content } derives Debug/Clone/PartialEq/Hash;
+plain_text delegates, map_content transforms only body, map_text is terminal.
+Casts, Relation class and stretching belong to eval/layout.
 
-`#[derive(PartialEq)]` compara `open + body + close` (paridade `content.rs:1822`).
+`lab/history/construction/records/00_nucleo/materialization/typst-passo-1437.md:141`
+records explicit owner confirmation after proposal commit
+b0f48017d29f476357279a678aea3ff2e4c9df70, with implementation 2026-09-17 under
+executed_without_isolation_attestation. It supersedes the stale pending gate
+without inventing isolation evidence or broadening the approval.
 
-## Critério
+## Container reuse without replacement
 
-`plain_text` `{open}{body}{close}`; `map_content` recurse só o body; `map_text`
-terminal; igualdade estrutural.
+Evidence before specification:
+`lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz`
+records HEAD, working tree, UTC, complete sources, owners, and release.
+`01_core/src/entities/elements/math_delimited.rs:65` preserves traversal but materializes the element even when
+descendants do not change. `01_core/src/entities/content/traversal.rs:111–192`
+unconditionally wraps results from these owners in Some. This is mechanical
+cost; language behavior and element semantic identity remain preserved.
+Refutable inference: propagating explicit absence of change reduces allocations
+and temporary retention. Probes and timing controls may refute that gain.
 
-## P1436 — carrier público `MathLrElem` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
+Internal refinement under ADR-0127: provide only a crate-private
+map_content_if_changed helper for elements already owned by this consumer.
+Return None only when no actually visited child was replaced; childless
+terminals return None. Transform children once in the existing map_content
+order and stop at the first error. A callback Some, even containing equal
+content, always means change. Preserve every field, value, explicit presence,
+omitted/none/present slot, flag, span, and metadata item. Do not use equality,
+hash, or address as a certificate. Allocate vectors/rows only after the first
+changed child/row; unchanged siblings retain shared content. Public signatures
+and trait methods remain unchanged, with internal adaptation to this proof;
+map_content_pre and map_text retain their previous contracts. This refinement
+does not expand any ratification of historically proposed contracts.
 
-### Medição anterior à decisão
+Specific logic remains with this owner; Content's exhaustive match only
+delegates statically. No vtable, new enum/fields, global state, I/O, or new
+phase. Acceptance requires RED→GREEN for reuse, order, errors, equal-value
+replacement, optional fields/slots, and metadata; core suite, builds and lint;
+text/morphology/render/query qualification against the previous release and
+pinned vanilla; and paired allocation/timing measurements with provenance.
+Do not infer a universal improvement from isolated cases.
 
-O vanilla pinado declara `LrElem { size: Rel<Length>, body: Content }`; o
-carrier cristalino deste owner representa apenas o par mecânico já separado
-`open/body/close`. Reutilizar `MathDelimitedElem` apagaria `lr` sem cercas,
-body variádico exato, cascata e presença explícita de `size`.
+The shared proof of absence of change follows the pinned nucleus claims.
+This prompt and its sole consumer still own the algorithm, transformed fields,
+visit order, and their specific preservation obligations.
 
-### Decisão proposta
+## Historical record
 
-Este consumer passa a possuir também `MathLrElem`, semanticamente distinto de
-`MathDelimitedElem`, com `body: Content`, `size: Rel<Length>` e
-`size_explicit: bool`. Derivar `Debug`, `Clone`, `PartialEq` e `Hash` sobre os
-três campos. `plain_text` delega ao body; `map_content` transforma somente o
-body e reconstrói tamanho/presença byte a byte; `map_text` permanece terminal
-como os demais carriers matemáticos estruturais. Cast, junção de posicionais,
-cascata e stretch não pertencem a esta entidade.
-
-`MathDelimitedElem` e seu constructor permanecem inalterados para usos
-mecânicos existentes. Não inferir `MathLrElem` a partir de igualdade de
-delimitadores.
-
-### P1447 — projeção pública dos campos de `MathLrElem`
-
-O carrier expõe `body` sempre e `size` somente quando `size_explicit=true`.
-O valor de `size` é `Value::Relative(self.size)` e o body é o próprio conteúdo
-armazenado. O default e a cascata geométrica não fabricam presença. Esta
-projeção serve todas as construções `MathLr`, inclusive `math.abs`; não cria
-campos próprios de `abs` nem altera `MathDelimitedElem`.
-
-## P1437 — carrier público `MathMidElem` (PROPOSTA; AGUARDA GATE ADR-0127)
-
-### Medição anterior à decisão
-
-O vanilla pinado declara `MidElem { body: Content }`: um único campo público,
-obrigatório e posicional. A identidade persiste no `repr` e participa da
-resolução do `lr` mais próximo; não equivale a `MathDelimitedElem` nem ao
-body nu.
-
-### Decisão proposta
-
-Este consumer passa a possuir `MathMidElem { body: Content }`, com `Debug`,
-`Clone`, `PartialEq` e `Hash`. `plain_text` delega ao body;
-`map_content` transforma só o body; `map_text` permanece terminal. Cast,
-classe `Relation` e stretch pertencem a avaliação e layout.
-
-## Reuso de contêineres sem substituição — 2026-10-10
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/math_delimited.rs:65` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
-
-Refinamento interno ADR-0127: disponibilizar somente helper crate-private map_content_if_changed nos elementos já owned por este consumer. Retornar None apenas se nenhum filho efetivamente visitado foi substituído; terminais sem filhos retornam None. Transformar filhos na mesma ordem do map_content vigente, uma única vez, e interromper no primeiro erro. Some do callback, inclusive conteúdo igual, sempre é mudança. Preservar todos os campos, valores, presença explícita, slots omitidos/none/presentes, flags, spans e metadados; não usar igualdade/hash/endereço como certificado. Vetores/linhas só alocam após o primeiro filho/linha alterado; os irmãos conservam seu conteúdo compartilhado. Assinaturas públicas e métodos de trait ficam iguais, com adaptação interna à nova prova; map_content_pre e map_text mantêm seu contrato anterior. Nenhuma ratificação de contratos históricos propostos é ampliada por este refinamento.
-
-A lógica específica permanece neste owner; o match exaustivo em Content apenas delega estaticamente. Sem vtable, enum novo, campos novos, estado global, I/O ou fase nova. Aceitação: RED→GREEN de reuso, ordem, erro, substituição igual, opcionais/slots e metadados; suite core, builds e lint, qualificação de texto/morfologia/render/query contra release anterior e vanilla pinado; alocações e tempos pareados com proveniência. Não alegar ganho universal a partir de casos isolados.
-
-
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/math_delimited.md` preserves the original evidence and chronology.

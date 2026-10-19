@@ -2,7 +2,7 @@
 Hash do Código: 4ff17d71
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736
+- 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:b7a180bc63908fdeadc405b120c0db8b1c2587f2217d815980b9db35f0e282c4
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/primitives_constructors.rs`
@@ -15,7 +15,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/primitives_constructors.rs`
 
 Own only private declarations of array, decimal, duration and version, direct native reexports, internal version discovery/dispatch and the array-from-bytes bridge. Preserve native_decimal/native_duration/native_version public reexports and pub(crate) visibility for native_array_bytes, version_type_field and dispatch_version_method.
 
-Test support remains cfg(test), with its existing synthetic Args/EvalContext/FileId/NullWorld fixtures. Individual constructor shape, conversion, index rules and diagnostics belong to child owners under `00_nucleo/prompts/compiler/stdlib/primitives-constructors/`. The primitive-call nucleus remains pinned and unchanged; version.at is a method, not a constructor obligation. This façade adds no cast, wrapper, lookup, registry, external API or I/O.
+Test support remains cfg(test), with its existing synthetic Args/EvalContext/FileId/NullWorld fixtures. Individual constructor shape, conversion, index rules and diagnostics belong to child owners under `00_nucleo/prompts/core/compiler/stdlib/primitives_constructors/`. The primitive-call nucleus remains pinned and unchanged; version.at is a method, not a constructor obligation. This façade adds no cast, wrapper, lookup, registry, external API or I/O.
 
 ## Acceptance
 

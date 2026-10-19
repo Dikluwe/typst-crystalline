@@ -29,54 +29,126 @@ Acceptance observes geometric relationships and frame morphology, not bytes.
 Unattributable font, carrier, StyleChain, glyph, frame, metric or geometry is
 Unknown; fail closed and do not count it as killing a mutant.
 
-## Leitura de delimitador por ocorrência
+## Delimiter occurrence observation
 
-Após `cases` envolver o delimitador visual em `TextReplacement`, os testes
-de direção e extents seguem medindo o `Text`/`TextShaped` filho e suas
-coordenadas; o helper de observação atravessa o envelope sem usar a string
-extraível como substituto geométrico. RED integrado: quatro leituras de
-`{`/`}` não encontravam os itens filhos no nível superior.
+After cases wraps the visual delimiter in TextReplacement, direction/extents
+still measure child Text/TextShaped coordinates. The observer crosses the
+envelope without using extractable text as geometry. Integrated RED: four
+opening/closing brace observations no longer found top-level child items.
 
+## Nominal FrameItem observer projection
 
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
+### Evidence before decision
 
-### Medição anterior à decisão
+F042 is compiler/math/layout/math_cases_layout_tests.rs:128 (visit). AST spans/patterns/guards/
+bodies/complements were checked before code.
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+UTC/sources/L0/config/hashes/status/git diff HEAD --stat. classification.json
+records 70 cases/complements in 26 owners using the pinned CI parser. Pertinent
+L0/source were read together, without new architecture or inferred upstream
+intent. Rust exhaustiveness is mechanics; preserve product semantics/morphology/
+geometry/effects/diagnostics.
 
-F042: 01_core/src/compiler/math/layout/math_cases_layout_tests.rs:128 (visit). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+### Exclusive prescription
 
-### Prescrição exclusiva desta unidade
+For F042 visit, replace only `_` with nominal TextSeparator/Semantic/Line/Glyph/
+Image/Shape/Group/Link alternatives using the in-scope FrameItem
+prefix. Preserve the complete fallback body, prior arms, guards, transformations,
+calls, returns and order.
 
-- **F042 — `visit`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Semantic`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
+Preserve callbacks/effects/metadata/clipping/fonts/positions/ink/width under their
+current owners. Do not expand traversals, turn wrappers into leaves or substitute
+text/ActualText for geometry. Test helpers retain fixtures/expected results/
+tolerances/counts/Unknown failures; missing observation is not acceptance.
+Nominal groups share the previous body; keep V19 notes without equating arm
+coverage with every alternative.
 
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
+### Acceptance and limits
 
-### Gate e aceitação
+ADR-0127 internal flow adds no enum/field/public trait method/signature/default/
+dependency/compatibility/phase. Do not materialize unrelated pending proposals.
+L0 first and restricted bilateral resealing. No suppressions, threshold changes
+or match-to-if-let rewrites to hide V16.
 
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
+Before code run the new FrameVisitor control and workspace suite on unchanged
+expectations and confirm 70-family-warning RED by AST inspection. Afterwards
+require zero selected-family V16 and no new warning; external V16 stays open.
+For productive-core matches reached by cargo check -p typst-core, a disposable
+copy with sentinel FrameItem measures absent E0004 before/present after. Claim
+coverage only for compiled sites, not inaccessible cfg(test)/L3. Replay checks
+all patterns/guards/bodies, unchanged enum/signatures and real builds/tests;
+no stubbed bodies.
 
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
+Validate full workspace/build, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes,
+strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/
+configuration during heavy sequential commands under MemoryMax 12 GiB,
+MemorySwapMax0/CARGO_BUILD_JOBS1. Structural sanitation proves neither global
+parity nor RAM/AI-reading benefit.
 
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+## Nominal carrier finder
 
+### Evidence before decision
 
-## Exaustividade nominal e origem matemática — 2026-10-17
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz`
+retains UTC, sources/L0/hashes/configuration, status and exact git diff HEAD --stat;
+initial-ten-owners.json.gz preserves the first snapshot. contexts.json,
+all-contexts.json and wildcard-inventory.json retain AST/spans from the pinned
+CI parser. The previous suite passed on the same input code, reconfirmed by hash.
 
-### Medição anterior à decisão
+source-probe-before.json measures inline limits at width 7.2pt versus 12.912pt
+with Source. source-family-before.json preserves the first 12 pairs (11
+differences). source-family-supplement.json and analysis preserve 23 attributable
+pairs (19 differences, 4 equal controls): limits, kerns, Op.text, accents/dotless,
+supports, matrix alignment, spacing, sequences, stretch and class.
+source-lines-before.json measures the same equation at two lines versus one and
+last baseline 16.2 versus 0 under Source despite equal extents. Geometry,
+extractable identity and equation metadata are observables; bytes/pointers/Rust
+equality are not. The content-source-origin nucleus already requires transparency;
+inspection finds helpers classifying wrappers instead of their bodies. Infer no
+historical intent or global parity. The supplemental analyzer's 24-versus-23
+count error was corrected from valid original stdout without rerunning or
+counting the analyzer error as functional RED.
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado; UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz` (snapshot inicial preservado em initial-ten-owners.json.gz). AST/spans em contexts.json/all-contexts.json/wildcard-inventory.json, parser pinado do CI. A suíte anterior passou no mesmo código de entrada, revalidado por hashes.
+### Exclusive prescription
 
-source-probe-before.json mede limits inline com largura 7.2 pt versus 12.912 pt ao acrescentar Source. source-family-before.json preserva a primeira matriz de 12 pares (11 diferenças). source-family-supplement.json e sua análise preservam 23 pares com métricas atribuíveis (19 diferenças e 4 controles iguais): limites, kerns, Op.text, acentos/dotless, suportes, alinhamento de matriz, espaçamento, sequências, stretch e classe. source-lines-before.json mede a mesma equação com 2 linhas versus 1 e última baseline 16.2 versus 0 sob Source, apesar dos mesmos extents. São observáveis de geometria, identidade extraível e metadados da equação, não igualdade de bytes/pointers/Rust. A transparência já é obrigatória no núcleo content-source-origin; a inspeção mostra os helpers classificando o wrapper em vez do body. Não se infere intenção histórica ou paridade global a partir desses números. O erro de contagem do analisador complementar (24 em vez de 23 pares) foi corrigido usando o stdout original válido, sem refazer a medição nem contar o erro como RED funcional.
+Maintain only the named helper/test or MathSize axis; do not expand traversal or
+rewrite existing scenarios.
 
-### Prescrição exclusiva
+Replace only the selected fallback with the current nominal complement of
+unconditional arms, preserving bodies/guards/order. Guarded variants remain in
+the complement when the guard fails. The attach owner's Option projection is
+the sole structural exception: None returns through ?, Some enters a nominal
+normalized-Content match without a deep pattern; that remains its own boundary.
 
-Manutenção somente do helper/teste ou do eixo MathSize descrito abaixo. Não ampliar travessia ou reescrever os cenários existentes deste owner.
+L23: math_cases_layout_tests.rs:81, find_cases, Content. Exclude only
+MathCases/Equation/Styled/MathDelimited/Sequence/MathSequence, without guards.
+Preserve the fallback body outside that property; broaden classification only
+by prescribed Source transparency.
 
-Trocar os fallbacks enumerados pelo complemento nominal atual dos braços **incondicionais**, sem alterar corpo/guard/ordem; variantes guardadas continuam no complemento para quando a condição falha. A projeção Option de attach é a única exceção estrutural: None retorna por ?, Some passa ao match nominal de Content normalizado, sem padrão profundo.
+### Acceptance and limits
 
-- **L23** — `01_core/src/compiler/math/layout/math_cases_layout_tests.rs:81`, `find_cases`, Content: excluir somente `MathCases, Equation, Styled, MathDelimited, Sequence, MathSequence`; guardados `(nenhum)`. Mesmo corpo anterior para variantes fora da propriedade procurada; não ampliar a classificação além da transparência Source aqui prescrita.
+L0 before code. This ADR-0127 internal parity correction adds no public field/
+signature/trait, dependency, product flag/default, compatibility break or phase.
+V19 groups share their previous body with per-case justification; notes remain
+visible and do not prove execution coverage per alternative. No allow/expect,
+threshold increase, @ capture or hidden match in if-let/matches!. Only named
+transparency/shallow restructuring changes functional code; do not change
+formulas/constants or relax expectations. Require functional Source RED and
+structural warning/probe RED before repair; afterwards regression GREEN, zero
+emitted-site V16 and future sentinel review of all 36 sites (including new
+Content-under-Option projection) using copied Content/Value/MathStyleKind/FrameItem
+in a disposable real workspace compiling cfg(test). Current scrutinees/functions/
+composition change only as specified; revalidate AST/replay, signatures and other
+owners.
 
-### Aceitação e limites
-
-L0 antes de código. Correção interna/paridade ADR-0127 em fluxo contínuo: sem campo/assinatura pública, trait, dependência, flag/default novo, compatibilidade ou fase nova. Grupos V19 compartilham o corpo anterior explicitamente justificado por caso; as notas permanecem visíveis e não provam cobertura de execução por alternativa. Não adicionar allow/expect, elevar limiar, capturar @ ou esconder um match em if-let/matches!. Somente a transparência e as reestruturações rasas aqui nomeadas alteram o código funcional; não editar fórmulas/constantes ou relaxar expectativas anteriores. RED funcional das regressões Source e RED estrutural dos avisos/sondas antes do reparo. Após, regressões GREEN, zero V16 dos locais emitidos, revisão futura dos 36 locais (incluindo a nova projeção de Content sob Option) por sentinelas Content/Value/MathStyleKind/FrameItem em workspace descartável com cfg(test) compilado. Os scrutinees/funções atuais e a composição ganham só as alterações descritas; revalidar ast/replay, assinaturas e demais owners.
-
-Gates: suíte workspace completa, build, fmt, Clippy workspace/all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings com quatro índices, V1/V5/V15/V26 estrito/reversa, SARIF diferencial completo e diff-check. V16 esperado 170→152; notas V19 novas somente dos grupos prescritos e do observador novo; V20 sem crescimento. As demais violações continuam pendentes. Fontes congeladas durante os gates; MemoryMax=12 GiB, swap zero, um job Cargo, comandos pesados sequenciais. Sem commit/push/release ou alteração do pin CI. Não alegar ganho de RAM, leitura de IA ou paridade integral por encerrar o lint.
+Gates: full workspace suite, build, fmt, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, Rustdoc -D warnings with four indexes,
+strict/reverse V1/V5/V15/V26, full differential SARIF and diff-check. Expected V16
+170→152; new V19 only from prescribed groups/new observer; no V20 growth.
+Other violations remain pending. Freeze sources during gates; MemoryMax 12 GiB,
+zero swap, one Cargo job, heavy commands sequentially. No commit/push/release or
+CI pin change. Lint closure does not prove RAM gain, AI-reading benefit or
+complete parity.

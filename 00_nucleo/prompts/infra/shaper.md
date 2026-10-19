@@ -2,8 +2,8 @@
 Hash do Código: 1d7e398c
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 
 **Layer:** L3
@@ -39,54 +39,75 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## SHY autoral não selecionado — correção de identidade
+## Author SHY and tracking boundaries
 
-### Medição anterior à decisão
+### Evidence
 
-`lab/results/construction/diagnostics/shy-autoral-2026-09-28/initial.json` e
-`before/resultados.json` registram estado, binários, comandos e trinta sondas
-bilaterais. Em largura 300pt, repre<U+00AD>sentation extrai dois SHY no Tekt
-e um no vanilla pinado. O controle spaces extrai seis versus um.
-`03_infra/src/shaper/shaping.rs:313-325` transporta o cluster SHY produzido
-pelo rustybuzz; `03_infra/src/export/fonts.rs:318-328` associa sua substring
-ao GID de espaço. `export/builder/fonts.rs:523-535` conserva uma identidade
-por GID; a stream do controle anterior associa CID 0001 a 00AD e o reutiliza
-no espaço posterior. São observáveis textuais, não igualdade de bytes.
-A hipótese seria refutada por ausência dessa associação ou por duplicação
-já existente na string que entra no shaper. Não inferir intenção histórica.
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/{initial.json,before/resultados.json}`
+retains state/binaries/commands and 30 bilateral probes. At 300pt,
+repre<U+00AD>sentation extracts two SHYs in Tekt versus one in pinned vanilla;
+spaces control extracts six versus one. shaping.rs:313–325 carries rustybuzz SHY;
+export/fonts.rs:318–328 maps its substring to a space GID; builder/fonts.rs:523–535
+keeps one identity per GID. Prior stream associates CID 0001 with 00AD then reuses
+it for later space. This is observable text, not byte equality. Missing that
+association or pre-shaper duplication would refute the causal hypothesis; no
+historical intent inferred.
 
-### Decisão e limite
+`tracking-residual-2026-09-29/{initial.json,results.json,summary.json,causal-checks.json}`
+retains 36 inputs/108 PDFs, pinned vanilla/sources/UTC/HEAD/full working tree.
+Isolated word accumulates +0.052pt at 0.2pt tracking; boundaries lose one interval
+at adjacency, two with a space, four with three literal spaces. ±1.2pt removes
+quantization but not boundary loss. shaping.rs:225–232,319–326 rounds to i32;
+text.rs:49–83 splits words; space.rs:15–33 uses nominal advance only.
+correcao-tracking-2026-09-29/initial.json retains pre-materialization state.
 
-Correção de paridade interna em fluxo contínuo ADR-0127: reutiliza contrato
-TextReplacement aprovado, sem campo, assinatura pública, flag ou mudança
-de fase. Não modifica seleção de quebras ou desenho. A causa explícita é
-o U+00AD existente no texto autoral, não aparência, GID ou posição.
-Casos estreitos já têm divergências de seleção e não fecham a política SHY.
+### Facade contract and acceptance
 
-Declarar somente o novo filho privado text_identity, cujo owner exclusivo é
-`00_nucleo/prompts/infra/shaper/text_identity.md`. A fachada não decide
-a política de identidade nem muda reexports.
+Reuse approved TextReplacement for author U+00AD identity, not appearance/GID/
+position. Internal continuous ADR-0127 adds no public field/signature/flag/phase,
+break-selection or ink change. Narrow-width break-selection differences remain
+outside SHY policy closure. Declare only private text_identity child, owned by
+`00_nucleo/prompts/infra/shaper/text_identity.md`; no identity policy/reexport change
+in this facade.
 
-## Correção de tracking — 2026-09-29
+Declare crate-private tracking child for exporter use without public reexport,
+owned by `00_nucleo/prompts/infra/shaper/tracking.md`; no formula duplication.
+Internal parity correction supersedes only older tracking-limit preservation,
+leaving other render policies. Require RED→GREEN boundary/selection and independent
+Tc/TJ interpretation, bilateral ±/zero/repeated/adjacent/wrap tracking controls,
+build/lint zero errors and scoped resealing. No public/default/phase changes.
 
-### Medição anterior à decisão
+## Full-paragraph bidi context
 
-`lab/results/construction/diagnostics/tracking-residual-2026-09-29/initial.json`, `results.json`, `summary.json` e `causal-checks.json` registram 36 entradas/108 PDFs contra vanilla pinado, fontes, UTC, HEAD e working tree completa. A palavra isolada acumula +0.052pt com tracking 0.2pt, mas fronteiras perdem um intervalo na adjacência, dois com um espaço e quatro com três espaços literais. ±1.2pt elimina a quantização sem eliminar as fronteiras. O código shaper/shaping.rs:225-232,319-326 arredonda em i32; text.rs:49-83 divide palavras; space.rs:15-33 aplica somente avanço nominal. O estado anterior à materialização está em `lab/results/construction/diagnostics/correcao-tracking-2026-09-29/initial.json`.
+### Evidence
 
-### Decisão interna e responsabilidade
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{initial,probe}.json.gz`
+retains bilateral cases/Unicode refutation and sources/state/binaries.
+`layout_bidi.rs:73–82,227–240` redetects base/invents separators;
+`shaper/bidi.rs:34` redetects a fragment, losing the human-ratified complete input.
+This internal parity correction adds no phase or external public signature.
 
-Correção interna de paridade em fluxo contínuo ADR-0127, sem contrato público, flag ou fase nova. As cláusulas desta rodada supersedem somente a preservação dos limites de tracking descritos abaixo; demais políticas de render permanecem.
+### Boundary contract and acceptance
 
-Declarar filho tracking com visibilidade crate-private para consumo pelo exportador, sem novo reexport público. Owner exclusivo: `00_nucleo/prompts/infra/shaper/tracking.md`. Fachada não repete fórmulas.
+For certified spans, use the compilation-local registry of auxiliary strings/maps
+by input Arc, then normally borrowed BidiInfo views; no unsafe/self-reference.
+Virtual LRE/RLE/PDF is inserted only when segment direction differs from base.
+Retain real spaces, nonjustified Linebreak LF and author controls; justify=true
+is outside certification. Resolve once per input per registry; paged pipeline
+shares registry/views between reorder/shape. Existing public wrappers may create
+a local equivalent registry.
 
-Aceitação: testes RED→GREEN de fronteiras/seleção e interpretação independente Tc/TJ, controles bilaterais de tracking ±/zero, repetidos, adjacência e wrap; build e lint sem erros, resselo restrito.
+Reorder queries the actual line interval, exact segment/range intersections and
+end-of-line levels, never midpoints or invented spaces. Split mixed Text at original
+boundaries preserving style/subspan. Nontext items and unknown sources gain no
+certificate. Preserve the L1-accepted physical anchor and actual width/advance;
+certified context cannot use suffix/coalescing fallback.
 
-## Contexto integral bidi ratificado — 2026-10-05
-
-Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
-
-Para spans certificados, usar registry proprietário local de strings auxiliares e mapas por input Arc, depois views BidiInfo emprestadas normais; não usar unsafe/self-reference. Embeddings virtuais LRE/RLE/PDF só quando dir do segmento difere da base; espaços reais e Linebreak não justificado LF (justify=true fora do certificado). Não retirar controles autorais. Resolver uma vez por input em cada registry; o pipeline paginado compartilha registry/views entre reorder e shape. Wrappers públicos existentes podem construir registry local.
-
-Reorder consulta intervalo real da linha, intersects exatas por segment/range e níveis com regras de fim de linha; não midpoint nem espaços inventados. Text misto divide por fronteiras originais, preserva estilo e subspan. Itens não textuais e fontes desconhecidas não ganham certificado. Reorder conserva âncora física aceita por L1, largura/avanço reais; não aplicar fallback de suffix/coalescing ao contexto certificado.
-
-Shape consulta os runs do input completo para span original e não auto-detecta direção de fragmento; manter offsets de subruns por travessia sequencial, emitir subspan exato para cada TextShaped. Chave de cache existente já discrimina direção; não pôr contexto em TextStyle. Reconciliation usa base do input quando existe em vez de qualquer run RTL. Fallback None anterior permanece. Testes RED→GREEN da refutação de 456 789, overrides/neutral, extração sem controles auxiliares e medição bilateral.
+Shaping queries full-input runs for each original span without fragment direction
+redetection, preserving sequential subrun offsets and exact TextShaped subspans.
+The existing cache key already distinguishes direction; add no context to
+TextStyle. Reconciliation uses input base when present, not any RTL run; retain
+prior None fallback. Require RED→GREEN for `456 789` refutation, overrides/neutrals,
+no auxiliary controls in extracted text and bilateral measurements. Registry
+implementation is exclusively owned by `00_nucleo/prompts/infra/bidi_context.md`;
+reordering and shaping remain with their own canonical owners.

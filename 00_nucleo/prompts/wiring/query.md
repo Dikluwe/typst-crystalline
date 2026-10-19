@@ -8,8 +8,8 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
-- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:4b9f69ff41790a55a5b2d6a7b9982da858092e4bb2f0c503d6332a14a510e3ec
+- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:e9d6623a18ffc35f36051b280d96a75a0e4c1bd1768361a3a50c98587c568aef
 ```
 
 ## Current evidence
@@ -31,76 +31,67 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Ordem e hint de query — gate confirmado ADR-0127
+## Query ordering, acquisition and compiled retrieval
 
-Evidência: before.json.gz no diagnóstico plano-debitos-2026-10-06 mede a ordem
-error → warnings do documento → depreciação no pin, e o hint específico.
-Upstream query.rs:43,51-64 e compile.rs:779 ordenam explicitamente esses dados.
-O adendo vigente da ADR-0045 §8 preserva warnings → errors; este gate foi confirmado pelo dono em 2026-10-06; a ordem vigente é
-substituída conforme o novo adendo da ADR-0045.
+### Evidence and approvals
 
-Usar query_deprecation_hint do owner 00_nucleo/prompts/shell/cli.md.
-Falhas de aquisição antes de compilação não emitem depreciação. Falha
-semântica drena primeiro errors, depois warnings e por último depreciação.
-Sucesso serializa/escreve stdout e só depois drena warnings/depreciação.
-Falha de cardinalidade/campo/serialização retorna o erro existente sem
-acrescentar depreciação, conforme upstream retrieve/format com ?.
-Não alterar SourceDiagnostic público ou ordem dentro de cada coleção.
-Para input -, compor for_stdin com texto adquirido e root cwd absoluto;
-obter world.source(main()) em vez de fabricar Source com id existente.
-Manter stdin como origem causal e base de imports/read, fora das dependências
-físicas. As APIs existentes bastam; sem nova execução do documento.
+`lab/results/construction/diagnostics/plano-debitos-2026-10-06/before.json.gz`
+measured error → document warnings → deprecation and the specific replacement hint
+against the historical pin. Upstream query.rs:43,51–64 and compile.rs:779 order
+these explicitly. Human `confirmo` on 2026-10-06 approved replacing ADR-0045 §8's
+prior warnings→errors order through its amendment; candidates/hashes are retained
+in `lab/history/construction/records/00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json`.
 
-Gate confirmado pelo humano em 2026-10-06 (resposta confirmo), com candidatos
-e hashes preservados em lab/history/construction/records/00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
+`query-residuos-2026-10-06/before.json.gz` retains HEAD/tree/UTC, pin/binary hashes,
+sources/commands/stdout/stderr/status. Missing-file controls (relative, ./relative,
+absolute) show the pinned oracle exits 1, empty stdout and one line:
+`error: input file not found (searched at INPUT)`. Tekt exited 2 using MainNotFound
+Display. `infra/world.rs:150–155` already distinguishes typed MainNotFound from Io.
 
-## Entrada física inexistente — correção de paridade em fluxo contínuo
+The same diagnostic's query-stdin-callback succeeded where vanilla reported error
+and trace; query-context-success lost generated metadata; nested-error disappeared;
+query-selector-quotes failed at the old selector limitation before a document
+error; where-level was rejected rather than returning [2]. Document-error-invalid-
+selector establishes compilation precedence; valid-document-invalid/text-selector
+establishes retrieval failure without deprecation. Contextual eval reference and
+where controls already match through the current paged compilation. Upstream
+query.rs:34–66 compiles before retrieval; :86–105 evaluates selector in default
+Scope then converts to LocatableSelector. Locally query_helpers.rs:488–522 consulted
+only Module, while pipeline.rs:182–214 already compiled with the final introspector.
 
-Medição antes da decisão: query-residuos-2026-10-06/before.json.gz, controles
-query-missing-file/query-dot-missing-file/query-absolute-missing-file. Oracle
-pinado rejeita com status 1, stdout vazio, uma linha:
-error: input file not found (searched at INPUT)
-Tekt retorna 2 e MainNotFound Display. World::new em infra/world.rs:150–155
-já discrimina MainNotFound da classe Io; não inferir pela mensagem ou refazer
-stat antes/depois. No match tipado da composição de query, MainNotFound
-recebe o envelope medido, input.display() exato, e exit 1, sem depreciação.
-Outros erros mantêm seus contratos; não alterar World nem outros comandos.
-Não há nova assinatura pública ou fase. RED→GREEN é o gate ADR-0127.
+Human `confirmo` on 2026-10-06 approved the new compiled-query API/path, receipt
+`query-compilada-aprovacao-2026-10-06.json`. Historical candidates/manifests remain
+receipts; this owning contract is current. These measurements do not certify the
+new upstream pin or require copying upstream execution mechanics.
 
+### Current owner contract
 
-## Query CLI compilada — gate ADR-0127 confirmado
+Use `query_deprecation_hint` owned by `00_nucleo/prompts/shell/cli.md`.
+Acquisition failure before compilation emits no deprecation. Match typed
+MainNotFound in query composition, without string inference or another stat:
+use the exact missing-file envelope above, exact input.display(), exit 1 and no
+deprecation. Other errors, World and other commands retain their contracts. This
+internal parity correction uses RED→GREEN under continuous ADR-0127.
 
-### Medição anterior à decisão
+For input `-`, compose for_stdin with acquired text and absolute cwd root, then
+obtain `world.source(main())` rather than fabricating a Source with an existing
+id. Stdin remains the causal origin and import/read base, outside physical
+dependencies. Existing APIs suffice; never execute the document again for this.
 
-query-residuos-2026-10-06/before.json.gz registra HEAD/working tree, UTC,
-pin/binary hashes, fontes, comandos e stdout/stderr/status. query-stdin-callback
-retorna sucesso onde vanilla reporta erro e trace. query-context-success perde
-metadata produzido; nested-error também desaparece. query-selector-quotes
-apresenta rejeição P206C antes do erro do documento. where-level é rejeitado,
-mas vanilla retorna [2]. Document-error-invalid-selector demonstra precedência
-da compilação; valid-document-invalid/text-selector demonstra retrieval error
-sem depreciação. eval-context-reference e eval-where-reference já coincidem
-usando a compilação paginada atual. Upstream typst-cli/src/query.rs:34–66
-compila antes de retrieve; :86–105 avalia selector em Scope default e depois
-converte para LocatableSelector. Fontes locais: query_helpers.rs:488–522 consulta
-somente Module; pipeline.rs:182–214 já usa compilação com introspector final.
+Compose `query_compiled_elements` instead of query_elements: compile the complete
+paged document before evaluating its selector, without export. Program execution
+remains once under existing realization/context owners. Reuse the full paged
+pipeline/final introspector; no isolated expansion, pre-context index, parallel
+stabilization cycle or PDF extraction. Distinguish compilation/retrieval with an
+explicit enum, never messages, detached spans or substring search. No selector/
+realization algorithm, new flag or target belongs in wiring.
 
-### Decisão confirmada
-
-Correção da linguagem, não cópia da mecânica upstream. CLI query passa a
-compilar documento paginado completo antes da avaliação de selector, sem
-exportar arquivo. A execução comum do programa permanece única, conforme os
-owners vigentes de realização/contexto. Reutilizar o pipeline paged completo:
-nenhuma expansão avulsa, índice pré-contexto ou ciclo de estabilização paralelo.
-Distinguir falha de compilação e de retrieval por enum explícito, nunca por
-mensagens, spans destacados ou busca de substrings. A nova API e o caminho de query compilada foram confirmados pelo humano
-em 2026-10-06 (confirmo); recibo query-compilada-aprovacao-2026-10-06.json.
-Os candidatos/manifesto permanecem como recibo histórico; este é o L0 vigente.
-
-No run_query, substituir query_elements por query_compiled_elements. Compilation:
-drenar errors, warnings e depreciação, exit 1. Retrieval: emitir uma linha
-error: MENSAGEM, exit 1, sem warnings ou depreciação (upstream early ?).
-Sucesso: serialização/publicação L2 vigente, depois warnings/depreciação.
-Manter aquisição stdin por for_stdin e regra de MainNotFound já corrigida.
-Nenhum algoritmo de seletor ou realização no wiring, nenhuma flag/target novo.
-Não construir um PDF para extrair informação de query; usar introspector final.
+Compilation failure drains errors, then warnings, then deprecation and exits 1.
+Retrieval failure emits one line `error: MENSAGEM`, exits 1, and emits no warnings
+or deprecation (the measured upstream early return). Success delegates unchanged
+field/one/pretty/format serialization and publication to L2, then drains warnings
+and deprecation. Cardinality/field/serialization failure returns its existing error
+without deprecation. Preserve order inside each diagnostic collection, public
+SourceDiagnostic and the existing stdout/status contract. Validate the documented
+stdin, metadata, callback, selector/error-precedence and missing-file controls
+without loosening expectations.

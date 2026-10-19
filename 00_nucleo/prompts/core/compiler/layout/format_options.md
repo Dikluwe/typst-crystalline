@@ -2,7 +2,7 @@
 Hash do Código: 0acf14c9
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/format_options.rs`
@@ -12,7 +12,11 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/format_options.rs:215`, `01_core/src/compiler/layout/format_options.rs:249`, `01_core/src/compiler/layout/format_options.rs:19`, `01_core/src/compiler/layout/format_options.rs:20`, `01_core/src/compiler/layout/format_options.rs:21`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
+
+The source-origin baseline at `lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/working tree/UTC/sources/argv and binaries against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. This unit has the corresponding transparent operation in existing ShowRecipe/Located/Realized branches; Source must not leak as an observable element. Human approval was `confirmo`, 2026-10-07, with the contract preserved at `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md`. `workspace-seventh/bundle` refutes treating Source as a format container: root document-option collection traverses only body without increasing depth/container, preserving style/field validation and actual rejection of nested options.
+
+Value-projection evidence: `01_core/src/compiler/layout/format_options.rs:34` (typst_type_name, emitted-v16). `01_core/src/entities/value.rs:59–195` has 39 materialized variants; the catalogue and payload forms are in the contemporary inventory rather than a historical future-variant table. `lab/results/construction/diagnostics/tekt-v16-value-projections-2026-10-16/before.json.gz` preserves HEAD, uncommitted tree, UTC, status/diff HEAD --stat, hashes and original owner/consumer text. `contexts.json` comes from the current AST checked against pinned SARIF; `classification.json` distinguishes nine emitted V16 and eight latent projections. Rust form/exhaustiveness is mechanics; language names, conversions, borrows and observables retain the existing contract. This is no new parity or performance measurement.
 
 ## Ownership and contract
 
@@ -24,32 +28,16 @@ Traverse only the current transparent root Sequence/Styled paths; a document-for
 
 The hub only reexports this helper. Target-specific export, feature flags, CLI options, PNG raster resizing and format I/O belong elsewhere; this collector does not change layout phase or page geometry.
 
+Source-origin handling retains exclusive ownership and static dispatch, without I/O or a new signature/trait/flag or eval↔layout phase change.
+
+`typst_type_name` retains diagnostic aliases Bool→boolean, Int→integer and Str→string. The other 36 Value variants form a nominal group delegating to `value.type_name()`, without changing the body. Do not unify this policy with the document constructor, which does not rename Str. Do not change collection, keys, order/precedence, validation, render, options, targets, default or container traversal. Names are observable error text, not a new claim of upstream intent.
+
+Variants sharing a result retain a common body. The nominal list requires a decision if Value grows; do not duplicate bodies to remove V19. V19 notes remain informative: they record written alternatives, not executed tests, reachable combinations or an N× deficit. Choose positive/negative controls and limits by behavior; executing one arm does not prove every alternative. No allow/expect or severity/exception relaxation may hide V16.
+
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
+Source-origin tests and C2/C/macro collections, builds and lineage are required before certification. Value control C6 covers aliases and delegation for none/auto/float/array/content/length and Value::Type.
 
-## D08B3-C2 — responsabilidade ratificada
-
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
-
-workspace-seventh/bundle refuta Source como container de formato: coleta de opções documentais de raiz atravessa apenas body sem aumentar profundidade/container, conservando validação de estilos/campos e rejeição real de opções aninhadas.
-
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
-
-
-## Projeções de Value — exaustividade nominal, 2026-10-16
-
-### Medição anterior à decisão
-
-01_core/src/compiler/layout/format_options.rs:34 (typst_type_name, emitted-v16). O enum atual em 01_core/src/entities/value.rs:59–195 tem 39 variantes materializadas; o catálogo e forma de payload estão no inventário desta etapa, não na tabela histórica de variantes futuras. before.json.gz em lab/results/construction/diagnostics/tekt-v16-value-projections-2026-10-16 conserva HEAD, working tree não commitado, UTC, status/diff HEAD --stat, hashes e os textos originais dos owners/consumers. contexts.json foi extraído do AST atual conferido com o SARIF pinado; classification.json distingue nove V16 emitidos e oito projeções latentes. Forma Rust/exaustividade é mecânica; nomes, conversões, empréstimos e observáveis de linguagem mantêm o contrato vigente. Não há nova medição de paridade ou desempenho.
-
-### Decisão interna
-
-typst_type_name conserva os três aliases de diagnóstico Bool→boolean, Int→integer e Str→string. As outras 36 variantes Value compõem grupo nominal que delega a value.type_name(), sem alteração de corpo. Não unificar esta política com a do constructor document, que não renomeia Str. Não mudar coleta, chaves, ordem/precedência, validação, render, opções, targets, default ou travessia de containers. Teste C6: aliases e delegação em none/auto/float/array/content/length e Value::Type; nomes são texto observável de erro, não alegação nova de intenção upstream.
-
-As variantes que compartilham resultado conservam um corpo comum. A lista nominal exige decisão se Value cresce; não duplicar corpos para remover V19. Notas V19 permanecem informativas e registram alternativas escritas, não testes executados, combinações alcançáveis ou déficit N×. Controles positivos/negativos e limites são escolhidos pelo comportamento, sem tratar a execução de um braço como prova de cada alternativa. Nenhum allow/expect ou relaxamento de severidade/exceção para ocultar V16.
-
-### Gate e aceitação
-
-Fluxo contínuo ADR-0127: nenhuma assinatura/trait/campo público, nova variante produtiva, default de produto, quebra de compatibilidade ou fase diferente. L0 antes de testes e implementação, resselo bilateral restrito e V1/V5/V15/V26 válidos. Escrever controles no módulo, confirmar comportamento antes e depois; RED estrutural é ausência de E0004 nos 17 pontos selecionados numa cópia do core com variante sentinela acrescentada somente ao Value copiado. GREEN exige E0004 em cada um dos 17 pontos, sem stubs, e remoção exata dos nove V16 selecionados com os demais diagnósticos preservados. Build, suíte workspace, Clippy estrito, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job Cargo. O gate global permanece aberto enquanto os V16 externos existirem. O falso positivo do parser sobre None explícito é investigação separada e não será escondido neste consumer.
+Continuous flow under ADR-0127 permits no public signature/trait/field, productive new variant, product default, compatibility break or phase change. L0 precedes tests/implementation; restrict bilateral resealing and require valid V1/V5/V15/V26. Write module controls and confirm behavior before/after. Structural RED is absence of E0004 at all 17 selected points in a core copy with a sentinel variant added only to copied Value. GREEN requires E0004 at every point without stubs and exact removal of the nine selected V16 while preserving all other diagnostics. Require build, workspace suite, strict Clippy, formatting, Rustdoc and lineage under 12 GiB, zero swap and one Cargo job. The global gate remains open while external V16 exist. The parser false positive on explicit None is a separate investigation and must not be hidden in this consumer.

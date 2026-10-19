@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "block-margin-priority"
-title = "Prioridade causal de margens relativas entre blocos"
-
+title = "Causal priority of relative margins between blocks"
 [[claims]]
 id = "presence-before-magnitude"
 level = "must"
-statement = "Entre duas margens relativas vizinhas do protocolo de blocos, uma explícita domina uma automática, mesmo com valor zero ou menor. Entre margens da mesma classe, conservar o máximo. A classe vem da presença causal de above/below/spacing, nunca de comparação de valores."
-
+statement = "Between adjacent relative margins in the block protocol, explicit dominates automatic even when zero or smaller. Within one class retain maximum. Class derives from causal above/below/spacing presence, never value comparison."
 [[claims]]
 id = "heading-strength"
 level = "must"
-statement = "As margens próprias de Heading são explícitas para o protocolo existente. A margem automática anterior não aumenta seu above, e seu below não é aumentado pelo above automático do bloco seguinte."
-
+statement = "Heading's own margins are explicit under the existing protocol. Previous automatic margin does not enlarge its above, nor does next block's automatic above enlarge its below."
 [[claims]]
 id = "scope-limit"
 level = "must-not"
-statement = "Este contrato não certifica espaçamento fracionário, vspace forte, sticky de títulos, hanging-indent nem métricas de runs mistos. Não alterar as fórmulas de origem/fim causal, top-edge, regiões ou resolução de Length por causa desta prioridade."
+statement = "This contract does not certify fractional spacing, strong vspace, sticky headings, hanging-indent or mixed-run metrics. Do not change causal start/end, top-edge, region or Length-resolution formulas because of this priority."

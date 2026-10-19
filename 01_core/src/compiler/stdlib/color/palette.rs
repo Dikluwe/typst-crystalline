@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/color/palette.md
-//! @prompt-hash 8cfe3502
+//! @prompt-hash ebe65b47
 //! @layer L1
 //! @updated 2026-09-30
 

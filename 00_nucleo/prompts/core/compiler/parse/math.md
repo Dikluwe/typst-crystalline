@@ -2,7 +2,7 @@
 Hash do Código: 8746b0b2
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/parse/core.toml sha256:ffba4f0f6d7276a3beac03c1bd2bef40135d74681be616112a1e1f172d2f24b0
+- 00_nucleo/prompts/_nuclei/parse/core.toml sha256:b6a95a7684745e45903417a81eabc019a17eb3b8fab9fe246e8840978d5d42c8
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/parse/math.rs`

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/position_marker.md
-//! @prompt-hash 5cae35f5
+//! @prompt-hash 84ad1036
 //! @layer L1
 
 use std::{collections::HashSet, num::NonZeroUsize};

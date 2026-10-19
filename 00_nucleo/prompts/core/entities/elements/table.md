@@ -2,18 +2,15 @@
 Hash do Código: b92c676f
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table.rs`
-**Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).
-**P459**: campo `caption` opcional para numeração automática via `table.numbering`.
-Trait e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**. Contentor —
-`map_*` recursam em cada `children` e no `caption`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/table.rs`
 
----
+## Base carrier and evidence
 
-## Struct
+The archived base model uses a Content::Table Arc carrier with optional caption, real header/footer row groups and manually Debug-based Hash because TrackSizing/Stroke/Color contain f64. Upstream model/table.rs:495,525 identifies header/footer as child elements, not named arguments. Preserve the original base fields:
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
@@ -21,140 +18,62 @@ pub struct TableElem {
     pub columns:  Vec<TrackSizing>,
     pub rows:     Vec<TrackSizing>,
     pub children: Vec<Content>,
-    pub hlines:   Vec<TableHLineElem>,  // P512
-    pub vlines:   Vec<TableVLineElem>,  // P512
-    pub header:   Option<Content>,      // P772v — row-group real, mesmo mecanismo de GridElem (P772i)
-    pub footer:   Option<Content>,      // P772v
+    pub hlines:   Vec<TableHLineElem>,
+    pub vlines:   Vec<TableVLineElem>,
+    pub header:   Option<Content>,
+    pub footer:   Option<Content>,
     pub stroke:   Option<Stroke>,
     pub fill:     Option<Color>,
     pub caption:  Option<Content>,
 }
 ```
 
-**P772v**: `header`/`footer` guardam `Content::TableHeader`/`Content::TableFooter`
-(um de cada, no máximo — erro explícito em duplicado, mesma regra de `GridElem`)
-extraídos do loop de resolução de `native_table` (`stdlib/structural.rs`), não
-argumentos nomeados (paridade vanilla: `table.header(...)`/`table.footer(...)`
-são elementos-filho — ver `lab/typst-original/.../model/table.rs:495,525`).
-Consumidos por `layout_grid` (`compiler/layout/grid.rs`) como row-group — mesmo
-mecanismo de `GridElem.header`/`.footer`, ver
-`00_nucleo/prompts/core/compiler/layout/mod.md` secção `grid.header(...)`/`grid.footer(...)`.
+Header/footer each hold at most one corresponding TableHeader/TableFooter, with an explicit duplicate error during native-table child resolution. Layout consumes them as row groups through the same mechanism as Grid. Constructors table(columns,rows,children) and table_with_caption retain compatibility; table defaults caption to None. A numbered caption does not turn Table into Figure or match figure.where(kind: table).
 
-`Content::Table { … }` → `Content::Table(Arc<TableElem>)`. Construtores
-ergonómicos: `Content::table(columns, rows, children)` (caption `None`) e
-`Content::table_with_caption(columns, rows, children, caption)` (P459).
+The old nonlocatable heading conflicts with its own element_kind/to_payload exception and the later Table kind contract. Preserve the existing Table payload/indexing boundary; do not use that stale heading to remove locatability. Exact extraction remains with its owner. Derived PartialEq covers every field, not only the original ten; Hash retains the established mechanics.
 
-> **Nota (P661):** a tabela com `caption` numerada por P459 continua a ser
-> um `Content::Table`, não uma `figure`. Logo, não responde a show rules de
-> `figure.where(kind: table)`.
+For raw tables plain_text prefixes caption when present and joins children with spaces; is_empty is children.is_empty() && caption.as_ref().is_none_or(|c| c.is_empty()). Maps recurse through children/header/footer/caption while retaining tracks, lines, stroke, fill and metadata. The prepared contract below qualifies which contributions are visited.
 
-> **`Hash` manual via Debug**: `TrackSizing` (colunas/linhas) e `Stroke`/`Color`
-> carregam `f64` → `impl Hash { format!("{self:?}").hash(state) }`.
-> `PartialEq` deriva.
+## Accessibility summary proposal and outstanding approval
 
-## `impl Element for TableElem`
+Historical table.rs:29–42 lacked summary; upstream table.rs:271–277 stores optional text and pdf/accessibility.rs:137–143 changes only it through pdf.table-summary. The archived accessibility proposal requires optional semantic summary separate from caption/visible text: omission→None, explicit none rejected by the cast, empty string retained. Constructors/clone/hash/mechanical equality/maps preserve it; plain_text/is_empty ignore it. Transport to tagged PDF /Table must not change text/pages/boxes/geometry. The original P1288 record still describes a public gate; this consolidation has not established its approval receipt and does not promote the proposal to a newly authorized contract. Keep the requirement and approval-verification debt visible.
 
-| método | comportamento |
-|---|---|
-| `plain_text` | `children` concatenados com espaço; `caption` prefixado quando presente (P459) |
-| `is_empty` | `children.is_empty() && caption.as_ref().is_none_or(\|c\| c.is_empty())` |
-| `map_content` | **recursivo** em cada `children`, `header`, `footer` e no `caption`, preserva columns/rows/hlines/vlines/stroke/fill |
-| `map_text` | **recursivo** em cada `children`, `header`, `footer` e no `caption`, preserva columns/rows/hlines/vlines/stroke/fill |
-| `get_field`/`element_kind`/`to_payload` | default (excepto `element_kind`/`to_payload`, P459 — ver código) |
+## Prepared table evidence and approval
 
-## `eq`
+`lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/diffstat/status/sources/binaries/argv, historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, oracle SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea` and Tekt `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`. Upstream grid resolve.rs:204–278 resolves fields,1500–1530 ordered conflicts,1665–1703 empty cells and 1945–1988 breakable. Local grid_placement.rs:91–112 prioritizes explicit cells and 262–270 only knows GridCell; realize/mod.rs:160–200 visits bottom-up and table.rs:127–152 strips wrappers without attributes. Probes show zero cell effects when Table is replaced, zero hidden-heading effects and aliases `LOCAL a`, `OUTER LOCAL a`, `NEW a`. Unknown fields, hidden effects or wrong order refute the hypothesis. Cache/pagination equivalence is not inferred, and Rust mechanics/bytes are not the acceptance target.
 
-`#[derive(PartialEq)]` compara todos os 10 campos (paridade `content.rs`).
+The original D08B3-A gate was satisfied by `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`. It covers the specified five public fields, two carriers, facade and logical phase before Cell show, without authorizing later extensions.
 
-## P1288 — summary semântico de acessibilidade (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-`01_core/src/entities/elements/table.rs:29-42` mede `TableElem` sem summary.
-A fonte vanilla pinada mede `summary: Option<EcoString>` interno em
-`typst-library/src/model/table.rs:271-277` e `pdf.table-summary` substituindo
-somente esse valor em `pdf/accessibility.rs:137-143`.
-
-### Decisão proposta
-
-Adicionar a `TableElem` um summary semântico opcional, distinto de caption e
-texto visível. Só a omissão pública é convertida em `None` interno;
-`summary: none` explícito é rejeitado no cast antes de alcançar a entidade;
-string vazia permanece presente. Todo
-constructor, clone, hash, igualdade mecânica, `map_content` e `map_text`
-preserva o campo. `plain_text`/`is_empty` o ignoram, pois summary não é texto
-visual nem body. `pdf.table-summary` substitui só esse campo.
-
-O storage Rust exato é mecânica; o observável é a preservação do summary até
-a estrutura `/Table` no PDF tagueado sem alterar texto, páginas, boxes ou
-geometria.
-
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
-
-### Responsabilidade exclusiva proposta
-
-Adicionar em entities/elements/table o carrier exato:
+## Prepared carrier contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableGridResolved {
     pub cells: Vec<Content>,
-    pub num_cols: usize, pub num_rows: usize,
-    pub header_rows: usize, pub footer_start: usize,
+    pub num_cols: usize,
+    pub num_rows: usize,
+    pub header_rows: usize,
+    pub footer_start: usize,
     pub(crate) complete: bool,
 }
 ```
 
-TableElem recebe `pub source_span: Span`, `pub rows_explicit: bool` e
-`pub resolved: Option<Arc<TableGridResolved>>`. Constructor cru tem resolved=None.
-Rows explícitas são distinguidas do fallback [Auto] omitido; sem children e sem
-rows explícitas não fabricar célula. Header/footer e children originais
-permanecem como fonte lexical. Plano contém somente origens de células reais ou
-vazias, não entries duplicadas dos spans; células são ordenadas row-major.
-header_rows é faixa [0,n); footer_start é num_rows quando não há footer.
-Getter/serialização não expõem esses carriers como campos novos da linguagem.
-Travessia visual/emptiness/plain_text com resolved Some consomem cells completas
-uma vez, não os children/header/footer crus em paralelo. Map/clone preservam
-fontes e transportam visual; não executar receita em entidades.
+TableElem additionally retains public source_span:Span, rows_explicit:bool and resolved:Option<Arc<TableGridResolved>>. Raw construction has resolved=None. Explicit rows differ from omitted fallback [Auto]; no children and no explicit rows must not fabricate a cell. Raw children/header/footer remain lexical source. The plan holds actual/empty cell origins once, not duplicate span entries, in row-major order. header_rows describes [0,n); absent footer uses footer_start=num_rows. Getters/serialization expose no new language fields for these carriers.
 
+With resolved Some, visual traversal/emptiness/plain_text consume complete cells once, not raw children/header/footer in parallel. Maps/clone preserve lexical source and transport visual content without executing recipes.
 
-### Gate, aceitação e divisão explícita
+## Change-aware traversal evidence and contract
 
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
+`lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/change-aware-red-gate.json.gz` records the same HEAD/uncommitted provenance plus UTC/script/fixtures/interpositor/CPU/argv, release `29745a9e80ca43160b34f4807949f00e803070392653df0fc5e214b2f42ac33a`:483823 glibc requests on local-set-1600 exceeded the predefined 470000 gate. traversal.rs:25–55,235–264 and table.rs:85–118/table_cell.rs:308–344 rebuild unchanged containers/metadata. Pinned upstream realize/lib.rs:242–291,353–410 visits references and materializes after change; this motivates a refutable cost hypothesis without requiring its vtable/equality.
 
-## Reconstrução somente após mudança — 2026-10-10
+Provide only a crate-private reconstruction helper returning None when every visited child is unchanged. Raw order is children,header,footer,caption; prepared order is exclusively resolved.cells then caption, preserving raw source/metadata. Delegate descent to the explicit proof in `00_nucleo/prompts/core/entities/content/traversal.md`, allocating Table/plan only after first change. Existing Element signature/semantics reuse this implementation without a new trait method. Do not use equality or process effects twice. Verify child/prepared/caption/order tests and paired gates, without certifying excluded variants. The pinned no-change nucleus shares only the proof; this owner retains algorithm/fields/order/preservation.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/change-aware-red-gate.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado/status/diffstat, UTC, script/fixtures/interpositor/CPU/comandos e release SHA-256 `29745a9e80ca43160b34f4807949f00e803070392653df0fc5e214b2f42ac33a`: 483.823 pedidos glibc em local-set-1600, acima do gate pré-fixado de 470.000. `entities/content/traversal.rs:25-55,235-264` reconstrói sequências/carriers/estilos/Table/Cell mesmo se todos os callbacks retornam None; `entities/elements/table.rs:85-118` e `entities/elements/table_cell.rs:308-344` clonam metadados e contribuições visuais. O vanilla pinado visita referências e materializa apenas após mudança (`lab/typst-original/crates/typst-realize/src/lib.rs:242-291,353-410`). Isso é uma hipótese de custo, sem exigir sua vtable ou igualdade Rust (ADR-0107/0026/0109).
+## Prepared table acceptance and incomplete scope
 
-Decisão interna (ADR-0127): o owner oferece helper crate-private de reconstrução dos filhos que retorna None somente quando todos ficaram inalterados. Raw visita children, header, footer, caption nesta ordem; preparada visita exclusivamente resolved.cells e caption, conservando raw e metadados. A descida chama a prova interna de `00_nucleo/prompts/core/entities/content/traversal.md`; materializar Table e plano apenas depois da primeira mudança. O método público existente de Element conserva assinatura e semântica e reutiliza essa mesma implementação, sem novo método de trait. Não comparar igualdade para detectar mudança nem processar efeitos duas vezes. Testes de filhos/preparo/caption/ordem e os gates pareados acima devem passar; não certificar variantes ainda fora do recorte.
+Require RED→GREEN, suites/build/lint, restricted preservation and the original D08A/B2, D05/D06/D07/query collections. Accept language, effects and actual geometry, never byte equality or whitespace normalization to close render defects. The isolated-cell package separately completes raw-cell-no-placement/outside-fields defaults and fresh show-cell-reconstruct generation; the first prepared-table package alone is explicitly incomplete.
 
+Generic Table defaults/fields (`table-root-equality`), function styles, rich paints/strokes/insets, lines/gutters, multipage spans and PDF/UA remain outside certification. Do not change legacy extra casts, syntax, flags or global nonlocatable policy through this slice.
 
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+## Historical record
+
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/table.md` preserves the original evidence and chronology.

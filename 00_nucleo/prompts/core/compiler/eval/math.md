@@ -2,12 +2,12 @@
 Hash do Código: 58a22e24
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
-- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
+- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
+- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:cf64af6ef56faaa1ba19fa32ec6c134dc3f4f16a4a74fde21eca40259cf3b6ba
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/math.rs`
-**Atomização interna:** a fachada mantém imports e acesso de `eval_math_content`; os Prompts L0 individuais em `00_nucleo/prompts/compiler/eval/math/` possuem lookup, entrada, callee, argumentos, construção, expressão e delimitadores. O contrato abaixo permanece comum.
+**Internal atomization:** the facade keeps imports and eval_math_content access; individual owners under `00_nucleo/prompts/core/compiler/eval/math/` own lookup, entry, callee, arguments, construction, expression and delimiters. The contract below is retained as delegated boundary criteria.
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 ## Source evidence

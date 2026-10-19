@@ -2,173 +2,54 @@
 Hash do Código: 78a92043
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml sha256:dd8c7661f2246385e2aed1737e8494d778b9f563b7ac709fc3c750a23fe50596
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml sha256:5c733e4756935ef5e4841991852a5f60f0f00e2b76c988c6af340b52cc0ce977
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 
-## Medição anterior à decisão
+## Evidence before specification
 
-No HEAD ea7ae25ab (árvore limpa, 2026-09-30), a implementação vigente está em `01_core/src/compiler/layout/grid/cell_emission.rs:95-583`. A medição identifica o limite do bloco a extrair; não mede desempenho nem altera a paridade de linguagem.
+At HEAD `ea7ae25ab` (clean tree,2026-09-30), implementation is at `01_core/src/compiler/layout/grid/cell_emission.rs:95-583`; this defines extraction boundaries, not performance/language-parity change. `tracks.rs:175`, `cell_body.rs:155` and `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05.md` precede consumable-product reuse.
 
-## Owner e contrato
+`lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/{focused-candidate-verification,candidate-source}.json.gz` preserves correct width/anchor but wrong ABC/123/Arabic RTL order. `bidi_origin.rs:111–117` refuses every cell/subframe; `cell_body.rs:223–235` rebases Text/TextShaped but not same-line TextSeparator. Remaining wrong order/baseline after limited certification/consistent recomposition refutes the proposed internal parity correction, which adds no public contract/phase/product flag/unsafe.
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/layout/grid/cell_body.rs`. Dispor uma célula posicionada, com inset, alinhamento, subframe, decoração e caudas de overflow. Preservar save/restore do estado, ordem dos itens e índices de alinhamento adiados. Esta extração mantém contrato público, defaults, fase do pipeline, compatibilidade e pureza L1.
+`lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, historical pin `9f2b6e8715237cb086899a42873660fe744622e8`, UTC/diffstat/status/sources/binaries/arguments/results. Oracle SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`. Pinned `layout/grid/resolve.rs:204–278,1500–1530,1665–1703,1945–1988` resolves fields/conflicts/padding/breakability. Tekt `grid_placement.rs:91–112,262–270`, `realize/mod.rs:160–200`, `table.rs:127–152` expose explicit-first/Grid-only placement, bottom-up recipes and discarded wrappers. order measures no cell effects under replaced Table/no Heading effects under hidden cell; aliases measures LOCAL a, OUTER LOCAL a, NEW a. Language/effects, not copied mechanics/bytes/Rust equality. Unknown fields/hidden effects/wrong order refute correction; cache/pagination equivalence is not inferred.
 
-## Aceitação
+`lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz` preserves full pin/binary/HEAD/state/source/UTC/argv/results: show-body is ab vanilla versus a b Tekt. This measures default inset/alignment survival, not fill/stroke. `table-cell-styles-d08b3c-2026-10-07/physical-before.json.gz` preserves PDF/SVG/full state/hashes at historical pin `9f2b6e8715237cb086899a42873660fe744622e8`: red fill persists with replaced/hidden body in vanilla, missing in Tekt; replaced-body stroke is vanilla red 2pt versus Tekt black 1pt, default black 1pt matches. Pinned `layout/grid/resolve.rs:218–237,270–282` resolves Cell fill/stroke before body show; layouter paints them independently. Earlier ab-based generalization of snapshot survival to paint is refuted and superseded only for paint/breakable.
 
-O despacho permanece estático. Testes L1, build e crystalline-lint devem passar. Não inferir ganho de desempenho da separação.
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/working tree/UTC/sources/argv/binaries against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Existing ShowRecipe/Located/Realized branches contain the corresponding transparent operation; Source must not leak as observable content. Human approval `confirmo` was received 2026-10-07; contract: `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md`.
 
+additional-debug3 refutes Source as a barrier to surviving default: recognize snapshot/zero metadata through transparent body without losing inset/align or changing external-plan paint.
 
-## Produto medido consumível — 2026-10-05
+The human approved manifest`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d` for historical T1–T3; receipt: `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`. Bilateral Parent evidence and Solid controls remain in the approved contract; structural inspection does not replace them. `lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` preserves sources, dirty state, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC, diffstat and binary hashes; it covers containers, Place and Rotate with Solid and Gradient Parent. The before-source/syntax-nodes inventory records this consumer's Group constructions/destructurings before editing: [360]. `layout_types.rs:531–539` does not distinguish roots from technical groups; `helpers.rs:253–269` rebuilds Group and must preserve the field. Box groups background/body; Block leaves body flat except for clipping. Preserving coordinates is a language requirement; envelope form is mechanics. Approval does not close previously measured general Rotate/Box geometry divergences.
 
-Evidência em tracks.rs:175 e cell_body.rs:155 e diagnóstico `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05.md` precede a decisão. Solicitar o produto medido ao helper measurement_cache antes de instalar região da célula, depois de calcular body_x/body_w e alinhamento efetivo. Sem hit executar o subframe vigente; com hit conservar exatamente os pipelines posteriores de decoração, rebase, clipping, overflow, preenchimentos e caudas. Regras de validade e métricas laterais pertencem ao helper. Delegar invariantes de cache ao owner canônico `00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md`. Mudança privada de mecânica, na mesma fase e fluxo contínuo ADR-0127.
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` records HEAD, working tree, diffstat/UTC and sources/owners before migration. `layout_types.rs:510–511` still transports Paint/Stroke; `shape.rs:151–191` materializes only fill in groups; `tiling.rs:85` limits/clones the grid. `prepare_cell` already returns TilingFrame once per occurrence. Probes `tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz` establish that dense-open and stroke-open still diverge in all three targets. The contract was approved in manifest `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`; receipt: `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`. Preparation/object counts are transport mechanics; render, contours, text, geometry and diagnostics are observable language obligations.
 
+The owner approved insertion-time resolved Table (historical D08B3-A) on 2026-10-07 (`comfirmo`), archived at `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md:3`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`: five public fields, two public carriers, one public facade and logical preparation before Cell show. This supersedes its stale proposed-only gate only within the approved scope. Standalone Cell defaults/generation (historical D08B3-B) were separately ratified/materialized (`confirmo`), archived at `lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-2026-10-07.md:3`, manifest `3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`. A did not authorize B's added public field/type; B's separate confirmation did. Neither closes broader incomplete scope.
 
+## Exclusive ownership and current contract
 
-## Célula textual certificada — refutação 2026-10-06
+Layer L1. Sole consumer: `01_core/src/compiler/layout/grid/cell_body.rs`. Lay out positioned cell with inset/alignment/subframe/decoration/overflow tails. Preserve state save/restore, item order/deferred alignment indices, public contract/default/phase/compatibility/L1 purity/static dispatch.
 
-### Medição anterior à decisão
+After computing body_x/body_w/effective alignment, request measured product before installing cell region from `00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md`. Miss uses prior subframe; hit keeps all later decoration/rebase/clip/overflow/fill/tail paths exactly. Eligibility/lateral metrics belong only to cache owner.
 
-focused-candidate-verification.json.gz e candidate-source.json.gz em
-`lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/` preservam candidato
-com largura/âncora corretas mas ordem ABC/123/árabe incorreta em RTL.
-bidi_origin.rs:111-117 recusa todas as células/subframes; o input integral
-não chega à reordenação L3. cell_body.rs:223-235 classifica Text e TextShaped
-como texto para rebase de baseline, mas não TextSeparator, introduzindo
-um delta de top-edge nos separadores da mesma linha. São duas causas
-internas refutáveis por ordem/baseline ainda divergentes após certificação
-limitada e recomposição consistente. Correção de paridade interna, sem
-contrato público, fase, flags de produto ou unsafe novo.
+Install/restore private cell-bidi capability only when col_starts.len()==1 and body_w is finite in the cell layout section. Rebase TextSeparator baseline with Text/TextShaped, without advance/height/paint. Cached ASCII keeps its existing proved certificate; never recertify frame through string/position.
 
-### Responsabilidade exclusiva
+Prepared TableCell uses resolved.visual/props, including known None fill/stroke without renewed container inheritance; preserve known alignment/inset/bounds/overflow/decorations/tails/state. Grid/raw fallback retains old or/fold behavior. No recipes; cache reuse requires its owner's updated equivalence proof.
 
-Instalar/restaurar capacidade privada somente para col_starts.len()==1 e body_w finito, no trecho de layout da célula. Classificar TextSeparator junto de Text/TextShaped ao rebasear sua baseline; não acrescentar avanço, altura ou tinta. Produtos cacheados ASCII continuam com certificado de equivalência vigente; não recertificar frames por string/posição.
+Own pure prepared_default helper recognizing only surviving prepared snapshot through transparent semantic wrappers/Source body/zero metadata, shared by tracks. No text reflection/PartialEq/callback. Only default-derived inset/alignment depend on that snapshot; total replacement has none. Positioned TableCell fill/stroke/breakable come from external TableCellResolved independently of it/body/replacement recipe, and known None defeats fallback. Emit external fill before visual product; borders reads external stroke under its owner. Do not run hidden body/change lexical font/public API/phase/render default/Grid-raw policy. Preserve bounds/coalescing/clip/tails/effect order/causal state.
 
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
+Migrate Group constructions/patterns to approved paint_root. New technical groups and legacy fixtures use false; reconstructions transport the received value rather than inferring root status from dimensions, clipping or transformation. Preserve other fields and drawing/resource behavior. Exporter pattern use of this metadata is a separate integration boundary, not certified here. Preserve captured paint_root unchanged in Group reconstruction, including projection/marker removal/rebase; never reset true to false. Convert only resolved backing fill Color to FramePaint::Solid, preserving cell plan/body/layout/clip/tails/semantics.
 
-### Medição anterior à decisão
+## Acceptance and limits
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
+L1 tests/build/crystalline-lint pass, without inferred gain. Internal same-phase ADR-0127 corrections require L0 before RED→GREEN/restricted resealing. Compare bilateral output/effects-once/actual geometry without whitespace normalization or changed ratified contracts. Paint tests cover substituted/hidden visual, known None and actual visual SVG regression; builds/suites/lint/preservation remain required. Earlier fixed-row alignment/metric residues are not inferred resolved.
 
-### Responsabilidade exclusiva proposta
+Preserve exclusive ownership/static dispatch without I/O or a new signature/trait/flag or eval↔layout phase. Source-origin tests/C2/C/macro collections/builds/lineage are required before certification.
 
-Prepared TableCell consome resolved.visual/props, incluindo fill/stroke None conhecidos que não herdam novamente do container. Alinhamento/inset conhecidos, bounds/overflow/decoração/caudas e conservação de estado permanecem. Fallback Grid/raw mantém or/fold histórico. Usar cache somente sob prova de equivalência atualizada pelo seu owner; não executar recipes.
+Require RED→GREEN, suites/build/lint/restricted preservation and D08A/B2, D05/D06/D07/query collections. Accept real language/effects/geometry, not byte equality or whitespace normalization to close render. General Table defaults/fields (table-root-equality), rich style functions/paint/strokes/insets, rich lines/gutters, multipage spans and PDF/UA are not certified. Preserve extra legacy D08B2 casts, syntax/flags and global nonlocatable policy.
 
-### Gate, aceitação e divisão explícita
+L0 comes first, with RED→GREEN and restricted resealing. Preserve geometry/text in source→PDF/SVG controls and revalidate suite/build/doc/check/fmt/lineage. This metadata migration neither replaces Shape.fill/stroke with FramePaint nor implements PDF/SVG/raster patterns. Prepared paint transport, native exporter integration and verification (historical T1c/T2/T3) remain explicitly open and already authorized. Build success does not establish tiling parity or production readiness.
 
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
-
-### Refinamento interno medido — 2026-10-07
-
-Medição anterior à decisão: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
-after-second/show-body: vanilla ab, Tekt a b. Inset/alignment do default show da Cell só são desenhados se sua receita emitir o snapshot da Cell. A medição ab refere espaçamento; não prova perda de fill/stroke, que a precisão C abaixo reconhece como tinta independente do plano da Table. Um helper puro neste owner reconhece somente snapshot preparado sobrevivente (wrappers semânticos transparentes), para ser compartilhado por tracks; sem reflexão pelo texto/PartialEq e sem callbacks.
-A aceitação é bilateral, efeitos uma vez e geometria; não normalizar whitespace nem alterar contratos ratificados.
-
-## D08B3-C — tinta do plano da Table separada do default show da Cell
-
-Medição anterior à decisão: table-cell-styles-d08b3c-2026-10-07/physical-before.json.gz conserva PDF/SVG, fontes, HEAD/working tree, UTC/argv/hashes completos no pin 9f2b6e8715237cb086899a42873660fe744622e8. fill-with-body-recipe e fill-with-hidden-recipe conservam retângulo red no vanilla, ausente Tekt. stroke-with-body-recipe conserva red 2pt vanilla contra black 1pt Tekt; default-with-body-recipe conserva black 1pt nos dois. Fonte vanilla layout/grid/resolve.rs:218–237 e :270–282 retorna Cell.fill/stroke antes de seu body passar por show; typst-layout grid/layouter.rs desenha esses campos independentemente do default show. Tekt cell_body.rs:61–63 condiciona fill à sobrevivência do snapshot, borders.rs:43–48 lê stroke lexical. O refinamento A mediu espaçamento/ab, não tinta: sua generalização de sobrevivência para fill/stroke é refutada e supersedida por esta cláusula.
-
-Decisão contínua interna ADR-0127: TableCell posicionada usa fill/stroke/breakable do plano externo TableCellResolved, independentemente de recipe it/body/substituição; None conhecido vence qualquer fallback de container. Apenas inset/alignment derivados do default show continuam dependentes do snapshot sobrevivente reconhecido por prepared_default, com geometria/medidas sob owners existentes. Borders consome diretamente stroke externo conhecido; Cell body emite o fill externo antes do produto visual. Não executa conteúdo ocultado nem muda fonte lexical, API pública, fases, render default novo ou política Grid/crua. Mantém bounds/coalescência, clipping/caudas, ordem de efeitos e estado causal. RED→GREEN de tinta com produto substituído, células conhecidas None e regressão visual SVG real; builds/suítes/lint/preservação necessários.
-
-
-## D08B3-C2 — responsabilidade ratificada
-
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
-
-Medição additional-debug3 refuta Source como barreira ao default show sobrevivente: reconhecer snapshot/metadata zero por body transparente, sem perder inset/align nem tocar tinta externa do plano.
-
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
-
-## Referencial de pintura — transporte aprovado T1b — 2026-10-14
-
-### Medição anterior à decisão
-
-O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
-foi aprovado pelo humano para T1–T3; recibo em
-`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A evidência bilateral de Parent e controles Solid está no contrato aprovado;
-ela não é substituída por inspeção estrutural. A rodada
-`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
-fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
-diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
-e Gradient Parent. O inventário before-source/syntax-nodes registra neste
-consumer as construções/desestruturações antes da edição: [360].
-layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
-reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
-Block mantém body plano exceto no clip. Preservação do referencial é requisito
-de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
-divergências gerais de geometria previamente medidas em Rotate/Box.
-
-### Responsabilidade exclusiva
-
-Migrar construções e padrões de Group para o campo paint_root aprovado. Grupos técnicos novos e fixtures legadas são false; reconstruções transportam o valor recebido, sem inferir raiz a partir de dimensão, clipping ou transformação. Preservar os demais campos e o comportamento de desenho/recursos. Exportadores ainda não usam este metadado para patterns; essa integração é T2 e não está certificada aqui.
-
-### Aceitação e incompletude
-
-L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
-nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
-A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
-implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
-e já autorizados. Não alegar paridade de tiling ou produção a partir do build.
-
-
-## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
-HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
-layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
-materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
-prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
-`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
-comprovam que dense-open e stroke-open ainda divergem nos três targets.
-O contrato foi aprovado no manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A preparação/contagem de objetos é mecânica de transporte; render, contornos,
-texto, geometria e diagnósticos são obrigações observáveis de linguagem.
-
-### Responsabilidade exclusiva desta unidade
-
-Converter somente o fill Color já resolvido do backing para FramePaint::Solid. Conservar o plano da célula, body, layout, clipping, caudas e semântica.
-
-### Aceitação e continuidade
-
-Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
-aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
-somente no âmbito do contrato aprovado. Preservar os demais comportamentos
-vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
-fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
-carriers e sem fallback sólido para obter build verde. Não elevar o limite
-antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
-clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
-página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
-quando integrados e verificados; estado intermediário quebrado ou parcial
-não é certificação de produção. T4 e publicação continuam fora deste pacote.
+Apply the pinned nucleus.Ratification supersedes older clauses awaiting approval or requiring declarative Paint/Stroke inside Shape only within the approved contract. Preserve all other existing behavior. L0 comes first, followed by RED→GREEN; explicitly migrate fixtures/consumers without a total From<Paint> conversion, PartialEq on carriers or a solid fallback merely to obtain a green build. Do not raise the old limit or move layout into L3. Validate fill/stroke transport, resources, clipping, affine Parent, native targets, Solid/Gradient controls, page semantics and the complete suite/build/doc/fmt/lineage. Prepared transport, native target integration and verification (historical T1c/T2/T3) are complete only together; a broken or partial intermediate state does not certify production. The remaining historical T4 scope and publication remain outside this package.

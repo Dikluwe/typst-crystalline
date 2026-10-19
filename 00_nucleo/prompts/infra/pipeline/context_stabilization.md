@@ -2,10 +2,10 @@
 Hash do Código: 6c5d98a8
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:b4372cbdd36e0e25377d1258638a6859bcc88c9e584b91b377a2a12d0d66135f
-- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
-- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:bdbe23b72d7083b7672d71e851dc3d35baa8ed7ccb66f009f61edcf770d0aeff
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
+- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
+- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
+- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 
 **Layer:** L3
@@ -50,357 +50,92 @@ Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do no
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
 
-## Realização com avaliação única
+## Causal discovery, identity and single evaluation
 
-Ordenação causal dos produtores reconhece ContextBlock na raiz de Located; a coleta não perde o produtor porque a travessia visual evita callback duplicado da raiz transportada.
+Causal ordering recognizes ContextBlock at a Located root: visual traversal's suppression of a duplicate transported-root callback must not lose its producer. Legacy fallback likewise recognizes prepared ContextBlock inside Located, preserving one evaluation per id before selection requires another session. After validated HTML expansion, strip executed contextual/counter-update markers even inside Located; never silently drop an unexecuted producer.
 
+Session::content at context_stabilization.rs:285–292 substitutes even with zero roots. Existing exhaustive discovery supplies this condition, never source syntax/introspector inference. With no roots return an origin clone preserving Arcs, without a fabricated map; otherwise keep reconstruction and every validation/contribution/error/warning/normalization rule. No new selection gate or cross-generation contribution sharing. Require carrier-preservation RED→GREEN and real-producer revalidation under continuous flow.
 
-## Realização com avaliação única
+## Page snapshot evidence and ratified boundary
 
-Fallback legado de produtores também reconhece ContextBlock preparado dentro de Located, conservando uma avaliação por id quando a seleção ainda não exige outra sessão.
+`lab/results/construction/diagnostics/contexto-page-total-2026-10-05/measurement.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, the uncommitted tree and exact binaries. Historical vanilla pin: `9f2b6e8715237cb086899a42873660fe744622e8`. `single` prints B1/0 F0 versus B1/1 F1; two pages total/final 0 versus2; initial update7 leaves total7 versus8; an intermediate update changes the earlier page (7/7 and8/7 versus1/7 and7/7); final step prints final1 versus2. Bundle prints1/7 in the first PDF versus1/1, and final7 in the second versus8. Mixed HTML returns1 versus7. `paged.rs:360–365,840–913` and `context_stabilization.rs:969–1010` use the last update as every page/body start; `compiler/stdlib/counter.rs:490–513` and `counter/display.rs:96–110` read the causal global final. Historical upstream `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963` combines document scope, updates and physical advances. This is language parity, without requiring upstream memoization mechanics.
 
+Apply the pinned page-counter-snapshot nucleus. The human ratified `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json`, SHA-256 `1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e`: its ADR-0127 gate is satisfied, superseding the earlier pending gate and historical final scope exclusion only for this package. Preserve signatures, cycles and budget; do not guess page/total before the snapshot is known. Subsequent internal clarifications use continuous flow, L0 first and RED→GREEN.
 
-## Realização com avaliação única
+Supply the pure fold with occurrences per body and the candidate contribution's pages/positions. Prepare Page snapshots after physical positions, then reconstruct and validate under the same budget. Never use the last update as every page's start, reevaluate the entire source, borrow another document's caches or move I/O into L1. Numbering/PageStore and marginals consume their relevant realized numbering; an export-local projection must not contaminate the global snapshot. Preserve producer error/warning retention. Other owners require their own current L0; this owner does not authorize counter handlers or render logic.
 
-Após expansão HTML validada, remover marcador contextual e counter-update também quando carregados em Located; sem descartar produtor não executado silenciosamente.
+Use the private L3 Engine for the ratified facade. Register bundle partition in walk by explicit occurrence membership; checkpoints are layout-only. Compare both Page views for generation stability. An observed HTML Page replay may select without changing has_filtered_counter_reads or public EvalContext. A bundle marginal's logical total comes from a final-snapshot occurrence positioned by its own document; when none exists use that document's last logical number, never an artificial Locator boundary or another body's occurrence. Include parent_locations relationships in position enumeration.
 
+## Metrics lifetime: evidence, scope and acceptance
 
-## Reuso sem transformação — 2026-10-05
+`lab/results/construction/diagnostics/contexto-cache-fontes-2026-10-05/before-state.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted state and baseline binary `5bc45f4ec0972c6c46450c0cab3479e2ae2ef41c286c424201c1b7fc07823eb1`. GDB `count-baseline.json.gz` measured selected_distinct2243 queries/965 shaping computations after misses/two wrapper entries, selected_repeated8 misses, ordinary_control321 misses. `context_stabilization.rs:548` calls the wrapper without metrics; `paged.rs:656–661` creates fresh metrics when absent; `font_metrics.rs:71–96` creates Arc caches per instance and Clone shares them. `grid-cache-share-ab-2026-10-03.md:17–23` explicitly restricted the earlier scope to the ordinary path, with fresh contextual/bundle wrappers. The measured extension is not a correction of an assumed accidental restriction; the older fresh wrapper's origin remains unaudited.
 
-`Session::content` em `03_infra/src/pipeline/context_stabilization.rs:285–292` chama substitute_context_blocks mesmo quando roots está vazio. A descoberta exaustiva existente fornece essa condição; não inferi-la da sintaxe ou do introspector. Com zero roots, devolver clone do origin conservando os Arcs, sem fabricar mapa/substituição. Com roots, manter a reconstrução e todas as regras de validação, contribuição, erro, warning e normalização vigentes. Não criar outro gate de seleção nem compartilhar contribuições entre gerações. Correção interna em fluxo contínuo ADR-0127; exigir RED→GREEN para conservação do carrier em sessão sem produtores e revalidar produtores reais.
+The selected paged session may pass its existing metrics handle to layout. Share only text/size/style/font metrics for the same World and compilation. Every attempt keeps its own content, introspector, regions, callbacks, transcripts, sinks and budget. No cache of Content, frames or contextual execution, no retention across compilations/edits, and no source-key/font algorithm copied into pipeline. HTML/bundle and other callers retain their resources. This internal ADR-0127 continuous-flow change preserves public contracts, target, mode and phase; retain it only with demonstrated work reduction, A/B measurements and unchanged language/geometry/diagnostics.
 
+`lab/results/construction/diagnostics/contexto-cache-reconciliacao-2026-10-05/before-state.json.gz` preserves the same HEAD/uncommitted state and baseline `17201a15e36b06bb3a9ac8adba0a98c61b3dc925c4ce1f118a39d26bce26cf05`. `count-baseline.json.gz` isolates fix_line_positions_with_metrics: selected_distinct321 queries/321 computations (643 total), ordinary_control320/zero. `context_stabilization.rs:14–17,660–663` drops the Session handle; `paged.rs:337–345,563–572` leaves None and reconciles with fresh metrics. The canonical owner `00_nucleo/prompts/infra/shaper/reconciliation.md` already permits an internal borrowed-metrics helper; equations and public ABI are unchanged.
 
+Transport a clone with the accepted complete selected paged candidate. Prepared/prepare are pipeline-private; their lifetime expresses existing World/Source borrows. Only the existing settled branch transports metrics, including the accepted terminal result under proven nonconvergence. Preserve acceptance, errors, contributions, sinks and budgets. Unsettled results, HTML and bundles transport no handle. End lifetime in the paged coordinator. No extra execution/layout, frame/snapshot cache or cross-compilation retention. Output/position/diagnostic changes or no proven work/time reduction refute the change.
 
+The transported handle ends in paged coordination. Its later bidi borrowing is governed by `00_nucleo/prompts/infra/pipeline/paged.md`; it supersedes only the temporary reconciliation-only restriction, not the no-HTML/bundle/unsettled scope.
 
-## Snapshot realizado de Page — ratificado em 2026-10-05
+## Recursively produced paged descendants
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
+`lab/results/construction/diagnostics/query-compilada-2026-10-06/green-cli-focused.log` records query_compiled_context_errors_preserve_origin_trace_and_deprecation incorrectly succeeding for #context [#context unknown]. initial-source-state freezes the uncommitted state; the interrupted debug rebuild initial-materialization.log is not evidence. Suite RED precedes repair. discover at context_stabilization.rs:257–269 realizes Html only, leaving child ContextBlocks unexecuted when no observation selects a fixpoint; historical pinned vanilla errors at <stdin>:1:19.
 
-Decisão proposta: aplicar o Núcleo page-counter-snapshot. Esta unidade substitui o scope-out histórico de final apenas após ratificação. Contrato público e realização page-aware de updates exigem gate ADR-0127; não materializar ou ressellar antes da confirmação. Preservar as assinaturas existentes, ciclos e budget; não adivinhar página/total antes do snapshot conhecido.
+Paged discovery recursively realizes actual produced descendants through existing realize after root execution, unless identity is impossible. An invalid=false root is not rerun. Visit only actually produced bodies; preserve guards/styles/capture/Source/span/trace/causal allocator and selection by actual child observations. Keep legacy-id treatment and five attempts; do not fabricate a fixpoint for producers without reads or reevaluate the whole program. RED→GREEN nested context and integrated validation are required; no API/phase/instrumentation/warning-policy change.
 
-Fornecer ao fold puro as ocorrências por body e páginas/posições da contribuição candidata. Preparar snapshot Page depois de conhecer posição física; reconstruir e validar sob o mesmo orçamento. Não derivar início de todas as páginas do último update. Não reexecutar fonte inteira, não carregar caches de outro documento e não deslocar I/O para L1. Numbering/PageStore e margens consomem a numeração realizada pertinente, sem contaminar o snapshot global com projeção local de exportação. Erros e warnings respeitam retenção dos produtores. Implementação de outros owners exige L0 próprio atualizado antes de código; este owner não legitima render ou handlers de counter.
+## Bare mathematical insertion
 
+`lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz` and `lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md` preserve HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted state/UTC/diff/sources/binaries at historical upstream `9f2b6e8715237cb086899a42873660fe744622e8`. Bare frac/mat/sqrt/lr/op has one Equation upstream and zero locally; math.bold([x])/ordinary text zero in both, nested/explicit one in both, reuse two upstream. block-style/local-block/number-style establish insertion scope; show/context generation exposes the same gap. Explicit Equation preserves fraction render; upstream it.body reaches `maximum show rule depth exceeded`, it is valid; later show affects only the second insertion. Refuters distinguish raw frac/original label from explicit Equation.
 
-## Materialização do conjunto ratificado — 2026-10-05
+Upstream typst-realize/src/lib.rs:245–265, 302–334 converts Mathy before show outside math; local equation.rs:680–689 projects bare math as text, realize/mod.rs:155–199 prepares show/identity without math normalization, traversal.rs:14–108 is bottom-up into math, rules/apply.rs:564–607 handles existing locatables only. These are language semantics/morphology/render, not vtable/buffer/Rust equality/PDF byte requirements.
 
-Usar Engine L3 privado para a fachada ratificada. Partição bundle é registrada no walk por pertencimento explícito de ocorrências; os checkpoints servem apenas ao layout. Comparar ambas as vistas Page na estabilidade de gerações. HTML Page pode selecionar-se por replay observado sem alterar has_filtered_counter_reads ou o contrato público de EvalContext.
+The human ratified `lab/history/construction/records/00_nucleo/materialization/math-bare-2026-10-06.md:3` and math-bare-aprovacao-2026-10-06.json, manifest SHA `149d6535b442a9275aa6612647ad79eac460351808ea1858175d09d1cf07e1f6`. The earlier candidate gate is satisfied only for this package. Require scoped bilateral RED→GREEN/revalidation; this supersedes prior phase restrictions only at named boundaries, without universal parity, math-label or other debt closure.
 
-### Total das margens em bundle
+After apply_func returns Content and while the causal Engine lives, call L1 realize_math_insertions before storing, discovering children or reindexing. Pass existing ctx/styles/rules/guards/Source/sink. No L3 Mathy recognition, normalization, matching or counter fold. Preserve effects once per valid execution, observations, allocators, warning/error retention, five attempts and targets. New math contributions receive L1 identities; do not reuse producer id as Equation Location or replace insertion styles with final styles. Reused accepted contributions are not realized again; a new execution replaces the earlier result under existing policy. Public signatures remain.
 
-O total lógico de uma margem vem do snapshot final de uma ocorrência com posição extraída pelo próprio documento. Em documento sem ocorrência posicionada, usa o último número lógico daquele documento. Não usa a fronteira artificial do Locator nem uma ocorrência de outro body. A enumeração de posições inclui relações parent_locations.
+## Table insertion evidence, approval and remaining scope
 
-Ratificação: o humano confirmou o conjunto do manifesto `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
+Historical evidence in `lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted state, UTC, status/diffstat, sources/binaries, argv/results and upstream pin `9f2b6e8715237cb086899a42873660fe744622e8`; oracle SHA `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`, Tekt SHA `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`. Upstream `lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278` resolves fields, :1500–1530 rejects conflicts in order, :1665–1703 creates empty cells, :1945–1988 derives breakable. Tekt grid_placement.rs:91–112 prioritizes explicit cells and :262–270 knows only GridCell; realize/mod.rs:160–200 visits recipes bottom-up; table.rs:127–152 dumps wrappers without attributes. `order` measures zero cell effects when the table is replaced and zero heading effects when hidden by the cell; `aliases` measures LOCAL a, OUTER LOCAL a, NEW a. These are language observations, not mechanical/byte/Rust equality requirements. Unknown fields, hidden effects or wrong order refute the hypothesis; cache/pagination equivalence is not inferred.
 
-## Métricas compartilhadas na sessão contextual — 2026-10-05
+The exact insertion package is ratified: `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md:3` records the owner's `comfirmo`; manifest SHA `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`. This satisfies its gate for five public fields, two public carriers, one facade and the logical phase before Cell show. Isolated-cell defaults and fresh show-cell-reconstruct generation are separately ratified in `lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-2026-10-07.md:3`, owner `confirmo`, manifest SHA `3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`. Preserve their exact scope; cell-set/style defaults remain incomplete. General Table defaults/fields (table-root-equality), rich functional styles/paint/strokes/insets, rich lines/gutters, multipage spans and PDF/UA remain uncertified. Do not change legacy extra casts from the earlier grid package, syntax, flags or the global nonlocatable policy.
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado preservado em `lab/results/construction/diagnostics/contexto-cache-fontes-2026-10-05/before-state.json.gz`, binário baseline 5bc45f4ec0972c6c46450c0cab3479e2ae2ef41c286c424201c1b7fc07823eb1. Sonda GDB `count-baseline.json.gz`: selected_distinct fez 2243 consultas, 965 cálculos de shaping após miss e duas entradas no wrapper; selected_repeated teve 8 misses; controle ordinário 321 misses. `context_stabilization.rs:548` chama o wrapper sem métricas; `paged.rs:656–661` cria FallbackFontMetrics quando o handle é ausente. `font_metrics.rs:71–96` cria caches Arc por instância e Clone compartilha-os, conforme seu L0 proprietário. Há assimetria com o caminho ordinário já compartilhado. O relatório `grid-cache-share-ab-2026-10-03.md:17–23` delimitou explicitamente o compartilhamento ao caminho comum, mantendo os wrappers contextuais e de bundle com métricas novas. Esta etapa amplia aquele escopo depois da medição; não classificar esse limite documentado como decisão por inércia. A origem mais antiga do wrapper fresco permanece não auditada.
+Acceptance remains RED→GREEN, suites/build/lint, restricted lineage maintenance, and D08A/B2, D05/D06/D07/query collections. Judge language, effects and real geometry; PDF bytes and whitespace normalization cannot close render acceptance.
 
-Decisão interna, fluxo contínuo ADR-0127: a sessão contextual paginada selecionada pode fornecer o seu handle metrics já existente ao wrapper de layout. Cada tentativa conserva conteúdo, introspector, regiões, callbacks, transcripts, sinks e budget próprios. Somente resultados de métricas por texto/tamanho/estilo/fontes no mesmo World são compartilhados. O handle morre com a sessão; nenhuma retenção entre compilação/edições, nenhum cache de Content, frames ou execução contextual. Bundles/HTML, reconciliação final selecionada e demais callers preservam seus recursos atuais. Não copiar algoritmo/chaves de fonte em pipeline. Não alterar contrato público, modo ou fase. Manter a mudança somente com redução demonstrada de trabalho, medições A/B e controles de linguagem/geometria/diagnósticos sem regressão.
+After Content production in its causal Engine, delegate realize_table_insertions and current-owner math realization before storing/discovering/indexing. Preserve Table/Cell capture without L3 type/property classification. Accepted/repeated contributions do not rerun recipes. Preserve budget/reads/sink/observations/allocators.
 
-## Transporte interno de métricas até a reconciliação contextual — 2026-10-05
+## Input snapshot ownership and execution retention
 
-Medição anterior à decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado e binário baseline 17201a15e36b06bb3a9ac8adba0a98c61b3dc925c4ce1f118a39d26bce26cf05, preservados em `lab/results/construction/diagnostics/contexto-cache-reconciliacao-2026-10-05/before-state.json.gz`. A sonda count-baseline.json.gz isolou a entrada em fix_line_positions_with_metrics: selected_distinct fez 321 consultas/321 cálculos nessa etapa (643 cálculos totais), enquanto ordinary_control fez 320 consultas/zero cálculos. `context_stabilization.rs:14–17,660–663` entrega Content, introspector e documento, descartando o handle da Session; `paged.rs:337–345,563–572` mantém None no caminho selecionado e chama reconciliação com métricas frescas. O owner `infra/shaper/reconciliation.md` já permite helper interno emprestando métricas do mesmo World/compilação; equações e ABI pública não mudam.
+`lab/results/construction/diagnostics/memoria-fases3-2026-10-08/{profiles,profiles-growth}.json.gz` with full state.json.gz records context300 peak≈196MiB versus plain300≈46MiB, prepare≈62.5→138.7MiB. In context-snapshots-memoria4/before.json.gz, context_stabilization.rs:196,244 clones input into mutable ctx and again into every immutable Execution record; TagIntrospector owns cloned collections as well as Arcs. Sharing the second view per concrete generation is a private-copy-cost inference, refuted by isolation/replay failure or no paired saving; RSS alone proves no leak.
 
-Decisão interna, fluxo contínuo ADR-0127: transferir um clone do handle existente juntamente com o candidato completo aceito da sessão paginada. Prepared e prepare são internos ao módulo pipeline; seu lifetime explicita os empréstimos existentes de World/Source. Nenhuma API pública ou campo de entidade L1 muda. Preservar o contrato de aceitação, erros, contribuição, sinks e budget (inclusive o resultado final aceito sob não convergência provada); somente o braço que já produz settled transporta métricas. Resultados sem settled, HTML e bundles não transportam handle.
+Keep ctx.introspector separately owned/mutable throughout execution, including closure/show/realization mutations. Execution.input may be private Arc<TagIntrospector>, shared only by producers/descendants consuming the same concrete generation input. Discovery creates its own snapshot; every attempt creates another snapshot of historical input. Preserve history Vec, budget and L1 diagnostic facades; no equality/hash/page-count/id deduplication. Replaced/retired records retain original input Arc, never mutated by the next generation. HTML creates its own view before Page replacement for replay. Do not share mutable ctx, remove histories/retired records or anticipate contribution reuse. Public signatures/phase/defaults remain. RED→GREEN verifies physical sharing within one input, mutable/new-generation/retired isolation; address identity is a cost witness, not language acceptance. Run full context/infra, PDF/HTML/error/replay/budget controls, build/lint and paired memory/time.
 
-O coordenador paginado usa o handle selecionado somente em fix_line_positions_with_metrics. Bidi selecionado continua com métricas frescas nesta etapa, isolando a contribuição causal da reconciliação; o caminho ordinário mantém seu handle nos dois consumidores. Nenhuma execução/layout adicional, nenhum cache de frames ou snapshots, nenhuma retenção entre compilações. Manter invariantes do Núcleo compilation-metric-cache, com lifetime encerrado pelo coordenador paginado. Esta seção amplia o limite anterior de descarte no fim da Session apenas para esse transporte. Refutar a mudança por output/posição/diagnóstico diferente ou ausência de redução comprovada de trabalho/tempo.
+After equivalent flow, context300 measured≈95MiB locally versus31MiB upstream; phase RSS40.7→80.1MiB over300 execute calls, ≈130KiB/producer. Removing retired had median94892KiB versus94826KiB and was reverted. The memory diagnostic's item3 preserves commands/binaries/state. context_stabilization.rs:196 clones EvalContext introspector; after apply_func and insertion realization, productive Execution.ctx uses are validation/replay and target/features/errors. context_reads.rs:232–265 clones a candidate into a fresh context per replayed read; no later access uses Execution.ctx.introspector. This private-retention inference is refuted by output/replay changes or no measured gain.
 
-## Descendentes paginados sem seleção — correção interna 2026-10-06
+Only after evaluation and before storing Execution, release ctx.introspector. Keep recorded observations/input Arc/result/sink/Location/features/replay parameters. Retired causal records remain, with only disposable introspection view released. No change to public EvalContext, I0–I5, five attempts, order, phase or defaults. Require release RED→GREEN, context/PDF/error equivalence and measured memory reduction.
 
-Medição antes da decisão: query-compilada-2026-10-06/green-cli-focused.log,
-query_compiled_context_errors_preserve_origin_trace_and_deprecation retorna
-sucesso para #context [#context unknown]. Snapshot initial-source-state fixa o estado não commitado; a tentativa
-de coleta debug initial-materialization.log foi interrompida durante rebuild
-e não é usada como prova. A falha RED da suíte precede o reparo. discover em
-context_stabilization.rs:257–269 chama realize apenas para Html; body substitui
-ContextBlocks filhos sem execução quando nenhuma observação seleciona fixpoint.
-Vanilla pinado reporta erro <stdin>:1:19. É omissão na descoberta de produtores,
-sem nova fase/assinatura; não copiar algoritmo ou reavaliar programa inteiro.
+`lab/results/construction/diagnostics/clippy-retencao-2026-10-16/before.json.gz` preserves HEAD/uncommitted tree/UTC/diffstat/sources/L0/global hashes. clippy-aridade-final-2026-10-16 lists17 warnings including unread parent/final_styles and Vec<Box<Execution>>. Full local inventory finds no pin/self-reference/raw pointer/address test; input/Func/StyleChain retain independent Arc identity. This is Rust mechanics, no new parity/RSS benefit.
 
-Descoberta em Paged também realiza recursivamente descendentes efetivamente
-produzidos, usando realize já existente após execução do root, se identidade
-não estiver impossible. Root com invalid=false não é reexecutado. Só corpos
-realmente produzidos são visitados; preservar guards, styles, captura, Source,
-span/trace, allocator causal e seleção por leituras observadas dos filhos.
-Manter tratamento de ids legados e cinco tentativas; não fabricar fixpoint para
-um produtor sem leituras. O gate é RED→GREEN do contexto aninhado e revalidação
-integrada; nenhuma API, instrumentação ou warning policy nova.
+Remove only stored Producer.parent; keep Session.add(parent), which chooses target through the parent producer. Rename Execution._retained_styles while moving identical styles at the same final point for the same duration/drop. The unread chain intentionally retains values/closures, not replay input; do not empty/remove/free it early. Use retired: Vec<Execution>, moving *previous/*old/*discovery from current's Box in all three transitions. current remains Option<Box<Execution>>. Keep every record/order/input Arc/ctx/observation/result/sink/Location through session drop; only remove retired records' outer allocation. Never introduce container-address identity, reexecute closures to rebuild history or erase generations.
 
-## Inserção matemática automática — proposta sujeita ao gate ADR-0127
+A real Session.execute retention test uses Value::Version Arc/Weak lifetime: after removing the other owning chain, retain the value in current, retired and after real Vec growth, then release on session drop. Keep identical input identity and replay/generation tests. Arc counts are mechanical retention evidence, not language parity. Keep target/capture/HTML/bundle/PDF controls; no syntax-mirror container test. Continuous flow is limited to private representation. Require dead_code/vec_box RED and all three selected spans GREEN, no new allow/expect/threshold; subset_font belongs to its own separate owner. Build, Clippy all-targets/expectations, full workspace, Rustdoc/fmt/strict reverse lineage, no new Tekt warning, 12GiB/swap0/jobs1. No memory/time claim without paired measurement.
 
-### Medição anterior à decisão — D06, 2026-10-06
+## Empty ordering proof and private result structure
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
-UTC/diff/estado/fontes/binários nas coletas canônicas
-lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
-Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8; proveniência no relatório
-lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md.
+`lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/cpu-style-current.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, release `14d023d36fb765eb041f24f440eaad3bc5d67183325b611e4fd98502bd26815e`, UTC/state/fixture/commands. ordered_blocks has 76 local-set-1600 and25 no-fill-1600 samples over12 compiles each. ordered-blocks-empty-red-gate.json.gz uses empty-reference-fixed release `6765fa1113676347dd00007bec1ba1f4e35bf49337d01d0e033d662091c462c4`: predefined≤523000 glibc requests fails at527107 local versus402236 control. External load invalidates that gate's isolated time as benefit evidence. context_stabilization.rs:74–99 collects by_id then reconstructs Content to order/detect duplicates.
 
-before: frac, mat, sqrt, lr e op nus têm uma Equation no vanilla e zero no Tekt;
-math.bold([x]) e texto comum têm zero nos dois. nested e nested-equation têm
-uma nos dois; reuse tem duas no vanilla. block-style/local-block/number-style
-resolvem o escopo de inserção. show-generated e context-generated expõem as
-mesmas lacunas. additional: Equation explícita preserva o render da fração;
-it.body é rejeitado no vanilla por maximum show rule depth exceeded, enquanto
-it é válido; o show posterior afeta apenas a segunda inserção. refuters mede
-valor frac cru e label original versus Equation explícita.
+If exhaustive by_id is empty, ordered_blocks may immediately return Some(Vec::new()) without Content reconstruction, only because collection covers every visual carrier the ordering walk sees. A carrier seen only by the second walk refutes the proof. Any producer keeps full ordering/duplicate-ID detection/None legacy fallback. Test nested empty table, repeated id, distinct blocks and Realized with producer only in original. No public L3 contract/phase/budget/selection/warning/error change. Retain only with RED→GREEN allocation gate, equivalence and paired time gain.
 
-lab/typst-original/crates/typst-realize/src/lib.rs:245–265,302–334 transforma
-Mathy antes de show fora de math. 01_core/src/compiler/layout/equation.rs:680–689
-projeta math nu em texto; compiler/realize/mod.rs:155–199 prepara show/identidade
-sem normalização math. entities/content/traversal.rs:14–108 é bottom-up e
-recursa no corpo matemático; rules/apply.rs:564–607 trata apenas localizáveis
-já existentes. Estes observáveis são semântica/morfologia/render de linguagem,
-não requisito de vtable, buffers, igualdade Rust ou bytes PDF.
-
-### Responsabilidade exclusiva
-
-Após apply_func do produtor retornar seu Content, e com o Engine causal ainda
-vivo, delegar à fachada L1 realize_math_insertions antes de guardar a contribuição,
-descobrir filhos e reintrospectar. Passar ctx, styles/rules/guards/Source/sink já
-existentes; não fazer reconhecimento de Mathy em L3 nem duplicar normalização,
-matching ou fold de contadores. Conservar efeitos uma vez por execução válida,
-observações, alocadores, retenção de warnings/erros, cinco tentativas e targets.
-
-Nova contribuição matemática recebe as identidades L1 pertinentes sem reciclar
-ID de produtor como Location de Equation e sem usar snapshot final de styles
-para substituir o de inserção. Contribuição aceita reutilizada não é realizada
-novamente para duplicar efeitos/ocorrências; nova execução substitui o resultado
-anterior sob a política vigente. A assinatura pública desta unidade não muda.
-
-### Gate e aceitação
-
-Somente materializar após confirmação humana do pacote math-bare-2026-10-06.md.
-RED→GREEN e revalidação bilateral do escopo são obrigatórios. Esta cláusula
-supersede restrições de fase anteriores apenas nas fronteiras aqui nomeadas,
-sem ratificar paridade universal, D07, math label ou outros débitos.
-
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
-
-### Responsabilidade exclusiva proposta
-
-Depois de produzir Content no Engine causal, delegar realize_table_insertions e realizar contribuição matemática pelo owner atual antes de guardar/discover/indexar. Captura Table/Cell preservada; não classificar tipos/props em L3. Contribuições aceitas/repetidas não executam receitas novamente; preservar budget/leituras/sink/observações e alocadores.
-
-### Gate, aceitação e divisão explícita
-
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
-
-## Snapshots de entrada compartilhados — medição 2026-10-08
-
-`lab/results/construction/diagnostics/memoria-fases3-2026-10-08/profiles.json.gz` e
-profiles-growth.json.gz, HEAD/árvore/horas completos em state.json.gz,
-registram ~196 MiB de pico em context300 versus ~46 MiB em plain300;
-prepare sobe de ~62,5 para ~138,7 MiB. `context_stabilization.rs:196,244`
-no estado before.json.gz da rodada context-snapshots-memoria4 duplica
-input para o ctx mutável e novamente para o registro imutável de cada
-Execution. TagIntrospector Clone copia coleções próprias, além de Arcs.
-Classificação: cópia mecânica privada. Inferência: compartilhar a segunda
-vista por geração reduz custo; refutação por teste de independência,
-replay alterado, ou ausência de economia pareada. Não inferir leak de RSS.
-
-Conservar ctx.introspector próprio por Execution, inclusive alterações
-feitas durante execução. Execution.input pode ser Arc<TagIntrospector>
-privado, compartilhado somente entre produtores/descendentes que consumiram
-a mesma entrada concreta da geração. Na descoberta materializar um snapshot
-próprio; em cada tentativa outro snapshot do input histórico, sem alterar
-Vec histórico, budget ou fachadas L1 de diagnósticos. Nunca deduplicar por
-igualdade, hash, número de páginas ou id. Registro substituído e retired
-conservam o Arc de sua entrada original; a próxima geração não o modifica.
-HTML cria vista própria antes de substituir contadores Page para replay.
-Não compartilhar ctx mutável, não apagar gerações/retired ou antecipar
-reuso de contribuição. Não mudar assinaturas públicas, fase ou defaults.
-
-Aceitação RED→GREEN: identidade física compartilhada nos registros da mesma
-entrada, isolamento do ctx mutável e das gerações novas/retired; observar
-identidade física somente como testemunha de custo, não gate de linguagem.
-Suite contextual/infra inteira, controles PDF/HTML e erros/replay/budget
-existentes, builds/lint e bateria de memória/tempo antes/depois.
-
-## Estado de avaliação após a execução — medição 2026-10-08
-
-Medição antes da decisão: depois da equivalência de fluxo, `context300`
-mediu cerca de 95 MiB no Tekt e 31 MiB no vanilla. Na sonda de fases,
-o RSS subiu de 40,7 para 80,1 MiB durante 300 chamadas de `execute` na
-preparação, com acréscimo próximo de 130 KiB por produtor. A tentativa de
-descartar `retired` teve mediana de 94 892 KiB, contra 94 826 KiB antes,
-e foi revertida. Comandos, binários e estado estão no diagnóstico do item 3.
-`context_stabilization.rs:196` clona o introspector para o `EvalContext`
-de cada produtor. Depois de `apply_func` e da realização das inserções, os
-usos produtivos de `Execution.ctx` são validação/replay e os campos de
-target/features/erro; `compiler/eval/context_reads.rs:232-265` cria um novo
-contexto com clone do candidato para cada leitura repetida. Nenhum uso
-posterior consulta `Execution.ctx.introspector`. Classificação: retenção
-mecânica privada; refutar por output/replay alterado ou ausência de ganho.
-
-Preservar `ctx.introspector` próprio e mutável durante toda a avaliação,
-incluindo alterações feitas por closures, show rules e realização. Após a
-avaliação terminar e antes de guardar `Execution`, libertar apenas o campo
-`ctx.introspector`; conservar observações registradas, input `Arc`, resultado,
-sink, location, features e parâmetros de replay. `retired` conserva os seus
-registros históricos causais, mas os seus contextos já não carregam a vista
-introspectiva descartável. Não alterar o contrato público de `EvalContext`,
-o histórico I0–I5, cinco tentativas, ordem, fase ou defaults. Aceitar somente
-com teste RED→GREEN de liberação após execução, suite contextual, equivalência
-de PDFs/erros e redução mensurada de memória.
-
-## Ordem contextual vazia sem reconstrução — ensaio interno 2026-10-09
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/cpu-style-current.json.gz` (HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, release SHA-256 `14d023d36fb765eb041f24f440eaad3bc5d67183325b611e4fd98502bd26815e`, UTC/estado/fixture/comandos no recibo) contém 76 amostras de `ordered_blocks` no caso `local-set-1600` e 25 em `no-fill-1600`, em 12 compilações cada. O gate RED `ordered-blocks-empty-red-gate.json.gz` usa o release já corrigido para referências vazias, SHA-256 `6765fa1113676347dd00007bec1ba1f4e35bf49337d01d0e033d662091c462c4`, e falha no limite predefinido de 523.000 pedidos glibc: 527.107 no caso local e 402.236 no controle. O tempo isolado deste gate sofreu carga externa e não serve como prova de ganho. A fonte `03_infra/src/pipeline/context_stabilization.rs:74-99` primeiro coleta os produtores por id e depois percorre todo o Content por `map_content` para ordená-los e detectar repetição.
-
-Se a coleta exaustiva `by_id` estiver vazia, `ordered_blocks` pode devolver imediatamente `Some(Vec::new())`, sem reconstruir Content. Esta prova só vale porque a coleta do owner pipeline percorre a projeção visual e todos os carriers usados pelo ordenador; se um carrier puder ser visto pelo segundo percurso e não pela coleta, a saída antecipada é refutada. Com qualquer produtor coletado, manter integralmente a ordenação, a detecção de IDs duplicados e `None` que ativa o fallback legado. Verificar caso vazio aninhado em tabela, dois blocos com o mesmo id, bloco distinto e Realized com produtor somente em original. A mudança é privada de L3: não altera fase, contrato público, budget, seleção contextual ou semântica de warnings/erros. Manter somente com gate RED→GREEN, equivalência e ganho pareado de tempo.
-
-
-## Tipos explícitos e leitura local — type_complexity (2026-10-15)
-
-### Medição anterior à decisão
-
-03_infra/src/pipeline/context_stabilization.rs:926 (C096).
-O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
-conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
-O gate red-clippy.log falha com este lint promovido a erro antes da edição.
-A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
-estáticos já explícitos. É manutenção de representação Rust; não medição de
-benefício da IA, bug funcional ou paridade nova.
-
-### Responsabilidade e aceitação
-
-O sucesso interno de prepare_bundle usa PreparedBundle privado à família pipeline, com campos bodies, introspector e document_starts. Conservar os mesmos Vec/TagIntrospector/LocatorSeed por movimento, ordem e geração validada. O retorno continua separando SourceResult e warnings, com erros e todos os caminhos antecipados intactos. Não mudar orçamento, replay, snapshots ou APIs externas.
-
-Correção interna em fluxo contínuo ADR-0127: nenhuma entidade, assinatura pública
-resolvida, default ou fase é alterada. Uma abreviação de tipo só é permitida com
-expansão comprovadamente idêntica; incompatibilidade ou tipo público novo exige
-outro gate. As exceções são nominais apenas para type_complexity; não autorizar
-supressão em módulo/impl/crate nem elevar limiar. Esta permissão pontual supera
-proibições genéricas anteriores somente para os três itens justificados neste lote;
-continuam proibidas supressões dos demais casos destinados à correção.
-Usar os controles funcionais existentes sem mudar seus esperados. O gate selecionado
-deve passar RED→GREEN, incluindo unfulfilled_lint_expectations como erro; revalidar
-build, Clippy all-targets, suíte workspace, formato, Rustdoc e linhagem com resselo
-restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
-
-
-## Retenção explícita e armazenamento dos aposentados — 2026-10-16
-
-### Medição anterior à decisão
-
-O inventário clippy-aridade-final-2026-10-16 registra 17 avisos: parent e final_styles nunca lidos e Vec<Box<Execution>> nesta unidade. before.json.gz em lab/results/construction/diagnostics/clippy-retencao-2026-10-16 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/L0 e hashes globais. O inventário completo de Execution/retired nesta fonte não contém pin, auto-referência, raw pointer ou teste do endereço do registro. input e os valores Func/StyleChain preservam identidades em Arc independentes do endereço de Execution. É medição da mecânica Rust, sem nova prova de paridade ou promessa de ganho de RSS.
-
-### Responsabilidade exclusiva e aceitação
-
-Retirar somente Producer.parent armazenado, sem remover o argumento parent de Session.add: ele continua calculando target pelo produtor pai. Nomear o campo Execution._retained_styles e conservar a movimentação do mesmo styles ao final da execução, na mesma posição e com a mesma duração/drop. A ausência de leitura é intencional: a cadeia retém valores/closures e não é uma entrada de replay. Não eliminar, zerar ou antecipar a liberação da cadeia.
-
-Usar retired: Vec<Execution>; ao retirar o Box de current, mover *previous/*old/*discovery para retired nas três transições. current continua Option<Box<Execution>>. Preservar todos os registros e sua ordem, inputs Arc, ctx/observações, resultados/sinks/Location e duração até o drop da sessão; só retirar a alocação externa de cada aposentado. Nenhum contrato depende da estabilidade do endereço do container Execution, nem usar esse endereço como identidade futura. Não reexecutar closures para reconstruir o histórico ou apagar gerações.
-
-Teste de retenção usa Session.execute real e um Value::Version com Arc/Weak como testemunha de lifetime: após remover a outra cadeia proprietária, o valor deve sobreviver na execução atual, na aposentada e depois do crescimento real do Vec, e ser liberado ao sair da sessão. Confirmar mesma identidade de input e manutenção dos testes de replay/gerações existentes. Contagem de Arc é testemunha mecânica de retenção, não paridade da linguagem. Controles existentes de target/capturas/HTML/bundle/PDF permanecem; não criar teste que apenas reflita a sintaxe do container.
-
-Fluxo contínuo ADR-0127: somente campos privados e representação interna, sem API pública, default ou fase novos. L0 precede testes/código e resselo restrito. RED de dead_code/vec_box antes da correção, GREEN dos três spans selecionados; nenhum allow/expect novo, nem elevar limiar. O wrapper subset_font é decisão separada do seu owner. Validar build, Clippy all-targets/expectativas, suíte workspace completa, Rustdoc, formato e linhagem estrita/reversa, sem novos avisos Tekt, sob 12 GiB, swap zero e um job. Não inferir ganho de memória/tempo desta refatoração sem medição pareada própria.
-
-
-## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
-final-freeze.json.gz e target-controls.json.gz no diagnóstico
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
-UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
-Styled de transporte altera func. Query também vê wrapper causal temporário;
-HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
-pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
-de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
-Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
-SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
-
-### Responsabilidade exclusiva
-
-No ramo de runtime candidato não bundle, fornecer self.target/self.features ao
-helper privado de introspecção, em vez de defaults Paged/sem features. Manter
-bundle existente, seleção, 5 tentativas, ordem de produtores, snapshots e cache
-de métricas. Nenhuma lógica de fold ou callback de Heading passa para L3.
-
-### Aceitação e limites
-
-H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
-público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
-cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
-callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
-fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
-comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
-
-
-## Context — identidade de ocorrências ratificada, 2026-10-18
-
-### Medição anterior à decisão e gate
-
-before.json.gz em lab/results/construction/diagnostics/context-paridade-2026-10-18 conserva
-HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fontes, UTC, diffstat, argv e
-SHA dos binários; baseline-build-resources.json contém a receita nova. Vanilla
-bd5ebec285505889e8ff1d4f68804ab147a699f3. Duas equações dão EQ EQ Q1/Q2;
-prefixo Heading H EQ Q0/Q1; it.location observado por query dá 00/01.
-context_stabilization.rs:257 reinicia EvalContext por produtor; eval/mod.rs:438
-reinicia Locator; realize/mod.rs:41 aloca sem domínio comum; introspect/walk.rs:
-375–390 deduplica pela Location. É semântica/identidade de linguagem.
-Upstream typst-realize/src/lib.rs:353–418 prepara identidade antes da receita,
-mas não exige copiar representação, vtables ou algoritmo.
-Hipótese de colisão será refutada por falha de contagem, alias, callback ou replay.
-
-O humano aprovou a proposta review.md sob
-lab/history/construction/records/00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
-500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388;
-recibo approval-receipt.json no mesmo diretório. Gate ADR-0127 §2.1 satisfeito
-para a API aditiva especificada. Não autoriza mudança de fase ou API alheia.
-
-### Responsabilidade exclusiva
-
-Session possui arena da fachada L1 e Producer possui frame exclusivo emitido
-por ela. Criar arena do origin real; sem produtores pode usar None e evitar
-uma caminhada redundante. Cada novo Producer recebe frame novo; reexecução
-retém o frame do mesmo Producer. Descartar descendente não recicla seus slots.
-Envolver a operação já existente apply_func → realize_math_insertions →
-realize_table_insertions em arena.evaluate, sem mudar ordem ou executar mais
-vezes. L3 não escolhe nem manipula Locations numéricas. Session legacy nova
-reconstrói deterministicamente arena/frame do mesmo origin e ordem causal;
-não inicializar a arena do snapshot de resultados anteriores. Retenção,
-seleção, erros, budgets, estilos, targets, efeitos e callbacks ficam vigentes.
-
-### Inicialização na primeira inclusão — correção interna medida
-
-`workspace-rest-occurrences-final.log`, recibo validation-occurrences-final e
-freeze occurrences-final-sources.json.gz conservam a falha do teste existente
-execution_retains_style_values_through_retirement_and_vector_growth. No consumer,
-Session::add em 235–242 pressupõe arena; teste em 1485–1506 cria Session vazia e
-inclui o primeiro produtor depois. A arena deve ser inicializada em add na primeira
-inclusão usando o origin da sessão, via get_or_insert_with; Session::new pode
-sempre iniciar None. Zero produtores permanece sem arena. O teste existente não
-muda. Correção privada dentro da API aprovada, sem alterar seleção ou fase;
-RED registrado, exigir GREEN e revalidação integral.
+context_stabilization.rs:926 (C096), `lab/results/construction/diagnostics/type-complexity-2026-10-15/before.json.gz` and red-clippy.log preserve source/owner hashes/HEAD/tree/UTC/diffstat and lint RED. Internal prepare_bundle success uses pipeline-private PreparedBundle fields bodies/introspector/document_starts, moving identical Vec/TagIntrospector/LocatorSeed in the same validated order/generation. SourceResult/warnings, errors/early paths/budget/replay/snapshots/external APIs remain unchanged. This is Rust representation, no AI benefit/functional bug/new parity. An alias requires proven identical expansion; incompatibility/new public type needs another gate. Nominal type_complexity exceptions cover only the three justified batch items, superseding generic bans only there, with no module/impl/crate suppression, raised threshold or suppression for other repair cases. Continuous flow, L0 first/restricted lineage. Keep existing expectations; selected lint/denied unfulfilled_lint_expectations RED→GREEN, full build/Clippy/workspace/fmt/Rustdoc/lineage. No tests mirroring aliases/field names.
+
+## Heading setup and occurrence arena
+
+`lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/{final-freeze,target-controls}.json.gz` records HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree/UTC/diffstat/source/argv, upstream `bd5ebec285505889e8ff1d4f68804ab147a699f3`. heading-raw-constructor-func passes baseline/upstream but fails candidate because transport Styled changes func; query sees a temporary causal wrapper and HTML ignores callback panic. walk.rs:930–945/paged.rs:419–427/html.rs:101–106 use pure setup. These are language values/errors, not upstream algorithm requirements. Ratified `lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md` SHA `66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c` satisfies the Heading-only gate.
+
+The nonbundle candidate runtime branch passes self.target/self.features to the private introspection helper instead of Paged/empty defaults. Preserve bundle behavior, selection/five attempts/producer order/snapshots/metrics cache. No L3 Heading callback/fold logic. Require ratified H1–H8/bilateral RED; five State helpers are separately authorized, no additional public fields/contracts. Ordinary Styled/other callbacks retain boundaries. Validate workspace/doctests/build/Clippy/Rustdoc/fmt/V1/V5/V15/V26/reverse/no V16 increase, 12GiB/High8GiB/swap0/jobs1, sequential heavy commands; RAM gain requires measurement.
+
+`lab/results/construction/diagnostics/context-paridade-2026-10-18/before.json.gz` preserves HEAD `b7e7c83223e5daa67bbdf124c36b5b7f93200731`, source/UTC/diffstat/argv/binary SHA; baseline-build-resources.json contains the new recipe. Upstream `bd5ebec285505889e8ff1d4f68804ab147a699f3`: two equations yield EQ EQ Q1/Q2, Heading prefix H EQ Q0/Q1, query it.location00/01. context_stabilization.rs:257 resets EvalContext, eval/mod.rs:438 Locator, realize/mod.rs:41 allocates without a common domain; introspect/walk.rs:375–390 deduplicates by Location. This language-identity collision hypothesis is refuted by count/alias/callback/replay failure. Upstream typst-realize/src/lib.rs:353–418 prepares identity before recipes, without requiring copied representation/vtables/algorithm.
+
+The owner approved `lab/history/construction/records/00_nucleo/materialization/context-occurrences-2026-10-18/review.md`, SHA `500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388`, approval-receipt.json alongside. ADR-0127§2.1 is satisfied only for its additive API, no phase/unrelated API change. Session owns the L1 facade arena; each Producer owns its exclusive emitted frame. Initialize from real origin; no producers may use None, avoiding redundant traversal. New Producer gets a fresh frame; reexecution retains its frame; discarded descendant slots are never recycled. Wrap the existing apply_func→realize_math_insertions→realize_table_insertions operation in arena.evaluate without order/extra-execution changes. L3 never chooses/manipulates numeric Locations. A new legacy Session reconstructs arena/frame deterministically from the same origin/causal order, never from prior results. Keep retention/selection/errors/budgets/styles/targets/effects/callbacks.
+
+workspace-rest-occurrences-final.log, validation-occurrences-final and occurrences-final-sources.json.gz preserve existing execution_retains_style_values_through_retirement_and_vector_growth failure: Session::add:235–242 assumes arena, while test:1485–1506 creates empty then adds. Initialize arena lazily in add using session origin/get_or_insert_with; Session::new may always start None. Zero producers retain no arena; do not change that test, selection or phase. This private correction stays within the approved API; recorded RED requires GREEN/full revalidation.

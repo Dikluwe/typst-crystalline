@@ -1,172 +1,50 @@
 # Prompt L0 — `entities/span`
 Hash do Código: 2306254e
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/span.rs`
-**Criado em**: 2026-03-22 (Passo 1)
-**Atualizado em**: 2026-04-12 (restauro — expandido com layout de bits, dois sabores, Spanned<T> e critérios completos)
-**ADRs relevantes**: nenhum ADR dedicado; contrato fundamental de rastreabilidade de todo o compilador
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/span.rs`
 
----
+## Domain and representation
 
-## Contexto e Objetivo
+Span traces AST/Content back to source for diagnostics and introspection.
+Span(NonZeroU64) is 8 bytes, Copy, with Option<Span> also 8 bytes.
+The high 16 bits encode FileId; low 48 encode a node number or raw range.
+Numbered spans use unique node numbers in FULL=2..2^47, stable through
+incremental editing; Source maps numbers to byte ranges. Raw spans directly
+encode endpoints up to the 2^23 boundary (8MiB), for non-Typst files/assets.
+Reserved raw1 is detached synthetic content. No source string is stored.
+L1 only: no I/O; depend on NonZeroU64 and FileId.
 
-Para emitir mensagens de erro úteis ou para permitir introspecção (ex: clicar
-num elemento do PDF e saltar para o código fonte), o motor precisa de mapear
-cada nó da AST e cada elemento de `Content` de volta à sua localização no
-texto original. O `Span` é a estrutura de dados que guarda essa coordenada.
+## Public and crate-private interface
 
-`Span` ocupa **8 bytes** e é `Copy` — pode estar em cada nó da AST sem
-explodir o consumo de memória. A otimização de null pointer (`NonZeroU64`)
-garante que `Option<Span>` também ocupa 8 bytes.
+Span derives Debug/Copy/Clone/Eq/PartialEq/Hash. Preserve const methods:
+detached()->Self; from_range(FileId,Range<usize>)->Self with endpoint saturation
+at the declared 2^23 encoding limit; from_raw(NonZeroU64)->Self;
+is_detached(self)->bool (raw==1); id(self)->Option<FileId>;
+range(self)->Option<Range<usize>> for raw ranges only;
+into_raw(self)->NonZeroU64.
+Crate-private const from_number(FileId,u64)->Option<Self> rejects outside
+FULL; crate-private number(self)->u64 reads the low 48 bits for syntax/parser.
+or(self,other)->Self selects other only if self is detached;
+find(impl IntoIterator<Item=Self>)->Self returns the first nondetached span.
 
----
+Spanned<T> derives Copy/Clone/Eq/PartialEq/Hash and has public v:T, span:Span.
+Preserve const new(v,span)->Self, detached(v)->Self and
+as_ref(&self)->Spanned<&T>; map<F,U>(self,f)->Spanned<U> transforms value while
+retaining span. Debug for T:Debug delegates to v.
 
-## Dois Sabores de Span
+## Acceptance
 
-```
-Layout interno do u64:
-| 16 bits (FileId) | 48 bits (number ou range codificado) |
-```
+Detached has is_detached true, id/range None. For raw FileId5 and number 10,
+id is Some(file), number 10 and range None; numbers0/1 reject. Raw177..233
+roundtrips with the same file, as do 0..0 and 0..8388607. Preserve endpoint
+saturation without inventing a new bound from this cleanup.
+Detached.or(b)=b; nondetached b.or(detached)=b. find([detached,b,c]) selects b.
+Spanned::new(42u32,detached) preserves 42 and span;
+Spanned::detached(10u32).map(|v|v*2) gives 20 and detached. Keep colocated tests,
+size/niche invariants and canonical lineage.
 
-### Numbered Span (para ficheiros Typst)
-Além do `FileId`, codifica um **número único** por nó AST (range 2..2^47).
-Em vez de guardar bytes que se deslocam ao editar, cada nó recebe um número
-estável durante a edição incremental. O `Source` mantém a tabela de
-mapeamento `número → byte range`.
+## Historical record
 
-### Raw Range Span (para ficheiros não-Typst)
-Codifica directamente `Range<usize>` com até 2^23 por extremidade (límite de
-8 MiB — suficiente para ficheiros de texto). Usado por imagens, binários e
-assets externos que não têm AST.
-
-### Detached Span
-O valor reservado `1u64` representa um span sem ficheiro — usado por nós
-gerados sinteticamente pelo compilador (ex: `Span::detached()`).
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: zero I/O. Apenas `NonZeroU64` e `FileId` (ambos L1).
-- `Span` é `Copy + Clone + Eq + PartialEq + Hash`.
-- `from_number` e `number()` são `pub(crate)` — usados apenas por `SyntaxNode`
-  e pelo parser (Passo 4) no mesmo crate.
-- Não guarda directamente a string do ficheiro — apenas coordenadas/índices.
-
----
-
-## Instrução
-
-### `Span`
-
-```rust
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub struct Span(NonZeroU64);
-
-impl Span {
-    // Construtores
-    pub const fn detached() -> Self                           // valor reservado = 1
-    pub const fn from_range(id: FileId, range: Range<usize>) -> Self  // satura em 2^23
-    pub const fn from_raw(v: NonZeroU64) -> Self              // round-trip
-
-    pub(crate) const fn from_number(id: FileId, number: u64) -> Option<Self>
-    // number deve estar em FULL = 2..2^47; retorna None fora do range
-
-    // Leitores
-    pub const fn is_detached(self) -> bool                   // self.0.get() == 1
-    pub const fn id(self) -> Option<FileId>                  // 16 bits mais altos
-    pub const fn range(self) -> Option<Range<usize>>         // só para raw range spans
-    pub const fn into_raw(self) -> NonZeroU64
-
-    pub(crate) const fn number(self) -> u64                  // 48 bits mais baixos
-
-    // Utilitários
-    pub fn or(self, other: Self) -> Self   // retorna other se self for detached
-    pub fn find(iter: impl IntoIterator<Item = Self>) -> Self // 1º não-detached
-}
-```
-
-### `Spanned<T>`
-
-Envolve qualquer valor com a sua localização na fonte.
-
-```rust
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
-pub struct Spanned<T> {
-    pub v: T,
-    pub span: Span,
-}
-
-impl<T> Spanned<T> {
-    pub const fn new(v: T, span: Span) -> Self
-    pub const fn detached(v: T) -> Self       // Span::detached()
-    pub const fn as_ref(&self) -> Spanned<&T>
-    pub fn map<F, U>(self, f: F) -> Spanned<U>
-}
-
-impl<T: Debug> Debug for Spanned<T>  // delega o Debug ao campo v
-```
-
----
-
-## Critérios de Verificação
-
-```
-// Detached
-Span::detached().is_detached()         = true
-Span::detached().id()                  = None
-Span::detached().range()               = None
-
-// Numbered span
-let file = FileId::from_raw(NonZeroU16::new(5).unwrap());
-let span = Span::from_number(file, 10).unwrap();
-span.id()     = Some(file)
-span.number() = 10
-span.range()  = None           // não é raw range
-
-// from_number fora do range
-Span::from_number(file, 0) = None
-Span::from_number(file, 1) = None   // reservado para DETACHED
-
-// Raw range (saturação em 2^23 = 8388608)
-let span = Span::from_range(file, 177..233);
-span.id()   = Some(file)
-span.range() = Some(177..233)
-
-Span::from_range(file, 0..0).range()            = Some(0..0)
-Span::from_range(file, 0..8388607).range()      = Some(0..8388607)
-
-// or()
-Span::detached().or(b) = b          // se self é detached, retorna other
-b.or(Span::detached()) = b          // se self não é detached, retorna self
-
-// find()
-Span::find([Span::detached(), span_b, span_c]).number() = span_b.number()
-
-// Spanned
-let s = Spanned::new(42u32, Span::detached());
-s.v    = 42
-s.span = Span::detached()
-
-let doubled = Spanned::detached(10u32).map(|v| v * 2);
-doubled.v    = 20
-doubled.span = Span::detached()
-```
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/span.rs` com `Span`, `Spanned<T>` e testes co-localizados
-- Cabeçalho de linhagem apontando para este ficheiro
-  (`@prompt 00_nucleo/prompts/core/entities/span.md`)
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-03-22 | Criação — Passo 1: Span(NonZeroU64), Spanned<T> | `span.rs` |
-| 2026-04-12 | Restauro — expandido com layout de bits, dois sabores (numbered/raw range), `pub(crate)`, critérios completos | `span.md` |
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/span.md`. Historical observations are not a new parity certification.

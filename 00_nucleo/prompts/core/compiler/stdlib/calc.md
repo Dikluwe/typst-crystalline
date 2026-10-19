@@ -4,13 +4,21 @@ Hash do Código: 18654592
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/calc.rs`
 
-Após a atomização de 2026-09-30, este consumer possui a composição de `make_calc_module` e os testes históricos. Os Prompts L0 individuais em `00_nucleo/prompts/compiler/stdlib/calc/` possuem os comportamentos de abs, potência/raiz, arredondamento, extremos, trigonometria, hiperbólicas, logaritmos, aritmética inteira, combinatória, norma, erf e helpers numéricos. As cláusulas abaixo permanecem o contexto normativo compartilhado, sem mudar a linguagem.
+## Evidence before specification
 
-## Evidence and classification
 
-`01_core/src/compiler/stdlib/calc.rs:56` (pub fn make_calc_module) -> Value {); `01_core/src/compiler/stdlib/calc.rs:133` (pubcrate) fn calc_abs); `01_core/src/compiler/stdlib/calc.rs:265` (pubcrate) fn calc_pow) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/calc.rs:56` (pub fn make_calc_module) -> Value {); `01_core/src/compiler/stdlib/calc.rs:133` (pub crate) fn calc_abs); `01_core/src/compiler/stdlib/calc.rs:265` (pub crate) fn calc_pow) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
-## Contract and ownership
+
+
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+
+After behavior atomization, this exclusive consumer owns make_calc_module composition and historical tests. Child owners under `00_nucleo/prompts/core/compiler/stdlib/calc/` implement abs/power-root/round/extrema/trig/hyperbolic/log/integer/combinatorics/norm/erf/helpers. The following numeric clauses are preserved composition boundary criteria, not extra productive ownership.
+
+`lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz` inventories uncalled bare_diagnostic at calc.rs:2835/p1334_tests with sources/owners/uses, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, dirty state/UTC/stat; not new parity/performance evidence.
+
+## Exclusive contract and numeric boundary criteria
+
 
 Own make_calc_module and its static bindings; the child prompts own scalar native implementations and numeric helpers, including return kinds, argument validation and diagnostics. Preserve the current module bindings and native identities; calc.abs's intrinsic name is abs through import/alias/With, not calc.abs. Keep deliberate crystalline log10/deg/rad extensions; log10 requires a positive number and deg/rad convert plain numeric radians/degrees. Removing them requires a compatibility decision.
 
@@ -48,18 +56,10 @@ Reject unsupported arity, named arguments and types per each native; abs's origi
 
 The old round prose that converted all Float results to Int conflicts with its later kind-preserving contract; the later rule is retained. The old atan2/tan boundary examples are not renewed proof. Preserve exact current diagnostics and explicitly recorded residual math-resolution/constructor debts, rather than claiming general calc parity.
 
+
+
+Remove only uncalled bare_diagnostic from p1334_tests; used homonyms elsewhere stay. Keep inlined diagnostic assertions/fixtures/productive bindings, test names/bodies and productive paths. Internal ADR-0127 continuous maintenance changes no external API/default/phase.
+
 ## Acceptance
 
-Preserve the specified language semantics, syntax, morphology, diagnostics, spans, defaults and public identities. Do not change signatures, compatibility, feature defaults or phase ownership through this documentary revision. Shared pinned claims remain authoritative; this prompt owns only its exclusive consumer. Architectural decisions follow ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.
-
-## Helpers e armazenamento sem uso — 2026-10-13
-
-### Medição anterior à decisão
-
-`01_core/src/compiler/stdlib/calc.rs` nas linhas 2835 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
-
-### Decisão e aceitação
-
-Remover somente bare_diagnostic sem chamadas no módulo de teste p1334_tests. Homônimos usados em outros módulos permanecem. Preservar testes, assertivas de diagnóstico inlined, fixtures e bindings produtivos.
-
-Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.
+Preserve all stated semantics/syntax/morphology/diagnostics/spans/defaults/native identities, 1:1 owners and pins. Later scalar-owner revisions refine their own implementation obligations; boundary criteria cannot silently revoke approved later formulas. Revalidate workspace build/check all-targets/core suite/test inventory/Clippy/lineage without deleting expectations. No new signature/compatibility/default/phase is authorized by consolidation.

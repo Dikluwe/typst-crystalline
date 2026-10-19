@@ -8,12 +8,12 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
+- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:e9d6623a18ffc35f36051b280d96a75a0e4c1bd1768361a3a50c98587c568aef
 ```
 
 ## Current evidence
 
-- `04_wiring/src/main.rs:22` — `Published`.
+- `04_wiring/src/main.rs` — private import of `typst_infra::watch::Published` (the historical local declaration is superseded below).
 - `04_wiring/src/main.rs:27` — `main`.
 - `04_wiring/src/main.rs:43` — `main_is_only_a_closed_command_dispatcher`.
 
@@ -47,16 +47,41 @@ does not authorize productive changes or approve archived proposals. Validate li
 `crystalline-lint --checks v5,v15,v26 .`.
 
 
-## Transporte de publicação em L3 — V12, 2026-10-16
+## Publication carrier ownership and verification
 
-### Medição anterior à decisão
+### Evidence
 
-O snapshot before.json.gz em lab/results/construction/diagnostics/tekt-v12-2026-10-16 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC, fontes, L0, hashes, status e git diff HEAD --stat. O inventário anterior, conferido por hashes, emite 19 V12: um enum produtivo em 04_wiring/src/main.rs:22 e 18 declarações auxiliares de testes. O enum privado Published tem exatamente Html(String) e Bundle(Vec<BundleFile>); compile.rs:90/99/363/539/541 o produz e watch.rs:103/104 despacha os dois braços. O proprietário atual é wiring.md, que autoriza o carrier privado em L4: esta proposta atualiza explicitamente essa decisão, em vez de contrariá-la sem registro. É propriedade/representação Rust, sem nova alegação de paridade ou intenção upstream.
+`lab/results/construction/diagnostics/tekt-v12-2026-10-16/before.json.gz` retains
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC, sources/L0/
+hashes/status/diffstat. The hash-checked inventory reported 19 V12: one productive
+enum at `04_wiring/src/main.rs:22` and 18 auxiliary test declarations. The private
+Published enum had exactly Html(String) and Bundle(Vec<BundleFile>), produced at
+compile.rs:90/99/363/539/541 and dispatched at watch.rs:103/104. The former owner
+permitted this private L4 carrier; its transfer explicitly supersedes that local
+ownership decision. This is Rust ownership/representation, not new language
+parity or upstream intent evidence. The complete construction record remains in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/wiring/main.md`.
 
-### Verificação comum
+### Current responsibility and acceptance
 
-T1: preservar os controles reais de watch HTML e bundle HTTP/reload, sucesso/erro, no-serve/no-reload e último snapshot válido; testes p1485_watch_bundle_http_reload_e_preserva_snapshot_apos_erro e p1485_watch_flags_no_reload_no_serve_e_porta_ocupada em 04_wiring/tests/cli.rs, mais controles HTTP de 03_infra/src/watch.rs. T2: preservar compile de HTML/bundle, árvore completa, assets byte-exatos, stdout, warnings, exit e ausência de publicação em erro nos testes CLI existentes, sem editar esperados. T3: V12 RED real antes e zero produtivo depois; conferir por diff que só houve transferência do enum e ajuste do import, sem inferir modalidade por extensão. Verificar build, Clippy workspace/all-targets -D warnings e -D unfulfilled_lint_expectations, suíte workspace, formato, Rustdoc -D warnings e quatro índices, linhagem V1/V5/V15/V26 e reversa, SARIF e diff --check. Não escrever testes que apenas espelhem a sintaxe da mudança de owner. Execuções pesadas sequenciais sob MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não publicar release.
+Remove the local Published declaration and the BundleFile import used only by it;
+privately import `typst_infra::watch::Published`. The root remains composition and
+closed dispatch without a new local type/public L4 API. Child handlers may retain
+super::Published. The carrier contract belongs exclusively to
+`00_nucleo/prompts/infra/watch.md`.
 
-### Responsabilidade exclusiva
+Preserve real watch HTML/bundle HTTP/reload controls, success/error, no-serve/
+no-reload and last valid snapshot, including
+`p1485_watch_bundle_http_reload_e_preserva_snapshot_apos_erro` and
+`p1485_watch_flags_no_reload_no_serve_e_porta_ocupada` in `04_wiring/tests/cli.rs`,
+and L3 watch HTTP controls. Preserve existing compile HTML/bundle full-tree,
+byte-exact assets, stdout/warnings/exit and no-publication-on-error expectations.
+Require real V12 RED before transfer and zero productive V12 afterward; the diff
+must show only enum transfer/import adjustments, never extension-based target
+inference. Do not add tests merely mirroring owner-transfer syntax.
 
-Remover a declaração local de Published e o import de BundleFile que só a alimentava. Importar privadamente typst_infra::watch::Published. A raiz continua apenas com composição e dispatcher fechado, sem novo tipo local ou API L4. Os child handlers podem conservar super::Published.
+Validate build, workspace/all-target Clippy with -D warnings and
+-D unfulfilled_lint_expectations, workspace suite, formatting, Rustdoc -D warnings
+and four indexes, V1/V5/V15/V26/reverse lineage, SARIF and diff --check. Heavy runs
+remain sequential under MemoryMax=12 GiB, MemorySwapMax=0 and CARGO_BUILD_JOBS=1.
+No release publication is authorized by this transfer.

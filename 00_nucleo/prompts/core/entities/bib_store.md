@@ -1,58 +1,14 @@
 # Prompt L0 — `entities/bib_store`
 Hash do Código: 864c9768
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/bib_store.rs`
-**Criado em**: 2026-05-01 (P181B sub-passo .B — primeiro passo de materialização do plano P181A para fechar lacuna #6)
-**ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/bib_store.rs`
 
----
+## Design evidence
 
-## Contexto
+The original bibliography inventory and construction plan preserved the legacy Vec<BibEntry> plus HashMap<String,u32> shape, appearance-order concatenation and first-assigned-number retention. Historical `introspect.rs:569–572` assigned numbers before extend; `layout/mod.rs:584,590` used linear entry lookup and map-number lookup. These establish local responsibilities, not a requirement to copy upstream IndexMap/ManuallyHash/comemo.
 
-`BibStore` é o sub-store de `TagIntrospector` que acumula entries
-bibliográficas e respectiva numeração 1-based, populadas a partir de
-`Content::Bibliography` durante o walk → `from_tags`.
-
-P181A (decisões cláusula 1, 2, 3) fixou:
-
-- **Cláusula 1**: shape interno `entries: Vec<BibEntry>` +
-  `numbers: HashMap<String, u32>`. Replica literalmente
-  `CounterStateLegacy.bib_entries`/`bib_numbers`. Sem `IndexMap`
-  (ADR-0023 disponível mas não invocado — simetria com `MetadataStore`
-  P169 e `StateRegistry` P171).
-- **Cláusula 2**: `add_bibliography(entries)` faz `extend` (replica
-  `state.bib_entries.extend(...)` actual em `introspect.rs:572`).
-  Multi-Bibliography concatena por ordem de aparecimento.
-- **Cláusula 3**: numbering preserva primeiro número via `or_insert`
-  (replica `state.bib_numbers.entry(key).or_insert(next_num)` actual
-  em `introspect.rs:570`).
-
-Vanilla equivalente: `Bibliography` interno
-(`Arc<ManuallyHash<IndexMap<Label, hayagriva::Entry, FxBuildHasher>>>`)
-com memoização via comemo. Cristalino divergência deliberada
-(ADR-0062 PROPOSTO `hayagriva` adopt mas não em vigor): subset
-minimal sem hayagriva, com `Vec<BibEntry>` + `HashMap<String, u32>`
-paralelo. Documentado em `inventario-bib-state.md` (P180) §3.
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: struct puro, sem I/O, sem estado global.
-- Read-only após construção. Mutação só via `pub(crate) fn` durante
-  construção em `from_tags`.
-- Derives: `Debug`, `Clone`, `Default`. Sem `PartialEq` / `Eq` (sem
-  consumer identificado em P181B; pode ser adicionado se um sub-passo
-  posterior precisar).
-- Tipos internos: `std::collections::HashMap` (não `FxHashMap` — o
-  hot-path é `add_bibliography` em construção, não lookup
-  hot-loop; consistência com `LabelRegistry`/`StateRegistry` que
-  também usam `HashMap`).
-
----
-
-## Interface pública
+## Public and construction interface
 
 ```rust
 use std::collections::HashMap;
@@ -63,9 +19,7 @@ use crate::entities::bib_entry::BibEntry;
 pub struct BibStore {
     entries: Vec<BibEntry>,
     numbers: HashMap<String, u32>,
-    /// **P468** — ordem de primeira aparição de citações no documento.
     citation_order: Vec<String>,
-    /// **P472** — mapeamento key → lista de posições de citação (1-based, todas as ocorrências).
     back_refs: HashMap<String, Vec<usize>>,
 }
 
@@ -78,151 +32,34 @@ impl BibStore {
     pub fn numbers_len(&self) -> usize;
     pub fn is_empty(&self) -> bool;
 
-    /// **P468** — posição 1-based na ordem de primeira citação.
     pub fn citation_number_for_key(&self, key: &str) -> Option<u32>;
-    /// **P468** — slice das keys na ordem de primeira citação.
     pub fn citation_order(&self) -> &[String];
-    /// **P472** — lista de posições de citação (1-based, todas as ocorrências) para `key`.
-    /// Vec vazia se key nunca foi citada.
     pub fn back_refs_for_key(&self, key: &str) -> Vec<usize>;
 
     pub(crate) fn add_bibliography(&mut self, entries: Vec<BibEntry>);
     pub(crate) fn assign_number(&mut self, key: String, number: u32);
-    /// **P468/P472** — regista key na citation_order (ignorada se já presente) e
-    /// acumula posição 1-based em back_refs. cite_pos = total de citações registadas até
-    /// agora + 1 (= soma de todos os `back_refs[k].len()` antes desta chamada + 1).
     pub(crate) fn record_citation(&mut self, key: String);
 }
 ```
 
----
+Keep a pure TagIntrospector substore without I/O/global state, externally read-only after construction. Only crate-visible construction methods mutate it. Preserve Debug/Clone/Default, ordinary std HashMap and the absence of added PartialEq/Eq; changing representation or traits requires its own contract.
 
-## Semântica dos métodos
+empty equals Default. entries returns insertion order, concatenating multiple bibliographies without deduplication. entry_for_key linearly returns the first exact BibEntry.key match or None; number_for_key returns the stored number or None. len is entry count; numbers_len counts distinct numbered keys, including duplicates only once. is_empty is exactly entries.is_empty() && numbers.is_empty().
 
-- `empty()`: store vazio. Equivalente a `Default::default()`.
-- `entries()`: slice das entries em ordem de inserção (= ordem de
-  aparecimento no walk; multi-Bib concatena).
-- `entry_for_key(key)`: linear scan sobre `entries` por `BibEntry.key`.
-  `Some(&entry)` se match exacto; `None` se ausente. Replica
-  `state.bib_entries.iter().find(|e| e.key == *key)` actual em
-  `layout/mod.rs:584`.
-- `number_for_key(key)`: lookup O(1) via HashMap. `Some(n)` se key
-  registada; `None` caso contrário. Replica
-  `state.bib_numbers.get(key).copied()` actual em
-  `layout/mod.rs:590`.
-- `len()`: número de entries. Equivalente a `entries().len()`.
-- `numbers_len()`: número de keys com número atribuído. Cresce com
-  `or_insert`; duplicates em multi-Bibliography contam **uma** vez.
-  Usado por `from_tags` (P181E) para calcular `next_num` paralelo a
-  `state.bib_numbers.len() as u32 + 1` em walk arm
-  `Content::Bibliography` (introspect.rs:569).
-- `is_empty()`: `entries.is_empty() && numbers.is_empty()`.
-- `add_bibliography(entries)` (pub(crate)): faz
-  `self.entries.extend(entries)`. **Não** atribui numbers — caller
-  (em `from_tags` arm Bibliography, P181E) chama `assign_number` em
-  separado para cada entry. Esta separação espelha o walk arm actual
-  que faz iteração de números antes do `extend`.
-- `assign_number(key, number)` (pub(crate)): usa
-  `self.numbers.entry(key).or_insert(number)`. Primeiro número de
-  uma key persiste em multi-Bibliography com keys duplicadas.
+add_bibliography extends entries and assigns no numbers. The caller separately computes next_num=numbers.len()+1 and calls assign_number; assign_number uses entry(key).or_insert(number), preserving the first number. The construction protocol keeps numbers.len()<=entries.len(); BibStore itself does not invent numbers.
 
----
+record_citation adds a key to citation_order only on first appearance, and always appends the next global one-based citation position to back_refs: the sum of all existing back-reference lengths plus 1. citation_number_for_key returns the one-based position in first-citation order; citation_order returns its slice. back_refs_for_key returns all global one-based positions, or an empty Vec for an uncited key. Preserve repeated citations and their order.
 
-## Invariantes
+## Acceptance
 
-- Após construção, store é read-only para callers externos.
-- Ordem de `entries` é preservada (Vec interno).
-- Sem deduplicação em `add_bibliography`: duas Bib com mesmas keys
-  produzem duas entradas.
-- `numbers.len() <= entries.len()` (apenas keys vistas em
-  `assign_number` aparecem em `numbers`; keys duplicadas contam como
-  1 em `numbers`).
-- Numeração é responsabilidade do caller (passar `next_num =
-  numbers.len() + 1` antes de `assign_number`). `BibStore` não
-  inventa números.
+empty has empty entries, len0, is_empty true and no entry/number for any key. Two add calls of two entries each yield lengths 2 then 4. Assigning a→1 then a→2 retains 1. Missing entry/number returns None; a populated intro key returns the corresponding borrowed entry. Multiple bibliography inputs retain insertion order. Verify first-citation numbering and repeated global back references without conflating them with bibliography-entry numbers.
 
----
+## Integration and unresolved historical limits
 
-## Tests obrigatórios (sub-passo .C P181B)
+Bibliography payload extraction, locatable walking and from-tags population remain separately owned. Introspector bibliography access delegates to this store; layout citation consumers query through Introspector rather than mutating it. The facade declares pub mod bib_store without general pub use; TagIntrospector's public bib_store composition is specified by its own owner.
 
-- `BibStore::empty()` retorna `entries().is_empty()` + `len() == 0`
-  + `is_empty() == true` + `number_for_key("any") == None` +
-  `entry_for_key("any") == None`.
-- `add_bibliography` com 2 entries produz `len() == 2`; segundo call
-  com mais 2 entries produz `len() == 4` (cláusula 2 — `extend`).
-- `assign_number("a", 1)` + `assign_number("a", 2)` →
-  `number_for_key("a") == Some(1)` (cláusula 3 — `or_insert`).
-- `entry_for_key("inexistente")` → `None`.
-- `number_for_key("inexistente")` → `None`.
-- `entry_for_key("intro")` populado retorna referência ao entry com
-  `key == "intro"`.
-- `entries()` preserva ordem de inserção em multi-Bib.
+The old claim of no consumers is construction history. Likewise, the initial no-hayagriva/no-CSL four-form description predates later CSL integration and is not a current product-wide prohibition or certification. This store retains its explicit representation and linear lookup; a future IndexMap/EcoString/hayagriva reformulation needs a dedicated specification while preserving the substore role. Historical E2E and back-reference rendering (` ↑[1][3]`) belong to integration evidence, not rendering logic in this owner.
 
----
+## Historical record
 
-## Consumers actuais
-
-Nenhum em P181B. Sub-store existe vazio em `TagIntrospector::empty()`.
-
-## Consumers planeados (P181C–P181J)
-
-- **P181C**: `ElementKind::Bibliography` + `ElementPayload::Bibliography
-  { entries: Vec<BibEntry> }`.
-- **P181D**: `is_locatable(Content::Bibliography) == true`;
-  `extract_payload` arm Bibliography.
-- **P181E**: `from_tags` arm Bibliography popula
-  `bib_store.add_bibliography(entries)` + `assign_number(key, n)`
-  em loop sobre entries.
-- **P181F**: `Introspector::bib_entry_for_key` +
-  `bib_number_for_key` no trait + impl em `TagIntrospector`
-  delegando para `self.bib_store.entry_for_key` /
-  `self.bib_store.number_for_key`.
-- **P181G**: Layouter cite-arm consulta via Introspector.
-- **P181H**: walk arm Bibliography puro (mutação directa removida).
-- **P181I**: tests E2E + lacuna #6 fechada.
-- **P181J**: relatório consolidado.
-
----
-
-## Sobre paridade
-
-Vanilla armazena entries num `IndexMap<Label, hayagriva::Entry>` com
-hashing manual e memoização via comemo. Cristalino divergiu (ADR-0062
-PROPOSTO mas não em vigor) para subset minimal sem hayagriva.
-`BibStore` reflecte essa divergência:
-
-- Sem CSL formatting (Layouter cite-arm hardcoded nos 4 forms
-  `CitationForm::{Normal, Prose, Author, Year}`).
-- Lookup O(n) em `entry_for_key` (linear scan) — escala adequada
-  para subset minimal cristalino; vanilla usa O(1) via IndexMap.
-- Numeração armazenada em `HashMap<String, u32>` separado em vez de
-  derivada da posição em IndexMap.
-
-Quando ADR-0062 transitar para `IMPLEMENTADO`, `BibStore` pode ser
-reformulado sobre `IndexMap<EcoString, hayagriva::Entry>` mas o seu
-papel arquitectural (sub-store de `TagIntrospector` populado em
-`from_tags`) permanece.
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/bib_store.rs` — struct + 9 métodos + 7 tests
-  (P181B: 8 métodos; P181E: +`numbers_len`).
-- `pub mod bib_store;` em `01_core/src/entities/mod.rs` (sem
-  `pub use`; convenção cristalina).
-- Field `pub bib_store: BibStore` em `TagIntrospector` (composição
-  visível; sem getter dedicado — convenção L0
-  `entities/introspector.md` explicita).
-- `entities/introspector.md` actualizado com field novo.
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-05-01 | P181B sub-passo .B: sub-store para entries bibliográficas + numeração 1-based; replica decisões P181A cláusula 1/2/3 | `bib_store.rs`, `bib_store.md` |
-| 2026-05-01 | P181E sub-passo .E: método `numbers_len()` adicionado para suportar `from_tags` arm Bibliography (paralelo a `state.bib_numbers.len()` em walk arm) | `bib_store.rs`, `bib_store.md` |
-| 2026-06-25 | P468: campo `citation_order: Vec<String>` + `record_citation` (pub crate) + `citation_number_for_key` + `citation_order()` para suporte a citação numérica ordenada por primeira aparição | `bib_store.rs`, `bib_store.md` |
-| 2026-06-26 | P472: campo `back_refs: HashMap<String, Vec<usize>>` + `back_refs_for_key()` + `record_citation` actualizado para acumular posição global 1-based; back-refs renderizados em `bibliography.rs` como ` ↑[1][3]`. | `bib_store.rs`, `bib_store.md` |
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/bib_store.md` preserves the original evidence and chronology.

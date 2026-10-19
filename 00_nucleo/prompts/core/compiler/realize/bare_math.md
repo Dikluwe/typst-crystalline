@@ -1,44 +1,51 @@
-# L0 — compiler/realize/bare_math
+# L0 — Mathematical insertion preparation
 Hash do Código: 33f29e69
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
+- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
 
 **Layer:** L1.
 **Exclusive consumer:** `01_core/src/compiler/realize/bare_math.rs`.
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Inserção matemática automática — proposta sujeita ao gate ADR-0127
+## Evidence and ratification
 
-### Medição anterior à decisão — D06, 2026-10-06
+Historical measurement at HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
+uncommitted working tree, is preserved with UTC/diff/state/sources/binaries in
+`lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz`
+and `lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md`.
+Its vanilla pin is `9f2b6e8715237cb086899a42873660fe744622e8`, not the current
+upstream target. Bare frac, mat, sqrt, lr and op produce one Equation in that
+vanilla snapshot and zero in Tekt; math.bold([x]) and ordinary text produce zero
+in both. nested/nested-equation produce one in both; reuse produces two in
+vanilla. block-style/local-block/number-style locate insertion scope;
+show-generated/context-generated expose the same gaps. Explicit Equation
+preserves fraction rendering; vanilla rejects it.body with
+`maximum show rule depth exceeded` while accepting it; a later show affects only
+the second insertion. Refuters cover a raw frac value and original label versus
+explicit Equation.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
-UTC/diff/estado/fontes/binários nas coletas canônicas
-lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
-Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8; proveniência no relatório
-lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md.
+`lab/typst-original/crates/typst-realize/src/lib.rs:245–265,302–334` transforms
+Mathy before show outside math. Historical local `compiler/layout/equation.rs:680–689`
+projects bare math to text; `compiler/realize/mod.rs:155–199` prepares show/identity
+without math normalization; `entities/content/traversal.rs:14–108` descends
+bottom-up into math bodies; `rules/apply.rs:564–607` handles only existing
+locatables. These are language semantics, morphology and render observations;
+they do not require vtables, buffers, Rust equality or equal PDF bytes.
 
-before: frac, mat, sqrt, lr e op nus têm uma Equation no vanilla e zero no Tekt;
-math.bold([x]) e texto comum têm zero nos dois. nested e nested-equation têm
-uma nos dois; reuse tem duas no vanilla. block-style/local-block/number-style
-resolvem o escopo de inserção. show-generated e context-generated expõem as
-mesmas lacunas. additional: Equation explícita preserva o render da fração;
-it.body é rejeitado no vanilla por maximum show rule depth exceeded, enquanto
-it é válido; o show posterior afeta apenas a segunda inserção. refuters mede
-valor frac cru e label original versus Equation explícita.
+The human-confirmation gate for the math-bare package is satisfied by
+`lab/history/construction/records/00_nucleo/materialization/math-bare-aprovacao-2026-10-06.json`
+(manifest `149d6535b442a9275aa6612647ad79eac460351808ea1858175d09d1cf07e1f6`),
+as retained by `00_nucleo/prompts/core/compiler/realize/mod.md`. The historical
+proposal-only heading is superseded. Ratification changes phase restrictions
+only at the named insertion boundaries; it does not certify general parity,
+D07, math labels or other debt.
 
-lab/typst-original/crates/typst-realize/src/lib.rs:245–265,302–334 transforma
-Mathy antes de show fora de math. 01_core/src/compiler/layout/equation.rs:680–689
-projeta math nu em texto; compiler/realize/mod.rs:155–199 prepara show/identidade
-sem normalização math. entities/content/traversal.rs:14–108 é bottom-up e
-recursa no corpo matemático; rules/apply.rs:564–607 trata apenas localizáveis
-já existentes. Estes observáveis são semântica/morfologia/render de linguagem,
-não requisito de vtable, buffers, igualdade Rust ou bytes PDF.
+## Exclusive contract
 
-### Responsabilidade exclusiva
-
-Owner puro da normalização de inserção matemática. Descendente de compiler/realize,
-sem imports reversos entities→compiler. Expor apenas helper interno ao compiler:
+Own pure mathematical insertion normalization as a descendant of compiler/realize,
+with no reverse entities→compiler imports. Expose only this compiler-internal
+helper, preserving its existing signature:
 
 ```rust
 pub(in crate::compiler) fn prepare(
@@ -47,145 +54,153 @@ pub(in crate::compiler) fn prepare(
 ) -> crate::entities::source_result::SourceResult<crate::entities::content::Content>;
 ```
 
-Percorrer por fronteiras antes dos filhos usando o helper interno pré-ordem do
-owner traversal. Equation existente é fronteira matemática: manter corpo sem
-Equation adicional. Em Mathy nu suportado, envolver a raiz uma vez com
-Content::equation(body_original, block_efetivo), sem normalizar seus descendentes.
-block vem de equation.block booleano do escopo de inserção, default false;
-numbering, number-align, supplement e alt conservam o transporte estilístico
-existente, sem campos públicos novos. O helper não aloca Location nem chama Func;
-identidade e aplicação de regra pertencem aos coordenadores atuais.
+Traverse boundaries before children using the traversal owner's internal
+preorder helper. An existing Equation is a math boundary: retain its body without
+adding another Equation. For a supported bare Mathy root, wrap that root exactly
+once with Content::equation(original_body, effective_block), without normalizing
+its descendants. block comes from insertion-scope Boolean equation.block,
+default false; numbering, number-align, supplement and alt retain existing style
+transport without new public fields. Do not allocate Location or call Func;
+identity and rule application belong to the existing coordinators.
 
-Usar classificação fechada por variante do enum e catálogo Mathy medido da fonte
-pinada, não todo nome iniciado por Math. Frac/Matrix/Root/Lr/Mid/Attach/Primes/
-Stretch/Op/Cases/Vec/Accent/Cancel/Underover e seus carriers concretos implementados
-são estruturais. MathIdent/MathText isolados não equivalem a Mathy upstream;
-MathSequence é fluxo a percorrer, não Equation sintética envolvendo tudo.
-MathStyled é estilo transparente: texto isolado fica texto; descendente Mathy
-fora de Equation vira Equation. ClassOverride/LimitsOverride representam os
-wrappers Mathy da fonte quando efetivamente existentes no enum. Confirmar cada
-entrada com file:line e teste pertinente antes da materialização; variante sem
-correspondência não recebe aceitação por semelhança do nome.
+Use closed enum-variant classification and the measured pinned Mathy catalog,
+not a Math-prefixed name heuristic. Structural families include Frac, Matrix,
+Root, Lr, Mid, Attach, Primes, Stretch, Op, Cases, Vec, Accent, Cancel and their
+implemented concrete carriers. Confirm each entry by file:line and the relevant
+test before materialization; a similar name cannot establish acceptance.
+MathIdent/MathText alone are not upstream Mathy. MathSequence is traversable
+flow, not one synthetic Equation around everything. MathStyled is transparent
+style: isolated text remains text and an external Mathy descendant becomes
+Equation. ClassOverride/LimitsOverride represent the source's Mathy wrappers
+where those variants actually exist.
 
-Styled conserva o wrapper e desce com a chain sobreposta; ShowRecipe usa seu
-snapshot lexical próprio e conserva regras/guards/file/textual/context_id_floor.
-Realized conserva original intocado e processa somente o visual ainda não
-preparado. Located preparado conserva sua Location e não é reinterpretado como
-inserção nova. Labels ficam no elemento original; não se promovem à Equation
-criada. Sequence, containers de conteúdo comum e contribuições contextual/show
-visitam as inserções reais, preservando ordem e regiões matemáticas.
+The verified historical mathy-catalog.json records each pinned upstream
+file:line. MathUnderover is a legacy extension from native_underover
+(`stdlib/structural/math/underover.rs:19`) without a corresponding upstream Mathy
+element. This supersedes its initial generic catalog inclusion: preserve its
+existing bare fallback and do not certify extension parity by assuming Mathy.
+MathDelimited is the legacy Lr carrier; class/limits wrappers correspond to
+ClassElem/LimitsElem/ScriptsElem.
 
-Não alterar constructors, repr ou Value cru. Não juntar duas raízes Mathy em
-uma Equation por igualdade/adjacência e não envolver conteúdo normal por ter
-font/math style. Idempotência: uma árvore preparada não ganha equações extras.
+Styled retains its wrapper and descends with the overlaid chain. ShowRecipe uses
+its own lexical snapshot and retains rules/guards/file/textual/context_id_floor.
+Realized retains its original untouched and processes only unprepared visual
+content. Prepared Located retains its Location and is not a new insertion.
+Labels remain on the original element and are not promoted to the new Equation.
+Sequence, ordinary-content containers and contextual/show contributions visit
+actual insertions in order while preserving mathematical regions.
 
-### Gate e aceitação
+Do not change constructors, repr or raw Value. Do not merge adjacent/equal Mathy
+roots into one Equation or wrap ordinary content merely for having font/math
+style. Preparation is idempotent: an already prepared tree gains no equations.
 
-Somente materializar após confirmação humana do pacote math-bare-2026-10-06.md.
-RED→GREEN e revalidação bilateral do escopo são obrigatórios. Esta cláusula
-supersede restrições de fase anteriores apenas nas fronteiras aqui nomeadas,
-sem ratificar paridade universal, D07, math label ou outros débitos.
+## Root projection for causal coordination
 
-### Limite de captura contextual
+`bare_math.rs:14–44` owns the nominal Mathy catalog; `:78–95` prepares a Mathy
+root and subsequently descends through containers. Hidden-child failures T38/T50
+in `lab/results/construction/diagnostics/r3-t1-materializacao-2026-10-18/acceptance-red.log`
+establish the causal order defect, not Mathy classification. The approved causal
+realization package requires root-before-children and Mathy preparation before
+its own insertion selection. before-sources.json.gz preserves the pre-extraction
+owner/source. This is not a new parity measurement.
 
-Capturar o snapshot contextual adicional somente quando existe regra de
-Equation ativa por identidade da nativa, inclusive bases where/and/or. Classificar
-selector estático no helper desta unidade, sem string ou constructor. O snapshot
-nessa posição conserva todas as regras lexicais pertinentes; contextos sem regra
-de equação mantêm o transporte existente. Não ampliar o reparo a contexto/show
-de biblioteca inteira nem alterar terminação de outras famílias.
+Expose only within compiler `prepare_root(&Content, &StyleChain) -> Option<Content>`:
+consult the existing catalog and produce the same effective-block Equation only
+when the root itself is Mathy. Do not inspect children, invoke callbacks or
+allocate Location. prepare reuses this root operation in its Mathy arm while
+preserving all other boundaries, shortcuts and signatures. The causal coordinator
+`00_nucleo/prompts/core/compiler/realize/recipes.md` must not duplicate or own the
+classifier. This internal extraction adds no external Rust API, dependency, flag
+or Mathy criterion. Revalidate existing controls plus Equation/Mathy, context and
+emitted-product cases in the broad causal-realization corpus.
 
-### Catálogo de fonte pinada conferido
+## Closed absence proof and qualified performance decision
 
-mathy-catalog.json registra file:line de cada elemento Mathy no pin atual.
-MathUnderover é extensão legada criada por native_underover (stdlib/structural/
-math/underover.rs:19), sem elemento Mathy correspondente na fonte upstream.
-A menção genérica inicial a Underover nesta proposta é supersedida: não preparar
-esse carrier por suposição; conservar seu fallback nu existente e não certificar
-paridade da extensão. MathDelimited corresponde ao carrier legado de Lr; os
-wrappers de class/limits correspondem a ClassElem/LimitsElem/ScriptsElem.
+`lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/phases-after-reuse.json.gz`
+preserves release SHA-256 `5b4b34340a5f637d9e99c0ad3ee9e209c14b22c18c8890b23d344ea0a2778ecf`,
+HEAD/uncommitted working tree/status/diffstat/UTC/fixtures/CPU and three runs per
+case. For 1,600 cells, local-set evaluation measured 150.42 ms versus no-fill
+118.99 ms, layout 90.54 versus 68.47 ms. stacks-after-reuse.json.gz sampled one
+of every 64 glibc requests and located styled/with_source_span reconstruction
+through map_content, including bare_math::prepare. bare-math-red-gate.json.gz
+records 635,978 local requests against a precoded 600,000 limit. bare_math.rs:45–84
+always calls map_content_pre and rebuilds Styled/TableCell even for plain text.
+A gate failure, paired time or changed output can refute the benefit inference.
 
-## Prova fechada de ausência de Mathy — 2026-10-09
+Before transforming, recursively prove Mathy's absence only for
+Empty/Text/Space/SpaceFromNewline leaves and Source, Styled, Sequence,
+ShowRecipe.body, Realized.visual, TableCell.visual, resolved Table cells+caption
+or raw Table children+header/footer/caption. Equation and Located retain the
+existing preserved-boundary policy. With positive proof return an original-node
+clone without visiting/reconstructing children, comparing visuals, executing
+rules/callbacks or changing source/scope. Every other carrier runs the full
+existing map_content_pre path; unknown variants are never assumed empty.
+Mathy bodies, Label with Mathy, MathStyled and all unlisted math keep the existing
+path. This is a same-owner/phase internal cost change, with no new public
+contract, default, unsafe code or I/O (ADR-0127).
 
-### Medição antes da decisão
+The subsequent bare-math-{red,green}-gate.json.gz,
+measurements-{local-reuse,bare-math}.json.gz and validation-bare-math.json.gz in
+that diagnostic directory preserve HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
+uncommitted state/diffstat, UTC, commands, sources, fixtures and binary SHA-256.
+The glibc gate **failed**: 635,978→607,135, a reduction of 28,843 but still 7,135
+above 600,000. Paired CLI median improved 262.72→249.00 ms; excess over no-fill
+50.16→40.10 ms; paired local Tekt/vanilla overhead +53.6%→+45.8%; no-fill
+212.56→208.90 ms. Different windows have host variation. Allocation reduction
+and the joint direction support but do not precisely isolate the benefit.
+The 23 fixtures had no differences in text/pages/boxes/raster/warnings.
 
-`lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/phases-after-reuse.json.gz` mede o release SHA-256 `5b4b34340a5f637d9e99c0ad3ee9e209c14b22c18c8890b23d344ea0a2778ecf`, HEAD/working tree não commitado/status/diffstat/UTC/fixtures/CPU em três execuções por caso. Em 1.600 células, a avaliação de `local-set` é 150,42 ms contra 118,99 ms de `no-fill`; layout 90,54 contra 68,47 ms. `stacks-after-reuse.json.gz` amostra uma em cada 64 solicitações glibc: Content::styled e with_source_span surgem nas reconstruções por map_content, incluindo `bare_math::prepare`. `bare-math-red-gate.json.gz` registra 635.978 pedidos locais contra limite pré-código 600.000, falha RED, com binário/fonte/comando/UTC/estado. `bare_math.rs:45-84` sempre chama map_content_pre e reconstrói Styled/TableCell mesmo quando toda a subárvore é texto simples. A inferência de benefício será refutada por gate, tempo pareado ou saída diferente.
+Retain the optimization subject to correctness/build qualification because the
+primary search criterion is reduced excess time with equivalent language/render.
+Keep 600,000 explicitly as an unmet quantitative hypothesis; never relabel the
+failed gate GREEN or treat the failure as a regression when requests decreased.
+Revisit residual allocations in a separate experiment; remove this implementation
+if correctness or build gates fail. Acceptance retains RED→GREEN Arc-structure
+reuse controls and actual Mathy transformation in cells/caption/recipes, paired
+local/no-fill/vanilla time, and the 23 observable fixture checks. Remove if excess
+time does not decrease; run suites/build/lint and restricted owner resealing only
+after qualification. Arc identity is engineering evidence, not language parity.
 
-### Decisão interna
+## Context capture boundary and superseded selector maintenance
 
-Antes de transformar, provar recursivamente ausência de Mathy apenas nas folhas Empty/Text/Space/SpaceFromNewline e nos carriers Source, Styled, Sequence, ShowRecipe.body, Realized.visual, TableCell.visual, Table resolvida cells+caption ou Table crua children+header/footer/caption. Equation e Located são fronteiras já preservadas pelo algoritmo vigente. Sob prova positiva, devolver clone do nó original sem atravessar ou reconstruir filhos; não consultar igualdade visual, não executar regra/callback, não alterar fonte ou escopo. Em qualquer outro carrier, executar integralmente map_content_pre vigente; a prova nunca trata variante desconhecida como vazia. Corpo Mathy, Label com Mathy, MathStyled e toda matemática não listada seguem o caminho atual. A mudança é só mecânica de custo no mesmo owner/fase, sem contrato público/default/unsafe/I/O (ADR-0127).
+The current evidence is before.json.gz under
+`lab/results/construction/diagnostics/context-paridade-2026-10-18`, HEAD
+`b7e7c83223e5daa67bbdf124c36b5b7f93200731`, vanilla
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`, with sources, UTC, argv and identities.
+Global/local textual probes return A/A versus R/L. captures_equation_rule had
+only capture_context_recipe in the hub as a productive caller. Its Equation/Table
+whitelist prevents valid rule transport; general lexical transport makes it
+unused (green-text1.log).
 
-### Aceitação
+The ADR-0127 internal correction supersedes only the historical restricted
+context-capture boundary and maintenance clauses for that filter. Remove
+captures_equation_rule and the unit test freezing its obsolete whitelist;
+functional Context tests owned by `00_nucleo/prompts/infra/pipeline/tests.md`
+replace that criterion. Capture preserves rules without claiming they match
+any element. Preserve selector recognition/matching, the Mathy catalog,
+Table/Cell preparation, aliases, wrappers and public interfaces. Silence no lint
+and weaken no language expectation.
 
-Teste RED→GREEN de identidade estrutural Arc para tabela de texto/estilo simples e transformação efetiva de Mathy em célula, caption e receita. Gate glibc pré-fixado em 600.000 pedidos `local-set-1600`, benchmark pareado local/no-fill e vanilla, 23 fixtures com texto/páginas/caixas/raster/avisos inalterados. Reverter se o excesso de tempo não cair; suites, build, lint e resselo restrito do owner após qualificação.
+The prior selector-filter maintenance measurement, its exhaustive nominal
+alternatives, native-equation identity rule, S3 controls, V16/V19 policy and
+structural sentinel acceptance are preserved in
+`lab/results/construction/diagnostics/tekt-v16-show-selectors-2026-10-16/{before.json.gz,classification.json}`
+and the archived original. They no longer authorize retaining/recreating the
+removed whitelist. Their general limits still apply to surviving selector work:
+no name-based identity, no implicit evaluation of filters/conjunctions during
+conservative capture, no duplicated bodies to eliminate informational V19, and
+no allow/expect, severity change or generic helper to hide V16. A shared-body
+execution does not prove all alternatives; guards/recursion need controls.
 
-### Resultado medido e decisão revista — 2026-10-09
+## Acceptance and scope
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado; os recibos `bare-math-{red,green}-gate.json.gz`, `measurements-{local-reuse,bare-math}.json.gz` e `validation-bare-math.json.gz` na pasta diagnóstica acima guardam o status e diffstat completos, UTC, comandos, fontes, fixtures e SHA-256 dos binários. O gate glibc predefinido **falhou**: 635.978→607.135 solicitações no caso local, 7.135 acima do limite de 600.000, embora tenha caído 28.843. A mediana CLI pareada passou de 262,72 para 249,00 ms; o excesso sobre `no-fill` caiu de 50,16 para 40,10 ms e a razão pareada Tekt/vanilla local de +53,6% para +45,8%. O controle `no-fill` passou de 212,56 para 208,90 ms. Janelas distintas sofrem variação do host; a redução de alocações e a direção conjunta de excesso/razão sustentam, mas não isolam com precisão, o ganho da transformação. A comparação das 23 fixtures encontrou zero diferença em texto, páginas, caixas, raster e avisos.
-
-Como o critério primário desta busca é reduzir o excesso de tempo com equivalência de linguagem e render, manter a otimização sob as demais validações. O limite de 600.000 permanece registrado como hipótese quantitativa **não atingida**, sem renomear o gate falho como GREEN. Sua falha não prova regressão: o contador caiu. Revisitar o resíduo de alocações em ensaio próprio; se os gates de correção ou de build falharem, retirar esta implementação.
-
-
-## Seletores de show — exaustividade e agrupamento, 2026-10-16
-
-### Medição anterior à decisão
-
-01_core/src/compiler/realize/bare_math.rs:168 (captures_equation_rule, emitted-v16). O enum em 01_core/src/entities/show.rs:63-96 contém Text, NodeKind, NativeElement, DynKind, Regex, Where, And, Or e Label. Fonte/linhas e funções atuais foram confrontadas com os avisos SARIF da revisão pinada e com o inventário AST anterior, verificando presença literal dos matches na árvore atual. Proveniência: lab/results/construction/diagnostics/tekt-v16-show-selectors-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, hashes/fontes, status e git diff HEAD --stat; classification.json distingue avisos emitidos de predicado latente. Classificação: padrões/exaustividade são mecânica; seleção, texto, efeitos e erro de linguagem permanecem conforme os contratos vigentes. Não há nova medição de paridade ou inferência de ganho de leitura/performance.
-
-### Decisão interna
-
-captures_equation_rule conserva reconhecimento por endereço de native_math_equation e recursão Where/And/Or (any). Nomear Text/NodeKind/DynKind/Regex/Label como false. Não ampliar captura a NodeKind::Equation nem ao nome equation; alias real permanece elegível, nativa homônima falsa não. Não tocar mathy, needs_preparation, fronteiras de inserção, escopo, wrappers ou realização. Teste S3: nove variantes, alias executável, homônimo falso, Where aninhado, And/Or mistos e vazios, NativeWithEngine sem identidade elegível. Captura é conservadora por presença; filtro e conjunção não são avaliados aqui.
-
-Alternativas com o mesmo resultado conservam um corpo compartilhado. Grupos explícitos informam a política vigente e exigem decisão quando Selector cresce; não duplicar corpos para zerar V19. V19 permanece informativo, sem afirmar déficit de cobertura ou fator de multiplicação de testes. Guard e políticas recursivas merecem controles próprios; uma execução do corpo não prova todas as alternativas. Nenhum allow/expect, exceção, ajuste de severidade ou helper genérico para esconder V16.
-
-### Aceitação e limites
-
-Fluxo contínuo ADR-0127: nenhuma assinatura/campo/trait público, default de produto, compatibilidade ou fase nova. Não reabrir propostas históricas deste owner. L0 antes dos testes/código e resselo restrito bilateral. Escrever os controles no módulo e confirmar o comportamento anterior; o RED estrutural é a ausência de E0004 nos seis pontos na cópia real do core com uma variante sentinela acrescentada apenas ao enum copiado. Após nominalização, os seis pontos devem exigir E0004 nessa cópia, sem stubs nem mutação da fonte produtiva. Os cinco V16 selecionados devem desaparecer da emissão, preservando diagnósticos externos e notas V19. Reexecutar testes reais, build, formato, Clippy estrito, Rustdoc e linhagem direta/reversa sob 12 GiB, swap zero e um job Cargo. Não declarar gate global verde enquanto V16 externos permanecerem.
-
-
-## R3-T1 — projeção somente da raiz para o coordenador causal
-
-### Medição antes da decisão
-
-01_core/src/compiler/realize/bare_math.rs:14–44 possui o catálogo nominal
-mathy; :78–95 prepara uma raiz Mathy envolvendo-a em Equation, e o mesmo
-helper depois desce por containers. O coordenador ratificado em
-00_nucleo/prompts/core/compiler/realize/recipes.md não pode duplicar esse catálogo
-nem preparar descendentes antes de decidir o show do pai. Os REDs T38/T50
-em lab/results/construction/diagnostics/r3-t1-materializacao-2026-10-18/acceptance-red.log
-confirmam o defeito causal de filhos ocultáveis; não são prova de Mathy.
-A aprovação R3-T1 cobre a ordem raiz→filhos, preservando Mathy antes da
-seleção da sua própria inserção. before-sources.json.gz desse lote conserva
-este owner e código antes da extração privada; não há alegação nova de paridade.
-
-### Responsabilidade exclusiva e limite
-
-Expor somente no compiler um helper prepare_root(&Content, &StyleChain)
--> Option<Content>: consultar o catálogo mathy existente e, apenas se a
-própria raiz for Mathy, produzir a mesma Equation com block efetivo. Não
-inspecionar filhos, chamar callbacks ou alocar Location. O prepare vigente
-reutiliza esse passo no seu braço Mathy, conservando as demais fronteiras,
-atalhos e assinaturas. Nenhum classificador deve migrar ao coordenador.
-Esta é extração/reutilização interna no fluxo de ordem já ratificado, sem
-API Rust externa, dependência, flag ou critério novo de Mathy. Preservar os
-controles já existentes deste owner e revalidar os controles Equation/Mathy,
-contexto e produto emitido no corpus amplo de R3-T1 antes de fechar o lote.
-
-
-## Context — retirada do filtro restritivo, 2026-10-18
-
-Medição anterior: before.json.gz em lab/results/construction/diagnostics/context-paridade-2026-10-18,
-HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3,
-com fontes, UTC, argv e identidades. Global/local textual retorna A/A contra R/L.
-O único caller produtivo de captures_equation_rule era capture_context_recipe no hub.
-O filtro exclusivo Equation/Table impede transporte de regras válidas e o novo
-transporte lexical geral deixa este predicado sem uso (green-text1.log).
-
-Decisão interna ADR-0127: superseder somente o limite histórico de captura
-contextual e as cláusulas de manutenção deste filtro. Remover captures_equation_rule e seu
-teste unitário que fixa a whitelist obsoleta; os testes funcionais Context do
-owner 00_nucleo/prompts/infra/pipeline/tests.md substituem esse critério de
-captura. Não alterar reconhecimento semântico dos seletores, matching, catálogo
-Mathy, preparo Table/Cell, aliases, wrappers ou interfaces públicas. Captura
-conserva regras; não declara que elas casam qualquer elemento. Nenhum lint é
-silenciado e nenhuma expectativa de linguagem é reduzida.
+Require scoped RED→GREEN and bilateral revalidation of ratified insertion
+behavior. Preserve the compiler-internal helpers and all owner boundaries;
+introduce no public signature/field/trait, product default, compatibility or
+phase changes beyond the ratified insertion package. Do not reopen historical
+proposals through this owner. L0 precedes tests/code and restricted bilateral
+resealing. Run real tests, build, format, strict Clippy/Rustdoc and direct/reverse
+lineage under 12 GiB, zero swap and one Cargo job. Do not claim the global gate
+is green while external V16 findings remain. Historical sequence, superseded
+filter-specific structural tests and approvals are recoverable from
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/realize/bare_math.md`.

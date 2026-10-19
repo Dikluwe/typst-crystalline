@@ -1,171 +1,70 @@
-# Prompt L0 — `Regex` — wrapper L1 sobre `regex::Regex`
+# Prompt L0 — `Regex` — L1 wrapper around `regex::Regex`
 Hash do Código: 2dc79fe4
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/regex.rs`, `01_core/src/entities/value.rs`
-**Criado em**: 2026-05-12 (P209D sub-passo — wrapper L1 sobre
-`regex::Regex` crate para `Selector::Regex` per ADR-0077).
-**Refinado em**: 2026-06-22 (P402 — refino para tipo de primeiro-cidadão:
-`EcoString` + `Arc<regex::Regex>`, integração `Value::Regex`, cast).
-**ADRs relevantes**: ADR-0077 (regex em L1); ADR-0017 (portão aberto);
-ADR-0107 (paridade linguagem); ADR-0029 (pureza L1); ADR-0054 (operações
-regex scope-out); DEBT-52 (`text.font` dict desbloqueado para futuro).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/regex.rs`
+**References:** ADR-0077/0017/0107/0029/0054. Value integration has its own owner.
 
----
+## Contract
 
-## Contexto
+Regex has private pattern:EcoString and compiled:Arc<regex::Regex>.
+Clone derives and shares compiled storage O(1), without recompiling.
+Manual Hash/PartialEq/Eq use only pattern; manual Debug prints
+Regex { pattern: "..." }. Default is empty pattern. Pure L1/no I/O;
+regex dependency is authorized by ADR-0077 and crate/linter configuration.
+RegexError derives thiserror::Error/Debug with Invalid(String) and exact
+message `regex inválida: {0}`.
 
-P209D introduziu `Selector::Regex(Regex)` com wrapper L1 sobre `regex::Regex`.
-P393 activou `Value::Regex(Regex)` para `regex(pattern)` em `#show`. P402
-refina o tipo para primeiro-cidadão pleno: `pattern` passa a `EcoString`,
-`compiled` passa a `Arc<regex::Regex>` (clone barato), e adiciona-se cast
-`Str → Regex`.
+Public new(&str)->Result<Self,RegexError> validates with contextual errors;
+pattern(&self)->&str returns original; is_match(&self,&str)->bool delegates to
+compiled regex; captures_first(&self,&str)->Option<RegexMatch> returns the
+first match or None. RegexMatch has public start:usize,end:usize,text:String,
+captures:Vec<Option<String>>. Offsets are bytes; captures exclude the whole
+match, preserve positional order including named groups, and distinguish
+nonparticipating None from a participating empty string.
 
-## Restrições estruturais
+## Evidence and historical correction
 
-- Camada **L1**: struct puro, sem I/O.
-- `Hash` + `PartialEq` + `Eq` manuais via `pattern`.
-- `Clone` via derive sobre `Arc<regex::Regex>` — clone O(1).
-- `Debug` manual (`compiled` é opaco do crate).
-- Dep `regex` autorizada via ADR-0077 + `crystalline.toml` + `01_core/Cargo.toml`.
+Historical upstream e0e8ca4d foundations/str.rs:426-437 specifies match's
+start/end/text/captures dictionary; captures_to_dict at 930-941 skips group 0
+and maps missing groups to Value::None. The 2026-08-13 "ação: (x)" regex probe
+returned start8/end11/text(x)/one capture on both upstream and local
+HEAD 4f64e4e69, demonstrating bytes (prefix 8 bytes versus 6 codepoints).
+The "ab" with a(x)?(b) probe found upstream (none,"b") versus historical
+local ("","b"). The active API/prose explicitly specifies the corrected
+Option captures, while the archived block still says not implemented and
+labels the finding corrected. Keep the specified None behavior; the stale
+execution-status contradiction needs receipt reconciliation before a closure
+claim. This is a language value distinction, not harmless Rust mechanics.
 
-## Interface pública
+## Integration and type identity
 
-```rust
-use ecow::EcoString;
-use std::sync::Arc;
+Selector::Regex and Value::Regex carry this type. Value's cast is identity for
+Regex and fallible compilation for Str. Public str.match/str.position use
+captures_first. The historical a51e02804 catalog measured type(PATH) as type
+upstream versus function locally for seven callable types; post-atomization
+catalog and 22 probes matched their structural baseline. Evidence lives in
+`lab/results/construction/diagnostics/superficie-linguagem-p1140*`.
+Global regex is Value::Type(Type::Regex), callable through static dispatch to
+the existing constructor: type(regex)==type and repr(type(regex))=="type";
+constructed values still have type_name()=="regex". Entity storage/operations
+remain unchanged.
 
-#[derive(thiserror::Error, Debug)]
-pub enum RegexError {
-    #[error("regex inválida: {0}")]
-    Invalid(String),
-}
+## Acceptance and deferred scope
 
-#[derive(Clone)]
-pub struct Regex {
-    pattern: EcoString,
-    compiled: Arc<regex::Regex>,
-}
+Preserve exact test identifiers regex_new_valido_ok,regex_new_invalido_err,
+regex_is_match_basico,regex_eq_via_pattern,regex_clone_preserva_semantica,
+regex_hash_determinismo,value_regex_type_name,value_regex_cast_identity,
+value_regex_cast_from_str,value_regex_cast_from_str_invalid,value_regex_partial_eq.
+Verify valid/invalid compilation, match, pattern identity/hash, cheap semantic
+clone, Value casts/type and optional-capture/byte-offset behavior.
 
-pub struct RegexMatch {
-    pub start: usize,
-    pub end: usize,
-    pub text: String,
-    pub captures: Vec<Option<String>>,
-}
+Flags remain ADR-0054 scope-out. Historical text.font dictionary DEBT-52,
+regex str.replace and Selector::Regex text-query stub were deferred in this
+owner's original slice; their current status belongs to their own owners.
+This entity neither reopens completed external work nor claims its closure.
 
-impl Regex {
-    pub fn new(pattern: &str) -> Result<Self, RegexError>;
-    pub fn pattern(&self) -> &str;
-    pub fn is_match(&self, text: &str) -> bool;
-    /// **P689** — primeiro match: posições em **bytes** (paridade vanilla),
-    /// texto do match e capturas dos grupos (em ordem; grupo não-participante → None (P1075)).
-    pub fn captures_first(&self, text: &str) -> Option<RegexMatch>;
-}
+## Historical record
 
-impl Hash for Regex      { /* via pattern */ }
-impl PartialEq for Regex { /* via pattern */ }
-impl Eq for Regex        {}
-impl Debug for Regex     { /* Regex { pattern: "..." } */ }
-impl Default for Regex   { /* pattern vazia */ }
-```
-
-## Semântica
-
-- `Regex::new(pattern)`: valida pattern; erro contextual.
-- `pattern()`: pattern original.
-- `is_match(text)`: delega ao `regex::Regex` compilado.
-- `captures_first(text)` (**P689**): delega a `regex::Regex::captures`; devolve o
-  primeiro match com índices em **bytes**, o texto e as capturas dos grupos em ordem
-  (grupo opcional não participante → `None` (P1075: paridade estrita com vanilla `str.rs:936-940`)).
-  Base de `str.match` e de `str.position(regex)`. Grupos nomeados entram na ordem
-  posicional (paridade vanilla).
-
-> **Fonte de paridade (P1031)** — vanilla ratificado (`e0e8ca4d`). A superfície de linguagem
-> correspondente é `str.match`, cujo doc comment `#[func]`
-> (`crates/typst-library/src/foundations/str.rs:426-437`, publicado em
-> `typst.app/docs/reference/foundations/str/#definitions-match`) diz:
->
-> *"Searches for the specified pattern in the string and returns a dictionary with details
-> about the first match or `{none}` if there is no match. The returned dictionary has the
-> following keys: - `start`: The start offset of the match - `end`: The end offset of the
-> match - `text`: The text that matched. - `captures`: An array containing a string for each
-> matched capturing group. **The first item of the array contains the first matched
-> capturing, not the whole match!** This is empty unless the `pattern` was a regex with
-> capturing groups."*
->
-> Isto sustenta literalmente: (a) a forma do resultado; (b) que as capturas **excluem** o
-> match completo — o `skip(1)` de `captures_to_dict` (`str.rs:930-941`); (c) a ordem
-> posicional.
->
-> **Offsets em bytes — confirmado por medição (2026-08-13).** Documento
-> `#let m = "ação: (x)".match(regex("\((.)\)"))`:
->
-> | Binário | Resultado |
-> |---|---|
-> | Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) | `start=8 end=11 text=(x) caps=1` |
-> | Cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`) | `start=8 end=11 text=(x) caps=1` |
->
-> `"ação: "` tem 8 bytes UTF-8 e 6 codepoints; ambos dão 8 → **bytes**, em paridade. ✅
->
-> **ACHADO CORRIGIDO (P1075) — grupo não participante devolve `none` (`Value::None`).**
-> O vanilla mapeia explicitamente para `Value::None` (`str.rs:936-940`):
-> ```rust
-> "captures" => cap.iter().skip(1)
->     .map(|opt| opt.map_or(Value::None, |m| m.as_str().into_value()))
->     .collect::<Array>(),
-> ```
-> Medição, documento `#let m = "ab".match(regex("a(x)?(b)"))` + `#repr(m.captures)`:
->
-> | Binário | `captures` |
-> |---|---|
-> | Vanilla | `(none, "b")` |
-> | Cristalino | `("", "b")` |
->
-> É superfície de linguagem (o valor observável de um campo do dicionário devolvido), logo
-> paridade — e é diferença semântica real: `none` e `""` distinguem-se em comparações e em
-> `type()`. Mudança de comportamento por defeito → gate ADR-0127 e passo próprio.
-> **Não implementado aqui.**
-- `Hash`/`PartialEq`/`Eq`: por `pattern` (valor linguagem).
-- `Clone`: partilha `Arc<regex::Regex>`; não recompila.
-
-## Consumers
-
-- `entities::selector::Selector::Regex(Regex)` — P209D.
-- `entities::value::Value::Regex(Regex)` — P393 + P402 refino.
-- `cast_regex()` em `Value`: `Regex` identidade; `Str` → compile fallible.
-
-## Tests obrigatórios
-
-- `regex_new_valido_ok`, `regex_new_invalido_err`.
-- `regex_is_match_basico`.
-- `regex_eq_via_pattern`, `regex_clone_preserva_semantica`, `regex_hash_determinismo`.
-- `value_regex_type_name`, `value_regex_cast_identity`, `value_regex_cast_from_str`,
-  `value_regex_cast_from_str_invalid`, `value_regex_partial_eq`.
-
-## Não-objectivos
-
-- `text.font` dict — DEBT-52, depende de refactor futuro.
-- Flags regex — scope-out ADR-0054.
-- `str.replace` com regex — scope-out (P689 cobre apenas `str.match`/`str.position`).
-- Query `Selector::Regex` sobre Content text — continua stub.
-
-
-## P1140.1-B — medição anterior à decisão (2026-08-23)
-
-No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
-cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `lab/results/construction/diagnostics/superficie-linguagem-p1140*`
-medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
-`tiling` e `version`. Os construtores atuais foram novamente executados após
-a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
-baseline estrutural. Esta é divergência de semântica pública da linguagem,
-não de mecânica Rust (ADR-0107).
-
-## P1140.1-B — identidade pública do tipo `regex`
-
-O nome global `regex` é o valor `Value::Type(Type::Regex)`, chamável
-pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
-`type(regex) == type` e `repr(type(regex)) == "type"`, enquanto valores
-construídos continuam com `type_name() == "regex"`. A representação interna
-da entidade e suas operações não mudam.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/regex.md`. Historical observations are not a new parity certification.

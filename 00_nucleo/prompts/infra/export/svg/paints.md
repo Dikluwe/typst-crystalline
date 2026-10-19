@@ -2,7 +2,7 @@
 Hash do Código: e496e1b6
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/svg/paints.rs`
@@ -45,8 +45,9 @@ coincident boundaries and the 0/1 seam. Local paint failures are not external la
 Unknown; integration beyond that local geometry remains outside this owner.
 Other conic spaces, including CMYK, keep conic-gradient fallback.
 
-Tiling supports only resolved size plus Color body, retaining size/spacing/relative
-semantics. Opaque/unresolved tiling keeps tiling-content-or-size fallback. Unsupported
+The earlier size-plus-Color-only tiling boundary is superseded by the approved
+prepared vector-cell contract below. Opaque/unresolved unprepared carriers retain
+their explicit tiling-content-or-size failure boundary. Unsupported
 paint retains its existing first-color geometry-preserving fallback with the correct
 data-crystalline-fill-fallback or stroke marker and Unknown classification. Do not
 promote unsupported pairs by wildcard or add ICC/downloads/decoders here.
@@ -58,87 +59,96 @@ stop discontinuities/alpha, adaptive representation, conic local error budgets a
 tiling support. Do not replace the existing validated numerical envelopes with
 stop counts, IDs or XML bytes as parity criteria.
 
-## Cálculos numéricos dos exportadores — 2026-10-13
+## Numeric evidence and prepared vector patterns
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/gradientes-numericos-ci-2026-10-13/before.json.gz`
+retains library/consumer/owner/manifest/lock/spans/HEAD/tree/UTC/status/diffstat at
+paints.rs:165,166,259,260,299–302,327–330. clippy.toml requires platform-independent
+math, libm =0.2.11 already locked. Full24-source before-render/binary/command/
+whole-canvas comparison evidence retains pre-existing differences and invalid
+initial hsv fixture in that package, not a global parity claim.
+Use f64 libm::sin/cos/atan2 preserving y/x argument order, post-rem_euclid negation,
+aspect/center/wedges/stops/fallback, promoted spaces/thresholds/masks/envelopes.
+Pin direct L3 =0.2.11 without upgrades/I/O. Continuous ADR-0127 no public/default/
+phase/strategy; L0 first/scoped seals. Existing formulas/same24 documents PDF-SVG
+before/after/raster/structure, separately compare preservation and historical
+vanilla divergences; analyze new render changes, no changed tolerance/fixtures/
+suppression. All-target compile/infra suite/build/Clippy/Rustdoc/fmt/lineage;
+counts/files alone prove no parity.
 
-`03_infra/src/export/svg/paints.rs` nas linhas [165, 166, 259, 260, 299, 300, 301, 302, 327, 328, 329, 330] usa métodos apontados pelo Clippy. `clippy.toml` exige alternativas sem dependência da matemática da plataforma; libm =0.2.11 já está pinado no core/Cargo.lock. Os fontes da biblioteca, consumer, owner, manifest/lock, spans, HEAD, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/gradientes-numericos-ci-2026-10-13/before.json.gz`.
+## Prepared Shape fixture transport
 
-`before-renders.json` registra 24 fontes renderizadas em PDF/SVG por Tekt e pelo vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, com hashes dos binários e comandos. `before-comparison.json` mede o canvas inteiro sem máscaras ajustadas pelo erro. Existem divergências anteriores; o corpus não é prova de paridade integral. A primeira tentativa de fixture usava hsv fora do namespace color, foi rejeitada pelo parser antes de qualquer mudança produtiva e está preservada em initial-fixture-error.log; cases.json contém as entradas válidas.
+### Evidence and approval
 
-### Decisão e aceitação
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz`
+retains HEAD/tree/diffstat/UTC/sources/owners before migration. layout_types.rs:510–511
+carried Paint/Stroke; shape.rs:151–191 materialized only group fills; tiling.rs:85
+limited/cloned its grid. prepare_cell already returns TilingFrame once per
+occurrence. `tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
+shows dense-open/stroke-open divergences across all three targets. Manifesto
+`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d` was approved;
+receipt `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+Preparation/object counts are transport mechanics; rendering/outlines/text/geometry/
+diagnostics are language observables.
 
-Usar libm::sin, libm::cos e libm::atan2 de libm 0.2.11, todos f64, nas geometrias linear e cônica. Conservar a ordem y/x de atan2, a negação depois de rem_euclid, correção de aspecto e semântica de centro, wedges, stops e fallback. Não mudar thresholds, espaços promovidos, máscaras ou envelopes visuais.
+### Contract and acceptance
 
-Dependência direta interna de L3 fixada em =0.2.11 no manifest, reutilizando a versão já no lock. Não atualizar versões de pacotes nem adicionar I/O. Mudança interna em fluxo contínuo ADR-0127, sem contrato público, default, fase ou estratégia novos. L0 precede código e resselo é limitado aos owners envolvidos.
+Store FramePaint and placement matrix in private definitions. Dedup Solid/Gradient
+by their data, Tiling by private cell identity+matrix, never serialized address or
+language equality inference. Emit prepared tiling as userSpaceOnUse vector pattern
+with clipped frame.size cell, pitch width/height and affine-helper patternTransform.
+Queue nested definitions without breaking references; share document fonts/glyphs/
+clip IDs, local root/decorative mode. Preserve current gradient support/fallback;
+prepared tiling cannot silently fall back to solid. Test density/clipping/Self-
+Parent/pivot/large-period/overlap/nested resources.
+Consume the pinned nucleus. Approval supersedes only old approval-pending or
+Shape-declarative-Paint/Stroke clauses within this package; other behavior survives.
+L0 first, RED→GREEN, explicit fixture/consumer migration, no total From<Paint>,
+carrier PartialEq or solid fallback merely to compile. Do not raise the old limit
+or move layout to L3. Validate fill/stroke/resource/clipping/affine Parent/native-
+target/Solid/Gradient/page semantics and full suite/build/doc/fmt/lineage. The
+prepared transport, native-target integration and parity slices recorded as
+T1c/T2/T3 are complete only after integrated verification; broken/partial states
+are no production certificate. T4 and publication remain out of scope.
 
-Validar as fórmulas com a suíte existente, exportação dos mesmos 24 documentos antes/depois e leitura raster/estrutural de PDF/SVG. Comparar a preservação local separadamente das divergências contra o pin vanilla; nenhuma diferença nova de render é aceita sem análise. Não alargar tolerâncias/limites, mudar fixtures ou supressões para esconder uma falha. Compilar todos os targets, executar a suíte infra, verificar build, Clippy, Rustdoc, formato e linhagem. Contagens e identidade de arquivos não certificam a paridade da linguagem.
+## Explicit period composition supersedes visible overflow
 
+`tiling-overlap-2026-10-14/before.json.gz` retains sources/owners/HEAD/UTC/tree;
+native tiling final-renders/remaining-analysis.md observes8×8cell/4×4pitch/50%alpha:
+opaque-red PDF/one SVG contribution/four PNG(255,15,15). pdf_tiling.rs:184 BBox=size,
+paints.rs:148 overflow visible and text/shape lost alpha expose composition defects;
+vanilla clipping overlap is no requirement to copy. Analytic source-over and
+nonoverlap controls refute incorrect composition.
 
-## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
+Store clipped vector cell body once as identified g in defs. Pattern viewport=pitch,
+overflow hidden, translated use per helper contribution in preserved order; never
+rely on overflow visible. This specifically supersedes previous overflow-visible
+clause. Keep nested queue/unique glyph-font-clip IDs/local root/decorative-link
+exclusion. No isolated semantic links from cell. Continuous ADR-0127 within approved
+native package adds no API/phase/flag/default. L0 first/RED→GREEN/analytic distinct-
+color ordering/simple-nested-rotated-text-image/page selection-extraction controls,
+build/workspace suite/fmt/Rustdoc/lineage. Variable-gradient alpha/PNG quality remain
+open; no production certification with them uncompleted.
 
-### Medição anterior à decisão
+## Cache exhaustivity and borrowed cell session
 
-`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
-HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
-layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
-materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
-prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
-`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
-comprovam que dense-open e stroke-open ainda divergem nos três targets.
-O contrato foi aprovado no manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A preparação/contagem de objetos é mecânica de transporte; render, contornos,
-texto, geometria e diagnósticos são obrigações observáveis de linguagem.
+verified-v3/followup-clippy-inventory.json/followup-architecture.log retains
+candidate-final/workspace-pre structural findings. Private comparator names all
+six distinct-variant pairs false, no wildcard hiding future alternatives. Cache
+identity/equality is not language equality; no limit increase/allow. Preserve suite/
+renders before-after/fmt/doc/lineage.
 
-### Responsabilidade exclusiva desta unidade
-
-Armazenar FramePaint e a matriz de placement em definições privadas. Deduplicar Solid/Gradient por seus dados e Tiling por identidade privada da célula mais matriz, nunca serializar endereço. Emitir tiling como pattern userSpaceOnUse com uma célula vetorial recortada a frame.size, width/height iguais ao pitch, overflow visível para spacing negativo, e patternTransform calculada pelo helper afim. Enfileirar definições aninhadas durante a emissão sem invalidar referências; usar fonte/glyph/clip IDs do documento, raiz local e modo decorativo dentro da célula. Não inferir equivalência de linguagem pela identidade usada no cache. O suporte/fallback de gradientes vigente é preservado; tiling preparado não tem fallback sólido. Testar densidade, clipping, Self/Parent, pivô, período grande, overlap e recursos aninhados.
-
-### Aceitação e continuidade
-
-Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
-aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
-somente no âmbito do contrato aprovado. Preservar os demais comportamentos
-vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
-fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
-carriers e sem fallback sólido para obter build verde. Não elevar o limite
-antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
-clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
-página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
-quando integrados e verificados; estado intermediário quebrado ou parcial
-não é certificação de produção. T4 e publicação continuam fora deste pacote.
-
-## Higiene da migração nativa
-
-Medição: verified-v3/followup-clippy-inventory.json e followup-architecture.log, com candidate-final e workspace-pre próprios, registram quatro f32::hypot proibidos, um argumento adicional, dois itens produtivos depois de módulos de teste e dois wildcards neutros novos.
-
-Decisão interna em fluxo contínuo (ADR-0127): O comparador privado de cache enumera os seis pares de variantes distintas como false, sem wildcard que aceite silenciosamente futuras variantes. Identidade/igualdade do cache não é igualdade de linguagem. Não elevar limites nem adicionar allow. Validar suíte e renders antes/depois, além de formato, doc e linhagem.
-
-## Composição de período e alpha sólido — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-overlap-2026-10-14/before.json.gz` preserva fontes, owners, HEAD, UTC e working tree. `tiling-nativo-2026-10-14/final-renders` e `remaining-analysis.md` registram cell8×8/pitch4×4 alpha50%: PDF vermelho opaco; SVG só uma contribuição; PNG quatro contribuições (255,15,15). `pdf_tiling.rs:184` emite BBox=size, `svg/paints.rs:148` usa overflow visible; `stream/shape.rs:155` e `stream/text.rs:275` descartam alpha. São defeitos observáveis de composição; o vanilla também corta overlap e não serve de requisito para esse defeito. Hipótese refutável: compor explicitamente um período preserva controles sem overlap e quatro contribuições coincidem com fonte-over analítica.
-
-### Responsabilidade desta unidade
-
-Guardar o corpo vetorial recortado uma vez num g identificado dentro de defs. Pattern com viewport pitch e overflow hidden contém use traduzido para cada contribuição do helper, preservando ordem. Não depender de overflow visible para compor vizinhos. Manter fila de patterns aninhados, glyphs/fonts/clip IDs únicos, raiz local e exclusão de links decorativos. Cláusula anterior sobre overflow visible fica substituída.
-
-### Aceitação
-
-Correção interna ADR-0127 dentro do T1–T3 já aprovado, sem nova API/fase/flag/default. L0 primeiro, RED→GREEN, composição analítica (incluindo ordem com cores distintas), controles simples/nested/rotated/text/image e extração/seleção de páginas. Build, suíte workspace, formato, Rustdoc e linhagem. Alpha variável de gradientes e qualidade PNG seguem incompletos; não certificar pacote de produção com esses itens abertos.
-
-
-## Aridade final — materialização interna, 2026-10-16
-
-### Medição anterior à decisão
-
-Fontes e L0 vigentes conferidos antes do código; snapshot lab/results/construction/diagnostics/clippy-aridade-final-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, status, diffstat e hashes globais. callers.txt registra busca no workspace, incluindo fixtures; as chamadas homônimas do math::MathLayouter são outro motor e permanecem intactas. Inventário anterior tem 22 avisos, cinco destas aridades. Trata-se de estrutura privada Rust, sem nova afirmação de paridade ou intenção upstream.
-
-### Responsabilidade exclusiva e aceitação
-
-Migrar chamada do dispatcher de células de tiling para SvgRenderSession privado do owner 00_nucleo/prompts/infra/export/svg.md. Criar visão reemprestada dos mesmos fonts/glyph_defs/self/clip_next_id/glyph_fonts, com destinations vazio e html_frame false no escopo da célula; nenhuma cópia de caches ou contador novo. Manter identity/decorative true temporários e restaurar o par anterior após o empréstimo; manter fila de paints aninhados, ordem, clip, contribuição/período e assinatura de PaintDefs.write.
-
-Este adendo materializa somente o escopo nominal e supersede seu estado pendente da auditoria. Fluxo contínuo ADR-0127: sem contrato externo, default, fase ou compatibilidade novos. L0 primeiro e resselo restrito. RED de too_many_arguments antes do código, GREEN sem novas supressões ou alteração de limiar; expectativas anteriores devem continuar satisfeitas. Conferir corpos e transporte de valores, preservar fixtures/esperados, sem testes que espelhem carriers. Executar controles existentes de Grid/Table/outline e SVG/tiling antes/depois, suíte workspace completa, build, Clippy all-targets, Rustdoc, formato, linhagem estrita/reversa e Tekt sem novos avisos, sob 12 GiB, swap zero e um job. Resultados não certificam paridade global ou conformidade PDF/UA.
+clippy-aridade-final-2026-10-16/before.json.gz/callers.txt retains checked source/
+L0/HEAD/tree/UTC/status/diffstat/hashes/workspace+fixtures; MathLayouter homonyms
+stay separate. Original22 warnings/five arities are representation, no parity claim.
+Migrate tiling-cell dispatcher to private SvgRenderSession from
+`00_nucleo/prompts/infra/export/svg.md`: reborrow same fonts/glyph_defs/self/
+clip_next_id/glyph_fonts, destinations empty/html_frame false. No cache copy/new
+counter. Keep temporary identity/decorative true, restore old pair after borrow;
+nested queue/order/clip/contributions/period/PaintDefs.write signature unchanged.
+This materializes only named private scope, superseding its earlier pending status.
+No external/default/phase/compatibility change; L0 first/scoped seals, real arity
+RED→GREEN/no suppression/threshold change, old expectations/body/value transport,
+Grid/Table/outline/SVG-tiling controls before-after/full workspace suite/build/
+all-target Clippy/Rustdoc/fmt/strict-reverse lineage/Tekt no new warnings under12GiB/
+zero swap/one job; no carrier-mirror/global-parity/PDF-UA claims.

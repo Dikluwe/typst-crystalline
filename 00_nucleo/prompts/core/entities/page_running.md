@@ -5,7 +5,7 @@ Hash do Código: e25bc00b
 **Exclusive consumer:** `01_core/src/entities/page_running.rs`
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/page-running.toml sha256:88345b9a32ff8678a2ff236d21cbd7c18913820ed151fc704c116ab2542288ed
+- 00_nucleo/prompts/_nuclei/layout/page-running.toml sha256:9f5dc1dba49ac843612415dfe6018b40308686a4fef442d153bdbd06834466d2
 
 ## Evidence before specification
 
@@ -41,14 +41,24 @@ No public page constructor is authorized here. Verify default alignment,
 offsets and marginal distinctions. Historical composition sequences and
 cross-owner obligations are retained in the diagnostic, not redefined here.
 
-## Default derivado com valor preservado — 2026-10-13
+## Equivalent derived Default
 
-### Medição anterior à decisão
+### Evidence before specification
 
-`01_core/src/entities/page_running.rs:41` contém a implementação manual de Default sinalizada pelo Clippy. O corpo existente retorna a mesma variante ou inicializa cada campo pelo seu default. O tipo não é genérico, portanto a derivação não acrescenta bounds a parâmetros públicos. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, spans, UTC, status e diffstat estão em `lab/results/construction/diagnostics/expressoes-defaults-ci-2026-10-13/before.json.gz`. É evidência de implementação, não nova medição de paridade ou desempenho.
+The former manual Default at `01_core/src/entities/page_running.rs:41`
+was identified by Clippy. At HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b` with uncommitted working tree,
+`lab/results/construction/diagnostics/expressoes-defaults-ci-2026-10-13/before.json.gz`
+records sources/owners/spans/UTC/status/diffstat. The non-generic type gains
+no parameter bounds and keeps the same value. This is implementation evidence,
+not new parity or performance measurement.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Substituir somente a implementação manual de Default por derive(Default), conservando o trait já implementado e seu valor. PageMarginal mantém Auto, anotada com #[default]. PageNumberAlign::default continua manual e center/bottom; não derivá-lo nem alterar offsets, presença ou marginais. Os exemplos anteriores de impl Default explicitam o valor exigido; a derivação equivalente passa a ser a forma desta implementação.
-
-Não alterar assinatura pública, campos, variantes, comportamento padrão do produto ou fase. Correção mecânica interna em fluxo contínuo ADR-0127. Preservar testes e expectativas; validar todos os targets do workspace, suíte core, registro de testes, build, rustdoc, Clippy e linhagem.
+Use derive(Default) with #[default] on PageMarginal::Auto, replacing only
+that manual implementation. Keep PageNumberAlign::default manual and
+center/bottom; do not change offsets, presence or marginals. Old manual
+examples specify the same required value. No public
+signature/field/variant, product default or phase change. Preserve all tests
+and expectations; validate complete workspace targets, core suite, test
+inventory, build, Rustdoc, Clippy, and lineage under continuous ADR-0127 flow.

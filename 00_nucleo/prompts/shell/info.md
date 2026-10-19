@@ -5,7 +5,7 @@ Hash do Código: b2e57126
 **Exclusive consumer:** `02_shell/src/info.rs`
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/shell/info-projection.toml sha256:f7f63d22ab1b490c71f5e93f5fdf22da8e068dc15dfe1f9aa9cdb5fd7f95ab4d
+- 00_nucleo/prompts/_nuclei/shell/info-projection.toml sha256:38cf0e0cd41983e89af19f163e9203e2e97cbea25b12a3a7fe6c68c915294557
 
 ## Evidence and ownership
 

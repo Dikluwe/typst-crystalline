@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/counter.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Reconciled full Counter causal key/read/display/action/Page snapshot history and catalog expansion; explicit approvals retained, Args/BeforeAfter gaps and cfg observation boundaries preserved without production telemetry inference.",
+  "original_sha256": "5ecb5124ea126d74c3b688fbd7b0138d33ab9d49b670ccd4a0b59846bd2768a9",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/counter.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

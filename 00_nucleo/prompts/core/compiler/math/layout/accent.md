@@ -2,7 +2,7 @@
 Hash do Código: d8c8ff7c
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 
 
 **Layer:** L1
@@ -42,79 +42,122 @@ attachment and nested baseline geometry, using attributable font metrics.
 The current oversized-accent width heuristic and incomplete attachment
 attribution are audit limitations, not new normative exceptions.
 
-## Identidade extraível dos acentos
+## Extractable accent identity
 
-Na sonda `.typ/sec_10.typ` e `.typ/sec_12.typ` do diagnóstico
-`typs-teste-2026-09-30`, `pdftotext -layout` separa/inverte a marca combinante
-e sua base enquanto a expressão da linguagem conserva a relação base+marca.
-Quando a base realizada é uma folha textual de um caractere e o acento é uma
-marca combinante, envolver os itens visuais posicionados em um
-`TextReplacement` com a sequência base seguida da marca, por ocorrência.
-Para base composta, conservar seus itens e não inventar uma serialização
-textual. O envelope não muda tamanho, deslocamento, fonte nem desenho.
+The .typ/sec_10.typ and .typ/sec_12.typ probes in typs-teste-2026-09-30 show
+pdftotext -layout separating/reversing combining marks and bases while language
+preserves base+mark. For a realized single-character text leaf with a combining
+accent, wrap positioned visual items in one TextReplacement containing base
+then mark per occurrence. Composite bases retain their items without invented
+text serialization. The envelope changes no size/offset/font/drawing.
 
-A sonda pós-correção mostrou `dot(dot(x))` extraído como marca+base+marca
-quando o envelope interno permanece aninhado. Para acentos aninhados de uma
-base textual atômica, compor a sequência de todas as marcas na ordem interna
-para externa e abrir somente um envelope externo; os envelopes internos são
-transparentes apenas para esse caminho, mantendo todos os filhos visuais.
+Post-correction dot(dot(x)) extracted mark+base+mark with an inner nested
+envelope. For nested accents on an atomic textual base, compose all marks from
+inner to outer and use only one outer envelope. Inner envelopes are transparent
+only on that path, retaining all visual children.
 
-## Atomização interna do owner
+## Internal responsibility separation
 
-A resolução de `size`/`dotless`, a orientação da marca, o posicionamento
-geométrico e a composição da identidade textual devem ser operações privadas
-distintas dentro do consumer `accent.rs`. A identidade extraível é aplicada
-depois de posicionar os itens e não altera métricas. Essa separação não
-introduz consumer, API ou comportamento novo.
+Within accent.rs, keep size/dotless resolution, mark orientation, geometric
+placement and text-identity composition as distinct private operations.
+Apply extractable identity after positioning, without metric changes.
+This creates no consumer/API/new behavior.
 
-## Helpers e armazenamento sem uso — 2026-10-13
+## Narrow unused-helper maintenance
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`01_core/src/compiler/math/layout/accent.rs` nas linhas 29 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+accent.rs:29 is the historical Clippy inventory item at HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree.
+`lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`
+retains sources/owners/references/UTC/status/diffstat. Call-site/productive-path
+research precedes classification; no new parity/performance evidence.
+accent.rs:153 is the unused/visibility item whose before-edit usages/dispatchers
+are in `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`,
+with the same HEAD/uncommitted state, sources/L0/UTC/status/diffstat; no new
+bilateral parity evidence.
 
-### Decisão e aceitação
+### Exclusive prescription and acceptance
 
-Compilar o helper interno `layout_accent` somente sob `#[cfg(test)]`, conservando assinatura e corpo para os testes existentes. O despacho produtivo usa layout_accent_elem; o wrapper preserva seu cenário histórico de tamanho natural e dotless false somente para testes.
+Compile internal layout_accent only under `#[cfg(test)]`, preserving signature/
+body. Productive dispatch uses layout_accent_elem; the wrapper's historical
+natural-size/dotless-false scenario is test-only. Remove only unused duplicate
+difference dx; preserve accent_x=base_attach-accent_attach, all attachment queries,
+geometry and identity. Preserve productive routes/test names/bodies/external APIs/
+defaults/phase/language expectations. ADR-0127 internal continuous flow requires
+all workspace-target build/check, core suite, test inventory, Clippy and lineage;
+remove no expectations or suppress warnings instead of fixing.
 
-Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.
+## Nominal source-transparent accent projections
 
+### Evidence before decision
 
-## Caminhos residuais internos — 2026-10-13
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz`
+retains UTC, sources/L0/hashes/configuration, status and exact git diff HEAD --stat;
+initial-ten-owners.json.gz preserves the first snapshot. contexts.json,
+all-contexts.json and wildcard-inventory.json retain AST/spans from the pinned
+CI parser. The previous suite passed on the same input code, reconfirmed by hash.
 
-### Medição anterior à decisão
+source-probe-before.json measures inline limits at width 7.2pt versus 12.912pt
+with Source. source-family-before.json preserves the first 12 pairs (11
+differences). source-family-supplement.json and analysis preserve 23 attributable
+pairs (19 differences, 4 equal controls): limits, kerns, Op.text, accents/dotless,
+supports, matrix alignment, spacing, sequences, stretch and class.
+source-lines-before.json measures the same equation at two lines versus one and
+last baseline 16.2 versus 0 under Source despite equal extents. Geometry,
+extractable identity and equation metadata are observables; bytes/pointers/Rust
+equality are not. The content-source-origin nucleus already requires transparency;
+inspection finds helpers classifying wrappers instead of their bodies. Infer no
+historical intent or global parity. The supplemental analyzer's 24-versus-23
+count error was corrected from valid original stdout without rerunning or
+counting the analyzer error as functional RED.
 
-`01_core/src/compiler/math/layout/accent.rs` nas linhas 153 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+### Exclusive prescription
 
-### Decisão e aceitação
+Borrow-normalize Source in extract_base_char, one_char and atom_identity
+scrutinees. dotless_base transforms the normalized body and reapplies its first
+origin via existing source_span/with_source_span. Preserve explicit/size/dotless,
+fields/styles and other arm bodies. This makes Source-wrapped i/j dotless while
+retaining one base+marks textual occurrence; never measure drawing from text.
 
-Eliminar somente dx, diferença duplicada sem consumidor; manter accent_x = base_attach - accent_attach e todas as consultas de attachment, geometria e identidade do acento.
+Replace only the selected fallback with the current nominal complement of
+unconditional arms, preserving bodies/guards/order. Guarded variants remain in
+the complement when the guard fails. The attach owner's Option projection is
+the sole structural exception: None returns through ?, Some enters a nominal
+normalized-Content match without a deep pattern; that remains its own boundary.
 
-Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.
+| Site | Scrutinee | Exclude unconditionally | Guarded alternatives retained in complement |
+| --- | --- | --- | --- |
+| L01 accent.rs:131 extract_base_char | Content | MathAccent | MathText |
+| L02 accent.rs:136 layout_accent_resolved | Content | none | MathText |
+| L03 accent.rs:241 atom_identity | Content | none | MathText, MathIdent, MathAccent |
 
+Keep previous fallback bodies outside the sought property, expanding only the
+specified Source transparency. Guarded variants remain in the complement when
+the condition is rejected.
 
-## Exaustividade nominal e origem matemática — 2026-10-17
+### Acceptance and limits
 
-### Medição anterior à decisão
+L0 before code. This ADR-0127 internal parity correction adds no public field/
+signature/trait, dependency, product flag/default, compatibility break or phase.
+V19 groups share their previous body with per-case justification; notes remain
+visible and do not prove execution coverage per alternative. No allow/expect,
+threshold increase, @ capture or hidden match in if-let/matches!. Only named
+transparency/shallow restructuring changes functional code; do not change
+formulas/constants or relax expectations. Require functional Source RED and
+structural warning/probe RED before repair; afterwards regression GREEN, zero
+emitted-site V16 and future sentinel review of all 36 sites (including new
+Content-under-Option projection) using copied Content/Value/MathStyleKind/FrameItem
+in a disposable real workspace compiling cfg(test). Current scrutinees/functions/
+composition change only as specified; revalidate AST/replay, signatures and other
+owners.
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado; UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz` (snapshot inicial preservado em initial-ten-owners.json.gz). AST/spans em contexts.json/all-contexts.json/wildcard-inventory.json, parser pinado do CI. A suíte anterior passou no mesmo código de entrada, revalidado por hashes.
-
-source-probe-before.json mede limits inline com largura 7.2 pt versus 12.912 pt ao acrescentar Source. source-family-before.json preserva a primeira matriz de 12 pares (11 diferenças). source-family-supplement.json e sua análise preservam 23 pares com métricas atribuíveis (19 diferenças e 4 controles iguais): limites, kerns, Op.text, acentos/dotless, suportes, alinhamento de matriz, espaçamento, sequências, stretch e classe. source-lines-before.json mede a mesma equação com 2 linhas versus 1 e última baseline 16.2 versus 0 sob Source, apesar dos mesmos extents. São observáveis de geometria, identidade extraível e metadados da equação, não igualdade de bytes/pointers/Rust. A transparência já é obrigatória no núcleo content-source-origin; a inspeção mostra os helpers classificando o wrapper em vez do body. Não se infere intenção histórica ou paridade global a partir desses números. O erro de contagem do analisador complementar (24 em vez de 23 pares) foi corrigido usando o stdout original válido, sem refazer a medição nem contar o erro como RED funcional.
-
-### Prescrição exclusiva
-
-Normalizar Source por empréstimo nos scrutinees de extract_base_char, one_char e atom_identity. Em dotless_base, transformar o body normalizado e reaplicar a primeira origem com os helpers existentes source_span/with_source_span; conservar explicit, size, dotless, campos, estilos e código dos demais braços. Isso torna i/j dotless também sob Source e conserva uma ocorrência textual base+marcas, sem usar a string para medir desenho.
-
-Trocar os fallbacks enumerados pelo complemento nominal atual dos braços **incondicionais**, sem alterar corpo/guard/ordem; variantes guardadas continuam no complemento para quando a condição falha. A projeção Option de attach é a única exceção estrutural: None retorna por ?, Some passa ao match nominal de Content normalizado, sem padrão profundo.
-
-- **L01** — `01_core/src/compiler/math/layout/accent.rs:131`, `extract_base_char`, Content: excluir somente `MathAccent`; guardados `MathText`. Mesmo corpo anterior para variantes fora da propriedade procurada; não ampliar a classificação além da transparência Source aqui prescrita. Variantes sob guard permanecem no complemento para conservar a condição recusada.
-
-- **L02** — `01_core/src/compiler/math/layout/accent.rs:136`, `layout_accent_resolved`, Content: excluir somente `(nenhuma variante inteira)`; guardados `MathText`. Mesmo corpo anterior para variantes fora da propriedade procurada; não ampliar a classificação além da transparência Source aqui prescrita. Variantes sob guard permanecem no complemento para conservar a condição recusada.
-
-- **L03** — `01_core/src/compiler/math/layout/accent.rs:241`, `atom_identity`, Content: excluir somente `(nenhuma variante inteira)`; guardados `MathText, MathIdent, MathAccent`. Mesmo corpo anterior para variantes fora da propriedade procurada; não ampliar a classificação além da transparência Source aqui prescrita. Variantes sob guard permanecem no complemento para conservar a condição recusada.
-
-### Aceitação e limites
-
-L0 antes de código. Correção interna/paridade ADR-0127 em fluxo contínuo: sem campo/assinatura pública, trait, dependência, flag/default novo, compatibilidade ou fase nova. Grupos V19 compartilham o corpo anterior explicitamente justificado por caso; as notas permanecem visíveis e não provam cobertura de execução por alternativa. Não adicionar allow/expect, elevar limiar, capturar @ ou esconder um match em if-let/matches!. Somente a transparência e as reestruturações rasas aqui nomeadas alteram o código funcional; não editar fórmulas/constantes ou relaxar expectativas anteriores. RED funcional das regressões Source e RED estrutural dos avisos/sondas antes do reparo. Após, regressões GREEN, zero V16 dos locais emitidos, revisão futura dos 36 locais (incluindo a nova projeção de Content sob Option) por sentinelas Content/Value/MathStyleKind/FrameItem em workspace descartável com cfg(test) compilado. Os scrutinees/funções atuais e a composição ganham só as alterações descritas; revalidar ast/replay, assinaturas e demais owners.
-
-Gates: suíte workspace completa, build, fmt, Clippy workspace/all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings com quatro índices, V1/V5/V15/V26 estrito/reversa, SARIF diferencial completo e diff-check. V16 esperado 170→152; notas V19 novas somente dos grupos prescritos e do observador novo; V20 sem crescimento. As demais violações continuam pendentes. Fontes congeladas durante os gates; MemoryMax=12 GiB, swap zero, um job Cargo, comandos pesados sequenciais. Sem commit/push/release ou alteração do pin CI. Não alegar ganho de RAM, leitura de IA ou paridade integral por encerrar o lint.
+Gates: full workspace suite, build, fmt, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, Rustdoc -D warnings with four indexes,
+strict/reverse V1/V5/V15/V26, full differential SARIF and diff-check. Expected V16
+170→152; new V19 only from prescribed groups/new observer; no V20 growth.
+Other violations remain pending. Freeze sources during gates; MemoryMax 12 GiB,
+zero swap, one Cargo job, heavy commands sequentially. No commit/push/release or
+CI pin change. Lint closure does not prove RAM gain, AI-reading benefit or
+complete parity.

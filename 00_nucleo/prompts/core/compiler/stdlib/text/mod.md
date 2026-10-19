@@ -12,7 +12,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/text/mod.rs`
 
 Own only the text module's declarations and direct native reexports. Preserve constructor, case, deco, lorem, shift, smallcaps and smartquote descendants and their existing public function paths.
 
-Native text construction, case/replace, underline/strike/overline/highlight, lorem, sub/super, smallcaps and smartquote semantics belong to the respective owners under `00_nucleo/prompts/compiler/stdlib/text/`. Private casts and validators remain inside their unit. Tests are owned by the actual atomized test consumers rather than a historical monolithic stdlib suite.
+Native text construction, case/replace, underline/strike/overline/highlight, lorem, sub/super, smallcaps and smartquote semantics belong to the respective owners under `00_nucleo/prompts/core/compiler/stdlib/text/`. Private casts and validators remain inside their unit. Tests are owned by the actual atomized test consumers rather than a historical monolithic stdlib suite.
 
 There is no dispatch table or native wrapper in this hub. Regex lives in `00_nucleo/prompts/core/compiler/stdlib/foundations/regex_constructor.md`. Bindings belong to `00_nucleo/prompts/core/compiler/stdlib/registry/text.md`; layout belongs to layout owners. Do not translate or erase an existing step-named error literal merely because its wording is obsolete: it is a public diagnostic discrepancy, recorded for separate correction.
 

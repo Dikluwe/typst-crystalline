@@ -2,91 +2,27 @@
 Hash do Código: 5190aa5c
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
-- 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:f29e26ff07053f940cfe4ab5358fc9a6ac8d4d689528e169b5f8567492f52f46
+- 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
+- 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
 
-## Ownership e medição
+## Evidence before specification
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/loading/encoding.rs`.
-No HEAD `4ac3e2082e6e708dd815ab01b47ac8ed281a14fa` e árvore limpa, `01_core/src/compiler/stdlib/loading.rs:40-646; encoders em 360-645` contém o comportamento correspondente. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-loading-2026-09-30-before.json.gz`. É separação interna conforme ADR-0109/0127/0129; não há novo contrato público ou desempenho medido.
+L1 exclusive consumer `01_core/src/compiler/stdlib/loading/encoding.rs`. Clean HEAD `4ac3e2082e6e708dd815ab01b47ac8ed281a14fa`, former loading.rs:40-646/encoders 360-645 and `lab/results/construction/diagnostics/atomizacao-loading-2026-09-30-before.json.gz` preserve initial hash/time/state. Internal form-B extraction has no new public contract/performance proof. Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
-## Contrato
+content-serialization-2026-10-14/before/results.json.gz retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, dirty tree/UTC/stat/sources/owners/commands/binaries. JSON/YAML lose Sequence children/Styled child-styles/Raw payload behind Source because field match alone inspects root; CLI Source sequence/style measures independently with its own gaps. Raw controls in same diagnostic distinguish omission/false/none in fields/equality/encoders; raw.rs/native_raw previously collapse presence. Human approval manifest `b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45`, `lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json`, completes only previously missing Raw presence.
 
-Compartilhar a projeção textual de Content/LocatedContent com func e campos públicos ordenados, a leitura causal de Args para encoders e a normalização comum do token numérico. Snapshot presente é autoritativo; ausente usa somente a projeção legada contratada. A unidade não emite formato final nem executa callbacks.
+caption-shape-before.json/caption-after.json in `lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17/` retain exact validation-result HEAD/tree/UTC/source/binaries/pin. Caption carrier already exists but CLI/JSON omit body/fields/getters, kind metadata rejects valid caption function. Pinned figure.rs:510-594 makes caption Locatable and position/separator/body plus synthesized kind/supplement/numbering/counter public, figure_location internal. Existing entity approval is historical; serialization must not synthesize those values.
 
-As regras detalhadas e evidências históricas do comportamento permanecem em `00_nucleo/prompts/core/compiler/stdlib/loading.md`; esta unidade as herda sem alterar paridade nem fases do pipeline. O consumer opera em L1, recebe dados/World por argumento e não introduz I/O direto ou estado global mutável.
+## Exclusive contract
 
-## Aceitação
+Own shared textual Content/LocatedContent projection with func and ordered public fields, causal Args reading for encoders and common numeric-token normalization. Present snapshot is authoritative even empty, never replace field-by-field/fallback/default or invent label/Location; absent uses only contracted legacy projection. Final format emission/callback execution belongs elsewhere. Parent `00_nucleo/prompts/core/compiler/stdlib/loading.md` retains detail/boundary criteria; accept injected data/World with no direct I/O/mutable globals.
 
-Preservar o resultado linguístico e os diagnósticos existentes. Compilar, passar a suíte L1 e `crystalline-lint .` com ownership e hashes válidos.
+Before structure projection traverse Source/ShowRecipe/Located body and Realized visual, no callback/default copying/occurrence mutation. Reached public variant supplies function name/legacy fallback. Keep contracted Empty/Sequence/Styled/Raw/Metadata/Link/Box/Block/HTML fields and explicit source-origin pin. Raw projection uses getters only for known text/block/lang in that order, respecting exact Some snapshot and Source transparency. Ratified presence supersedes only older missing-mask limitation, not other contracts/default/render/phase.
 
+Caption text projection maps internal FigureCaption to public func caption only, using known fields supplied by getter/field owners. Detached caption gains no default/Figure synthesis; Source/snapshot exactness, numeric normalization/formats unchanged.
 
-## Transparência na projeção estrutural — 2026-10-14
+## Acceptance and limits
 
-### Medição antes da decisão
-
-content-serialization-2026-10-14/before/results.json.gz registra HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
-status/diffstat, UTC, fontes/owners, comandos e binários pinados. json.encode
-e yaml.encode perdem children de Sequence, child/styles de Styled e payload
-de Raw quando recebem Source. encoding.rs:24–109 só reconhece variantes
-na raiz; elem_name/getters atravessam wrappers, mas o match de campos não.
-A CLI mede corretamente Source sequence/styled, embora possua lacunas próprias.
-
-### Decisão e responsabilidade exclusiva
-
-Antes da projeção estrutural, atravessar Source/ShowRecipe/Located por body
-e Realized por visual, sem executar callbacks, copiar defaults ou modificar
-ocorrências. Usar a variante pública alcançada para o nome de função e o
-fallback contratado. Snapshot Some permanece autoritativo, inclusive vazio;
-não o substituir pelo fallback nem inventar label/location. O núcleo
-content-source-origin passa a ser pinado explicitamente por este owner.
-
-Preservar os campos estruturais já contratados para Empty/Sequence/Styled/
-Raw/Metadata/Link/Box/Block/HTML. Correção interna ADR-0127; nenhuma API, flag
-ou fase nova. Testes RED de Source e wrappers compostos, snapshots Some/None,
-encoders reais JSON/YAML e nomes canônicos. Raw block e lang:none continuam
-incompletos por falta de presença no modelo, a completar em raw-presenca;
-não inferir esse dado nem certificar serialização universal de Content.
-
-## Presença lexical Raw — ratificada em 2026-10-14
-
-### Medição anterior à decisão
-
-content-serialization-2026-10-14/{before,raw-controls}/results.json.gz registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes/binários e pin 9f2b6e8715237cb086899a42873660fe744622e8. RawElem raw.rs:21–25 perde omissão; native_raw markup.rs:78–136 colapsa ausência/false/none. Campos, igualdade e encoders distinguem esses valores no pin. Trata-se de semântica/morfologia, não mecânica Rust.
-
-### Responsabilidade e aceitação
-
-Projeção textual Raw usa getter para text,block,lang conhecidos nessa ordem. Snapshot Some permanece exato, inclusive vazio; Source transparente.
-
-Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
-
-## Completar projeção da caption existente — 2026-10-17
-
-Medição anterior à decisão: caption-shape-before.json e caption-after.json em
-lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
-binários, HEAD/working tree de validation-result.json e pin
-9f2b6e8715237cb086899a42873660fe744622e8. Projeção de caption já produz o
-carrier, mas sua CLI imprime só func:figure.caption; body/getters/fields estão
-ausentes. json.encode tem o mesmo defeito. Metadata de kind rejeita a função
-de caption válida. O pin em model/figure.rs:510 declara caption Locatable e
-em :511-594 declara position,separator,body e kind/supplement/numbering/counter
-sintetizados públicos, com figure_location interno. Não sintetizar esses dados
-nesta correção; a função de elemento já existe desde a aprovação P1473.
-
-Responsabilidade exclusiva e aceitação:
-
-Na projeção textual, mapear somente o nome interno FigureCaption para func
-público caption. Usar os campos conhecidos fornecidos pelos owners de getters/
-fields; Source transparente e snapshot Some autoritativo, inclusive vazio,
-continuam exatos. Não materializar defaults/síntese de Figure ao serializar
-uma FigureCaption solta. Não mudar formatos nem normalização numérica.
-
-Correção interna/paridade em fluxo contínuo ADR-0127. Não há novo campo/trait/
-assinatura Rust pública, fase, modo ou default. L0 antes de testes/código, RED
-real de getters/metadados/encoder/CLI, GREEN e corpus externo sem relaxar
-expectativas de corpo/nome. Revalidar todos os gates da etapa sob 12 GiB, swap
-zero, jobs1. Resselo só dos owners após V15/V26. FG1/SY1 permanecem incompletos
-conforme follow-ups.md; nenhuma API pendente está autorizada por esta seção.
+Preserve language output/diagnostics/L1 suite/build/crystalline-lint/pins/1:1 owners. RED→GREEN Source/composite wrappers/snapshots Some-None/real JSON-YAML/canonical names/Raw presence, and real caption getter/metadata/encoder/CLI controls without body/name relaxation. L0 before code, restricted owners after V15/V26, full step gates under 12GiB/swap 0/jobs1. No public field/trait/signature/phase/mode/default change; universal Content serialization, Figure FG1/SY1 synthesis and other pending APIs remain excluded.

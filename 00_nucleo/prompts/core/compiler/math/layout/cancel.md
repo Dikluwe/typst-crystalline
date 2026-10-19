@@ -3,7 +3,7 @@ Hash do Código: 8185f0f5
 
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/cancel.rs`
@@ -42,27 +42,45 @@ provisional and cannot escape as successful compilation.
 Acceptance covers baseline-relative endpoints, length, ordering, explicit
 stroke, cross/inverted precedence and unchanged body dimensions.
 
-## Helpers e armazenamento sem uso — 2026-10-13
+## Test-only legacy wrapper boundary
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`01_core/src/compiler/math/layout/cancel.rs` nas linhas 21 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+compiler/math/layout/cancel.rs:21 contains the historical Clippy inventory
+item. HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`
+retains sources/owners/references/UTC/status/diffstat. Call-site and productive-path
+research precedes classification, without new parity/performance evidence.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Compilar o helper interno `layout_cancel` somente sob `#[cfg(test)]`, conservando assinatura e corpo para os testes existentes. O despacho produtivo usa layout_cancel_elem com carrier completo e occurrence; o wrapper conserva sua fixture histórica sem novo runtime. O import MathCancelExplicit é exclusivo desse wrapper e também deve ficar sob cfg(test); conservar MathCancelAngle e MathCancelElem produtivos.
+Compile internal layout_cancel only under `#[cfg(test)]`, preserving signature/body
+for existing tests. Productive dispatch uses layout_cancel_elem with the complete carrier and occurrence; the wrapper preserves its historical fixture without a new runtime. MathCancelExplicit is wrapper-only and also cfg(test); MathCancelAngle and MathCancelElem remain productive.
 
-Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.
+Preserve productive routes, test names/bodies, external APIs, defaults and phase.
+This ADR-0127 internal correction requires all workspace-target build/check,
+core suite, test inventory, Clippy and lineage; remove no expectation to pass.
 
+## Pure numerical backend
 
-## Operações numéricas puras — 2026-10-13
+### Evidence before decision
 
-### Medição anterior à decisão
+cancel.rs:60,63,96,97 contains the disallowed_methods calls. HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz`
+retains source/owner/config/libm/compiler/UTC/status/diffstat. host-math compares
+backends before choosing: 4968 cases, 69 trig/atan2 differences up to 1 ULP,
+without numeric-class/signed-zero change; powers/hypot agree in the sample.
+This is host evidence, not universal proof or new vanilla parity.
 
-`01_core/src/compiler/math/layout/cancel.rs` nas linhas 60, 63, 96, 97 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+### Contract and acceptance
 
-### Decisão e aceitação
-
-Usar libm::hypot, atan2, sin e cos na diagonal, ângulo automático e projeção dos endpoints. Conservar a ordem atan2(width,height), sinais, centro baseline-relativo, length, cross/inverted/background, stroke, callback e dimensões lógicas do body. Não modificar política de não finitos nesta troca de backend numérico.
-
-Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, default ou fase. Preservar testes de geometria/linguagem existentes e comparar os exemplos SVG medidos antes/depois, declarando diferenças. A comparação geométrica não certifica todos os casos ou plataformas. Validar build, todos os targets, core, Clippy e linhagem. Não suprimir o lint nem substituir aceitação por identidade de bytes do compilador.
+Use libm::hypot/atan2/sin/cos for diagonal, auto angle and endpoint projection.
+Preserve atan2(width,height), signs, baseline-relative center, length,
+cross/inverted/background, stroke/callback and body logical dimensions. Do not
+alter nonfinite policy while changing the numeric backend. This ADR-0127 internal
+correction adds no public contract/default/phase. Preserve geometry/language
+tests and compare measured SVGs before/after, reporting differences; geometry
+does not certify all cases/platforms. Validate build/all targets/core/Clippy/
+lineage. Do not suppress the lint or substitute compiler-byte identity for
+acceptance.

@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/tests/support.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Preserved English support ownership, exact two Portuguese reason literals and later nominal materialization/structural RED versus runtime proof; full limits/gates retained.",
+  "original_sha256": "ce5b6a277e6697bb4f2ed25d19ff51faad74b7d583c705ee49e70e5079e99185",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/tests/support.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

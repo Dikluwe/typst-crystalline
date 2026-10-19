@@ -3,7 +3,7 @@ Hash do Código: 79a5ad13
 
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c
+- 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:b1f5e8d937f80e207e7cb5f1cd7ee03f3a3eebc89af5bfc0e13ebd95c615ecd0
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/vec.rs`

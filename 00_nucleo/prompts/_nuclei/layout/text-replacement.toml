@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "layout-text-replacement"
-title = "Identidade textual por ocorrência e representação visual"
-
+title = "Per-occurrence text identity and visual representation"
 [[claims]]
 id = "causal-identity"
 level = "must"
-statement = "TextReplacement conserva texto extraível por ocorrência e filhos visuais posicionados; a identidade vem da causa selecionada, nunca de sufixo, GID, posição ou comparação de aparência."
-
+statement = "TextReplacement preserves per-occurrence extractable text and positioned visual children; identity comes from selected cause, never suffix, GID, position or appearance comparison."
 [[claims]]
 id = "visual-transport"
 level = "must"
-statement = "Métricas, recursos de fonte, shaping, desenho e transformações usam os filhos exatamente uma vez e preservam o envelope; text não cria avanço, medida ou desenho."
-
+statement = "Metrics, font resources, shaping, drawing and transforms use children exactly once and preserve envelope; text creates no advance, measurement or drawing."
 [[claims]]
 id = "occurrence-extraction"
 level = "must"
-statement = "Extração textual substitui os filhos pelo text da ocorrência sem duplicação; a substituição não remapeia identidades de outros itens que compartilham a mesma fonte e glifo."
-
+statement = "Extraction replaces children with occurrence text without duplication; replacement never remaps other items sharing font/glyph."
 [[claims]]
 id = "static-boundary"
 level = "must-not"
-statement = "Não apagar TextReplacement em coalescing/reflow, fundir seus filhos com texto externo ou reutilizar Alt/structure tree como identidade textual; dispatch permanece estático."
+statement = "Do not erase TextReplacement in coalescing/reflow, merge its children with external text or reuse Alt/structure tree as text identity; dispatch remains static."

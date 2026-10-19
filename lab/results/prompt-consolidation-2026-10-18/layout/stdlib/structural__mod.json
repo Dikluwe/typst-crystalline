@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/structural/mod.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Preserved English composition and exact19test-module list; translated all direct bridge routes and later unused alias/classcfg/outercfg supersessions, native identity and private Figure bridges.",
+  "original_sha256": "56f8e2a7fa8b03308d5e73f5ac998e080163754bf6be9bc277fabd5f87845034",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/structural/mod.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

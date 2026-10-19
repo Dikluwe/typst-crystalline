@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "shapes-optional-stroke"
-title = "Ausência explícita de contorno nas formas fechadas"
-
+title = "Explicit absence of closed-shape stroke"
 [[claims]]
 id = "explicit-none"
 level = "must"
-statement = "Nos construtores consumidores, stroke:none é ausência explícita de contorno, aceita com ou sem fill e sem reativar fallback de stroke."
-
+statement = "In consuming constructors,stroke:none is explicit stroke absence,accepted with/without fill and never reenables stroke fallback."
 [[claims]]
 id = "omission"
 level = "must"
-statement = "A omissão do argumento stroke conserva seu fallback existente: fill ausente não torna stroke:none equivalente à omissão. Dimensões, fill e propriedades não relacionadas conservam seu significado."
+statement = "Omitted stroke preserves existing fallback:absent fill never makes stroke:none equivalent to omission. Dimensions,fill and unrelated properties retain meaning."

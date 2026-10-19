@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/loading/cbor.md
-//! @prompt-hash 88892ed9
+//! @prompt-hash f7bef208
 //! @layer L1
 //! @updated 2026-09-30
 

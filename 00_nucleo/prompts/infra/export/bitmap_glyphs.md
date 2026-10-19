@@ -6,7 +6,7 @@ Hash do Código: 275c1560
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
+- 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:eb0ad1967bbbd9ee9ded17582451b09de2820855ba38c8a554bbe7b2db7b1848
 
 ## Consumer evidence
 

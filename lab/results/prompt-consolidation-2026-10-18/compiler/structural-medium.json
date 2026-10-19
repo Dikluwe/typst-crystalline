@@ -1,0 +1,38 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/document.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "06d8108f9828148969cb44c12e3ab3a061767e5cc506654e13f2387ebc8c67f8",
+    "result_sha256": "b1a251946c3400560f95015a3616e12eee58dd837853f07c74d664a4be8a723b",
+    "disposition": "Full document/asset interface retained, historical pin qualified; exact native type-name policy and nominal projection gate translated without broadening format_options behavior."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/markup.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "06e07c45e3fd58ad02e7f47584789d85efb11f068a77729a967f77a0d934c912",
+    "result_sha256": "f3b125f67ff6f655610ed71749fc5ab01009f11f873a2a21f5fce1c543d30833",
+    "disposition": "Full existing English constructors reviewed; approved Raw presence partial supersession translated, unresolved no-argument link obligation preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/accent.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "cbb3d788bda4396c68d1d22d13ff2c9a021d8d157f3c7ab18c2d98328dc350ec",
+    "result_sha256": "0304ac81e9144d6ce3243666250e7420c42bdfa9e5613cf27ff9afe31f1ba6a2",
+    "disposition": "Full existing mathematical constructor contract reviewed; independently measured Type/Symbol classifier extension translated, SY1 public carrier debt preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/lr.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "e2a18be97d92d53549794069495ea860d2e2c59cd30296e7a0c963d0c278276f",
+    "result_sha256": "9c1d6b96135075eed2e4d3b2848df98671756ea6d8432ef76c812e470ed0f5e2",
+    "disposition": "Full existing mathematical constructor contract reviewed; independently measured Type/Symbol classifier extension translated, SY1 public carrier debt preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/vector.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "6e9fe06e583901dc0d2842edd0299facc3cfafabebaaac98c7b9d88d954778a9",
+    "result_sha256": "cdde83d08f955252aa0dc3ccf6df5f7f9eb99a5df6cd0f85d127912537f6184e",
+    "disposition": "Full vector cast/carrier contract reviewed; M3 nominal complement translated with identical fallback and all structural/functional acceptance limits.",
+    "followup": "Root canonical-reference repair retained in place; see canonical-reference-repairs.json."
+  }
+]

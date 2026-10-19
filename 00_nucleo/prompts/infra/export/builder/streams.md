@@ -2,7 +2,7 @@
 Hash do Código: 1c2c0c77
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/builder/streams.rs`
@@ -30,37 +30,32 @@ Check profitable/unprofitable compression, failure fallback, readable Pretty str
 and oracle-off identity without conflating physical serialization and graphic mode.
 
 
-## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
+## Prepared Shape fixture transport
 
-### Medição anterior à decisão
+### Evidence and approval
 
-`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
-HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
-layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
-materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
-prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
-`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
-comprovam que dense-open e stroke-open ainda divergem nos três targets.
-O contrato foi aprovado no manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A preparação/contagem de objetos é mecânica de transporte; render, contornos,
-texto, geometria e diagnósticos são obrigações observáveis de linguagem.
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz`
+retains HEAD/tree/diffstat/UTC/sources/owners before migration. layout_types.rs:510–511
+carried Paint/Stroke; shape.rs:151–191 materialized only group fills; tiling.rs:85
+limited/cloned its grid. prepare_cell already returns TilingFrame once per
+occurrence. `tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
+shows dense-open/stroke-open divergences across all three targets. Manifesto
+`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d` was approved;
+receipt `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+Preparation/object counts are transport mechanics; rendering/outlines/text/geometry/
+diagnostics are language observables.
 
-### Responsabilidade exclusiva desta unidade
+### Contract and acceptance
 
-Migrar fixtures de FrameItem::Shape para FramePaint/FrameStroke, preservando valores e asserts semânticos existentes. Tiling deve construir célula preparada explícita; fixtures de avaliação continuam declarativas. Não adicionar conversão produtiva total nem enfraquecer asserções.
-
-### Aceitação e continuidade
-
-Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
-aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
-somente no âmbito do contrato aprovado. Preservar os demais comportamentos
-vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
-fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
-carriers e sem fallback sólido para obter build verde. Não elevar o limite
-antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
-clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
-página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
-quando integrados e verificados; estado intermediário quebrado ou parcial
-não é certificação de produção. T4 e publicação continuam fora deste pacote.
+Migrate FrameItem::Shape fixtures to FramePaint/FrameStroke with unchanged values/
+semantic assertions. Tiling explicitly constructs a prepared cell; eval fixtures
+remain declarative. No total productive conversion or weakened assertion.
+Consume the pinned nucleus. Approval supersedes only old approval-pending or
+Shape-declarative-Paint/Stroke clauses within this package; other behavior survives.
+L0 first, RED→GREEN, explicit fixture/consumer migration, no total From<Paint>,
+carrier PartialEq or solid fallback merely to compile. Do not raise the old limit
+or move layout to L3. Validate fill/stroke/resource/clipping/affine Parent/native-
+target/Solid/Gradient/page semantics and full suite/build/doc/fmt/lineage. The
+prepared transport, native-target integration and parity slices recorded as
+T1c/T2/T3 are complete only after integrated verification; broken/partial states
+are no production certificate. T4 and publication remain out of scope.

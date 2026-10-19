@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "context-block-semantics"
-title = "Identidade delayed do bloco context"
-
+title = "Delayed context block identity"
 [[claims]]
 id = "delayed"
 level = "must"
-statement = "O corpo permanece closure não avaliada até a expansão contextual."
-
+statement = "The body remains an unevaluated closure until contextual expansion."
 [[claims]]
 id = "stable-id"
 level = "must"
-statement = "A identidade numérica liga o elemento à localização contextual."
-
+statement = "Numeric identity connects the element to its contextual location."
 [[claims]]
 id = "no-plain-text"
 level = "must"
-statement = "Antes da expansão o bloco não fabrica plain text nem layout visível."
+statement = "Before expansion the block fabricates neither plain text nor visible layout."

@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/textual/space.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "67c5f67d1c8d8ef419816a167b91e1442ed811ee3d06eb0ac933ef760d3547b0",
+    "result_sha256": "ab8c0e065a2490b7d0d07f59952d79c732062a733df6a1fcaa186dd1356bb8bd",
+    "disposition": "Full space owner translated: all Unicode policy preserved; repeated carrier refinements consolidated, borrowed/in-place certification separation and failed timing retained; every W02-W06 exclusion/guard and probe count unchanged."
+  }
+]

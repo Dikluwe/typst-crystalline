@@ -1,78 +1,27 @@
 # L0 — compiler/stdlib/state/resolve
 Hash do Código: 9cfe05a8
 
-Camada L1. Consumer produtivo único: 01_core/src/compiler/stdlib/state/resolve.rs.
+Layer: L1. Exclusive consumer: `01_core/src/compiler/stdlib/state/resolve.rs`.
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:8de2c32fbeeee7a30088b4ff3808e15a211f23a182673ef5cdebe54bd3eadad6
-- 00_nucleo/prompts/_nuclei/state/language-semantics.toml sha256:27acb21a5e0b2e0cb3b65de61bba5266158f3e9828392fe92a1a3b160e9d61a4
+- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:958649ea9ebdd471f101874ff8cf94feb995ee037c43eb6e2f1d1ad19a151ef3
+- 00_nucleo/prompts/_nuclei/state/language-semantics.toml sha256:58a1e343cd346a842c0e0a2760c8b7438e89054b228d00a1b4972019320996e5
 
 
-## A1-S2 — leitura por objeto aprovada em 2026-10-17
+## Evidence before specification
 
-### Medição anterior à decisão
+L1 exclusive consumer `01_core/src/compiler/stdlib/state/resolve.rs`. `lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/` before.json.gz/final-freeze.json.gz preserve HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, dirty tree/UTC/status/stat/sources. state-counterproof.json.gz bilateral RED against current `bd5ebec285505889e8ff1d4f68804ab147a699f3` proves reader init 1/10 same key after+1 yields 2/11, unread callback never executes, reused update executes per occurrence. Pinned state.rs:226-245,419-455,477-520 uses reader init and document order, not integer Location. Existing Func-as-Set/eager postpass loses semantics. Values/errors are language, storage/algorithm mechanics.
 
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
-UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17.
-state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
-após +1 exige 2/11; callback não lido não executa; atualização reutilizada
-executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
-upstream introspection/state.rs:226–245, 419–455 e 477–520. O init do leitor
-inicia a sequência; a ordem vem do documento, não do inteiro de Location.
-O método atual trata Func como Set e o pós-passe eager perde essa semântica.
-Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
-A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
-lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
-SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
+Earlier A1-S1 is withdrawn. Human A1-S2 gate confirms object reads; `lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md`, SHA `6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4`. target-controls.json.gz state-future-error then refutes abbreviated prefix-only error scope: earlier get still errors FUTURE when later callback on demanded key panics. Pinned StateAtIntrospection state.rs:419-437 computes whole sequence before selecting offset; this does not imply executing other keys. pre-repair-validation.json.gz/complete-architecture.log identifies V2 missing local plan tests despite functional caller tests.
 
-### Responsabilidade exclusiva — supersede a fase histórica de State
+## Exclusive ratified contract
 
-Resolver privadamente uma sequência registrada, com init pertencente ao leitor.
-Aplicar Set por valor e Func com argumento único corrente, captura léxica e
-Scopes local. Não herdar in_context/current_location do leitor no callback;
-restaurar ambos mesmo em erro. Não executar Func na construção/walk/layout.
-Resultados/erros são SourceResult<Value>; não usar fallback sólido, None ou
-Empty para esconder erro do update. A rota moderna observa o resultado completo.
+Privately resolve registered sequence initialized by reader. Apply Set by value, Func with one current-value argument/lexical capture/local Scopes; do not inherit reader in_context/current_location and restore both even on error. No Func execution during construction/walk/layout. Return SourceResult<Value>, modern route observes full result, no Solid/None/Empty fallback concealing update error.
 
-Guardar somente o valor selecionado e o acumulador necessário, não toda a
-sequência de Values se não houver necessidade semântica. Ações compartilhadas
-não copiam init nem payload Set profundamente por snapshot. Sem cache global,
-I/O, dispatcher dinâmico, mudança de propriedade dos campos ou nova API pública.
-Não prometer número global de chamadas: cada leitura legítima pode recalcular;
-replay não cria corpos/callbacks de display ou leituras novas por instrumentação.
+Resolve entire demanded key's sequence, propagating any later callback error while retaining only selected prefix/final value and necessary accumulator. No read means no callback. This refines the historical “until limit” wording only for errors; approved signatures/phase stay. Do not retain vector of all intermediate Values unnecessarily, copy init/Set payload deeply per snapshot, promise global call count, create display-body/callback/new reads through replay/instrumentation, use global cache/I/O/dynamic dispatch/new public API or change field ownership. Cow<Value> may borrow init/Set and move/clone only for Func argument/selected result as needed.
 
-R1–R12 e controles de ordem/prefixo/erros devem refutar a implementação antes de
-aceitá-la. RAM12GiB/High8GiB/swap0/jobs1; validar linguagem, não bytes/algoritmo.
+Prepare legacy private read plan containing actions/shared init/causal limit before mutably borrowing EvalContext; do not clone whole StateRegistry for borrow workaround. No registered actions preserves materialized legacy prefix/final lookup for Rust fixtures/API.
 
-### Contraprova de erro futuro — decisão interna de paridade
+## Acceptance and limits
 
-target-controls.json.gz registra state-future-error: get anterior a um update
-panic termina em erro FUTURE no vanilla pinado, sucesso no Tekt. Upstream
-StateAtIntrospection (state.rs:419–437) calcula sequence inteira antes de
-selecionar o offset. O valor é do prefixo, mas erro de callback posterior na
-mesma sequência também é observável. Não inferir que outras keys executem.
-Resolver a sequência completa da key demandada, conservando apenas o valor do
-prefixo/final selecionado e propagando qualquer erro; sem leitura não executar.
-Isto corrige a formulação abreviada "até o limite" da revisão A1-S2 quanto aos
-erros: assinaturas e fase aprovadas permanecem. Não copiar o vetor de todos os
-estados intermediários do vanilla. Cow<Value> pode emprestar Set/init e só mover
-ou clonar o Value quando necessário para argumento de Func/resultado escolhido.
-
-Preparar a leitura legada em um plano privado contendo somente ações, init
-compartilhado e limite; extrair isso antes de emprestar EvalContext mutavelmente.
-Não clonar todo StateRegistry para contornar o borrow. Sem ações registradas,
-o plano conserva o lookup materializado legado usado pelas fixtures/API Rust.
-
-
-### Verificação local do plano de leitura — V2
-
-Medição anterior: complete-architecture.log preservado em
-pre-repair-validation.json.gz acusa V2 neste consumer: testes funcionais de State
-existem nos callers, mas falta verificação no owner do plano privado. O teste
-local deve cobrir captura por key, limite causal com IDs não monotônicos,
-manutenção de ações futuras da key para propagação de erro e compartilhamento
-do payload Set sem clone profundo. Sem ações, validar o fallback materializado
-legado no prefixo/final e key ausente. São invariantes do plano, não um mock do
-resolvedor nem mudança de contrato. A falha RED é o gate V2; adicionar o teste
-local e exigir V2 zero, conservando os controles funcionais RED→GREEN já medidos.
+R1–R12/order/prefix/error controls must refute before acceptance. Local plan tests cover key capture/nonmonotonic IDs/retained future actions for error/shared Set without deep clone; no-actions fallback prefix/final/missing key. These test plan invariants, not resolver mock/new contract. V2 is structural RED; local test must produce V2zero while retaining functional RED→GREEN evidence. Preserve language results/errors rather than bytes/algorithm, validate under 12GiB/High8GiB/swap0/jobs1.

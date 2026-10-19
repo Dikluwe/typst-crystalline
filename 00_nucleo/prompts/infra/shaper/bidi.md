@@ -2,7 +2,7 @@
 Hash do Código: 4524c646
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/shaper/bidi.rs`
@@ -27,12 +27,37 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Contexto integral bidi ratificado — 2026-10-05
+## Full-paragraph bidi context
 
-Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
+### Evidence
 
-Para spans certificados, usar registry proprietário local de strings auxiliares e mapas por input Arc, depois views BidiInfo emprestadas normais; não usar unsafe/self-reference. Embeddings virtuais LRE/RLE/PDF só quando dir do segmento difere da base; espaços reais e Linebreak não justificado LF (justify=true fora do certificado). Não retirar controles autorais. Resolver uma vez por input em cada registry; o pipeline paginado compartilha registry/views entre reorder e shape. Wrappers públicos existentes podem construir registry local.
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{initial,probe}.json.gz`
+retains bilateral cases/Unicode refutation and sources/state/binaries.
+`layout_bidi.rs:73–82,227–240` redetects base/invents separators;
+`shaper/bidi.rs:34` redetects a fragment, losing the human-ratified complete input.
+This internal parity correction adds no phase or external public signature.
 
-Reorder consulta intervalo real da linha, intersects exatas por segment/range e níveis com regras de fim de linha; não midpoint nem espaços inventados. Text misto divide por fronteiras originais, preserva estilo e subspan. Itens não textuais e fontes desconhecidas não ganham certificado. Reorder conserva âncora física aceita por L1, largura/avanço reais; não aplicar fallback de suffix/coalescing ao contexto certificado.
+### Boundary contract and acceptance
 
-Shape consulta os runs do input completo para span original e não auto-detecta direção de fragmento; manter offsets de subruns por travessia sequencial, emitir subspan exato para cada TextShaped. Chave de cache existente já discrimina direção; não pôr contexto em TextStyle. Reconciliation usa base do input quando existe em vez de qualquer run RTL. Fallback None anterior permanece. Testes RED→GREEN da refutação de 456 789, overrides/neutral, extração sem controles auxiliares e medição bilateral.
+For certified spans, use the compilation-local registry of auxiliary strings/maps
+by input Arc, then normally borrowed BidiInfo views; no unsafe/self-reference.
+Virtual LRE/RLE/PDF is inserted only when segment direction differs from base.
+Retain real spaces, nonjustified Linebreak LF and author controls; justify=true
+is outside certification. Resolve once per input per registry; paged pipeline
+shares registry/views between reorder/shape. Existing public wrappers may create
+a local equivalent registry.
+
+Reorder queries the actual line interval, exact segment/range intersections and
+end-of-line levels, never midpoints or invented spaces. Split mixed Text at original
+boundaries preserving style/subspan. Nontext items and unknown sources gain no
+certificate. Preserve the L1-accepted physical anchor and actual width/advance;
+certified context cannot use suffix/coalescing fallback.
+
+Shaping queries full-input runs for each original span without fragment direction
+redetection, preserving sequential subrun offsets and exact TextShaped subspans.
+The existing cache key already distinguishes direction; add no context to
+TextStyle. Reconciliation uses input base when present, not any RTL run; retain
+prior None fallback. Require RED→GREEN for `456 789` refutation, overrides/neutrals,
+no auxiliary controls in extracted text and bilateral measurements. Registry
+implementation is exclusively owned by `00_nucleo/prompts/infra/bidi_context.md`;
+reordering and shaping remain with their own canonical owners.

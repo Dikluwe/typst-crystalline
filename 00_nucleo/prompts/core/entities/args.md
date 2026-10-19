@@ -1,41 +1,32 @@
-# Prompt L0 — `entities/args` — argumentos e ocorrências causais
+# Prompt L0 — `entities/args` — arguments and causal occurrences
 Hash do Código: 90e38261
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/args.rs`
-**ADRs**: ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130
-## Medição anterior à decisão
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/args.rs`
+**References:** ADR-0107/0108/0127/0129/0130.
 
-Baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, mais working tree
-P1306 preservado na medição histórica,
-capturado em `2026-09-07T17:03:42.154788+00:00` antes da escrita L0.
-`01_core/src/entities/args.rs:17-32` contém items, named e span agregado;
-`compiler/eval/call_dispatch.rs:389-430,1016-1023` apaga origens e named
-anteriores no spread/With. A informação ainda existe na AST antes de eval.
+## Evidence before causal arguments
 
-A matriz independente,
-mede no vanilla ratificado `a51e02804` origens diferentes de Args iguais após
-factory/sink e cast do primeiro `pretty:"bad"` apesar do override booleano.
-Na fonte ratificada `lab/typst-original/crates/typst-library/src/foundations/args.rs:218-235`,
-cada ocorrência named sofre cast; `:414-445,485-491` filter/map preservam
-origens seletivamente; `:468-482` Add não tem a regra de With. A informação
-é necessária para observáveis da língua, não para reproduzir layout Rust.
+Baseline b303f1f15b610e09872b567027e0d806387fde8c plus the archived uncommitted
+P1306 tree was captured 2026-09-07T17:03:42.154788+00:00 before L0.
+args.rs:17-32 held items/named/aggregate span; call_dispatch.rs:389-430,1016-1023
+lost origins and earlier named occurrences in spread/With while AST still had
+them. Independent historical a51e02804 probes distinguished origins of equal
+Args through factory/sink and cast the first pretty:"bad" despite later Bool
+override. Upstream foundations/args.rs:218-235 casts every named occurrence;
+414-445,485-491 filter/map selectively retain origin;468-482 Add differs from
+With. These are language observables, not required Rust memory layout.
 
-O L0 anterior afirmava spread adiado e nativas recebendo `&[Value]`; a fonte
-vigente `call_dispatch.rs:410-419,461-468` já expande spread e entrega `&Args`.
-Essas afirmações históricas são substituídas por este contrato. A igualdade
-Rust atual deriva items/named/span; não se infere paridade geral com a
-igualdade vanilla de `foundations/args.rs:461-465`, que ignora spans.
+The older claim of deferred spread/&[Value] natives is superseded by the
+measured existing expansion/&Args at call_dispatch.rs:410-419,461-468.
+Legacy local equality includes items/named/span, unlike upstream 461-465
+which ignores spans; do not infer general equality parity.
 
-## Decisão e ownership
+## Exclusive proposed public contract
 
-Este é o único owner de Args e ArgOccurrence. `entities/func.md` possui Func,
-não redefine Args. O carrier persistente acompanha o valor; nenhum mapa
-global, comparação de valores ou recuperação posterior de AST prova origem.
-É escolha concreta de contrato, não alegação de impossibilidade de outro
-layout. L1 permanece puro; não adicionar I/O, contexto mutável global ou crate.
-
-## Interface pública proposta
+Args/ArgOccurrence belong only here; Func's owner does not redefine them.
+Persistent carriers follow values, without global maps,value comparisons or
+later AST recovery. Pure L1,no new I/O/global mutation/crate.
 
 ```rust
 #[derive(Debug, Clone)]
@@ -65,91 +56,81 @@ impl Args {
     pub fn len(&self) -> usize;
     pub fn is_empty(&self) -> bool;
 }
+
 ```
 
-`name: None` significa positional; `Some` conserva o nome exato. `span`
-individual ancora o argumento completo, `value_span` sua expressão-valor;
-cada Span conserva seu FileId. Detached significa ausência real de âncora,
-não permissão para inventar a Source da chamada final. O span agregado
-continua independente dos individuais e não é usado para reconstituí-los.
+Occurrence name None is positional,Some retains exact name. span anchors the
+whole argument,value_span its expression,each retaining FileId. Detached is
+real missing origin,never permission to invent final-call Source. Aggregate
+span is independent and never reconstructs individual anchors.
 
-### Sequência e views
+## Authoritative sequence and projected views
 
-- `Some(sequence)` é a sequência causal autoritativa, inclusive ordem conjunta
-  e todas as ocorrências named, com os valores anteriores ainda necessários
-  a casts futuros. Não é metadata puramente cosmética.
-- `items` é a projeção positional na mesma ordem. `named` projeta último valor
-  de cada nome, conservando a posição da primeira ocorrência na sequência.
-  Valores projetados são clones dos mesmos valores avaliados, sem reavaliação.
-- `from_occurrences` estabelece Some e ambas as views simultaneamente.
-- `from_parts` guarda as views e span fornecidos, com None. `positional` é
-  construção sintética com named vazio, span detached e None; assinatura e
-  `len` Rust permanecem os vigentes (`items.len()`). `is_empty` lê ambas views.
-- `occurrence_sequence` devolve clone de Some. Para None, devolve uma sequência
-  sintética: posicionais primeiro, depois named na ordem da view, ambos spans
-  individuais detached. Não representa a ordem lexical nem origens perdidas.
-  Ao combinar síntese e origem conhecida, só o fragmento sintético é detached;
-  não apagar a proveniência conhecida do outro fragmento.
+Some(sequence) retains joint order and every named occurrence including values
+needed by future casts. items projects positional order; named projects last
+value per name but keeps first-occurrence key order. Values are clones of the
+same evaluation,never reevaluated. from_occurrences builds sequence/views
+together. from_parts preserves supplied views/span with None; positional uses
+empty named,detached span,None. Legacy len counts only items; is_empty reads
+both views.
 
-### Coerência sob transformação e mutabilidade pública
+occurrence_sequence clones Some. For None it synthesizes positional then named
+view order with both individual spans detached; it cannot recover lexical
+order/origin. Combining synthetic and known fragments detaches only the
+synthetic part,not known anchors.
 
-`remove_positional(index)` conta somente posicionais, remove a ocorrência
-exata e retorna seu valor. Índice fora do domínio retorna None sem alteração.
-`remove_named(name)` remove todas as ocorrências com esse nome e retorna o
-último valor; ausência retorna None sem alteração. Em Some, os dois métodos
-regeneram ambas views; em None, modificam as views e conservam None. O span
-agregado não muda nesses métodos. Não fazem casts nem decidem diagnósticos.
+## Coherence under mutation
 
-Antes de qualquer mutação direta de items/named quando occurrences é Some,
-o caller é obrigado a chamar `invalidate_occurrences`, que só limpa o carrier,
-conservando views/span. None já está invalidado e não exige chamada redundante.
-Essa forma existe para adaptação sintética/legada explicitamente auditada;
-é PROIBIDA quando descarta a origem necessária de argumentos de usuário.
-Nessas rotas, usar os métodos coerentes ou transformar a sequência e chamar
-`from_occurrences`. Alterar occurrences diretamente e deixar views stale
-também é proibido: reconstruir o Args integral. Nenhum reader pode resolver
-inconsistência escolhendo silenciosamente uma das cópias.
+remove_positional counts positional occurrences only,removes the exact index,
+returns value; out-of-range is None without mutation. remove_named removes all
+same-name occurrences and returns the last; absent is None without mutation.
+With Some,both regenerate views; with None,modify views and retain None.
+Aggregate span stays unchanged; no casts or diagnostic precedence here.
 
-Campos públicos não impõem isso automaticamente no sistema de tipos Rust.
-A auditoria de TODOS os writers é condição de materialização e deve
-classificar cada um como síntese, transporte ou consumo. Falta de owner
-autorizado é bloqueio antes do código, não justificativa para fallback.
-Não validar origem por `PartialEq`, hash de Value, nome de binding ou busca
-textual: valores iguais podem ter origens diferentes e NaN não é identidade.
+Before direct items/named mutation with Some,caller must invalidate_occurrences,
+which only clears carrier,not views/span. None needs no redundant invalidation.
+This audited synthetic/legacy adaptation is forbidden when user argument origin
+would be lost; use coherent methods or transform sequence/from_occurrences.
+Direct sequence edits cannot leave stale views; rebuild entire Args. Readers
+must not silently choose one inconsistent copy; occurrence_sequence is not a
+repair. Changing aggregate span alone never invalidates/rewrites individual
+origins. No PartialEq/Value hash/binding name/text search proves origin; equal
+values and NaN are not causal identity.
 
-Alterar somente Args.span, como fazem seletores privados já autorizados,
-não invalida os spans individuais. Esse ajuste não pode reescrever a origem
-de nenhuma ocorrência. `occurrence_sequence` não repara carrier stale.
+Public fields cannot enforce these rules in Rust. Audit every writer as
+synthesis,transport or consumption before implementation; missing authorized
+owner blocks migration rather than licensing fallback.
 
-### Clone, igualdade e observabilidade
+## Clone, equality and ownership boundaries
 
-Clone conserva valores e todos os spans; não consulta World nem executa Func.
-PartialEq de Args mantém exatamente a comparação legada items/named/span,
-ignorando o campo novo. Não derivar PartialEq incluindo occurrences, nem
-corrigir a dívida de igualdade com vanilla nesta revisão. Debug mantém a
-estrutura anterior sem exibir o carrier. A representação da linguagem é de
-`compiler/eval/repr.md`, incluindo sua decisão explícita para sequência causal;
-não surge por Debug. `compiler/stdlib/collections.md` possui as projeções e
-callbacks de arguments; `compiler/stdlib/loading.md` possui casts/encoders.
+Clone preserves values/spans without World access or Func execution.
+PartialEq deliberately retains legacy items/named/span and ignores occurrences;
+never derive it including the new carrier or fix upstream equality debt in this
+slice. Debug keeps its prior shape without carrier. Language repr belongs to
+`00_nucleo/prompts/core/compiler/eval/repr.md`; collection projections/callbacks
+and loading casts/encoders retain their own owners.
+Args does not validate signatures,choose winning errors or add typed take<T>/
+finish. Natives may use local occurrence cursors to select arg/value span for
+failure; dispatcher must not duplicate that decision.
 
-Args não valida assinatura, não escolhe qual erro vence e não fornece
-`take<T>`/`finish` tipados nesta revisão. A nativa pode consumir a sequência
-com seu cursor local e selecionar arg-span ou value-span conforme a falha.
-Não duplicar essa decisão no dispatcher.
+## Approval provenance and acceptance
 
-## Gate e aceitação
+The original public fields/types/methods proposal requires ADR-0127 approval
+because external struct literals break. Its active text lacks a receipt;
+retain that provenance gap without treating existing implementation as approval.
+The approved migration must replace synthetic literals with from_parts/
+positional and transports with occurrences,without forcing every consumer into
+new validation. Each owner stays 1:1; drafting alone did not authorize Rust/tests.
 
-Novo campo e tipos/métodos públicos quebram literais de construção externos:
-ADR-0127 obrigatório, mesmo mantendo as views. Redigir não autoriza escrever
-Rust ou testes. A migração deve substituir literais sintéticos por from_parts
-ou positional e transportes por ocorrências, sem obrigar todos os consumidores
-a adotar validação nova. Owners consumidores permanecem 1:1.
+After approval require independent checks: repeated named projections,ordinal/
+named removal,cross-Source clone,origin-free synthesis,mixed None/Some retaining
+anchors,first invalid named casts,factory/sink Args,map/filter/join per owner,
+legacy equality including aggregate span/NaN without using equality as origin
+proof. Required Unknown fails the gate. Invariant tests must refute writers
+leaving Some after view mutation and consumers discarding provenance to obtain
+apparently valid results.
 
-Após aprovação, verificar independentemente: projeções com named repetidos;
-remoção ordinal e por nome; clone entre Sources; síntese sem origem inventada;
-mistura de None/Some sem apagar âncoras; casts do primeiro named inválido;
-Args de factory/sink; map/filter e join conforme seus owners; igualdade legada
-inclusive span agregado e NaN sem usar igualdade como prova de origem.
-Unknown de caso obrigatório não satisfaz o gate. Testes de invariantes devem
-refutar writers que conservam Some depois de mutar views e consumidores que
-descartam origens para obter um resultado aparentemente válido.
+## Historical record
+
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/args.md`. Historical observations are not a new parity certification.

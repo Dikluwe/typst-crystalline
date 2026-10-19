@@ -1,0 +1,23 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/extract_payload.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "463b79e47e6bccd379bc050bda74f2092b71a9f13778889f093e5536f7d151af",
+    "result_sha256": "4358b4b1dbf8f2d11e5c60901e05e9aec11ae9f6710f9473ba58800e2cee69cd",
+    "disposition": "Current extraction contract consolidated across two internal audits: Source normalization and later explicit OutlineEntry delegate supersede obsolete caveats; all boundaries, measurements and acceptance retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/locatable.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "9919398c2fb7ad23ec3b75761ae54344d703704a25b29af7434db78f37d4bd70",
+    "result_sha256": "c7bc2b7ac6bdebfd8acbb6f2b5863bb24121fb0fb161252da0470b34d400f612",
+    "disposition": "Full closed classifier contract consolidated; executable match unchanged, Source/Located carrier rules and later OutlineEntry alignment explicitly replace only obsolete discrepancy statements."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/from_tags/headings.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "15fc1c2e737b62ff05191391ac1d7ae31350d7f4394fa9293f3c0f4052a1a32d",
+    "result_sha256": "004e27fb7546fa045b8271c2dd5ee57a694ab81a160fe0ead478e2f7e375110f",
+    "disposition": "Full Heading pending-state callback owner translated; provisional Styled superseded, exact H2 approval/evidence and caller-context restoration remain, no callback duplication."
+  }
+]

@@ -4,30 +4,27 @@ Hash do Código: 6724f495
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/large_operator.rs`
 
-## Medição e classificação
+## Evidence and classification
 
-No vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8`,
-`crates/typst-library/src/math/ir/resolve.rs:350-352` pede stretch vertical
-para um glifo Large em Display com `StretchInfo::default()`; `item.rs:1271-1275`
-define alvo relativo 1 e short fall zero. Em
-`crates/typst-layout/src/math/fragment/glyph.rs:265-300`, o glifo base suficiente
-fica, a primeira variante suficiente é usada, a maior variante insuficiente é
-usada se faltar assembly, e uma assembly disponível é montada quando todas as
-variantes são insuficientes. `glyph.rs:452-454` resolve o alvo relativo a
-`display_operator_min_height`, e `text.rs:115-118` centra Large no eixo.
+At historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`,
+crates/typst-library/src/math/ir/resolve.rs:350–352 requests vertical stretch for
+Large in Display using StretchInfo::default(); item.rs:1271–1275 sets relative
+target 1 and zero shortfall. crates/typst-layout/src/math/fragment/glyph.rs:265–300
+retains a sufficient base, chooses the first sufficient variant, uses the largest
+insufficient variant without assembly, and assembles available parts when all
+variants are insufficient. glyph.rs:452–454 resolves target relative to
+display_operator_min_height; text.rs:115–118 centers Large on the axis.
 
-Em `NewCMMath-Book.otf` deste repositório, upem=1000, o mínimo normal é
-1300du; `∑` tem variantes de 1001/1401du sem assembly e `∫` tem variantes
-de 1112/2223du com assembly. Uma cópia de diagnóstico da fonte com somente
-`DisplayOperatorMinHeight=3000` expõe ambos os ramos: o PDF do vanilla usa a
-variante 1401du de `∑` e uma montagem de três glifos para `∫`. A escolha do
-glifo e sua extensão são morfologia visual/semântica observável da linguagem;
-IDs de glifos, bytes PDF e estrutura de frames não são o contrato. Esta
-correção repara paridade interna; não muda contrato público, fase nem padrão
-de produto segundo ADR-0127. A medição não prova paridade de todas as fontes;
-um contraexemplo seria uma fonte cujo fallback vanilla divergisse destes ramos.
+Repository NewCMMath-Book.otf has upem=1000 and normal minimum 1300du; ∑ variants
+are 1001/1401du without assembly, ∫ variants 1112/2223du with assembly. A diagnostic
+font copy changing only DisplayOperatorMinHeight=3000 exposes both branches:
+vanilla PDF uses ∑'s 1401du variant and a three-glyph ∫ assembly. Glyph selection
+and extent are observable visual morphology/semantics; GIDs, PDF bytes and frame
+structure are not the contract. This ADR-0127 internal parity correction changes
+no public contract, phase or product default. It does not establish parity for
+all fonts; a font with different vanilla fallback would refute the branch claim.
 
-## Escolha composta do operador
+## Composite operator selection
 
 Own only the Large glyph path under math layout. Keep `MathClass::Large`
 identity; do not turn the operator into a delimiter or a textual MathOp.

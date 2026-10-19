@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/structural/outline.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated all Outline/Lof/Lot/Entry contracts and explicit later approvals, preserved base-entry receipt gap/default and partial show constraints; exact private plan/request order and verification retained.",
+  "original_sha256": "ddb28bc78a829f0a54e8622f4816759206bdba8964e1959c05e49ab1f150b307",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/structural/outline.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

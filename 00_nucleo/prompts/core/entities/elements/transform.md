@@ -2,42 +2,38 @@
 Hash do Código: 2da70039
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:cbd8b56af347a35e867b2c4695581721d5983ec24ee7bb022e9f9987500d40f3
+- 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d
 
-Camada L1. Consumer exclusivo: `01_core/src/entities/elements/transform.rs`.
-ADRs 0107, 0108, 0109, 0127, 0128, 0129 e 0130.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/transform.rs`
+**References:** ADR-0107/0108/0109/0127/0128/0129/0130.
 
-## Medição anterior à decisão
+## Evidence before contract
 
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/{before,results}.json.gz` e
-`controls/results.json`, `binding-controls/results.json`, `context-controls/results.json`
-preservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC,
-diffstat, fontes, comandos e hashes de binários. Pin 9f2b6e8715237cb086899a42873660fe744622e8.
-TransformElem em entities/elements/transform.rs:19 armazena apenas matrix/body;
-stdlib/transforms.rs:19/51/91/191 descarta argumentos e reduz valores à matriz;
-layout/transform.rs calcula pivô central e usa has_orphaned como desvio de layout.
-No pin, typst-library/src/layout/transform.rs conserva os quatro elementos e
-typst-layout/src/transforms.rs resolve estilos, região, corpo, origin e reflow.
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/{before,results}.json.gz`,
+controls/results.json, binding-controls/results.json and context-controls/results.json
+preserve HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree/UTC/diffstat,
+sources/commands/binary hashes and pin9f2b6e8715237cb086899a42873660fe744622e8.
+The old entity stored only matrix/body (line 19), stdlib/transforms.rs:19/51/91/191
+discarded arguments into matrices, and layout used a central pivot/has_orphaned
+layout workaround. Upstream preserves four elements and resolves styles,
+region/body/origin/reflow in layout.
 
-Sondas: fields vazio versus body/argumentos; func falso versus função nativa;
-rotate(0deg)[X] == scale(100%)[X] true versus false; defaults explícitos colapsam.
-Origin/reflow são ignorados ou rejeitados; scale(x:150%) escala também y no
-Tekt, enquanto y permanece100% no pin; move perde percentual/em. Campos ausentes
-devem continuar desconhecidos lexicalmente. set rotate(23deg) é válido, mas
-angle nomeado não é; getters contextuais refletem estilo no pin. Os primeiros
-controles contextuais rotularam o wrapper e são inválidos para medir value;
-context-controls corrige a posição da label. HTML pinado avisa e elimina o body;
-Tekt rejeita a operação, de acordo com seu contrato HTML estrito.
+Probes found missing fields/native func, rotate(0deg)==scale(100%) wrongly true,
+collapsed explicit defaults, ignored/rejected origin/reflow, scale(x:150%)
+wrongly scaling y (upstream 100%), and lost move percentages/em. Absent fields
+must remain lexically unknown. set rotate(23deg) is valid while named angle
+is not; contextual getters reflect style. Initial context controls labelled
+the wrapper and cannot measure value; corrected controls relocate the label.
+Pinned HTML warns and drops body; strict Tekt HTML rejects the operation.
+Language observables include semantics/syntax/morphology, positions/advances
+and diagnostics; enum-versus-struct and measurement-step count are mechanics.
+Refuters include collapsed presence, baked style, wrong origin, lost errors,
+reflow=false changing advance or dropped body.
 
-Semântica, sintaxe, morfologia, posições/avanços e diagnósticos são linguagem;
-enum versus structs upstream e número de passos de medição são mecânica.
-A hipótese é refutável por campos/presença que ainda colapsem, estilo assado,
-origem incorreta, erro perdido, reflow falso alterando avanço ou body descartado.
+## Authoritative typed contract
 
-## Contrato tipado autoritativo
-
-Esta seção substitui o carrier matrix/body anterior. Os tipos públicos pertencem
-a este único owner; os nomes e campos abaixo fazem parte do contrato Rust:
+This replaces the earlier matrix/body carrier; exact public types/fields:
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
@@ -80,47 +76,51 @@ pub enum TransformOperation {
 }
 ```
 
-Importar Content, Rel e os tipos geométricos vigentes; não criar outra família
-de unidades/alinhamentos. Option representa presença, não default resolvido.
-Some(TransformScale::Auto) distingue auto de omissão. Body é obrigatório na
-construção linguística e sempre aparece em fields, mesmo vazio.
-Não manter matrix redundante ao lado de operation.
+Use existing Content/Rel/geometric types, not another units/alignment family.
+Option means explicit presence, not resolved default; Some(Auto) differs from
+omission. Body is language-required and always appears in fields, even empty.
+No redundant matrix beside operation.
 
-## Projeção e preservação
+## Projection, preservation and compatibility
 
-Nome e função nativa derivam da variante, nunca de coeficientes. Ordem lexical:
-Move dx,dy,body; Rotate angle,origin,reflow,body; Scale x,y,origin,reflow,body;
-Skew ax,ay,origin,reflow,body. Omitir apenas campos None na projeção lexical.
-get_field devolve valores explicitamente conhecidos; o classificador de métodos
-separa declarado/omitido de não declarado. Nenhum default de layout aparece como
-campo explícito. Identidade e igualdade de linguagem distinguem variantes e
-presença; não comparar somente a matriz resultante. Observação conservadora não
-reutiliza resultados de operações/presenças diferentes como se fossem iguais.
+Native name/function derive from the variant, never coefficients. Lexical
+order: Move dx,dy,body; Rotate angle,origin,reflow,body; Scale x,y,origin,reflow,body;
+Skew ax,ay,origin,reflow,body. Omit only None fields. get_field yields explicitly
+known values; method classification distinguishes declared/omitted from
+undeclared. Layout defaults never become explicit fields. Language identity
+and equality distinguish operation and presence, not only the resulting
+matrix; conservative observation must not reuse unlike operations/presences.
 
-plain_text delega ao body; is_empty mantém o default false do Element. Clone,
-Hash manual compatível com igualdade, map_content/map_text e reconstruções
-preservam operation integralmente. O despacho de layout continua em
-`00_nucleo/prompts/core/compiler/layout/transform.md`, sem import reverso ou lógica
-de render na entidade. Campos não promovem a família a locatable por padrão.
+plain_text delegates to body; is_empty keeps Element's false default.
+Clone, equality-compatible manual Hash, maps and reconstruction preserve the
+whole operation. Layout stays in
+`00_nucleo/prompts/core/compiler/layout/transform.md`, without reverse imports
+or entity rendering logic. These fields do not make the family locatable.
 
-## Compatibilidade Rust e Matrix
+Public matrix is removed; external reads/literals migrate to operation.
+Generic use is TransformOperation::Matrix(matrix). Existing
+Content::transform(matrix,body) remains and constructs Matrix with prior generic
+semantics, without native move/rotate/scale/skew identity/properties or a new
+public constructor. Native constructors create typed variants directly.
 
-O campo público matrix é removido; literais externos e leituras desse campo
-precisam migrar para operation. Para o uso matricial genérico, escrever
-operation: TransformOperation::Matrix(matrix). A assinatura pública existente
-Content::transform(matrix, body) permanece e constrói Matrix. Matrix conserva
-a semântica genérica anterior, sem se anunciar como move/rotate/scale/skew,
-sem herdar propriedades nativas dessas funções e sem novo construtor público.
-Native constructors passam a criar as variantes tipadas diretamente.
+## Ratification
 
-## Aceitação
+The human approved the typed-family package (X1–X5 implementation/tests, no
+publication), manifest `960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d`.
+Receipt: `lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14/approval-receipt.json`.
+This receipt applies to the specified public compatibility migration.
 
-RED→GREEN de identidade, omissão/zero/false/auto, eixos parciais, units e mapas.
-Integração deve cobrir construtores, set/show, getters contextuais, serialização,
-layout e controles por target. Build verde sozinho não certifica a migração.
-Sem I/O, estado global, vtable, PropMap de entidade ou inferência por render.
+## Acceptance
 
-Hash não pode reutilizar Debug cru: a igualdade ignora o sinal do zero e
-wrappers transparentes do body. Canonicalizar zero nos parâmetros e usar
-projeção conservadora do texto do body; colisões entre bodies não textuais são
-permitidas, jamais tratar colisão como igualdade. Refutar por -0/+0 e Source.
+Require identity/presence (omission/zero/false/auto), partial axes, units and
+maps RED→GREEN. Cover constructors,set/show,contextual getters,serialization,
+layout and target controls; green build alone does not certify migration.
+No I/O/globals/vtable/entity PropMap or inference from rendering.
+Hash cannot use raw Debug: equality ignores signed zero and transparent body
+wrappers. Canonicalize parameter zeros and conservatively project body text;
+nontext body collisions are allowed but never imply equality. Refute with
+-0/+0 and Source controls.
+
+## Historical record
+
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/transform.md` preserves the original evidence and chronology.

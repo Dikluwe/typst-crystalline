@@ -1,96 +1,47 @@
 # Prompt L0 — `entities/enum_numbering` — `EnumNumbering`
 Hash do Código: 20d78a76
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/enum_numbering.rs`
-**Origem**: P470 — Marcadores configuráveis de `enum`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/enum_numbering.rs`
 
----
+## Contract
 
-## Tipo
+EnumNumbering derives Debug/Clone/PartialEq/Hash/Default and retains closed
+variants Decimal (#[default]), LowerAlpha, UpperAlpha, LowerRoman, and
+Custom(EcoString). Preserve `format(&self, n: u32) -> String` for one-based n
+and `from_pattern(p: &str) -> Self`.
 
-```rust
-use ecow::EcoString;
+Decimal formats n plus `.`; LowerAlpha/UpperAlpha use lowercase/uppercase
+alphabetic helper plus `)`; LowerRoman uses its helper plus `)`; Custom
+preserves the unknown pattern but formats with Decimal fallback. Parse `1.`
+or `1` as Decimal, `a)` as LowerAlpha, `A)` as UpperAlpha, `i)` as LowerRoman,
+and every other pattern as Custom unchanged.
 
-/// Esquema de numeração de lista ordenada. Subset minimal P470.
-#[derive(Debug, Clone, PartialEq, Hash, Default)]
-pub enum EnumNumbering {
-    /// Arábico com ponto: `"1."`, `"2."`, ... (default).
-    #[default]
-    Decimal,
-    /// Alpha minúsculo com parêntese: `"a)"`, `"b)"`, ...
-    LowerAlpha,
-    /// Alpha maiúsculo com parêntese: `"A)"`, `"B)"`, ...
-    UpperAlpha,
-    /// Romano minúsculo com parêntese: `"i)"`, `"ii)"`, ..., `"xii)"`.
-    LowerRoman,
-    /// Pattern não reconhecido — armazenado sem parse. Renderiza
-    /// como Decimal (fallback). Scope-out: parse completo de patterns.
-    Custom(EcoString),
-}
+Private nth_alpha(n, upper) uses `(n-1) % 26` for the letter. The original
+higher-cycle description duplicates letters (aa, bb...), an intentional
+bounded approximation rather than upstream's complete sequence; n=1 is a/A,
+26 is z/Z and 27 is aa/AA. The same original contract also excludes full
+cycles beyond 26 from certified scope. Preserve both this declared fallback
+and the coverage limit; do not promote it to full alphabetic parity.
+Private to_roman_lower uses the static 1..=12 table
+`["i","ii","iii","iv","v","vi","vii","viii","ix","x","xi","xii"]`;
+above 12 use decimal n.to_string().
 
-impl EnumNumbering {
-    /// Formata o número `n` (1-based) de acordo com o esquema.
-    pub fn format(&self, n: u32) -> String {
-        match self {
-            Self::Decimal    => format!("{}.", n),
-            Self::LowerAlpha => format!("{})", nth_alpha(n, false)),
-            Self::UpperAlpha => format!("{})", nth_alpha(n, true)),
-            Self::LowerRoman => format!("{})", to_roman_lower(n)),
-            Self::Custom(_)  => format!("{}.", n),  // fallback Decimal
-        }
-    }
+## Acceptance
 
-    /// Parse a partir de um pattern string Typst.
-    /// `"1."` → `Decimal`, `"a)"` → `LowerAlpha`,
-    /// `"A)"` → `UpperAlpha`, `"i)"` → `LowerRoman`,
-    /// outro → `Custom(pattern)`.
-    pub fn from_pattern(p: &str) -> Self {
-        match p {
-            "1." | "1"  => Self::Decimal,
-            "a)"        => Self::LowerAlpha,
-            "A)"        => Self::UpperAlpha,
-            "i)"        => Self::LowerRoman,
-            other       => Self::Custom(other.into()),
-        }
-    }
-}
-```
+Decimal(1/3) → `1.`/`3.`; LowerAlpha(1/2) → `a)`/`b)`;
+UpperAlpha(1) → `A)`; LowerRoman(1/4) → `i)`/`iv)`.
+from_pattern("a)") is LowerAlpha, from_pattern("1.") Decimal,
+from_pattern("?!") Custom("?!"), and default is Decimal.
 
-## Helpers privados no módulo
+## Deferred scope
 
-```rust
-/// Letra do alfabeto para posição `n` (1-based).
-/// n=1 → 'a'/'A', n=26 → 'z'/'Z', n=27 → 'aa'/'AA', etc.
-fn nth_alpha(n: u32, upper: bool) -> String { ... }
+Full patterns such as `(1a)`, offsets, arbitrary prefixes/suffixes, UpperRoman,
+and complete higher alphabetic cycles remain excluded. The old reserved
+UpperRoman proposal does not authorize adding a variant. Zero-input behavior
+is not specified by the one-based contract; do not invent it during cleanup.
 
-/// Romano minúsculo simples para n ∈ 1..=12.
-/// n > 12 → fallback decimal string.
-fn to_roman_lower(n: u32) -> String { ... }
-```
+## Historical record
 
-Implementação de `nth_alpha`: `(n-1) % 26` → índice em a-z/A-Z. Ciclos > 26: duplica a letra (aa, bb...) — divergência intencional (Typst usa sequências completas mas esse é scope-out P470).
-
-Implementação de `to_roman_lower`: lookup estático para 1-12:
-`["i","ii","iii","iv","v","vi","vii","viii","ix","x","xi","xii"]`. n > 12 → `n.to_string()`.
-
-## Scope-out explícito (P470)
-
-- Parse completo de patterns `"(1a)"`, offsets, numbered forms com
-  prefixo/sufixo arbitrário.
-- `UpperRoman` (`"I)"`, `"II)"`, ...) — variante reservada mas não
-  implementada neste passo.
-- Ciclos de `nth_alpha` para n > 26 (apenas primeira passagem por ora).
-
-## Critério
-
-- `EnumNumbering::Decimal.format(1)` == `"1."`.
-- `EnumNumbering::Decimal.format(3)` == `"3."`.
-- `EnumNumbering::LowerAlpha.format(1)` == `"a)"`.
-- `EnumNumbering::LowerAlpha.format(2)` == `"b)"`.
-- `EnumNumbering::UpperAlpha.format(1)` == `"A)"`.
-- `EnumNumbering::LowerRoman.format(1)` == `"i)"`.
-- `EnumNumbering::LowerRoman.format(4)` == `"iv)"`.
-- `EnumNumbering::from_pattern("a)")` == `LowerAlpha`.
-- `EnumNumbering::from_pattern("1.")` == `Decimal`.
-- `EnumNumbering::from_pattern("?!")` == `Custom("?!")`.
-- `Default::default()` == `Decimal`.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/enum_numbering.md`. Historical observations are not a new parity certification.

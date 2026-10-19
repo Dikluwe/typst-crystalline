@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/structural/par.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated full Par constructor/break semantics and measured body/spacing/hanging supersessions; reconciled P1414 approval versus separately unverified P1415 callback gate, preserving exact boundary and acceptance.",
+  "original_sha256": "1dfd9d8a35b8449122e685769e928a9bccc9829c6642fb599b084168ea606aab",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/structural/par.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

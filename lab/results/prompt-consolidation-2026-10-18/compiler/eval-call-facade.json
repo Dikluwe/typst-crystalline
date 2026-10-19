@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "c5e05e6aaba0bd971514f08860ba7da70cdcb277a3eef99942d3f6f21fc31bc4",
+    "result_sha256": "aecace907c3eca31268ae3e3bebb7e6562e43a865d9243bc5b1228fb3ee6c168",
+    "disposition": "Full public facade/long English methods and diagnostic contracts reviewed, canonical child ownership corrected, Source trace and call-once import addenda translated without losing any boundary criteria."
+  }
+]

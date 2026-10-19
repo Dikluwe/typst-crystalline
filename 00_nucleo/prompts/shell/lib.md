@@ -1,41 +1,43 @@
-# Shell — typst-shell
+# L0 — Shell crate composition
 Hash do Código: 4d7aa3a5
 
-## Propósito
+**Layer:** L2
+**Exclusive consumer:** `02_shell/src/lib.rs`
 
-L2 — "CLI — interface com utilizador". Camada de shell que
-conhece `clap`, argparsing, modo de coloração, formatação de
-diagnostics para terminal e outras primitivas de apresentação
-de alto nível ao utilizador.
+## Evidence and boundary
 
-Materializada no Passo 117 (ADR-0049) com `cli`. Completada no
-Passo 119 (ADR-0050) com `diagnostic`. Antes disso, o crate
-era stub (só header).
+The shell crate exposes CLI parsing and terminal presentation. The original
+construction sequence and ADR-0049/0050 provenance are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/shell/lib.md`.
+The crate previously existed as a header-only stub; that historical state is
+not the current contract.
 
-## Submódulos
+## Contract
 
-- **`cli`** (`02_shell/src/cli.rs`) — argparsing, `ColorWhen`,
-  `RunIntent`, `parse()`, `resolve_colored_with`. Ver prompt
+L2 owns the user interface: clap, argument parsing, color selection, terminal
+diagnostic formatting and other high-level presentation primitives.
+
+- `cli` (`02_shell/src/cli.rs`) owns argument parsing, `ColorWhen`, `RunIntent`,
+  `parse()` and `resolve_colored_with`; its boundary contract is
   `00_nucleo/prompts/shell/cli.md`.
-- **`diagnostic`** (`02_shell/src/diagnostic.rs`) — formatter humano
-  vanilla-espelhado para `SourceDiagnostic`, com fontes já materializadas e
-  suporte opcional a cores ANSI (P1139; adendo à ADR-0045).
-  Ver prompt `00_nucleo/prompts/shell/diagnostic.md`.
-- **`duration`** (`02_shell/src/duration.rs`) — formatter humano puro de
-  `std::time::Duration`, sem relógio nem I/O; adaptador binding-free das
-  fronteiras S11. Ver prompt `00_nucleo/prompts/shell/duration.md`.
+- `diagnostic` (`02_shell/src/diagnostic.rs`) owns the vanilla-mirroring human
+  `SourceDiagnostic` formatter, already materialized sources and optional ANSI
+  colors, under the human-format amendment to ADR-0045; see
+  `00_nucleo/prompts/shell/diagnostic.md`.
+- `duration` (`02_shell/src/duration.rs`) owns pure human presentation of
+  `std::time::Duration`, without clock access or I/O, and the binding-free
+  duration/watch-line boundary adapter; see
+  `00_nucleo/prompts/shell/duration.md`.
 
-## Evolução
+L2 is the only layer importing clap. L3 remains I/O without argument parsing or
+user-facing formatting. L4 composes L2's `RunIntent` and `format_diagnostic`
+with the L3 pipeline. This owner governs the crate root, not the implementation
+contracts of its independently owned submodules.
 
-Ficheiros futuros esperados:
+## Scope and possible extensions
 
-- `diagnostic_json.rs` / `diagnostic_sarif.rs` — formatters
-  estruturados alternativos.
-- `subcommands/` — se/quando `compile`, `watch`, `query`,
-  etc. forem adicionados como subcomandos.
-- `formatters/` — progress bars, summary reports.
-
-L2 é a **única** camada que importa `clap`. L3 permanece I/O
-puro (sem argparsing, sem formatação user-facing). L4 é
-composição pura (consome `RunIntent` e `format_diagnostic` de
-L2 + pipeline de L3).
+Alternative structured formatters (`diagnostic_json.rs`/`diagnostic_sarif.rs`),
+`subcommands/` organization if/when compile/watch/query and other commands
+require it, and `formatters/` for progress bars or summary reports remain
+possible future work. Their mention does not authorize a new module or product
+surface without its own current L0.

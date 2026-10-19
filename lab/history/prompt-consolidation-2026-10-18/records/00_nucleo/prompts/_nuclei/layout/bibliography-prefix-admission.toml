@@ -1,0 +1,9 @@
+tekt = 1
+kind = "nucleus"
+id = "bibliography-prefix-admission"
+title = "bibliography-prefix-admission"
+
+[[claims]]
+id = "causal-context"
+level = "must"
+statement = "O prefixo bibliográfico pendente é contexto privado de layout; emitir uma vez na página/coluna e baseline da primeira folha textual efetivamente admitida do corpo, após widow/orphan/overflow, antes da tinta do corpo. Preservar chain e TextStyle do prefixo, não medir ou renderizar o corpo novamente nem executar callbacks/eval/show. Captura/restore conserva o contexto completo; subframes de medida/Place o suspendem e o restauram. Não criar Location ou metadado de introspecção artificial."

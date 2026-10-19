@@ -2,76 +2,107 @@
 Hash do Código: 37d31c0e
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/math/layout/source_transparency_tests.rs`
 
-## Medição anterior à decisão
+### Evidence before decision
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado; UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz` (snapshot inicial preservado em initial-ten-owners.json.gz). AST/spans em contexts.json/all-contexts.json/wildcard-inventory.json, parser pinado do CI. A suíte anterior passou no mesmo código de entrada, revalidado por hashes.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/tekt-v16-math-layout-2026-10-17/before.json.gz`
+retains UTC, sources/L0/hashes/configuration, status and exact git diff HEAD --stat;
+initial-ten-owners.json.gz preserves the first snapshot. contexts.json,
+all-contexts.json and wildcard-inventory.json retain AST/spans from the pinned
+CI parser. The previous suite passed on the same input code, reconfirmed by hash.
 
-source-probe-before.json mede limits inline com largura 7.2 pt versus 12.912 pt ao acrescentar Source. source-family-before.json preserva a primeira matriz de 12 pares (11 diferenças). source-family-supplement.json e sua análise preservam 23 pares com métricas atribuíveis (19 diferenças e 4 controles iguais): limites, kerns, Op.text, acentos/dotless, suportes, alinhamento de matriz, espaçamento, sequências, stretch e classe. source-lines-before.json mede a mesma equação com 2 linhas versus 1 e última baseline 16.2 versus 0 sob Source, apesar dos mesmos extents. São observáveis de geometria, identidade extraível e metadados da equação, não igualdade de bytes/pointers/Rust. A transparência já é obrigatória no núcleo content-source-origin; a inspeção mostra os helpers classificando o wrapper em vez do body. Não se infere intenção histórica ou paridade global a partir desses números. O erro de contagem do analisador complementar (24 em vez de 23 pares) foi corrigido usando o stdout original válido, sem refazer a medição nem contar o erro como RED funcional.
+source-probe-before.json measures inline limits at width 7.2pt versus 12.912pt
+with Source. source-family-before.json preserves the first 12 pairs (11
+differences). source-family-supplement.json and analysis preserve 23 attributable
+pairs (19 differences, 4 equal controls): limits, kerns, Op.text, accents/dotless,
+supports, matrix alignment, spacing, sequences, stretch and class.
+source-lines-before.json measures the same equation at two lines versus one and
+last baseline 16.2 versus 0 under Source despite equal extents. Geometry,
+extractable identity and equation metadata are observables; bytes/pointers/Rust
+equality are not. The content-source-origin nucleus already requires transparency;
+inspection finds helpers classifying wrappers instead of their bodies. Infer no
+historical intent or global parity. The supplemental analyzer's 24-versus-23
+count error was corrected from valid original stdout without rerunning or
+counting the analyzer error as functional RED.
 
-## Contrato exclusivo
+## Exclusive test contract
 
-Possuir apenas regressões puras de transparência Source para o layout matemático.
-Usar MathLayouter pela entrada pública e FontMetrics determinístico, com advance,
-arestas, TopAccentAttachment, kerns assinados e variantes horizontais declaradas.
-Não carregar fonte, World, relógio, arquivo ou rede. Manter a fixture atribuível;
-ela não demonstra seleção de fonte real ou paridade de exportação inteira.
+Own only pure mathematical Source-transparency regressions. Use MathLayouter's
+public entry and deterministic FontMetrics with declared advances/edges,
+TopAccentAttachment, signed kerns and horizontal variants. Load no font/World/
+clock/file/network. Keep fixtures attributable; they do not prove real-font
+selection or complete export parity.
 
-Os 23 pares da análise suplementar são casos separados. Comparar geometria
-(width/ascent/descent, baselines, posições e tamanhos de texto/glyph) com 1e-9,
-texto/caractere observável e identidade extraível por ocorrência, sem exigir bytes,
-GID, pointer, formato privado de frame ou igualdade Rust de Content. O observador
-conhece Text/TextShaped/Glyph, TextReplacement e Semantic; os seis demais tipos
-atuais de FrameItem são Unknown e falham explicitamente, sem fabricar observação.
-Text/TextShaped partilham observação visual; os seis tipos recusados partilham
-a mesma falha, justificando só esses dois grupos V19. Não ignorar item desconhecido.
+The supplemental 23 pairs are separate cases. Compare width/ascent/descent,
+baselines, text/glyph positions/sizes at 1e-9, observable text/character and
+extractable per-occurrence identity, without bytes/GID/pointers/private frame
+shape/Rust Content equality. The observer knows Text/TextShaped/Glyph,
+TextReplacement and Semantic; all six other FrameItem kinds are explicit Unknown
+failures, never fabricated observations or ignored items. Text/TextShaped share
+visual observation and six refused kinds share the same failure, justifying only
+those two V19 groups.
 
-Conservar controles positivos independentes: limits inline empilha e scripts fica
-lateral; o mock fornece variantes extensíveis com avanços distintos; a matriz
-retém alinhamento de coluna por ampersand; espaço fraco interno permanece e nas
-bordas colapsa. Source não altera identidade extraível do acento atômico ou do
-acento aninhado, nem dotless i/j. Nunca usar identity text para medir glyphs.
+Independent positives retain inline limits stacked/scripts lateral; the mock
+has extensible variants with distinct advances; matrix ampersand alignment stays;
+internal weak spaces remain and edge spaces collapse. Source preserves atomic/
+nested-accent extractable identity and dotless i/j. Never measure glyphs from
+identity text.
 
-Adicionar controle de equação display com duas linhas: Source conserva line_count
-2 e primeira/última baseline. Adicionar controle de flatten: cada fragmento retém
-origem própria ou recebe origem comprovada do container, sem substituir origem
-já presente e sem alterar a árvore autoral. Um controle negativo de observador
-com TextSeparator deve falhar Unknown. A transformação dotless terá seu teste
-causal e de origem co-localizado no owner de accent; não exportar helper só para
-este consumer nem compartilhar propriedade do código produtivo.
+Add display two-line equation control: Source keeps line_count 2 and first/last
+baseline. Add flatten control: fragments retain their own origin or receive a
+proven container origin, without replacing known origins or changing author trees.
+A negative TextSeparator observer control must fail Unknown. Dotless
+transformation has its own co-located causal/origin test under the accent owner;
+export no helper just for this consumer and share no productive ownership.
 
-## Aceitação
+### Acceptance and limits
 
-L0 antes de código. Correção interna/paridade ADR-0127 em fluxo contínuo: sem campo/assinatura pública, trait, dependência, flag/default novo, compatibilidade ou fase nova. Grupos V19 compartilham o corpo anterior explicitamente justificado por caso; as notas permanecem visíveis e não provam cobertura de execução por alternativa. Não adicionar allow/expect, elevar limiar, capturar @ ou esconder um match em if-let/matches!. Somente a transparência e as reestruturações rasas aqui nomeadas alteram o código funcional; não editar fórmulas/constantes ou relaxar expectativas anteriores. RED funcional das regressões Source e RED estrutural dos avisos/sondas antes do reparo. Após, regressões GREEN, zero V16 dos locais emitidos, revisão futura dos 36 locais (incluindo a nova projeção de Content sob Option) por sentinelas Content/Value/MathStyleKind/FrameItem em workspace descartável com cfg(test) compilado. Os scrutinees/funções atuais e a composição ganham só as alterações descritas; revalidar ast/replay, assinaturas e demais owners.
+L0 before code. This ADR-0127 internal parity correction adds no public field/
+signature/trait, dependency, product flag/default, compatibility break or phase.
+V19 groups share their previous body with per-case justification; notes remain
+visible and do not prove execution coverage per alternative. No allow/expect,
+threshold increase, @ capture or hidden match in if-let/matches!. Only named
+transparency/shallow restructuring changes functional code; do not change
+formulas/constants or relax expectations. Require functional Source RED and
+structural warning/probe RED before repair; afterwards regression GREEN, zero
+emitted-site V16 and future sentinel review of all 36 sites (including new
+Content-under-Option projection) using copied Content/Value/MathStyleKind/FrameItem
+in a disposable real workspace compiling cfg(test). Current scrutinees/functions/
+composition change only as specified; revalidate AST/replay, signatures and other
+owners.
 
-Gates: suíte workspace completa, build, fmt, Clippy workspace/all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings com quatro índices, V1/V5/V15/V26 estrito/reversa, SARIF diferencial completo e diff-check. V16 esperado 170→152; notas V19 novas somente dos grupos prescritos e do observador novo; V20 sem crescimento. As demais violações continuam pendentes. Fontes congeladas durante os gates; MemoryMax=12 GiB, swap zero, um job Cargo, comandos pesados sequenciais. Sem commit/push/release ou alteração do pin CI. Não alegar ganho de RAM, leitura de IA ou paridade integral por encerrar o lint.
+Gates: full workspace suite, build, fmt, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, Rustdoc -D warnings with four indexes,
+strict/reverse V1/V5/V15/V26, full differential SARIF and diff-check. Expected V16
+170→152; new V19 only from prescribed groups/new observer; no V20 growth.
+Other violations remain pending. Freeze sources during gates; MemoryMax 12 GiB,
+zero swap, one Cargo job, heavy commands sequentially. No commit/push/release or
+CI pin change. Lint closure does not prove RAM gain, AI-reading benefit or
+complete parity.
 
+## Source markers in the grid
 
-### Marcadores Source no grid — complemento medido em 2026-10-17
+source-markers-before.json confirms Source(Linebreak) turns two lines into one
+(a/b on one baseline); Source(MathAlignPoint) keeps two lines but displaces 1/2
+relative to 333/4's column. Preserve this RED before repair. Parent-owned
+needs_grid_layout/partition_grid classify markers through node.source_body()
+without changing separators, empty lines/cells or order. partition_grid's content
+arm retains the original clone/origin. Use a flat nominal complement if removing
+the prior normalized binding, without @ capture or suppression. New origin never
+fabricates Location. This regression consumer adds two public display tests for
+Source Linebreak/MathAlignPoint requiring equal baselines/positions. Previous
+27 controls remain, total 29; expected RED is 5 passing/24 failing. No new
+contract/phase/default/public API.
 
-source-markers-before.json confirma: Source(Linebreak) transforma duas linhas
-em uma (a/b na mesma baseline); Source(MathAlignPoint) conserva duas linhas,
-mas desloca 1/2 em relação à coluna de 333/4. Preservar esse RED antes do reparo.
-No owner pai, needs_grid_layout e partition_grid também classificam os marcadores
-por node.source_body(), sem mudar separadores, linhas/células vazias ou ordem.
-No braço de conteúdo de partition_grid, reter o clone original com sua origem;
-usar complemento nominal plano se isso eliminar o binding normalizado anterior,
-sem captura @ ou suppressão. A nova origem nunca fabrica Location.
-O novo consumer de regressão acrescenta dois testes públicos display, para
-Linebreak e MathAlignPoint Source, exigindo as mesmas baselines e posições.
-Os 27 controles anteriores não mudam: o total passa a 29, com RED esperado
-5 passando/24 falhando. Nenhum novo contrato, fase, default ou API pública.
+## Borrowed origin control
 
-
-### Empréstimo no controle de origem — 2026-10-17
-
-Clippy estrito mede `cloned_ref_to_slice_refs` no controle de flatten,
-source_transparency_tests.rs:378; recibo e fontes exatas do candidato em
-attempt-clippy/ e clippy-refinement.json. O contêiner é apenas emprestado
-para a entrada de um item. Prescrever `std::slice::from_ref(&container)`
-em vez da fatia temporária com clone, mantendo os mesmos dados, spans,
-asserções, observação e contagem de testes. Não introduzir supressão ou API.
+Strict Clippy reports cloned_ref_to_slice_refs in the flatten control at
+source_transparency_tests.rs:378; attempt-clippy/ and clippy-refinement.json retain
+exact candidate sources/receipt. The one-item input only borrows container;
+use std::slice::from_ref(&container) rather than a temporary cloned slice, with
+identical data/spans/assertions/observations/test count. Add no suppression/API.

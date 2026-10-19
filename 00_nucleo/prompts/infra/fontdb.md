@@ -2,7 +2,7 @@
 Hash do Código: f82a32be
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:391cd1604976262b1b6e019b802ed72e78782260d2788bb04999297559605509
+- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0f2985807cc3c7b4aeed9a5a26b77ad66dbbdb67ccfb43ba8336dbc8e8eea1a5
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/fontdb.rs`
@@ -16,11 +16,11 @@ These are current local source anchors, not a new upstream parity measurement.
 
 ## Measurement before the acquisition decision
 
-Historical `lab/results/construction/diagnostics/catalogo-seletivo-2026-10-05.md` records38.10→29.00ms metadata acquisition and94.33→88.04ms with old coverage; these are not current CLI gains. Audit `lab/results/construction/diagnostics/catalogo-seletivo-preparacao-2026-10-07/audit.json` records HEAD/dirty/UTC/assets,1,140 faces/max20 records/max259,927 projected bytes, unchanged historical assets and unchanged metadata extractor body; priority2 coverage differs and stays current. `03_infra/src/fontdb.rs:42–113` previously mandates with_face_data. fontdb0.23.0 lib.rs:721–727,900–920 distinguishes File reopening from SharedFile retained bytes. Metadata/source order and coverage observable in language must stay equivalent; I/O/buffer mechanics may differ. Infer a possible benefit; wrong metadata/coverage/selection/order/render or lack of repeatable benefit refutes it. Never infer upstream intent or add historical percentage improvements.
+Historical `lab/results/construction/diagnostics/catalogo-seletivo-2026-10-05.md` records 38.10→29.00ms metadata acquisition and94.33→88.04ms with old coverage; these are not current CLI gains. Audit `lab/results/construction/diagnostics/catalogo-seletivo-preparacao-2026-10-07/audit.json` records HEAD/dirty/UTC/assets, 1, 140 faces/max20 records/max259, 927 projected bytes, unchanged historical assets and unchanged metadata extractor body; priority2 coverage differs and stays current. `03_infra/src/fontdb.rs:42–113` previously mandates with_face_data. fontdb0.23.0 lib.rs:721–727,900–920 distinguishes File reopening from SharedFile retained bytes. Metadata/source order and coverage observable in language must stay equivalent; I/O/buffer mechanics may differ. Infer a possible benefit; wrong metadata/coverage/selection/order/render or lack of repeatable benefit refutes it. Never infer upstream intent or add historical percentage improvements.
 
 ## Decision after ratification
 
-Changing the default acquisition path needs the concrete catalogo-seletivo-2026-10-07 package ratified under ADR0127§2.2/§5 before code. No new public API or product flag. Parent owns path selection and pairing, child owns bounded File acquisition; rollback/refusal retains original path. Do not duplicate parsing or convert FontSlot mmap failure into eager reads.
+Changing the default acquisition path required concrete package ratification under ADR-0127 §2.2/§5; the approval below satisfies that prerequisite only for catalogo-seletivo-2026-10-07. No new public API or product flag. Parent owns path selection and pairing, child owns bounded File acquisition; rollback/refusal retains original path. Do not duplicate parsing or convert FontSlot mmap failure into eager reads.
 
 ## Contract
 
@@ -45,46 +45,54 @@ The child is exclusively `03_infra/src/fontdb/selective.rs` ↔ `00_nucleo/promp
 
 Acceptance: inline parent tests demonstrate File fallback, SharedFile retained data, empty/nonfont directories, complete metadata/coverage and exact slot/book indices/order. Child tests RED→GREEN first; per-face comparisons and equivalent-language/PDF/CLI corpus against frozen previous and pinned vanilla before any speed conclusion. Final build/tests/scoped lineage and three-round combined catalog/CLI/RSS measurement per ratified package; no public instrumentation or unrelated owners changed. If refuted, preserve/restore prior productive path and record negative evidence.
 
-Ratificação: dono confirmou com `confirmo` o pacote catalogo-seletivo-2026-10-07, manifesto045ef18d7a16143e640669cf5923db1a213eb677b6c278d4ee4a0bf542973c2e, em2026-10-07.
+Approval: owner `confirmo` on 2026-10-07 ratified catalogo-seletivo-2026-10-07,
+manifesto SHA-256 `045ef18d7a16143e640669cf5923db1a213eb677b6c278d4ee4a0bf542973c2e`.
 
+## Font retention evidence and approval
 
-## Medição anterior à decisão de retenção ratificada
+`lab/results/construction/diagnostics/watch-retencao-2026-10-07.md` retains
+HEAD/tree/binaries/UTC, actual edits/recovery and dynamic per-cycle acquisition
+counts. `watch-validacao-2026-10-07/measurement.json` compares discovery validation
+and complete acquisition at the same state; controls.json covers additions/removals/
+replacement/restored mtime/links/configuration. These are isolated costs, no CLI
+gain or upstream-intent proof. FontBook/slots/coverage must preserve language
+selection/content/diagnostics/render; Arc/duration are mechanics. Cost, stale
+resources, regression or unbounded retention refute possible benefit. Fixtures/
+provenance/limits remain in the reports.
 
-lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
-edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
-descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
-remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
-não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
-preservar seleção, conteúdo, diagnóstico e render na linguagem; duração/Arc são
-mecânica. Inferimos benefício possível, refutado por custo, stale resources,
-regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do relatório.
+Owner `Confirmo` ratified
+`lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json`
+under ADR-0127 §2.1/§2.2; receipt
+`lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json`.
+Each owner remains 1:1.
 
-### Decisão ratificada sob ADR-0127 §2.1/§2.2
+## Prepared discovery without retention here
 
-Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
+Declare pub(crate) mod generation, owned exclusively by
+`00_nucleo/prompts/infra/fontdb/generation.md`. Expose catalog_from_database(&fontdb::Database)
+only inside L3, containing the existing metadata/pairing loop. Public loaders keep
+signatures/discovery/order and may delegate to it; session materializes the prepared
+Database without a second initial discovery. Preserve selective File, retained
+SharedFile bytes, excluded Binary, invalid-metadata filtering, indices and the
+selective-acquisition fallback. No Database caching, sorting/deduplication or
+ordinary compile-default change here. generation prepares/validates without
+metadata/coverage/selective duplication; fonts/coverage owners remain unchanged.
 
-## Preparação de descoberta, sem retenção neste owner
+## Private import maintenance
 
-Declare pub(crate) mod generation, com owner exclusivo
-00_nucleo/prompts/infra/fontdb/generation.md. Exponha somente para L3 o helper
-catalog_from_database(&fontdb::Database) que contém o loop atual de extração e
-emparelhamento. Os loaders públicos mantêm assinaturas, descoberta/ordem e podem
-delegar a esse loop; a sessão pode materializar o Database já preparado, sem
-segunda descoberta inicial. Preservar File seletivo, SharedFile bytes retidos,
-Binary excluído, filtro de metadata inválida, índices e fallback da prioridade 3.
-Não cachear Database aqui, não ordenar/deduplicar nem mudar o caminho padrão de
-compile comum. generation é responsável por preparar e validar; não duplicar
-metadata/coverage/selective. Owners de fonts e seu child coverage permanecem intactos.
+### Evidence
 
-## Imports e documentação de CI — 2026-10-13
+`lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`
+retains sources/owners/spans/original compiler output, HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/status/diffstat.
+Selected warnings occur at fontdb.rs:13. Inspection distinguishes productive
+references, descendant-test imports and comments; no new parity measurement.
 
-### Medição anterior à decisão
+### Contract and acceptance
 
-`03_infra/src/fontdb.rs` nas linhas 13 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
-
-### Decisão e aceitação
-
-Remover somente os imports privados comprovadamente sem uso neste consumer; manter os reexports públicos e os imports exigidos por chamadas ou contratos. A lista exata de spans anterior à edição está no diagnóstico citado.
-
-Manutenção interna sem mudança de assinatura pública, default, fase, fórmulas ou critérios de aceitação (fluxo contínuo ADR-0127). Não introduzir supressões de lint. Revalidar compilação de todos os targets, nomes e execução da suíte de infraestrutura, build, Clippy do workspace, Rustdoc e linhagem com resselo restrito. Não criar testes que apenas espelhem remoção de imports ou formatação de comentários.
+Remove only private imports proven unused here; keep public reexports and imports
+required by calls/contracts. Exact pre-edit spans remain in the diagnostic.
+Internal continuous ADR-0127 maintenance changes no public signature/default/
+phase/formula/acceptance. No lint suppressions. Revalidate all-target compile,
+infra test names/execution, build/workspace Clippy/Rustdoc/lineage with scoped
+resealing. No import-removal/comment-format mirror tests.

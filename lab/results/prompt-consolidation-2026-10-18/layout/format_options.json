@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/format_options.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Retained approved source transparency boundary and approval/provenance, exact aliases and contrasting document constructor rule, all structural/behavioral gates and unresolved external V16/None parser issue.",
+  "original_sha256": "179edd7f1b6b5a24d2ebb08ab8a14141c72026116ad9e1f82519a74cb4a328af",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/format_options.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

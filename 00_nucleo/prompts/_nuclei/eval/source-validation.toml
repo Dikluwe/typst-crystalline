@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "eval-source-validation"
-title = "Validação de fontes antes do acesso à AST tipada"
-
+title = "Source validation before typed AST access"
 [[claims]]
 id = "validate-before-eval"
 level = "must"
-statement = "Fontes de documento, expressão, import e include são validadas sintaticamente antes de visitar nós tipados ou executar o programa. Qualquer erro fatal impede avaliação, efeitos de prefixo, bindings e estilos parciais."
-
+statement = "Document, expression, import and include sources are syntactically validated before typed-node visits or program execution. Any fatal error prevents evaluation, prefix effects, bindings and partial styles."
 [[claims]]
 id = "causal-diagnostics"
 level = "must"
-statement = "Erros preservam ordem, mensagem, span da fonte real e todos os hints do parser. Não capturar panic como substituto de validação, reancorar tudo no importador nem engolir erro em None."
-
+statement = "Errors preserve order, message, actual source span and every parser hint. Do not catch panic instead of validation, reanchor everything to the importer or swallow errors as None."
 [[claims]]
 id = "warnings-remain-warnings"
 level = "must"
-statement = "NoTextWithinStars e NoTextWithinUnderscores são avisos não fatais. Preservar seus spans normalizados sobre o markup vazio e hints, mesmo junto de erro; enviar ao Sink existente que deduplica por origem e mensagem. Não generalizar outras falhas para warning."
-
+statement = "NoTextWithinStars and NoTextWithinUnderscores are nonfatal warnings. Keep normalized empty-markup spans and hints even alongside errors; send to the existing Sink deduplicating by origin/message. Do not generalize other failures to warnings."
 [[claims]]
 id = "static-ownership"
 level = "must"
-statement = "O coletor puro único classifica SyntaxErrorKind exaustivamente e é restrito a eval. Callers fornecem o canal de warnings, mantêm roteamento/isolamento/contexto e aplicam traces de import/include nas fronteiras existentes. Não introduzir I/O, globais ou API pública."
+statement = "The single pure collector classifies SyntaxErrorKind exhaustively and remains eval-restricted. Callers supply warnings channel, retain routing/isolation/context and apply import/include traces at existing boundaries. No I/O, globals or public API."

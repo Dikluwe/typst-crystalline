@@ -2,13 +2,13 @@
 Hash do Código: 770fb24d
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:b4372cbdd36e0e25377d1258638a6859bcc88c9e584b91b377a2a12d0d66135f
-- 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:fb383f227b0bcd8b1e61899942fa0383a4cda66093da58bda2e87844e2895d2a
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
-- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:bdbe23b72d7083b7672d71e851dc3d35baa8ed7ccb66f009f61edcf770d0aeff
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
+- 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 
 
@@ -44,382 +44,128 @@ Run `cargo test -p typst-infra --lib pipeline::tests -- --test-threads=1` when v
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Separadores textuais — materialização autorizada em 2026-09-28
+## Carrier, bundle and single-evaluation controls
 
-### Medição anterior à decisão
+RED source→PDF probes/handler inspection in `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` preceded public layout_types approval 2026-09-28. Adapt fixture projections/exhaustive traversal for TextSeparator with position transported and neutral point-count/ink/existing measurements. Approved identidade-hifen-discricionario-2026-09-28 initial/before/approved-before eight U+002D/SHY equal-bbox controls require transparent TextReplacement descendants, unchanged text/order/coordinates/calculation, recursive/literal-hyphen/text-box tests, no new advance/algorithm/PDF-byte/new-selection criterion.
 
-`03_infra/src/pipeline/tests.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
-dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
-2026-09-28 e registrada na proveniência da materialização.
+`lab/results/construction/diagnostics/auditoria-composicao-construcao-2026-09-29/probe.json` shows standalone UA1 missing-title error while bundle emits claimed-UA1 PDF without title. Through existing World fixture require exact missing-title error/no returned file in bundle, supplied-title success and no non-UA title requirement. Test only canonical PDF/bundle owners' acceptance, never authorize production through tests. Successful bundle uses entry metadata `#document("one.pdf", title: [Okay])[...]`; #set document belongs to standalone eval, not bundle-entry metadata. Verify PDF title/UA1 identification and no inheritance by a second untitled document.
 
-### Responsabilidade deste owner
+Context expansion after show keeps prepared producer/unified index: Original | Generated. A recipe carrying captured context and creating another producer preserves both; realization id allocator never recycles captured eval ids. These exercise productive pipeline, not L1-test projection adapters. Internal helpers preserve root Sequence without ContextBlock through preparation/outlines, observable content/no warnings/order/queryable headings. Arc::ptr_eq witnesses avoided mechanics, not language identity; shortcuts must not suppress callback/error/outline/context tests.
 
-Adaptar projeções e traversals exaustivos de fixtures ao carrier: posição é transportada; neutro para contagem de pontos, tinta e medições de comportamento existente.
+## Complete initial-candidate and local-cell sentinels
 
-Conservar as responsabilidades existentes; a aceitação segue texto e geometria
-observáveis, incluindo os controles de adjacência e os invariantes pinados.
+Canonical `00_nucleo/prompts/infra/pipeline/paged.md` supplies evidence/decision. Before implementation count wrapper entries per thread only cfg(test): simple multipage table without numbering uses one layout, preserves all PageStore logical bindings/text; ordinary explicit numbering uses two. Keep page-total context and outline/callback/error controls. Reject hidden SetPage context/unlisted types/residual show/unqualified Realized original. Counter measures work, not parity; preserve exact RED state/GREEN suites.
 
-## Identidade textual — controles do contrato aprovado
+`lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/layout-call-counts-before.json.gz` records release/HEAD/tree/UTC/fixtures/commands: local-set-1600 two complete passes versus no-fill one. paged.rs:13–53,434–468 ties excess to local-recipe rejection. Test multipage Table with set table.cell(fill:red), no numbering, one wrapper entry/all cells+pages. Captured local show and numbering retain two entries. No arbitrary ShowRecipe/function independence inference; test owner does not define algorithm/API/phase/default. Preserve text/boxes/pages/ink.
 
-Medição anterior: initial.json, before/resultados.json e red.log em
-`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/` registram
-texto/caixas e a perda de SHY. O dono confirmou o contrato
-`00_nucleo/prompts/core/entities/layout_types.md`. A compilação de fixtures exaustivas
-exige tratar a variante nova. Projeções visuais descem nos filhos; extractors
-textuais usam text uma vez. Expectativas de identidade discricionária passam a
-SHY, mantendo U+002D literal. Não relaxar caixas/seleção. A suíte de shaper
-exercita fixture Noto obrigatória e ausência de fontes, conserva envelope e
-prova que text substituto não altera glyphs/avanços nem contamina o cache.
+## Page snapshots and contextual metric lifetime
 
-## Regressão do PDF/UA no bundle — 2026-09-30
+Test paged counter(page).display default/callback, two pages, explicit logical start. Compare emitted per-page text to1/2 and7/8, not PDF bytes; keep nonpage counters. RED precedes display-owner repair, no pipeline algorithm change here. Require current/final/both RED→GREEN for single/multipage, initial/intermediate/late update, page-aware Func callbacks, final pages without context, nonPage counters, standalone HTML and PDF/HTML/PDF bundles with distinct totals/updates. Verify language text/context selection before stability; unreproduced cases prove no parity. Preserve exact-state prior CLI/code Page/current/final/callback/HTML RED, then GREEN before suites/build/lint with full provenance.
 
-A medição causal em `lab/results/construction/diagnostics/auditoria-composicao-construcao-2026-09-29/probe.json` antecede a decisão: PDF isolado sob UA-1 sem título falha, bundle publica um PDF declarado UA-1 sem título. Adicionar teste integrado com a fixture World existente para exigir, no bundle, o diagnóstico exato de ausência de título e nenhum ficheiro retornado; manter controle de sucesso quando o título está presente e ausência de exigência fora de UA-1. O teste materializa somente a aceitação dos owners `infra/pipeline/pdf.md` e `infra/pipeline/bundle.md`, sem legitimar lógica produtiva por este prompt.
+Empty/multilevel Page states' realized get/final project one level including zero physical delta; prior oracle/source live with `00_nucleo/prompts/core/compiler/introspect/from_tags/counter_updates.md`. Small/large table retention fixtures verify returned current/final share one generation and per-occurrence finals equal realized total. Report entries/capacities/Vec payload separately from RSS/time. Invalid Page callback return fails; next valid compile in same World has complete correct snapshot. No unmeasured upstream-message equality.
 
-O controle GREEN usa `title:` nomeado em `#document("one.pdf", title: [Okay])[...]`, pois é o carrier próprio da entrada bundle; `#set document` é uma regra de eval do percurso individual, não a metadata de uma entrada. Conferir que o PDF emitido contém título e identificação UA-1. Um segundo documento sem título não herda o título do primeiro.
+Under paged/context owners' measured contracts, selected-context table using counter(heading.where(level:1)).final() must preserve text/pages and create no independent layout metric caches across attempts. Thread-local cfg(test) counts only fresh-wrapper branch, zeroed before compile, not other helpers; RED fresh→GREEN session handle. Selected final reconciliation similarly expects zero fresh metrics with preserved text/logical numbers; prepare without selection transports no settled result. Selected RTL text+Latin/numeric suffix tests bidi handle reuse, zero fresh coordinator metrics, preserving prior layout/reconciliation sentinels. Owner's baseline299 bidi computations is historical causal evidence, not a new parity threshold. No productive instrumentation/reconciliation-equation ownership change.
 
+## Full-pipeline bidi envelopes
 
-## Realização com avaliação única
+bidi-contexto-implementacao-2026-10-05/verification.json.gz preserves first candidate RTL mixed/LTR numeric still matching wrong baseline. pipeline-context.log RED shows all leaves lack spans; realize/mod.rs:38–44 inserts Located, unexercised by direct eval. Located is transparent only for certifying its complete textual body; never ignore opaque bodies or Location registration. Lexical-direction and collection traverse same wrapper. Require spans in every textual leaf and RTL order with leading Latin segment; keep failed-candidate artifacts.
 
-Expansão contextual após show conserva produtor preparado e consulta índice unificado: output contém Original | Generated. Esse teste cobre execução produtiva de pipeline, sem adapter de projeção dos testes L1.
+## Ratified bidi and effective face fixtures
 
 
-## Realização com avaliação única
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json`
+records unit references/1:1 owners; confirmed manifesto 1ae7513e requires None for
+uncertified constructors and `..` read patterns, preserving language observations
+under the pinned origin nucleus without phase/API expansion.
 
-Receita que transporta conteúdo contextual capturado e cria outro produtor conserva ambos: contador de ids da realização não reutiliza ids já capturados na avaliação comum.
+`identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}`
+distinguishes regular GIDs from Oblique selection. Human approval of public
+TextShaped.font: Option<Font> is manifesto
+`f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409`;
+implementation state/inventory: identidade-fonte-shaped-implementacao-2026-10-05/.
 
+Migrate only this owner's references: legacy constructors None, transforms preserve
+Font, shaped comparison/join distinguishes face/axes. The shaper supplies the actual
+Font clone even on hits without semantic/style changes to force selection. Collectors/
+subset/CMap/PDF bind the same original face and style coordinates. PNG/SVG prepare
+local bindings and instance once per face/request before render, keeping original
+resource index separate from instanced bytes; None follows legacy resolution.
+Preserve public APIs/FontKey, no fabricated fonts/unsafe/globals/new phase; private
+functions may receive Font/bindings explicitly.
 
-## Reuso sem transformação — 2026-10-05
+Association uses original face bytes plus axes, never names/slots alone. Table
+lifetime is export-local; preserve supplied resource order and append missing faces.
+For multifont distribute items once before per-font collectors; no cross-face
+GID/CMap reuse. References never share ownership. Require RED→GREEN/bilateral
+miss/hit/variable-font controls without a promised speedup. Shared invariants remain
+in pinned shaped-face-identity, no second productive owner.
 
-Adicionar sentinelas dos helpers internos para conservação de um root Sequence sem ContextBlock pela preparação contextual e pela fase de realização de outlines. Observar também conteúdo, ausência de warnings, ordem e headings consultáveis. A comparação Arc::ptr_eq é sonda do trabalho mecânico evitado, não definição de identidade da linguagem. Revalidar os testes vigentes de callbacks/erro/outline/contexto, que não podem ser suprimidos pelo atalho.
+## Source identity and compiled-query tests
 
+diagnostic-paths-2026-10-06/identity-next-audit.json freezes source/UTC/HEAD/tree/binaries/commands at historical9f2b6e8715237cb086899a42873660fe744622e8. eval/mod.rs:609–615 and wiring/eval.rs:66–95 reuse world.main id, cache.rs:58–78 recycles ids, upstream typst-cli/eval.rs:159–179/world.rs:176–190 distinguishes expression/stdin/no input. Shown source/position/relative base are language, integer/global-interner mechanics not required. Owner `confirmo`2026-10-06 approved `lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json`. Test document error/warning versus expression error with distinct Source ids/final introspector/parser failure. Prove one document eval via observable effect/test World, not one layout/fixpoint pass; keep import/callback origins/read base/legacy facades.
 
-## Sentinelas do candidato inicial — 2026-10-05
+query-residuos-2026-10-06/before.json.gz freezes HEAD/tree/UTC/pin/binaries/source/commands/output/status: callback/nested error lost, contextual metadata missing, selector quote/where rejection and compilation-before-retrieval precedence. query.rs:34–66,86–105 and query_helpers.rs:488–522/pipeline.rs:182–214 support the compiled-query correction. Owner confirmed2026-10-06 in query-compilada-aprovacao-2026-10-06.json. Test public compiled facade: unknown callback variable fails original span/trace, generated metadata appears in final introspector, warnings retained once/no export artifact. Use isolated existing Sources/Worlds, not helper/match-only observations.
 
-Evidência e decisão são do owner `00_nucleo/prompts/infra/pipeline/paged.md`. Antes da implementação, contar por thread apenas em cfg(test) entradas no wrapper de layout e exigir uma chamada para tabela simples que ocupa múltiplas páginas, PageStore/binding com todos os números lógicos e texto preservado. Exigir duas chamadas no caminho ordinário com numbering explícito; conservar teste de contexto que lê total de páginas e controles existentes de outline/callbacks/erro. O contador é sonda mecânica do trabalho evitado, nunca critério de paridade da linguagem. Incluir predicado de rejeição para contexto escondido em SetPage, tipos não listados, show residual e origens Realized não qualificadas. Fonte/estado RED e suítes GREEN acompanham o diagnóstico.
+## Private fixture representation and exact decisions
 
+pipeline/tests.rs:1492 and infra-imports-docs-ci-2026-10-13/before.json.gz preserve source/owner/spans/compiler output/HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/dirty status/diffstat/UTC and productive/test/comment audit. Remove only proven unused private imports, retain public/required ones; no public/default/phase/formula/acceptance/suppression change. All-target/infra names+suite/build/workspace Clippy/Rustdoc/lineage, no import/comment mirror tests.
 
-## Regressão page display — 2026-10-05
+pipeline/tests.rs:3030 and type-complexity-2026-10-15/before.json.gz preserve hash-checked source/L0 and all-target-discovered caller. page_snapshot_retention_keeps_one_complete_generation destructures PagedCompilation.document/introspector as existing doc/intr, retaining entire program/cases4, 320/asserts/counts/retention probe. No tolerance/expected/carrier-mirror test. Paged owns result/compile; private continuous flow, workspace/lint/build/scoped lineage.
 
-Exercitar a fachada paginada com contexto de counter(page).display: padrão/callback, duas páginas, início lógico explícito. Comparar o texto emitido por página contra números lógicos esperados (1/2 e 7/8), não contra bytes PDF; conservar counters não página. O teste é RED antes de corrigir o owner de display; não alterar algoritmos do pipeline neste owner de testes.
+pipeline/tests.rs:388 clippy::redundant_guards, clippy-expressions-2026-10-16/before.json.gz/initial-diagnostics.json preserve source/L0/HEAD/tree/status/diffstat/UTC/suggestions/spans/type-use audit. Destination point counter matches LinkTarget::Destination(_) directly inside FrameItem::Link pattern instead of matches guard. Keep other wrapper recursion/count/fixtures/assertions. Internal expression change, no new API/default/phase/dependency/suppression/parity/performance; L0 first/scoped lineage/selected RED→GREEN/full workspace/build/all-target Clippy/fmt/Rustdoc/lineage, no syntax-mirror tests.
 
+## Exhaustive existing FrameItem decisions
 
-## Snapshot realizado de Page — ratificado em 2026-10-05
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
+### Evidence
 
-Decisão proposta: aplicar o Núcleo page-counter-snapshot. Esta unidade substitui o scope-out histórico de final apenas após ratificação. Contrato público e realização page-aware de updates exigem gate ADR-0127; não materializar ou ressellar antes da confirmação. Preservar as assinaturas existentes, ciclos e budget; não adivinhar página/total antes do snapshot conhecido.
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/
+sources/L0/configuration/hashes/status/diffstat. AST spans/patterns/guards/bodies/
+complements were checked before code; classification.json records 70 cases across
+26 owners under pinned CI AST. Rust exhaustivity is mechanics; product semantics/
+morphology/geometry/effects/diagnostics stay. No new architecture/upstream intent.
 
-Exigir RED→GREEN de current/final/both: uma e várias páginas; update inicial/intermediário/tardio; callbacks Func page-aware; páginas finais sem contexto; counters não Page; standalone HTML e bundles PDF/HTML/PDF com totais e updates distintos. Conferir texto e seleção contextual da língua antes de considerar estabilização. Casos não reproduzidos não qualificam paridade. Suítes existentes, build e lint com proveniência completa.
+### Exact owner complements
 
+Only replace frame_items_text's `_` at pipeline/tests.rs:750 (historical F067) and contains_bold_text's `_` at:764(F068), each with FrameItem::TextSeparator/Line/Glyph/Image/Shape.
+Preserve complete fallback bodies/prior arms/guards/transforms/calls/returns/order.
+Callbacks/effects/metadata/clipping/fonts/positions/ink/width follow current owners;
+no expanded traversal/wrapper-leaf change/text-or-ActualText geometry replacement.
+Tests retain fixtures/expectations/tolerances/counts/Unknown failures; V19 group
+notes stay visible without pretending one arm covers all alternatives.
 
-## Materialização do conjunto ratificado — 2026-10-05
+Continuous ADR-0127 adds no enum/field/trait method/public signature/default/
+dependency/compatibility/phase and approves no historical pending proposal.
+L0 first, scoped bidirectional resealing; no suppression/higher threshold or
+match→if-let evasion. Before code run new FrameVisitor control/workspace suite
+with unchanged expectations and confirm AST RED for all 70 family warnings.
+Afterward zero scoped-family V16/no new warnings; outside V16 remains pending.
+For productive core matches reached by cargo check -p typst-core, use a disposable
+FrameItem sentinel variant to observe absent E0004 before/present after. That
+probe covers only compiled sites, never unbuilt cfg(test) or blocked L3 sites.
+For the full batch replay patterns/guards/bodies, verify enum/signatures unchanged,
+real build/tests, no stub bodies.
 
-Sentinelas page_snapshot current/final, callbacks e HTML são RED na CLI/código anteriores; exigir GREEN antes da suíte e preservar a evidência do estado exato.
+Revalidate full workspace suite/cargo build/strict workspace-all-target Clippy
+(-D warnings, -D unfulfilled_lint_expectations)/fmt/Rustdoc -D warnings/four HTML
+indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/L0/
+configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
+MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
+memory gain or measured AI benefit.
 
-Aceitação adicional: estados Page vazios e de vários níveis têm get/final realizados projetados em um nível, incluindo delta físico zero. Oráculo e fonte anteriores à decisão no owner counter_updates.
+## Ratified complete text-size fixture adaptation
 
-Ratificação: o humano confirmou o conjunto do manifesto `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
+text-argumentos-2026-10-17/before.json.gz, before-measurement.json.gz, morph-before-measurement.json.gz, audit.json preserve HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/dirty tree/UTC/status/diffstat/source/L0/binaries/argv/historical9f2b6e8715237cb086899a42873660fe744622e8. named-em0pt versus24pt, affine3versus27, nested18→0versus36; six Size/Color/body orders accepted upstream/rejected locally; positional18pt ignored12versus18. Pinned text/mod.rs:290, 303, 924–930, 1136–1142, args.rs:178–247 establishes typed search/named priority/rest body/composition. style_chain.rs:513–517/constructor.rs:123 drops em, collapse:394–395, 419–422 top-wins instead of fold. Restoration/Raw/heading/math/capture/show/duplicates/spans/zero-negative/metrics refute incomplete fixes. Equality probe upstream text(size:2em)[A]==text(size:24pt)[A] true, content/mod.rs:779–782 compares child: equality is a separate defect, not closed by complete type.
 
-A suíte caracteriza a retenção de snapshots nas fixtures de tabela pequena e grande: current/final da compilação retornada têm a mesma geração e finais por ocorrência correspondem ao total realizado. Relatar número de entradas, capacidades e payload reservado por Vec, sem equiparar isso a RSS ou ganho de tempo.
+Human ratified manifest 771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba and its two public contracts; S1–S16/12GiB/swap0, no release/merge/push, lineage only after implementation/valid graph. RG1 independent. This test owner only adapts Style::Size(Pt) to Size(absolute Length) and StyleDelta.size expectations to Option<Length>. Preserve language/functional observables, never replace correct geometry with representation snapshots.
 
-Erro/recovery: um callback Page com retorno inválido falha; uma compilação válida subsequente no mesmo World continua produzindo o snapshot completo correto. Não impor igualdade de mensagem com o upstream sem medição específica.
+## Context textual inheritance and occurrence acceptance
 
-## Sentinela da sessão contextual — 2026-10-05
+context-paridade-2026-10-18/before.json.gz, before-sources.json.gz, baseline-build-resources.json preserve clean productive HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731/UTC/argv/diffstat/binaries/new recipe at current bd5ebec285505889e8ff1d4f68804ab147a699f3. Global/local probes A/A versusR/L, creation before rule/nesting/regex/product lose rules; inner-local L matches. realize/mod.rs:240–269 captures only Equation/Table, recipes.rs:343 treats Context generic leaf, textual.rs:46–103 already preserves baseline/local RuleId delta. Upstream context.rs:78–86 uses contextual-point styles, typst-realize/lib.rs:353–418 prepares/applies/visits. Lost-rule cause is refutable by scope/nesting/product/parent-hides-child controls. Internal correction within ratified R3-T1 preserves delayed execution/API/phases; no Location offset/hash/removing Located/public contract change, ordinary Styled stays opaque to textual matching/mapper unchanged.
 
-Ver medição anterior à decisão nos owners paged/context_stabilization. Compilar uma tabela gerada por contexto selecionado com counter(heading.where(level:1)).final(); conferir texto e páginas e comprovar que suas tentativas de layout não criam caches de métricas independentes. Sonda thread-local cfg(test) conta somente o ramo de criação no wrapper de layout; zerar antes da compilação. RED no caminho atual, GREEN depois de fornecer o handle da sessão. Os demais helpers e seus caches não entram nessa contagem.
+Add paged/HTML global/local inheritance, pre-rule creation, nesting, regex, product, Styled, parent-hides-child regressions with body-local-rule controls. Record identity REDs(two equations,Heading prefix,it.location) separately, no ignored/relaxed expectations. Occurrence approval is `lab/history/construction/records/00_nucleo/materialization/context-occurrences-2026-10-18/review.md`, SHA 500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388 and approval-receipt.json; additive arena API only, no unrelated phase/API. Evidence at before.json.gz shows EQ EQ Q1/Q2, H EQ Q0/Q1, query00/01 from fresh per-producer allocators/dedup Location. Test distinct Context equations, Heading prefix, callback locating own it, equal producers/aliases/fresh products/nested Context/grow-shrink selected replay. Use real text/count/identity relations, no synthetic expected Locations/PDF bytes; functional RED before code, preserve textual/prior suites.
 
-## Sentinela de reconciliação selecionada — 2026-10-05
+green-occurrences1.log/receipt/occurrences-candidate1-sources.json.gz preserves seven approved controls/three failures. Context owner retains unselected contributions; only actual filtered-counter/HTML-position reads join replay. equation-grow-numbered/shrink-numbered observes query in unselected producer, freezing Q0; equation-alias asserts initial empty query before legacy pass. Keep these divergent probes/external evidence/expected values, never declare GREEN. Isolate arena acceptance with observable Q counter instead of premature alias assert, and actual filtered-counter read in the query observer for grow/shrink, comparing upstream. This neither expands selection nor changes error tolerance. Core separately tests slot reuse/no ghost tags.
 
-Ver medição antes da decisão nos owners paged/context_stabilization. Compilar tabela gerada por contexto com leitura filtrada, conferir conteúdo e números lógicos, e exigir zero métricas frescas no braço final de reconciliação. Sonda cfg(test) local ao wrapper paginado, thread-local por teste; não instrumentar produção ou alterar o owner das equações de reconciliação. RED no descarte atual do handle, GREEN com transporte interno. Conferir também que prepare sem seleção não transporta resultado settled.
-
-## Sentinela de retenção até bidi selecionado — 2026-10-05
-
-Medição antes da decisão no owner paged, seção Métricas retidas no bidi contextual selecionado: 299 cálculos no bidi RTL selecionado. Compilar contexto selecionado com texto RTL e sufixo latino/número, verificar conteúdo e números lógicos e exigir zero métricas frescas no braço bidi do coordenador. Instrumentação thread-local cfg(test), sem instrumentar produção. RED com métricas frescas, GREEN com empréstimo do handle aceito. As sentinelas anteriores conservam layout e reconciliação.
-
-## Migração do carrier bidi ratificado (2026-10-05)
-
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
-
-## Envelopes de identidade no pipeline completo
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-implementacao-2026-10-05/verification.json.gz` preserva o primeiro candidato; RTL mixed/LTR numeric ainda coincidem com baseline errado. `pipeline-context.log` registra RED pelo pipeline completo: todas as folhas sem span; `realize/mod.rs:38–44` insere Located em ocorrências. Avaliação direta não exercitava esse envelope. Correção interna: Located é transparente somente para certificação da sua body textual integral, sem ignorar corpos opacos nem alterar registro de Location. Direção lexical e coleta devem atravessar o mesmo envelope. O teste do pipeline exige spans em todas as folhas textuais e ordem RTL com primeiro trecho latino; preservar artefatos do primeiro candidato.
-
-
-## Face efetiva de TextShaped — materialização ratificada 2026-10-05
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
-
-Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
-
-A associação é por bytes da face original e pedido de eixos; nomes e slots não bastam. A tabela local dura a exportação e conserva ordem dos recursos fornecidos, anexando faces faltantes. Para multifont, distribuir itens pelos bindings uma vez antes de coletores por fonte; não reutilizar GIDs/CMap globais em faces diferentes. Código deste owner continua 1:1 com seu L0; referências a outros owners não compartilham propriedade. Aceitação RED→GREEN e controles bilaterais incluindo miss/hit/VF, sem promessa de ganho de tempo.
-
-Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
-
-## Identidade de documento e expressão — gate confirmado 2026-10-06
-
-### Evidência anterior à decisão
-
-`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
-conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
-Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
-separam erro/warning do documento de erro da expressão: o documento perde sua
-fonte, enquanto a expressão recebe indevidamente o nome do documento.
-`01_core/src/compiler/eval/mod.rs:609-615` usa world.main() para Source e base;
-`04_wiring/src/eval.rs:66-95` repete esse id ao fornecer o primary ao formatter.
-`03_infra/src/world/cache.rs:58-78` registra arquivos e recicla o contador;
-`lab/typst-original/crates/typst-cli/src/eval.rs:159-179` e
-`lab/typst-original/crates/typst-cli/src/world.rs:176-190` distinguem expressão,
-stdin e ausência de entrada por identidade. A igualdade dos inteiros e o
-interner global upstream são mecânica, não requisito (ADR-0107). A origem
-mostrada, fonte, posição e resolução relativa são observáveis de linguagem.
-
-### Decisão e escopo do gate
-
-Testar erro/warning do documento e erro da expressão com Sources de ids
-distintos, introspector válido e falha de parser. Controlar que o documento
-é avaliado uma vez com efeito observável/instrumentação de World de teste,
-sem impor uma única passagem de layout ou fixpoint. Conservar origens de
-imports/callbacks e base de read relativa. Fachadas legadas ficam como controles.
-
-Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
-Consumer exclusivo preservado; Hash do Código acompanha a materialização.
-
-
-## Query CLI compilada — gate ADR-0127 confirmado
-
-### Medição anterior à decisão
-
-query-residuos-2026-10-06/before.json.gz registra HEAD/working tree, UTC,
-pin/binary hashes, fontes, comandos e stdout/stderr/status. query-stdin-callback
-retorna sucesso onde vanilla reporta erro e trace. query-context-success perde
-metadata produzido; nested-error também desaparece. query-selector-quotes
-apresenta rejeição P206C antes do erro do documento. where-level é rejeitado,
-mas vanilla retorna [2]. Document-error-invalid-selector demonstra precedência
-da compilação; valid-document-invalid/text-selector demonstra retrieval error
-sem depreciação. eval-context-reference e eval-where-reference já coincidem
-usando a compilação paginada atual. Upstream typst-cli/src/query.rs:34–66
-compila antes de retrieve; :86–105 avalia selector em Scope default e depois
-converte para LocatableSelector. Fontes locais: query_helpers.rs:488–522 consulta
-somente Module; pipeline.rs:182–214 já usa compilação com introspector final.
-
-### Decisão confirmada
-
-Correção da linguagem, não cópia da mecânica upstream. CLI query passa a
-compilar documento paginado completo antes da avaliação de selector, sem
-exportar arquivo. A execução comum do programa permanece única, conforme os
-owners vigentes de realização/contexto. Reutilizar o pipeline paged completo:
-nenhuma expansão avulsa, índice pré-contexto ou ciclo de estabilização paralelo.
-Distinguir falha de compilação e de retrieval por enum explícito, nunca por
-mensagens, spans destacados ou busca de substrings. A nova API e o caminho de query compilada foram confirmados pelo humano
-em 2026-10-06 (confirmo); recibo query-compilada-aprovacao-2026-10-06.json.
-Os candidatos/manifesto permanecem como recibo histórico; este é o L0 vigente.
-
-Testar fachada compilada: callback com variável desconhecida falha com span/trace
-original; metadata gerada em context aparece no introspector final; warnings
-são conservados uma vez. Confirmar que não há artefato exportado. Usar fontes
-e Worlds isolados existentes; não testar somente chamada de helper/match privado.
-
-## Prova de reuso da Cell local sem numbering — 2026-10-09
-
-Medição: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/layout-call-counts-before.json.gz` registra release, HEAD/árvore/UTC/fixtures/comandos e duas passagens completas para `local-set-1600` contra uma para `no-fill-1600`. `03_infra/src/pipeline/paged.rs:13-53,434-468` liga a diferença à prova estrutural que recusa a receita local e força segundo layout no ciclo de numeração. É custo de mecânica; preservar texto, caixas, páginas e tinta é observável de linguagem.
-
-Testar via fachada paginada que Table local multipágina com `set table.cell(fill: red)` e sem numbering reutiliza o primeiro candidato completo: uma chamada contada no wrapper `cfg(test)`, todas as células e páginas presentes. Um show local capturado mantém duas chamadas; numbering existente continua duas. Não inferir independência de qualquer ShowRecipe ou função arbitrária. Este consumer de testes apenas exerce o contrato do owner `infra/pipeline/paged.md`; não define o algoritmo nem amplia API/fase/default.
-
-## Imports e documentação de CI — 2026-10-13
-
-### Medição anterior à decisão
-
-`03_infra/src/pipeline/tests.rs` nas linhas 1492 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
-
-### Decisão e aceitação
-
-Remover somente os imports privados comprovadamente sem uso neste consumer; manter os reexports públicos e os imports exigidos por chamadas ou contratos. A lista exata de spans anterior à edição está no diagnóstico citado.
-
-Manutenção interna sem mudança de assinatura pública, default, fase, fórmulas ou critérios de aceitação (fluxo contínuo ADR-0127). Não introduzir supressões de lint. Revalidar compilação de todos os targets, nomes e execução da suíte de infraestrutura, build, Clippy do workspace, Rustdoc e linhagem com resselo restrito. Não criar testes que apenas espelhem remoção de imports ou formatação de comentários.
-
-
-## Resultado paginado nomeado — type_complexity (2026-10-15)
-
-Medição anterior à decisão: pipeline/tests.rs:3030 desestrutura a tupla privada
-do helper paginado; o compile de todos os targets identifica este chamador.
-Fonte/owner anteriores foram conferidos contra os hashes do snapshot inicial e
-conservados em before.json.gz do diagnóstico type-complexity-2026-10-15.
-
-Na fixture page_snapshot_retention_keeps_one_complete_generation, desestruturar
-o novo PagedCompilation por nomes document/introspector, mantendo os bindings
-doc/intr. Preservar integralmente programa, casos 4/320, assertions, contagens e
-sonda de retenção. Não alterar tolerâncias ou expectativas, nem criar teste de
-espelho dos campos. O owner paged continua dono do resultado e da compilação.
-Mudança privada de fixture sob ADR-0127, sem API/default/fase; revalidar suíte
-workspace, gate de lint, build e linhagem com resselo restrito.
-
-
-## Expressões locais verificadas — Clippy 2026-10-16
-
-### Medição anterior à decisão
-
-03_infra/src/pipeline/tests.rs:388 (clippy::redundant_guards). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
-
-### Responsabilidade exclusiva e aceitação
-
-No contador de pontos de destino, incorporar LinkTarget::Destination(_) ao pattern FrameItem::Link em vez do guard matches. Preservar recursão pelos demais wrappers, contagem, fixtures e asserções.
-
-Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependência ou supressão novos. L0 precede código e resselo restrito. Preservar inputs e resultados dos controles existentes, sem relaxar tolerâncias. Gate dos lints selecionados RED→GREEN; executar suíte workspace, build, Clippy all-targets, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe Rust.
-
-
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
-
-### Medição anterior à decisão
-
-F067: 03_infra/src/pipeline/tests.rs:750 (frame_items_text); F068: 03_infra/src/pipeline/tests.rs:764 (contains_bold_text). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
-
-### Prescrição exclusiva desta unidade
-
-- **F067 — `frame_items_text`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Line`, `Glyph`, `Image`, `Shape`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
-
-- **F068 — `contains_bold_text`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Line`, `Glyph`, `Image`, `Shape`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
-
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
-
-### Gate e aceitação
-
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
-
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
-
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
-
-
-## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
-`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
-fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
-Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
-mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
-mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
-Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
-estabelece busca tipada, preferência nomeada, body restante e composição.
-style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
-style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
-É tamanho/escopo observável da linguagem; a representação Rust é escolha
-interna. Não inferir intenção histórica. Refutar por restauração, Raw,
-heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
-A sonda de igualdade refutou a hipótese de comparar os valores declarados:
-no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
-content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
-própria correção; o tipo completo não é prova de fechamento desse eixo.
-
-### Ratificação
-
-O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
-771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
-Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
-Resselo somente após implementação e grafo válido. RG1 continua independente.
-
-### Responsabilidade exclusiva adicional
-
-Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length absoluto), e expectativas de StyleDelta.size por Option<Length>. Conservar os observáveis linguísticos e os contratos funcionais existentes; não trocar geometria correta por snapshots da representação nova.
-
-
-## Context — herança textual, 2026-10-18
-
-### Medição anterior à decisão
-
-HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fonte produtiva limpa;
-lab/results/construction/diagnostics/context-paridade-2026-10-18/before.json.gz contém
-UTC, argv, diffstat e SHA dos executáveis. Build novo em baseline-build-resources.json;
-freeze completo em before-sources.json.gz. Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Sondas global/local devolvem A/A no Tekt contra R/L; criação antes da regra,
-aninhamento, regex e produto também perdem a regra. Controle local dentro de
-Context dá L nos dois. compiler/realize/mod.rs:240–269 só captura Equation/Table;
-compiler/realize/recipes.rs:343 trata Context como folha genérica; textual.rs:46–103
-já preserva baseline e compõe delta local por RuleId. No vanilla pinado,
-foundations/context.rs:78–86 executa com styles do ponto contextual;
-typst-realize/src/lib.rs:353–418 prepara raiz, aplica regra e visita produto.
-Isso mede escopo/efeitos de linguagem, não exige copiar a estrutura upstream.
-A causa de perda de regras é inferida desses caminhos e será refutada se os
-controles de escopo, nesting, produto ou pai ocultando filho falharem.
-
-### Decisão e fronteira
-
-Correção interna de paridade dentro da realização contextual já ratificada em
-R3-T1: manter execução adiada, API e fases vigentes. Não corrigir colisões de
-Location por offset/hash, remoção de Located ou alteração de contratos neste
-recorte. Styled comum permanece opaco no matching textual; não alterar o mapper.
-
-### Responsabilidade exclusiva
-
-Adicionar regressões de linguagem no pipeline paginado e HTML para herança
-global/local de Context, criação anterior à regra, nesting, regex, produto,
-Styled e pai ocultando filho. Manter controles de regra local no corpo.
-Registrar separadamente REDs de identidade (duas equações, prefixo Heading e
-it.location), sem marcá-los ignorados nem reduzir expectativas. Somente os REDs
-textuais pertencem à correção interna desta revisão; identidade pede seu escopo.
-
-
-## Context — identidade de ocorrências ratificada, 2026-10-18
-
-### Medição anterior à decisão e gate
-
-before.json.gz em lab/results/construction/diagnostics/context-paridade-2026-10-18 conserva
-HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fontes, UTC, diffstat, argv e
-SHA dos binários; baseline-build-resources.json contém a receita nova. Vanilla
-bd5ebec285505889e8ff1d4f68804ab147a699f3. Duas equações dão EQ EQ Q1/Q2;
-prefixo Heading H EQ Q0/Q1; it.location observado por query dá 00/01.
-context_stabilization.rs:257 reinicia EvalContext por produtor; eval/mod.rs:438
-reinicia Locator; realize/mod.rs:41 aloca sem domínio comum; introspect/walk.rs:
-375–390 deduplica pela Location. É semântica/identidade de linguagem.
-Upstream typst-realize/src/lib.rs:353–418 prepara identidade antes da receita,
-mas não exige copiar representação, vtables ou algoritmo.
-Hipótese de colisão será refutada por falha de contagem, alias, callback ou replay.
-
-O humano aprovou a proposta review.md sob
-lab/history/construction/records/00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
-500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388;
-recibo approval-receipt.json no mesmo diretório. Gate ADR-0127 §2.1 satisfeito
-para a API aditiva especificada. Não autoriza mudança de fase ou API alheia.
-
-### Responsabilidade exclusiva
-
-Testar duas equações em Contexts distintos, prefixo Heading e callback que
-localiza seu próprio it na lista query. Incluir produtores iguais, aliases,
-produtos frescos, Context aninhado e crescimento/retração em replay selecionado.
-Controles PDF/HTML usam texto, contagens e relações de identidade reais; não
-sintetizar Locations esperadas nem comparar bytes PDF. Registrar RED funcional
-antes do código, conservar todos os controles textuais e a suíte precedente.
-
-### Delimitação medida dos controles de replay — 2026-10-18
-
-`green-occurrences1.log`/recibo e `occurrences-candidate1-sources.json.gz`
-em lab/results/construction/diagnostics/context-paridade-2026-10-18 preservam sete controles
-aprovados e três falhas. 00_nucleo/prompts/infra/pipeline/context_stabilization.md:29–32 conserva
-contribuições não selecionadas; implementação: selecionar apenas leituras efetivas
-de filtered-counter/posição HTML, laço de validação ignora os demais produtores.
-As sondas `equation-grow-numbered`/`shrink-numbered` consultam query em outro
-produtor não selecionado: Q0 permanece congelado. `equation-alias` usa assert
-sobre a primeira query vazia e termina antes do passe legado. Estas sondas seguem
-registradas como divergências, não se troca o esperado nem se declara GREEN.
-
-Aceitação da arena isola a identidade dentro do protocolo vigente: alias de it
-com contador Q observável em vez de assert prematura; crescimento/retração com
-leitura real do contador filtrado também no produtor observador da query, para
-que participe do replay já especificado. Comparar esses controles ao vanilla.
-Isso não corrige nem amplia seleção ou tolerância de erros. Manter sondas gerais
-na evidência externa e declarar seus limites no relatório. Testes core exercitam
-reuso dos slots e ausência de tags fantasma separadamente.
-
-HTML: occurrences-html-before.json.gz e occurrences-html-candidate2.json.gz
-recompilam respectivamente o freeze textual e a arena; 25 sondas têm os mesmos
-status/texto/erro primário. As dez textuais coincidem com vanilla; as quinze de
-equação continuam divergentes. prepare_html seleciona Position/Page, conserva
-query não selecionada e recusa filtered-counter no target standalone. Esta etapa
-não altera esse contrato. Não declarar paridade de query/it.location HTML nem
-considerar a bateria ampliada integralmente verde. A arena corrige a colisão,
-mas a aceitação bilateral HTML mais ampla permanece aberta.
+occurrences-html-before.json.gz/candidate2 recompiles textual freeze/arena:25 probes same status/text/primary error; ten textual match upstream, fifteen equations still diverge. prepare_html selects Position/Page, retains unselected query and rejects standalone filtered counters. Arena repairs collision but broader HTML query/it.location parity remains open; do not describe expanded battery as entirely green or alter that contract.

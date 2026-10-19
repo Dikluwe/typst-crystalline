@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/method_dispatch.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "b40e76e19cf152b432d16f2a36ed5096a85f231f581e4b340b8599850da76677",
+    "result_sha256": "ec8c2aa3eddca613854a105b3db3a0056cb00059ee490c849b3adcfaf0f88753",
+    "disposition": "Full mutation owner translated, old no-interception transport clarified by MutatingCall partial supersession, Args-before-place/writeback and flat complement retained with all controls."
+  }
+]

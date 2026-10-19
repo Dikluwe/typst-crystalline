@@ -1,0 +1,192 @@
+{
+  "utc": "2026-10-19T02:46:03.938942+00:00",
+  "checkpoint": "ef4a08ec3f48b2eecc470d9b2582349665cb29c1",
+  "state": "Frozen uncommitted inputs recorded by final-integrity.json and validation/validation-state.json.gz",
+  "scope": "Explicit individual history paths, active-owner Markdown shorthand, numbered step headings, and Portuguese keywords. Full semantic reviews are recorded separately; lexical scans are not a language detector.",
+  "history_references": 566,
+  "missing_history_references": [],
+  "short_owner_references": [],
+  "numbered_step_headings": [],
+  "language_matches": [
+    {
+      "path": "00_nucleo/prompts/infra/watch.md",
+      "line": 143,
+      "text": "Owner approval `Aprovar a proposta` at2026-10-16T22:00:02.716079+00:00 in",
+      "disposition": "Exact human approval quotation preserved as provenance."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/render.md",
+      "line": 179,
+      "text": "- `#[expect(clippy::too_many_arguments, reason=\"C047: Leaf raster usa oito inputs efetivos de pintura; texto autoral não é transportado para PNG\")]`",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline/pdf.md",
+      "line": 82,
+      "text": "- `#[expect(clippy::too_many_arguments, reason=\"C109: Wrapper público oracle com pages fornece standard None; a rota diagnóstica é independente da comum\")]`",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline/resources.md",
+      "line": 56,
+      "text": "`fonte variável 'ubuntu sans' requer instanciação, mas Python/fontTools não está disponível`;",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/fonts/coverage.md",
+      "line": 142,
+      "text": "  `#[expect(clippy::single_range_in_vec_init, reason = \"Esperados são coleções de Range semiabertos de cobertura, preservando o intervalo único 2..6\")]`.",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/world/paths.md",
+      "line": 24,
+      "text": "- Register canonical read/include ids and use shared caches. Preserve diagnostics including `searched at`, access denied and `include: ficheiro não encontrado`.",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/stream/text.md",
+      "line": 129,
+      "text": "- `#[expect(clippy::too_many_arguments, reason=\"C052: Variante Compact diferida possui os mesmos inputs causais e retorna o Q pendente para fechar ActualText antes da restauração gráfica\")]`",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/stream/text.md",
+      "line": 133,
+      "text": "- `#[expect(clippy::too_many_arguments, reason=\"C056: Variante Verbose diferida transporta os mesmos inputs e informa restauração Q pendente\")]`",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/stream/text.md",
+      "line": 134,
+      "text": "- `#[expect(clippy::too_many_arguments, reason=\"C057: Núcleo Verbose recebe restore explicitamente para compartilhar a implementação normal/diferida; os demais inputs são os operandos reais do texto e seu cenário de fontes\")]`",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/color.md",
+      "line": 158,
+      "text": "The same historical record measured local rejection of weighted syntax `c.mix((d, 50%), space: rgb)` with exact error `color.mix: argumento 'col2' deve ser Color, recebeu array`, where upstream returned `#aa526c`. Retain that historical gap; the later weighted-reduction helper specifies its internal mechanism but does not alone prove current stdlib acceptance. On 2026-08-28, direct named-constant probes against ratified `a51e02804` gave red.mix(blue,rgb) `#805b87`, negate Oklab `#004b74`, rotate90 Oklch `#87a100`. Those named-constant observations do not invalidate the integer-input measurements or settle the contradictory local row.",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter.md",
+      "line": 45,
+      "text": "#[expect(clippy::mutable_key_type, reason=\"CounterKey deste teste usa apenas Str e Selector::Kind imutáveis; o HashMap verifica namespaces distintos\")].",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/frame_paint.md",
+      "line": 89,
+      "text": "Human \"Aprovar a proposta\" approved manifest",
+      "disposition": "Exact human approval quotation preserved as provenance."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/layout_types.md",
+      "line": 57,
+      "text": "The shaped-font gate is explicit: `lab/history/construction/records/00_nucleo/materialization/identidade-fonte-shaped-aprovacao-2026-10-05.json`, human “Confirmo o L0; prossiga com implementação e medição”, recorded `2026-10-06T01:41:37.921093+00:00`, approved SHA `f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409`. Apply the pinned shaped-face nucleus only through owning L0s. The implementation snapshot/inventory is in identidade-fonte-shaped-implementacao-2026-10-05/.",
+      "disposition": "Exact human approval quotation preserved as provenance."
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/locator.md",
+      "line": 34,
+      "text": "next remains `next(&mut self) -> Location`; identity allocation has no normal Option::None termination. Do not implement Iterator or convert overflow into silent completion. Apply only `#[expect(clippy::should_implement_trait, reason=\"S002: alocador causal de Location com overflow explícito; não é Iterator de itens opcionais\")]` on that method. No impl/module/crate suppression, threshold increase or extension to Styles::from_iter is allowed.",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/markup_stream.md",
+      "line": 170,
+      "text": "COUNT1. Ref with é/😀 fails pre-export; orphan lacks warning. markup_stream.rs:",
+      "disposition": "Literal Unicode fixture codepoint, not Portuguese prose."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/mod.md",
+      "line": 242,
+      "text": "- `#[expect(clippy::too_many_arguments, reason=\"C003: Fachada pública de compatibilidade: registry e full_error são entradas explícitas; _routines/_traced/_route são transportados ao próximo wrapper, mas não consumidos na entrada completa atual\")]`",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/mod.md",
+      "line": 244,
+      "text": "- `#[expect(clippy::too_many_arguments, reason=\"C005: Entrada pública completa de avaliação: World/Source/registry/sink e configuração são utilizados; _routines/_traced/_route não são lidos pelo corpo atual\")]`",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/layout/page_geometry.md",
+      "line": 36,
+      "text": "Preserve apply signature/order/semantics. This pure geometry applier receives only six geometric overrides, direction and mutable PageConfig; receiving an entire PageRun would bring unrelated body/numbering, while None presence and flip/binding must stay explicit. The nominal C011 exception is authorized and materialized only on this function: `#[expect(clippy::too_many_arguments, reason=\"C011: Aplicador puro de geometria recebe apenas os seis overrides geométricos, direção e PageConfig mutável\")]`. Preserve body/calls/cfg/unrelated attributes. Do not annotate module/impl/crate/global config, raise threshold or cover another lint. If arity stops exceeding threshold, remove/review the expectation; never silence unfulfilled_lint_expectations.",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/layout/paragraph_select.md",
+      "line": 59,
+      "text": "Preserve line_cost signature/order/semantics with only materialized nominal `#[expect(clippy::too_many_arguments, reason=\"C015: Função matemática pura de custo: Measure, largura, tamanho, justify, last, unbreakable, penalidade e LineCosts são os operandos efetivos da fórmula compartilhada com a hifenização\")]` on function. No module/impl/crate/global threshold/other lint; review/remove if arity ceases to exceed threshold, never silence unfulfilled expectation. Later annotation supersedes earlier audit-only pending state for C015 only; retain body/calls/cfg/unrelated attributes and all other required corrections including conditional C047/C066 pending.",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/lexer/mod.md",
+      "line": 68,
+      "text": "`#[expect(clippy::should_implement_trait, reason=\"S001: tokenizer com token End explícito e modo/cursor controlados pelo parser; retorno não é Option\")]`",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/realize/mod.md",
+      "line": 214,
+      "text": "For `C020` (`realize_document`), retain the exact public realization signature: content, resources, source, registry, previous snapshot, and configuration are explicit. The registry must not be removed from the API because this lint currently finds it unread. Preserve signature, order, and semantics. At materialization, apply exactly `#[expect(clippy::too_many_arguments, reason=\"C020: Contrato público de realização reproduzido literalmente no L0: conteúdo, recursos, source, registry, snapshot anterior e configuração são explícitos\")]` to this function only. Confirm the warning in Clippy workspace/all-targets and no `unfulfilled_lint_expectations`; preserve call sites and functional controls. Do not raise the global threshold or suppress other lints.",
+      "disposition": "Exact lint-expectation reason preserved verbatim."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/loading.md",
+      "line": 38,
+      "text": "`read(path)` and `read(path, encoding: \"utf8\")` return Str for valid UTF-8; invalid UTF-8 errors with `failed to convert to string (file is not valid UTF-8 in {ficheiro}:{linha}:{col})`. `encoding: none` always returns raw Bytes, including valid UTF-8. Only `\"utf8\"` or none is accepted: other strings report `expected \"utf8\" or none`; other types report `expected \"utf8\" or none, found {tipo}`. The old automatic UTF-8-to-Bytes fallback was refuted and revoked, not retained as an alternative. BOM/ISO encoding detection remains outside scope.",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/plugin.md",
+      "line": 17,
+      "text": "plugin(source) exactly one positional Path|Str|Bytes, no named (existing reject_named order); Str rooted once relative current_file, Path preserves root and uses injected World::read_path, Bytes direct. Error `expected path, string, or bytes, found <tipo>` uses canonical long types. Return actual Module(\"plugin\",scope), never provisional Bytes/Func/Str. world.plugin_host defaults to None→exact `plugins não suportados neste World`; host injection/instantiation L3/L4. host.load(bytes)→opaque id and exports(id) stable callable-function names only; PluginError.message propagates verbatim SourceDiagnostic::error(args.span,message). No native direct filesystem/clock/environment/global mutation.",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/str.md",
+      "line": 13,
+      "text": "Own native_str, native_str_from_unicode and native_str_to_unicode. str supports none, bool, int, float, str, auto, length, ratio, angle, UTF-8 Bytes, Label and Symbol, but rejects Color. base applies only to Int and must be 2–36. Preserve 3.0 -> \"3.0\", integer base 16 lowercase output, compound length formatting, and `bytes are not valid UTF-8` / `str() não suporta color`. Label becomes its internal name without angle brackets; Symbol clones its entire value, including multiple codepoints. Never substitute repr, canonical symbol name, first scalar or normalization.",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/divider.md",
+      "line": 13,
+      "text": "divider accepts zero positional and zero named arguments and emits Content::divider(). Any positional fails `divider() não aceita argumentos posicionais`; any named uses the façade expect_no_named helper. Preserve pure pass-through context/World/file arguments, with no private parser. Thickness, color, spacing and drawing belong to layout; do not add cosmetic arguments silently or substitute the unrelated drawing line primitive.",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/title.md",
+      "line": 13,
+      "text": "title resolves body from named body: Content|Str, then first positional Content|Str, then ctx.document_info.title converted to text. Named and positional together fail `title(): não pode usar body posicional e named 'body' simultaneamente`; without any source fail `title() exige body ou metadado document.title`. Wrong named body preserves `title(body:): espera content ou string, recebeu {type}`; wrong positional `title(): body espera content ou string, recebeu {type}`. Emit Content::Title(TitleElem::new(body)).",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/heading.md",
+      "line": 23,
+      "text": "Own heading construction and presence transport, not numbering or rendering. Preserve four forms: positional level+body, body-only (level 1), named level+positional body, and named level/body. Initial Int is level with required second body; initial Content|Str is body; other initial types fail `heading(): primeiro argumento deve ser int (level) ou content/string (body), recebeu {type}`. Missing body fails `heading() exige body`. Named level overrides the body-only default, requires Int and range 1..6; preserve `heading(level:): espera int, recebeu {type}` and `heading(): level deve estar entre 1 e 6, recebeu {n}`.",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/outline.md",
+      "line": 19,
+      "text": "outline(title?,depth?,indent?,target?) constructs OutlineElem with optional title Content|Str|None (first positional or named, conflict exact `outline(): não pode usar título posicional e named 'title' simultaneamente`), depth Int>=1 default 3 (zero exact `outline(depth:): depth deve ser >= 1`), indent Bool|Length|Func|Auto|None default Auto, target heading(s)/figure(s)/table(s) default Headings and measured invalid enumeration. Constructor title default None, never bake \"Índice\" or callback/entry text; layout supplies wording/entries. lof/lot named title only/zero positional→Content::lof/lot(target Figures/Tables), wrong exact `{fn}(title:): espera content ou string, recebeu {tipo}`. Keep pure unused ctx/world/file, no alias parser duplication; new depth/indent alias extension must delegate canonical parser, not copy. Exact named indent presence passes private carrier, aliases retain own defaults/not implicitly set-outline participants. Upstream measured depth None/target Heading default changes remain separately gated, not introduced here.",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/text/lorem.md",
+      "line": 13,
+      "text": "lorem requires exactly one positional Int and no named arguments, returning Value::Str. Negative n fails `lorem() não aceita números negativos`; wrong type `lorem() espera um inteiro, recebeu {type}`; wrong arity `lorem() requer 1 argumento inteiro`; zero yields \"\". Exact generated text is language-observable acceptance, not approximate similarity.",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/text/smartquote.md",
+      "line": 20,
+      "text": "Preserve native_smartquote signature/named-only validation. Zero positionals; retain exact `smartquote() não aceita argumentos posicionais (recebeu {n})`, `smartquote(): argumento nomeado inesperado '{name}'` and parameter-specific bool diagnostics. double/enabled absent→None, explicit Bool→Some(bool); alternative Bool default false and quotes Auto|string|array|dictionary retain helper validation. Always return semantic Content::SmartQuote including enabled:false, never disabled literal Text or Styled wrapper. Do not read engine/style/language to fill omitted fields or force location; fields exposes only explicit known values and public content.func identity stays smart.quote. Preserve absent versus explicit quotes:auto erasing inherited override. Set uses Styles; layout owns direct/set/default inheritance/glyph/open-close state.",
+      "disposition": "Exact product or historical diagnostic/placeholder spelling; individually reviewed, outside editorial translation."
+    }
+  ]
+}

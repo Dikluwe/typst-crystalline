@@ -1,0 +1,11 @@
+{
+  "files": [
+    "core/compiler/eval/mod.md",
+    "core/compiler/eval/tests.md"
+  ],
+  "full_read": true,
+  "code_hash_labels_and_nucleus_pins": "unchanged",
+  "fences": "passed",
+  "references_and_errors": [],
+  "rust_edits_reseals_repins": false
+}

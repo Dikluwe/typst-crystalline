@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/link_capture.md
-//! @prompt-hash 0754d763
+//! @prompt-hash b84b60a6
 //! @layer L1
 
 use super::{FontMetrics, ImageSizer, Layouter};

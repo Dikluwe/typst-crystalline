@@ -1,9 +1,8 @@
 tekt = 1
 kind = "nucleus"
 id = "show-occurrence"
-title = "Proteção privada de receitas por ocorrência na realização"
-
+title = "Private per-occurrence realization recipe protection"
 [[claims]]
 id = "session-state"
 level = "must"
-statement = "A realização corrente possui proteção por par Location/RuleId e profundidade de expansão privada em EvalContext, inicializadas vazias/zero por instância. Aliases conservam proteção e produtos concluídos; ocorrências novas permanecem elegíveis. Não usar estado global, campos públicos novos ou igualdade morfológica para terminar geração de localizáveis."
+statement = "Current realization owns Location/RuleId-pair protection and private EvalContext expansion depth,initialized empty/zero per instance. Aliases retain protection/completed products;new occurrences remain eligible. No global state,new public fields or morphological equality to terminate locatable generation."

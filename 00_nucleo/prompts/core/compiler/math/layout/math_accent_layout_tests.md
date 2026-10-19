@@ -34,38 +34,63 @@ This discriminates the actual threshold, not merely percentage differences.
 Unattributable font, variant, glyph, frame, cascade or geometry is Unknown.
 Unknown fails closed in mandatory cases and never kills a mutant.
 
-## Leitura de identidade por ocorrência
+## Occurrence identity observation
 
-Após o carrier visual de acentos ganhar `TextReplacement`, as observações
-de posição/tamanho continuam a medir os filhos `Text`/`TextShaped` e `Glyph`
-originais. O helper de teste percorre o envelope de forma transparente, sem
-substituir a assertiva de geometria pela string `ActualText` nem alterar o
-caso sem envelope. RED integrado: os testes de orientação/dotless e de
-precedência de size deixaram de encontrar suas folhas diretas.
+After accents acquire TextReplacement, position/size still observes original
+Text/TextShaped/Glyph children. The helper traverses the envelope transparently,
+without replacing geometry assertions with ActualText or changing unwrapped
+cases. Integrated RED: orientation/dotless and size-precedence tests no longer
+found direct leaves. Base i/j without dotless becomes 𝑖/𝑗 under existing default
+math italics; compare realized morphology, not input ASCII. Dotless stays ı/ȷ.
+Lower accents preserve base italics and use child positions for orientation.
 
-A base `i`/`j` sem dotless dentro de matemática é `𝑖`/`𝑗` após a
-aplicação vigente de itálico por defeito; o teste compara essa morfologia
-realizada, não o token ASCII de entrada. A forma dotless continua `ı`/`ȷ`.
-O acento inferior também conserva o itálico da base; sua orientação é
-medida pelas posições dos filhos visuais.
+## Nominal FrameItem observer projection
 
+### Evidence before decision
 
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
+F041 is compiler/math/layout/math_accent_layout_tests.rs:94 (visit). AST spans/patterns/guards/
+bodies/complements were checked before code.
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+UTC/sources/L0/config/hashes/status/git diff HEAD --stat. classification.json
+records 70 cases/complements in 26 owners using the pinned CI parser. Pertinent
+L0/source were read together, without new architecture or inferred upstream
+intent. Rust exhaustiveness is mechanics; preserve product semantics/morphology/
+geometry/effects/diagnostics.
 
-### Medição anterior à decisão
+### Exclusive prescription
 
-F041: 01_core/src/compiler/math/layout/math_accent_layout_tests.rs:94 (visit). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+For F041 visit, replace only `_` with nominal TextSeparator/Semantic/Line/Glyph/
+Image/Shape/Group/Link alternatives using the in-scope FrameItem
+prefix. Preserve the complete fallback body, prior arms, guards, transformations,
+calls, returns and order.
 
-### Prescrição exclusiva desta unidade
+Preserve callbacks/effects/metadata/clipping/fonts/positions/ink/width under their
+current owners. Do not expand traversals, turn wrappers into leaves or substitute
+text/ActualText for geometry. Test helpers retain fixtures/expected results/
+tolerances/counts/Unknown failures; missing observation is not acceptance.
+Nominal groups share the previous body; keep V19 notes without equating arm
+coverage with every alternative.
 
-- **F041 — `visit`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Semantic`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
+### Acceptance and limits
 
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
+ADR-0127 internal flow adds no enum/field/public trait method/signature/default/
+dependency/compatibility/phase. Do not materialize unrelated pending proposals.
+L0 first and restricted bilateral resealing. No suppressions, threshold changes
+or match-to-if-let rewrites to hide V16.
 
-### Gate e aceitação
+Before code run the new FrameVisitor control and workspace suite on unchanged
+expectations and confirm 70-family-warning RED by AST inspection. Afterwards
+require zero selected-family V16 and no new warning; external V16 stays open.
+For productive-core matches reached by cargo check -p typst-core, a disposable
+copy with sentinel FrameItem measures absent E0004 before/present after. Claim
+coverage only for compiled sites, not inaccessible cfg(test)/L3. Replay checks
+all patterns/guards/bodies, unchanged enum/signatures and real builds/tests;
+no stubbed bodies.
 
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
-
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
-
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+Validate full workspace/build, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes,
+strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/
+configuration during heavy sequential commands under MemoryMax 12 GiB,
+MemorySwapMax0/CARGO_BUILD_JOBS1. Structural sanitation proves neither global
+parity nor RAM/AI-reading benefit.

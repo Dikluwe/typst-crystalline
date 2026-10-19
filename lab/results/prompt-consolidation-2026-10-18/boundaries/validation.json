@@ -1,0 +1,9 @@
+{
+  "files": 185,
+  "ledger_records": 185,
+  "unique_covered": 185,
+  "metadata_and_fences": "passed",
+  "errors": [],
+  "canonical_references": "passed after correcting counter_updates canonical owner",
+  "diff_check": "passed"
+}

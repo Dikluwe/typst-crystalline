@@ -2,51 +2,29 @@
 Hash do Código: fb3ce2d6
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:4e487a99ea1f1e82a67dfaced0958f98392fb26b1a7d292355230d6ffa7f2d0b
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
 
-## Medição anterior à decisão
+## Evidence before specification
 
-No HEAD f7195cdf6 (árvore limpa, 2026-09-30), o bloco está em `01_core/src/compiler/layout/columns.rs:192-309,407-639`. Esta observação estabelece o limite da extração; não mede desempenho ou nova paridade bilateral.
+At HEAD `f7195cdf6` (clean tree, 2026-09-30), the block is at `01_core/src/compiler/layout/columns.rs:192-309,407-639`. This observation establishes extraction boundaries, not performance or new bilateral parity.
 
-## Owner e contrato
+`lab/results/construction/diagnostics/links-paginacao-2026-10-14.md` and receipts under `posicoes-compostas-2026-10-14/automatic-boundary-probes` record source, HEAD/dirty tree/UTC, binaries and vanilla pin. On a 160×40pt page with 10pt margins, ordinary text crosses the break; Link URL, Ref and Ref Page abort with a stale index after buffers are emptied. `references.rs:270` appears in the stack; `link.rs:22-32` uses the same mechanism. `outline.rs:28-50` also saves indices before the body. Clamping an index proves neither prefix/order/fragment/destination preservation nor geometry. The pre-repair snapshot is `lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz`. Content, destination, regions and bounds are observables; private boundaries are mechanics.
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/layout/columns/segmented.rs`. Segmentação por colbreak, descoberta de direção e layout de regiões irmãs; preserva ordem, estado lógico e semântica de segmentos vazios. Manter contrato público, comportamento por defeito, fase do pipeline, compatibilidade, pureza e despacho estático.
+The source-origin baseline at `lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/working tree/UTC/sources/argv and binaries against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. The source has the corresponding transparent operation in existing ShowRecipe/Located/Realized branches; Source must not leak as an observable element. Human approval was `confirmo`, 2026-10-07; contract: `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md`. `workspace-fifth` refutes hiding colbreak under Source.
 
-## Aceitação
+## Ownership and contract
 
-A suíte L1, o build e crystalline-lint passam. A separação não constitui prova de ganho de desempenho.
+Layer L1. Sole productive consumer: `01_core/src/compiler/layout/columns/segmented.rs`. Own colbreak segmentation, direction discovery and sibling-region layout, preserving order, logical state and empty-segment semantics. Initialize/close boundaries in isolated segment buffers, preserving parent boundaries when restoring. Do not include exterior prefixes/suffixes in the link; retain sibling-region geometry and order.
 
+Segment transparent body before Styled/Sequence and discover direction/visibility through the same body, preserving sibling regions and empty segments. Do not manufacture colbreak or alter position/order/fractional share. Retain exclusive ownership/static dispatch, without I/O or a new signature/trait/flag or eval↔layout phase.
 
-## D08B3-C2 — responsabilidade ratificada
+Preserve public contract, default behavior, pipeline phase, compatibility, purity and static dispatch. Link capture is an internal correction under ADR-0127 with no new API, default or phase.
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+## Acceptance and limits
 
-workspace-fifth refuta ocultação de colbreak sob Source: segmentar body transparente antes de Styled/Sequence, descobrir direção/visibilidade pelo mesmo body, preservar regiões irmãs e segmentos vazios. Não fabricar colbreak nem alterar posição/ordem/cota fracionária.
+The L1 suite, build and crystalline-lint must pass. Separation does not prove a performance gain.
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+Require RED→GREEN for breaks before/within the body; preserve prefix/suffix, regions, destinations/bounds, rich body/nesting/columns, deferred content and context/rollback, with no private boundaries in output. Revalidate no-break controls, suite, build and lineage.
 
-## Captura de links através de fronteiras — 2026-10-14
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
-posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
-HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
-texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
-antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
-link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
-antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
-fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
-Os observáveis são conteúdo, destino, regiões e bounds; limites privados
-são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
-
-### Contrato deste owner
-
-Inicializar e fechar limites nos buffers isolados dos segmentos, preservando os limites do pai na restauração. Não incluir prefixos/sufixos exteriores no link; manter geometria e ordem das regiões irmãs.
-
-Aceitação: RED→GREEN de quebras antes/dentro do corpo, preservação de
-prefixo/sufixo, regiões, destinos/bounds, corpo rico/aninhamento/colunas,
-conteúdo diferido, contexto/rollback e ausência de limites privados na saída.
-Revalidar os controles sem quebra e a suíte, build e linhagem.
+Source-origin tests and C2/C/macro collections, builds and lineage are required before certification.

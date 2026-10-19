@@ -8,9 +8,9 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 ```
 
 ## Current evidence
@@ -40,10 +40,7 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pi
 
 The resource owner's private matching-axis predicate governs the early instancer dependency check. Unknown-axis-only requests must not produce a missing-tool diagnostic; retain dependency errors for actual font axes and preserve export dispatch/options.
 
-Quando a dependência do instanciador faltar para um eixo real, delegar o gate
-e diagnóstico ao helper privado de `infra/pipeline/resources.md`, preservando
-mensagem, span e precedência. A medição causal está no L0 daquele owner; esta
-correção interna não altera o despacho de zero/uma/várias fontes.
+When a real-axis request lacks the instancer dependency, delegate its gate/diagnostic to the private helper governed by `00_nucleo/prompts/infra/pipeline/resources.md`, preserving message/span/precedence. That owner records causal evidence; zero/one/many-font dispatch remains unchanged.
 
 ## Verification and boundary
 
@@ -51,299 +48,106 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Identidade textual — materialização aprovada
+## Text identity and shared PDF pre-export validation
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/{initial.json,before/}` records eight U+002D/SHY equal-geometry controls and approved-before traversal audit; layout_types owner confirmed TextReplacement. Treat it as transparent visual children preserving text/order/coordinates/calculation, no new algorithm/advance; pinned shared claims confer no shared ownership. Require text/boxes/causal/recursive/literal-hyphen controls, not PDF bytes/new selection.
 
-As sondas bilaterais e o estado exato em
-`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
-e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
-A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
+`lab/results/construction/diagnostics/auditoria-composicao-construcao-2026-09-29/probe.json` measures same body with format.pdf(standard:"ua-1"): standalone fails `PDF/UA-1 error: missing document title`, bundle emits pdfuaid:part=1 without title. pdf.rs:404–426 validates title/alt/duplicate attachments; bundle.rs:463–513 omits them. The lost-composition-invariant hypothesis is refuted if same body/effective standard differs between routes; XMP confirms effective standard, not full UA conformance/byte parity.
 
-### Responsabilidade exclusiva
+Own one pipeline-private helper for existing paged validations in order: UA1 title, UA1 alt, then duplicate attachment paths in original order, with exact messages/hints/spans/conditions/precedence. Both routes call it after standards resolution before fonts/export. Bundle delegation does not transfer PDF ownership. No new public API/mode/phase/conformity rule. Require both routes' missing-title diagnostic, supplied-title success, reached missing-alt/duplicate diagnostics, optional non-UA title; internal parity continuous flow with RED→GREEN/revalidation.
 
-Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
+## Plural font-buffer transfer
 
-O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
-possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
-transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+pdf.rs:436–437 resolves an owned font table then temporarily borrows it for bind_document; font_binding.rs:127–148 returns Cow::Borrowed if no face must be appended, and into_owned clones the table/each Vec<u8>. Binding semantics remain; copying is mechanics. font-primary-reuse-2026-10-10 records variant-memory provenance; attributing peak to copies is an RSS/allocation-refutable inference.
 
-## Validação PDF partilhada com bundle — 2026-09-30
+pdf-font-buffer-reuse-2026-10-10/all-tables-measurements.json.gz (original measurements.json.gz) records release0ef5e759, local RSS41122→42356KiB(+2.84% paired) while saving only337547 requested bytes/three allocations; 800 variants save240.6MiB requested/RSS525072→292954KiB/time15.16%, complete state/UTC in receipt. Single-font amplification remains unattributed; fragmentation is a hypothesis, not solely reverted style capture.
 
-### Medição anterior à decisão
+Keep old binding+into_owned for empty/single tables. For supplied.len()>1 keep the owned table alive during binding: Borrowed transfers the original complete table without cloning; Owned uses binder's complete result and drops original. This threshold matches existing single/plural dispatch, never fixture/text/family/weight/size. A private helper may expose transfer to tests. Preserve all bytes/order/keys/appended faces/fallback/validation/ordinary-oracle dispatch, no API/phase/instancing/font/diagnostic change. Require buffer-transfer/missing-face RED→GREEN, unchanged language/geometry/raster, local single RSS control/unchanged single allocations/plural savings, separate requested-byte/allocation/RSS measurements and final-release output comparison. No pointer language identity or unmeasured RSS promise; continuous flow.
 
-`lab/results/construction/diagnostics/auditoria-composicao-construcao-2026-09-29/probe.json` mede o mesmo corpo com `format.pdf(standard: "ua-1")`: PDF isolado falha com `PDF/UA-1 error: missing document title`, mas PDF dentro de bundle compila e declara `pdfuaid:part=1` sem título. `03_infra/src/pipeline/pdf.rs:404-426` verifica título, alt e duplicação de anexos antes da exportação; `03_infra/src/pipeline/bundle.rs:463-513` não executa essas verificações. A inferência é que o target PDF perdeu invariantes ao ser composto no bundle; seria refutada se o mesmo body não passasse pelas duas rotas com o mesmo standard efetivo. A sonda documental confirmou o standard efetivo no XMP; não se presume conformidade PDF/UA completa nem paridade byte a byte.
+## Public compatibility wrappers and private request
 
-### Contrato do owner
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/{before.json.gz,classification.json}` preserves checked source/prior L0/signatures/hashes/HEAD/tree/status/diffstat/UTC2026-10-15T16:39:18.873477+00:00. pdf.rs:121(C101,8), :376(C102,12), :548(C103,9), :578(C104,10), :614(C105,8), :641(C106,9), :669(C107,10), :702(C108,8), :733(C109,9), :760(C110,10), :793(C111,8), :878(C112,8), :945(C113,8), threshold7. Arity measures Rust structure, not a functional defect/new parity.
 
-Concentrar num helper privado ao pipeline, pertencente a este owner PDF, as validações pré-exportação já existentes de documento paginado: primeiro título UA-1, depois alt UA-1, depois caminho de anexo duplicado na ordem original. Preservar exatamente mensagens, hints, spans, condições e precedência. PDF isolado e bundle chamam esse mesmo helper depois de resolver standards e antes de escolher fontes ou exportar. Não criar API pública, novo modo, fase ou regra de conformidade; a delegação de bundle não transfere ownership do contrato PDF.
+Keep every public signature/parameter order/return and None/Some distinction. Explicit tags/serialization become Some(C101/C112/C113). Timing pages wrapper passes standard None(C103); complete ordinary timing passes oracle=false(C104); timing pretty-only pages None(C105). Nontiming pages standard None(C106), complete ordinary local Timings/oracle=false(C107), pretty-only pages None(C108). Oracle pages standard None(C109), complete oracle local Timings/oracle=true(C110), oracle pretty-only pages None(C111). Never resolve absent standards/options before documentary precedence or broaden oracle emission. Preserve raw errors/warnings/timings and zero/one/many font routes.
 
-### Aceitação
+clippy-locais-2026-10-16/clippy-inventory.json records 79 warnings; clippy-excecoes-2026-10-16/before.json.gz preserves sources/spans/reasons/signatures/hashes/HEAD/tree/UTC/diffstat. Only direct C101, C103–C113 expectations are materialized, superseding earlier audit-only pending status; C102 requires the private repair below and gains no direct annotation. Keep signature/body/calls/cfg/order/other attributes/semantics; exact literals:
 
-Sob UA-1, ausência de título falha em ambas as rotas com o mesmo diagnóstico; título fornecido continua a compilar. Alt ausente em imagem real e anexo duplicado usam os diagnósticos vigentes quando a rota os alcança. Fora de UA-1, o título continua opcional. A correção é de paridade interna do target PDF e de invariantes já especificadas, em fluxo contínuo pela ADR-0127 (sem assinatura pública ou mudança de fase), com teste RED→GREEN e revalidação.
+- `#[expect(clippy::too_many_arguments, reason="C101: Wrapper público converte PdfTags/serialization explícitos em overrides Some, preservando features, ID, modo e retorno de tempos")]`
+- `#[expect(clippy::too_many_arguments, reason="C103: Wrapper público com tempos conserva pages e fornece standard None ao mais completo")]`
+- `#[expect(clippy::too_many_arguments, reason="C104: Wrapper público completo com tempos fornece as opções ordinárias e oracle=false ao núcleo")]`
+- `#[expect(clippy::too_many_arguments, reason="C105: Wrapper público com tempos e pretty sem pages delega pages None")]`
+- `#[expect(clippy::too_many_arguments, reason="C106: Wrapper público sem tempos com pages delega standard None")]`
+- `#[expect(clippy::too_many_arguments, reason="C107: Wrapper público ordinário completo sem tempos cria Timings local e passa oracle=false")]`
+- `#[expect(clippy::too_many_arguments, reason="C108: Wrapper público sem tempos e sem pages fornece ausência de seleção")]`
+- `#[expect(clippy::too_many_arguments, reason="C109: Wrapper público oracle com pages fornece standard None; a rota diagnóstica é independente da comum")]`
+- `#[expect(clippy::too_many_arguments, reason="C110: Wrapper público oracle completo fornece oracle=true e Timings local")]`
+- `#[expect(clippy::too_many_arguments, reason="C111: Wrapper público oracle sem pages fornece pages None")]`
+- `#[expect(clippy::too_many_arguments, reason="C112: Wrapper público sem tempos transforma tags/serialization explícitos em Some para o núcleo com precedência documental")]`
+- `#[expect(clippy::too_many_arguments, reason="C113: Wrapper público oracle com serialization conserva as conversões explícitas e a seleção da rota diagnóstica, sem antecipar resolução documental")]`
+- `#[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")]`
 
+Apply only the named function/lint;  no module/impl/crate/global application, threshold
+increase or other lint. This narrowly supersedes generic suppression bans only
+for named item/lint. If no longer over threshold remove/review the expectation;
+never silence unfulfilled_lint_expectations. Conditional exceptions requiring
+dead-argument removal still require that correction; pending correction cases
+(including historical C047/C066) gain no annotation here.
 
-## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
-Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
+Continuous ADR-0127 changes only lint metadata, no public contract/executable body/
+cfg/default/phase/dependency/architecture. L0 first/scoped resealing. Removing added
+attributes and lineage header must recover prior rustfmt-normalized source.
+Measure real RED, then all-target inventory: historical batch exactly 46 arities
+plus five test warnings satisfied by 49 expectations, no new warnings and
+unfulfilled_lint_expectations as error; its 11 correction arities remain visible.
+Keep owner functional/call controls without fixture/tolerance relaxation; private
+signature corrections migrate callers/L0 before code and new public/compatibility
+needs another ADR-0127 gate. Validate build/fmt/strict/reverse lineage/Tekt no new
+errors/warnings, existing Counter/coverage tests under 12 GiB, zero swap, one job.
+Prior full suite is evidence for identical executable code, not a fresh run;
+no lint-attribute mirror tests or new performance comparison for metadata.
 
-A associação é por bytes da face original e pedido de eixos; nomes e slots não bastam. A tabela local dura a exportação e conserva ordem dos recursos fornecidos, anexando faces faltantes. Para multifont, distribuir itens pelos bindings uma vez antes de coletores por fonte; não reutilizar GIDs/CMap globais em faces diferentes. Código deste owner continua 1:1 com seu L0; referências a outros owners não compartilham propriedade. Aceitação RED→GREEN e controles bilaterais incluindo miss/hit/VF, sem promessa de ganho de tempo.
+`lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/before.json.gz` records audited source/callers/contracts/spans/28-warning inventory/HEAD/tree/UTC/diffstat. Materialize C102 as strictly private PdfCompileRequest, no Default derive, with unchanged types for full_error/document_id/stream_mode/pdf_tagged_override/features/pretty_override/pages_override/standard_override/oracle. compile_to_pdf_bytes_impl takes World, Source, request, &mut Timings; destructure once at entry, retain the rest of the body literally. Three direct facades build named fields from identical values, pure-expression order, oracle false/false/true, and None/Some until document resolution. No public facade change.
 
-Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
+This six-case internal slice permits conditional residual C047/C066 expectations only after their _text removal; five other correction arities remain visible. No new external API/default/phase/dependency/semantics/global mutation. L0/private callers before code, scoped lineage. Preserve fields/values/PNG-SVG-PDF/precedence/diagnostics/resources/MCIDs, existing fixtures/expectations/tolerances; no carrier-mirror tests. Real selected RED→GREEN/denied expectations, workspace/build/all-target Clippy/Rustdoc/fmt/strict reverse lineage, 12GiB/swap0/jobs1.
 
+## Exhaustive existing FrameItem decisions
 
-## Transferência de buffers de fontes já completos — 2026-10-10
 
-Medição anterior à decisão: `03_infra/src/pipeline/pdf.rs:436-437`
-resolve uma tabela owned e entrega uma referência temporária a bind_document.
-`03_infra/src/export/font_binding.rs:127-148` retorna Cow::Borrowed quando
-nenhuma face precisa ser anexada. O into_owned seguinte clona a tabela inteira,
-incluindo Vec<u8> por fonte. A regra de binding é semântica; essa cópia é mecânica.
-O diagnóstico font-primary-reuse-2026-10-10 registra o pico de variantes e
-sua proveniência; atribuir parte desse pico à cópia ainda é inferência a
-refutar por RSS e alocações.
+### Evidence
 
-Decisão interna: reter a tabela owned em variável local durante o binding e,
-quando o resultado for Borrowed, transferir a tabela original sem clonar.
-Quando for Owned, usar a tabela completa produzida pelo binder e soltar a
-original. Helper privado pode tornar essa escolha testável. Preservar a
-ordem, todas as chaves/bytes, faces anexadas, fallback, validações e exportadores
-normal/oráculo. Não alterar APIs, fase, instanciamento, fonte ou diagnósticos.
-Aceitação RED→GREEN: teste de transferência do buffer original e teste de
-face faltante; regressão de linguagem/geometria/raster ausente; medir
-alocações/bytes solicitados e pico RSS separadamente. Não prometer redução
-da memória residente antes de medi-la. Fluxo contínuo ADR-0127.
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/
+sources/L0/configuration/hashes/status/diffstat. AST spans/patterns/guards/bodies/
+complements were checked before code; classification.json records 70 cases across
+26 owners under pinned CI AST. Rust exhaustivity is mechanics; product semantics/
+morphology/geometry/effects/diagnostics stay. No new architecture/upstream intent.
 
+### Exact owner complements
 
-### Limite de transferência para tabelas plurais — 2026-10-10
+Only replace missing's `_` at pdf.rs:330 (historical F065) with FrameItem::TextSeparator/Text/TextShaped/Line/Glyph/Shape. Restricted/guarded earlier arms do not cover their whole variant: retain failing-condition cases in fallback, specifically Semantic kind typst_core::entities::layout_types::SemanticKind::Artifact(_).
+Preserve complete fallback bodies/prior arms/guards/transforms/calls/returns/order.
+Callbacks/effects/metadata/clipping/fonts/positions/ink/width follow current owners;
+no expanded traversal/wrapper-leaf change/text-or-ActualText geometry replacement.
+Tests retain fixtures/expectations/tolerances/counts/Unknown failures; V19 group
+notes stay visible without pretending one arm covers all alternatives.
 
-Medição anterior à decisão: measurements.json.gz desta rodada (arquivado
-como all-tables-measurements.json.gz em pdf-font-buffer-reuse-2026-10-10)
-mede, no release 0ef5e759, RSS local 41.122→42.356 KiB (+2,84% pareado),
-apesar de poupar apenas um buffer de 337.547 bytes solicitados e três
-alocações. A tabela de 800 variantes poupa 240,6 MiB solicitados e reduz
-RSS 525.072→292.954 KiB e tempo 15,16%. Estado/UTC completos estão no receipt.
-A origem da amplificação no caso de uma fonte não foi atribuída; fragmentação
-é hipótese. Não atribuir exclusivamente à captura de estilos já revertida.
+Continuous ADR-0127 adds no enum/field/trait method/public signature/default/
+dependency/compatibility/phase and approves no historical pending proposal.
+L0 first, scoped bidirectional resealing; no suppression/higher threshold or
+match→if-let evasion. Before code run new FrameVisitor control/workspace suite
+with unchanged expectations and confirm AST RED for all 70 family warnings.
+Afterward zero scoped-family V16/no new warnings; outside V16 remains pending.
+For productive core matches reached by cargo check -p typst-core, use a disposable
+FrameItem sentinel variant to observe absent E0004 before/present after. That
+probe covers only compiled sites, never unbuilt cfg(test) or blocked L3 sites.
+For the full batch replay patterns/guards/bodies, verify enum/signatures unchanged,
+real build/tests, no stub bodies.
 
-Decisão interna: conservar o caminho anterior de binding+into_owned para
-tabelas vazias ou unitárias; transferir a tabela original completa somente
-quando supplied.len()>1. O limiar distingue o caminho single-font já existente
-no dispatch; não depende de fixture, texto, família, peso ou tamanho. No
-caso plural Owned, conservar a tabela completa do binder. Isto é política
-privada de alocação, não comportamento de linguagem. Preservar bytes/ordem
-em todos os casos. Confirmar por controle de RSS local, contagens de
-alocações unitárias iguais à base e redução na tabela plural; repetir a
-comparação de saída no release final. Não congelar endereços como requisito
-da linguagem.
-
-
-## Aridade das fronteiras — `clippy::too_many_arguments`
-
-### Evidência anterior à decisão
-
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
-
-- `C101`: `03_infra/src/pipeline/pdf.rs:121`, `compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization`, 8 argumentos contados pelo Clippy (limiar 7).
-- `C102`: `03_infra/src/pipeline/pdf.rs:376`, `compile_to_pdf_bytes_impl`, 12 argumentos contados pelo Clippy (limiar 7).
-- `C103`: `03_infra/src/pipeline/pdf.rs:548`, `compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override`, 9 argumentos contados pelo Clippy (limiar 7).
-- `C104`: `03_infra/src/pipeline/pdf.rs:578`, `compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override`, 10 argumentos contados pelo Clippy (limiar 7).
-- `C105`: `03_infra/src/pipeline/pdf.rs:614`, `compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override`, 8 argumentos contados pelo Clippy (limiar 7).
-- `C106`: `03_infra/src/pipeline/pdf.rs:641`, `compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override`, 9 argumentos contados pelo Clippy (limiar 7).
-- `C107`: `03_infra/src/pipeline/pdf.rs:669`, `compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override`, 10 argumentos contados pelo Clippy (limiar 7).
-- `C108`: `03_infra/src/pipeline/pdf.rs:702`, `compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override`, 8 argumentos contados pelo Clippy (limiar 7).
-- `C109`: `03_infra/src/pipeline/pdf.rs:733`, `compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_override`, 9 argumentos contados pelo Clippy (limiar 7).
-- `C110`: `03_infra/src/pipeline/pdf.rs:760`, `compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_and_standard_override`, 10 argumentos contados pelo Clippy (limiar 7).
-- `C111`: `03_infra/src/pipeline/pdf.rs:793`, `compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override`, 8 argumentos contados pelo Clippy (limiar 7).
-- `C112`: `03_infra/src/pipeline/pdf.rs:878`, `compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization`, 8 argumentos contados pelo Clippy (limiar 7).
-- `C113`: `03_infra/src/pipeline/pdf.rs:945`, `compile_to_pdf_bytes_oracle_with_features_and_serialization`, 8 argumentos contados pelo Clippy (limiar 7).
-
-### Prescrição exclusiva por função
-
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
-
-#### `C101` — `compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization`: Exceção pontual justificada
-
-Wrapper público converte PdfTags/serialization explícitos em overrides Some, preservando features, ID, modo e retorno de tempos. Essa distinção de presença é normativa no L0.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C101: Wrapper público converte PdfTags/serialization explícitos em overrides Some, preservando features, ID, modo e retorno de tempos")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C102` — `compile_to_pdf_bytes_impl`: Correção interna prescrita
-
-Núcleo privado recebe nove opções de execução/exportação mais World/Source e Timings. As mesmas sequências são montadas por wrappers ordinários e oracle; o pedido privado deve nomear os eixos preservando None até a precedência documental.
-
-Pedido privado PdfCompileRequest nomeia full_error, document_id, stream_mode, pdf_tagged_override, features, pretty_override, pages_override, standard_override e oracle; World, Source e Timings permanecem argumentos separados. Todas as fachadas públicas ficam intactas.
-
-Aceitação: Preservar None/Some, precedência caller/documento/default, canais de erro/warning, timings e rotas zero/uma/várias fontes e oracle; não ampliar o suporte do oracle.
-
-#### `C103` — `compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override`: Exceção pontual justificada
-
-Wrapper público com tempos conserva pages e fornece standard None ao mais completo. A API e a diferença entre ausência e override explícito são de compatibilidade.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C103: Wrapper público com tempos conserva pages e fornece standard None ao mais completo")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C104` — `compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override`: Exceção pontual justificada
-
-Wrapper público completo com tempos fornece as opções ordinárias e oracle=false ao núcleo. Preservar assinatura/retorno e construir o futuro pedido interno com campos nomeados.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C104: Wrapper público completo com tempos fornece as opções ordinárias e oracle=false ao núcleo")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C105` — `compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override`: Exceção pontual justificada
-
-Wrapper público com tempos e pretty sem pages delega pages None. A assinatura legada é explícita no transporte e deve continuar disponível.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C105: Wrapper público com tempos e pretty sem pages delega pages None")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C106` — `compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override`: Exceção pontual justificada
-
-Wrapper público sem tempos com pages delega standard None. Preservar warnings/resultado e não resolver o default do standard antes do documento.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C106: Wrapper público sem tempos com pages delega standard None")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C107` — `compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override`: Exceção pontual justificada
-
-Wrapper público ordinário completo sem tempos cria Timings local e passa oracle=false. A reorganização do núcleo privado não muda sua API.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C107: Wrapper público ordinário completo sem tempos cria Timings local e passa oracle=false")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C108` — `compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override`: Exceção pontual justificada
-
-Wrapper público sem tempos e sem pages fornece ausência de seleção. O eixo tagged/pretty não equivale a pages; preservar o adapter.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C108: Wrapper público sem tempos e sem pages fornece ausência de seleção")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C109` — `compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_override`: Exceção pontual justificada
-
-Wrapper público oracle com pages fornece standard None; a rota diagnóstica é independente da comum. Preservar os limites atuais do oracle em vez de expandi-los para eliminar o aviso.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C109: Wrapper público oracle com pages fornece standard None; a rota diagnóstica é independente da comum")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C110` — `compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_and_standard_override`: Exceção pontual justificada
-
-Wrapper público oracle completo fornece oracle=true e Timings local. Preservar a API e a distinção entre validações de opções e os limites da emissão oracle.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C110: Wrapper público oracle completo fornece oracle=true e Timings local")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C111` — `compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override`: Exceção pontual justificada
-
-Wrapper público oracle sem pages fornece pages None. A compatibilidade dos defaults é verificável pelo adapter existente e prescrita no L0.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C111: Wrapper público oracle sem pages fornece pages None")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C112` — `compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization`: Exceção pontual justificada
-
-Wrapper público sem tempos transforma tags/serialization explícitos em Some para o núcleo com precedência documental. Manter a conversão e a assinatura publicada.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C112: Wrapper público sem tempos transforma tags/serialization explícitos em Some para o núcleo com precedência documental")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-#### `C113` — `compile_to_pdf_bytes_oracle_with_features_and_serialization`: Exceção pontual justificada
-
-Wrapper público oracle com serialization conserva as conversões explícitas e a seleção da rota diagnóstica, sem antecipar resolução documental.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C113: Wrapper público oracle com serialization conserva as conversões explícitas e a seleção da rota diagnóstica, sem antecipar resolução documental")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-### Limite da exceção
-
-Autorizar somente `#[expect(clippy::too_many_arguments, reason = "...")]` no item
-nominal acima, com o motivo arquitetural indicado. Não aplicar no módulo, impl,
-crate ou configuração global; não elevar o limiar nem abranger outro lint.
-Nos casos com remoção de argumento morto, a exceção residual depende dessa correção.
-Se a função deixar de exceder o limiar, retirar/revisar a expectativa; não silenciar
-`unfulfilled_lint_expectations`. Esta permissão específica supera proibições
-genéricas de supressão em seções anteriores somente para este lint e os itens
-nominais justificados aqui. As demais obrigações de correção permanecem.
-
-### Fronteira de materialização
-
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
-
-
-## Exceções nominais materializadas — 2026-10-16
-
-### Medição anterior à decisão
-
-O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
-
-### Responsabilidade e aceitação
-
-Materializar somente as expectativas diretas nominais já justificadas neste owner: C101, C103, C104, C105, C106, C107, C108, C109, C110, C111, C112, C113. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
-
-Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
-
-
-## Aridade interna — materialização de seis casos, 2026-10-16
-
-### Medição anterior à decisão
-
-As fontes, chamadores, cláusulas vigentes, spans e inventário de 28 avisos foram conferidos antes da decisão. `lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/before.json.gz` guarda fontes/L0 completos, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A auditoria anterior classifica estes casos como correção; não são exceções diretas. O RED deve observar as aridades atuais antes de alterações; controles funcionais existentes serão corridos antes/depois. É refatoração de representação privada, sem nova paridade ou ganho de performance medido.
-
-### Responsabilidade exclusiva e aceitação
-
-C102: criar PdfCompileRequest estritamente privado, sem derive Default, contendo full_error, document_id, stream_mode, pdf_tagged_override, features, pretty_override, pages_override, standard_override e oracle nos mesmos tipos atuais. compile_to_pdf_bytes_impl recebe World, Source, request e &mut Timings; desestruturar request uma vez no início e conservar literalmente o restante do corpo. As três fachadas diretas montam os mesmos valores em campos nomeados, conservando oracle false/false/true, None/Some até resolução documental e ordem das expressões puras. Nenhuma fachada pública muda.
-
-Fluxo contínuo ADR-0127: nenhuma API externamente pública, default do produto, fase, dependência ou semântica é alterada. Tipos/constructors novos ficam internos; contratos públicos existentes permanecem. Este adendo concretiza somente os seis casos nominais; substitui proibições genéricas de supressão apenas para as duas expectativas residuais condicionadas C047/C066 após remover _text. As outras cinco aridades a corrigir continuam visíveis. Não elevar limiar ou silenciar no módulo/impl/crate. L0 precede código e resselo restrito. Confirmar preservação das assinaturas externamente públicas, campos/valores transportados, controles PNG/SVG/PDF, precedência/diagnósticos/recursos/MCIDs e ausência de mutações globais. Usar os testes existentes sem relaxar fixtures/esperados; não escrever testes que espelhem os carriers privados. Revalidar suíte workspace completa, build, Clippy all-targets e unfulfilled_lint_expectations, Rustdoc, fmt e linhagem estrita/reversa, mantendo 12 GiB, swap zero e um job.
-
-
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
-
-### Medição anterior à decisão
-
-F065: 03_infra/src/pipeline/pdf.rs:330 (missing). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
-
-### Prescrição exclusiva desta unidade
-
-- **F065 — `missing`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Text`, `TextShaped`, `Line`, `Glyph`, `Shape`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem. Guards ou campos restritos não cobrem a variante integralmente: manter no fallback os casos que falham na condição anterior. Medição específica: Semantic: kind: typst_core::entities::layout_types::SemanticKind::Artifact(_).
-
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
-
-### Gate e aceitação
-
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
-
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
-
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+Revalidate full workspace suite/cargo build/strict workspace-all-target Clippy
+(-D warnings, -D unfulfilled_lint_expectations)/fmt/Rustdoc -D warnings/four HTML
+indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/L0/
+configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
+MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
+memory gain or measured AI benefit.

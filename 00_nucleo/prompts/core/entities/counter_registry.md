@@ -2,35 +2,14 @@
 Hash do Código: b7e02014
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:8de2c32fbeeee7a30088b4ff3808e15a211f23a182673ef5cdebe54bd3eadad6
+- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:958649ea9ebdd471f101874ff8cf94feb995ee037c43eb6e2f1d1ad19a151ef3
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/counter_registry.rs`
-**Criado em**: 2026-04-30 (P165 sub-passo .C — sub-store de M3)
-**ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/counter_registry.rs`
 
----
+## Base design and read contract
 
-## Contexto
-
-`CounterRegistry` é o sub-store de counters indexados por kind (string). Aplica `CounterUpdate`s em ordem de chegada via `from_tags` (P165 .E).
-
-Vanilla agrega no `ElementIntrospector` indirectamente — counters são queriáveis via `Selector` mas não há um "registry" dedicado. Cristalino isola por simetria com `LabelRegistry` e composição visível.
-
-`CounterKey` enum vanilla (`Page | Selector(Selector) | Str(Str)`) **não** é replicado em M3. Em vez disso, usar `String` directo como chave (nomes: "heading", "figure", etc.). `CounterKey` rico fica para M9 quando counters custom forem adicionados via `counter("name")` em Typst markup.
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: struct puro, sem I/O.
-- Read-only após construção (mutação só via `pub(crate) fn apply` durante fase de construção).
-- `Clone` derivado.
-- Forma interna: `HashMap<String, Vec<usize>>` — vector de números por kind, semelhante a `CounterStateLegacy.figure_numbers`.
-
----
-
-## Interface pública
+Own a pure, externally read-only CounterRegistry substore with Debug/Clone/Default. Current-state storage maps String keys to Vec<usize>; histories map keys to ordered Location/state snapshots. Mutation is crate-internal during construction. Upstream's comemo/ElementIntrospector organization and rich CounterKey are not storage requirements; the original flat-only/passive-consumer description is historical and superseded by hierarchy/actions below.
 
 ```rust
 use crate::entities::counter_update::CounterUpdate;
@@ -38,8 +17,6 @@ use crate::entities::location::Location;
 
 #[derive(Debug, Clone, Default)]
 pub struct CounterRegistry {
-    /* HashMap<String, Vec<usize>> — estado actual por key */
-    /* HashMap<String, Vec<(Location, Vec<usize>)>> — history (P177) */
 }
 
 impl CounterRegistry {
@@ -48,251 +25,60 @@ impl CounterRegistry {
     pub fn len(&self) -> usize;
     pub fn is_empty(&self) -> bool;
 
-    /// **P170 (M9 sub-passo 2)** — formato hierárquico "1.2.3".
     pub fn format(&self, key: &str) -> Option<String>;
 
-    /// **P177 (M9 sub-passo 7)** — valor do counter na `Location`
-    /// indicada. Retorna o estado **após** todas as updates com
-    /// `loc <= location`. `None` se não há update prévia.
     pub fn value_at(&self, key: &str, location: Location) -> Option<&[usize]>;
 
-    /// **P184C** — n-ésimo snapshot (0-indexed) na história de `key`.
-    /// Acesso por posição em vez de por `Location`. Suporta
-    /// consumers que iteram counters por kind em ordem de
-    /// aparecimento sem conhecer a `Location` (Layouter C3 figure
-    /// auto-number per kind, `mod.rs:435–439`).
-    /// `None` se key inexistente ou idx fora de range da história.
     pub fn value_at_index(&self, key: &str, idx: usize) -> Option<&[usize]>;
 
     pub(crate) fn apply(&mut self, key: String, update: CounterUpdate);
 
-    /// **P170 (M9 sub-passo 2)** — step hierárquico ao nível indicado.
-    /// Paridade com `CounterStateLegacy::step_hierarchical`. Resolve
-    /// lacuna #5 (`m1-lacunas-captura.md`).
     pub(crate) fn apply_hierarchical(&mut self, key: String, level: usize);
 
-    /// **P177 (M9 sub-passo 7)** — wrapper sobre `apply` que regista
-    /// também snapshot na `history` para suportar `value_at`.
-    /// Used por `from_tags` em arms `Figure`/`Citation`.
     pub(crate) fn apply_at(&mut self, key: String, update: CounterUpdate, location: Location);
 
-    /// **P177 (M9 sub-passo 7)** — wrapper sobre `apply_hierarchical`
-    /// que regista snapshot. Used por `from_tags` em arm `Heading`.
     pub(crate) fn apply_hierarchical_at(&mut self, key: String, level: usize, location: Location);
 }
 ```
 
----
+empty has no values; value returns a borrowed current slice or None for untouched key. len/is_empty reflect the registry. format joins hierarchical components with dots. apply_hierarchical clamps level to at least 1: []+level 1→[1], [1]+level 2→[1,1], [1,1]+level 1→[2]. The ratified action shape below supersedes old unit-Step/Update-only handling.
 
-## Semântica
+value_at returns the last eligible snapshot after all updates at or before the requested causal location, or None if none/key missing. _at methods apply then record a snapshot; non-_at methods do not populate history. value_at_index returns the zero-based history snapshot by appearance position or None out-of-range; hierarchical snapshots retain all levels. In the simple automatic flat-step sequence snapshots are [idx+1], not a general invariant after explicit Set/Func. HashMap iteration has no deterministic order. Different keys remain isolated. The old map-content equality statement does not add an undeclared public Eq trait.
 
-- `empty()`: cria registry vazio.
-- `value(key)`: retorna o slice actual do counter. `None` se nunca foi tocado.
-- `apply(key, update)` (pub(crate)): aplica update.
-  - `CounterUpdate::Step`: incrementa o último elemento. Se vector vazio, inicializa com `[1]`. Semelhante a `CounterStateLegacy::step_flat`.
-  - `CounterUpdate::Update(value)`: define para `[value]`. Reseta hierarquia.
-- **P170**: `apply_hierarchical(key, level)` (pub(crate)): paridade com `CounterStateLegacy::step_hierarchical`. Comportamento:
-  - `[]` + `1` → `[1]`.
-  - `[1]` + `2` → `[1, 1]`.
-  - `[1, 1]` + `1` → `[2]`.
-  - Level clamped a mínimo 1.
-- **P170**: `format(key)` retorna `Option<String>` com Vec<usize> joined com "." ("1.2.1"). Forma equivalente a `CounterStateLegacy::format_hierarchical`. Resolve lacuna #5 — CounterRegistry deixa de ser flat em M9.
+## Complete action evidence and ratification
 
-Hierarquia em M9: counters podem ter múltiplos níveis para Headings (paridade com walk arm `Content::Heading` em `introspect.rs::279`). Counters flat (figure, equation) continuam a usar `apply(_, Step)` que mantém Vec de tamanho 1.
+Historical upstream `a51e02804` counter source accepts hierarchical state, positive step levels and callbacks. Owner confirmation is recorded in `lab/history/construction/records/00_nucleo/materialization/typst-passo-1148.md`, section 12, satisfying the former pending action gate in `00_nucleo/prompts/core/entities/counter_update.md`. Set replaces the complete Vec; Step(level) uses hierarchical stepping; Func applies to the current array with result conversion and propagated eval errors rather than silent ignore. Callback evaluation is compiler-owned with Engine/EvalContext, not code imported into this pure registry. It executes during introspector construction through the existing StateUpdate Engine/EvalContext channel, never during field access; this action package introduces no new phase. Additional public signatures beyond that approved action package need another gate.
 
-- **P177**: `value_at(key, location)` retorna `Option<&[usize]>` com o valor do counter **após** todas as updates de `key` com `loc <= location`. Implementação via `history` (Vec ordenado por Location, monotonicamente crescente via `Locator`). Retorna `None` se nenhuma update precede `location` ou key inexistente.
-- **P177**: `apply_at(key, update, location)` e `apply_hierarchical_at(key, level, location)` são wrappers sobre `apply`/`apply_hierarchical` que adicionalmente fazem snapshot do estado actual em `history[key]` com a Location indicada. `from_tags` migra para usar `_at` versions; tests existentes em `apply`/`apply_hierarchical` mantêm-se sem location (não populam history).
-- **P184C**: `value_at_index(key, idx)` retorna `Option<&[usize]>` com o snapshot na posição `idx` (0-indexed) da `history[key]`. Acesso por posição (não por Location) — suporta consumers que iteram counters por kind em ordem de aparecimento sem conhecer Locations específicas (P184D consumer C3 em `mod.rs:435–439`). `None` se key inexistente ou idx fora de range. Para counters flat (figure, equation), o snapshot na posição `idx` é `[idx + 1]` (cada `apply_at(Step)` regista o estado pós-update, que para flat é o número actual). Para counters hierárquicos (heading), o snapshot reflecte o estado completo da hierarquia naquela Location.
+## Ordered action log
 
----
+At HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, counter_registry.rs:25–36 has states/snapshots and 69–84 distinguishes Step/Set/Func. Inferring actions from snapshot differences loses Set-versus-Step. Historical filtered-key Step/Func/Step produces 12 upstream, not just query size; state/UTC/binaries remain in the archived records. The initial no-implemented-candidate note is historical status, not evidence of current completion.
 
-## Invariantes
+Keep private ordered events containing Location, automatic/manual origin and true CounterUpdate. Manual events preserve complete CounterKey; automatic events refer to canonical occurrences and effective Step(level)/owner gate. Record one automatic action per occurrence, without duplicating auxiliary figure:kind writes or inferring action from before/after numbers. Crate-only log access is data, not another field store, compiler import or Func execution. Clone/default/empty isolate document/iteration. Existing borrowed state/history read contracts remain; compiler returns owned vectors for arbitrary-key calculations rather than references to temporaries. Approved on-demand resolution still requires the original observation/identity package's other gates.
 
-- `apply` é a única mutação — caller externo (não-test) só lê.
-- Counters começam vazios; primeiro `Step` inicializa em 1.
-- Igualdade entre instâncias é por conteúdo do HashMap interno.
-- Sem ordering determinístico em iteração — caller que precise de ordem deve usar a chave conhecida.
+## Causal ordering and document membership
 
----
+Historical value_at at counter_registry.rs:151–159 chose the last inserted eligible Location while apply_at:182–194 appended. A later Page Func postpass could insert an earlier-location event after the next boundary: this was a source-inferred risk, not measured Func output. The original bundle diagnostic preserves Set probe provenance. Owner confirmation on 2026-09-24 covers the corresponding introspection contract. Private helpers support compiler-required causal Page snapshot materialization without changing public signatures/other keys or making reset a located occurrence. Compiler evaluates Func; this entity stores states/locations/actions only.
 
-## Tests obrigatórios (sub-passo .C P165)
+At HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, realization prepared identities before transformation, invalidating numeric-ID chronology in registry/query/events. The CLI probe and `single_evaluation_counter_follows_causal_order` sentinel retain implementation evidence. Apply the pinned realization-order nucleus: private per-registry order maps Location to first-observed ordinal; observe_location records first occurrence, order_key uses it and falls back to numeric ID only for unobserved legacy/test locations. Temporal lookup preserves causal prefixes even when origin/product IDs are nonmonotonic. No global state.
 
-- `CounterRegistry::empty().value("heading")` retorna `None`.
-- Após `apply("heading", Step)`, `value("heading")` retorna `Some([1])`.
-- 3 `Step` consecutivos produzem `[3]`.
-- `apply("heading", Update(5))` → `value("heading")` retorna `Some([5])`.
-- Counters distintos isolados — apply em "heading" não afecta "figure".
+Record actual Tag::Start locations per body in document order after walking each body, including empty ranges. Page realization uses explicit membership, never numeric-ID boundaries or repeatable checkpoint values. Access remains crate-internal.
 
----
+## Temporal search refinement
 
-## Consumers actuais
+`lab/results/construction/diagnostics/predicados-fixtures-ci-2026-10-13/before.json.gz` freezes source/L0/nucleus/UTC/status/diffstat at that HEAD with uncommitted tree. counter_registry.rs:176 uses iter/filter/last with a pure order_key predicate. Search may rfind from the end, preserving exactly the last eligible Vec entry and None. Do not reorder history, replace causal order by IDs, or change updates/init. Worst-case O(n) remains; no timing gain is inferred. Keep temporal controls including nonmonotonic origin IDs. This is internal ADR-0127 maintenance without public/default/phase change.
 
-Nenhum no momento da criação.
+## Synthesized-entry insertion evidence and contract
 
-## Consumers planeados
+The original order-before.json.gz/before.json.gz retain the same uncommitted HEAD/UTC/hashes/diffstat; trace-runtime-result.json/trace-runtime.log show direct entry in pure/runtime/L3 NativeElement indices, while bare outline.entry becomes Kind(OutlineEntry) at foundations/selector.rs:113 and the terminal walk omits it. measurement-order-before.json at historical pin `9f2b6e8715237cb086899a42873660fe744622e8` measures BARE [Heading] versus[Heading,Direct], FILTERED [Direct,Heading] versus[Heading,Direct], STATE2 versus 1, COUNTER((2,),) versus((1,),) at synthesized Location. Post-walk allocation happens after updates but belongs causally inside the earlier outline. Wrong order/prefix/duplication/entry data refutes the correction; language acceptance does not require equal Rust/PDF bytes.
 
-- `rules/introspect/from_tags.rs` (P165 .E) — populador.
-- `entities/introspector.rs` `TagIntrospector` (P165 .D) — leitor via getter.
+Provide only crate-private `observe_locations_after(&mut self,anchor:Location,locations:&[Location])`. Unknown anchor, empty list or entirely observed list is no-op. Deduplicate new locations in order using a pure local HashSet, not quadratic search. Shift existing ordinals strictly after anchor by the inserted block size; place the block immediately after it. Keep dense order, idempotent aliases/repetition, old relative order and collision-free later append. Never mutate/reorder values/actions/histories/document_locations, execute callbacks or import compiler. The outline_entries owner chooses anchor/block; this entity owns order data only.
 
----
+## Acceptance
 
-## Sobre paridade
+Retain empty heading→None, first unit step→[1], three steps→[3], Set([5])→[5], isolated keys, hierarchy/format and temporal/index controls. Walk/from-tags population and TagIntrospector reads remain independently owned.
 
-Vanilla não tem `CounterRegistry` separado — counters são parte do estado fixpoint via `comemo` + `ElementIntrospector` queries. Cristalino isola para coerência com `LabelRegistry`. Forma simplificada (flat counter, 1 nível) é suficiente para M3 minimal viable.
+For entry ordering, tests precede code: bare/direct entry and aliases, three-entry order across two outlines with direct entry between, where/no phantom heading, state/counter prefix at synthesized locations. Internal-helper contracts cover unknown anchors, duplicates/repetition, nonmonotonic IDs and dense append. Repeat nine CLI probes (six originals plus order/state/counter) without relaxed outputs. Full suite/build/fmt/strict Clippy+Rustdoc/V1/V5/V15/V26/reverse/diff/SARIF must remove six V16, add seven prescribed V19 and update three existing messages without new V20. Use 12 GiB/swap 0/one-job/sequential heavy commands. This bounded internal/parity repair adds no external signature/default/phase; reseal only nine affected pairs. Original package excluded commit/push/release and left other V16 debts open.
 
-Forma rica (hierarquia, função counters via `Func`) fica para M9+ paralelamente à introdução de `CounterKey` enum vanilla.
+## Historical record
 
-Ver `lab/results/construction/diagnostics/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3 para classificação de `Counter`/`CounterKey`/`CounterUpdate` vanilla.
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/counter_registry.rs` — struct + 5 métodos + tests.
-- Re-export em `01_core/src/entities/mod.rs`.
-
----
-
-## Proposta P1148 — updates completos (AGUARDA GATE ADR-0127)
-
-Medição da fonte ratificada `a51e02804` mostra que o update transporta estado
-hierárquico, nível de step ou callback. Se o gate do contrato público em
-`entities/counter_update.md` for aprovado, `apply` passa a:
-
-- substituir o estado completo por `Set(Vec<usize>)`;
-- aplicar `Step(level)` com a mesma regra hierárquica já existente em
-  `apply_hierarchical`;
-- aplicar `Func` ao array corrente e converter o resultado novamente em
-  estado, propagando erro de avaliação em vez de o ignorar.
-
-O callback executa na construção do introspector, não no field access. A fase
-já transporta `Engine + EvalContext` para callbacks de `StateUpdate`; P1148
-reusa esse canal e não cria uma fase nova. Qualquer alteração de assinatura
-pública adicional descoberta na materialização volta ao gate ADR-0127.
-
----
-
-## Log de ações para chaves filtradas
-
-### Medição anterior à decisão
-
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
-`entities/counter_registry.rs:25-36` contém estados e snapshots, não ações;
-`:69-84` distingue Step/Set/Func. A medição histórica demonstra por fonte
-que inferir ações pelas diferenças de snapshots perde Set versus Step.
-A medição histórica registra no vanilla
-Step/Func/Step com chave filtrada resultando em 12, não apenas tamanho da query.
-Estado, UTC e binários estão nos registros; não existe candidato implementado.
-
-### Contrato
-
-Adicionar armazenamento **privado** de eventos ordenados, somente dados L1:
-Location, origem automática/manual e ação CounterUpdate verdadeira; evento
-manual conserva CounterKey inteira. Evento automático remete à ocorrência
-canônica por Location e preserva Step(level) efetivo/gate do seu owner.
-Registrar apenas uma ação automática por ocorrência, não duplicar a escrita
-auxiliar figure:kind. Não deduzir ação por número anterior/posterior.
-
-Acesso/mutação ao log é interno pub(crate), sem novo campo público ou método
-de trait. Clone/default/empty preservam isolamento por documento/iteração.
-O log não importa compiler nem executa Func; não é segundo store de campos.
-Estado/histórico borrowed e métodos públicos existentes conservam o contrato
-de leitura materializada. O cálculo de uma chave arbitrária da linguagem
-devolve vetor owned no owner de compiler, não uma referência a temporário.
-
-Este log prepara dados para a resolução sob demanda de
-`compiler/introspect/from_tags.md`, aprovada pelo dono. A aprovação de fase
-não dispensa os demais gates do P1339 antes da implementação.
-
-## P1485.3 — ordem de Page no bundle (ratificado; ADR-0127)
-
-### Medição anterior à decisão
-
-`value_at` filtra por Location e escolhe a última entrada por inserção
-(`01_core/src/entities/counter_registry.rs:151-159`); `apply_at` acrescenta
-ao fim (`:182-194`). Pós-pass Page Func pode, portanto, inserir evento
-de Location anterior depois da fronteira seguinte. É risco inferido
-da fonte, não prova de output Func; sonda Set e proveniência no
-diagnóstico P1485. Valor Page é linguagem, ordem de armazenamento é
-mecânica (ADR-0107).
-
-### Limite do owner
-
-Suportar por helper privado a materialização de snapshots Page em ordem
-causal Location + fonte exigida por `compiler/introspect/from_tags.md`
-P1485.3. Não mudar assinatura pública, significado de outras chaves nem
-transformar reset em ocorrência localizada. Compiler avalia Func; entidade
-guarda só estados, Locations e ações, sem Engine, I/O ou import reverso.
-O contrato público de introspecção P1485.3 foi confirmado pelo dono
-em 2026-09-24.
-
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-04-30 | P165 sub-passo .C: sub-store de counters por kind para Introspector M3 | `counter_registry.rs`, `counter_registry.md` |
-| 2026-04-29 | P177 sub-passo .B: history field + `value_at` + `apply_at` / `apply_hierarchical_at` | `counter_registry.rs`, `counter_registry.md` |
-| 2026-05-03 | P184C sub-passo .C: helper `value_at_index(key, idx)` para acesso por posição na história (não por Location). Suporta `Introspector::figure_number_at_index` (P184C .D) consumido por C3 (P184D). | `counter_registry.rs`, `counter_registry.md` |
-
-
-
-
-## Medição da ordem antes da decisão
-
-No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, CounterRegistry::value_at e StateRegistry::value_at comparam Location.as_u128; queries before/after e eventos de contador fazem o mesmo. A realização prepara identidades antes de transformar, portanto o número deixa de ordenar origens e produtos. A sonda CLI e a sentinela single_evaluation_counter_follows_causal_order conservam a evidência no diagnóstico de implementação. Aplicar o núcleo realization-order; manter fallback histórico somente sem ordem registrada.
-
-
-## Realização com avaliação única
-
-Guardar ordem causal privada por Location, preenchida durante o walk, independente do contador numérico do identificador. Estado é por registry, não global.
-
-
-## Realização com avaliação única
-
-observe_location registra primeira ocorrência; order_key consulta ordinal e conserva fallback numérico somente para Location não observada em testes/consumers legados.
-
-
-## Realização com avaliação única
-
-Lookup temporal usa ordem causal registrada, preservando a semântica do prefixo quando IDs de origem e produto não são monotônicos.
-
-### Escopo interno por documento do bundle
-
-O registry conserva privadamente as Locations reais emitidas por Tag::Start em cada body, em ordem de documentos. O walk registra a faixa depois de visitar o body, inclusive uma faixa vazia. A realização Page usa esse pertencimento explícito, nunca fronteiras inferidas de valores de Location ou checkpoints repetíveis. Os acessores são internos à crate e não ampliam o contrato público.
-
-
-## Consulta temporal sem varredura excedente — 2026-10-13
-
-Medição anterior à decisão: `01_core/src/entities/counter_registry.rs:176` usa
-iter/filter/last sobre o Vec de histórico. O predicado consulta somente
-`order_key`, sem mutação, I/O ou callbacks; compara a ordem causal registrada
-com fallback numérico para locais não observados. HEAD
-`06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado;
-fontes, L0, núcleo pinado, horário UTC, status e diffstat em
-`lab/results/construction/diagnostics/predicados-fixtures-ci-2026-10-13/before.json.gz`.
-
-Preservar exatamente a última entrada elegível na ordem do Vec e o resultado
-None quando não houver uma. A pesquisa pode partir do fim e terminar na
-primeira entrada cujo order_key seja <= ao alvo (`rfind`). Não reordenar o
-histórico, substituir ordem causal por IDs nem mudar updates ou init.
-A consulta permanece O(n) no pior caso; não inferir ganho medido de tempo.
-Esta é simplificação interna equivalente sob o núcleo realization-order,
-sem mudança de assinatura pública, default ou fase. Os exemplos históricos
-com comparação numérica direta não substituem a cláusula causal vigente.
-Preservar os testes temporais, incluindo origens com IDs não monotônicos.
-
-
-## Entradas diretas e ordem da síntese — 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; order-before.json.gz/before.json.gz preservam estado, UTC, hashes e diffstat. trace-runtime-result.json e trace-runtime.log mostram a entry direta no índice puro, runtime e L3 sob NativeElement; a linguagem bare converte outline.entry em Kind(OutlineEntry), conforme foundations/selector.rs:113. O walk terminal atual não preenche esse kind. measurement-order-before.json no pin 9f2b6e8715237cb086899a42873660fe744622e8 mede BARE [Heading] versus [Heading,Direct], FILTERED [Direct,Heading] versus [Heading,Direct], STATE 2 versus 1 e COUNTER ((2,),) versus ((1,),) na Location da entrada sintetizada. Esses são observáveis de linguagem; não se exige igualdade Rust/bytes. A síntese pós-walk aloca entradas depois dos updates, mas sua posição causal é dentro do outline anterior. O núcleo realization-order já proíbe tratar identidade numérica como ordem. A correção é refutada por ordem, prefixo temporal, duplicação ou dados de entry errados.
-
-### Responsabilidade exclusiva
-
-Adicionar somente pub(crate) fn observe_locations_after(&mut self, anchor: Location, locations: &[Location]). Sem API externa/campo/método de trait novo. Se anchor não foi observado, não alterar o registry; lista vazia ou já observada é no-op. Deduplicar novas Locations preservando sua ordem (HashSet puro local, não busca quadrática). Deslocar os ordinais já existentes estritamente posteriores à âncora pelo tamanho do bloco e registrar o bloco depois da âncora. Ordem densa, aliases/repetição idempotentes, ordem relativa antiga intacta; observe_location posterior continua anexando sem colidir. Não reordenar/mutar valores, ações, históricos ou document_locations, não executar callbacks nem importar compiler. O owner de introspect/outline_entries decide a âncora e o bloco; esta entidade só mantém dados de ordem, sob o núcleo realization-order pinado.
-
-### Aceitação
-
-Testes funcionais antes da mudança: índice bare da entry própria e aliases; ordem de três entries (dois outlines com entry direta entre eles), where e ausência de heading fantasma; estado e contador lidos na Location sintetizada devem refletir o prefixo do outline. Depois, testes de contrato dos dois helpers internos antes da sua implementação, com âncora desconhecida, duplicatas/repetição, IDs não monotônicos e append denso. Repetir nove sondas CLI sem relaxar resultados (seis originais e order/state/counter). Suíte completa, build, fmt, Clippy estrito, Rustdoc estrito, V1/V5/V15/V26/reversa/diff e SARIF: seis V16 removidos, sete V19 previstos e três mensagens existentes atualizadas, nenhum V20 novo. 12 GiB, swap zero, um job e comandos pesados sequenciais. Esta é correção interna/paridade ADR-0127, com helpers crate-private e nove pares L0/consumer; nenhuma assinatura externa, default deliberado ou fase nova. Resselo restrito, sem commit/push/release. As demais pendências de V16 continuam abertas.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/counter_registry.md` preserves the original evidence and chronology.

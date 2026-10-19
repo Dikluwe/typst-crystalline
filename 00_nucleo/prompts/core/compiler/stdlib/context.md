@@ -2,7 +2,7 @@
 Hash do Código: aee79a87
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/context/block-semantics.toml sha256:0ede5ade7908670f0440672becaba2aa356acc51346fd590dc426e4788dc6dd0
+- 00_nucleo/prompts/_nuclei/context/block-semantics.toml sha256:22f48ae879819be41fc5490d426bd4611fe7ffecbdd9bad20cb0d9ddcea00717
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/context.rs`

@@ -1,34 +1,28 @@
 tekt = 1
 kind = "nucleus"
 id = "eval-call-once"
-title = "Resolução e efeitos uma vez por chamada"
-
+title = "Resolution and effects once per call"
 [[claims]]
 id = "receiver-ownership"
 level = "must"
-statement = "Uma chamada conserva seu receiver efetivamente resolvido ao atravessar interceptores e fallback. Cache é local à chamada, sem memoização global/por texto; clones de coleções não substituem transferência de ownership e empréstimo."
-
+statement = "A call retains its actually resolved receiver through interceptors and fallback. Cache is call-local, not global/text-keyed memoization; collection clones do not replace ownership transfer and borrowing."
 [[claims]]
 id = "lazy-arguments"
 level = "must"
-statement = "Resolver método/callee e seus gates antes de avaliar argumentos de chamada comum; método desconhecido não executa argumentos. Coleções avaliam argumentos só depois de reconhecer a operação na tabela estática única, uma vez e com spans/occurrences intactos."
-
+statement = "Resolve method/callee and gates before ordinary call arguments; unknown methods execute no arguments. Collections evaluate arguments only after recognizing an operation in the single static table, once with spans/occurrences intact."
 [[claims]]
 id = "mutating-order"
 level = "must"
-statement = "Métodos mutantes preservam a ordem especial argumentos, local mutável, operação. Se o local permite fallback para campo chamável, transportar o receiver resolvido e os Args já avaliados; nunca reavaliar o alvo/argumentos nem mutar uma cópia temporária."
-
+statement = "Mutating methods preserve the special arguments, mutable place, operation order. If a place permits callable-field fallback, transport the resolved receiver and already evaluated Args; never reevaluate target/arguments or mutate a temporary copy."
 [[claims]]
 id = "callee-fallback"
 level = "must"
-statement = "Seletores, conteúdo e interceptores contextuais conservam receivers/callee quando não interceptam; despacho final recebe o valor e Args resolvidos, mantendo políticas de field access, span, trace, contexto, aliases e prioridades."
-
+statement = "Selectors, content and contextual interceptors retain receivers/callee when not intercepting; final dispatch receives resolved value and Args, preserving field-access, span, trace, context, alias and priority policies."
 [[claims]]
 id = "no-compensating-effects"
 level = "must-not"
-statement = "Identificar uma função por seu nome para isolar scopes, truncar arrays, apagar efeitos ou compensar contagens de avaliação. Argumentos matemáticos seguem uma avaliação causal normal; a preparação/inserção matemática mantém sua fase e carriers próprios."
-
+statement = "Identify a function by name to isolate scopes, truncate arrays, erase effects or compensate evaluation counts. Mathematical arguments follow one normal causal evaluation; mathematical preparation/insertion retains its own phase and carriers."
 [[claims]]
 id = "static-surface"
 level = "must"
-statement = "Preservar APIs Rust externas, catálogo estático de métodos e suas extensões Tekt, callbacks, esquema de argumentos, defaults e pureza L1. Nenhuma vtable, registry dinâmico, nova feature ou mudança de fase é autorizada."
+statement = "Preserve external Rust APIs, static method catalog and Tekt extensions, callbacks, argument schema, defaults and L1 purity. No vtable, dynamic registry, new feature or phase change is authorized."

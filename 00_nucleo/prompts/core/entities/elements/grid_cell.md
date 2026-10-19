@@ -1,20 +1,23 @@
 # Prompt L0 — `entities/elements/grid_cell` — `GridCellElem`
 Hash do Código: 27ac91b7
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/grid_cell.rs`
-**Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).
-Trait e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**. Contentor —
-`map_*` recursam no `body`. **Campos idênticos a `TableCellElem`** (estruturas
-gémeas; arms separados no hub, sem `|`-combinado — sem split).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/grid_cell.rs`
+**Architecture:** ADR-0105. The trait contract is owned by
+`00_nucleo/prompts/core/entities/elements/mod.md`.
 
----
+## Evidence before specification
 
-## Struct
+Original extraction anchors: `content.rs:1654`, `content.rs:1802`, `content.rs:1939`, `content.rs:2262`, `content.rs:2507`.
+These historical coordinates support the ownership boundary; they are not
+fresh current-pin language-parity measurements.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 pub struct GridCellElem {
-    pub body:      Content,               // era Box<Content>
+    pub body:      Content,
     pub x:         Option<usize>,
     pub y:         Option<usize>,
     pub colspan:   Option<usize>,
@@ -27,22 +30,20 @@ pub struct GridCellElem {
 }
 ```
 
-`Content::GridCell { … }` → `Content::GridCell(Arc<GridCellElem>)`.
-Construtor ergonómico: `Content::grid_cell(...)`.
+## Behavior and acceptance
 
-> **`Hash` manual via Debug**: `Stroke`/`Color`/`Align2D`/`Sides<Length>` com
-> `f64` → `impl Hash { format!("{self:?}").hash(state) }`. `PartialEq` deriva.
+Preserve `Content::GridCell(Arc<GridCellElem>)` and `Content::grid_cell(...)`.
+This contract declares fields identical to TableCellElem, with separate hub
+arms, no combined `|` dispatch and no split. The independent table-cell owner
+is `00_nucleo/prompts/core/entities/elements/table_cell.md`; differing future
+requirements require reconciliation rather than an implicit grid change.
+Hash remains manual via Debug because Stroke/Color/Align2D/Sides<Length>
+contain f64. Derived PartialEq compares all ten fields. Plain text and
+emptiness delegate to body. Both maps recurse into body and preserve the nine
+other fields. Field/kind/payload retain defaults; non-locatable. Verify
+transparency, maps, all metadata, and structural equality.
 
-## `impl Element for GridCellElem`
+## Historical record
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.body.plain_text()` (transparente, `content.rs:1802`) |
-| `is_empty` | **override**: `self.body.is_empty()` (`content.rs:1654`) |
-| `map_content` | **recursivo** no `body`, preserva os 9 cosméticos (`content.rs:2262`) |
-| `map_text` | **recursivo** no `body`, preserva os 9 cosméticos (`content.rs:2507`) |
-| `get_field`/`element_kind`/`to_payload` | default |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara os 10 campos (paridade `content.rs:1939`).
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/grid_cell.md`. Historical observations are not a new parity certification.

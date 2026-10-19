@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/text_baseline.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated carrier-only baseline alignment, Literal-only maximum-style helper, once-only pending horizontal origin and later ensure_text_baseline facade; preserved full mixed-face same-size/leading regional certificate and all refusals/refuters.",
+  "original_sha256": "3f3e8e7aecfda1d57b82892d86f90db1645705f5b99f014d29148c4f5ffcf60e",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/text_baseline.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

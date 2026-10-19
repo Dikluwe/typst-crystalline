@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/place.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated final Place local-region flow_y origin, causal-end priority, float lexical neutrality and approved paint-root migration; preserved earlier refuters, restricted supersessions and all B1/B2a/B2b/B3 incomplete scopes.",
+  "original_sha256": "1d884b094e3a0bffb661cb8fcc358355ff0d40c073844140fd623573c0a86a6a",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/place.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

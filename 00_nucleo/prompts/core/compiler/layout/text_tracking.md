@@ -2,79 +2,46 @@
 Hash do Código: 1b4832d1
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/text_tracking.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Evidência anterior à decisão
+## Evidence before specification
 
-A inspeção de `01_core/src/compiler/layout/text_measure.rs:85`, `word_layout.rs:89` e `space.rs:162` encontrou respectivamente fronteira textual, admissão de baseline e teste de integração de espaços iniciais em owners de outras responsabilidades. O estado exato, fontes e prompts anteriores estão em `lab/results/construction/diagnostics/separacao-tracking-2026-09-29/initial.json` e `before/`. A correção já medida encontra-se em `lab/results/construction/diagnostics/correcao-tracking-2026-09-29.md`; esta separação conserva seus resultados e limites. Posições, texto e estilos são observáveis da língua; localização das funções é mecânica. A inspeção não demonstra intenção histórica nem nova paridade bilateral.
+Inspection of `01_core/src/compiler/layout/text_measure.rs:85`, `word_layout.rs:89` and `space.rs:162` found textual-boundary, baseline-admission and initial-space integration-test responsibilities in other owners. Exact state, sources and prior prompts are in `lab/results/construction/diagnostics/separacao-tracking-2026-09-29/initial.json` and `before/`; the measured correction is in `lab/results/construction/diagnostics/correcao-tracking-2026-09-29.md`. Separation preserves those results and limits. Positions/text/styles are language observables; function location is mechanics, proving neither intent nor new bilateral parity.
 
-## Contrato vigente
+`lab/results/construction/diagnostics/correcao-tracking-escopos-2026-09-29/before-pdf/results.json` and `summary.json` record 30 sources/90 PDFs, commands/sources and exact state in initial.json and before-pdf/provenance.json against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Repeated equal scopes accumulate about 0.4pt, nested scopes 0.8pt; positive wrap changes the line. `text_tracking.rs:50` compares only resolved TextStyle. Vanilla `inline/collect.rs:287-295` retains distinct-chain segments; `inline/shaping.rs:1269-1295` adds tracking only within each run. These are observable boundaries, without requiring copied PartialEq/chain representation. Hide/Box also form boundaries: `hide.rs:21-24` and `boxed.rs:157-208` replace/restore buffers without preserving that distinction.
 
-Possuir exclusivamente boundary(items, style), puro e privado ao módulo pai. Buscar o último item, ignorando apenas marcadores HTML diretos. Text/TextShaped não vazios e TextSeparator fornecem estilo; TextReplacement consulta recursivamente somente o último filho. Texto vazio, glyphs, objetos, grupos, links, linhas e wrappers semânticos interrompem a fronteira. Manter match exaustivo.
+`lab/results/construction/diagnostics/correcao-tracking-rtl-2026-09-29/before-pdf/results.json`, `summary.json`, `provenance.json` and `initial.json` record 66 inputs/198 PDFs against the same historical pin, with complete sources/commands/binaries/HEAD/working tree. In dir:rtl, three Latin terms lack four intervals: at ±0.2pt the first term differs by 0.8pt, while 0pt matches. Explicit Arabic differs by 0.4pt in the two interword intervals at ±0.2pt. `text_tracking.rs:65` rejects RTL unconditionally; `word_layout.rs:34,72` and `space.rs:25` already project/add the signed boundary; `cursor.rs:150-186` anchors by real right edge. Vanilla `inline/shaping.rs:1269-1295` applies tracking before each next distinct cluster also in negative direction. This measures positions/line choice rather than intent. Hebrew dir:rtl and initial literal space differ even at 0pt and do not demonstrate a boundary defect. Ligatures, mixed direction and global pagination need separate probes.
 
-Retornar tracking resolvido, inclusive negativo, apenas para estilos completamente iguais, não matemáticos e com direção ausente/LTR. Linha vazia ou fronteira recusada retorna zero. Não inspecionar Layouter nem emitir, alterar cursor ou escolher quebra. Word e Space aplicam o resultado por suas próprias operações; a continuidade lexical adicional pertence ao State privado descrito abaixo, sem multiplicadores para espaços.
+The same diagnostic's `after-pdf/results.json` and `summary.json` measure 66 sources/198 PDFs, with source/pin/state in provenance.json and exact pre-second-correction state in wrap-initial.json. In latin-wrap ±0.2/0.333/1.2pt, first/second Tekt lines shift by exactly one ±t interval versus vanilla; final line, text and line choices match. `line_commit.rs:241-248` knows continuation, but `:477` calls `cursor.rs:150` without it; `cursor.rs:164-177` anchors by actual right edge. Wrap/hyphenation controls showing another shift would refute the pending-terminal-interval inference. It establishes no universal mixed-bidi or initial-space rule.
 
-## Aceitação e limites
+The ratified bidi-carrier inventory `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifies this unit's references and 1:1 owners; manifest `1ae7513e` was confirmed.
 
-Preservar os testes causais existentes e o texto, posições, estilos, páginas e diagnósticos dos controles anteriores à separação. Ownership 1:1, pins válidos, build e lint sem erros. Movimentação interna ADR-0109/0127: funções estáticas descendentes, sem estado novo. As limitações de tracking em estilos mistos, RTL, seleção global e contagem de clusters permanecem as registradas no diagnóstico da correção.
+V17 structural evidence T192 is at `01_core/src/compiler/layout/text_tracking.rs:98`. Existing sources/L0 were read first; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC, status and git diff HEAD --stat are in `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. The hash-reconfirmed inventory has 28 guards in 21 owners; pinned CI requires splitting or moving the condition into the body. This is Rust structure, not functional-defect, improved-AI-readability, upstream-intent, parity or performance evidence.
 
-## Continuidade lexical do tracking — 2026-09-29
+## Ownership and current contract
 
-### Medição anterior à decisão
+Own only pure `boundary(items, style)`, private to the parent. Inspect the last item, ignoring only direct HTML markers. Nonempty Text/TextShaped and TextSeparator supply style; TextReplacement recursively inspects only its last child. Empty text, glyphs, objects, groups, links, lines and semantic wrappers interrupt the boundary. Keep exhaustive match.
 
-`lab/results/construction/diagnostics/correcao-tracking-escopos-2026-09-29/before-pdf/results.json` e `summary.json` registram 30 fontes/90 PDFs, comandos, fontes e estado exato em initial.json e before-pdf/provenance.json, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Escopos iguais repetidos acumulam cerca de 0.4pt e aninhados 0.8pt; wrap positivo muda a linha. `text_tracking.rs:50` compara apenas TextStyle resolvido. Vanilla `inline/collect.rs:287-295` conserva segmentos de cadeias distintas; `inline/shaping.rs:1269-1295` soma tracking apenas dentro de cada run. Isto mede fronteiras textuais observáveis, não exige copiar PartialEq ou representação da chain. Hide/Box também são fronteiras: hide.rs:21-24 e boxed.rs:157-208 substituem/restauram buffers sem preservar essa distinção.
+Return resolved signed tracking, including negative values, only for fully equal nonmath styles and eligible direction. Originally limited to absent/LTR, eligibility is superseded only by the measured incremental explicit-RTL slice: admit explicit RTL with the same lexical-style/math/object/empty-line/last-item filters. Direction never changes interval sign. An empty/refused boundary returns zero. Do not inspect Layouter, emit, move cursor or choose breaks. Word and Space apply the result through their own operations, without space multipliers. Later RTL anchoring by actual line width belongs to `00_nucleo/prompts/core/compiler/layout/cursor.md`. Do not add tracking inside another unit's clusters, copy independent Hebrew differences, enable global selection or claim general RTL parity.
 
-### Contrato interno da correção
+Own a parent-private Clone State with opaque active-scope and last-text-producer identities. enter creates a new identity and returns the prior one; leave restores only active identity, retaining last-emitted-item provenance. Empty scopes without emission do not interrupt continuity. record associates the last producer with the current scope; interrupt creates an object barrier until the next emission. State boundary returns zero across distinct identities and delegates to the existing pure calculation within continuous identity. Local Arc<()> identities are allowed, without global counter, serialized pointer or public contract change. Preserve signed values, TextStyle/math/direction filters, object barriers and selection. This private continuity state refines the earlier state-free separation; no unrelated state is authorized.
 
-Possuir State privado ao módulo pai, clonável, com identidade opaca do escopo ativo e do último produtor textual. enter cria identidade nova e retorna a anterior; leave restaura somente identidade ativa, conservando a proveniência do último item emitido. Escopo vazio, sem emissão, não interrompe a continuidade. record associa o último produtor ao escopo atual. interrupt cria barreira de objeto até a próxima emissão. boundary no State retorna zero entre identidades distintas e delega ao cálculo puro existente quando contínuas. Identidades podem ser Arc<()> locais, sem contador global, ponteiro serializado ou mudança de contrato público. Preservar filtros existentes de TextStyle/LTR/math, fronteiras de objetos, valor assinado e seleção. Não generalizar para RTL ou habilitar seleção global. Testes devem distinguir escopo repetido, entrada/saída, vazio, restauração, barreira, clone/checkpoint e wrap.
+Own a private terminal-interval helper for a continued RTL line. Inspect the last material text unit, ignoring trailing TextSeparator carrier and direct HTML marker; respect object/barrier, math and direction. Return that unit's own resolved signed tracking; TextReplacement consults its last child. Do not adjust Hebrew deviations already present at 0pt or initial literal spaces.
 
-Correção interna de paridade ADR-0127 em fluxo contínuo. Aceitação RED→GREEN, controles bilaterais de texto/posições/linhas e preservação dos controles de tracking uniforme; build e lint sem erros, resselo somente destes owners. Demais limites abertos mantidos.
+Ratified carrier migration uses None for uncertified constructors and `..` in read patterns, retaining language observables. Transformations obey the pinned origin nucleus without broadening phase/API.
 
-## Fronteiras entre unidades em RTL explícito — 2026-09-29
+Merge Text/TextShaped arms in continued_rtl_end and decide nonempty/nonmath/RTL eligibility in the body. Preserve sign/resolution, zero outside domain, recursive TextReplacement and other-item barriers; match remains exhaustive. Do not create a helper merely to hide conjunction, add suppression or change linter configuration.
 
-### Medição anterior à decisão
+## Acceptance, scope and remaining limits
 
-`lab/results/construction/diagnostics/correcao-tracking-rtl-2026-09-29/before-pdf/results.json`, `summary.json`, `provenance.json` e `initial.json` registram 66 entradas e 198 PDFs contra o vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, com fontes, comandos, binários, HEAD e working tree completos. Em `dir:rtl`, três termos latinos deixam de receber quatro intervalos: com ±0.2pt o primeiro termo difere 0.8pt; 0pt coincide. Texto árabe explícito difere 0.4pt nos dois intervalos entre palavras para ±0.2pt. `text_tracking.rs:65` recusa indiscriminadamente RTL; `word_layout.rs:34,72` e `space.rs:25` já projetam/adicionam a fronteira assinada; `cursor.rs:150-186` ancora a linha pelo limite direito real. No vanilla `inline/shaping.rs:1269-1295`, tracking aplica-se antes de cada próximo cluster distinto também em direção negativa. Isso mede posições e escolha de linha, não a intenção histórica.
+Preserve causal tests, text/positions/styles/pages/diagnostics from pre-separation controls, 1:1 ownership, valid pins and error-free build/lint. Internal ADR-0109/0127 movement uses static descendant functions. Mixed-style tracking, global selection and cluster-counting limits remain as recorded in the correction diagnostic; RTL authorization is confined to the measured slices above.
 
-Hebraico (`dir:rtl`) e espaço literal inicial apresentam diferenças mesmo em 0pt; não são prova de defeito da fronteira. Ligaduras, mistura de direção e paginação global ainda exigem suas próprias sondas.
+Require RED→GREEN and bilateral text/position/line controls, preserved uniform tracking and LTR, with restricted resealing. Distinguish repeated scopes, entry/exit, empty scopes, restoration, barrier, clone/checkpoint and wrap. RTL controls cover both directions/signed values; continued-line controls preserve terminals/LTR. All other open limits remain open.
 
-### Contrato da correção
-
-Para fronteira textual uniforme no caminho incremental, admitir dir explícita RTL além de direção ausente/LTR, com o mesmo filtro de estilo lexical, math, objetos, linha vazia e último item. Devolver um único tracking assinado anterior à próxima unidade; direção não muda o sinal do intervalo. O alinhamento RTL posterior usa a largura real da linha e permanece no owner cursor. Não adicionar tracking a clusters internos de outra unidade, nem reproduzir diferença hebraica independente de tracking. O Núcleo já condiciona expansão a controles; os controles desta rodada autorizam esta fatia, não paridade geral RTL.
-
-Correção interna de paridade ADR-0127 em fluxo contínuo: sem contrato público, default, quebra de compatibilidade ou fase nova. A restrição histórica a LTR fica substituída somente por esta fatia medida. Aceitação RED→GREEN, controles bilaterais em ambas as direções/valores, preservação LTR, build e lint sem erros, resselo restrito.
-
-## Alinhamento da linha RTL continuada — 2026-09-29
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/correcao-tracking-rtl-2026-09-29/after-pdf/results.json` e `summary.json` medem 66 fontes/198 PDFs com fonte, pin e estado em `provenance.json`; `wrap-initial.json` registra o estado exato antes desta segunda correção. Em latin-wrap ±0.2/0.333/1.2pt, a primeira/segunda linha do Tekt deslocam-se relativamente ao vanilla por exatamente um intervalo ±t, enquanto a última coincide. O texto e as linhas escolhidas coincidem. `line_commit.rs:241-248` conhece se há continuação, mas `:477` chama `cursor.rs:150` sem essa informação; `cursor.rs:164-177` ancora pela direita real. A inferência de um intervalo terminal pendente é refutada se controles de wrap/hifenização mostrarem outro deslocamento. Esta medição não prova uma regra universal para bidi misto ou espaços iniciais.
-
-### Contrato interno
-
-Possuir helper privado de intervalo terminal para linha RTL continuada. Examinar a última unidade textual material, ignorando carrier TextSeparator final e marcador HTML direto, e respeitar objeto/barreira, math e direção. Devolver tracking resolvido do seu próprio estilo, assinado; TextReplacement consulta último filho. Não oferecer ajuste para hebraico cujo desvio em 0pt vem de outra causa nem para espaços literais iniciais.
-
-Mudança interna ADR-0127 em fluxo contínuo, sem assinatura pública, default ou fase. Teste RED→GREEN e controles bilaterais, preservação dos terminais e LTR, build/lint sem erros e resselo restrito.
-
-## Migração do carrier bidi ratificado (2026-10-05)
-
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
-
-
-## Guards de domínio explícitos — V17, 2026-10-16
-
-### Medição anterior à decisão
-
-T192: 01_core/src/compiler/layout/text_tracking.rs:98. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
-
-### Responsabilidade exclusiva e aceitação
-
-Unir braços Text/TextShaped de continued_rtl_end e decidir no corpo não vazio, não math e direção RTL. Preservar sinal e resolução de tracking, zero fora do domínio, recursão TextReplacement e barreiras dos demais itens; match continua exaustivo.
-
-Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.
+Maintenance follows continuous flow under ADR-0127 without a new public contract/default/compatibility/phase. Run existing functional controls before code and preserve expected outputs; actual V17 RED is 28 warnings, GREEN zero V17. Check success/fallback/error, short-circuit and effects. Revalidate build, full workspace suite, Clippy all-targets with warnings/unfulfilled expectations as errors, formatting, Rustdoc warnings as errors, strict/reverse V1/V5/V15/V26 lineage and SARIF without new warnings, under 12 GiB, zero swap and one job. Do not claim global memory/performance gain or parity without a separate measurement.

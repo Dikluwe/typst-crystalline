@@ -2,74 +2,22 @@
 Hash do Código: e56b151f
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_cancel.rs`
-**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
-partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
-P317). P1291 materializou o payload completo e a realização de callback. P1292
-não cria outro elemento nem outro runtime: fecha a exposição canónica em
-`math.cancel` e a presença morfológica dos argumentos.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/math_cancel.rs`
+**Architecture:** ADR-0105 model D, nonlocatable structural math.
 
----
+## Evidence and supersession
 
-## Histórico P317 — payload minimal body-only (REVOGADO por P1291)
+The old body-only carrier at math_cancel.rs:18-21 was explicitly replaced by
+the full payload/callback realization. Historical upstream a51e02804
+math/cancel.rs:18-115 declares body,length,inverted,cross,angle,stroke,background;
+angle accepts angle/function/auto. The 2026-08-31 probes establish that lexical
+field order and diagnostic domains, with omitted/explicit repr separately
+owned. Do not resurrect a second body-only element or callback runtime.
 
-O bloco seguinte registra a forma materializada originalmente em P317 para
-explicar a linhagem. Ele não é contrato vigente e não autoriza reintroduzir um
-segundo `MathCancelElem` body-only:
-
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct MathCancelElem {
-    pub body: Content,   // era Box<Content>
-}
-```
-
-`Content::MathCancel { body }` → `Content::MathCancel(Arc<MathCancelElem>)`.
-Construtor ergonómico: `Content::math_cancel(body: Content)`.
-
-### `impl Element` histórico
-
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.body.plain_text()` (`content.rs:1646`) |
-| `is_empty` | default `false` (`content.rs:1568`) |
-| `map_content` | **recursivo** no `body` (`content.rs:2135`): `Content::MathCancel(Arc::new(MathCancelElem { body: self.body.map_content(f)? }))` |
-| `map_text` | **terminal** (math structural; `content.rs:2632`): `Content::MathCancel(Arc::new(self.clone()))` |
-| `get_field` | default `None` |
-| `element_kind`/`to_payload` | default `None` (não-locatável) |
-
-### `eq` estrutural histórico
-
-`#[derive(PartialEq)]` compara `body` (paridade `content.rs:1833`).
-
-### Critério preservado do payload histórico
-
-`plain_text` transparente ao body; `map_content` recurse o body; `map_text`
-terminal; igualdade estrutural.
-
-## P1292 — payload completo já materializado e exposição canónica
-
-### Medição anterior à decisão
-
-- Antes de P1291, o consumer cristalino em
-  `01_core/src/entities/elements/math_cancel.rs:18-21` transportava somente
-  `body`; essa medição é histórica e foi superada pela materialização full.
-- O vanilla ratificado `a51e02804`, em
-  `lab/typst-original/crates/typst-library/src/math/cancel.rs:18-115`, declara
-  `body`, `length`, `inverted`, `cross`, `angle`, `stroke` e `background`;
-  `angle` aceita ângulo ou função e o valor público também admite `auto`.
-- Probes de 2026-08-31 registraram a ordem morfológica
-  `body,length,inverted,cross,angle,stroke,background` e os domínios de erro no
-  diagnóstico histórico. A forma de `repr` e a
-  distinção entre default omitido e explícito continuam sob P1290; estes dados
-  legitimam o transporte sem transferir ownership de `repr.rs`.
-
-### Contrato vigente e delta de exposição P1292
-
-O payload minimal histórico acima foi substituído em P1291. A única forma
-vigente, completada em P1292 com presença morfológica, é:
+## Complete contract
 
 ```rust
 pub enum MathCancelAngle {
@@ -87,60 +35,81 @@ pub struct MathCancelElem {
     pub stroke: Option<Stroke>,
     pub background: bool,
     pub span: Span,
-    // Metadado de presença, sem efeito geométrico: um bit para cada named.
     pub explicit: MathCancelExplicit,
 }
 ```
 
-Defaults semânticos: `length = 100% + 0.3em`, `inverted = false`,
-`cross = false`, `angle = Auto`, `stroke = None`, `background = false`.
-`stroke = None` significa exclusivamente o traço MATH derivado no consumo:
-espessura `0.05em` e paint do texto ativo; não significa ausência de linha.
-Um `Stroke` explícito preserva todos os seus campos. `cross` prevalece sobre
-`inverted`, mas ambos permanecem transportados porque são observáveis como
-argumentos/set rules.
+Defaults: length100%+0.3em,inverted=false,cross=false,angle=Auto,stroke=None,
+background=false. None stroke exclusively means a MATH-derived line using
+0.05em thickness and active text paint, never no line. Explicit Stroke retains
+all fields. Cross wins geometrically over inverted but both remain observable
+arguments/set-rule data.
 
-`span` preserva o local da chamada para erro tardio da callback, mas não é
-campo da linguagem. `MathCancelExplicit` conserva, separadamente para
-`length`, `inverted`, `cross`, `angle`, `stroke` e `background`, se a chave
-apareceu na chamada/set-rule. Os bits não mudam layout, mas participam da
-morfologia e da identidade observável: um valor explicitamente igual ao
-default continua no `repr`. O construtor compatível usa `Span::detached()` e
-nenhum bit; a nativa usa `Args::span` e marca exatamente as chaves presentes.
-Igualdade/hash ignoram `span`, incluem os sete valores de linguagem e os bits
-de presença.
+Span anchors late callback errors and is not a language field. Explicit bits
+separately track supplied length/inverted/cross/angle/stroke/background in
+call/set rule; they do not alter layout but preserve explicit defaults in
+morphology/identity/repr. Compatible Content::math_cancel(body) uses detached
+span/defaults/no bits. The native path uses Args::span and exact supplied bits.
+The full typed Content constructor transports seven values,span,presence
+without reexecuting or reinterpreting callbacks.
 
-Como `Rel<Length>`, `Angle` e `Stroke` contêm escalares de ponto flutuante, o
-hash estrutural deve usar a convenção canónica já vigente para esses tipos; não
-se autoriza converter grandezas em strings nem eliminar campos para obter
-`derive(Hash)`.
+Equality/hash ignore span and include all seven language values plus bits;
+the later generic 'all fields' sentence cannot override this explicit span
+exclusion. Use existing canonical floating-scalar conventions for Rel/Angle/
+Stroke, never strings or dropped fields to obtain derive(Hash).
+Content::MathCancel holds Arc; plain_text delegates to body,is_empty defaults
+false,map_content recurses into body and preserves metadata,map_text remains
+terminal. get_field/kind/payload retain nonlocatable defaults unless separately
+specified by their owners.
 
-O construtor compatível `Content::math_cancel(body)` permanece e inicializa os
-defaults como omitidos. O construtor completo tipado, de ownership de
-`entities/content.md`, transporta os sete valores, `span` e presença sem
-reexecutar ou reinterpretar callback. `plain_text` e os walkers
-continuam transparentes/recursivos somente em `body`; igualdade e hash incluem
-todos os campos.
+## Callback and acceptance boundary
 
-### Runtime preservado
+MathCancelAngle::Func uses the existing pure transcript owned by
+`00_nucleo/prompts/core/compiler/math/layout/callbacks.md` and realized between
+passes by the infrastructure pipeline. Do not execute callbacks inside the
+entity/stdlib/layout,ignore them or reinterpret as Auto in exported documents.
+Content construction,structural-math casts,cancel geometry and repr retain
+exclusive ownership. Acceptance preserves transparent text,recursive body,
+terminal math text mapping,all values/presence and canonical identity; the
+old body-only structural test is superseded only by the explicit full payload.
 
-`MathCancelAngle::Func` continua a usar o transcript puro já materializado em
-P1291, definido em `compiler/math/layout/callbacks.md` e realizado entre
-passagens por `infra/pipeline.md`. P1292 não reimplementa esse caminho. É
-proibido executar a callback na entidade/stdlib/layout, ignorá-la ou tratá-la
-como `Auto` no documento exportável.
+## Container reuse without replacement
 
-Prompts proprietários relacionados: `entities/content.md`,
-`compiler/stdlib/structural/math.md`, `compiler/math/layout/cancel.md` e
-`compiler/math/layout/_comum.md`.
+Evidence before specification:
+`lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz`
+records HEAD, working tree, UTC, complete sources, owners, and release.
+`01_core/src/entities/elements/math_cancel.rs:109` preserves traversal but materializes the element even when
+descendants do not change. `01_core/src/entities/content/traversal.rs:111–192`
+unconditionally wraps results from these owners in Some. This is mechanical
+cost; language behavior and element semantic identity remain preserved.
+Refutable inference: propagating explicit absence of change reduces allocations
+and temporary retention. Probes and timing controls may refute that gain.
 
-## Reuso de contêineres sem substituição — 2026-10-10
+Internal refinement under ADR-0127: provide only a crate-private
+map_content_if_changed helper for elements already owned by this consumer.
+Return None only when no actually visited child was replaced; childless
+terminals return None. Transform children once in the existing map_content
+order and stop at the first error. A callback Some, even containing equal
+content, always means change. Preserve every field, value, explicit presence,
+omitted/none/present slot, flag, span, and metadata item. Do not use equality,
+hash, or address as a certificate. Allocate vectors/rows only after the first
+changed child/row; unchanged siblings retain shared content. Public signatures
+and trait methods remain unchanged, with internal adaptation to this proof;
+map_content_pre and map_text retain their previous contracts. This refinement
+does not expand any ratification of historically proposed contracts.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/math_cancel.rs:109` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
+Specific logic remains with this owner; Content's exhaustive match only
+delegates statically. No vtable, new enum/fields, global state, I/O, or new
+phase. Acceptance requires RED→GREEN for reuse, order, errors, equal-value
+replacement, optional fields/slots, and metadata; core suite, builds and lint;
+text/morphology/render/query qualification against the previous release and
+pinned vanilla; and paired allocation/timing measurements with provenance.
+Do not infer a universal improvement from isolated cases.
 
-Refinamento interno ADR-0127: disponibilizar somente helper crate-private map_content_if_changed nos elementos já owned por este consumer. Retornar None apenas se nenhum filho efetivamente visitado foi substituído; terminais sem filhos retornam None. Transformar filhos na mesma ordem do map_content vigente, uma única vez, e interromper no primeiro erro. Some do callback, inclusive conteúdo igual, sempre é mudança. Preservar todos os campos, valores, presença explícita, slots omitidos/none/presentes, flags, spans e metadados; não usar igualdade/hash/endereço como certificado. Vetores/linhas só alocam após o primeiro filho/linha alterado; os irmãos conservam seu conteúdo compartilhado. Assinaturas públicas e métodos de trait ficam iguais, com adaptação interna à nova prova; map_content_pre e map_text mantêm seu contrato anterior. Nenhuma ratificação de contratos históricos propostos é ampliada por este refinamento.
+The shared proof of absence of change follows the pinned nucleus claims.
+This prompt and its sole consumer still own the algorithm, transformed fields,
+visit order, and their specific preservation obligations.
 
-A lógica específica permanece neste owner; o match exaustivo em Content apenas delega estaticamente. Sem vtable, enum novo, campos novos, estado global, I/O ou fase nova. Aceitação: RED→GREEN de reuso, ordem, erro, substituição igual, opcionais/slots e metadados; suite core, builds e lint, qualificação de texto/morfologia/render/query contra release anterior e vanilla pinado; alocações e tempos pareados com proveniência. Não alegar ganho universal a partir de casos isolados.
+## Historical record
 
-
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/math_cancel.md` preserves the original evidence and chronology.

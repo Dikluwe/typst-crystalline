@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/paragraph_emit.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited all unique clauses/exact repeats; consolidated selected-range-only emission, exact shrink/stretch/tracking and terminal carrier behavior, scoped hyphen/optical overhang, causal replacement and borrowed pagination Profile. Preserved copy-text/export limitations and every fallback/certificate boundary.",
+  "original_sha256": "8641461bcd6c7a87672626dd687fc00724ffacfbd98c5932e2a888854fa4df3f",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/paragraph_emit.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

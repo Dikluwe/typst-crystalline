@@ -2,9 +2,9 @@
 Hash do Código: bc9faca5
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
-- 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml sha256:d6da63fc3b0282aaeb2573e92e850f807a2691c04d3578c54e61c1f4e01a51f3
-- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml sha256:decdb0b923135236d590767fe6075281006841b5da32f79aad375ebb58f84fe0
+- 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/stream/text/runs.rs`
@@ -51,105 +51,56 @@ compatible grouping, envelope boundaries and rounded cursor positioning.
 The missing separator provenance is unresolved by this structural extraction;
 this L0 does not authorize inventing spaces from positive geometric gaps.
 
-## Tracking shaped — soma única e estado PDF
+## Shaped tracking: authoritative advances and serialized cursor
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/tracking-controls.json` measured plain-verbose maximum deviation2.652pt versus historical pinned vanilla, compact0.348pt, with state/binaries/commands in its receipt. `lab/results/construction/diagnostics/tracking-pdf-2026-09-28/{initial.json,before/}` preserves the new state/matrix. shaping.rs:319–326 adds tracking to advances, text.rs:639,668 and runs.rs:107 emit Tc again; the run cursor accounts for advances/TJ, not extra Tc. Historical upstream inline/shaping.rs:1269–1292 applies tracking in glyphs. This is observable spacing, not operator/byte equality; unadjusted advances or no extra Tc refute the cause.
 
-`lab/results/construction/diagnostics/shy-autoral-2026-09-28/tracking-controls.json`
-mede plain-verbose com desvio máximo 2.652pt contra vanilla pinado,
-enquanto plain-compact tem 0.348pt. Estado, binários e comandos estão no
-recibo daquela frente. O novo estado e a matriz estão em
-`lab/results/construction/diagnostics/tracking-pdf-2026-09-28/initial.json` e `before/`.
-`03_infra/src/shaper/shaping.rs:319-326` soma tracking aos avanços;
-`03_infra/src/export/stream/text.rs:639,668` e
-`03_infra/src/export/stream/text/runs.rs:107` emitem Tc novamente.
-O cursor de runs considera os avanços e ajustes TJ, sem essa soma Tc.
-O vanilla pinado aplica tracking nos glyphs em
-`lab/typst-original/crates/typst-layout/src/inline/shaping.rs:1269-1292`.
-É comportamento de espaçamento medido, não requisito de operador ou bytes.
-A hipótese é refutável por avanços sem tracking ou ausência do Tc adicional.
+CIDFont/Multifont TextShaped carries authoritative adjusted advances: tracking comes from those advances alone. Both single/coalesced emission explicitly set Tc=0 inside BT before TJ even with absent/zero tracking, eliminating inherited extra spacing. This is not a font/GID/fixture/width exception. Never subtract tracking from advances or infer cause from text. Text/Type1 Tj keep existing tracking; bitmap stays image drawing. No public API/flag/default/phase change. Layout measurement/ligature tracking remain independent; the later measured fractional correction below supersedes only the former preservation of that rounding limit.
 
-### Decisão de paridade interna
+`lab/results/construction/diagnostics/tracking-residual-2026-09-29/{initial,results,summary,causal-checks}.json` records 36 entries/108 PDFs, pinned oracle/source/UTC/HEAD/full tree. An isolated word accumulates+0.052pt at0.2pt tracking, while adjacency loses one interval, one literal space two, three spaces four. ±1.2pt removes quantization but not boundaries. shaping.rs:225–232,319–326 rounds to i32, text.rs:49–83 splits words, space.rs:15–33 uses nominal advance. Preimplementation state: correcao-tracking-2026-09-29/initial.json. For the coalesced cursor use the single leaf's fractional correction: nonzero-tracking TJ boundaries serialize five decimals against the actual serialized cursor; other runs retain integer rounding. Preserve absolute positions/nominal/GID/offset/envelopes/compatibility. Acceptance: boundary/selection RED→GREEN, independent Tc/TJ interpretation, bilateral ±/zero/repeated/adjacent/wrap controls, build/lint zero errors and scoped lineage maintenance; continuous internal parity only.
 
-TextShaped CIDFont/Multifont carrega os avanços autoritativos já ajustados:
-tracking deve vir desses avanços somente. Tanto emissão single quanto
-coalescida estabelece explicitamente Tc=0 dentro do bloco BT antes de TJ,
-inclusive tracking ausente/zero, para eliminar estado herdado. O zero é
-o estado normativo de espaçamento adicional, não uma exceção de fonte, GID,
-fixture ou largura. Não subtrair tracking dos avanços nem inferir causa
-pelo texto. Text e fallback Type1, que emitem Tj sem avanços shaped,
-continuam usando seu tracking existente. Bitmap continua desenho de imagem.
-Sem contrato público, flag, modo padrão ou fase nova: fluxo ADR-0127.
-Arredondamento dos avanços, medição de layout e política de tracking em
-ligaduras são frentes independentes; esta correção não os certifica.
+For coalesced emission use ancestor push_shaped_spacing instead of push_tc_if_tracking. Cursor remains nominal+shaped advance+rounded TJ. Keep compatibility/boundaries/absolute compensation. Causal emit_verbose_text_run tests live in ancestor text, without shared productive ownership.
 
-### Responsabilidade exclusiva
-
-Na emissão coalescida, usar push_shaped_spacing do owner ancestral em vez
-de push_tc_if_tracking. O modelo de cursor continua sendo somente nominal,
-avanço shaped e TJ arredondado. Preservar compatibilidade, boundaries e
-compensação absoluta. Testes causais pela interface emit_verbose_text_run
-ficam no consumer ancestral text, sem ownership compartilhado do código.
-
-## Correção de tracking — 2026-09-29
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tracking-residual-2026-09-29/initial.json`, `results.json`, `summary.json` e `causal-checks.json` registram 36 entradas/108 PDFs contra vanilla pinado, fontes, UTC, HEAD e working tree completa. A palavra isolada acumula +0.052pt com tracking 0.2pt, mas fronteiras perdem um intervalo na adjacência, dois com um espaço e quatro com três espaços literais. ±1.2pt elimina a quantização sem eliminar as fronteiras. O código shaper/shaping.rs:225-232,319-326 arredonda em i32; text.rs:49-83 divide palavras; space.rs:15-33 aplica somente avanço nominal. O estado anterior à materialização está em `lab/results/construction/diagnostics/correcao-tracking-2026-09-29/initial.json`.
-
-### Decisão interna e responsabilidade
-
-Correção interna de paridade em fluxo contínuo ADR-0127, sem contrato público, flag ou fase nova. As cláusulas desta rodada supersedem somente a preservação dos limites de tracking descritos abaixo; demais políticas de render permanecem.
-
-No cursor coalescido, usar a mesma correção fracionária que a folha single. Fronteira TJ de run com tracking não zero usa cinco casas, compensando o cursor efetivamente serializado; outros runs preservam arredondamento inteiro. Conservar posições absolutas, nominal/GID/offset, compatibilidade e envelopes.
-
-Aceitação: testes RED→GREEN de fronteiras/seleção e interpretação independente Tc/TJ, controles bilaterais de tracking ±/zero, repetidos, adjacência e wrap; build e lint sem erros, resselo restrito.
+## Ratified effective face binding
 
 
-## Face efetiva de TextShaped — materialização ratificada 2026-10-05
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json`
+records unit references/1:1 owners; confirmed manifesto 1ae7513e requires None for
+uncertified constructors and `..` read patterns, preserving language observations
+under the pinned origin nucleus without phase/API expansion.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
+`identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}`
+distinguishes regular GIDs from Oblique selection. Human approval of public
+TextShaped.font: Option<Font> is manifesto
+`f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409`;
+implementation state/inventory: identidade-fonte-shaped-implementacao-2026-10-05/.
 
-Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
+Migrate only this owner's references: legacy constructors None, transforms preserve
+Font, shaped comparison/join distinguishes face/axes. The shaper supplies the actual
+Font clone even on hits without semantic/style changes to force selection. Collectors/
+subset/CMap/PDF bind the same original face and style coordinates. PNG/SVG prepare
+local bindings and instance once per face/request before render, keeping original
+resource index separate from instanced bytes; None follows legacy resolution.
+Preserve public APIs/FontKey, no fabricated fonts/unsafe/globals/new phase; private
+functions may receive Font/bindings explicitly.
 
-A associação é por bytes da face original e pedido de eixos; nomes e slots não bastam. A tabela local dura a exportação e conserva ordem dos recursos fornecidos, anexando faces faltantes. Para multifont, distribuir itens pelos bindings uma vez antes de coletores por fonte; não reutilizar GIDs/CMap globais em faces diferentes. Código deste owner continua 1:1 com seu L0; referências a outros owners não compartilham propriedade. Aceitação RED→GREEN e controles bilaterais incluindo miss/hit/VF, sem promessa de ganho de tempo.
+Association uses original face bytes plus axes, never names/slots alone. Table
+lifetime is export-local; preserve supplied resource order and append missing faces.
+For multifont distribute items once before per-font collectors; no cross-face
+GID/CMap reuse. References never share ownership. Require RED→GREEN/bilateral
+miss/hit/variable-font controls without a promised speedup. Shared invariants remain
+in pinned shaped-face-identity, no second productive owner.
 
-Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
+## Export-local validated face memoization
 
+first-benchmark.json in the face-binding round measures+25.36ms grid320, +14ms rtl160/mixed160. font_binding.rs:index compares full bytes each query; runs.rs:verbose_run_compatible compares Font bytes per adjacency. Causal benefit remains an A/B inference. Per resource table/export cache only validated positives: keep an Arc Font clone alive and its index after first full bytes/request validation; a hit requires identical slice address+length and complete request. Distinct allocations require full equality initially. Never serialize pointers/create public pointer identity, cache misses in an append-capable binder, use global/cross-session storage or memoize Content across Worlds. Positive appended indices stay stable. Merge may shortcut identical slices but compares bytes across distinct allocations.
 
-## Memoização local da associação — medição 2026-10-05
+## Effective variable weight and synthetic stroke
 
-`first-benchmark.json` desta rodada mede +25.36ms na fixture grid320 e +14ms em rtl160/mixed160. `font_binding.rs:index` compara bytes completos por consulta; `runs.rs:verbose_run_compatible` compara Font por bytes em cada adjacência. Inferência causal, a confirmar por A/B.
+variable-axes-after.pdf has correct wght250 hmtx/glyf but `2 Tr`/`0.800 w` from semantic weight700. At 600dpi extra ink is visible despite unchanged word bbox; text.rs:274/shaped callers and runs.rs:105 reapply faux-bold over realized wght. Preserve distinction between source axes and semantic style.
 
-Usar cache privado por tabela de recursos/exportação para positivos validados: conservar clone Arc da fonte para manter sua memória viva e index após igualdade de bytes/pedido na primeira ocorrência. Acerto exige identidade de slice (endereço e comprimento) e mesmo pedido completo. Não serializar endereço ou criar identidade pública por ponteiro. Fontes de alocações distintas consultam igualdade completa na primeira vez. Não cachear miss no binder que anexa recursos; índices positivos permanecem estáveis por append. Nenhum global ou reúso entre sessões. Comparação de merge usa identidade de slice como atalho para igualdade, mantendo comparação de bytes para fontes de alocações diferentes. Este cache não memoiza nem invalida conteúdo entre Worlds.
+Only TextShaped with certified Some Font whose fvar declares real wght uses fill-only0 Tr in verbose single/coalesced emission. The shared private text helper checks real axes only when style would request stroke. Keep Text/Type1/None/static fonts as before, without rewriting semantic weight/bold, new API/phase/unsafe/I/O. Compact shaped already avoids stroke. Static faux-bold/other formats remain outside this correction. Require weight700/wght250 single+coalesced RED→GREEN, None controls and full bilateral raster/boxes.
 
-## Eixo real e espessamento sintético — correção interna 2026-10-05
+## Unused local binding
 
-Medição anterior à decisão: controle variable-axes-after.pdf tem fonte wght250 com hmtx e pontos glyf corretos, mas stream contém `2 Tr`/`0.800 w` pelo style.weight=700. Raster 600dpi revela tinta adicional que bbox de palavras não revela. A causa é `stream/text.rs:274`/calls shaped e `stream/text/runs.rs:105`, que reaplicam faux-bold apesar de wght efetivamente realizado. Fonte/eixos originais e semântica permanecem distintos.
-
-Decisão de paridade visual (ADR-0107): somente para TextShaped com fonte certificada Some cuja fvar declara eixo wght, emissão verbose simples e coalescida usa preenchimento 0 Tr; não sintetizar peso por cima da instância variável já preparada. Helper privado shared no owner text verifica o eixo real somente quando o estilo pediria stroke. Manter Text/Type1, None e fontes estáticas no comportamento vigente, sem reescrever weight/bold semântico e sem nova API, fase, unsafe ou I/O adicional. Compact shaped já não aplica esse stroke. Faux-bold de fontes estáticas e outros formatos continua fora desta correção. Testar single+coalesced com weight700/wght250 em RED→GREEN e conservar None; raster e caixas bilaterais completos.
-
-
-## Auxiliares de teste e bindings produtivos — 2026-10-14
-
-### Medição anterior à decisão
-
-`03_infra/src/export/stream/text/runs.rs` nas linhas [72] apresenta os avisos selecionados.
-`lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/before.json.gz`
-conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
-references-before.json.gz registra chamadas, imports, módulos e referências;
-o estado da suíte/inventário anterior foi verificado por hashes. A lista de
-testes foi capturada antes da edição. Não se infere inutilidade funcional
-apenas de dead_code: as chamadas privadas e sua compilação foram auditadas.
-
-### Responsabilidade e aceitação
-
-No teste inicial style.math de verbose_run_end, retirar somente o binding font sem uso. Conservar o binding e a consulta de face no braço multifont e nos outros lugares que realmente escolhem ou comparam fontes. Limites de run, bitmap, matemática, baseline e identidade efetiva continuam iguais.
-
-Manutenção interna em fluxo contínuo ADR-0127: nenhuma API pública, campo,
-default de produto, fase, dependência ou supressão de lint muda. O gate de
-diagnósticos selecionados deve falhar antes e passar depois; ele não é um
-novo teste funcional nem prova de paridade. Preservar a lista e as expectativas
-dos testes existentes, executar a suíte completa, compilar lib/all-targets,
-verificar build/rustdoc/fmt/linhagem e registrar o inventário total. Não criar
-testes que apenas espelhem cfg ou remoção de bindings. Resselo restrito ao owner.
+runs.rs:72 and `lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/{before.json.gz,references-before.json.gz}` preserve owner/source/HEAD/tree/UTC/diffstat/calls/imports/modules and verified old inventory/suite hashes/pre-edit test list. Private calls/compilation were audited; dead_code alone is insufficient. Remove only the unused font binding in verbose_run_end's initial style.math test; preserve face lookup/bindings in multifont/other actual font-selection/comparison branches. Run bounds/bitmap/math/baseline/effective identity remain unchanged. Continuous flow adds no public field/API/default/phase/dependency/suppression. Selected diagnostics RED→GREEN are not parity proof. Preserve test list/expectations, run full suite/lib/all-target build/Rustdoc/fmt/lineage/total inventory, scoped resealing; no cfg/binding-mirror tests.

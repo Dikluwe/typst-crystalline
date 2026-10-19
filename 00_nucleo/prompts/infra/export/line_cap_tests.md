@@ -2,7 +2,7 @@
 Hash do Código: 1a4e09d6
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/line_cap_tests.rs`
@@ -47,101 +47,81 @@ The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5
 
 The raster witness crops only its isolated line viewport to endpoint bounds padded for the largest cap and antialiasing. Translate both endpoints by a common integral-point offset, preserve 16 pixels per point, thickness, color and caps. Retain Butt < Round < Square and automatic == Square assertions. PDF witness pages and byte guards remain unchanged.
 
-## Adaptação Memória 5 — proposta pendente ADR-0127
+## Ratified compact Value adaptation
 
-Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
-before.json.gz e inventory.json congelam este consumer e cada ocorrência
-file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
-Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
-00_nucleo/prompts/core/entities/value.md; esta unidade apenas o consome e não
-compartilha ownership. Nenhuma implementação/adaptação antes da confirmação
-do manifesto deste pacote.
+`lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/{before.json.gz,inventory.json}` freezes this consumer and every Value::Stroke file:line. sizes.json models272→144 bytes externally, not RSS. The public carrier belongs exclusively to `00_nucleo/prompts/core/entities/value.md`. Owner `confirmo` on2026-10-08 ratified manifest `6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237`; its earlier pending gate is satisfied only for this package. Change only stroke Value construction to From<Stroke>, preserving cap/offset/augment observations and expectations. Keep tests/oracles, relevant isolation RED→GREEN, owner-only lineage and revalidation; no expanded semantics/defaults/phase.
 
-Responsabilidade desta unidade: Atualizar somente construtor Value de stroke para From<Stroke>, mantendo prova de cap/offset/augment no export e expectativas vigentes.
+## Test-only configuration and explicit fixtures
 
-Após confirmação: conservar testes/oráculos vigentes, adicionar o RED→GREEN
-pertinente quando houver comportamento de isolamento novo, resselo só do owner
-e revalidação. Esta cláusula não amplia semântica, defaults ou fase.
+line_cap_tests.rs:5 and `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz` preserve source/owner/spans/compiler output/HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`/uncommitted status/diffstat/UTC. Productive/test/comment references were distinguished; no new parity measurement. Remove only redundant internal cfg(test), since the parent's test module declaration remains gated. Keep test-only status, cap observations and UNKNOWN_EXPORT_OBSERVATION criteria. No public signature/default/phase/formula/acceptance/lint suppression change. Validate all targets, infra test names/execution, build/workspace Clippy/Rustdoc/lineage, scoped resealing; no import/comment mirror tests.
 
-Ratificação Memória 5: o dono confirmou o manifesto SHA-256
-6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237
-com “confirmo” em 2026-10-08. O gate ADR-0127 deste pacote está satisfeito;
-suas cláusulas propostas passam a vigorar nesta materialização.
+line_cap_tests.rs:78 and `lab/results/construction/diagnostics/field-reassign-2026-10-15/{before.json.gz,initial-diagnostics.json}` preserve source/spans/prior L0/HEAD/tree/UTC/diffstat/initializers. Initialize thickness/cap directly in Stroke with remaining `..Tipo::default()` fields. Keep necessary mutability and specified.thickness/specified.cap=true mutations in their order. Automatic thickness, cap choice and PDF/raster witnesses stay. Remove mut only when unused; no new type/builder/API/suppression/product default. L0 first, selected lint RED→GREEN, unchanged names/inputs/expectations/tolerances and workspace/all-target Clippy/build/fmt/Rustdoc/lineage. No initializer-syntax tests.
 
-## Imports e documentação de CI — 2026-10-13
+## Approved paint-root transport
 
-### Medição anterior à decisão
+### Evidence and scope
 
-`03_infra/src/export/line_cap_tests.rs` nas linhas 5 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
-
-### Decisão e aceitação
-
-Retirar o cfg(test) interno redundante: a declaração mod p1431_line_cap_tests no pai já permanece guardada por cfg(test). O consumer continua exclusivo de testes, com as mesmas observações de cap e critérios de UNKNOWN_EXPORT_OBSERVATION.
-
-Manutenção interna sem mudança de assinatura pública, default, fase, fórmulas ou critérios de aceitação (fluxo contínuo ADR-0127). Não introduzir supressões de lint. Revalidar compilação de todos os targets, nomes e execução da suíte de infraestrutura, build, Clippy do workspace, Rustdoc e linhagem com resselo restrito. Não criar testes que apenas espelhem remoção de imports ou formatação de comentários.
-
-## Referencial de pintura — transporte aprovado T1b — 2026-10-14
-
-### Medição anterior à decisão
-
-O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
-foi aprovado pelo humano para T1–T3; recibo em
+Manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
+was approved for the native-tiling package; receipt
 `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A evidência bilateral de Parent e controles Solid está no contrato aprovado;
-ela não é substituída por inspeção estrutural. A rodada
-`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
-fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
-diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
-e Gradient Parent. O inventário before-source/syntax-nodes registra neste
-consumer as construções/desestruturações antes da edição: [128].
-layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
-reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
-Block mantém body plano exceto no clip. Preservação do referencial é requisito
-de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
-divergências gerais de geometria previamente medidas em Rotate/Box.
+Its bilateral Parent/Solid evidence cannot be replaced by structural inspection.
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz`
+retains sources/dirty tree/HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC/
+diffstat/binary hashes for containers/Place/Rotate with Solid/Gradient Parent.
+This unit's before-source/syntax-nodes anchors: [128]. layout_types.rs:531–539
+lacks technical-root distinction; helpers.rs:253–269 reconstructs Group. Box groups
+background/body; Block stays flat except clipping. Reference-frame preservation is
+language, envelope representation mechanics; prior general Rotate/Box geometry
+divergences remain open.
 
-### Responsabilidade exclusiva
+### Contract and acceptance
 
-Migrar construções e padrões de Group para o campo paint_root aprovado. Grupos técnicos novos e fixtures legadas são false; reconstruções transportam o valor recebido, sem inferir raiz a partir de dimensão, clipping ou transformação. Preservar os demais campos e o comportamento de desenho/recursos. Exportadores ainda não usam este metadado para patterns; essa integração é T2 e não está certificada aqui.
+Adapt Group construction/patterns to approved paint_root. New technical/legacy
+fixture groups are false; reconstruction preserves received value, never inferring
+root from dimensions/clipping/transforms. Keep other fields/drawing/resources.
+Metadata migration alone does not certify exporter pattern integration or replace
+Shape.fill/stroke with FramePaint. Independently authorized prepared-transport/
+native-target/parity slices (historical T1c/T2/T3) stay incomplete until integrated
+verification, no production/parity claim from a successful build. L0 first,
+RED→GREEN/scoped resealing; preserve source→PDF/SVG text/geometry and revalidate
+suite/build/doc/check/fmt/lineage.
 
-### Aceitação e incompletude
-
-L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
-nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
-A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
-implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
-e já autorizados. Não alegar paridade de tiling ou produção a partir do build.
-
-
-## Inicialização explícita dos fixtures — field_reassign_with_default
-
-### Medição anterior à decisão
-
-`03_infra/src/export/line_cap_tests.rs` nas linhas 78 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
-
-### Responsabilidade e aceitação
-
-Inicializar thickness e cap diretamente no literal Stroke, usando os demais defaults existentes. Conservar a mutabilidade necessária aos flags specified.thickness e specified.cap, ambos true, na mesma sequência. Não alterar espessura automática, seleção de cap ou witnesses PDF/raster.
-
-Usar `..Tipo::default()` para os campos restantes e retirar `mut` apenas onde deixam de existir mutações. Sem novos tipos, builders, APIs ou supressões de lint. L0 precede código e resselo restrito (fluxo contínuo ADR-0127). O gate selecionado deve falhar antes e passar depois; preservar nomes, inputs, expectativas e tolerâncias dos testes. Revalidar Clippy all-targets, suíte workspace, build, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe do inicializador.
+## Exhaustive existing FrameItem decisions
 
 
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
+### Evidence
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/
+sources/L0/configuration/hashes/status/diffstat. AST spans/patterns/guards/bodies/
+complements were checked before code; classification.json records 70 cases across
+26 owners under pinned CI AST. Rust exhaustivity is mechanics; product semantics/
+morphology/geometry/effects/diagnostics stay. No new architecture/upstream intent.
 
-F055: 03_infra/src/export/line_cap_tests.rs:114 (first_line). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+### Exact owner complements
 
-### Prescrição exclusiva desta unidade
+Only replace first_line's `_` at line 114 (historical F055) with FrameItem::TextReplacement/TextSeparator/Text/TextShaped/Glyph/Image/Shape, using its existing in-scope Rust prefix.
+Preserve complete fallback bodies/prior arms/guards/transforms/calls/returns/order.
+Callbacks/effects/metadata/clipping/fonts/positions/ink/width follow current owners;
+no expanded traversal/wrapper-leaf change/text-or-ActualText geometry replacement.
+Tests retain fixtures/expectations/tolerances/counts/Unknown failures; V19 group
+notes stay visible without pretending one arm covers all alternatives.
 
-- **F055 — `first_line`**: Trocar somente o padrão '_' pelo grupo nominal `TextReplacement`, `TextSeparator`, `Text`, `TextShaped`, `Glyph`, `Image`, `Shape`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
+Continuous ADR-0127 adds no enum/field/trait method/public signature/default/
+dependency/compatibility/phase and approves no historical pending proposal.
+L0 first, scoped bidirectional resealing; no suppression/higher threshold or
+match→if-let evasion. Before code run new FrameVisitor control/workspace suite
+with unchanged expectations and confirm AST RED for all 70 family warnings.
+Afterward zero scoped-family V16/no new warnings; outside V16 remains pending.
+For productive core matches reached by cargo check -p typst-core, use a disposable
+FrameItem sentinel variant to observe absent E0004 before/present after. That
+probe covers only compiled sites, never unbuilt cfg(test) or blocked L3 sites.
+For the full batch replay patterns/guards/bodies, verify enum/signatures unchanged,
+real build/tests, no stub bodies.
 
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
-
-### Gate e aceitação
-
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
-
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
-
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+Revalidate full workspace suite/cargo build/strict workspace-all-target Clippy
+(-D warnings, -D unfulfilled_lint_expectations)/fmt/Rustdoc -D warnings/four HTML
+indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/L0/
+configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
+MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
+memory gain or measured AI benefit.

@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/page_geometry.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated auto Literal width and later admitted-baseline supersession; preserved explicit-empty/newline gaps. Reconciled initially pending C011 with later nominal materialization only, exact reason and all exception limits/gates.",
+  "original_sha256": "61638c36525ea6dce4fb0d319ef6aca18639296a7f0eaa569b5de73d447c3f7f",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/page_geometry.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

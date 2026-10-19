@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/tests.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Full original unique paragraphs and exact prior repeats reviewed. Consolidated every observer/fixture correction and explicit expected metric, 23 exhaustive complement sites, all ratifications including table A/B, superseded deprecated expectation, resource gates and partial production exclusions; no test or Rust changed.",
+  "original_sha256": "39fa364ea7b8f65a9ff38ad6228feaf8c301e4ea1f01d8fefafe90bb2927743e",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/tests.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

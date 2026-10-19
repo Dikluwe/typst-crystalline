@@ -1,140 +1,79 @@
 # Prompt L0 — `entities/elements/page_run` — `PageRunElem`
 Hash do Código: 0439335e
 
-## P1140.20.2 — canvas lexical condicionado ao gate
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/page_run.rs`
+**References:** ADR-0026/0107/0108/0109/0127.
 
-Após confirmação, transportar bleed/fill/background/foreground, incluir no
-snapshot LIFO e recursar layers presentes em map_*. Preservar omitido/none.
-Running matter/supplement continuam excluídos.
+## Evidence before lexical scope contract
 
-## P1140.20.1 — extensão condicionada ao gate
+Historical upstream a51e02804 page.rs:504-523 implements page[...] as an initial
+weak boundary, flush marker, body, final boundary and local style map.
+Language measurements at HEAD 45b547073d7686cdd5d3e3030c82de3e22ec395f,
+uncommitted tree,2026-08-24T13:43:00-03:00 (before these L0 edits:84 files,
+775 insertions,508 deletions) established:
+100×120 inside 200×200 restores 200×200; empty middle run keeps its 100×120 page;
+an isolated empty run yields one page; consecutive 100×120/140×160 runs yield
+those two pages without an extra blank; nested runs yield
+180×180→100×120→180×180→240×240 (LIFO); explicit break in 100×120 creates two
+run pages then returns to 200×200. Page configuration inside block/columns
+reports `page configuration is not allowed inside of containers`.
 
-Após confirmação, acrescentar paper/flipped/binding opcionais e margem com
-modo lateral. A exclusão desses campos na secção P1140.19 é histórica e deixa
-de valer apenas para estes três após o gate; P1140.20.2–.4 seguem excluídos.
-Map/hash/eq preservam deltas e só body recursa. Snapshot/restauração inclui
-binding e margem folded. Paper resolve eixos e não é introspectável. O
-constructor interno segue incompleto e `page` fica para P1140.21.
+## Ratified carrier and deltas
 
-**Camada:** L1  
-**Alvo:** `01_core/src/entities/elements/page_run.rs`  
-**Origem:** P1140.18–P1140.19  
-**ADRs:** ADR-0026, ADR-0107, ADR-0108, ADR-0109, ADR-0127  
-**Estado:** especificado; implementação condicionada ao gate P1140.19
+Content::PageRun(Arc<PageRunElem>) is one closed lexical container, preventing
+unbalanced pairs and restoring nested scope through normal layout descent.
+Separate PageRunStart/End and SetPage push/pop remain rejected because they
+permit malformed sequences and mix lexical scope with set-rule progression.
 
-## Medição anterior à decisão
+The initial Debug/Clone/PartialEq carrier has width:Option<PageDimension>,
+height:Option<PageDimension>, margin:Option<PageMarginSpec>, numbering,
+columns:Option<usize>, and body:Content. Later contracts extend it with
+optional paper/flipped/binding, lateral margin mode, bleed/fill/background/
+foreground, six running-matter arguments (including header/footer tri-state)
+and PageSupplement delta. Preserve omission/none and all eighteen established
+deltas; do not bake defaults. Paper resolves axes and is not introspectable.
+Binding/folded margins and canvas layers participate in the LIFO snapshot.
+See `00_nucleo/prompts/core/entities/page_running.md` and
+`00_nucleo/prompts/core/entities/page_supplement.md` for their typed domains.
 
-No vanilla ratificado `a51e02804`, `page[...]` é um constructor vigente. A
-fonte `lab/typst-original/crates/typst-library/src/layout/page.rs:504-523`
-produz uma sequência com fronteira inicial fraca, marker `flush`, body,
-fronteira final boundary e mapa local de estilos.
+The final numbering delta is Option<Option<Numbering>>, distinguishing omission,
+disabling and installation, superseding the original Option<EcoString>/Some("")
+encoding. Two consecutive page runs preserved callback/pattern lexically as
+X1/2 and II. map_* clones Numbering without executing Func; to_set_page and
+lexical application transport the same delta; defaults stay in layout.
 
-Medições P1140.19 no nível da linguagem:
+## Element and constructors
 
-- run `100×120` entre conteúdo `200×200` produz páginas
-  `200×200 → 100×120 → 200×200`;
-- body vazio no meio conserva a página `100×120`;
-- body vazio sozinho produz exatamente uma página;
-- runs consecutivos `100×120` e `140×160` produzem exatamente essas duas
-  páginas, sem página vazia intermediária;
-- runs aninhados produzem
-  `180×180 → 100×120 → 180×180 → 240×240`, demonstrando restauração LIFO;
-- pagebreak explícito dentro de run `100×120` produz duas páginas do run e o
-  conteúdo posterior volta a `200×200`;
-- page configuration dentro de `block` ou `columns` falha com
-  `page configuration is not allowed inside of containers`.
+plain_text delegates to body; is_empty always false, since even an empty run
+keeps a page. Both maps recurse into body and present content layers while
+preserving every configuration delta; equality/hash retain deltas and body.
+No locatable payload or show-rule selectability follows from this container.
+Do not expose properties ahead of their public reflection contract.
 
-Proveniência: HEAD `45b547073d7686cdd5d3e3030c82de3e22ec395f`, working tree
-não commitada, medição em `2026-08-24T13:43:00-03:00`; antes dos L0s deste
-passo, `84 files changed, 775 insertions(+), 508 deletions(-)`.
+The internal helper takes typed deltas and body, with no property map/dyn/
+string dispatch/numeric defaults/layout/state mutation. Ratified page(..,body)
+and std.page(..,body) require body and fill existing deltas; omission remains
+None. The initial constructor was deliberately incomplete; later bounded
+extensions supersede its exclusions, not unrelated domains.
 
-## Decisão
+## Approval provenance and acceptance
 
-Adotar **α — `Content::PageRun(Arc<PageRunElem>)`**. Um contentor único impede
-pares start/end desequilibrados por construção e faz runs aninhados restaurarem
-pela descendência normal do layout. Eventos `PageRunStart`/`End` e extensão
-push/pop de `SetPage` ficam rejeitados: ambos permitem sequência malformada e
-misturam escopo lexical com a progressão de set-rule.
+`lab/history/construction/records/00_nucleo/materialization/typst-passo-1140.19.md` §15
+records owner confirmation 2026-08-24 of the initial carrier;
+typst-passo-1140.20.1.md:58 and typst-passo-1140.20.2.md:3,48 record extension
+approvals. typst-passo-1140.26.md:145 records public-constructor approval on
+2026-08-24. typst-passo-1157.md:380 records owner "Continue" on 2026-08-25 for
+typed numbering; typst-passo-1158.md:6 confirms that contract/phase approval.
+These receipts supersede the archived pending headings within their scope.
 
-Esta variante é infraestrutura interna preparatória. P1140.19 não expõe
-`page`, `std.page` nem parsing do constructor.
+Require exhaustive Content matches, no configuration leakage to siblings,
+semantic nonemptiness of empty body and nested runs without global IDs/state.
+Preserve all measured page/boundary/LIFO/container-error controls. Public page
+construction is authorized by its later receipt; it does not imply closure of
+the original entire parity series or other excluded work.
 
-## Estrutura
+## Historical record
 
-```rust
-#[derive(Debug, Clone, PartialEq)]
-pub struct PageRunElem {
-    pub width: Option<PageDimension>,
-    pub height: Option<PageDimension>,
-    pub margin: Option<PageMarginSpec>,
-    pub numbering: Option<EcoString>,
-    pub columns: Option<usize>,
-    pub body: Content,
-}
-```
-
-Os cinco campos são exatamente o subconjunto já transportado por
-`Content::SetPage`. `None` significa preservar o valor ativo. `numbering:
-Some("")` conserva a representação vigente de desligar numeração. Não
-adicionar `paper`, `flipped`, `bleed`, `binding`, `fill`, supplement, headers,
-footers, background ou foreground neste passo.
-
-## Contrato de `Element`
-
-- `plain_text()` delega ao body;
-- `is_empty()` é sempre `false`, pois um run vazio conserva uma página;
-- `map_content` e `map_text` recursam somente no body e preservam configuração;
-- igualdade compara os cinco campos e body;
-- não é locatável, não possui payload e não é selecionável por show rule;
-- `get_field` não expõe propriedades antes do constructor público P1140.21.
-
-## Constructor interno
-
-Fornecer helper tipado que recebe os cinco campos e body. Não aceitar mapa de
-propriedades, `dyn`, strings de dispatch ou defaults numéricos. O helper não
-faz layout nem muta estado.
-
-## Critérios
-
-- variante fechada no enum `Content`;
-- todos os matches são atualizados exaustivamente;
-- nenhuma configuração vaza para irmãos;
-- body vazio permanece semanticamente não vazio;
-- runs aninhados são representáveis sem identificador ou estado global;
-- o binding `page` continua ausente até P1140.21.
-## P1140.24 — running matter
-
-O page-run transporta os seis argumentos de running matter definidos em
-`entities/page_running.md`, incluindo os três estados de header/footer, e
-restaura integralmente a configuração exterior.
-## P1140.25 — supplement
-
-O page-run transporta o delta de `PageSupplement` e restaura integralmente a
-configuração exterior. Ver `entities/page_supplement.md`.
-
-## P1140.26 — constructor público condicionado ao gate ADR-0127
-
-Medição: o `Construct` vanilla em
-`lab/typst-original/crates/typst-library/src/layout/page.rs:504-523` isola o
-body e aplica localmente as propriedades; não cria um elemento selecionável.
-O `PageRunElem` cristalino é a representação fechada dessa morfologia.
-
-Após confirmação do gate, `page(.., body)` e `std.page(.., body)` podem
-construir `Content::PageRun(Arc<PageRunElem>)` preenchendo os 18 deltas
-existentes. O body é obrigatório. Omissão continua `None`; nenhum default é
-assado no constructor, pois defaults e herança pertencem ao consumer de
-layout. `plain_text`, `is_empty`, igualdade e `map_*` mantêm o contrato atual.
-
-## P1157 — delta de numbering tipado
-
-### Medição antes da decisão
-
-Dois `page(..)[body]` consecutivos preservaram callback e pattern lexicalmente,
-produzindo `X1/2` e `II`.
-
-### Decisão
-
-`PageRunElem.numbering` passa a `Option<Option<Numbering>>`, com omissão,
-desativação e instalação distintas. `map_content`/`map_text` clonam Numbering
-sem executar Func. `to_set_page` e aplicação lexical transportam o mesmo delta;
-defaults continuam no layout. Mudança pública bloqueada no gate P1157.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/page_run.md`. Historical observations are not a new parity certification.

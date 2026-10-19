@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/grid/rules.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated extraction and approved prepared-stroke transport without altering pagination/rule semantics; preserved all approval, partial-supersession and integration limits.",
+  "original_sha256": "6ca9ec3f934d19625081bfaf03da90457540e1dc717cd9103f275ed6652ef8a2",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/grid/rules.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

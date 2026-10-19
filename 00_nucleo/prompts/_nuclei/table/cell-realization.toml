@@ -1,34 +1,28 @@
 tekt = 1
 kind = "nucleus"
 id = "table-cell-realization"
-title = "Resolução lógica da tabela antes da receita da célula"
-
+title = "Logical table resolution before cell recipe"
 [[claims]]
 id = "phase-order"
 level = "must"
-statement = "A regra da tabela precede a resolução das células da tabela sobrevivente; a resolução lógica precede a regra da célula; o corpo resultante só é realizado depois. Uma substituição não executa receitas do conteúdo ocultado."
-
+statement = "Table rule precedes surviving table's cell resolution;logical resolution precedes cell rule;resulting body realizes only afterward. Replacement never executes hidden-content recipes."
 [[claims]]
 id = "placement-owner"
 level = "must"
-statement = "O único algoritmo de ocupação pertence a compiler/layout/grid_placement; a política de tabela segue ordem documental e produz plano em ordem row-major, mantendo a política legada de Grid separada por parâmetro fechado."
-
+statement = "The sole occupancy algorithm belongs to compiler/layout/grid_placement;Table policy follows document order and produces row-major plan,keeping legacy Grid policy separate through closed parameter."
 [[claims]]
 id = "known-fields"
 level = "must"
-statement = "Campos lexicais e plano resolvido são distintos; getters da célula preparada projetam propriedades conhecidas sem mutar variável/constructor cru, e none explícito vence herança."
-
+statement = "Lexical fields/resolved plan are distinct;prepared-cell getters project known properties without mutating raw variable/constructor;explicit none overrides inheritance."
 [[claims]]
 id = "no-cell-location"
 level = "must-not"
-statement = "A preparação não torna table.cell locatable, não lhe atribui Location falsa e não altera rejeições de query/counter."
-
+statement = "Preparation never makes table.cell locatable,assigns no false Location and changes no query/counter rejection."
 [[claims]]
 id = "geometry-boundary"
 level = "must"
-statement = "Fontes, medidas, tracks físicos, paginação e tinta pertencem ao layout; o plano lógico e as receitas pertencem à realização. Layout não executa Func/Engine; HTML consome plano sem layout paginado."
-
+statement = "Fonts,measurement,physical tracks,pagination/ink belong to layout;logical plan/recipes to realization. Layout executes no Func/Engine;HTML consumes plan without paged layout."
 [[claims]]
 id = "once-and-scope"
 level = "must"
-statement = "Receitas usam ambiente causal de inserção, conservam aliases/escopo/contexto e efeitos uma vez por inserção aceita. Repetição física e replay de contribuição válida não repetem receitas. Apenas planos completos são publicados."
+statement = "Recipes use causal insertion environment,retain aliases/scope/context and effects once per accepted insertion. Physical repetition/valid-contribution replay never repeats recipes. Publish complete plans only."

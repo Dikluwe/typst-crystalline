@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/pdf.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated all PDF namespace/attachment/artifact/a11y contracts, reconciled explicit root-function and later Format changes; retained unresolved original carrier approval provenance and exact diagnostics/feature scope.",
+  "original_sha256": "428762a3be234a2c2795f787c78fd9e884e6190af952cd786ca2500e0e9e7375",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/pdf.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

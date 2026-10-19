@@ -1,23 +1,19 @@
 tekt = 1
 kind = "nucleus"
 id = "text-size-affine"
-title = "Tamanho textual declarado completo e resolução contextual"
-
+title = "Complete declared text size and contextual resolution"
 [[claims]]
 id = "declared-versus-resolved"
 level = "must"
-statement = "Tamanho textual declarado conserva Length completo (abs e em); TextStyle de render conserva Pt resolvido. Valores já resolvidos introduzidos por layout/math são transportados como Length absoluto e não voltam a ganhar fator em."
-
+statement = "Declared text size retains full Length(abs/em);render TextStyle retains resolved Pt. Already resolved layout/math values travel as absolute Length without regaining em factor."
 [[claims]]
 id = "affine-composition"
 level = "must"
-statement = "Compor tamanho interno (ai,ei) sobre externo (ao,eo) produz (ai + ei*ao, ei*eo), em ordem lexical. Ausência não declara estilo; em=0 é override absoluto; default final permanece 11pt. Captura e collapse preservam o comprimento composto sem assumir base ausente."
-
+statement = "Composing inner size(ai,ei) over outer(ao,eo) gives(ai + ei*ao,ei*eo) in lexical order. Absence declares no style;em=0 is absolute override;final default remains11pt. Capture/collapse preserve composed Length without assuming absent base."
 [[claims]]
 id = "surface-separation"
 level = "must"
-statement = "Constructor mantém a presença de Styled e o corpo; set mantém seu transporte lexical. Igualdade estrutural Rust e igualdade da linguagem não são confundidas nem usadas como atalhos de render. O tipo completo não prova por si só a correção da igualdade entre Styleds."
-
+statement = "Constructor retains Styled presence/body;set retains lexical transport. Rust structural equality/language equality are neither conflated nor used as render shortcuts. Complete type alone does not prove Styled equality correctness."
 [[claims]]
 id = "heading-show-set-order"
 level = "must"

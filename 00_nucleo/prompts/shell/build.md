@@ -5,7 +5,7 @@ Hash do Código: 24e7f743
 **Exclusive consumer:** `02_shell/build.rs`
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/shell/build-identity.toml sha256:a97f32705be8700feaa6a5c89440ffa49d15c11145ea83744307aefc65a50297
+- 00_nucleo/prompts/_nuclei/shell/build-identity.toml sha256:1bd114e8801a530f815767eb90e7861c6a3e4e332a59a175b66c717a44c6ea0f
 
 ## Evidence and boundary
 

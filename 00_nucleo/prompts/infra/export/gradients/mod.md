@@ -2,11 +2,11 @@
 Hash do Código: 6b373abf
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
-- 00_nucleo/prompts/_nuclei/pdf-conic-mesh.toml sha256:90087538b1ce25b44a6d22122c3981b22ec40d33c5166ebfb8db3b8e67900954
-- 00_nucleo/prompts/_nuclei/pdf-conic-placement.toml sha256:9010358e51cfa3267960432244b972b179d447f572c902101eba650f6d6a67cb
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/pdf-conic-mesh.toml sha256:27b85cbce9a73d495cf7b2d9fe13c4ce3f8cba9e555970b86c9f919ae02db232
+- 00_nucleo/prompts/_nuclei/pdf-conic-placement.toml sha256:3d2d44a53e9fb6a6c8d59ddee7b362412ae0ab05fac0e37e50ddf731d987c132
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/gradients/mod.rs`
@@ -59,261 +59,155 @@ Check recursive three-layer discovery, fill/stroke reuse, distinct effective box
 spot placements and page-local reference closure. Pointer/key mechanics preserve
 the current implementation; they do not define language equality.
 
-## Separadores textuais — materialização autorizada em 2026-09-28
+## Carrier and export-discovery boundaries
 
-### Medição anterior à decisão
+Source→PDF RED/handler audit fatia-funcional-tekt-2026-09-28 preceded layout_types
+public approval on2026-09-28. TextSeparator has no paint/gradients. Approved
+identidade-hifen-discricionario-2026-09-28 initial/before eight U+002D/SHY equal-
+bbox controls/audit preserve transparent TextReplacement traversal through children
+with unchanged author text/order/coordinates/calculation; no new advance/algorithm.
+Text/bbox/causal/recursive/literal-hyphen controls, not PDF bytes/new selection.
 
-`03_infra/src/export/gradients/mod.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
-dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
-2026-09-28 e registrada na proveniência da materialização.
+infra-imports-docs-ci-2026-10-13/before.json.gz retains sources/owners/spans/original
+compiler output/HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/dirty tree/UTC/status/
+diffstat at mod.rs:18,20,184,351. Remove only proven unused private imports, keep
+public reexports/required productive and descendant-test imports. Compilation
+revealed perceptual_distance_in_space/rgb_to_cmyk/bezier_control_points_for_arc/
+compute_coons_patches_n_stops/compute_coons_patches_n_stops_extended/
+multispace_sample_stops_conic reexports are test-only: cfg(test) only aliases,
+productive definitions/internal calls stay. Conic uses cmyk::rgb_to_cmyk, not
+facade alias. No signature/default/phase/formula/acceptance/suppression changes;
+all-target compile/infra names+suite/build/workspace Clippy/Rustdoc/lineage/scoped
+seals, no import/comment mirror tests.
 
-### Responsabilidade deste owner
+## Conic occurrence geometry
 
-TextSeparator não possui paint nem recolhe gradientes.
+### Evidence
 
-Conservar as responsabilidades existentes; a aceitação segue texto e geometria
-observáveis, incluindo os controles de adjacência e os invariantes pinados.
+mod.rs:224–264 loses conic RGB/CMYK position and dedups Arc/bbox; resources.rs:564–574
+emits identity matrix. draw.rs:522–555,939–965 composes groups but Pattern refers
+to initial stream space; page.rs:45–49 adds bleed. before/probe.json.gz red versus
+conic(red,red) reproduces coverage loss entirely within Tekt. conic-posicionamento-
+2026-10-14/placement-before.json.gz retains source/L0/HEAD/UTC/status/diffstat.
+Later conic-geometria-amostragem before.json.gz/source probes show fixed center/
+radius/ignored CMYK offsets/eight-bit unit Decode; current detailed mesh contract is
+`00_nucleo/prompts/infra/export/gradients/conic.md`. Positioning alone left author
+center/corners/CMYK-offset completion explicitly separate; later geometry contract
+supersedes only that incomplete-stage wording, no universal conic certification.
 
-## Identidade textual — materialização aprovada
+### Current facade contract
 
-### Medição anterior à decisão
+Capture conic matrix using existing TransformMatrix. Conic key includes borrowed
+FrameItem occurrence identity plus Arc without position quantization/page collision;
+all builders traverse same borrowed PagedDocument without cloning between discovery/
+paint. Export-local mechanical key, never persistent or language equality. Same
+key for page resources. Other gradients keep old policies. Private context carries
+matrix-to-PDF/local parent box separately from legacy bbox override.
 
-As sondas bilaterais e o estado exato em
-`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
-e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
-A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
+Transport physical conic reference size and canvas bounds mapped through inverse
+matrix into pattern unit coordinates, include unit box to cover stroke/path outside
+nominal bbox without guessed miter/path expansion. Preserve canvas through Group/
+bleed. Singular/nonfinite inverse keeps defensive unit domain without certifying
+coverage. Reexport only required private types/helpers; obsolete wrappers test-only.
+Document occurrence-conic versus legacy linear/radial dedup accurately.
 
-### Responsabilidade exclusiva
+Internal ADR-0127 no external entity/signature/flag/default/phase. L0 first/real
+RED/code/scoped seals; position/dimensions/same Arc across occurrence+page/fill-
+stroke/nested affine Group/bleed/explicit-local-page parent/resources/Compact-
+Verbose. Repeat full raster without cropping/realignment.
 
-Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
+## Approved paint-root transport
 
-O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
-possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
-transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+### Evidence and scope
 
-## Imports e documentação de CI — 2026-10-13
-
-### Medição anterior à decisão
-
-`03_infra/src/export/gradients/mod.rs` nas linhas 18, 20, 184, 351 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
-
-### Decisão e aceitação
-
-Remover somente os imports privados comprovadamente sem uso neste consumer; manter os reexports públicos e os imports exigidos por chamadas ou contratos. A lista exata de spans anterior à edição está no diagnóstico citado.
-
-Manutenção interna sem mudança de assinatura pública, default, fase, fórmulas ou critérios de aceitação (fluxo contínuo ADR-0127). Não introduzir supressões de lint. Revalidar compilação de todos os targets, nomes e execução da suíte de infraestrutura, build, Clippy do workspace, Rustdoc e linhagem com resselo restrito. Não criar testes que apenas espelhem remoção de imports ou formatação de comentários.
-
-### Refinamento de escopo após compilação — 2026-10-13
-
-A remoção dos imports do facade revelou reexports privados usados apenas pela suíte: perceptual_distance_in_space, rgb_to_cmyk, bezier_control_points_for_arc, compute_coons_patches_n_stops, compute_coons_patches_n_stops_extended e multispace_sample_stops_conic. Exportá-los ao pai somente sob cfg(test). Definições e chamadas internas produtivas continuam; conic consulta rgb_to_cmyk pelo caminho cmyk, não por este alias. Evidência e estado: `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/`. Revalidar todos os targets e preservar nomes/assertions da suíte.
-
-## Posicionamento cônico — 2026-10-14
-
-### Medição anterior à decisão
-
-`03_infra/src/export/gradients/mod.rs:224-264` perde a posição própria de
-Conic RGB/CMYK e deduplica por Arc/bbox; `builder/resources.rs:564-574`
-emite matriz identidade nesses ramos. `stream/draw.rs:522-555,939-965`
-compõe grupos, mas Pattern é relativo ao espaço inicial do stream.
-`stream/page.rs:45-49` acrescenta bleed antes dos itens. O corpus constante
-red versus conic(red,red), em before/probe.json.gz, reproduz a perda de
-cobertura na árvore atual. Fonte, L0, HEAD, UTC, status e diffstat estão em
-`lab/results/construction/diagnostics/conic-posicionamento-2026-10-14/placement-before.json.gz`.
-Os dois lados do teste são Tekt: o defeito independe de imitar o vanilla.
-
-### Responsabilidade e aceitação
-
-Capturar a matriz cônica na descoberta, usando TransformMatrix existente para composição. A chave cônica inclui identidade da ocorrência FrameItem e Arc, sem quantizar posição nem colidir entre páginas. FrameItems possuem filhos Vec e os três builders percorrem o mesmo PagedDocument emprestado sem cloná-lo entre descoberta e pintura; a chave é local à exportação, nunca persistida ou igualdade de linguagem. Demais gradientes conservam a política existente. Recurso da página usa a mesma chave. O contexto privado de percurso carrega matriz até PDF e caixa parent local, separado do override legado dos outros gradientes.
-
-Correção interna ADR-0127, sem entidade/assinatura pública externa, flag,
-default ou fase nova. L0 precede testes RED e implementação; resselo restrito.
-Testar posição e dimensão, mesmo Arc em ocorrências/páginas distintas,
-fill/stroke, grupos afins aninhados, bleed, parent explícito/local/página,
-recursos e pintura nos modos Compact/Verbose. Repetir o corpus raster sem
-recortar ou realinhar o resultado.
-
-Esta etapa permanece incompleta quanto à funcionalidade cônica integral:
-a etapa seguinte, conic-geometria-amostragem, deve completar centro autoral,
-cobertura dos cantos e amostragem CMYK/offsets. Não atribuir cobertura total
-à correção de posicionamento nem legitimar o círculo inscrito como resultado
-final. O owner conic conserva a malha nesta etapa para isolar a causa.
-
-## Geometria e amostragem cônica — 2026-10-14
-
-### Medição anterior à decisão
-
-`conic.rs:142-143,241-242` fixa centro/raio; `:271-272` associa paradas CMYK
-por índice circular, ignorando offsets e a amostra final. `resources.rs:508-552`
-fixa coordenadas de 8 bits e Decode unitário. As sondas antes/depois de
-posicionamento e refuters no diagnóstico conic-posicionamento-2026-10-14 provam
-cantos brancos, centro ignorado e offsets CMYK sem efeito, apesar de sample()
-responder corretamente. before.json.gz em conic-geometria-amostragem-2026-10-14
-conserva fontes/L0, HEAD, working tree, diffstat, UTC e os binários. O corpus
-bilateral mede centro e cores nos eixos/diagonal, quadrado/retângulo e rotação.
-A fonte pinada typst-pdf/src/paint.rs:274-299 e os pixels concordam: o início
-é à esquerda e o sentido é horário; o código Tekt anterior não corresponde.
-O vanilla observado nesses controles não é um fallback uniforme.
-PDF Reference 1.3, tabela 4.31 (página PDF 250), permite coordenadas 16 bits e
-Decode independente por eixo; é contrato de formato, não igualdade upstream.
-
-### Responsabilidade e aceitação
-
-Além da matriz já validada, transportar o tamanho físico da referência conic e
-os limites do canvas convertidos pela inversa da matriz até o espaço unitário do
-padrão. Incluir a caixa unitária; isso cobre stroke/caminhos fora da bbox nominal
-sem adivinhar miter ou expansão de path. Conservar canvas através de grupos e
-bleed. Inversa singular/não finita conserva domínio unitário defensivo, sem
-alegar cobertura da situação degenerada. Façade reexporta somente tipos/helper
-privados exigidos; wrappers antigos tornam-se aliases de teste. Atualizar os
-comentários de deduplicação para distinguir identidade de ocorrência conic das
-chaves históricas linear/radial.
-
-Correção interna de fórmula/paridade ADR-0127, sem contrato público externo,
-modo/flag padrão ou mudança de fase. L0 precede testes RED e código. Não mudar
-expectativas funcionais para absorver erro; assertions mecânicas obsoletas são
-substituídas pela verificação independente descrita. Comparar corpus completo,
-validar qpdf, raster, todas as regressões e linhagem/reverso. A referência
-binária cônica só pode ser regenerada após demonstrar a mudança intencional
-pelo harness e pelo protocolo vigente do corpus.
-
-## Referencial de pintura — transporte aprovado T1b — 2026-10-14
-
-### Medição anterior à decisão
-
-O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
-foi aprovado pelo humano para T1–T3; recibo em
+Manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
+was approved for the native-tiling package; receipt
 `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A evidência bilateral de Parent e controles Solid está no contrato aprovado;
-ela não é substituída por inspeção estrutural. A rodada
-`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
-fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
-diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
-e Gradient Parent. O inventário before-source/syntax-nodes registra neste
-consumer as construções/desestruturações antes da edição: [668].
-layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
-reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
-Block mantém body plano exceto no clip. Preservação do referencial é requisito
-de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
-divergências gerais de geometria previamente medidas em Rotate/Box.
+Its bilateral Parent/Solid evidence cannot be replaced by structural inspection.
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz`
+retains sources/dirty tree/HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC/
+diffstat/binary hashes for containers/Place/Rotate with Solid/Gradient Parent.
+This unit's before-source/syntax-nodes anchors: [668]. layout_types.rs:531–539
+lacks technical-root distinction; helpers.rs:253–269 reconstructs Group. Box groups
+background/body; Block stays flat except clipping. Reference-frame preservation is
+language, envelope representation mechanics; prior general Rotate/Box geometry
+divergences remain open.
 
-### Responsabilidade exclusiva
+### Contract and acceptance
 
-Migrar construções e padrões de Group para o campo paint_root aprovado. Grupos técnicos novos e fixtures legadas são false; reconstruções transportam o valor recebido, sem inferir raiz a partir de dimensão, clipping ou transformação. Preservar os demais campos e o comportamento de desenho/recursos. Exportadores ainda não usam este metadado para patterns; essa integração é T2 e não está certificada aqui.
+Adapt Group construction/patterns to approved paint_root. New technical/legacy
+fixture groups are false; reconstruction preserves received value, never inferring
+root from dimensions/clipping/transforms. Keep other fields/drawing/resources.
+Metadata migration alone does not certify exporter pattern integration or replace
+Shape.fill/stroke with FramePaint. Independently authorized prepared-transport/
+native-target/parity slices (historical T1c/T2/T3) stay incomplete until integrated
+verification, no production/parity claim from a successful build. L0 first,
+RED→GREEN/scoped resealing; preserve source→PDF/SVG text/geometry and revalidate
+suite/build/doc/check/fmt/lineage.
 
-### Aceitação e incompletude
+paint-root-2026-10-14/first-render-delta.json/after-first/results.json.gz records
+open block-auto-gradient-parent/PDF regression:3, 840 pixels differ>16 and oracle
+distance increases; 35 other Tekt renders stable. Old Group parent_bbox override is
+not affine root context; then-declarative Shape fields expose it. This is an open
+refuter, not accepted reference/tolerance relaxation. Prepared paint/resource
+integration must close cause before production certification. Retain both negative
+sample and agreeing controls, including vanilla PDF quarter divergence.
 
-L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
-nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
-A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
-implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
-e já autorizados. Não alegar paridade de tiling ou produção a partir do build.
+## Prepared Shape fixture transport
 
-### Integração PDF ainda refutada nesta etapa
+### Evidence and approval
 
-first-render-delta.json e after-first/results.json.gz em paint-root-2026-10-14
-registram uma regressão no controle block-auto-gradient-parent/PDF: 3840
-pixels mudam mais de 16 níveis contra o baseline e a distância ao pin cresce.
-Os demais 35 renders Tekt do corpus mantêm pixels. O collector legado de
-gradientes troca parent_bbox_override a cada Group; o novo envelope de raiz
-expõe que esse override não é um referencial afim. Os campos de Shape ainda
-são declarativos. Essa diferença é falha aberta, não nova referência aceita,
-e não autoriza mudar tolerância ou o esperado. T1c/T2 devem fechar o contexto
-resolvido de pintura e os recursos para corrigir a causa; T1b isoladamente
-não certifica render nem produção. Preservar a amostra refutadora e também
-os controles que coincidem, inclusive a divergência vanilla PDF de quarter.
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz`
+retains HEAD/tree/diffstat/UTC/sources/owners before migration. layout_types.rs:510–511
+carried Paint/Stroke; shape.rs:151–191 materialized only group fills; tiling.rs:85
+limited/cloned its grid. prepare_cell already returns TilingFrame once per
+occurrence. `tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
+shows dense-open/stroke-open divergences across all three targets. Manifesto
+`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d` was approved;
+receipt `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+Preparation/object counts are transport mechanics; rendering/outlines/text/geometry/
+diagnostics are language observables.
 
+### Contract and acceptance
 
-## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
+Consume FramePaint when scanning Shape. Register gradients inside cells using
+cell-local canvas/root/dimensions and borrowed-frame occurrence identity for conic.
+Recursive resources include nested gradients without changing non-tiling rules.
+PDF-cell gradients use local Y-down/to_pdf identity because PatternType1's matrix
+performs outer inversion.
+Consume the pinned nucleus. Approval supersedes only old approval-pending or
+Shape-declarative-Paint/Stroke clauses within this package; other behavior survives.
+L0 first, RED→GREEN, explicit fixture/consumer migration, no total From<Paint>,
+carrier PartialEq or solid fallback merely to compile. Do not raise the old limit
+or move layout to L3. Validate fill/stroke/resource/clipping/affine Parent/native-
+target/Solid/Gradient/page semantics and full suite/build/doc/fmt/lineage. The
+prepared transport, native-target integration and parity slices recorded as
+T1c/T2/T3 are complete only after integrated verification; broken/partial states
+are no production certificate. T4 and publication remain out of scope.
 
-### Medição anterior à decisão
+## Local discovery collector
 
-`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
-HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
-layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
-materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
-prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
-`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
-comprovam que dense-open e stroke-open ainda divergem nos três targets.
-O contrato foi aprovado no manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A preparação/contagem de objetos é mecânica de transporte; render, contornos,
-texto, geometria e diagnósticos são obrigações observáveis de linguagem.
+too-many-arguments-2026-10-15/before.json.gz/classification.json retains full
+source/prior L0/signatures/hashes/UTC/status/diffstat/HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/
+dirty tree2026-10-15T16:39:18.873477+00:00; walk :320 has nine args/threshold7,
+historical C045. Same map/two outputs/two counters are shared discovery state,
+not per-branch geometry. clippy-aridade-interna-2026-10-16/before.json.gz retains
+source/callers/current clauses/spans/28-warning inventory/global hashes/HEAD/tree/
+UTC/diffstat. Named correction materializes earlier audit-only scope, no new parity/
+performance claim.
 
-### Responsabilidade exclusiva desta unidade
+scan_all_gradients local Collector owns ptr_to_idx/refs/grad_objs/next_id/counter;
+recursive walk takes items, parent_bbox_override, page_height, placement, &mut Collector.
+Initialize next_id=first_id/counter=1; retain per-Function/Shading/Pattern increments,
+background/body/foreground/Shape fill-stroke/cell order and move same outputs to
+return. Do not change pattern_resources_for_page second walk/dedup/position/conic
+bounds/exhaustive match/IDs/geometry/Arc ownership/limits.
 
-Consumir FramePaint nas varreduras de Shape. Registrar gradientes também dentro das células com canvas/raiz locais e dimensões da célula; manter identidade de ocorrência dos frames emprestados para cônicos. Recursão de recursos inclui gradientes aninhados e mantém regras existentes fora de tiling.
-
-### Aceitação e continuidade
-
-Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
-aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
-somente no âmbito do contrato aprovado. Preservar os demais comportamentos
-vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
-fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
-carriers e sem fallback sólido para obter build verde. Não elevar o limite
-antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
-clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
-página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
-quando integrados e verificados; estado intermediário quebrado ou parcial
-não é certificação de produção. T4 e publicação continuam fora deste pacote.
-
-Gradientes de células PDF usam espaço local Y-down (to_pdf identidade), pois a Matrix do PatternType 1 faz a inversão externa.
-
-
-## Aridade das fronteiras — `clippy::too_many_arguments`
-
-### Evidência anterior à decisão
-
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
-
-- `C045`: `03_infra/src/export/gradients/mod.rs:320`, `walk`, 9 argumentos contados pelo Clippy (limiar 7).
-
-### Prescrição exclusiva por função
-
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
-
-#### `C045` — `walk`: Correção interna prescrita
-
-O walk recursivo recebe repetidamente o mesmo mapa, duas saídas e dois contadores mutáveis que formam o estado de descoberta. O L0 exige sincronismo de índices/IDs; esse estado deve ter um dono local nomeado, separado do referencial geométrico por ramo.
-
-Collector local de descoberta possui ptr_to_idx, refs, grad_objs, next_id e counter. A recursão recebe o collector mais items/referencial/altura/placement; não trocar a travessia nem dedup.
-
-Aceitação: IDs/índices sincronizados, ordem de background/body/foreground, reutilização fill/stroke, conic em grupos/tiling e referências de página preservados.
-
-### Fronteira de materialização
-
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
-
-
-## Aridade interna — materialização de seis casos, 2026-10-16
-
-### Medição anterior à decisão
-
-As fontes, chamadores, cláusulas vigentes, spans e inventário de 28 avisos foram conferidos antes da decisão. `lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/before.json.gz` guarda fontes/L0 completos, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A auditoria anterior classifica estes casos como correção; não são exceções diretas. O RED deve observar as aridades atuais antes de alterações; controles funcionais existentes serão corridos antes/depois. É refatoração de representação privada, sem nova paridade ou ganho de performance medido.
-
-### Responsabilidade exclusiva e aceitação
-
-C045: em scan_all_gradients, criar Collector local proprietário de ptr_to_idx, refs, grad_objs, next_id e counter. O walk recursivo recebe items, parent_bbox_override, page_height, placement e &mut Collector. Inicializar next_id=first_id e counter=1, manter incremento por Function/Shading/Pattern e a mesma ordem de background/body/foreground, Shape fill/stroke e células de tiling; mover as mesmas saídas ao retorno. Não alterar o segundo walk de pattern_resources_for_page, dedup keys, posição/conic domain, match exaustivo, IDs, geometria, ownership de Arc ou limites.
-
-Fluxo contínuo ADR-0127: nenhuma API externamente pública, default do produto, fase, dependência ou semântica é alterada. Tipos/constructors novos ficam internos; contratos públicos existentes permanecem. Este adendo concretiza somente os seis casos nominais; substitui proibições genéricas de supressão apenas para as duas expectativas residuais condicionadas C047/C066 após remover _text. As outras cinco aridades a corrigir continuam visíveis. Não elevar limiar ou silenciar no módulo/impl/crate. L0 precede código e resselo restrito. Confirmar preservação das assinaturas externamente públicas, campos/valores transportados, controles PNG/SVG/PDF, precedência/diagnósticos/recursos/MCIDs e ausência de mutações globais. Usar os testes existentes sem relaxar fixtures/esperados; não escrever testes que espelhem os carriers privados. Revalidar suíte workspace completa, build, Clippy all-targets e unfulfilled_lint_expectations, Rustdoc, fmt e linhagem estrita/reversa, mantendo 12 GiB, swap zero e um job.
+Continuous ADR-0127 no externally public/default/phase/dependency/semantics change;
+new types/constructors private, six-case materialization only, conditional C047/
+C066 residual exceptions only after _text removal. Other five correction arities
+visible; no module/impl/crate suppression/higher threshold. L0 first/scoped seals/
+public signature+field/value transport unchanged, PNG/SVG/PDF/preference/diagnostic/
+resource/MCID controls, no global mutation, no relaxed fixtures/expectations/private-
+carrier mirror tests. Full workspace suite/build/all-target Clippy/unfulfilled
+expectations/Rustdoc/fmt/strict-reverse lineage under12GiB/zero swap/one job.

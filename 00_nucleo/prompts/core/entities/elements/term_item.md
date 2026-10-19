@@ -1,42 +1,39 @@
 # Prompt L0 — `entities/elements/term_item` — `TermItemElem`
 Hash do Código: c5b9fcc2
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/term_item.rs`
-**Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Trait, regras partilhadas
-e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**
-(confirmado P318). Comportamento idêntico ao braço atual do hub.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/term_item.rs`
+**Architecture:** ADR-0105. The trait contract is owned by
+`00_nucleo/prompts/core/entities/elements/mod.md`.
 
----
+## Evidence before specification
 
-## Struct
+Original extraction anchors: `content.rs:1571`, `content.rs:1758`, `content.rs:1935`, `content.rs:2119`, `content.rs:2453`.
+These historical coordinates support the ownership boundary; they are not
+fresh current-pin language-parity measurements.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct TermItemElem {
-    pub term:        Content,   // era Box<Content>
-    pub description: Content,   // era Box<Content>
+    pub term:        Content,
+    pub description: Content,
 }
 ```
 
-`Content::TermItem { term, description }` → `Content::TermItem(Arc<TermItemElem>)`.
-Construtor ergonómico: `Content::term_item(term: Content, description: Content)`.
+## Behavior and acceptance
 
-## `impl Element for TermItemElem`
+Preserve `Content::TermItem(Arc<TermItemElem>)` and
+`Content::term_item(term: Content, description: Content)`. Derive
+Debug/Clone/PartialEq/Hash. Plain text is
+`format!("{}: {}", term.plain_text(), description.plain_text())`.
+Emptiness requires both term and description to be empty. Both maps recurse
+into both fields, in the existing order. Field/kind/payload access default to
+None; the element is non-locatable. Structural equality compares both fields.
+Verify `term: description`, joint emptiness, both recursive maps, and equality.
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `format!("{}: {}", term.plain_text(), description.plain_text())` (`content.rs:1758`) |
-| `is_empty` | `self.term.is_empty() && self.description.is_empty()` (**override**; `content.rs:1571`) |
-| `map_content` | **recursivo** em `term` e `description` (`content.rs:2119`) |
-| `map_text` | **recursivo** em `term` e `description` (container; `content.rs:2453`) |
-| `get_field` | default `None` |
-| `element_kind`/`to_payload` | default `None` (não-locatável) |
+## Historical record
 
-## `eq` estrutural
-
-`#[derive(PartialEq)]` compara `term + description` (paridade `content.rs:1935`).
-
-## Critério
-
-`plain_text` `term: description`; `is_empty` quando ambos vazios; `map_*` recursam
-em ambos; igualdade estrutural.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/term_item.md`. Historical observations are not a new parity certification.

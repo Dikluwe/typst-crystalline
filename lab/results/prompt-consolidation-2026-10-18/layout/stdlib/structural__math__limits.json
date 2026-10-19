@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/structural/math/limits.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Preserved original English scripts/limits semantics; translated native-math identity evidence, strictly limited internal visibility and full matrix gates.",
+  "original_sha256": "8515027b38b00c7b297bc3c1611c05122662b3cec40ef0b5b51cfe3bd1193e80",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/structural/math/limits.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

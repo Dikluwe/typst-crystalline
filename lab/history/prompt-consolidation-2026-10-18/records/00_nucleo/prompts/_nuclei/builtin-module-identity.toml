@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "builtin-module-identity"
+title = "Identidade interna dos módulos std e format"
+
+[[claims]]
+id = "trusted-origin"
+level = "must"
+statement = "A composição nativa atribui identidade interna Std ou Format; Module::new produz módulo comum para qualquer nome e bindings. Nenhum nome local, scope semelhante ou conteúdo de usuário autentica módulo nativo."
+
+[[claims]]
+id = "alias-lifetime"
+level = "must"
+statement = "A identidade acompanha o Module clonado em aliases, closures, imports e reexports e independe de lookup posterior do nome std; igualdade Arc, debug, nomes e API pública existentes são preservados."
+
+[[claims]]
+id = "feature-boundary"
+level = "must"
+statement = "No acesso AST, std.html e format.html exigem Html, std.asset e format.bundle exigem Bundle, inclusive aliases. Módulos e dicionários comuns homônimos não recebem estes gates. O diagnóstico precede lookup e argumentos, usa span do field e mantém mensagem e hints existentes. Target não ativa feature."
+
+[[claims]]
+id = "private-mechanics"
+level = "must-not"
+statement = "A marca interna altera assinaturas/campos públicos, igualdade de Module, mutabilidade, wrappers de função, fases, defaults ou políticas de outros namespaces."

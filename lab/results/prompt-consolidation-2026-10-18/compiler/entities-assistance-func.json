@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/entities/func.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "450db1011285729e6be6d893268a1222555fb096366bcb3e48766f9fc3083df6",
+    "result_sha256": "df71ff18b80f7d6b244324c41841bfc029418e904869201b259f56d40a4baf96",
+    "disposition": "Full612-line Func specification read/translated: all public API/pattern/default invariants/namespace and With rules, eager capture/identity/hash, exact lint reason, private diagnostic+cfg observation ownership, full structural gates and Format partial supersession/matrices preserved; historical declaration shape explicitly bounded."
+  }
+]

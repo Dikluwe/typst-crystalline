@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/mod.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Preserved English fa\u00e7ade contract and native_flush discrepancy; translated all bridge visibility/static-only amendments, unused alias, item-order and lazy-call exports with complete gates.",
+  "original_sha256": "9e7abc67a1166e57e850ee11fb63ef8c28d110c48ada4e42873ab4c135486b14",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/mod.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

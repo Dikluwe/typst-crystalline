@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/structural/footnote.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated full footnote phase/constructor specification and ratified reduced entry route, preserving exact sibling/new-route diagnostic distinction and incomplete layout integration.",
+  "original_sha256": "3c6e1946ee6cc0694a5cccb7e3c69f8a5d48c6cf2a88427ad929133c561aa296",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/structural/footnote.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

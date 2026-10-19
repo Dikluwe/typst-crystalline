@@ -1,0 +1,39 @@
+tekt = 1
+kind = "nucleus"
+id = "introspection-content-snapshot"
+title = "Campos públicos congelados de conteúdo introspectado"
+
+[[claims]]
+id = "authoritative-presence"
+level = "must"
+statement = "Um snapshot presente é a sequência completa e ordenada de campos públicos da família realizada, com nomes únicos; ausência de snapshot conserva a projeção legada. Não há fallback por campo dentro de um snapshot presente."
+
+[[claims]]
+id = "immutable-causal-transport"
+level = "must"
+statement = "O valor consultado transporta consigo o snapshot imutável da ocorrência que o produziu; clone, arrays, closures e despacho de métodos preservam esse snapshot mesmo após mudanças de estilo ou contexto."
+
+[[claims]]
+id = "no-reconstruction"
+level = "must-not"
+statement = "Consumidores de snapshot presente não reconstroem seus campos pelo estilo atual, igualdade do corpo, hash, label do selector ou primeira ocorrência. A ausência de snapshot conserva apenas os fallbacks legados explicitamente contratados. Encoders não executam callbacks nem realizam conteúdo."
+
+[[claims]]
+id = "separate-render-datum"
+level = "must"
+statement = "A árvore de render e o snapshot de campos são dados separados. Apenas uma conversão explícita para render pode descartar o snapshot, sem modificar o valor original; uma nova introspecção constrói nova entrada coerente."
+
+[[claims]]
+id = "function-and-label"
+level = "must"
+statement = "Um snapshot presente não contém func nem location. A função do elemento é projetada separadamente. Dentro desse snapshot, label causal presente é o último campo e label ausente não é substituída por none, selector ou label sintética de TOC. Famílias sem snapshot conservam a projeção de label legada explicitamente contratada."
+
+[[claims]]
+id = "identity-not-equality"
+level = "must"
+statement = "Location preserva a identidade exata da ocorrência, mas não integra a igualdade linguística de Content. Label também não integra essa igualdade; os campos públicos realizados podem integrá-la conforme o contrato proprietário de igualdade."
+
+[[claims]]
+id = "single-entry"
+level = "must"
+statement = "O store canônico de elementos guarda em uma única entrada a árvore de conteúdo e seu snapshot opcional; não mantém um segundo store concorrente de campos públicos."

@@ -1,7 +1,7 @@
 # L0 — infra/font_metrics
 Hash do Código: 5e716e38
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/primary-resolution-cache.toml sha256:b18027804dddf2f9eb87a3d01168d95dffaa34ad6839bad618e758ffbff080b4
+- 00_nucleo/prompts/_nuclei/fonts/primary-resolution-cache.toml sha256:0ac6e8504aee9a06e2ae9ffc717bb4f878a3b71d37d1851fda9b93a93aacd39c
 
 
 **Layer:** L3
@@ -39,16 +39,30 @@ Run `cargo test -p typst-infra --lib font_metrics:: -- --test-threads=1` when va
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Reuso limitado da resolução primária — 2026-10-10
+## Bounded primary-resolution reuse
 
-### Medição anterior à decisão
+### Evidence
 
-`lab/results/construction/diagnostics/content-cost-profile-2026-10-10/{resolution-calls,cpu-style-current,checked-phases}.json.gz` guarda HEAD/working tree/UTC, scripts, fontes, comandos e release `9ae0a3d9285b8d0b4bae0da1db058483e7f5543003fabff46bb7d93b17e474f2`. As tabelas de 1.600 células chamam select_pattern 48.019 vezes, resolve_primary 6.401 vezes e text_edges/vertical_metrics 3.200/3.201 vezes; a seleção aparece em 25–29% das amostras inclusivas de CPU. `font_metrics/resolution.rs:27–85` depende de FontList, variante efetiva e legibilidade da face para formar a cadeia base; não aplica tamanho nem variações. `:105–124` acrescenta MATH separadamente; `font_metrics.rs:49–86` já compartilha caches locais entre clones. Inferência refutável: reusar a última resolução pode amortizar scans sem retenção crescente; invalidar se identidades/cadeia não forem preservadas ou custo de lock/retenção anular o ganho.
+`lab/results/construction/diagnostics/content-cost-profile-2026-10-10/{resolution-calls,cpu-style-current,checked-phases}.json.gz`
+retains HEAD/tree/UTC, scripts/sources/commands and release SHA
+`9ae0a3d9285b8d0b4bae0da1db058483e7f5543003fabff46bb7d93b17e474f2`.
+Tables of 1, 600 cells call select_pattern 48, 019 times, resolve_primary 6, 401,
+text_edges/vertical_metrics 3, 200/3, 201; selection appears in 25–29% of inclusive
+CPU samples. resolution.rs:27–85 forms the base chain from FontList/effective
+variant/face readability, without size/variations; :105–124 adds MATH separately;
+font_metrics.rs:49–86 already shares clone-local caches. Inference: last-resolution
+reuse may amortize scans without growing retention. Identity/chain divergence
+or lock/retention cost eliminating benefit refutes it.
 
-### Responsabilidade exclusiva
+### Contract and acceptance
 
-Adicionar somente carrier privado para a última resolução primária completa, inicializado vazio em new e compartilhado em Clone. Tipos de chave/entrada e algoritmo pertencem exclusivamente ao child owner resolution. Aplicar o Núcleo pinado; não adicionar assinaturas nem campos públicos.
-
-### Aceitação e classe
-
-Mudança interna ADR-0127 em fluxo contínuo. Teste RED de consultas repetidas nos mesmos argumentos através de clones; controles de família/regex/ordem/variante, instâncias independentes, falhas transitórias e math/variações contra instância fresca. Gate quantitativo de alocações e tempo pareado, documentos equivalentes ao release anterior e refutadores de muitas identidades, core/infra/build/lint. Aceitação de linguagem por seleção, métricas, origem/efeitos e geometria; não copiar mecânica do vanilla nem inferir hit por hash. Retirar em divergência ou regressão robusta.
+Add only a private last-complete-primary-resolution carrier, initially empty in
+new and shared by Clone. Key/entry types and algorithm belong exclusively to
+`00_nucleo/prompts/infra/font_metrics/resolution.md`. Consume the pinned nucleus;
+add no public fields/signatures. Continuous ADR-0127 requires repeated-query RED
+through clones; family/regex/order/variant controls, independent instances,
+transient failures and math/variations against fresh instances; quantitative
+allocation/paired-time gate, documents equivalent to the preceding release and
+many-identity refuters; core/infra/build/lint. Language acceptance observes
+selection/metrics/origin/effects/geometry, never vanilla mechanics or inferred
+hash hits. Remove on divergence or robust regression.

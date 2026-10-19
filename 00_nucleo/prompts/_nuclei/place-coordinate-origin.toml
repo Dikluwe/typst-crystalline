@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "place-coordinate-origin"
-title = "Origem geométrica do body de Place e referencial do pai"
-
+title = "Place body geometric origin and parent frame"
 [[claims]]
 id = "body-origin"
 level = "must"
-statement = "O corpo de Place não flutuante é composto uma vez com origem geométrica; texto instala sua própria baseline e forma não adquire strut de fonte. A translação ao pai ocorre uma vez em itens, decoração, posições e fixups."
-
+statement = "Nonfloating Place body is composed once from geometric origin;text installs own baseline,shape acquires no font strut. Translate to parent once for items,decoration,positions,fixups."
 [[claims]]
 id = "parent-origin"
 level = "must"
-statement = "O subframe conserva explicitamente a origem vertical de recomposição esperada pelo chamador: zero no caminho geométrico, start_y no legado de baseline. Place usa essa origem ao ancorar no subframe, sem inferi-la da fonte corrente ou do estado mutável de baseline pendente."
-
+statement = "Subframe explicitly retains caller-required vertical recomposition origin:zero geometric,start_y legacy baseline. Place uses that origin for subframe anchoring,never current font or mutable pending-baseline inference."
 [[claims]]
 id = "pending-flow"
 level = "must"
-statement = "Sem alinhamento vertical explícito, uma linha pendente ancora Place na sua baseline física corrente; o corpo geométrico acrescenta somente sua própria geometria. Top explícito ancora no topo da região e não segue a linha pendente."
-
+statement = "Without explicit vertical alignment,a pending line anchors Place at current physical baseline;geometric body adds only own geometry. Explicit Top anchors region top,not pending line."
 [[claims]]
 id = "lifo-checkpoint"
 level = "must"
-statement = "Origem do subframe é estado interno puro salvo/restaurado em LIFO e capturado/restaurado com o checkpoint da cauda; não vaza entre irmãos ou tentativas. Não muda fase, API pública, default ou topologia."
+statement = "Subframe origin is pure internal state saved/restored in LIFO and captured/restored with tail checkpoint;no sibling/attempt leak. No phase/public API/default/topology change."

@@ -1,0 +1,23 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/type_fields.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "f231377493317bf14627bf537e060dc8a9f5046ce301f830191e6d7058ca1247",
+    "result_sha256": "52eced5143f52d22f67a7f561572e454d02e472c777f33a24eb7f620660af252",
+    "disposition": "Full type-catalogue review/translation: exhaustive Type vs open-name separation, nine families/29 complement,159-pair residual diagnostic debt and structural-only probe constraints retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/apply.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "254229c99631939d9101ccf13999e07626b2f9bbb48467fd9bb590253f7219f7",
+    "result_sha256": "71e842c2319ecfdcdff03bb6cde4363eb79712ed9ba87d259b01f01de608194d",
+    "disposition": "Full native application owner translated with internal Format ABI/identity and fifteen-case scope, all measured controls and pending fronts."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/arguments.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "f503eef979a77316b876adfe5621ceea2c79adae4f5e7a080e36d98532ad3c53",
+    "result_sha256": "27a491433e0d1b0232836721b8bea2de676475fbac82793739a3fcea608edc38",
+    "disposition": "Full argument owner translated: A ratification scope, typed call spans/value spans, explicit guard gate and later exclusive Sequence whitelist extension."
+  }
+]

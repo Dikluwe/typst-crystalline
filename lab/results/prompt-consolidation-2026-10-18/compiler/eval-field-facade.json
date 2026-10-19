@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/field_access.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "2ad9e10bad4a6b4cff049b8637754cd2ecc9bafa42b1f15af3e1bf949a142b10",
+    "result_sha256": "c1e7d380c56eae5eb18e16bc9f0bce7e9e1aa258295d29214620e0992e991fd4",
+    "disposition": "Full field facade reviewed, long English semantics retained as child boundary criteria; translated test-only exports/gates/call-once, measured Array/text.text expectation corrections and Sequence export without new algorithms."
+  }
+]

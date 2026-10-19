@@ -1,9 +1,8 @@
 tekt = 1
 kind = "nucleus"
 id = "subframe-inline-extents"
-title = "Resultado privado de extensões inline do subframe"
-
+title = "Private subframe inline-extent result"
 [[claims]]
 id = "result-not-parent-state"
 level = "must"
-statement = "As extensões inline medidas na cauda de um subframe são metadados privados do resultado: sobrevivem à restauração da linha pai sem substituir as extensões dessa linha. A medição intrínseca lê o resultado local, e rollback conserva os metadados juntamente com os outros resultados do último subframe."
+statement = "Inline extents measured at a subframe tail are private result metadata: they survive parent-line restoration without replacing that line's extents. Intrinsic measurement reads local result; rollback retains metadata with other last-subframe results."

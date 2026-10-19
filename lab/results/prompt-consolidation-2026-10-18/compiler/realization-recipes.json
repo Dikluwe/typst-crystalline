@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/realize/recipes.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "a7330ae858e10fdb69466783da9e39cefc6881286cdde08242199491706c8651",
+    "result_sha256": "4bc24801c1bf53bc6699f860aaa318ade3a430ff7c36162663fe4aacca84b968",
+    "disposition": "Full causal recipe owner translated and organized by evidence/current coordination/integration/acceptance; every candidate failure, RuleId guard, protected Table, product boundary and later Context capture retained."
+  }
+]

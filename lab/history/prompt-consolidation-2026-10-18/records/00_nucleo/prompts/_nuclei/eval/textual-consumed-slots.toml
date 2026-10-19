@@ -1,0 +1,14 @@
+tekt = 1
+kind = "nucleus"
+id = "textual-consumed-slots"
+title = "Slots consumidos e filhos genuínos no transporte textual"
+
+[[claims]]
+id = "consumed-only"
+level = "must"
+statement = "Captura ou splice textual registra explicitamente quais slots do vetor foram consumidos. Esses slots preservam os índices até o fechamento lexical e não reaparecem como filhos da linguagem. Um filho Empty ou Text vazio genuíno não é inferido como consumido apenas por seu conteúdo."
+
+[[claims]]
+id = "lexical-fold"
+level = "must"
+statement = "Corpo e máscara de consumo são dobrados juntos na ordem inversa das fronteiras existentes. Cada produto lexical ocupa um slot não consumido; as receitas, estilos, snapshots, origens e ordem dos filhos preservados mantêm sua causalidade. A montagem do visual capturado também elimina somente slots marcados."

@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "layout-subframe-overflow"
-title = "Overflow ordinário de frame isolado"
-
+title = "Ordinary isolated-frame overflow"
 [[claims]]
 id = "local-overflow"
 level = "must"
-statement = "Durante sub-layout isolado (is_sub_frame), overflow geométrico ordinário de forma ou linha permanece no frame local; não avança a página/coluna externa nem rejeita a transação de fluxo do chamador. O caller decide tamanho, composição e recorte do frame retornado."
-
+statement = "During isolated sub-layout (is_sub_frame), ordinary shape/line geometric overflow remains in local frame, without advancing outer page/column or rejecting caller's flow transaction. Caller decides returned frame size, composition and clipping."
 [[claims]]
 id = "outer-flow"
 level = "must"
-statement = "Fora de sub-layout isolado, conservar os predicados de admissão/progresso e rejeição de overflow do fluxo paginado, inclusive reservas de floats e avanço de colunas. Esta invariância não transforma pedidos explícitos de pagebreak em overflow ordinário nem autoriza suprimi-los."
+statement = "Outside isolated sub-layout preserve paged-flow admission/progress/overflow-rejection predicates, including float reservations and column advancement. This invariant neither turns explicit pagebreak requests into ordinary overflow nor authorizes suppressing them."

@@ -21,30 +21,29 @@ The parent `math.rs` owns only static `math.accent` registration. The structural
 
 The P1429 regression filter and full core suite remain green. A local test checks alias normalization and direct combining-codepoint preservation. `cargo build` and `crystalline-lint .` have no new blocking violations. Header ownership is 1:1. No speedup is claimed without separate measurement.
 
-## Complemento de casts de figure — Type e Symbol, 2026-10-17
+## Type and Symbol function-cast classification
 
-Medição anterior à decisão: type-kind-probe.json e more-cast-probe.json em
-lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 registram o candidato
-que passou 5/6 testes mas falhou em kind:int. foundations/value.rs:647-658 do
-pin 9f2b6e8715237cb086899a42873660fe744622e8 mede Func aceitando Type.constructor
-ou Symbol.func; content/element.rs:210-214 exige to_element; symbol.rs:133-137,
-math/accent.rs:189-214 e math/lr.rs:144-198 classificam a conversão simbólica.
-Há 37 tipos exercitados no CLI; Location sem construtor foi conferido na
-fonte pinada. type-kind-classes.json guarda a classificação completa dos 38.
-Símbolo aceito como corpo/caption é convertido pelo pin a SymbolElem; o nosso
-Content não tem essa variante e o markup atual conserva o valor como Text.
-Esse carrier/morfologia exige evolução pública SY1, não pode ser declarado
-resolvido pela preservação do texto nesta etapa.
+### Evidence before decision
 
-Decisão exclusiva deste owner:
+type-kind-probe.json and more-cast-probe.json under
+`lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17` record a
+candidate passing 5/6 tests but failing kind:int. Historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`, foundations/value.rs:647–658 accepts
+Type.constructor or Symbol.func as Func; content/element.rs:210–214 requires
+to_element; symbol.rs:133–137, math/accent.rs:189–214 and math/lr.rs:144–198
+classify symbolic conversion. CLI exercises 37 types; Location without a
+constructor was checked in pinned source. type-kind-classes.json preserves all
+38 classifications. A Symbol body/caption becomes SymbolElem upstream, while
+local Content lacks that variant and current markup retains Text. That carrier/
+morphology requires public evolution SY1; preserving text does not close it.
 
-Adicionar apenas is_known_math_accent(&str)->bool pub(crate), consultando a
-única ACCENT_ALIASES existente: codepoint canônico ou alias exato. Ao contrário
-de normalize_math_accent, não aceitar qualquer char pelo fallback direct.
-O helper é classificação pura para cast Function; não chama função, não
-muda normalize_math_accent, construção de Accent nem layout.
+### Exclusive responsibility
 
-Aceitação: L0 primeiro, RED funcional de Type/Symbol/valor textual antes do código,
-GREEN e revalidação integral desta etapa; 12 GiB/swap zero/jobs1. Fluxo contínuo
-ADR-0127, sem contrato Rust público, fase ou default de produto novo. Resselo só
-dos owners após V15/V26; preservar testes de matemática e classificadores originais.
+Add only pub(crate) is_known_math_accent(&str)->bool, consulting the one existing ACCENT_ALIASES table for a canonical codepoint or exact alias. Unlike normalize_math_accent, it must not accept arbitrary characters through the direct fallback. This pure Function-cast classifier invokes no function and changes neither normalize_math_accent, Accent construction nor layout.
+
+### Acceptance and limits
+
+L0 first; functional Type/Symbol/textual-value RED before code, GREEN and full
+batch revalidation under 12 GiB/zero swap/jobs1. ADR-0127 continuous flow adds no
+public Rust contract, phase or product default. Reseal only affected owners after
+V15/V26; preserve math tests and original classifiers.

@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/transform.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Full original unique paragraphs and exact prior repeats reviewed. Reconciled native typed-transform approval, eval/layout phase, region, block flow, logical width, speculative effects, Matrix legacy and exact diagnostic. Preserved all refutators, partial paint-root scope, and FrameItem exhaustive complements/gates; archived chronological measurements without discarding norms.",
+  "original_sha256": "e148af965663fcc7c76664bef5120f01002b7f84ac5906c9545961bfe0583e6c",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/transform.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

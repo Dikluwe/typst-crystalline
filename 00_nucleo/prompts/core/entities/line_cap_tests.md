@@ -1,38 +1,65 @@
 # L0 — core/entities/line_cap_tests
 Hash do Código: 9221836c
 
-## Dono test-only
+**Layer:** L1 test-only
+**Exclusive consumer:** `01_core/src/entities/line_cap_tests.rs`
 
-Consumer único: `01_core/src/entities/line_cap_tests.rs`.
+## Observation contract
 
-## Obrigação
+Observe lines produced by public routes through full layout, without manually
+constructing the new representation or reading the candidate implementation.
+Automatic matrix augment reaches the frame as Square; custom strokes preserve
+Butt/Round/Square; legacy producers such as fraction lines remain Butt.
+Missing lines, multiple unattributable lines or truncated cap observation yield
+`UNKNOWN_STROKE_OBSERVATION`, with acceptance and mutation credit false.
 
-Observar linhas produzidas por rotas públicas, sem construir manualmente a
-representação nova. Augment automático de matriz chega ao frame como `Square`;
-stroke customizado conserva `Butt`, `Round` ou `Square`; produtores legados,
-como a linha de fração, continuam `Butt`. A observação atravessa o layout
-completo para cobrir reconstruções mecânicas sem ler a implementação candidata.
+## Evidence before exhaustive-pattern maintenance
 
-Linha ausente, múltipla sem identidade atribuível ou observação truncada do cap
-é `UNKNOWN_STROKE_OBSERVATION`, com aceitação e crédito falsos.
+F052 is line_debugs at `01_core/src/entities/line_cap_tests.rs:18`.
+AST spans/patterns/guards/bodies/complements were checked before code.
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree,
+UTC, source/L0/configuration/hashes/status/diffstat. The adjacent
+classification.json records 70 cases in 26 owners with the CI-pinned parser.
+Source and relevant L0 were read together. Rust exhaustiveness is mechanics;
+product semantics/morphology, geometry, effects and diagnostics must remain.
+No new architecture or upstream-intent inference follows from this measurement.
 
+## Owned exhaustive pattern
 
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
+In F052 replace only `_` with the FrameItem-prefixed nominal alternatives
+TextReplacement/TextSeparator/Text/TextShaped/Glyph/Image/Shape. Preserve the
+entire fallback body, previous arms, guards, transforms, calls, returns and order.
+Keep callbacks/effects/metadata/clipping/fonts/positions/paint/width as defined
+by their owners. Do not broaden traversal, treat wrappers as leaves or replace
+geometry with text/ActualText. Preserve fixtures, expectations, tolerances,
+counts and Unknown failure; absent observations cannot pass. V19 alternative
+notes remain visible: one shared arm's coverage does not cover all alternatives.
 
-### Medição anterior à decisão
+## Acceptance
 
-F052: 01_core/src/entities/line_cap_tests.rs:18 (line_debugs). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+ADR-0127 internal continuous maintenance: no new enum/field, trait method,
+public signature, default, dependency, compatibility or phase. Do not enact
+pending historical proposals. L0 first, restricted forward/reverse resealing;
+no suppression, threshold change or match-to-if-let workaround hiding V16.
 
-### Prescrição exclusiva desta unidade
+Before code run the new FrameVisitor control and workspace suite with unchanged
+expectations, confirming the family's 70 AST warnings are RED. Afterward require
+zero family V16 at covered locations and no new warnings; external V16 remains
+pending. In a disposable copy add a FrameItem sentinel for production-core
+matches actually reached by cargo check -p typst-core: E0004 must be absent
+there before and present afterward. Do not extrapolate to cfg(test) helpers or
+unreachable L3 sites. Replay patterns/guards/bodies across the whole batch;
+verify unchanged enum/signatures, real build/tests and no stubbed bodies.
 
-- **F052 — `line_debugs`**: Trocar somente o padrão '_' pelo grupo nominal `TextReplacement`, `TextSeparator`, `Text`, `TextShaped`, `Glyph`, `Image`, `Shape`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
+Require full workspace tests, cargo build, Clippy workspace/all-targets
+-D warnings -D unfulfilled_lint_expectations, formatting, Rustdoc -D warnings
+with four HTML indexes, strict/reverse V1/V5/V15/V26 lineage, SARIF and
+diff --check. Freeze source/L0/configuration during commands. Heavy jobs run
+sequentially with MemoryMax=12 GiB, MemorySwapMax=0 and CARGO_BUILD_JOBS=1.
+Structural cleanup proves neither global parity, memory gains nor AI benefits.
 
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
+## Historical record
 
-### Gate e aceitação
-
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
-
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
-
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/line_cap_tests.md`. Historical observations are not a new parity certification.

@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "23c86bcfb98dc4aaa35988e7c88d7f91460ad8a3f8883c4ac83bacad0cdec355",
+    "result_sha256": "f69b60c2d98ad824f671a6e8915967895e4723f8771b0ebeec6cf6f482ae23ff",
+    "disposition": "Full field lookup owner translated: SmartQuote/Mat/Cell tri-state presence and approvals, contextual transform getters, exact guard restructuring, feature and once-resolved lookup, Type Array message/anchor, later Box/HV/Text and H2 marked-form boundaries retained."
+  }
+]

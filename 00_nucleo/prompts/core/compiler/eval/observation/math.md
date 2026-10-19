@@ -2,7 +2,7 @@
 Hash do Código: bfe3fb3c
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/eval/observation-relation.toml sha256:c2062be931c790cf1de7f77349801100f3837e58e5ae2f933bf2b392a9fb6a0a
+- 00_nucleo/prompts/_nuclei/eval/observation-relation.toml sha256:6f6d86b0ee72d314a84d86b12f9524b2959e075b29f99fcf6d2de9f30a4b338a
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/observation/math.rs`

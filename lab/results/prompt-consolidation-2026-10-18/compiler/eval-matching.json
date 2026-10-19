@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/textual/matching.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "0b9b3a522d3b1091dca434eee707d3476d935d4385aced65b63750c3dbaa42c0",
+    "result_sha256": "f46f6008b6c5dc0dfbd650c744ae55e71f0e35c1cb14ba82d6faa28355629e8b",
+    "disposition": "Full matching owner translated: old provisional/pass-policy superseded only by ratified causal rule, slots mask separate from unresolved reflection/group debts, W01 and all shared whitespace gates retained, candidate refutations yield current bilateral weak-space support."
+  }
+]

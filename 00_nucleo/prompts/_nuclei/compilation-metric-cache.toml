@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "compilation-metric-cache"
-title = "Retenção de métricas por compilação e World"
-
+title = "Metrics retention per compilation and World"
 [[claims]]
 id = "scope"
 level = "must"
-statement = "Compartilhar o handle existente de métricas somente dentro de uma compilação e do mesmo World. A sessão pode transferir o handle junto do candidato completo aceito ao coordenador da mesma compilação, mantendo o empréstimo do mesmo World. O fim da compilação encerra a retenção; não manter o handle entre edições ou compilações."
-
+statement = "Share the existing metrics handle only within one compilation and the same World. A session may transfer the handle with its accepted complete candidate to the same compilation's coordinator, retaining the same World borrow. Compilation end terminates retention; never retain the handle between edits or compilations."
 [[claims]]
 id = "candidate-isolation"
 level = "must"
-statement = "Compartilhamento de métricas não compartilha conteúdo, frames, introspector, posições, snapshots contextuais ou stores/transcripts de callbacks. Cada candidato conserva seus inputs, efeitos, diagnósticos e budget; resultados de métricas obedecem às chaves dos owners de fontes existentes."
+statement = "Metrics sharing does not share content, frames, introspector, positions, contextual snapshots or callback stores/transcripts. Each candidate retains its inputs, effects, diagnostics and budget; metrics results obey existing font-owner keys."

@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/text_measure.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Translated evidence, exact fallback formula, exclusions, controls and all open tracking limits; no semantic change.",
+  "original_sha256": "f04a124d0c761288b309474412dc3ce9dd509e9251d5a2f8fe496b27e7c68f69",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/text_measure.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

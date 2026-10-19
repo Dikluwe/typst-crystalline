@@ -1,0 +1,30 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/math_accent_layout_tests.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "2da179f8c5a1f79be81dfe8442bc5df2b68cdd62d81cbb5c2716c35a1e86a975",
+    "result_sha256": "912d35a66b056986e05c2d63b8e03020687ab16e92ae4a76cd71aa9928e84a0e",
+    "disposition": "Full independent geometry/Unknown contracts retained; occurrence-envelope observations and exact nominal observer/finder complements translated with unchanged metrics/test gates."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/math_cases_layout_tests.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "731bbaf73fefbee568ca62c5a65f0b0ea757537608ed518614dac05005b51ef2",
+    "result_sha256": "320dfa14d6fd14722699238044dad7e6959d52cead085ef543c2a5308b1de949",
+    "disposition": "Full independent geometry/Unknown contracts retained; occurrence-envelope observations and exact nominal observer/finder complements translated with unchanged metrics/test gates."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/math_matrix_layout_tests.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "65062e9eacdb46bee56c7eb15da87f53a0c9b87fe5bbcf4c357b64adcb7a756c",
+    "result_sha256": "39355d01b8a065c6ebbc263a6866c80cba7d2211755ed9a802eea9b01ff6930f",
+    "disposition": "Independent complete matrix geometry retained; memory package ratification and narrow Value adapter plus exact L24\u2013L26 complements translated without changing observations."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/source_transparency_tests.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "f421b812b526c3742fab64ea22cd7d9e7b9f51a66eae2cc0ca7591f32610a08c",
+    "result_sha256": "8294fcfb204bdd7fbe1fc3afaf70f5d22476440cc57fa9f797807a554a46fa3e",
+    "disposition": "Full pure Source observer and 23-pair controls translated; exact Unknown cases, grid-marker RED counts, parent boundary and no-clone refinement retained."
+  }
+]

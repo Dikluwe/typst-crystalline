@@ -1,0 +1,14 @@
+tekt = 1
+kind = "nucleus"
+id = "tiling-placement"
+title = "Offset como origem da rotação do tiling"
+
+[[claims]]
+id = "rotation-about-offset"
+level = "must"
+statement = "No referencial escolhido para o padrão, offset é a origem da rotação horária da grade: um ponto local q é colocado em offset + R(angle) q. Percentuais de offset são resolvidos contra tamanho da célula mais spacing. A entidade e o constructor conservam estes valores sem pré-rotacionar offset; a materialização não gira o ponto offset em torno de zero."
+
+[[claims]]
+id = "periodic-equivalence"
+level = "must"
+statement = "Eliminar períodos inteiros de translação preserva a pintura somente no referencial da grade: deslocamentos equivalentes diferem por R(angle) aplicado a múltiplos inteiros dos pitches. A redução modular acontece na base inversa da rotação, e não independentemente nos eixos da página quando o ângulo é não nulo."

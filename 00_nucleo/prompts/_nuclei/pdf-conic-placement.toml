@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "pdf-conic-placement"
-title = "Posicionamento físico de padrões cônicos PDF"
-
+title = "Physical PDF conic pattern placement"
 [[claims]]
 id = "initial-space"
 level = "must"
-statement = "O padrão cônico recebe a transformação da caixa de referência até o espaço inicial do stream PDF, incluindo posição, grupos afins aninhados, reflexão de página e bleed. O cm posterior de pintura não substitui essa transformação."
-
+statement = "Conic pattern receives reference-box transform into initial PDF stream space including position,nested affine groups,page reflection and bleed. Later paint cm never substitutes for that transform."
 [[claims]]
 id = "occurrence-binding"
 level = "must"
-statement = "Descoberta, recursos da página e pintura devem resolver o mesmo padrão por ocorrência de Shape e identidade do gradiente durante uma exportação do mesmo documento imutável. Reutilizar o mesmo Arc em outra ocorrência não perde posição, caixa, transformação ou altura de página; fill e stroke da mesma ocorrência podem compartilhar o padrão."
-
+statement = "Discovery,page resources and painting resolve same pattern by Shape occurrence and gradient identity during one immutable-document export. Reusing Arc at another occurrence loses no position/box/transform/page height; same-occurrence fill/stroke may share pattern."
 [[claims]]
 id = "reference-box"
 level = "must"
-statement = "Conic self/auto usa a caixa do Shape; parent usa parent_bbox_at_emit no referencial do Shape quando presente, senão a caixa local do grupo imediato ou a página. Envelopes transparentes conservam o referencial."
+statement = "Conic self/auto uses Shape box; parent uses parent_bbox_at_emit in Shape frame when present,else immediate-group local box or page. Transparent envelopes retain coordinate frame."

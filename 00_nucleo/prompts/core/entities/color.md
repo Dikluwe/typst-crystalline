@@ -1,172 +1,23 @@
-# Prompt L0 — Color (espaços de cor vanilla paridade)
+# L0 prompt — color values, process spaces, and spot identity
 Hash do Código: d007c43c
 
-> **Estado P1482 confirmado em 2026-09-23:** a secção P1482 ao final amplia o carrier público
-> e prevalece sobre descrições históricas de apenas oito variantes e `Copy`.
+## Ownership and evidence
 
-## Módulo
-`01_core/src/entities/color.rs`
+This L1 owner specifies `01_core/src/entities/color.rs`, a pure domain facade with zero I/O or global state. Color conversion implementation belongs to `00_nucleo/prompts/core/entities/color/conversion.md`; stdlib argument validation and language errors belong to `00_nucleo/prompts/core/compiler/stdlib/color.md`; export belongs to its canonical exporter owners. Keep the `pub mod color;` and `pub use color::Color;` re-export from entities. The migration replaced the simplified `Color { Rgb, Rgba }` in `entities/layout_types.rs:638–654`; the old estimated 250–350 lines is historical, not an acceptance gate.
 
-## Camada
-L1 (puro; sem I/O; sem estado global; Copy + Clone).
+The complete original specification, chronological amendments, old code sketches, and execution-step provenance remain in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/color.md`. Historical pin observations below apply to their snapshots, not current-upstream certification. ADR-0107 requires parity of language semantics/syntax/morphology, not the original “structural parity” or exporter byte identity as a universal gate. The initial same-output regression for `Color::rgb(255, 0, 0)` and the four existing PDF `to_rgba_f32` paths remains a compatibility control; it does not impose byte equality on unrelated current output. ADR-0029 governs RAM purity; the revoked ADR-0028 reference does not reinstate its architectural rules. The original ADR-0083 **proposed** scope-outs remain historical scope evidence, with only the explicit later refinements below superseding them.
 
-## Propósito
+### Process-space source evidence
 
-Representar cores em múltiplos espaços de cor com paridade
-estrutural vanilla. Substitui o `Color { Rgb, Rgba }`
-simplificado de `entities/layout_types.rs` (P25) per ADR-0029
-§"Diagnosticar primeiro" + §"Simplificações aceites apenas
-com ADR explícita".
+At historical vanilla `e0e8ca4d`, `crates/typst-library/src/visualize/color.rs:26–28` aliases Hsl/Hsv/Luma to `palette::hsl::Hsla<encoding::Srgb, f32>`, `palette::hsv::Hsva<encoding::Srgb, f32>`, and `palette::luma::Lumaa<encoding::Srgb, f32>`. Hsl/Hsv's “standard algorithm” means palette's hexcone over sRGB encoding, not an invented vanilla algorithm; HSL's public source is `color.rs:686–702`. Luma conversion uses `Luma::from_color` at `:1771–1774`. Attribution to Rec.709/sRGB primaries is an **inference from encoding**, not a source quotation, refutable by numeric comparison with palette coefficients. The observable controls below support the measured results separately.
 
-P257 materializa 8 variantes correspondendo aos 8 espaços
-vanilla. Scope-outs formalizados em **ADR-0083 PROPOSTO**:
-PDF native CMYK + operadores cor + ColorSpace runtime
-introspection + constantes nomeadas extras.
+The same source at `color.rs:30–38` loads a `LazyLock<ColorProfile>` from `typst_assets::icc::CMYK_TO_XYZ`, a minimal CGATS TR 001-1995 profile. Thus the local naive CMYK formula is a **declared observable result divergence**, not merely different mechanics. The historical source also states at `:640–641` that PDF/A does not support CMYK; that observation does not declare every current exporter route unsupported. The original upstream enum/ColorSpace references at `:194`/`:1798` had eight process variants; the approved spot extension below supersedes that count and Copy assertions.
 
-## Tipo exportado
+### Operator observations that precede the contract
 
-```rust
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum Color {
-    /// sRGB color space (paridade vanilla `Rgb`).
-    Srgb { r: f32, g: f32, b: f32, a: f32 },
-    /// D65 grayscale (paridade vanilla `Luma`).
-    Luma { l: f32, a: f32 },
-    /// Linear RGB color space.
-    LinearRgb { r: f32, g: f32, b: f32, a: f32 },
-    /// Oklab perceptual color space.
-    Oklab { l: f32, a: f32, b: f32, alpha: f32 },
-    /// Oklch (Oklab polar coordinates).
-    Oklch { l: f32, c: f32, h: f32, alpha: f32 },
-    /// HSL color space.
-    Hsl { h: f32, s: f32, l: f32, a: f32 },
-    /// HSV color space.
-    Hsv { h: f32, s: f32, v: f32, a: f32 },
-    /// CMYK color space (print).
-    Cmyk { c: f32, m: f32, y: f32, k: f32 },
-}
-```
+Historical vanilla `969087ec`, `visualize/color.rs:311,1549–1653`, measured named `red = rgb(1.0, 0.254902, 0.211765)`, **not** pure `#ff0000`. Palette 0.7.6 scratch calculations reproduced the measured bytes exactly:
 
-8 variantes; representação interna `f32` (paridade vanilla).
-`f32` exacto via bitwise equality em derived `PartialEq`
-(per ADR-0028 regra herdada "sem tolerância em produção").
-
-## Métodos públicos
-
-### Construtores
-
-- `Color::rgb(r: u8, g: u8, b: u8) -> Self` — sRGB com alpha=1.0
-  (paridade cristalino existente; f32 normalizado `r as f32 / 255.0`).
-- `Color::rgba(r: u8, g: u8, b: u8, a: u8) -> Self` — sRGB com
-  alpha explícito (paridade existente).
-- `Color::srgb_f32(r: f32, g: f32, b: f32, a: f32) -> Self` —
-  sRGB direct f32 (sem normalização).
-- `Color::luma(l: f32) -> Self` — luma com alpha=1.0.
-- `Color::linear_rgb(r: f32, g: f32, b: f32, a: f32) -> Self`.
-- `Color::oklab(l: f32, a: f32, b: f32, alpha: f32) -> Self`.
-- `Color::oklch(l: f32, c: f32, h: f32, alpha: f32) -> Self`.
-- `Color::hsl(h: f32, s: f32, l: f32, a: f32) -> Self` —
-  h em graus.
-- `Color::hsv(h: f32, s: f32, v: f32, a: f32) -> Self` —
-  h em graus.
-- `Color::cmyk(c: f32, m: f32, y: f32, k: f32) -> Self` —
-  componentes [0.0, 1.0].
-
-### Conversões
-
-- `to_srgb(&self) -> (u8, u8, u8, u8)` — conversão para sRGB
-  byte (consumer PDF exporter; 4 caminhos `to_rgba_f32`).
-  Algoritmos:
-  - `Srgb` → identidade (u8 normalizado).
-  - `Luma { l }` → `(l*255, l*255, l*255, 255)`.
-  - `LinearRgb` → gamma 2.2 inversa.
-  - `Oklab` → matriz LMS + linear RGB + gamma.
-  - `Oklch` → Oklab + polar→cartesiano.
-  - `Hsl`/`Hsv` → hexcone standard, o mesmo modelo do `palette` usado pelo vanilla.
-
-> **Fonte de paridade dos espaços de cor (P1031)** — vanilla ratificado (`e0e8ca4d`),
-> `crates/typst-library/src/visualize/color.rs`:
->
-> - **`Hsl`/`Hsv` — "algoritmo standard" tem nome e origem.** `color.rs:26-27`:
->   ```rust
->   pub type Hsl = palette::hsl::Hsla<encoding::Srgb, f32>;
->   pub type Hsv = palette::hsv::Hsva<encoding::Srgb, f32>;
->   ```
->   O vanilla delega na crate `palette` sobre encoding sRGB — não define algoritmo próprio.
->   A afirmação do L0 é correcta e agora tem origem; "standard" = o hexcone de `palette`
->   com encoding sRGB. Doc de superfície: `color.rs:686-702`
->   (`#[func(title = "HSL", since = "0.9.0")] pub fn hsl(…)`), publicado em
->   `typst.app/docs/reference/visualize/color/#definitions-hsl`.
-> - **`Luma` — "Rec.709" não aparece na fonte.** O vanilla declara
->   `pub type Luma = palette::luma::Lumaa<encoding::Srgb, f32>` (`color.rs:28`) e converte
->   via `Luma::from_color(...)` (`color.rs:1771-1774`). Os coeficientes de luminância são,
->   portanto, os de `palette` para encoding sRGB — que **são** os primários Rec.709/sRGB,
->   mas a atribuição "Rec.709" é **inferência** do cristalino a partir do encoding, não uma
->   citação. Refutável por comparação numérica dos coeficientes com os de `palette`. Marcada
->   como tal; a medição §P744 abaixo mostra que o resultado observável coincide.
-  - `Cmyk` → `(1-c)(1-k), (1-m)(1-k), (1-y)(1-k)` (CMY→RGB).
-- `to_rgba_f32(&self) -> (f32, f32, f32, f32)` — conversão para
-  sRGB normalizado [0.0, 1.0] (preservado para compatibilidade
-  hot path PDF exporter cristalino existente).
-
-## Comportamento
-
-- **Pureza L1**: sem I/O; sem estado global; `Copy + Clone +
-  PartialEq` derivados.
-- **Paridade observable estricta**: `Color::rgb(255, 0, 0)`
-  produz mesmos bytes PDF antes e depois de P257.
-- **PDF exporter intocado estructuralmente**: 4 caminhos
-  `to_rgba_f32` preservados; novos espaços convertem para
-  sRGB transparentemente.
-- **`PartialEq` exacto** per ADR-0028 regra herdada: f32
-  bitwise equality (sem tolerância).
-
-## Critérios de verificação
-
-Por cada espaço materializado, ≥2 tests:
-
-- **sRGB**:
-  - `Color::rgb(255, 0, 0)` → `Srgb { r: 1.0, g: 0.0, b: 0.0, a: 1.0 }`.
-  - `Color::rgb(255, 0, 0).to_srgb() == (255, 0, 0, 255)`.
-- **Luma**:
-  - `Color::luma(0.5)` → `Luma { l: 0.5, a: 1.0 }`.
-  - `Color::luma(0.5).to_srgb()` → `(127, 127, 127, 255)`.
-- **LinearRgb**:
-  - Construtor preserva valores f32.
-  - Conversão `LinearRgb { 0.5, 0.5, 0.5, 1.0 }` → sRGB ≠
-    `(127, 127, 127)` (gamma inversa aplicada).
-- **Oklab**:
-  - `Color::oklab(1.0, 0.0, 0.0, 1.0).to_srgb()` ≈
-    `(255, 255, 255, 255)` (L=1 → branco).
-  - `Color::oklab(0.0, 0.0, 0.0, 1.0).to_srgb()` ≈
-    `(0, 0, 0, 255)` (L=0 → preto).
-- **Oklch**:
-  - Construtor preserva (L, c, h).
-  - `Color::oklch(0.5, 0.0, 0.0, 1.0)` → sRGB gris (c=0 →
-    sem chroma).
-- **Hsl/Hsv**:
-  - `Color::hsl(0.0, 0.0, 0.5, 1.0).to_srgb()` ≈ `(127, 127, 127, 255)`.
-- **Cmyk**:
-  - `Color::cmyk(0.0, 0.0, 0.0, 0.0).to_srgb()` →
-    `(255, 255, 255, 255)` (CMYK zero → branco).
-  - `Color::cmyk(0.0, 0.0, 0.0, 1.0).to_srgb()` →
-    `(0, 0, 0, 255)` (K=1 → preto).
-
-## Localização e re-export
-
-- Ficheiro: `01_core/src/entities/color.rs` (~250-350 LoC).
-- Re-export: `01_core/src/entities/mod.rs` — `pub mod color;`
-  + `pub use color::Color;` (paridade pattern outros entities).
-- Remoção: `01_core/src/entities/layout_types.rs:638-654` —
-  `pub enum Color { Rgb, Rgba }` removido (migração).
-
-## Operadores de cor (P476/P477, **semântica corrigida em P742**)
-
-**P742 — medição ADR-0108 (refuta a semântica P476/P477).** A sonda contra
-o vanilla 0.15.0 (969087ec) mediu, para `red` = `rgb(1.0, 0.254902, 0.211765)`
-(o `red` vanilla **não** é `#ff0000` — `visualize/color.rs:311`):
-
-| Expressão | Vanilla (medido) |
+| Expression | Measured language result |
 |---|---|
 | `red.lighten(20%)` | `rgb("#ff675e")` |
 | `red.darken(20%)` | `rgb("#cc342b")` |
@@ -176,533 +27,150 @@ o vanilla 0.15.0 (969087ec) mediu, para `red` = `rgb(1.0, 0.254902, 0.211765)`
 | `red.saturate(20%)` | `rgb("#ff372b")` |
 | `red.desaturate(20%)` | `rgb("#ff675e")` |
 
-Todas as fórmulas foram reproduzidas num scratch com `palette 0.7.6`
-(a crate que o vanilla usa — `Cargo.lock`) e bateram **exactamente** nos
-bytes medidos. A semântica P476/P477 (lighten/darken via Oklch, negate =
-complemento sRGB, saturate = chroma Oklch) estava **errada** e é substituída.
+These observations refute and supersede the old Oklch lighten/darken, sRGB-complement negate, and Oklch-chroma saturation definitions. Existing binary mix acceptance is retained subject to the corrected space/input-specific results below.
 
-### Semântica vanilla (fonte: `visualize/color.rs:1549-1653` + palette 0.7.6)
+## Current process and spot data contracts
 
-Fórmula base do palette (`macros/lighten_saturate.rs`), por componente `c`
-com máximo 1.0 e factor `f`:
+Retain eight f32 process carriers:
 
-```text
-increase(c, f) = clamp(c + (1 - c) * f, 0, 1)   se f >= 0
-                 clamp(c + c * f, 0, 1)          se f < 0
+```rust
+Srgb { r: f32, g: f32, b: f32, a: f32 },
+Luma { l: f32, a: f32 },
+LinearRgb { r: f32, g: f32, b: f32, a: f32 },
+Oklab { l: f32, a: f32, b: f32, alpha: f32 },
+Oklch { l: f32, c: f32, h: f32, alpha: f32 },
+Hsl { h: f32, s: f32, l: f32, a: f32 },
+Hsv { h: f32, s: f32, v: f32, a: f32 },
+Cmyk { c: f32, m: f32, y: f32, k: f32 },
 ```
 
-- **`lighten(f)`** — `increase` aplicado **no espaço da própria cor**:
-  Srgb/LinearRgb (r, g, b), Luma (l), Oklab (l), Oklch (l), Hsl (l), Hsv (v).
-  Cmyk (tipo próprio do vanilla, `color.rs:2235`): `clamp(u - u*f, 0, 1)`
-  por componente (c, m, y, k).
-- **`darken(f)`** — `lighten(-f)` para as variantes palette; Cmyk:
-  `clamp(u + (1-u)*f, 0, 1)` por componente.
-- **`saturate(f)` / `desaturate(f)`** — Luma → **erro**
-  ("cannot saturate/desaturate grayscale color"); Hsl/Hsv → `increase`
-  sobre a saturação; **restantes** (Srgb, LinearRgb, Oklab, Oklch, Cmyk) →
-  converte para Hsv, `increase` sobre `s`, converte **de volta ao espaço
-  original**. `desaturate(f) = saturate(-f)`.
-- **`negate(space: Option<ColorSpace>)`** — espaço default **Oklab**: converte
-  para o espaço indicado, aplica `(1-l, -a, -b)` em Oklab, converte de volta
-  ao espaço original de `self`. `space` pode ser qualquer um dos 8 espaços
-  (medido: `negate(space: rgb)` → `#00bec9`).
-- **`rotate(deg, space: Option<ColorSpace>)`** — espaço default **Oklch**:
-  converte para o espaço indicado, soma `deg` ao hue, converte de volta ao
-  espaço original de `self`. Só espaços com hue são válidos: **Oklch, Hsl,
-  Hsv**; os restantes produzem erro "this color space does not support hue
-  rotation" (medido: `rotate(90deg, space: rgb)` → erro).
-- **`mix(other, weight, space: Option<ColorSpace>)`** — interpolação linear no
-  espaço indicado; default **Oklab**. O resultado fica no espaço indicado
-  (não no espaço original de `self`): `red.mix(blue, space: rgb)` → sRGB;
-  `red.mix(blue, space: oklab)` → Oklab (medido).
+The 2026-09-23 owner-confirmed spot package additionally defines `SpotColor { colorant: Arc<SpotColorant>, tint: Ratio }` and `Color::Spot(SpotColor)`. Color is no longer Copy; retain Clone and value PartialEq. The original claim that derived f32 PartialEq is bitwise was incorrect: the current manual implementation compares process fields with `f32::to_bits`; Spot compares structurally. Preserve signed-zero and NaN behavior without tolerance. This Rust mechanism is not the language-equality acceptance criterion.
 
-### Novos métodos de domínio (P742)
+The public constructors remain `Color::rgb(r: u8, g: u8, b: u8) -> Self`, `rgba(r: u8, g: u8, b: u8, a: u8) -> Self`, `srgb_f32(r: f32, g: f32, b: f32, a: f32) -> Self`, `luma(l: f32) -> Self`, `linear_rgb(r: f32, g: f32, b: f32, a: f32) -> Self`, `oklab(l: f32, a: f32, b: f32, alpha: f32) -> Self`, `oklch(l: f32, c: f32, h: f32, alpha: f32) -> Self`, `hsl(h: f32, s: f32, l: f32, a: f32) -> Self`, `hsv(h: f32, s: f32, v: f32, a: f32) -> Self`, and `cmyk(c: f32, m: f32, y: f32, k: f32) -> Self`. RGB byte channels normalize by `channel as f32 / 255.0`; rgb and luma use alpha 1.0, rgba preserves explicit alpha, srgb_f32 stores direct f32, HSL/HSV hue uses degrees, and CMYK components range over [0,1]. Constructor validation corrections belong to the stdlib/conversion boundaries below; do not quantize direct percentage inputs through bytes.
+
+Retain the public domain API, including its approved fallible conversion extension:
 
 ```rust
 impl Color {
-    // Operadores reescritos (assinaturas P476/P477 mantidas, excepto
-    // saturate/desaturate que passam a Option — Luma é erro no vanilla):
+    pub fn to_srgb(&self) -> (u8, u8, u8, u8);
+    pub fn to_rgba_f32(&self) -> (f32, f32, f32, f32);
     pub fn lighten(self, factor: f32) -> Self;
     pub fn darken(self, factor: f32) -> Self;
-    pub fn saturate(self, factor: f32) -> Option<Self>;   // None = grayscale
-    pub fn desaturate(self, factor: f32) -> Option<Self>; // None = grayscale
+    pub fn saturate(self, factor: f32) -> Option<Self>;
+    pub fn desaturate(self, factor: f32) -> Option<Self>;
     pub fn negate(self, space: Option<ColorSpace>) -> Self;
     pub fn rotate(self, angle_deg: f32, space: Option<ColorSpace>) -> Self;
     pub fn mix(self, other: Self, weight: f32, space: Option<ColorSpace>) -> Self;
-
-    /// Espaço da cor (mapeamento 1:1 variante → ColorSpace).
     pub fn space(self) -> ColorSpace;
-
-    /// Conversão para outro espaço. Hub sRGB: `to_rgba_f32` + conversão
-    /// para o destino (Hsv/Hsl hexcone standard = palette; Luma = luminância
-    /// linear re-codificada sRGB, Rec.709; Cmyk = naive `k = 1-max`,
-    /// `c = (1-r-k)/(1-k)` — o ICC do vanilla é scope-out ADR-0083).
-    pub fn to_space(self, target: ColorSpace) -> Color;
-
-    /// Componentes da cor para `components()`.
+    pub fn to_space(self, target: ColorSpace) -> Result<Color, ColorSpaceError>;
+    pub fn to_process(&self) -> Color;
     pub fn components(self, include_alpha: bool) -> Vec<ColorComponent>;
-```
-
-**P1252 — alpha em conversão para Luma.** `to_space(ColorSpace::Luma)`
-preserva o alpha da cor de origem. O vanilla ratificado `a51e02804` perde-o
-quando a origem não é Luma porque usa `Luma::from_color`, mas devolve o próprio
-valor no caso já-Luma. A preservação cristalina é `Known-Upstream-Bug`,
-protegida normativamente e não usada para perdoar o delta separado de
-luminância nem para promover qualquer par SVG.
-
-**P1239 — coeficientes Luma do `palette 0.7.6`.** A conversão sRGB → Luma
-lineariza os canais pela curva sRGB, aplica exatamente a linha Y da matriz
-sRGB usada pelo baseline (`0.2126729`, `0.7151522`, `0.0721750`) e recodifica
-pela curva sRGB. Os coeficientes abreviados `0.2126/0.7152/0.0722` são
-proibidos porque mudam o observável público de vermelho de `54.02%` para
-`54.01%`. Esta correção de fórmula é independente da decisão de alpha P1252.
-
-**P1253 — precisão da matriz sRGB linear → Oklab.** A conversão usada por
-`to_space(Oklab)`, `mix` e `to_oklch` replica as constantes `f32` completas de
-`palette 0.7.6/src/oklab.rs::linear_srgb_to_oklab`: primeira matriz
-`0.4122214708/0.5363325363/0.0514459929`,
-`0.2119034982/0.6806995451/0.1073969566`,
-`0.0883024619/0.2817188376/0.6299787005`; segunda matriz
-`0.2104542553/0.7936177850/-0.0040720468`,
-`1.9779984951/-2.4285922050/0.4505937099` e
-`0.0259040371/0.7827717662/-0.8086757660`. Versões decimais truncadas são
-proibidas porque alteram os componentes públicos e a subdivisão SVG. A curva
-sRGB adjacente replica a ordem numérica do `palette`: decode usa
-`c.mul_add(1/1.055, 0.055/1.055).powf(2.4)` e encode usa
-`powf(1/2.4) * 1.055 - 0.055` sem fusão, conforme MulSub da fonte
-ratificada. A ordem própria de cada direção deve ser preservada. A raiz cúbica deve ser bit-compatível com
-`libm::cbrtf`, usado pela configuração `no_std` de `palette 0.7.6`; a raiz
-intrínseca de `std` não é substituto numericamente equivalente.
-`libm 0.2.11` é dependência pura autorizada para estas conversões em L1:
-`powf`, `fmaf`, `cbrtf`, `sinf`, `cosf`, `sincosf` e `atan2f`, sem expor tipos externos
-em contratos.
-
-**P1271-C2 — medição do caminho D65 Luma → Oklab antes da decisão.** No
-baseline ratificado, `visualize/color.rs:1784-1794` despacha uma origem
-`ProcessColor::Luma` diretamente para `Oklab::from_color`; no `palette 0.7.6`,
-`xyz.rs:317-334` converte Luma linearizada para XYZ multiplicando pelo branco
-D65 `(0.95047, 1.0, 1.08883)`, e `oklab.rs:262-280` aplica as matrizes XYZ →
-LMS → Oklab. A superfície pública medida em 2026-08-29 para
-`gradient.linear(black, white, space: oklab).stops().last().first().components()`
-devolve no JSON vanilla `["100%", 0.000011444091796875,
-0.00003707408905029297, "100%"]`; o baseline cristalino `e055a12f` expunha
-os canais `[0.0, 5.960464477539063e-8]`. `white` é Luma nos dois produtos.
-
-**Decisão P1271-C2.** `to_space(Oklab)` deve preservar o despacho por espaço
-de origem: Luma usa Luma sRGB-encoded → Luma linear → XYZ D65 → Oklab, com
-constantes completas do `palette`, ordem de produtos/somas da sua matriz e
-`libm::cbrtf`. Como o baseline chama `Oklab::from_color` e não a variante
-`unclamped`, o componente `l` resultante é limitado a `[0,1]`; `a/b` não são
-limitados (`oklab/properties.rs:8-20`). A rota sRGB direta P1253 permanece para origens sRGB; demais
-rotas e contratos públicos Rust não mudam. A inferência causal é que a rota
-sRGB indevida para Luma é a primeira causa do cluster C2; seria refutada se a
-rota exata do `palette` não reproduzisse os componentes públicos acima nem
-fechasse S06/S22. Aceitação é igualdade dos componentes da linguagem, não
-igualdade da estrutura ou dos passos internos Rust. Conversões Luma para
-destinos não-Oklab, ICC/PDF, tolerâncias e budgets adaptativos ficam fora deste
-subpasso.
-
-> **Fonte da afirmação sobre CMYK (P1031)** — o scope-out ADR-0083 estava correcto e agora
-> tem `file:line`. O vanilla **usa mesmo um perfil ICC**, não uma fórmula:
-> `crates/typst-library/src/visualize/color.rs:30-38`, citação literal:
->
-> ```rust
-> /// The ICC profile used to convert from CMYK to RGB.
-> ///
-> /// This is a minimal CMYK profile that only contains the necessary information
-> /// to convert from CMYK to RGB. It is based on the CGATS TR 001-1995
-> /// specification. See
-> /// <https://github.com/saucecontrol/Compact-ICC-Profiles#cmyk>.
-> static CMYK_TO_XYZ: LazyLock<ColorProfile> = LazyLock::new(|| {
->     ColorProfile::new_from_slice(typst_assets::icc::CMYK_TO_XYZ).unwrap()
-> });
-> ```
->
-> O perfil é **CGATS TR 001-1995**, carregado de `typst_assets::icc::CMYK_TO_XYZ` — precisão
-> que o L0 não tinha. A aproximação naive do cristalino é divergência **declarada e visível
-> no observável** (as cores CMYK não coincidem numericamente), não mecânica interna;
-> continua coberta pelo scope-out ADR-0083, mas fica registada como divergência de
-> resultado, não de implementação. Nota adicional do vanilla (`color.rs:640-641`):
-> *"Note that CMYK colors are not currently supported when PDF/A output is enabled."*
-
-```rust
-
-    /// **P744** — hex string da cor em sRGB (com alpha quando < 1.0).
-    /// Paridade vanilla `to_hex`: `red.to_hex()` → `"#ff4136"`;
-    /// `rgb("#ff413680").to_hex()` → `"#ff413680"`.
     pub fn to_hex(self) -> String;
-
-    /// **P744** — diminui opacidade por `factor` (Ratio): `alpha' = alpha * (1 - factor)`.
-    /// Paridade vanilla medido: `rgb("#ff413680").transparentize(50%)` → `#ff413640`.
     pub fn transparentize(self, factor: f32) -> Self;
-
-    /// **P744** — aumenta opacidade por `factor` (Ratio): `alpha' = alpha + factor * (1 - alpha)`.
-    /// Paridade vanilla medido: `rgb("#ff413680").opacify(50%)` → `#ff4136c0`.
     pub fn opacify(self, factor: f32) -> Self;
 }
-
-/// Componente heterogéneo de `Color::components` (Ratio/Float/Angle —
-/// o domínio não conhece `Value`; a camada rules mapeia).
-pub enum ColorComponent {
-    Ratio(f32),  // componente [0,1] — imprime como percentagem
-    Float(f32),  // a/b de Oklab, chroma de Oklch
-    Angle(f32),  // hue em graus (rem_euclid 360 — paridade `hue_angle`)
-}
+pub enum ColorComponent { Ratio(f32), Float(f32), Angle(f32) }
 ```
 
-`components` por variante (paridade `color.rs:1455-1522`; Cmyk ignora
-alpha; as restantes omitem o alpha quando `include_alpha == false`):
+ColorComponent does not depend on Value; the language adapter maps these categories. Ratio components print as percentages, Float carries Oklab a/b and Oklch chroma, Angle carries hue in degrees normalized with `rem_euclid(360)` as measured `hue_angle`. Components (`color.rs:1455–1522`) are Srgb/LinearRgb `[Ratio r, g, b, (a)]`; Luma `[Ratio l, (a)]`; Oklab `[Ratio l, Float a, Float b, (alpha)]`; Oklch `[Ratio l, Float c, Angle h, (alpha)]`; Hsl `[Angle h, Ratio s, Ratio l, (a)]`; Hsv `[Angle h, Ratio s, Ratio v, (a)]`; Cmyk `[Ratio c, m, y, k]`. Parenthesized alpha is omitted when include_alpha=false; CMYK always ignores alpha. Spot exposes only tint as Ratio.
 
-- Srgb/LinearRgb: `[Ratio r, g, b, (a)]`
-- Luma: `[Ratio l, (a)]`
-- Oklab: `[Ratio l, Float a, Float b, (alpha)]`
-- Oklch: `[Ratio l, Float c, Angle h, (alpha)]`
-- Hsl: `[Angle h, Ratio s, Ratio l, (a)]`
-- Hsv: `[Angle h, Ratio s, Ratio v, (a)]`
-- Cmyk: `[Ratio c, m, y, k]`
+## Conversion formulas and narrow refinements
 
-**Critérios P742** (substituem os critérios P476/P477 errados):
-- `Color::rgb(0xFF, 0x41, 0x36).lighten(0.2).to_srgb()` → `(255, 103, 94, 255)`.
-- `…darken(0.2)` → `(204, 52, 43, 255)`.
-- `…negate()` → `(0, 75, 116, 255)`.
-- `…rotate(90.0)` → `(135, 161, 0, 255)`.
-- `…saturate(0.2)` → `(255, 55, 43, 255)`; `…desaturate(0.2)` → `(255, 103, 94, 255)`.
-- `Color::luma(0.5).saturate(0.2)` → `None` (erro grayscale no chamador).
-- `lighten(0.0)` / `darken(0.0)` → cor idêntica (mesma variante).
-- `saturate(0.0)` / `desaturate(0.0)` → cor idêntica.
-- `mix` — critérios P476 mantidos (paridade confirmada).
-- **P744**:
-  - `Color::rgb(255, 65, 54).negate(Some(ColorSpace::Oklab)).to_hex()` → `"#004b74"`.
-  - `Color::rgb(255, 65, 54).rotate(90.0, Some(ColorSpace::Oklch)).to_hex()` → `"#87a100"`.
-  - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Oklab)).to_hex()` → `"#a37095"`.
-  - As cores construídas por canais inteiros
-    `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5,
-    Some(ColorSpace::Srgb)).to_hex()` → `"#805a88"`.
-  - As constantes públicas nomeadas P1253 preservam os literais `f32` do
-    vanilla: `red.mix(blue, space: rgb).to-hex()` → `"#805b87"`.
-  - `Color::rgba(255, 65, 54, 128).transparentize(0.5).to_hex()` → `"#ff413640"`.
-  - `Color::rgba(255, 65, 54, 128).opacify(0.5).to_hex()` → `"#ff4136c0"`.
-  - `Color::rgb(255, 65, 54).to_hex()` → `"#ff4136"`.
+`to_srgb` returns byte sRGB and `to_rgba_f32` normalized sRGB [0,1], preserving the existing exporter hot-path API. Srgb is identity before byte projection; Luma replicates its channel and preserves alpha under the later rule below; LinearRgb uses the exact inverse sRGB transfer curve, superseding the initial shorthand “gamma 2.2.” Oklab uses LMS/linear RGB and the sRGB transfer curve; Oklch uses polar→Cartesian Oklab; Hsl/Hsv use palette's sRGB hexcone. Process CMYK projection remains `(1-c)(1-k), (1-m)(1-k), (1-y)(1-k)`; the reverse naive hub uses `k = 1-max`, `c = (1-r-k)/(1-k)` with corresponding other channels under its existing implementation. The ICC difference remains declared. Conversion cannot collapse all origins through sRGB when a measured origin-specific route is specified.
 
-> **Proveniência dos critérios P744 (P1031) — medidos agora, e dois estavam errados.**
->
-> A rubrica P744 alegava *"Paridade vanilla medido"* sem comando nem resultado. Medição
-> directa em 2026-08-13, com o documento
->
-> ```typ
-> #let c = rgb(255, 65, 54)
-> #let d = rgb(0, 116, 217)
-> 1:#c.negate(space: oklab).to-hex() \
-> 2:#c.rotate(90deg, space: oklch).to-hex() \
-> 3:#c.mix(d, space: oklab).to-hex() \
-> 4:#c.mix(d, space: rgb).to-hex() \
-> 5:#rgb(255,65,54,128).transparentize(50%).to-hex() \
-> 6:#rgb(255,65,54,128).opacify(50%).to-hex() \
-> 7:#c.to-hex()
-> ```
->
-> Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) vs cristalino
-> `target/release/typst` (fonte em HEAD `4f64e4e69`, árvore só com edições em
-> `00_nucleo/prompts/**`), lido por `pdftotext`:
->
-> | # | Operação | Vanilla | Cristalino | Redacção P744 anterior |
-> |---|---|---|---|---|
-> | 1 | `negate(oklab)` | `#004b74` | `#004b74` ✅ | `#004b74` ✅ |
-> | 2 | `rotate(90deg, oklch)` | `#87a100` | `#87a100` ✅ | `#87a100` ✅ |
-> | 3 | `mix(d, oklab)` | `#a37095` | `#a37095` ✅ | `#805b87` ❌ |
-> | 4 | `mix(d, rgb)` | `#805a88` | `#805a88` ✅ | `#805b87` ❌ |
-> | 5 | `transparentize(50%)` | `#ff413640` | `#ff413640` ✅ | ✅ |
-> | 6 | `opacify(50%)` | `#ff4136c0` | `#ff4136c0` ✅ | ✅ |
-> | 7 | `to-hex()` | `#ff4136` | `#ff4136` ✅ | ✅ |
->
-> **Duas conclusões.** (a) Os dois critérios de `mix` estavam errados no L0 — davam o mesmo
-> valor para Oklab e sRGB, o que a medição refuta; corrigidos acima para os valores do
-> vanilla. (b) Cinco das sete operações estão em paridade exacta, incluindo `mix` em Oklab,
-> o que também valida indirectamente a cadeia Oklab e a re-codificação de luminância
-> discutida em §"Fonte de paridade dos espaços de cor".
->
-> **ACHADO ESCALADO (prioridade baixa) — `mix` em sRGB difere numa unidade no verde**:
-> vanilla `#805a88`, cristalino `#805b88` (0x5a = 90 vs 0x5b = 91). Um passo em 255 num só
-> canal, e só no espaço sRGB — provável diferença de arredondamento na interpolação. Gate
-> ADR-0127 por ser mudança de comportamento; passo próprio. **Não implementado aqui.**
->
-> **Lacuna observada na mesma medição, fora deste achado**: o cristalino não aceita a forma
-> de peso da linguagem `c.mix((d, 50%), space: rgb)` — erro
-> `color.mix: argumento 'col2' deve ser Color, recebeu array`, enquanto o vanilla devolve
-> `#aa526c`. Registada no relatório do P1031.
+For sRGB→Luma, linearize by the sRGB curve, use exactly palette 0.7.6's Y coefficients `0.2126729`, `0.7151522`, `0.0721750`, then re-encode sRGB. Abbreviations `0.2126/0.7152/0.0722` are forbidden because they change public red luminance from `54.02%` to `54.01%`. Independently, `to_space(ColorSpace::Luma)` preserves the source alpha. Historical `a51e02804` lost alpha for non-Luma origins through Luma::from_color but preserved already-Luma identity. Local preservation is a protected `Known-Upstream-Bug` divergence; it cannot excuse a separate luminance delta or promote any SVG pair.
 
-> **Retificação P1250B após P1253.** Medição direta em 2026-08-28 com o
-> vanilla ratificado `/usr/local/bin/typst` (build pinado `a51e02804`) e as
-> constantes públicas nomeadas produziu: `red.mix(blue, space: rgb)` →
-> `#805b87`, `red.negate(space: oklab)` → `#004b74` e
-> `red.rotate(90deg, space: oklch)` → `#87a100`. A medição histórica acima
-> usa constructors por canais inteiros e permanece válida para esses inputs;
-> ela não é oracle para os literais nomeados de precisão ratificada em P1253.
+The linear sRGB→Oklab path used by to_space(Oklab), mix, and to_oklch uses full f32 constants from `palette 0.7.6/src/oklab.rs::linear_srgb_to_oklab`:
 
-## Constantes de cor nomeadas em `parse_color` (P477)
+```text
+0.4122214708 / 0.5363325363 / 0.0514459929
+0.2119034982 / 0.6806995451 / 0.1073969566
+0.0883024619 / 0.2817188376 / 0.6299787005
 
-`parse_color` em `rules/stdlib/shapes.rs` alargada de 5 para 18 cores:
+0.2104542553 / 0.7936177850 / -0.0040720468
+1.9779984951 / -2.4285922050 / 0.4505937099
+0.0259040371 / 0.7827717662 / -0.8086757660
+```
 
-**Originais (P-base):** `red`, `green`, `blue`, `black`, `white`.
+Truncation changes public components and SVG subdivision and is forbidden. Preserve each transfer direction's numerical order: exponential decode uses `c.mul_add(1/1.055, 0.055/1.055).powf(2.4)` (fmaf and powf); linear decode multiplies by the reciprocal. Encode uses `powf(1/2.4) * 1.055 - 0.055` with separate multiplication/subtraction, **without fusion**. The former encode-fmaf clause is superseded by measured MulSub source. Cube root must be bit-compatible with no_std palette's `libm::cbrtf`; the std intrinsic is not numerically interchangeable. Pure `libm 0.2.11` authorizes `powf`, `fmaf`, `cbrtf`, `sinf`, `cosf`, `sincosf`, `atan2f` in L1 without exposing external types.
 
-**Novas P477 (13 + 2 aliases):**
-`yellow`, `cyan`, `magenta`, `orange`, `purple`, `gray`/`grey` (alias), `silver`,
-`maroon`, `navy`, `olive`, `teal`, `lime`, `aqua` (alias de cyan).
+The origin-specific D65 measurement precedes its correction: historical `visualize/color.rs:1784–1794` sends `ProcessColor::Luma` directly to Oklab::from_color; palette `xyz.rs:317–334` maps linearized Luma to XYZ using D65 `(0.95047, 1.0, 1.08883)`, then `oklab.rs:262–280` maps XYZ→LMS→Oklab. On 2026-08-29, `gradient.linear(black, white, space: oklab).stops().last().first().components()` returned vanilla JSON `["100%", 0.000011444091796875, 0.00003707408905029297, "100%"]`; product baseline `e055a12f` exposed a/b `[0.0, 5.960464477539063e-8]`. White was Luma in both products. Therefore Luma→Oklab preserves encoded Luma→linear Luma→XYZ D65→Oklab with full palette constants, product/sum order, and cbrtf. Because the source uses from_color rather than unclamped, clamp resulting l to [0,1], leaving a/b unclamped (`oklab/properties.rs:8–20`). Keep direct sRGB's different matrix route. The proposed first-cause inference is the erroneous sRGB detour for Luma; failure of the exact palette route to reproduce those public components and close S06/S22 would refute it. Acceptance compares language components, not Rust structure or steps. Other Luma destinations, ICC/PDF, tolerances, and adaptive budgets are outside that correction.
 
-Aliases: `gray` == `grey` == `rgb(128,128,128)`; `aqua` == `cyan` == `rgb(0,255,255)`.
+On 2026-10-13, `lab/results/construction/diagnostics/cores-ci-2026-10-13/before.json.gz`, `constructors-before.json.gz`, and `evidence.json.gz` recorded HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, source/hashes/UTC/status/diffstat, upstream `9f2b6e8715237cb086899a42873660fe744622e8`, ratified binary SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`. Palette's libm configuration uses sinf/cosf/atan2f in Oklch/Oklab, where local conversion still used prohibited native functions. Authorize those pure symbols explicitly; implementation/tests remain with conversion, and this facade only reseals rather than duplicating algorithms.
 
-ADR-0083 §"Constantes nomeadas": parcialmente revogado (CSS basic colors cobertas).
+The same HEAD/uncommitted provenance, upstream pin, and binary hash are recorded in `lab/results/construction/diagnostics/limites-cor-2026-10-13/before.json.gz`, `parents-before.json.gz`, and `evidence.json.gz`, including complete public digits. Before correction, `red.rotate(45deg)` exposed negative blue versus vanilla zero; `rgb(10%,20%,30%,40%)` exposed 10.2%/30.2% versus 10%/30%; Linear RGB accepted 256 and alpha -1% despite upstream rejection; negative Oklch chroma produced a chromatic color versus gray. Source `visualize/color.rs:1825–1895` distinguishes clamped FromColor, identity, and from_linear; palette `convert/from_into_color.rs:53–59` clamps after conversion; `encoding/srgb.rs:100–120` and `num.rs:718–722` require reciprocal multiplication on linear decode and nonfused mul_sub on encode; `oklab.rs:355–368` clamps chroma to zero before polar conversion; `hues.rs:155–157` uses sincosf through libm. Correct those internal formulas under ADR-0127 continuous flow: no public field/signature, binding, default, compatibility, or phase changes. L0 precedes observable RED tests, implementation, and revalidation. Conversion owns implementation and facade only resealing. Remaining probe differences are not normalized away or given a generic parity certificate.
 
-## Sobre paridade vanilla (ADR-0083)
+## Operators and weighted reduction
 
-Referência: `lab/typst-original/crates/typst-library/src/visualize/color.rs`
-linha 194 (enum `Color` com 8 variantes) + `ColorSpace` linha
-1798 (8 valores enumerados).
+For process colors, palette `macros/lighten_saturate.rs` defines:
 
-**Scope-outs P257 documentados em ADR-0083 PROPOSTO**:
+```text
+increase(c, f) = clamp(c + (1 - c) * f, 0, 1) if f >= 0
+                 clamp(c + c * f, 0, 1)       if f < 0
+```
 
-1. PDF native `/DeviceCMYK` — CMYK converte para sRGB no
-   exporter; refino futuro **P-Color-CMYK-PDF**.
-2. Operadores cor — **P477 TOTALMENTE FECHADO** (6/6: lighten/darken/mix/negate P476 + saturate/desaturate P477).
-3. `ColorSpace` enum runtime — não materializado; match
-   exhaustive em consumers.
-4. Constantes nomeadas extras — refino incremental via
-   ADR-0080 (sem ADR dedicada).
+`lighten(f)` applies increase in the original space: Srgb/LinearRgb r/g/b, Luma l, Oklab l, Oklch l, Hsl l, Hsv v. CMYK instead uses `clamp(u - u*f, 0, 1)` on each c/m/y/k. `darken(f)` is lighten(-f) for palette variants; CMYK uses `clamp(u + (1-u)*f, 0, 1)` per channel.
 
-## P1284 — gate de cor spot; entidade sem alteração
+`saturate`/`desaturate` return None for Luma, surfaced by the caller as `cannot saturate/desaturate grayscale color`. Hsl/Hsv increase their own saturation; Srgb/LinearRgb/Oklab/Oklch/Cmyk convert to HSV, increase s, and return to the original space. `desaturate(f) = saturate(-f)`. Saturation's Option result supersedes the earlier infallible signature because grayscale is a language error.
 
-A fonte vanilla ratificada possui `SpotColorant`, `SpotColor` e representação
-spot. O enum cristalino vigente contém somente os oito espaços process-color
-documentados neste L0 e não transporta colorant spot. Portanto
-`color.spot`/`color.spot.tint` exigem tipo/variante pública e revisão de todos
-os matches: `BLOCKED_ADR0127_PUBLIC_CONTRACT`.
+`negate` defaults to Oklab: convert to the chosen space, apply `(1-l, -a, -b)` in Oklab, then return to self's original space. All eight process spaces are accepted; measured `negate(space: rgb)` gives `#00bec9`. `rotate` defaults to Oklch, adds degrees to hue in the chosen space, then returns to self's original space. Only Oklch/Hsl/Hsv support hue; other chosen spaces produce `this color space does not support hue rotation`, as measured by `rotate(90deg, space: rgb)`. Public language validation remains the stdlib owner's responsibility rather than changing the preserved domain signature here.
 
-P1284 não autoriza alterar `Color`, `ColorSpace`, `Value`, `Type`, métodos
-públicos ou consumers. `color.map` é implementável sem esta entidade, como
-`Module` de arrays dos `Color::Srgb` existentes, e pertence exclusivamente ao
-owner `compiler/stdlib/color.md`.
+Binary `mix` interpolates in the chosen space, default Oklab; the result remains in that selected space, not self's original one. Source `visualize/color.rs:1185–1204` directly accumulates weight*component and divides once; repeated binary interpolation without preserved totals can change observations. Keep the public binary signature unchanged. A nonpublic weighted-pair helper converts each input once to the selected space, accumulates four components, and divides by total weight once, constructing through existing `from_vec4_in_space`. Exactly two hue-space inputs preserve the measured shortest angular path; the stdlib owner rejects N>2 in hue spaces. Expose no mix_iter or new public type.
 
-## P1286 — redução ponderada interna para N cores
+`to_hex` returns sRGB hex including alpha when <1.0. `transparentize(f)` sets `alpha' = alpha * (1-f)`; `opacify(f)` sets `alpha' = alpha + f*(1-alpha)`. Spot-specific handling and conversion/alpha/saturation errors are bounded by the next section and stdlib owner, not silently process-converted during a language operation.
 
-### Medição anterior à decisão
+## Approved spot colorant and spot color packages
 
-O método público binário atual interpola dois `vec4`; o vanilla soma
-diretamente `weight * component` no espaço alvo e divide uma vez pelo total
-(`visualize/color.rs:1185-1204`). Repetir `Color::mix` sem conservar os totais
-pode alterar o observável.
+The initial spot gate recognized that public Color/ColorSpace/Value/Type changes and exhaustive consumers required `BLOCKED_ADR0127_PUBLIC_CONTRACT`; that earlier gate authorized no entity or consumer edits. `color.map` remained implementable solely in the stdlib owner as a Module of existing Srgb arrays. The later confirmations supersede the spot prohibition only for their bounded packages.
 
-### Decisão
-
-Preservar integralmente a assinatura pública
-`Color::mix(self, other, weight, space)`. Um helper não público recebe pares
-ponderados, converte cada cor uma vez ao espaço escolhido, acumula quatro
-componentes e divide pelo peso total uma vez. Para exatamente duas cores em
-espaços de hue, conserva o caminho curto angular medido; N>2 nesses espaços é
-rejeitado pelo owner stdlib. A construção do resultado usa o mesmo
-`from_vec4_in_space` vigente. Não expor `mix_iter` nem novo tipo público.
-
-## P1473 — `SpotColorant` (ESCOPO REDUZIDO — sem `.tint()`, sem variante em `Color`) (MATERIALIZADO)
-
-Ver `compiler/stdlib/color.md` §P1473 para a medição bilateral completa e a
-justificação do corte de escopo (blast radius do `enum Color` fechado +
-ausência de emissão PDF `/Separation`). Esta secção só especifica a nova
-entidade.
-
-### Struct
+The reduced colorant package's bilateral evidence and reason for excluding Color expansion/PDF Separation belong to `00_nucleo/prompts/core/compiler/stdlib/color.md`. Its entity contract is:
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 pub struct SpotColorant {
-    pub name:     Option<EcoString>,  // None = sem nome (vanilla aceita)
-    pub fallback: Color,              // sempre um Color de processo — nunca Spot
+    pub name: Option<EcoString>,
+    pub fallback: Color,
 }
+// fallback must already have been validated as a process color by caller:
+SpotColorant::new(name: Option<EcoString>, fallback: Color) -> Self
 ```
 
-**Não** é uma variante de `Color`; é um valor de tipo próprio (`Type::
-SpotColorant`, ver `entities/value.md` P1473), paralelo a como `Color` já
-não é `Stroke`/`Gradient` — tipos irmãos, não um enum comum. Construtor:
-`SpotColorant::new(name: Option<EcoString>, fallback: Color) -> Self` —
-`fallback` deve já ter sido validado como não-spot pelo caller (owner
-`compiler/stdlib/color.md`, que faz o cast e produz o diagnóstico `expected
-color, found spot colorant` antes de chegar aqui); esta entidade não
-revalida.
+SpotColorant is a sibling value/type, not itself a Color variant; `Type::SpotColorant`/`Value::SpotColorant` are owned by `00_nucleo/prompts/core/entities/value.md`. The stdlib caller validates fallback and emits `expected color, found spot colorant` before this entity; the constructor does not revalidate. None is an accepted absent name. Repr is `color.spot({name.repr()}, {fallback.repr()})`, following existing Option<EcoString> repr (`none` or a normally quoted string); invent no formatting convention. PartialEq derives structurally. Color itself has no Hash because f32 has no std Hash; where SpotColorant needs Hash under the existing entity contract, use the established manual `format!("{self:?}")` Hash-via-Debug pattern of `entities/elements/list_item.rs`, not a new hash mechanism. This was corrected in L0 before causal commit `3ac60a578`. Human confirmation followed on 2026-09-21; agent A `01a82593d` materialized the specified entity with manual Debug hashing from the beginning. The recorded suite was GREEN with zero regressions; this is historical evidence, not a new run.
 
-### `Repr`
+That initial package excluded `.tint`, SpotColor, instance lighten/darken/negate/fallback, Color-consumer integration (gradients/to-hex/PDF), and Separation. The later owner-confirmed 2026-09-23 package supersedes only the relevant language-value/call/cast exclusions. Its preceding measurement at upstream `586e1bd43`, `visualize/color.rs:280–286,889–924,937–1020,1147–1245,1260–1415,2254–2397,2471–2549` showed Color::Spot carrying colorant+tint and ColorSpace::Spot identifying the complete colorant. `color.spot("Brand", red).tint(50%)` has type color and repr `color.spot("Brand", rgb("#ff4136")).tint(50%)`; equality uses name+fallback+tint, not RGB fallback. Tint 0%/100% is valid; -1%/101% produces the boundary diagnostics at `:2385–2397`. `rgb(spot.tint(50%))` projects tinted fallback without equating values; `.space()` returns the colorant with type spot, and `.components()` returns `(50%,)`. The old local eight-Copy-variant process-only enum (`entities/color.rs:31–61,356–367,616–680,1024–1047`) failed with `type spot colorant has no method tint`.
 
-`color.spot({name.repr()}, {fallback.repr()})` — `name.repr()` de
-`Option<EcoString>` já segue a convenção existente do crate para opcionais
-repr'áveis (`none` quando ausente, string entre aspas quando presente); não
-inventar formatação nova.
+The approved data extension retains all eight process variants and uses `Value::Color` for tinted results. `SpotColorant.fallback` stays process-only even after adding Color::Spot; validate that at construction. `None` and `"all"` remain distinct names. Tint uses Ratio without premature rounding and preserves endpoints. Color loses Copy but keeps Clone/PartialEq; SpotColorant retains Clone/PartialEq/Hash. Add `ColorSpace::Spot(SpotColorant)` while preserving the eight process-space identities. ColorSpace loses Copy/Eq/Hash, retaining Clone/PartialEq because the new numeric-fallback colorant is not a map key in the measured corpus. All those public trait breaks, carriers, variants, and conversion signature changes belong to the confirmed ADR-0127 package, not a new editorial approval.
 
-### `PartialEq`/`Hash`
+`to_space` now returns `Result<Color, ColorSpaceError>` with `ProcessToSpot { target: SpotColorant }` and `SpotToOther { source: SpotColorant, target: SpotColorant }`. Never invent spot from process or convert between distinct colorants. `to_process(&self)` explicitly applies tint by `fallback.lighten(1 - tint)` in the fallback's own process space (`visualize/color.rs:2295–2297`): 0%→white, 100%→full fallback. `to_srgb`, `to_rgba_f32`, and `to_hex` use this projection only for a consumer that cannot represent spot, without mutating the value. `space` identifies the entire colorant rather than the fallback's process space. Spot lighten/darken adjust tint; default negate inverts tint; components expose only its percentage. Mix retains spot only when all operands have the same colorant; otherwise use process Oklab by default. Stdlib owns conversion/alpha/saturation errors. Every Color/ColorSpace match must be total: no language operation may erase identity or use unreachable! for spot.
 
-`PartialEq` deriva direto (`EcoString` e `Color` já implementam — `Color`
-via `impl PartialEq for Color` manual, `entities/color.rs:128`, bitwise
-`f32`). **`Color` não implementa `Hash`** (medido: `#[derive(Copy, Clone)]`
-em `entities/color.rs:31`, sem `Hash` derivado nem manual — os campos `f32`
-não são `Hash` no Rust std). Se `SpotColorant`/`Content::TermItem`-like
-precisar de `Hash` (contrato `Element` do crate normalmente exige, ver
-`ListItemElem`), usar o mesmo padrão já estabelecido em
-`entities/elements/list_item.rs` — `Hash` manual via `format!("{self:?}")`
-(`Hash`-via-`Debug`), não um novo mecanismo.
+This is intentionally a split constructor: the approved language-value package (historically P1482) covers values, calls, and casts; the separately scoped render/PDF package (historically P1483) completes PDF `/Separation`, spot gradients, and process backends. Until a consumer supports spot, export may use explicit fallback projection; that does not certify PDF conformity or the entire color.spot.tint route. `00_nucleo/prompts/infra/export/stream.md` owns the same boundary. Do not promote the initial colorant-only GREEN into evidence of full downstream integration.
 
-### Não-objetivos
+## Verification and historical discrepancies
 
-Sem `.tint(ratio)`, sem `SpotColor` (o par `colorant+tint` que produziria
-`type() == "color"`), sem `.lighten()`/`.darken()`/`.negate()`/`.fallback()`
-de instância, sem integração em nenhum consumer exaustivo de `Color`
-(gradientes, `to-hex`, emissão PDF). Reabertura exige gate ADR-0127 próprio,
-com decisão explícita de como `Color::Spot` se comportaria em cada consumer
-e medição da emissão `/Separation` real.
+Keep at least two controls per materialized process space. The original controls include rgb(255,0,0) storing Srgb(1,0,0,1) and returning `(255,0,0,255)`; luma(.5) storing Luma(.5,1) and returning `(127,127,127,255)`; LinearRgb constructor preserving f32 and its (.5,.5,.5,1) conversion differing from `(127,127,127)` due to inverse transfer; Oklab(1,0,0,1) approximately white and Oklab(0,0,0,1) approximately black; Oklch preserving (L,c,h) and (.5,0,0,1) producing gray; Hsl(0,0,.5,1) approximately `(127,127,127,255)`; CMYK all zero→white and k1→black. These historical approximate example controls do not authorize production tolerances or weakening later exact language-component expectations.
 
-## Materialização
+Corrected operator controls for `Color::rgb(0xFF,0x41,0x36)` are lighten(.2)→`(255,103,94,255)`, darken(.2)→`(204,52,43,255)`, default negate→`(0,75,116,255)`, rotate90→`(135,161,0,255)`, saturate(.2)→`(255,55,43,255)`, desaturate(.2)→`(255,103,94,255)`. Luma(.5).saturate(.2) returns None and the caller emits the grayscale error. Zero lighten/darken preserve identical variant/value; zero saturation/desaturation preserve identity. Retain the existing confirmed binary mix controls.
 
-Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
-Agente A (`01a82593d`) implementou `SpotColorant` conforme especificado —
-`Hash` manual via `Debug` desde o início (o achado "`Color` não implementa
-`Hash`" já tinha sido corrigido na fase L0, antes do commit causal). Suíte:
-GREEN, zero regressão.
-## P1482 — carrier spot da linguagem (CONFIRMADO em 2026-09-23; gate ADR-0127)
+Hex/alpha controls distinguish input precision: integer-channel `Color::rgb(255,65,54)` negated in Oklab gives `"#004b74"`, rotated90 in Oklch gives `"#87a100"`, and mixed .5 with `Color::rgb(0,116,217)` in Oklab gives `"#a37095"`, versus Srgb `"#805a88"`. Named public constants retain the measured vanilla f32 literals, so `red.mix(blue, space: rgb).to-hex()` gives `"#805b87"`. Do not substitute integer constructors for those literals. `Color::rgba(255,65,54,128).transparentize(.5).to_hex()` gives `"#ff413640"`; opacify(.5) gives `"#ff4136c0"`; rgb(255,65,54).to_hex() gives `"#ff4136"`.
 
-### Medição anterior à decisão
+The historical 2026-08-13 document used c=rgb(255,65,54), d=rgb(0,116,217), then negate Oklab, rotate90 Oklch, mix Oklab, mix rgb, transparentize50, opacify50, to-hex. `/usr/local/bin/typst` identified as `e0e8ca4d`; local `target/release/typst` source was HEAD `4f64e4e69` with only prompt edits; pdftotext read output. The table reported both binaries giving respectively `#004b74`, `#87a100`, `#a37095`, `#805a88`, `#ff413640`, `#ff4136c0`, `#ff4136`. The earlier L0 erroneously used `#805b87` for both mix spaces and was corrected. However the same record's prose claims five of seven exact matches and escalates local sRGB mix `#805b88` versus oracle `#805a88`, a one-green-channel difference tentatively attributed to rounding and scoped to a separate behavior gate. **The table/prose conflict remains explicit pending reproduction**; this consolidation cannot resolve it by choosing the convenient row. Neither the tentative rounding cause nor the old low-priority label closes it.
 
-Vanilla pinado `586e1bd43`, `visualize/color.rs:280-286,889-924,937-1020,
-1147-1245,1260-1415,2254-2397,2471-2549`: `Color::Spot` contém
-colorant e tint; `ColorSpace::Spot` identifica o colorant completo.
-`color.spot("Brand", red).tint(50%)` tem tipo `color`, repr
-`color.spot("Brand", rgb("#ff4136")).tint(50%)` e igualdade por
-nome+fallback+tint, não pelo fallback RGB. `0%` e `100%` são válidos;
-`-1%` e `101%` produzem os diagnósticos de limite de
-`color.rs:2385-2397`. `rgb(spot.tint(50%))` projeta fallback tingido,
-mas não torna os valores iguais. `spot.tint(50%).space()` devolve o
-colorant (`type == spot`), e `components()` devolve apenas `(50%,)`.
-No cristalino, `entities/color.rs:31-61,356-367,616-680,1024-1047`
-tem oito variantes `Copy`, `ColorSpace` apenas process e colorant irmão;
-a sonda falha com `type spot colorant has no method tint`.
+The same historical record measured local rejection of weighted syntax `c.mix((d, 50%), space: rgb)` with exact error `color.mix: argumento 'col2' deve ser Color, recebeu array`, where upstream returned `#aa526c`. Retain that historical gap; the later weighted-reduction helper specifies its internal mechanism but does not alone prove current stdlib acceptance. On 2026-08-28, direct named-constant probes against ratified `a51e02804` gave red.mix(blue,rgb) `#805b87`, negate Oklab `#004b74`, rotate90 Oklch `#87a100`. Those named-constant observations do not invalidate the integer-input measurements or settle the contradictory local row.
 
-### Decisão pública para confirmação
+The CSS parse_color refinement, originally in rules/stdlib/shapes.rs, extended the five basic names red/green/blue/black/white with yellow/cyan/magenta/orange/purple/gray/grey/silver/maroon/navy/olive/teal/lime/aqua. Preserve `gray == grey == rgb(128,128,128)` and `aqua == cyan == rgb(0,255,255)`. The old “18 colors” and “13 + 2 aliases” were chronological inventory labels, not an instruction to invent extra names. This partially closes the proposed named-color scope-out for basic CSS names; it does not replace the separately measured precise global named constants. Other names remain incremental refinements under their own owners. The old operator scope-out recorded all six operators closed (lighten/darken/mix/negate/saturate/desaturate); this does not certify all later conversions or weighted syntax. Original runtime ColorSpace absence is superseded by its approved current enum. Native PDF `/DeviceCMYK` remains its export owner's responsibility, not a universal statement that every present exporter converts CMYK to sRGB.
 
-Adicionar `SpotColor { colorant: Arc<SpotColorant>, tint: Ratio }` e
-`Color::Spot(SpotColor)`, mantendo as oito variantes de processo e
-`Value::Color` como carrier do resultado. `SpotColorant.fallback` permanece
-cor de processo, validada na construção inclusive depois da nova variante;
-`None` e `"all"` preservam suas identidades. Tint usa `Ratio` sem
-arredondamento prematuro e mantém os extremos. `Color` deixa de ser `Copy`,
-continua `Clone + PartialEq` por valor; igualdade Rust não substitui
-o teste de igualdade da linguagem (ADR-0107). `SpotColorant` conserva
-`Clone + PartialEq + Hash` existentes.
+## Explicit Debug guard maintenance
 
-Adicionar `ColorSpace::Spot(SpotColorant)`. `ColorSpace` deixa de ser
-`Copy`; as oito variantes processuais e suas identidades permanecem.
-A conversão `Color::to_space(self, target: ColorSpace)` passa a devolver
-`Result<Color, ColorSpaceError>`, com
-`ProcessToSpot { target: SpotColorant }` e
-`SpotToOther { source: SpotColorant, target: SpotColorant }`; não
-inventar uma tinta spot a partir de processo nem converter entre colorants
-distintos. `Color::to_process(&self) -> Color` é projeção explícita do
-fallback com o tint aplicado; `to_srgb`/`to_rgba_f32`/`to_hex` usam essa
-projeção apenas quando o consumer não representa spot, sem mutar o valor.
-`Color::space` identifica o colorant, não o espaço do fallback.
-`lighten`/`darken` ajustam o tint, `negate` padrão o inverte,
-`components` expõe só o percentual, `mix` conserva spot apenas quando
-todos os operandos têm o mesmo colorant; os demais usam processo Oklab
-por defeito. Erros de conversão/alpha/saturação pertencem ao owner
-`compiler/stdlib/color.md`. Cada match sobre `Color`/`ColorSpace`
-deve ser total; um ramo spot não pode apagar identidade numa operação
-de linguagem nem cair em `unreachable!`.
+Evidence for T276 at `01_core/src/entities/color.rs:78` precedes the prescription: `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz` preserves sources/L0 hashes, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC, status, git diff HEAD --stat. The hash-reconfirmed inventory contains 28 guards across 21 owners; pinned CI requires expanding the condition or moving it into the body. This measures Rust structure, not a functional defect, upstream intent, or improved AI readability.
 
-Esta é deliberadamente a primeira metade de um constructor dividido:
-P1482 materializa valor, chamadas e casts da linguagem; **P1483 completa
-PDF `/Separation` e render dos valores spot**, inclusive gradientes e
-backends de processo. Até P1483, export que não suporta tinta spot pode
-usar projeção de fallback; isso não fecha conformidade PDF nem a rota
-inteira `color.spot.tint`. O owner `infra/export/stream.md` registra
-a mesma fronteira. Novo carrier, perda de `Copy`, nova variante de
-`ColorSpace` e assinatura de conversão exigem confirmação explícita
-antes de L1 (ADR-0127).
+Unite Srgb Debug arms; inside the body keep exactly the four == comparisons identifying nominal blue and its blue output. The fallback preserves the same r/g/b/a debug_struct. Preserve signed zero/NaN, other spaces, and all color formulas. This internal ADR-0127 continuous-flow maintenance belongs solely to this consumer. Do not add a helper to hide conjunction, suppressions, or linter configuration changes. Existing functional controls run before code with unchanged expected results; actual RED is V17's 28 warnings and GREEN requires zero V17. Check success/fallback/error paths, short-circuiting/effects; reseal only affected owners. Revalidate build, complete workspace suite, all-targets Clippy with warnings and unfulfilled expectations denied, fmt, Rustdoc warnings denied, strict/reverse V1/V5/V15/V26 and SARIF without new warnings under 12 GiB, zero swap, one job. No memory/performance/global-parity claim without separate measurement.
 
-`ColorSpace` conserva `Clone + PartialEq`, mas perde `Eq + Hash` junto com
-`Copy`: o novo colorant contém fallback numérico e não é chave de mapa no
-corpus atual. Esta quebra de trait pública integra o mesmo gate.
-Projeção medida em `visualize/color.rs:2295-2297`:
-`fallback.lighten(1 - tint)` no espaço processual do fallback;
-`0%` projeta branco e `100%` projeta o fallback integral.
+## Exhaustive representation and identity maintenance
 
-## Correção medida em 2026-10-13
+Evidence at `01_core/src/entities/color.rs:214` and `lab/results/construction/diagnostics/tekt-enums-2026-10-16/before.json.gz` preserves the same HEAD/uncommitted tree, UTC, sources/L0/configuration/hashes/status/diffstat. Pinned SARIF recorded eleven warnings and one V16 note across seven owners, with nonemitted fallbacks measured in the same scope. Rust patterns/enum evolution are mechanics; observable fields/results/identity/errors remain unchanged. Infer no upstream intent or AI benefit.
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado.
-Fontes, hashes, UTC, status e diffstat: `lab/results/construction/diagnostics/cores-ci-2026-10-13/before.json.gz`
-e `constructors-before.json.gz`. Sondas e prova numérica em `evidence.json.gz`.
-Vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, SHA-256 ratificado
-`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+Color::eq keeps the nine same-space pairs and bodies first, process f32::to_bits and structural Spot. Replace catchall false with a pair whose first axis explicitly names Srgb/Luma/LinearRgb/Oklab/Oklch/Hsl/Hsv/Cmyk/Spot and second axis remains _. Do not convert spaces to compare. Enumerating the first axis forces a decision for future Color growth, including new/new. Preserve NaN/signed-zero and Spot semantics. Add cross-space inequality among nine spaces and clone-identity controls before code; these verify the Rust mechanism, not new language parity.
 
-Medição/decisão: palette 0.7.6 configurada com libm usa sinf/cosf/atan2f em
-Oklch/Oklab; o owner conversion ainda usava métodos nativos proibidos. Ampliar
-explicitamente os símbolos puros autorizados; implementação e testes ficam
-com conversion. A fachada não altera código semântico, apenas seu resselo.
+Internal continuous flow changes no enum definition, public field/trait/signature, default/dependency/compatibility/phase. Preserve bodies, order, guards and ownership; no helper hides the catchall, no neutrality comment acts as suppression. Before code run local functional controls and scoped V16 RED. In a disposable workspace copy add only a sentinel variant to copied Color, ColorSpace, MathStyleKind, FuncRepr, and StateUpdate, never productive definitions. Use `cargo check --offline --locked -p typst-core`, one job/shared artifact cache, recording sources/hashes/argv/UTC/diagnostics. For all 21 selected matches baseline must lack E0004 at that location and GREEN must emit E0004 there independently of other already-exhaustive matches. Compile the real code without sentinels and run behavior controls; negative probes do not prove parity. Do not edit productive source during commands.
 
-## Limites e precisão de cor — 2026-10-13
-
-Medição anterior à decisão, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
-working tree não commitado: fontes, SHA-256, UTC, status e diffstat em
-`lab/results/construction/diagnostics/limites-cor-2026-10-13/before.json.gz` e
-`parents-before.json.gz`; sondas em `evidence.json.gz`. Oráculo pinado
-`9f2b6e8715237cb086899a42873660fe744622e8`, binário SHA-256
-`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
-
-`red.rotate(45deg)` expõe blue negativo no cristalino; o vanilla limita a zero.
-`rgb(10%,20%,30%,40%)` expõe 10.2%/30.2% em vez de 10%/30%. Linear RGB aceita
-256 e alpha -1%, que o vanilla rejeita. Chroma Oklch negativo converte para
-cor cromática no cristalino e cinza no vanilla. As saídas completas ficam
-conservadas, inclusive dígitos adicionais dos componentes públicos.
-
-Fonte: upstream `visualize/color.rs:1825-1895` distingue FromColor limitado,
-identidade e from_linear; palette 0.7.6 `convert/from_into_color.rs:53-59`
-chama clamp após converter. `encoding/srgb.rs:100-120` usa multiplicação pelo
-recíproco na parte linear do decode e mul_sub no encode; `num.rs:718-722`
-implementa mul_sub SEM fusão. A antiga cláusula P1253 de encode com fmaf era
-incorreta para esta fonte. `oklab.rs:355-368` limita chroma a zero antes da
-conversão polar; `hues.rs:155-157` usa sincosf via o trait libm.
-
-Correção interna contínua ADR-0127: nenhum campo/assinatura pública, binding,
-modo padrão, compatibilidade externa ou fase muda. L0 primeiro, testes RED
-para observáveis, implementação e revalidação. Diferenças restantes das
-sondas não são normalizadas nem recebem certificado genérico de paridade.
-
-Retificar a cláusula semântica P1253: decode exponencial usa fmaf e powf;
-encode usa powf seguido de multiplicação e subtração separadas, conforme
-MulSub real. Não exigir a fusão errada. Decode linear usa multiplicação pelo
-recíproco. As implementações pertencem ao owner conversion; esta fachada
-recebe somente resselo. Aprovar sincosf puro no mesmo conjunto libm pinado.
-
-
-## Guards de domínio explícitos — V17, 2026-10-16
-
-### Medição anterior à decisão
-
-T276: 01_core/src/entities/color.rs:78. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
-
-### Responsabilidade exclusiva e aceitação
-
-Unir braços Srgb do Debug; no corpo manter exatamente as quatro comparações == do azul nominal e a escrita blue; fallback usa o mesmo debug_struct com r/g/b/a. Preservar signed zero/NaN e todos os demais espaços, sem mudar fórmulas de cor.
-
-Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.
-
-
-## Exaustividade de representação e identidade — V16, 2026-10-16
-
-### Medição anterior à decisão
-
-01_core/src/entities/color.rs:214. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `lab/results/construction/diagnostics/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
-
-### Responsabilidade exclusiva
-
-Color::eq: manter primeiro os nove pares de mesmo espaço e seus corpos (f32::to_bits, Spot estrutural). Substituir o catchall false por par cujo primeiro eixo nomeia as nove variantes atuais (Srgb/Luma/LinearRgb/Oklab/Oklch/Hsl/Hsv/Cmyk/Spot) e cujo segundo eixo permanece _. Não converter espaços para comparar. A lista no primeiro eixo força decisão quando Color cresce, inclusive no par nova/nova. Preservar NaN/signed zero e semântica específica Spot. Adicionar controle de desigualdade cruzada entre nove espaços e identidade de clone antes do código. A igualdade Rust é verificação do mecanismo existente, não prova nova de paridade da linguagem.
-
-### Aceitação e gate
-
-Manutenção interna ADR-0127 em fluxo contínuo: nenhuma definição de enum, campo, trait, assinatura pública, default, dependência, compatibilidade ou fase muda. Conservar cada corpo, ordem e guard; não mover lógica entre owners nem criar helper para esconder o catchall. Padrões nominais devem forçar erro de compilação ao surgir variante nova; comentários de neutralidade não servem como supressão.
-
-Antes do código, testes funcionais locais e gate V16 RED por escopo. Executar sonda de evolução em cópia descartável do workspace: acrescentar somente uma variante sentinela a Color, ColorSpace, MathStyleKind, FuncRepr e StateUpdate, sem alterar as definições produtivas. Usar cargo check --offline --locked -p typst-core com um job e cache de artefatos compartilhado; registrar fontes/hashes/argv/UTC/diagnósticos. Para cada um dos 21 matches selecionados, a baseline deve demonstrar a ausência de E0004 naquele match; GREEN exige E0004 ali, independentemente de erros de exaustividade já emitidos por outros matches na cópia. O controle de compilação sem sentinelas e os testes de comportamento aprovam o código real; não usar a sonda negativa como prova de paridade. Não editar source produtivo durante comandos.
-
-Resselo restrito, direto e reverso, sem reparo global da working tree. Revalidar build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, suíte workspace completa, Rustdoc -D warnings e quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF sem avisos novos e diff --check. Limite MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1, tarefas pesadas sequenciais. Nenhuma tolerância/fixture histórica é relaxada. As pendências V16 externas, inclusive T027/T158/T160 rastreadas sem emissão, continuam abertas.
+Restricted direct/reverse reseal, no global dirty-tree repair. Revalidate build, workspace/all-targets Clippy `-D warnings`/`-D unfulfilled_lint_expectations`, fmt, full workspace suite, Rustdoc `-D warnings` and four HTML indexes, strict/reverse V1/V5/V15/V26, no-new-warning SARIF, and diff --check. Use MemoryMax=12 GiB, MemorySwapMax=0, CARGO_BUILD_JOBS=1, sequential heavy tasks. Do not relax tolerances or historical fixtures. External V16 debt, including tracked nonemitted T027/T158/T160, remains open.

@@ -1,14 +1,14 @@
 # L0 — compiler/math/layout/line_decorations
 Hash do Código: e5ed28df
 
-## Medição anterior à decisão
+## Evidence before decision
 
-No HEAD ea7ae25ab (árvore limpa, 2026-09-30), a implementação vigente está em `01_core/src/compiler/math/layout/mod.rs:1312-1401`. A medição identifica o limite do bloco a extrair; não mede desempenho nem altera a paridade de linguagem.
+At HEAD ea7ae25ab (clean tree, 2026-09-30), the implementation was in `01_core/src/compiler/math/layout/mod.rs:1312-1401`. This measurement identifies the extraction boundary; it neither measures performance nor changes language parity.
 
-## Owner e contrato
+## Owner and contract
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/math/layout/line_decorations.rs`. Dispor as linhas de overline e underline matemáticos com as constantes de fonte, coordenadas relativas à baseline e estilos já vigentes. Esta extração mantém contrato público, defaults, fase do pipeline, compatibilidade e pureza L1.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/math/layout/line_decorations.rs`. Lay out mathematical overline and underline using the existing font constants, baseline-relative coordinates and styles. Extraction preserves the public contract, defaults, pipeline phase, compatibility and L1 purity.
 
-## Aceitação
+## Acceptance
 
-O despacho permanece estático. Testes L1, build e crystalline-lint devem passar. Não inferir ganho de desempenho da separação.
+Dispatch remains static. L1 tests, build and crystalline-lint must pass. Do not infer performance gains from separation.

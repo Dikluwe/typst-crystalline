@@ -8,7 +8,7 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:faf6c20021b467fdb2a864625f4f6dd4386b5ef28c137b946e5cb4e4ce073d52
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:300b35e6b7c70e79742d5edc4cda0f3419b15a41662e194fd1516b33b8cae1bb
 ```
 
 ## Current evidence
@@ -36,29 +36,36 @@ Run `cargo test -p typst-infra --lib font_metrics:: -- --test-threads=1` when va
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Imports e documentação de CI — 2026-10-13
+## Rustdoc structure and explicit fixture initialization
 
-### Medição anterior à decisão
+### Evidence
 
-`03_infra/src/font_metrics/fallback.rs` nas linhas 638, 639 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`
+retains sources/owners/spans/original compiler output, HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC/status/diffstat.
+fallback.rs:638–639 has selected warnings. Reference inspection distinguishes
+productive references, descendant-test-only imports and comments; this is no new
+parity measurement.
 
-### Decisão e aceitação
+`field-reassign-2026-10-15/before.json.gz` retains sources/spans/prior owners,
+HEAD/tree/UTC/diffstat, and initial-diagnostics.json records fallback.rs:759,896,
+1041, 1160, 1225, 1263, 1322 constructing default test styles then assigning fields.
+This is Rust representation, no new parity or product-default change.
 
-Corrigir a separação/continuação de parágrafos e listas dos comentários Rustdoc. Preservar o conteúdo técnico e todas as asserções/casos de teste.
+### Contracts and acceptance
 
-O mais textual entre os dois helpers vira a conjunção e, sem iniciar uma lista Markdown.
+Repair Rustdoc paragraph/list separation/continuation while preserving technical
+content and every test assertion/case. The textual “mais” between the two helpers
+becomes conjunction “e”, without starting a Markdown list. No public signature,
+default, phase, formula, acceptance or lint-suppression change. Run all-target
+compile, infra test inventory/execution, build/workspace Clippy/Rustdoc/lineage,
+owner-scoped resealing; no import-removal/comment-format mirror tests.
 
-Manutenção interna sem mudança de assinatura pública, default, fase, fórmulas ou critérios de aceitação (fluxo contínuo ADR-0127). Não introduzir supressões de lint. Revalidar compilação de todos os targets, nomes e execução da suíte de infraestrutura, build, Clippy do workspace, Rustdoc e linhagem com resselo restrito. Não criar testes que apenas espelhem remoção de imports ou formatação de comentários.
-
-
-## Inicialização explícita dos fixtures — field_reassign_with_default
-
-### Medição anterior à decisão
-
-`03_infra/src/font_metrics/fallback.rs` nas linhas 759, 896, 1041, 1160, 1225, 1263, 1322 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
-
-### Responsabilidade e aceitação
-
-Inicializar no literal os campos contíguos de preparação dos sete estilos: math; font/size; font/size/lang/dir; font/size/weight. Preservar cada expressão e sua ordem, o clone style_800 e a posterior alteração de peso, testes MATH, fontes, kerning, RTL e todos os controles de shaping.
-
-Usar `..Tipo::default()` para os campos restantes e retirar `mut` apenas onde deixam de existir mutações. Sem novos tipos, builders, APIs ou supressões de lint. L0 precede código e resselo restrito (fluxo contínuo ADR-0127). O gate selecionado deve falhar antes e passar depois; preservar nomes, inputs, expectativas e tolerâncias dos testes. Revalidar Clippy all-targets, suíte workspace, build, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe do inicializador.
+Initialize contiguous preparation fields directly in literals for the seven styles:
+math; font/size; font/size/lang/dir; font/size/weight. Preserve each expression/order,
+style_800 clone and later weight mutation, MATH/fonts/kerning/RTL and every shaping
+control. Use ..Type::default() for remaining fields; remove mut only where no mutations
+remain. No new types/builders/APIs/lint suppression. L0 first and scoped resealing,
+continuous ADR-0127. Selected gate must fail before and pass after; preserve test
+names/inputs/expectations/tolerances. Revalidate all-target Clippy/workspace suite/
+build/fmt/Rustdoc/lineage. No tests merely mirroring initializer syntax.

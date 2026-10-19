@@ -28,14 +28,22 @@ Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do no
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
 
-## Expressões locais verificadas — Clippy 2026-10-16
+## Private helper parameter representation
 
-### Medição anterior à decisão
+### Evidence
 
-04_wiring/tests/crystalline_lint.rs:29 (clippy::ptr_arg); 04_wiring/tests/crystalline_lint.rs:38 (clippy::ptr_arg). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
+`lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz`
+retains sources/L0, HEAD/uncommitted tree/status/diffstat/UTC;
+initial-diagnostics.json retains suggestions/spans at crystalline_lint.rs:29 and
+:38 (clippy::ptr_arg). Uses/types were inspected first. These are internal Rust
+representations, no new upstream parity/performance claim.
 
-### Responsabilidade exclusiva e aceitação
+### Contract and acceptance
 
-Nos helpers privados write_file e setup_project_dirs, receber &Path em vez de &PathBuf; manter PathBuf no retorno temp_project e adicionar o import Path. Os chamadores continuam os mesmos, com coercion por empréstimo, sem cópias ou mudança de limpeza/processos/V14.
-
-Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependência ou supressão novos. L0 precede código e resselo restrito. Preservar inputs e resultados dos controles existentes, sem relaxar tolerâncias. Gate dos lints selecionados RED→GREEN; executar suíte workspace, build, Clippy all-targets, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe Rust.
+Private write_file/setup_project_dirs take &Path instead of &PathBuf; keep PathBuf
+as temp_project's return and add the Path import. Existing callers use borrowing
+coercion without copying or cleanup/process/V14 changes. Continuous ADR-0127:
+no public API/default/phase/dependency/suppression change. L0 first, scoped
+resealing, unchanged input/result controls/tolerances. Require selected-lint
+RED→GREEN, workspace suite/build/all-target Clippy/fmt/Rustdoc/lineage; no tests
+merely mirroring Rust syntax.

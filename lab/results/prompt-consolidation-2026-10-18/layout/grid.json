@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/grid.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated measured-product coordination, ratified prepared-Table order exception, scalar horizontal gutter and final private 12-field GridLayoutInput; preserved legacy order, all child ownership, no extra placement and rich/multipage gaps.",
+  "original_sha256": "b399dfcb2ebee54fce219dd3beb06756ec692b43fa008e29dbdee7af0e95c6f7",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/grid.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

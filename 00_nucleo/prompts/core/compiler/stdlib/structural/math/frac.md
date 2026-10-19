@@ -15,7 +15,7 @@ Own the `math.frac(num, denom, style: vertical|skewed|horizontal)` argument vali
 
 `style` accepts only the three literal strings; absent remains absent, while an explicit `vertical` remains explicit in the complete carrier. Preserve the constructor's existing semantic flags and its morphology. No layout, dynamic dispatch or second runtime is introduced.
 
-The parent `math.rs` owns only static binding registration for `math.frac`, calling this child's native function. The child retains the current native signature. The payload remains owned by `entities/elements/math_frac.md`, with layout in `compiler/math/layout/frac.md`. No public signature, default, pipeline phase or compatibility change is authorized.
+The parent `math.rs` owns only static binding registration for `math.frac`, calling this child's native function. The child retains the current native signature. The payload remains owned by `00_nucleo/prompts/core/entities/elements/math_frac.md`, with layout in `00_nucleo/prompts/core/compiler/math/layout/frac.md`. No public signature, default, pipeline phase or compatibility change is authorized.
 
 ## Acceptance
 

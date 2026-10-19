@@ -1,79 +1,49 @@
 # Prompt L0 — `entities/elements/columns` — `ColumnsElem`
 Hash do Código: 3801768a
 
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/columns.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/columns.rs`
-**Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura). Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável**. Contentor — `map_*` recursam
-no `body`. **P552** — adicionada distinção entre `#columns(N)[...]` e
-`#set page(columns: N)` via campo `page_columns`.
+## Evidence before specification
 
----
+Historical upstream `e0e8ca4d`, crates/typst-library/src/layout/columns.rs:
+28–35 distinguishes page-level columns from wrapping content in a layout
+container and identifies pagebreaks, footnotes, and line numbers as affected
+observables. page.rs:233–236 specifies page columns with default one and
+points to columns() for a container; columns.rs:6–13 describes equal-sized
+columns filling sequentially to container or remaining page height.
+Full literal quotations remain archived. This evidence supports the semantic
+distinction, not an unmeasured exact footnote arrangement; see
+`00_nucleo/prompts/core/compiler/layout/set_page.md` for its remaining inference.
+Historical Content anchors are 1834,1665,2143,2020 for text/emptiness/maps/equality.
 
-## Struct
+## Contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 pub struct ColumnsElem {
-    pub count:         usize,
-    pub gutter:        Option<Length>,
-    pub body:          Content,            // era Box<Content>
-    /// **P552** — `true` quando este `ColumnsElem` foi produzido pela
-    /// transformação `wrap_page_columns` de `#set page(columns: N)`.
-    /// `false` para a forma-função `#columns(N)[...]`.
-    pub page_columns:  bool,
+    pub count: usize,
+    pub gutter: Option<Length>,
+    pub body: Content,
+    pub page_columns: bool,
 }
 ```
 
-`Content::Columns { count, gutter, body }` →
-`Content::Columns(Arc<ColumnsElem>)`. Construtor ergonómico preservado:
-`Content::columns(count, gutter, body)` (default `page_columns: false`).
+Preserve Content::Columns(Arc<ColumnsElem>) and
+Content::columns(count, gutter, body), with page_columns false. The flag is
+true when wrap_page_columns transforms #set page(columns:N), false for
+#columns(N)[...]. That transformation belongs to its owning consumer.
+Plain text and emptiness delegate to body. Both maps recurse into body and
+preserve count/gutter/page_columns. Field/kind/payload use defaults;
+non-locatable. Derived equality compares all four fields.
+Hash is manual through Debug because Length contains f64; the bool participates
+automatically. Document the signed-zero caveat; the existing allowance assumes
+this element is not a map key and must be revisited if it becomes one.
+Verify body transparency, maps preserving all fields, flag distinction,
+constructor default, structural equality and specified hash behavior.
 
-> **Fonte de paridade da distinção `page_columns` (P1031)** — a diferença entre
-> `#columns(N)[...]` e `#set page(columns: N)` **é** superfície de linguagem documentada, e
-> não uma decisão interna. Citação literal do doc comment `#[func]` do vanilla ratificado
-> (`e0e8ca4d`), `crates/typst-library/src/layout/columns.rs:28-35` — texto publicado em
-> `typst.app/docs/reference/layout/columns/#page-level`:
->
-> *"= Page-level columns — If you need to insert columns across your whole document, use the
-> `{page}` function's `columns` parameter instead. This will create the columns directly at
-> the page-level rather than wrapping all of your content in a layout container. As a
-> result, things like pagebreaks, footnotes, and line numbers will continue to work as
-> expected."*
->
-> E do lado do `page`, `crates/typst-library/src/layout/page.rs:233-236`, campo
-> `#[default(NonZeroUsize::ONE)] #[ghost] pub columns: NonZeroUsize`: *"How many columns the
-> page has. If you need to insert columns into a page or other container, you can also use
-> the `columns` function."*
->
-> O propósito geral de `columns` está em `columns.rs:6-13`: *"Separates a region into
-> multiple equally sized columns. […] By default, columns take up the height of their
-> container or the remaining height on the page and are filled up one after another."*
->
-> **Natureza**: literal. A frase *"rather than wrapping all of your content in a layout
-> container"* nomeia exactamente o mecanismo que o campo `page_columns` distingue, e a lista
-> *"pagebreaks, footnotes, and line numbers"* identifica os observáveis que separam as duas
-> formas. A mesma citação sustenta a afirmação sobre notas de rodapé em
-> `00_nucleo/prompts/core/compiler/layout/set_page.md` §2.
+## Historical record
 
-> **`Hash` manual via Debug** (precedente Lote 4/5/7): `Length` carrega `f64` e
-> não implementa `Hash` → `impl Hash { format!("{self:?}").hash(state) }`
-> (paridade `content_hash`; ressalva `-0.0`≠`0.0`; `…Elem` não é chave de mapa —
-> revisitar se passar a ser). `PartialEq` deriva (`usize`/`Length`/`Content`
-> implementam `PartialEq`). O campo `bool` é incluído automaticamente no `Debug`
-> e portanto no hash manual.
-
-## `impl Element for ColumnsElem`
-
-| método | comportamento |
-|---|---|
-| `plain_text` | `self.body.plain_text()` (`content.rs:1834`) |
-| `is_empty` | **override**: `self.body.is_empty()` (`content.rs:1665`) |
-| `map_content` | **recursivo** no `body`, preserva `count`/`gutter`/`page_columns` (`content.rs:2143`) |
-| `map_text` | **recursivo** no `body`, preserva `count`/`gutter`/`page_columns` (map_text) |
-| `get_field`/`element_kind`/`to_payload` | default |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara `count`/`gutter`/`body`/`page_columns` (paridade
-`content.rs:2020`).
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/columns.md`. Historical observations are not a new parity certification.

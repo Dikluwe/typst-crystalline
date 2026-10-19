@@ -2,120 +2,50 @@
 Hash do Código: 822bd5ac
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
-- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:1d697fae328277525e44cad674cecc537ceb23a1bb3ae11bb68a0a9575411ae4
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
 
-## Ownership e medição
+## Evidence before specification
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/layout/grid/row_groups.rs`. A lógica original estava em `01_core/src/compiler/layout/grid.rs:185-282` no HEAD `4e2a321ce`, árvore limpa, 2026-09-30 23:49:20 UTC. Trata-se de extração interna; a leitura não é prova nova de paridade nem medição de desempenho.
+Original logic is at `01_core/src/compiler/layout/grid.rs:185-282`, HEAD `4e2a321ce`, clean tree,2026-09-30 23:49:20 UTC. This is internal extraction, not new parity/performance proof. Complete historical measurements/provenance and repeated cross-owner qualifications remain in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/grid/row_groups.md`.
 
-## Contrato
+`lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, historical pin `9f2b6e8715237cb086899a42873660fe744622e8`, UTC/diffstat/status/sources/binaries/arguments/results. Oracle SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`. Pinned `layout/grid/resolve.rs:204–278,1500–1530,1665–1703,1945–1988` resolves fields/conflicts/padding/breakability. Tekt `grid_placement.rs:91–112,262–270`, `realize/mod.rs:160–200`, `table.rs:127–152` expose explicit-first/Grid-only placement, bottom-up recipes and discarded wrappers. order measures no cell effects under replaced Table/no Heading effects under hidden cell; aliases measures LOCAL a, OUTER LOCAL a, NEW a. Language/effects, not copied mechanics/bytes/Rust equality. Unknown fields/hidden effects/wrong order refute correction; cache/pagination equivalence is not inferred.
 
-Normalize Grid/Table header and footer groups into whole rows, detect explicit body-cell conflicts with header rows, preserve diagnostic and hint, and assemble cells in header/body/footer order. Return the conflict through the existing caller error channel without altering cell_align restoration. Não alterar contratos públicos, fase do pipeline, defaults nem compatibilidade. Preservar despacho estático e pureza L1.
+`lab/results/construction/diagnostics/table-cell-styles-d08b3c-2026-10-07/{before,refuters-before,extra-first}.json.gz` records same HEAD/uncommitted state, UTC2026-10-07T15:24:58.038947+00:00–15:25:13.727872+00:00,58 probes, full source/argv/cwd/environment, historical oracle pin/binary and Tekt hashes. Pinned `model/table.rs:734–800`, `layout/grid/resolve.rs:203–278` distinguish style defaults, explicit Auto delegation and padding spans 1; measured show-set changes observed colspan after physical occupancy, not a second occupancy. Stroke getter-versus-resolve and captured inherited base are separately measured rather than inferred from a raw constructor.
 
-## Aceitação
+`row_groups.rs:82` unused calculation and pre-edit uses/dispatchers/source/L0/HEAD/uncommitted state/UTC/status/diffstat are in `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`; no new bilateral parity proof.
 
-Testes L1, `cargo build` e `crystalline-lint .` passam. Não inferir ganho de desempenho.
+`lab/results/construction/diagnostics/tekt-v16-table-cells-2026-10-17/before.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC/status/diffstat/source/L0/config/hashes including original two-owner snapshot. contexts.json identifies ten V16/latent projections before code. public-before.json records actual API/rlib/probe/binary/SHA/argv: Source(Cell) loses x/colspan/rowspan/kind/span in header, footer loses Source, Source members alone cause different-level rejection, Source footer changes a/b→ab/empty. snapshot-before.json measures context_floor 77→0 in both Source restores. cli-before/extra/controls preserve bilateral sources/full binary hashes at historical pin `9f2b6e8715237cb086899a42873660fe744622e8`: one footer argument [a#strong[b]] produces two Tekt cells a/b versus vanilla ab/empty, show table:none wrongly rejects, [] hides header/footer without Cell panic, alias colspan retains message/caret. Spanning/level row differences remain unclosed. These are semantics/morphology/origin/error, not Rust/bytes/intended-mechanics obligations.
 
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
+The owner approved insertion-time resolved Table (historical D08B3-A) on 2026-10-07 (`comfirmo`), archived at `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md:3`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`: five public fields, two public carriers, one public facade and logical preparation before Cell show. This supersedes its stale proposed-only gate only within the approved scope. Standalone Cell defaults/generation (historical D08B3-B) were separately ratified/materialized (`confirmo`), archived at `lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-2026-10-07.md:3`, manifest `3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`. A did not authorize B's added public field/type; B's separate confirmation did. Neither closes broader incomplete scope.
 
-### Medição anterior à decisão
+## Exclusive ownership and current contract
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
+Layer L1. Sole consumer: `01_core/src/compiler/layout/grid/row_groups.rs`. Normalize whole Grid/Table header/footer rows, detect explicit body-cell conflicts with header, preserve diagnostic/hint and assemble header/body/footer order. Return conflicts through existing error channel without changing cell_align restoration. Preserve public contract/phase/default/compatibility/static dispatch/L1 purity.
 
-### Responsabilidade exclusiva proposta
+Logical whole-group/role/conflict normalization remains exclusively here, exposed through a pure helper to Table preparation; logical output is not Frame. Prepared physical path consumes known ranges without concatenating/padding groups again. Legacy Grid keeps helper/diagnostics. Rich header/levels/lines retain measured limits, without a new PDF/UA promise.
 
-Normalização lógica de grupos inteiros/roles/conflictos continua exclusiva, disponibilizada por helper puro ao estágio Table; output lógico não é Frame. Physical path preparado recebe ranges já conhecidos, não concatena/pad grupos novamente. Grid legada conserva helper/diagnósticos. Casos ricos de header/níveis/linhas conservam limites medidos anteriores, sem nova promessa PDF/UA.
+Header conflicts use effective Cell y/rowspan and same source_span, while Grid retains prior contract. Realization owner supplies cloned prepared properties; this unit reads no styles or recipes, preserving messages/hints/lexical source. Remove unused rowspan extraction/calculation from the splice conflict test only: header occupies[0,header_rows), y>=0 and normalized span>0, so intersection is exactly y<header_rows. Preserve GridCell/TableCell, explicit y and first-conflict selection. Do not change placement/footer scope.
 
-### Gate, aceitação e divisão explícita
+Only in table_groups, project Source-wrapped Header/Footer and bodies through private table_group_view to a normalized logistical view with nominal complement. Clone existing structs and preserve repeat; original Table retains Source. Use the view in existing combine_cells calls. Do not change occupancy policy/algorithm/padding or Grid path, and do not ratify already measured spanning/level discrepancies.
 
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
+C01 combine_cells (`row_groups.rs:76`): only GridCell/TableCell supply explicit conflict y; nominal complement supplies none, preserving Grid policy. C02 table_groups (`:129`): only TableCell with matching placement.y supplies error source_span; every other case, including failed TableCell guard, stays None. Preserve guards/first diagnostic/order.
 
-## D08B3-C — defaults declarativos da Cell, fluxo contínuo
+Cross-owner effective-property boundaries (`00_nucleo/prompts/core/entities/elements/table_cell.md`, `00_nucleo/prompts/core/compiler/realize/table_cells.md`, `00_nucleo/prompts/core/compiler/layout/grid_placement.md`): physical TableCellResolved remains occupancy plan while private standalone projection may alter observed lexically omitted spans after show-set; padding has lexical spans 1. Retain causal guards/stage, no raw-source mutation/public change. Successive declarative Stroke values fold specified components without carriers/callbacks in Styles; standalone constructor getter remains whole, positioned resolution folds constructor with captured Cell then Table base through private stroke_inherited:Option<Stroke>. ObservationEq includes base, canonicalization ignores derived render base, resolved Table base=None, clone/aliases preserve base and explicit None wins. Row-group normalization neither recomputes those properties nor changes occupancy from getters.
 
-### Medição anterior à decisão
+## Acceptance and incomplete scope
 
-lab/results/construction/diagnostics/table-cell-styles-d08b3c-2026-10-07/before.json.gz registra 58 sondas, UTC 2026-10-07T15:24:58.038947+00:00 até 15:25:13.727872+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/status/fontes/argv/cwd/ambiente completos. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set, campos individuais, late/local/reuse/spread e rejeições refutam o warning de target vazio e a ausência dos defaults. padding-span-one/empty-fixed-rows fixam spans 1 em vazios; auto-table-fallback preserva Auto explícito como delegação à Table, não ao set da Cell. show-cell-set-self altera avulsa mas não fill conhecido da Cell posicionada. Stroke/alignment fazem fold. refuters-before.json.gz estende com header, partial inset, args/condição e snapshot em Table; alias-inside-table é válido no vanilla e recursa indevidamente no Tekt.
+Require RED→GREEN, suites/build/lint/restricted preservation and D08A/B2, D05/D06/D07/query collections. Accept real language/effects/geometry, not byte equality or whitespace normalization to close render. General Table defaults/fields (table-root-equality), rich style functions/paint/strokes/insets, rich lines/gutters, multipage spans and PDF/UA are not certified. Preserve extra legacy D08B2 casts, syntax/flags and global nonlocatable policy.
 
-Fonte: upstream typst-library/src/model/table.rs:734–778 declara campos, e layout/grid/resolve.rs:203–278 lê estilos antes de resolver/sobrescrever posições/fill; defaults de padding TableCell packed em model/table.rs:785–800 pinam spans 1. Tekt rules/set.rs:23–27 usa text_str de target e não reconhece FieldAccess; table_cells.rs:262–310 usa apenas propriedades lexicais no placement/herança; grid_placement.rs:80 lê x/y/spans diretamente; TableCell standalone não possui propriedades efetivas privadas. É língua (campos/ordem/efeitos/estilo/erros); a representação privada abaixo é decisão Tekt, não obrigação de copiar Packed ou igualdade Rust. Hipótese refutável por qualquer negativo destas coletas, perda de fonte lexical, mutação de valor cru, efeito repetido, guard de alias perdido ou regressão de geometria/cache.
+Declarative-default corrections follow internal continuous-flow ADR-0127, no new public/external/default/phase, private props/helpers in externally nonconstructible carrier and unchanged lexical values. L0 first/restricted reseal/RED→GREEN; bilateral error/caret/effects with exact state/binaries/UTC and actual geometry, debug/release builds/suites/lint, prior tree preserved without commit/reset/global reseal. Certified subset remains integers/autos, Color/None/Auto, uniform Stroke/None, alignment, Length/partial Length-or-Auto inset, Bool/Auto and existing typed schemas. Gradient/tiling/functions/per-side strokes/percentage inset/rich constructor casts/multipage groups-spans/PDF-UA/positional set-text/general Table defaults need own measurement/L0. Fallback warnings do not certify support or license copying upstream defects. Span-getter/stroke folds require preimplementation RED→GREEN with geometry/regressions; standalone constructor precedence is not positioned-stroke resolution.
 
-### Responsabilidade exclusiva
+Dead-calculation removal preserves language/test expectations and all targets/core suite/build/Clippy/lineage, without suppressing warnings.
 
-Conflitos com header usam y/rowspan efetivos de Cell e o mesmo source_span; Grid permanece no contrato anterior. Grupos recebem clones com props já preparadas pelo owner de realização, não leem estilos nem executam receitas. Preservar mensagens/hints e fonte lexical.
+Source/cast correction preserves Table show→defaults/placement→Cell show→body. Constructor settles raw Cell only: no recipe/with_defaults/placement/fonts/layout. No public field/type/signature/trait/flag/default/phase/compatibility change. Keep informative justified V19, never claim all-alternative execution; no allow/expect/@ capture/if-let hiding exhaustiveness. Preserve unmodified legacy errors/casts, failed guards, callbacks and success/error restoration.
 
-### Gate, aceitação e limites
+Owner RED→GREEN covers explicit/Source Cell properties/presence/kind/origin; footer casts by argument rather than fragment; unprepared raw forms; Source groups/two snapshot restores; type/Auto/None negatives/invalid-local-key shadow; show None without allowing other values. Revalidate hidden effects/late-rule CLI and pinned structural observables without reduced tests/whitespace normalization. Separate disposable real-workspace Content/Value/TableCellKind future variants with cfg(test) compiled require E0004 in all 18 final matches, counted once. Preserve inputs/cfg(test) witness error; use private target and no mutant artifacts in primary target.
 
-Correção interna de paridade/mapeamento, ADR-0127 contínuo: nenhum contrato público, compatibilidade externa, flag/default de produto ou fase nova. Props e helpers são privados em carrier já não-construível externamente; lexicais não mudam. L0 editado primeiro, resselo restrito e RED→GREEN obrigatórios. Coletas bilaterais com erros/caret/efeitos, fonte/binaries/HEAD/UTC, geometria real; build debug/release/suítes e lint sem erros. Preservar árvore anterior sem commit/reset/resselo global. Subconjunto certificado: inteiros/autos, Color/None/Auto, Stroke uniforme/None, alinhamento, Length/inset parcial de Length/Auto, Bool/Auto e schemas já tipados. Gradient/tiling/functions, strokes por lado, inset percentuais e rich casts de constructor, grupos/spans multipágina/PDF-UA, set/text posicional e defaults gerais de Table continuam incompletos, com medição/L0 próprios antes de ampliar. Não certificar por warning fallback nem copiar defeitos upstream.
+Require build/full workspace suite/fmt/Clippy all-targets -D warnings/-D unfulfilled_lint_expectations/Rustdoc -D warnings with four indexes/strict-reverse V1/V5/V15/V26/replay/full SARIF diff/diff-check. Expected V16 141→131, only prescribed V19, no V20 growth and remove depth from two optional projections. MemoryMax12GiB/swap 0/one Cargo job/sequential heavy commands; no commit/push/merge/release/new CI pin.
 
-Precisão medida em refuters-before: stroke-constructor-fold e align-constructor-fold preservam o construtor inteiro contra set da Cell. self-set-does-not-change-placement muda colspan observado para 2 após a ocupação já feita com 1; não é prova de nova ocupação.
-
-### Precisão dos spans observados após show-set (refutador C)
-
-Medição anterior: refuters-before.json.gz / self-set-does-not-change-placement, vanilla devolve colspan 2 na célula real x0 e colspan 1 nos paddings x1/x2. Fonte pinada layout/grid/resolve.rs:218–244 captura spans de ocupação mas não assenta seus campos no conteúdo; model/table.rs:785–800 assenta 1 nos paddings. Logo ocupação e getter posterior são observáveis distintos. Decisão privada: a Cell posicionada conserva TableCellResolved como plano físico; o carrier standalone privado pode coexistir apenas para propriedades observadas da receita, mantendo campos resolvidos e sobrescrevendo spans lexicalmente omitidos pela declaração de show-set. Getters/canonicalização consultam essa projeção; placement do plano completo continua usando TableCellResolved. Padding sem fonte tem spans lexicais 1 para que show-set não os altere. Guards/stage continuam causais, sem novo contrato público nem mutação da fonte original. RED de span getter antes de implementar, GREEN mais geometria/regressões obrigatórios.
-
-### Fold de declarações de Stroke — medição extra C
-
-extra-first.json.gz (fontes/HEAD/estado/UTC/binários completos) compara two-stroke-sets: set stroke:red seguido de 2pt produz 2pt + red no getter avulso e posicionado vanilla. stroke-render-inherits-cell-style resolve o constructor 2pt com paint red da Cell antes do fallback da Table 3pt, embora stroke-constructor-fold avulso exponha somente o constructor 2pt. Fonte pinada model/table.rs:765 declara #[fold]; resolve.rs:225–237 usa stroke.resolve(styles), distinto do getter cru. Decisão: declarações sucessivas foldam componentes specified ao publicar Value::Stroke declarativo; nenhum carrier/callback é guardado em Styles. Constructor stroke permanece inteiro no getter avulso; resolução posicionada folda o constructor com a base capturada Cell e depois Table. Adicionar somente campo privado stroke_inherited: Option<Stroke> em TableCellProperties para transportar essa base causal, sem assá-la no getter lexical. ObservationEq inclui base; canonicalização ignora base derivada de render. Table já resolvida tem base None. Clone/aliases conservam base anterior; None explícito vence. RED→GREEN antes de código; correção privada contínua ADR-0127, nenhum contrato público/fase/default novo. A cláusula de precedência inteira do constructor vale para o getter avulso, não para a resolução fold de stroke, conforme medição.
-
-
-## Caminhos residuais internos — 2026-10-13
-
-### Medição anterior à decisão
-
-`01_core/src/compiler/layout/grid/row_groups.rs` nas linhas 82 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
-
-### Decisão e aceitação
-
-Eliminar a extração/cálculo de rowspan que não participa da decisão de conflito com o header. No modelo splice, header ocupa [0, header_rows), y é não negativo e o span normalizado é positivo: a interseção equivale a y < header_rows. Preservar GridCell/TableCell, posição y explícita e a seleção do primeiro conflito; não mudar placement nem resolver o scope-out do footer.
-
-Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.
-
-
-## Tabelas: exaustividade, origem e argumentos — 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado; UTC/status/git diff HEAD --stat, fontes/L0/configuração e hashes em `lab/results/construction/diagnostics/tekt-v16-table-cells-2026-10-17/before.json.gz` (snapshot inicial de dois owners preservado). contexts.json identifica dez V16 e as projeções latentes, antes do código. public-before.json usa APIs públicas reais com rlib/probe/binário/SHA/argv: Source(Cell) perde x/colspan/rowspan, kind e span no header; footer perde Source; níveis distintos são rejeitados somente quando seus membros levam Source; grupo de footer Source muda células a/b para ab/vazio. snapshot-before.json mede context_floor 77→0 sob Source nas duas restaurações. cli-before.json/cli-extra-before.json/cli-controls-before.json registram sondas bilaterais com binários SHA completos no pin 9f2b6e8715237cb086899a42873660fe744622e8. Footer com um argumento [a#strong[b]] gera duas células a/b no Tekt contra ab/vazio no vanilla; show table:none é indevidamente rejeitado. Controles [] ocultam header/footer sem executar panic de Cell; erros de colspan com alias conservam mensagem/caret. Header/footer colspan e grupos de nível distinto também expõem divergências de linhas, que este lote não dará por resolvidas. É semântica/morfologia/origem/erro, não obrigação de igualar estrutura Rust, bytes ou inferir intenção upstream.
-
-### Prescrição exclusiva
-
-Apenas no caminho table_groups, projetar Header/Footer Source e seus bodies para uma vista logística normalizada, em helper privado table_group_view com complemento nominal. Clonar os structs existentes, preservando repeat; Source continua na fonte original da Table. Usar essa vista nas chamadas existentes de combine_cells. Não alterar a política/algoritmo/padding de ocupação neste lote, nem o caminho Grid. As divergências spanning/níveis já medidas são pendências explícitas, não uma ratificação do algoritmo atual.
-
-- **C01** — `01_core/src/compiler/layout/grid/row_groups.rs:76`, `combine_cells`: Somente GridCell/TableCell fornecem y de conflito; outros conteúdos não têm posição explícita nessa projeção. A política Grid não muda. Excluir somente `GridCell, TableCell`; guardados no complemento `(nenhum)`.
-
-- **C02** — `01_core/src/compiler/layout/grid/row_groups.rs:129`, `table_groups`: Somente a Cell com placement.y correspondente fornece source_span no erro; todos os outros continuam None, inclusive Cell quando o guard falha. Excluir somente ``; guardados no complemento `TableCell`.
-
-### Aceitação e pendências
-
-L0 antes de testes/código. Fluxo contínuo ADR-0127: correção interna de Source e casts da linguagem, sem campo/tipo/assinatura/trait público, nova flag/default, fase ou compatibilidade externa. Constructor só assenta Cell crua: não chama receita, with_defaults, placement, fontes ou layout. A ordem Table show→defaults/placement→Cell show→body permanece. Grupos V19 ficam justificados por caso e visíveis; não provar cobertura por executar um braço. Não introduzir allow/expect, captura @ ou if-let que esconda a exaustividade nova. Preservar erros/casts legados não alterados, guards que falham, callbacks e restauração em erro/sucesso.
-
-Regressões RED→GREEN nos owners: propriedades/presence/kind/origem de Cell explícita e Source, casts de footer por argumento e não por fragmento, formas cruas não preparadas, groups Source e duas restaurações de snapshot, negativos de tipos/Auto/None e shadow de chave local inválida, None em transformação show sem abrir aceitação de outros valores. Revalidar efeitos ocultados/late-rule pelo CLI e observáveis estruturais do pin; não reduzir testes ou normalizar whitespace para fechar paridade.
-
-Sondas Content/Value/TableCellKind com variantes futuras reais em workspace descartável, cfg(test) compilado: os 18 matches finais devem exigir E0004, contando apenas uma vez cada match. Inputs e erro-testemunha cfg(test) preservados. Cargo target privado, nunca compartilhar artefatos mutantes/medições com o target principal. Gates: build, suíte workspace completa, fmt, Clippy all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings e quatro índices, V1/V5/V15/V26 estrito e reversa, replay, diferencial SARIF completo e diff-check. V16 esperado 141→131; V19 só dos grupos prescritos; V20 sem crescimento, remover profundidade das duas projeções opcionais. Sob MemoryMax=12 GiB, swap zero, Cargo um job, comandos pesados sequenciais. Sem commit/push/merge/release ou pin CI novo.
-
-Incompletude explícita: header/footer spanning e limites entre níveis ainda exigem o pacote table-row-group-contract, com medição/L0 próprios. Nível do grupo e kind/nível semântico da Cell não são o mesmo conceito; não ratificar a inferência atual como contrato completo. Não corrigir ocupação com comprimento de Vec nem usar Source/Styles como marcador de fronteira. Preservar Grid legada. Demais casts/paint/insets ricos e compromissos históricos não são certificados por fechar V16. O objetivo geral, math-stretch-composite e as duas obrigações de matching permanecem abertos.
+Header/footer spanning and level boundaries remain for table-row-group-contract with own measurement/L0. Group level differs from semantic Cell kind/level; current inference is not a complete contract. Do not repair occupancy through Vec length or Source/Styles boundary markers. Preserve legacy Grid. Other rich casts/paint/inset/historical commitments, overall objective, math-stretch-composite and both matching obligations remain open.

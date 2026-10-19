@@ -2,45 +2,18 @@
 Hash do Código: 32ea31c3
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:8de2c32fbeeee7a30088b4ff3808e15a211f23a182673ef5cdebe54bd3eadad6
+- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:958649ea9ebdd471f101874ff8cf94feb995ee037c43eb6e2f1d1ad19a151ef3
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/state_registry.rs`
-**Criado em**: 2026-04-30 (P171 sub-passo .E — sub-store de M9 state feature)
-**ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/state_registry.rs`
 
----
+## Design and language evidence
 
-## Contexto
+The original store maps String keys to Vec<(Location,Value)> history, with O(1) key lookup/append and O(n) temporal lookup. It separates pure state data from Introspector behavior, without I/O, mutable globals or compiler imports. BTreeMap/flat key-location-vector alternatives were not selected. Debug/Clone/Default and public signatures remain; the later private Arc representation below supersedes inline storage while retaining borrowed reads.
 
-`StateRegistry` é o sub-store de runtime mutable state para `Introspector`. P171 (M9 sub-passo 3) — feature `state(key, init)` + `state_update(key, value)`.
+Historical upstream `e0e8ca4d:introspection/state.rs:192–194,300–315` carries init in each state object and makes updates effective only when their returned content is placed. First-init-wins and ignore-update-without-init are local defensive legacy rules, not measured vanilla semantics: that language does not have an independent init registry. Public acceptance observes values at document positions. Upstream state.rs:184–188,339–349 also documents convergence and recommends function updates; comemo is memoization, not the state resolver. The old single-pass limitation was observable scope, not invisible mechanics; it must not override the later approved reader runtime.
 
-Vanilla equivalente: `lab/typst-original/.../introspection/state.rs`. Cristalino isola num sub-store dedicado por simetria com `LabelRegistry`/`CounterRegistry`/`MetadataStore`.
-
----
-
-## Estrutura
-
-`HashMap<String, Vec<(Location, Value)>>` — para cada key, lista ordenada de pares (Location, value). Init é a primeira entrada (cronologicamente). Updates posteriores adicionam ao Vec.
-
-Decisão (P171.A.3): escolhida `HashMap` por:
-- Lookup por key é O(1).
-- Vec interno permite append em O(1).
-- `value_at(key, location)` é O(n) onde n = updates da key (aceitável; n é tipicamente pequeno).
-
-Alternativas consideradas: `BTreeMap<Location, ...>` (ordenação automática mas lookup por key complicado), `Vec<(Location, key, Value)>` (sort needed antes de lookup).
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: struct puro, sem I/O.
-- Read-only após construção (mutação só via `pub(crate) fn init` / `update` / `apply_update` durante construção em `from_tags`).
-- `Clone` derivado.
-
----
-
-## Interface pública
+## Preserved legacy interface
 
 ```rust
 use crate::entities::location::Location;
@@ -59,253 +32,48 @@ impl StateRegistry {
     pub(crate) fn init(&mut self, key: String, init: Value, location: Location);
     pub(crate) fn update(&mut self, key: String, value: Value, location: Location);
 }
+
 ```
 
-**P173**: o método de conveniência `apply_update(key, StateUpdate, location)`
-foi removido. Razão: `StateUpdate::Func` requer `Engine + EvalContext`
-para eval, que não estão neste sub-store. O match sobre `StateUpdate`
-vive agora em `from_tags::from_tags` onde Engine está disponível;
-`StateRegistry` expõe apenas as primitivas `init` + `update`.
+empty returns no values. Explicit init retains the first init for a key; explicit update ignores keys without init. value_at returns the last eligible history entry at/before the causal target, or None; final_value returns the last materialized value (init if no updates). Distinct keys are isolated. The removed apply_update convenience method is not restored: matching/executing Func belongs to compiler runtime with Engine/EvalContext, never this entity.
 
----
+The original passive-consumer and planned-only statuses are history. TagIntrospector exposes the store through independently owned state access. Tests retain empty queries, init-only eligibility, before/after updates, multiple updates, isolated keys, ignored uninitialized updates and ignored second init for this legacy interface. Modern object-local init below is distinct.
 
-## Semântica
+## Causal order and equivalent temporal search
 
-- `empty()`: registry vazio.
-- `init(key, init, location)`: regista valor inicial. Apenas a **primeira chamada para cada key** é considerada — segundo init é ignorado (decisão do cristalino; ver bloco P1031).
-- `update(key, value, location)`: regista update. **Se key não foi inicializada, update é ignorado** (defensive; ver bloco P1031).
+At HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, StateRegistry/CounterRegistry/query/events compared numeric Location, but realization allocates identities before transforms. CLI evidence and `single_evaluation_counter_follows_causal_order` retain the counterexample. Follow pinned realization-order: private per-registry first-observation ordinal, observe_location/order_key and numeric fallback only for unobserved legacy/test locations. Temporal lookup preserves the causal prefix for nonmonotonic origin/product IDs. No global state or inference of chronology from identity.
 
-> **Correcção P1031 — duas alegações sobre o vanilla, ambas sem base na fonte.**
->
-> A redacção anterior atribuía ao vanilla dois comportamentos: *"segundo init é ignorado
-> (paridade vanilla)"* e *"vanilla geraria erro"* para update sem init. Nenhum dos dois se
-> encontra no vanilla ratificado (`e0e8ca4d`) — e a razão é estrutural: **no Typst, `state`
-> não tem "registo de init" nem "update sem init".** `state(key, init)` é um construtor que
-> carrega o valor inicial consigo (`crates/typst-library/src/introspection/state.rs:192-194`:
-> *"The key that identifies the state."* / *"The initial value of the state."*), pelo que
-> todo `update` parte de um estado já definido por construção. As duas situações que estas
-> linhas descrevem não existem na linguagem.
->
-> **O que a documentação diz, e que é o que importa** (doc comments `#[func]`,
-> `state.rs:300-315`, publicado em `typst.app/docs/reference/introspection/state/`):
->
-> *"State is a part of your document and runs like a thread embedded in the document
-> content. The value of a state is the result of all state updates that happened in the
-> document up until that point. That's why `state.update` returns an invisible sliver of
-> content that you need to return and include in the document — a state update that is not
-> "placed" in the document does not happen, and "when" it happens is determined by where you
-> place it."*
->
-> Ou seja: o observável é o valor num ponto do documento, determinado pela posição dos
-> updates. É contra isso que a paridade se mede, não contra a mecânica do registry.
->
-> **Reclassificação**: as duas regras acima passam de "paridade vanilla" a **decisões
-> defensivas do cristalino** para estados que a linguagem não pode produzir. Não são achados
-> de código; são achados de enquadramento, corrigidos aqui.
-- `value_at(key, location)`: encontra último (key-value) pair com `loc <= location` na ordem do Vec; retorna value ou None.
-- `final_value(key)`: retorna o último value registado (init se nenhum update, ou último update aplicado).
+`lab/results/construction/diagnostics/predicados-fixtures-ci-2026-10-13/before.json.gz` freezes source/L0/nucleus/UTC/status/diffstat at that uncommitted HEAD. state_registry.rs:80 uses pure order_key in iter/filter/last. rfind may select the same last eligible Vec entry and None without reordering history, changing init/update or substituting IDs. Worst-case O(n) remains, with no measured speed claim. Preserve temporal tests; no public/default/phase change follows from this refinement.
 
-**P173**: `apply_update` removido. Match sobre `StateUpdate` (Set vs Func) vive em `from_tags` onde `Engine` está disponível para eval de Func.
-
----
-
-## Algoritmo `value_at`
-
-```rust
-fn value_at(&self, key: &str, location: Location) -> Option<&Value> {
-    let history = self.inner.get(key)?;
-    history
-        .iter()
-        .filter(|(loc, _)| loc.as_u128() <= location.as_u128())
-        .last()
-        .map(|(_, v)| v)
-}
-```
-
-Comparação por `as_u128()` directa — Locations são monotonicamente crescentes pelo `Locator` (P161), portanto a ordem de inserção é a ordem cronológica.
-
----
-
-## Tests obrigatórios (sub-passo .E P171)
-
-- `empty()` retorna `None` em qualquer query.
-- `init` only → `value_at` em qualquer location ≥ init_loc retorna init.
-- `update` após `init` aplica no ponto correcto (antes do update: init; depois: novo).
-- Múltiplos updates em sequência: cada location resolve para o valor correcto.
-- Keys distintas isoladas.
-- `update` sem `init` é ignorado.
-- Segundo `init` para mesma key é ignorado.
-
----
-
-## Consumers actuais
-
-Nenhum no momento da criação. Consumido em P171 .F por `rules/introspect/from_tags.rs` arms `ElementPayload::State` e `ElementPayload::StateUpdate`.
-
-## Consumers planeados
-
-- `entities/introspector.rs::TagIntrospector.state` field — exposição via `state_value` / `state_final_value`.
-- M5 retorno: `Layouter` pode consumir `state` para resolver flags como `numbering_active("heading")`.
-- M9+ features que dependem de state runtime.
-
----
-
-## Sobre paridade
-
-Vanilla resolve o estado por **iterações de layout** repetidas até convergir. Cristalino simplifica para single-pass linear (sem fixpoint M7). Suficiente para casos comuns onde `state.update` aparece no mesmo documento que `state.value_at`. Refino futuro (M9+) pode adicionar fixpoint quando consumers reais exigirem.
-
-> **Fonte de paridade (P1031)** — a afirmação anterior (*"Vanilla `state.rs` armazena state
-> via fixpoint comemo"*) nomeava o mecanismo errado: `comemo` é a camada de memoização, não
-> o resolvedor de estado. O mecanismo real é a **iteração de layout**, e está **documentado
-> na linguagem** — vanilla ratificado (`e0e8ca4d`),
-> `crates/typst-library/src/introspection/state.rs:339-349`, doc comment do parâmetro de
-> `state.update`:
->
-> *"When updating the state based on its previous value, you should prefer the function form
-> instead of retrieving the previous value from the context. This allows the compiler to
-> resolve the final state efficiently, **minimizing the number of layout iterations
-> required**. In the following example, `{fill.update(f => not f)}` will paint odd items in
-> the bullet list as expected. However, if it's replaced with
-> `{context fill.update(not fill.get())}`, then **layout will not converge within 5
-> attempts**, as each update will take one additional iteration to propagate."*
->
-> E `state.rs:184-188`: *"In general, you should try not to generate state updates from
-> within context expressions. […] Sometimes, it cannot be helped, but in those cases it is
-> up to you to ensure that the result converges."*
->
-> **Consequência para o scope-out**: a convergência iterativa **é superfície de linguagem
-> observável** (o utilizador vê o erro de não-convergência, e a página de referência de
-> iterações do compilador é pública). O single-pass do cristalino não é, portanto, apenas
-> uma simplificação mecânica invisível — é uma restrição de comportamento. Continua
-> legítimo como scope-out declarado, mas fica registado com essa natureza e não como
-> "mecânica interna". Frase corrigida acima.
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/state_registry.rs` — struct + 8 métodos + 7 tests.
-- Re-export em `01_core/src/entities/mod.rs`.
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-04-30 | P171: sub-store de runtime mutable state para Introspector M9 | `state_registry.rs`, `state_registry.md` |
-| 2026-04-29 | P173: removido `apply_update` — match Set/Func vive em `from_tags` onde `Engine` está disponível | `state_registry.rs`, `state_registry.md` |
+## Synthesized-entry order evidence
 
 
+The original order-before.json.gz/before.json.gz retain the same uncommitted HEAD/UTC/hashes/diffstat; trace-runtime-result.json/trace-runtime.log show direct entry in pure/runtime/L3 NativeElement indices, while bare outline.entry becomes Kind(OutlineEntry) at foundations/selector.rs:113 and the terminal walk omits it. measurement-order-before.json at historical pin `9f2b6e8715237cb086899a42873660fe744622e8` measures BARE [Heading] versus[Heading,Direct], FILTERED [Direct,Heading] versus[Heading,Direct], STATE2 versus 1, COUNTER((2,),) versus((1,),) at synthesized Location. Post-walk allocation happens after updates but belongs causally inside the earlier outline. Wrong order/prefix/duplication/entry data refutes the correction; language acceptance does not require equal Rust/PDF bytes.
 
 
-## Medição da ordem antes da decisão
+Provide only crate-private observe_locations_after(&mut self,anchor:Location,locations:&[Location]): unknown anchor/empty/already-observed list is no-op. Pure local HashSet deduplicates new locations in order; shift later ordinals and insert directly after anchor. Preserve dense old relative order, idempotence, clones and later append. Compiler chooses anchor; never infer it by Location number. Do not change init/update/history/lookup/values/phases/I/O/external interface or import compiler.
 
-No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, CounterRegistry::value_at e StateRegistry::value_at comparam Location.as_u128; queries before/after e eventos de contador fazem o mesmo. A realização prepara identidades antes de transformar, portanto o número deixa de ordenar origens e produtos. A sonda CLI e a sentinela single_evaluation_counter_follows_causal_order conservam a evidência no diagnóstico de implementação. Aplicar o núcleo realization-order; manter fallback histórico somente sem ordem registrada.
-
-
-## Realização com avaliação única
-
-Guardar ordem causal privada por Location, preenchida durante o walk, independente do contador numérico do identificador. Estado é por registry, não global.
+For entry ordering, tests precede code: bare/direct entry and aliases, three-entry order across two outlines with direct entry between, where/no phantom heading, state/counter prefix at synthesized locations. Internal-helper contracts cover unknown anchors, duplicates/repetition, nonmonotonic IDs and dense append. Repeat nine CLI probes (six originals plus order/state/counter) without relaxed outputs. Full suite/build/fmt/strict Clippy+Rustdoc/V1/V5/V15/V26/reverse/diff/SARIF must remove six V16, add seven prescribed V19 and update three existing messages without new V20. Use 12 GiB/swap 0/one-job/sequential heavy commands. This bounded internal/parity repair adds no external signature/default/phase; reseal only nine affected pairs. Original package excluded commit/push/release and left other V16 debts open.
 
 
-## Realização com avaliação única
+## Object-local state reading evidence and approval
 
-observe_location registra primeira ocorrência; order_key consulta ordinal e conserva fallback numérico somente para Location não observada em testes/consumers legados.
+`lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/{before,final-freeze,state-counterproof}.json.gz` records HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree/UTC/status/diffstat/sources, current pin `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Bilateral RED requires same-key initial1/10 after+1→2/11, no execution of unread callbacks, and reused updates executing per occurrence. Upstream state.rs:226–245,419–455,477–520 starts from reader init and document order. The old eager postpass/Func-as-Set lost those values/errors; no Rust identity or algorithm copying is required.
 
+The prior A1-S1 proposal was withdrawn. Owner-approved A1-S2 review is `lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md`, SHA-256 `6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4`. It ratifies its five signatures and read phase, without expanding other public contracts.
 
-## Realização com avaliação única
+## Current action storage contract
 
-Lookup temporal usa ordem causal registrada, preservando a semântica do prefixo quando IDs de origem e produto não são monotônicos.
+Preserve StateRegistry public definitions/signatures. Privately record StateUpdate actions by key/Location independently of global init. Capture Set/Func and deduplicate only the same occurrence at the same Location. Ordered reads use causal order_key with inclusive prefix semantics; callbacks never execute here. Public materialized history stays legacy; the modern reader does not treat its first init as a global initialization.
 
+Privately store materialized values as Arc<Value>. Crate-private RecordedStateUpdate is Set(Arc<Value>)|Func(Func), without changing public StateUpdate. Share a Set Arc between legacy history and action, avoiding an extra deep copy. Action lists are Arc<Vec<...>>; mutation uses Arc::make_mut so snapshot clones share until extension without changing earlier snapshots. Crate helpers register actions, extract causal ordinal/shared action sequences and obtain eligible legacy init. Recording Set preserves legacy auto-init/latest value; Func materializes no value. Explicit legacy init/update keep their rules and invent no action.
 
-## Consulta temporal sem varredura excedente — 2026-10-13
+The compiler resolver may evaluate the entire key sequence to propagate later errors while selecting the requested prefix by ordinal. Never discard future actions before checking errors: state-future-error in target-controls.json.gz refutes that optimization. Reading another key executes none of these actions.
 
-Medição anterior à decisão: `01_core/src/entities/state_registry.rs:80` usa
-iter/filter/last sobre o Vec de histórico. O predicado consulta somente
-`order_key`, sem mutação, I/O ou callbacks; compara a ordem causal registrada
-com fallback numérico para locais não observados. HEAD
-`06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado;
-fontes, L0, núcleo pinado, horário UTC, status e diffstat em
-`lab/results/construction/diagnostics/predicados-fixtures-ci-2026-10-13/before.json.gz`.
+## Reader acceptance
 
-Preservar exatamente a última entrada elegível na ordem do Vec e o resultado
-None quando não houver uma. A pesquisa pode partir do fim e terminar na
-primeira entrada cujo order_key seja <= ao alvo (`rfind`). Não reordenar o
-histórico, substituir ordem causal por IDs nem mudar updates ou init.
-A consulta permanece O(n) no pior caso; não inferir ganho medido de tempo.
-Esta é simplificação interna equivalente sob o núcleo realization-order,
-sem mudança de assinatura pública, default ou fase. Os exemplos históricos
-com comparação numérica direta não substituem a cláusula causal vigente.
-Preservar os testes temporais, incluindo origens com IDs não monotônicos.
+L0 and functional RED precede implementation. Require GREEN against the stated pin plus separate Tekt-extension controls. Test nonnumeric order, independent snapshots and physical Set-payload sharing as RAM-contract checks, not language parity. Run build/workspace/doctests/strict Clippy+Rustdoc/fmt/V1/V5/V15/V26/reverse with no increased V16, MemoryMax 12 GiB/High 8 GiB/swap 0/jobs 1 and sequential heavy work. Measure consumption without inferring global benefit from representation alone.
 
+## Historical record
 
-## Entradas diretas e ordem da síntese — 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; order-before.json.gz/before.json.gz preservam estado, UTC, hashes e diffstat. trace-runtime-result.json e trace-runtime.log mostram a entry direta no índice puro, runtime e L3 sob NativeElement; a linguagem bare converte outline.entry em Kind(OutlineEntry), conforme foundations/selector.rs:113. O walk terminal atual não preenche esse kind. measurement-order-before.json no pin 9f2b6e8715237cb086899a42873660fe744622e8 mede BARE [Heading] versus [Heading,Direct], FILTERED [Direct,Heading] versus [Heading,Direct], STATE 2 versus 1 e COUNTER ((2,),) versus ((1,),) na Location da entrada sintetizada. Esses são observáveis de linguagem; não se exige igualdade Rust/bytes. A síntese pós-walk aloca entradas depois dos updates, mas sua posição causal é dentro do outline anterior. O núcleo realization-order já proíbe tratar identidade numérica como ordem. A correção é refutada por ordem, prefixo temporal, duplicação ou dados de entry errados.
-
-### Responsabilidade exclusiva
-
-Adicionar somente pub(crate) fn observe_locations_after(&mut self, anchor: Location, locations: &[Location]), com semântica de dados: âncora não observada/lista vazia/já observada são no-op; deduplicar novas Locations em ordem por HashSet local puro, deslocar ordinais posteriores e registrar o bloco logo depois da âncora. Preservar densidade e ordem relativa dos antigos, idempotência, clones e append posterior. O compiler fornece a decisão de âncora, nunca inferir por número de Location. Não alterar init/update, histórico, lookup, valores, fases, I/O ou interface externa. Aplicar o núcleo realization-order já pinado, sem importar compiler.
-
-### Aceitação
-
-Testes funcionais antes da mudança: índice bare da entry própria e aliases; ordem de três entries (dois outlines com entry direta entre eles), where e ausência de heading fantasma; estado e contador lidos na Location sintetizada devem refletir o prefixo do outline. Depois, testes de contrato dos dois helpers internos antes da sua implementação, com âncora desconhecida, duplicatas/repetição, IDs não monotônicos e append denso. Repetir nove sondas CLI sem relaxar resultados (seis originais e order/state/counter). Suíte completa, build, fmt, Clippy estrito, Rustdoc estrito, V1/V5/V15/V26/reversa/diff e SARIF: seis V16 removidos, sete V19 previstos e três mensagens existentes atualizadas, nenhum V20 novo. 12 GiB, swap zero, um job e comandos pesados sequenciais. Esta é correção interna/paridade ADR-0127, com helpers crate-private e nove pares L0/consumer; nenhuma assinatura externa, default deliberado ou fase nova. Resselo restrito, sem commit/push/release. As demais pendências de V16 continuam abertas.
-
-
-## A1-S2 — leitura por objeto aprovada em 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
-UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17.
-state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
-após +1 exige 2/11; callback não lido não executa; atualização reutilizada
-executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
-upstream introspection/state.rs:226–245, 419–455 e 477–520. O init do leitor
-inicia a sequência; a ordem vem do documento, não do inteiro de Location.
-O método atual trata Func como Set e o pós-passe eager perde essa semântica.
-Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
-A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
-lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
-SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
-
-### Responsabilidade exclusiva — supersede a fase histórica de State
-
-Preservar definições públicas e assinaturas de StateRegistry. Adicionar somente
-registro privado de ações StateUpdate por key/Location, independente de existir
-init global. Capturar Set e Func, deduplicar somente a mesma ocorrência de mesma
-Location, ordenar leituras por order_key causal e respeitar limite inclusivo.
-Nunca executar callbacks neste owner. A visão pública materializada continua
-legada; o leitor moderno não usa seu primeiro init como inicialização global.
-
-Representar privadamente valores materializados com Arc<Value>. Operações
-registradas usam enum interno pub(crate) RecordedStateUpdate: Set(Arc<Value>)
-e Func(Func), sem alterar StateUpdate público. Compartilhar o Arc do Set entre
-histórico legado e ação, sem clone profundo adicional. A lista de ações por key
-é Arc<Vec<...>> e mutação usa Arc::make_mut; clone de snapshots compartilha dados,
-mas extensões posteriores não alteram a cópia anterior. Helpers crate-private
-registram ações, extraem ações ordenadas com limite e obtêm init legado elegível.
-Registro Set preserva auto-init/último valor legado; Func não materializa valor.
-init/update explícitos históricos continuam com suas regras e não inventam ação.
-Testar ordem não numérica, snapshots independentes e partilha física do payload;
-isto verifica a prescrição de RAM, sem confundi-la com paridade de linguagem.
-
-### Aceitação e fronteiras
-
-Gate A1-S2 ratificado para as cinco assinaturas e a fase de leitura. L0 primeiro,
-RED funcional antes do código; GREEN contra o pin indicado para linguagem e
-controles próprios das extensões Tekt. Não ampliar outros contratos públicos.
-Build/workspace/doctests, Clippy/Rustdoc estritos, fmt, linhagem V1/V5/V15/V26 e
-reversa; manter V16 sem aumento. MemoryMax12GiB/High8GiB/swap0/jobs1, tarefas
-pesadas sequenciais. Medir consumo sem inferir ganho global só da representação.
-
-O enum de ações compartilhadas é privado ao crate, não nova variante do enum
-público StateUpdate. O helper extrai ordinal causal e operação compartilhada;
-o resolvedor pode computar a sequência inteira da key para propagar erros
-posteriores, selecionando o valor do prefixo pelo ordinal. Não filtrar ações
-futuras antes de testar erros: state-future-error em target-controls.json.gz
-refuta essa otimização. Uma consulta de outra key não executa estas ações.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/state_registry.md` preserves the original evidence and chronology.

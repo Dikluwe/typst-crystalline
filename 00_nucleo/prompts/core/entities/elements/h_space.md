@@ -1,23 +1,23 @@
 # Prompt L0 — `entities/elements/h_space` — `HSpaceElem`
 Hash do Código: 9a79efad
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/h_space.rs`
-**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável** (confirmado P320). Espaço
-horizontal (`h(amount)`). Comportamento idêntico ao braço atual.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/h_space.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
+## Evidence before specification
 
-## Struct
+Historical upstream layout/spacing.rs distinguishes Absolute/Fractional;
+the original length-only schema is superseded. The archived Content anchor
+1786 records empty text. These are historical anchors, not new parity probes.
 
-**P842 (#38)** — `amount` passou de `Length` para o enum `Spacing`
-(paridade vanilla `layout/spacing.rs`: `Absolute`/`Fractional`):
+## Contract
 
 ```rust
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Spacing {
     Absolute(Length),   // h(10pt), h(2em)
-    Fractional(f64),    // h(1fr) — expandida no flush_line/finish do Layouter
+    Fractional(f64),    // h(1fr); expanded by layout
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -28,44 +28,25 @@ pub struct HSpaceElem {
 }
 ```
 
-`Content::HSpace { amount, weak }` → `Content::HSpace(Arc<HSpaceElem>)`.
-Construtores ergonómicos: `Content::h_space(amount: Length, weak: bool)`
-(→ `Absolute`) e `Content::h_space_fraction(fr: f64, weak: bool)`
-(→ `Fractional`, P842). `Spacing::is_zero`: zero absoluto ou fração zero.
+Preserve `Content::HSpace(Arc<HSpaceElem>)`,
+`Content::h_space(amount: Length, weak: bool)` producing Absolute, and
+`Content::h_space_fraction(fr: f64, weak: bool)` producing Fractional.
+Spacing::is_zero recognizes absolute or fractional zero. Fractional amounts
+must reach Layouter's flush_line/finish expansion without premature resolution.
+weak_explicit transports supplied named weak, including false, for repr.
+Existing constructors keep signatures and treat true as explicit, false as
+omitted; h_space_with_weak_presence and its fractional equivalent accept the
+evaluator's bit. Layout reads only weak.
 
-**P1140.9 — contrato público e presença.** `weak_explicit` preserva se o named
-`weak` apareceu na chamada Typst, inclusive `weak: false`, para que `repr` não
-perca informação observável. Os construtores ergonómicos existentes preservam
-a assinatura: tratam `weak = true` como explícito e `weak = false` como default
-omitido. Um construtor adicional, nomeado explicitamente como
-`h_space_with_weak_presence` (e equivalente fracionário), recebe o bit usado
-pelo caminho de eval. Layout consulta somente `weak`.
+Plain text is empty; is_empty calls amount.is_zero. Both maps are terminal;
+field/kind/payload default None, non-locatable. PartialEq compares amount,
+weak, weak_explicit. Manual Debug Hash includes all three because Length and
+fractional f64 lack canonical Hash. Retain the signed-zero caveat in source;
+its existing allowance assumes elements are not map keys. Keep relational
+hash tests. Verify zero for both amount forms, terminal maps, empty text,
+presence-aware repr distinctions/equality/hash, and fractional transport.
 
-> **`Hash` manual** (precedente Lote 4 P319): `Length` carrega `f64` e não
-> implementa `Hash` → `impl Hash { format!("{self:?}").hash(state) }` (paridade
-> `content_hash`). Idem para `Spacing::Fractional` (`f64`, P842). Ressalva
-> `-0.0` vs `0.0` em comentário no código; aceitável (`…Elem` não são chaves
-> de mapa). Teste relacional de hash.
+## Historical record
 
-## `impl Element for HSpaceElem`
-
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `String::new()` (`content.rs:1786`) |
-| `is_empty` | **override**: `self.amount.is_zero()` (P842: via `Spacing::is_zero`) |
-| `map_content` | **terminal** |
-| `map_text` | **terminal** |
-| `get_field`/`element_kind`/`to_payload` | default `None` |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara `amount + weak + weak_explicit`: valores com
-`repr` diferente são distinguíveis na linguagem. O `Hash` manual inclui o novo
-campo por derivar da representação `Debug` completa.
-
-## Critério
-
-`plain_text` vazio; `is_empty` quando `amount` zero (absoluto ou fração);
-map_* terminais; `Hash` manual via Debug; igualdade por
-`amount+weak+weak_explicit`;
-`Spacing::Fractional` propagável até ao layout (P842).
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/h_space.md`. Historical observations are not a new parity certification.

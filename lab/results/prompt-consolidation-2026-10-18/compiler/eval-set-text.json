@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/set/text.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "3b9d00e105a4a411b84b890935283e83ee6a5039fb32c78f439b399c25d4f940",
+    "result_sha256": "01691b4e65689beaca84055e6840ab2708deaa0f192e5ed656284b6f44330d03",
+    "disposition": "Full text-set owner translated: ratified affine size/typed positional selection, named font AST guards, Paint/Gradient/Tiling scope distinctions and new shared pin-only refinement retained."
+  }
+]

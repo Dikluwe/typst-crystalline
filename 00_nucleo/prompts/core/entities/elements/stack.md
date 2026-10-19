@@ -1,14 +1,18 @@
 # Prompt L0 — `entities/elements/stack` — `StackElem`
 Hash do Código: b3b05f81
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/stack.rs`
-**Origem**: modelo D (ADR-0105), **Lote 9 P324** (por largura). Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável**. Contentor — `map_*` recursam
-em cada child.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/stack.rs`
+**Architecture:** ADR-0105. The trait contract is owned by
+`00_nucleo/prompts/core/entities/elements/mod.md`.
 
----
+## Evidence before specification
 
-## Struct
+Original extraction anchors: `content.rs:1681`, `content.rs:1850`, `content.rs:2023`, `content.rs:2192`, `content.rs:2463`.
+These historical coordinates support the ownership boundary; they are not
+fresh current-pin language-parity measurements.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
@@ -19,26 +23,19 @@ pub struct StackElem {
 }
 ```
 
-`Content::Stack { children, dir, spacing }` →
-`Content::Stack(Arc<StackElem>)`. Construtor ergonómico preservado:
-`Content::stack(children: Vec<Content>, dir, spacing)` (`children.into()` →
-`Arc<[Content]>`, clone O(1) ADR-0026).
+## Behavior and acceptance
 
-> **`Hash` manual via Debug** (precedente Lote 4/5/7/8): `spacing: Option<Length>`
-> carrega `f64` → `impl Hash { format!("{self:?}").hash(state) }` (paridade
-> `content_hash`; ressalva `-0.0`≠`0.0`). `PartialEq` deriva.
+Preserve `Content::Stack(Arc<StackElem>)` and
+`Content::stack(children: Vec<Content>, dir, spacing)`, converting children to
+`Arc<[Content]>` for O(1) clone (ADR-0026). PartialEq compares all three fields.
+Hash remains manual through Debug because spacing contains f64; retain the
+known signed-zero caveat (`-0.0` versus `0.0`).
+Plain text concatenates children in order. Emptiness requires every child to
+be empty. Both maps recurse through children, preserve dir/spacing, and
+`map_content` collects SourceResult. Field/kind/payload use defaults;
+non-locatable. Verify ordering, all-child emptiness, maps, and equality.
 
-## `impl Element for StackElem`
+## Historical record
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.children.iter().map(\|c\| c.plain_text()).collect()` (`content.rs:1850`) |
-| `is_empty` | **override**: `self.children.iter().all(\|c\| c.is_empty())` (`content.rs:1681`) |
-| `map_content` | **recursivo** em cada child (collect `SourceResult`), preserva `dir`/`spacing` (`content.rs:2192`) |
-| `map_text` | **recursivo** em cada child, preserva `dir`/`spacing` (`content.rs:2463`) |
-| `get_field`/`element_kind`/`to_payload` | default |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara `children`/`dir`/`spacing` (paridade
-`content.rs:2023`).
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/stack.md`. Historical observations are not a new parity certification.

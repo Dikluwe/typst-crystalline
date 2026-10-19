@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md
-//! @prompt-hash 62c7ea50
+//! @prompt-hash 62a0eedf
 //! @layer L1
 //! @updated 2026-09-30
 

@@ -34,60 +34,90 @@ Metadata extraction leaves `coverage` empty. `extract_coverage` retains its crat
 Existing inline tests cover invalid slots, pairing, synthetic collection reconstruction, Macintosh names, suffixes/style inference, exceptions, exact extraction and mmap loading. Repository fixtures include `03_infra/fixtures/fonts/p839-*.ttf`, `p840-fandolhei-bold.ttf`, `NotoSans-Regular.ttf` and the licensed OTF fixtures. Host CJK/font tests must report environmental absence without treating it as positive coverage evidence.
 
 
-## Coverage ranges — gate package2026-10-07
+## Coverage delegation evidence and approval
 
-Measurement before decision: lab/results/construction/diagnostics/cmap-intervalos-2026-10-05/measurement.json.gz records sources/HEAD/dirty tree/UTC/argv/fonts and53.19→10.85ms isolated extraction/canonicalization; no CLI speedup measured. lab/results/construction/diagnostics/coverage-ranges-preparacao-2026-10-07/audit.json verifies this consumer remains identical to the measured HEAD source, and the pure font_book consumer remains byte-identical to the experiment snapshot. ttf-parser0.25.1 format4.rs:103–115,format12.rs:68–75,format13.rs:41–48 retain declared bounds/glyph-zero; its cmap/mod.rs iterator stops at first invalid record.
+`lab/results/construction/diagnostics/cmap-intervalos-2026-10-05/measurement.json.gz`
+records sources/HEAD/dirty tree/UTC/argv/fonts and isolated 53.19→10.85ms extraction/
+canonicalization, not CLI speedup. coverage-ranges-preparacao-2026-10-07/audit.json
+verifies this consumer matches the measured HEAD source and the pure font_book
+consumer matches the experiment snapshot. ttf-parser0.25.1 format4.rs:103–115,
+format12.rs:68–75, format13.rs:41–48 preserve declared bounds/glyph-zero; cmap
+iterator stops at first invalid record. Owner `confirmo` on 2026-10-07 ratified
+coverage-ranges-2026-10-07, manifesto
+`f8f7805c6d2ca08d1d14296ed5c93767c416b536fa9c17532eaa8310ca93a549`.
 
-Decision after package ratification: declare private child coverage and delegate only existing extract_coverage. Font slots, collection reconstruction, metadata, pairing, discovery timing/eager-vs-lazy policy, cache lifetime and API remain unchanged. Parent must not duplicate range parsing, normalization or callback fallback; child owns these algorithms. Invalid face and missing cmap behavior remain. The public Coverage constructor is owned exclusively by 00_nucleo/prompts/core/entities/font_book.md. No code before human ratification of the public constructor in this package.
+Declare private coverage child and delegate only existing extract_coverage.
+Slots/collection reconstruction/metadata/pairing/discovery/eager-versus-lazy timing/
+cache lifetime/API remain unchanged. Parent cannot duplicate range parsing/
+normalization/callback fallback; child owns them. Preserve invalid-face/missing-cmap
+behavior. Public Coverage constructor belongs only to
+`00_nucleo/prompts/core/entities/font_book.md`; recorded ratification satisfies that
+package's public-constructor prerequisite, not other API changes. Keep existing
+inline tests, child RED→GREEN for syntax/native/fallback/independent membership,
+full build/lint/lineage/per-face/fallback/PDF controls and then same-state paired
+CLI/cost measurements; no performance promise from isolated historical data.
 
-Acceptance: existing inline tests remain, child tests exercise syntax/native/fallback and independent membership; full build/lint lineage and exact per-face/fallback/PDF controls, then same-state paired CLI/cost measurement. No performance promise from isolated historical data.
+## Embedded byte storage
 
+### Evidence
 
-Ratificação: dono confirmou o pacote coverage-ranges-2026-10-07 com `confirmo` em2026-10-07; manifesto f8f7805c6d2ca08d1d14296ed5c93767c416b536fa9c17532eaa8310ca93a549.
+`embedded-fonts-memoria2-2026-10-08/before.json.gz` freezes fonts.rs:32,119,158–163:
+slot Vec plus first-get byte clone retains two buffers. world_types.rs:40–49,57–61
+already offers Font::Vec with Arc<Vec<u8>>/shared clone/slice. This is internal
+mechanical duplication, no language obligation or new L1 contract. Lower paired
+RSS for a loaded simple embedded face is a hypothesis, refuted without repeatable
+process reduction. Initial private Option<Font> (attempt-font-container/candidate.json.gz,
+binary SHA `a4d93e4410e329ad7dd34fcef61f9114c863b3a4a96aba98f178b63bcc6e7953`)
+showed −1.54% local table RSS in both batteries but repeat.json.gz showed
++0.91/+1.00/+2.01% time for context/simple/dense. Option<Arc<Vec<u8>>> removes
+container dispatch; this is a cost hypothesis requiring fresh paired time/RSS,
+not proved causality.
 
-## Compartilhamento de bytes embutidos — medição 2026-10-08
+`custo-fixo-fontes-item2-2026-10-08/probe-results.json` records three processes per
+mode, 17 assets/9, 682, 300 bytes, about 9.24 MiB requested Rust allocation plus
+about 9.3 MiB anonymous and 9.3 MiB executable-resident pages. embedded_fonts.rs:92–94
+copies static slices; fonts.rs:115–123 retains all Vecs before get. Pinned upstream
+kit/fonts.rs:136–141 passes Bytes::new(data), library/foundations/bytes.rs:48–62
+specifies direct static backing. Buffer size directly proves duplication; CLI RSS
+gain still needs paired experiments. No upstream intent/language parity inferred.
 
-Estado congelado: `lab/results/construction/diagnostics/embedded-fonts-memoria2-2026-10-08/before.json.gz`. `03_infra/src/fonts.rs:32,119,158-163` retém um Vec no slot e clona seus bytes no primeiro get, mantendo os dois buffers vivos. `01_core/src/entities/world_types.rs:40-49,57-61` já oferece Font::Vec com Arc<Vec<u8>>, clone de armazenamento e slice; nenhum novo contrato L1 é necessário.
+### Current representation and acceptance
 
-Classificação: duplicação mecânica interna, não obrigação da linguagem. Inferência a validar: retirar cópia diminui memória quando fonte embutida simples é carregada; se RSS pareado não diminuir de maneira repetida, não atribuir ganho do processo a esta mudança.
+Public new_embedded(path, Vec<u8>) retains private Arc<Vec<u8>> made from moved
+Vec, no eager validation/loading. source_bytes borrows original bytes. get first
+validates requested index in original bytes. Supported reconstructed collection
+uses index-zero extracted face/independent owned Font; nonreconstructed path keeps
+legacy index-zero validation and clones only the existing Font::Vec Arc. OnceLock
+stores first success/failure. Public fields/signatures and embedded requested-index
+validation remain unchanged; no global cache/public constructor/Font variant.
 
-Privadamente, reter os bytes embutidos em Arc<Vec<u8>>, criado a partir do Vec transferido pelo construtor. Isso não valida nem carrega a face antecipadamente. source_bytes empresta o slice original. get valida primeiro o índice solicitado nos bytes originais; se reconstruir coleção suportada, valida a face extraída no índice zero e cria Font próprio. Sem reconstrução, conserva a validação legada de índice zero e constrói a variante Font::Vec já existente clonando somente o Arc compartilhado. OnceLock continua a guardar sucesso/falha apenas na primeira chamada. Assinaturas e campos públicos permanecem intactos; index continua aplicável à validação dos embutidos. Não criar storage estático, cache global, construtor ou variante pública.
+The later static-origin contract supersedes only the old static-storage ban for
+catalog assets. Internally support &'static [u8], borrowed without copy; catalog
+uses it only after metadata validation. get validates requested index/reconstructs
+collection where applicable and materializes owned Font::Vec only for the selected
+static face, inside OnceLock. Preserve failure/success/post-slot-drop validity,
+disk/mmap and L1 Font contracts. No flag/default/phase/public-signature change.
 
-Aceitação: RED→GREEN de não duplicação do buffer para fonte simples, bytes/metadados/cobertura idênticos e validade após descarte do slot; coleção mantém bytes fonte originais e resultado independente válido, índices inválidos/falhas/mmap continuam cobertos. Teste de identidade física é testemunha de custo interno, não critério de paridade da linguagem. Exportações e CLI pareados, builds/lint com resselo somente dos owners alterados.
+RED→GREEN observes no buffer duplication for a simple public-Vec font, unchanged
+bytes/metadata/coverage and post-slot-drop validity; collection retains original
+source plus valid independent extracted bytes; invalid index/failure/mmap controls
+remain. Physical identity is an internal-cost witness, not language parity. All
+load_embedded_fonts slots must reference exact typst_assets slices before first
+get; text/selection/PDF/inventory observables remain. Paired exports/full CLI RSS/
+time, builds/lint and 1:1/reverse lineage with owner-scoped resealing are required;
+never attribute an isolated probe delta to the whole product. Full original
+supersession/history remains at
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/infra/fonts.md`.
 
-Refinamento medido antes da decisão: a primeira representação privada
-Option<Font> (`attempt-font-container/candidate.json.gz`, SHA de binário
-a4d93e4410e329ad7dd34fcef61f9114c863b3a4a96aba98f178b63bcc6e7953)
-mostrou −1,54% RSS na tabela local nas duas baterias, mas a repetição
-indicou +0,91/+1,00/+2,01% de tempo em context/simples/denso
-(`attempt-font-container/repeat.json.gz`). Usar Option<Arc<Vec<u8>>>
-privado remove o despacho do container Font na leitura de bytes originais.
-Isso é hipótese de custo, não causalidade comprovada; nova bateria pareada
-exige validar tempo/RSS antes de conservar a implementação. Nenhuma nova
-variante ou assinatura Font é introduzida.
+## Rustdoc maintenance
 
-## Aquisição estática seletiva — 2026-10-08
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/custo-fixo-fontes-item2-2026-10-08/probe-results.json` mede, em três processos por modo, 17 assets embutidos com 9.682.300 bytes. O catálogo embutido retém ~9,24 MiB de alocações Rust requisitadas e sobe ~9,3 MiB em mapping anônimo e ~9,3 MiB em páginas residentes do executável. `embedded_fonts.rs:92-94` copia cada slice estático para Vec; `fonts.rs:115-123` retém todos os Vecs mesmo sem `get`. `typst-kit/src/fonts.rs:136-141` no vanilla pinado fornece `Bytes::new(data)`, e `typst-library/src/foundations/bytes.rs:48-62` documenta que o slice estático é o backing direto, sem Vec. Isto mede mecânica de armazenamento, não intenção nem paridade de linguagem. O ganho de RSS é hipótese refutável por bateria pareada do CLI; o tamanho dos buffers é prova direta da duplicação.
-
-### Decisão
-
-Supersede apenas a proibição anterior de storage estático para fontes embutidas do catálogo; o `new_embedded(path, Vec<u8>)` público continua com storage Arc<Vec<u8>> e compartilhamento source/get. Adicionar internamente uma origem `&'static [u8]` que `source_bytes` empresta sem copiar. A construção do catálogo usa essa origem somente depois de validar metadados; `get` valida o índice solicitado, reconstrói coleção quando aplicável e materializa um Font::Vec próprio somente para face estática solicitada, no OnceLock. Sucesso/falha, estabilidade após descarte do slot, caminhos disco/mmap e contrato Font L1 ficam iguais. Não há nova flag, default, fase ou assinatura pública; correção interna ADR-0127.
-
-Aceitação RED→GREEN: todos os slots de `load_embedded_fonts` referenciam exatamente os slices de typst_assets antes do primeiro `get`; conteúdo/metadados/cobertura, seleção, PDF e inventário conservam observáveis. Medir novamente RSS e tempo do CLI completo; não atribuir ao produto a diferença de uma sonda isolada. O ownership 1:1 e as linhagens devem ser ressellados.
-
-## Imports e documentação de CI — 2026-10-13
-
-### Medição anterior à decisão
-
-`03_infra/src/fonts.rs` nas linhas 367, 368, 369, 370 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
-
-### Decisão e aceitação
-
-Corrigir a separação/continuação de parágrafos e listas dos comentários Rustdoc. Preservar o conteúdo técnico e todas as asserções/casos de teste.
-
-Separar P840 da lista anterior; encerrar a frase incompleta sobre is_italic sem inventar a justificativa que falta.
-
-Manutenção interna sem mudança de assinatura pública, default, fase, fórmulas ou critérios de aceitação (fluxo contínuo ADR-0127). Não introduzir supressões de lint. Revalidar compilação de todos os targets, nomes e execução da suíte de infraestrutura, build, Clippy do workspace, Rustdoc e linhagem com resselo restrito. Não criar testes que apenas espelhem remoção de imports ou formatação de comentários.
+`infra-imports-docs-ci-2026-10-13/before.json.gz` retains source/owner/spans/original
+compiler output, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/
+UTC/status/diffstat for fonts.rs:367–370. Inspection distinguishes productive,
+descendant-test imports and comments, not new parity. Repair paragraph/list
+separation/continuation without technical/test changes. Separate the historical
+exception-table correction formerly labeled P840 from the preceding list and
+finish the incomplete is_italic sentence without inventing its missing rationale.
+Internal ADR-0127: no public/default/phase/formula/acceptance changes or lint
+suppression. All-target compile/infra test names/execution/build/workspace Clippy/
+Rustdoc/lineage and scoped resealing; no import/comment-format mirror tests.

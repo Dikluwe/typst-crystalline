@@ -1,9 +1,6 @@
 # L0 — introspect/convergence
 Hash do Código: d7911794
 
-```text
-```
-
 ## Ownership and evidence
 
 Layer: L1. Sole consumer: `01_core/src/compiler/introspect/convergence.rs`.
@@ -34,28 +31,81 @@ only to `00_nucleo/prompts/core/compiler/introspect/fixpoint.md`.
 Language convergence and upstream parity need their own observable evidence.
 
 
-## Carriers compactos de introspecção/show — proposta 2026-10-16
+## Ratified compact carrier fixture adaptation
 
-### Medição anterior à decisão
+### Evidence before decision
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16 registra UTC, fontes/L0, hashes, status e git diff HEAD --stat. Os owners atuais foram lidos antes de propor esta alteração. probe-details.json registra rustc 1.92, argv, rlib/binário/sonda com SHA-256 e saída; probe-result.json registra teto de 12 GiB, swap zero, um job e eventos. A sonda é sintética de carriers e do algoritmo de registro/cópia, não benchmark de compilação/layout/RSS nem distribuição de workloads reais. Os candidatos são espelhos com tipos reais de domínio; o caso inline usa Tag e ShowRule produtivos.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/before.json.gz`
+retains UTC/sources/L0/hashes/status/git diff HEAD --stat. Existing owners were
+read before proposing. probe-details.json retains rustc 1.92/argv/rlib/binary/
+probe SHA-256/output; probe-result.json records 12 GiB/zero swap/one job/events.
+This synthetic carrier/register-copy probe is not compile/layout/RSS benchmarking
+or a real workload distribution. Candidates mirror real domain types; inline
+uses productive Tag/ShowRule.
 
-Tag mede 416 bytes; Start boxed e Arc medem 48. Para 4.096 pares Start/End com payload Heading sem heap, inline solicita 3.407.872 bytes numa alocação; Box solicita 2.031.616 em 4.097; Arc solicita 2.097.152 em 4.097. Clone de Tag boxed também aloca por Start; os caminhos produtivos lidos em introspect/fixpoint.rs:86–136 e entrypoints.rs:44–66 usam Vec<Tag> temporário e leituras emprestadas, sem clonar o vetor. Walk :325–356 popula o índice por referência antes de mover info para Start. A decisão não toma o clone sintético como frequência produtiva.
+Tag is 416 bytes, boxed/Arc Start 48. For 4,096 Start/End pairs with heap-free
+Heading, requested bytes/allocations are inline 3,407,872/1, Box 2,031,616/4,097,
+Arc 2,097,152/4,097. Cloning boxed Tag allocates per Start; inspected productive
+fixpoint.rs:86–136 and entrypoints.rs:44–66 use temporary Vec<Tag>/borrowed reads,
+without cloning the vector. Walk:325–356 populates the index by reference before
+moving info to Start. Synthetic clone frequency is not assumed productive.
 
-Transformation mede 328 e ShowRule 376 bytes; candidatos com Box/Arc<Styles> medem 120 e 168. rules/show.rs:464–470 copia to_vec antes de cada registro; apply.rs:108–112,349–352 filtra/clona regras. Em 128 registros 100% show-set simples sem reter snapshots antigos, inline solicita 12.276.960 bytes/384 alocações, Box 8.194.560/8.640, Arc 5.530.624/512. Com snapshots retidos, picos solicitados são 3.203.856, 4.141.744 e 1.477.808. No controle com canal custom, as cópias de 4.096 regras solicitam 4.107 alocações inline, 8.203 Box e 11 Arc (crescimento do Vec incluído). As leituras de estilos são emprestadas em apply/intercept/outline/table_cells; a aplicação ainda clona o delta quando necessário.
+Transformation is 328 and ShowRule 376 bytes; Box/Arc<Styles> candidates are 120
+and 168. rules/show.rs:464–470 copies to_vec before every registration;
+apply.rs:108–112,349–352 filters/clones rules. Across 128 registrations of simple
+100% show-set without retained old snapshots, requested bytes/allocations are
+inline 12,276,960/384, Box 8,194,560/8,640, Arc 5,530,624/512. With retained
+snapshots, requested peaks are 3,203,856, 4,141,744 and 1,477,808. A custom-channel
+control copying 4,096 rules requests 4,107 inline, 8,203 Box and 11 Arc
+allocations, including Vec growth. apply/intercept/outline/table_cells borrow
+styles; application still clones a delta when needed.
 
-Contraexemplo obrigatório: construir uma única coleção de 4.096 regras 100% show-set simples pede 1.540.096 bytes inline, 2.031.616 Box e 2.097.152 Arc. Arc pode reter capacidade sobrante do canal custom; no controle rico de 128 registros sem snapshots antigos, o final vivo foi 78.064 bytes inline e 156.432 Arc. Não afirmar ganho universal ou ignorar custo atômico/indireção. É mecânica de armazenamento sob ADR-0030/0107, não paridade de linguagem ou ganho cognitivo por IA medido. A inferência favorável a Arc no ciclo de cópias seria refutada por regressão de memória/tempo em um workload real relevante; manter visíveis estes controles.
+Mandatory counterexample: building one simple 100% show-set collection of 4,096
+rules requests 1,540,096 bytes inline, 2,031,616 Box and 2,097,152 Arc. Arc may
+retain excess custom-channel capacity; the rich 128-registration control without
+old snapshots ends with 78,064 live bytes inline and 156,432 Arc. Claim no
+universal gain or ignore atomic/indirection cost. This is ADR-0030/0107 storage
+mechanics, not language parity or measured AI benefit. Real relevant memory/time
+regression refutes the favorable copy-cycle inference; retain those controls.
 
-### Responsabilidade exclusiva proposta
+### Ratification and exclusive responsibility
 
-Migrar somente os construtores Tag::Start das fixtures deste consumer para Box::new do mesmo ElementInfo. Preservar Locations, payloads, labels, End hashes, chamadas, assertions e todos os corpos produtivos. Leituras emprestadas e hashes por valor conservam os contratos existentes; não criar algoritmo de hashing novo, aceitar novo erro ou atualizar esperados para mascarar diferença. O payload público pertence exclusivamente a 00_nucleo/prompts/core/entities/tag.md.
+The human approved manifest
+`282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`;
+`lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/approval-receipt.json`
+records approval. The former ADR-0127 public-payload/compatibility proposal gate
+is satisfied; this contract, including T1–T6 and no release, is in force.
 
-### Gate e aceitação
+Migrate only this consumer's fixture Tag::Start constructors to Box::new of the
+same ElementInfo. Preserve Locations/payloads/labels/End hashes/calls/assertions
+and every productive body. Borrowed reads/value hashes retain their contracts;
+add no hash algorithm/error and change no expectations to hide a difference.
+The public payload belongs only to `00_nucleo/prompts/core/entities/tag.md`.
 
-Proposta não vigente até ratificação humana ADR-0127 §2.1/§2.4: há mudança de payload público e compatibilidade de construção/acesso. Não editar código ou owners ativos por este pacote antes da aprovação. Após ratificação instalar estes L0, testes primeiro e RED real, implementação e resselo estritamente dos owners alterados. Não silenciar large_enum_variant, alterar limiar ou adicionar dependências/flags/defaults/fases.
+### Acceptance and owner boundaries
 
-T1: contratos de construção Box<ElementInfo>/Arc<Styles> e orçamento relativo dos carriers (Tag até três Location; Transformation até Content+alinhamento) devem falhar no estado antigo e passar no novo, sem fixar ABI universal. T2: Start/End/Location/payload/label, igualdade e hashes estruturais por valor, clone independente da Box e mutation isolation preservados; hash não vira formato persistido. T3: testes existentes de introspecção/convergência, nesting, heading/label, state/counter/query/metadata continuam com os mesmos esperados e erros. T4: clone de Transformation::Style compartilha o Arc; Arc::make_mut em cópia preserva estilos do original, incluindo custom, e as variantes Func/Content/Str permanecem. T5: controles existentes de show-set/func, precedência, escopo, labels, outline, table.cell e textual/regex mantêm semântica/morfologia/erros; nenhuma regra executa a mais. T6: workspace completo, build, Clippy all-targets e expectativas/lints já fechados como erro, rustdoc -D warnings com quatro índices, fmt, diff, linhagem estrita/reversa e Tekt sem aumento; 12 GiB, swap zero, um job. Registrar HEAD/working tree/hashes/diffstat/UTC e distinguir tamanhos/bytes solicitados de RSS. Não publicar release. Alguma mudança de assinaturas, campos ou fase além destes payloads exige outra proposta.
+Ratified L0 precedes tests and real RED; reseal strictly changed owners. No
+large_enum_variant suppression, threshold/dependency/flag/default/phase change.
 
-## Ratificação humana — 2026-10-16
+- T1: construction Box<ElementInfo>/Arc<Styles> and relative budgets (Tag at most
+  three Location; Transformation at most Content plus alignment) fail before
+  and pass after without freezing a universal ABI. Those payloads stay owned by
+  their entity prompts.
+- T2: preserve Start/End/Location/payload/label, value equality/structural hashes,
+  independent Box clone and mutation isolation; hashes are not persistence format.
+- T3: existing introspection/convergence/nesting/heading/label/state/counter/query/
+  metadata tests retain expectations/errors.
+- T4: Transformation::Style clone shares Arc; Arc::make_mut on a copy preserves
+  original styles including custom; Func/Content/Str variants remain unchanged.
+  This is a dependent entity boundary, not implementation in convergence.
+- T5: show-set/func, precedence/scope/labels/outline/table.cell/textual/regex
+  controls preserve semantics/morphology/errors with no extra execution.
+- T6: full workspace/build/all-targets Clippy with prior expectations/lints as
+  errors, rustdoc -D warnings with four indexes, fmt/diff/strict/reverse lineage
+  and no Tekt increase, under 12 GiB/zero swap/one job. Record HEAD/working tree/
+  hashes/diffstat/UTC and distinguish requested sizes/bytes from RSS.
 
-Proposta aprovada pelo humano, manifesto SHA-256 `282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`. O contrato acima passa a vigente; inclui materialização/testes T1–T6, sem release. Registro em `lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/approval-receipt.json`.
+No release. Any signature/field/phase change beyond these ratified payloads
+requires a separate proposal. This owner adapts only its fixtures and keeps
+compute_tags_hash's independent ordered-value contract unchanged.

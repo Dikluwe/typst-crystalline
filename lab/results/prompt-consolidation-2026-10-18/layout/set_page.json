@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/set_page.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Replaced old multi-file construction task with one exclusive SetPage adapter owner and canonical cross-owner boundaries. Preserved historical field/argument/AST/test obligations, unsupported geometry inference, scope-outs and explicitly unresolved current-source conflicts for columns-only page transition and cap-height versus deferred/text_edges baseline.",
+  "original_sha256": "b698f95b6c1f58656664f8de3d4d9fc1dfd982b616367bf9536a7449394e6fcd",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/set_page.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

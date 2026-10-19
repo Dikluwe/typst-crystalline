@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/grid/cell_body.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited all unique clauses/exact repeats; consolidated cache boundary, one-column limited bidi capability, survived-default inset/align versus independent external-plan paint/breakable, and approved paint-root/Solid transport. Preserved all refusals, approvals and pending geometry/native scopes.",
+  "original_sha256": "b03f3b1b52c3f0b2729a71e35aa24819db0d5f6223703910ffedbf00b384e22f",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/grid/cell_body.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

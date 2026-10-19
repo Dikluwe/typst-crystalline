@@ -1,0 +1,14 @@
+tekt = 1
+kind = "nucleus"
+id = "realization-order"
+title = "Identidade de ocorrência e ordem causal de realização"
+
+[[claims]]
+id = "identity-is-not-order"
+level = "must-not"
+statement = "O número interno de Location não representa a ordem do documento quando ocorrências são preparadas antes de transformar. Não ordenar queries, estados, contadores ou seus eventos pelo identificador bruto quando há ordem causal registrada."
+
+[[claims]]
+id = "causal-order"
+level = "must"
+statement = "O walk de introspecção registra a ordem de primeira ocorrência das tags. Consumers temporais usam essa ordem para prefixos e comparações; aliases de ocorrência preparada conservam identidade e não duplicam registros. Testes isolados sem walk podem conservar fallback numérico de Locator."

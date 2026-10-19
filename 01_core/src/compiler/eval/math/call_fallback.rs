@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/math/call_fallback.md
-//! @prompt-hash bcf6dc57
+//! @prompt-hash a7bfb0a7
 //! @layer L1
 //! @updated 2026-09-30
 

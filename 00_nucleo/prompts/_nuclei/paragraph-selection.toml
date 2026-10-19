@@ -1,34 +1,28 @@
 tekt = 1
 kind = "nucleus"
 id = "paragraph-selection"
-title = "Preparação, seleção e emissão de parágrafos certificados"
-
+title = "Preparation, selection and emission of certified paragraphs"
 [[claims]]
 id = "strategy-transport"
 level = "must"
-statement = "linebreaks validado conserva Auto ou simple/optimized no canal privado par.linebreaks; auto usa optimized quando justify é verdadeiro e simple nos demais casos."
-
+statement = "Validated linebreaks preserves Auto or simple/optimized in private par.linebreaks; auto uses optimized for justify=true, simple otherwise."
 [[claims]]
 id = "prepared-input"
 level = "must"
-statement = "Os dois seletores consomem a mesma preparação pura e completa: palavras, fragmentos de estilo e separadores causais medidos por métricas injetadas. Não emitem frames, alteram regiões ou reexecutam eval."
-
+statement = "Both selectors consume same pure complete preparation: words, style fragments and causal separators measured through injected metrics. They emit no frames, change no regions and rerun no eval."
 [[claims]]
 id = "scope"
 level = "must"
-statement = "A seleção global certifica texto latino sob largura finita de região constante fora de colunas, células e floats; a forma pode distinguir largura inicial e continuada para hanging-indent. RTL latino pode integrar esse caminho apenas sem BidiCursor ativo ou tracking, preservando None sem prova de identidade lógica; demais casos bidi mantêm o caminho existente. Tracking uniforme em conteúdo textual sem mudança de escopo pode ser admitido somente quando seus intervalos entre unidades são medidos e emitidos uma vez e as larguras efetivas permanecem finitas e não negativas; tracking misto permanece no percurso incremental; a combinação com hifenização uniforme só é certificada quando o tracking resolvido é zero; valores não nulos requerem informação de shaping do corte e conservam fallback. Hifenização lexical pode integrar candidatos da preparação quando a palavra possui estilo e política uniformes. Matemática, smallcaps e conteúdo recusado conservam o percurso incremental; isto nunca prova optimized completo."
-
+statement = "Global selection certifies Latin text under finite constant-region width outside columns/cells/floats; line shape may distinguish initial/continued widths for hanging-indent. Latin RTL may join only without active BidiCursor or tracking, preserving None absent logical-identity proof; other bidi retains existing path. Uniform tracking without text-scope change is admitted only when interunit intervals are measured/emitted once and effective widths remain finite/nonnegative; mixed tracking remains incremental; uniform hyphenation combination is certified only with resolved tracking zero, nonzero needs cut-shaping information and keeps fallback. Lexical hyphenation may enter prepared candidates for uniform word style/policy. Math, smallcaps and refused content remain incremental; this never proves complete optimized support."
 [[claims]]
 id = "materialization"
 level = "must"
-statement = "A emissão conserva texto, estilos e origens dos separadores, aplica seu avanço uma vez, admite baselines e fecha apenas linhas materialmente continuadas; a última linha permanece natural salvo redução necessária dos espaços."
-
+statement = "Emission preserves text, styles and separator origins, applies advance once, admits baselines and closes only materially continued lines; final line remains natural except necessary space reduction."
 [[claims]]
 id = "hyphen-candidates"
 level = "must"
-statement = "A preparação resolve hyphenate lexicalmente (Bool explícito ou auto pela justificação) antes de gerar candidatos, conserva offsets UTF-8 seguros e mede ranges partidos com métricas injetadas. Simple e optimized usam esses mesmos candidatos; o custo global inclui penalidade de hifenização e de linhas consecutivas com hífen."
-
+statement = "Preparation resolves hyphenate lexically(explicit Bool or auto from justification) before candidates, preserves safe UTF-8 offsets and measures split ranges with injected metrics. Simple/optimized use identical candidates; global cost includes hyphenation/consecutive-hyphen penalties."
 [[claims]]
 id = "hyphen-optical-overhang"
 level = "must"
-statement = "O custo do candidato inclui a largura natural do hífen; somente a emissão de linha selecionada que termina em hífen compensa 55% do avanço do glyph na margem, conforme o overhang default medido, mas somente quando a política lexical overhang do fragmento final está ativa; false desativa a compensação. A compensação não é espaço textual nem altera texto, fronteira ou candidato."
+statement = "Candidate cost includes natural hyphen width; only selected hyphen-ending line emission compensates55% glyph advance at margin under measured default overhang, and only if final fragment's lexical overhang is active; false disables. Compensation is neither textual space nor change to text/boundary/candidate."

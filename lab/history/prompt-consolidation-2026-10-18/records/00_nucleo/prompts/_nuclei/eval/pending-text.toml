@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "pending-text"
+title = "Um grupo textual causal por realização pendente"
+
+[[claims]]
+id = "same-causal-group"
+level = "must"
+statement = "Pacotes textuais ainda pendentes do mesmo ambiente causal representam uma única realização: identidade Arc das regras, estilos colapsados, guards e arquivo iguais. Coalescer não executa callbacks e preserva Source, ordem e fronteiras de ambiente distinto ou receita não textual com efeitos de elemento. Receita genérica escalar Text sem regra de elemento aplicável, com as mesmas identidades ordenadas de regras e ambiente do pai, não cria uma fronteira textual adicional."
+
+[[claims]]
+id = "slots-are-not-occurrences"
+level = "must"
+statement = "Slots Empty de normalização/consumo do vetor de markup não são ocorrências Empty da linguagem. Ao construir caudas Sequence e pacotes textuais, descartar slots nus de transporte; preservar ocorrências explícitas capturadas, seus Source/ShowRecipe e os filhos imediatos de construtores. Não filtrar arrays de domínio nem Text vazio."
+
+[[claims]]
+id = "sequence-transport-is-not-textual-scope"
+level = "must"
+statement = "No coalescimento de pacotes textuais, a marca privada de transporte Sequence e guards de regras Sequence não distinguem escopos textuais. Estilos reais, guards de outras regras, arquivo e identidades efetivas das regras permanecem causais. O grouping lexical anterior à captura conserva suas fronteiras estritas."

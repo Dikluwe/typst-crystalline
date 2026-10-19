@@ -2,75 +2,88 @@
 Hash do Código: 8fc0fef5
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/boxed.rs`
-**Origem**: modelo D (ADR-0105), **Lote 14 P329** (reclassificado da triagem
-DEBT-58 — element-shaped denso, não primitivo). Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável**. Contentor — `map_*` recursam
-no `body`. Família densa do L12 (box inline container).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/boxed.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
+## Evidence before specification
 
-## Struct
+The archived extraction classified boxed content as an element-shaped inline
+container, not a primitive. Historical Content anchors 1768,1635,2054,2235,
+1904 establish text, emptiness, maps and equality. The later fractional width
+extension supports the language morphology returned by outline.entry.inner.
+
+## Contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 pub struct BoxedElem {
-    pub body:     Content,            // era Box<Content>
-    pub width:    Option<Length>,
-    pub height:   Option<Length>,
-    pub inset:    Sides<Length>,
+    pub body: Content,
+    pub width: Option<Length>,
+    pub height: Option<Length>,
+    pub inset: Sides<Length>,
     pub baseline: Length,
-    pub outset:   Sides<Length>,
-    pub radius:   Corners<Length>,
-    pub clip:     bool,
-    pub fill:     Option<Color>,
-    pub stroke:   Option<Stroke>,
+    pub outset: Sides<Length>,
+    pub radius: Corners<Length>,
+    pub clip: bool,
+    pub fill: Option<Color>,
+    pub stroke: Option<Stroke>,
+    pub width_fraction: Option<f64>,
 }
 ```
 
-`Content::Boxed { … }` → `Content::Boxed(Arc<BoxedElem>)`. Construtor ergonómico
-preservado: `Content::boxed(body, width, height, inset, baseline)` — **cobre só
-5 dos 10 campos** (defaults outset/radius/clip/fill/stroke). Logo as construções
-de campo-completo (materialize, testes) usam **Arc-wrap** (regra C2):
-`Content::Boxed(Arc::new(BoxedElem { … }))`.
+Preserve Content::Boxed(Arc<BoxedElem>) and the five-argument historical helper
+Content::boxed(body,width,height,inset,baseline), which defaults the remaining
+original fields and sets width_fraction None. Full-field construction uses
+Content::Boxed(Arc::new(BoxedElem { ... })) rather than losing those fields.
+Historical constructors/literals use width_fraction None; the owner-local
+outline helper may use Some(weight), and native_box(width:Nfr) is covered by
+its original public ADR-0127 gate, not newly authorized here. In valid public
+construction width and width_fraction are mutually exclusive. Preserve weight
+sign and magnitude in walkers, equality and hash without normalization.
 
-> **`Hash` manual via Debug**: `Length`/`Sides<Length>`/`Corners<Length>`/`Color`/
-> `Stroke` carregam `f64` → `impl Hash { format!("{self:?}").hash(state) }`
-> (paridade `content_hash`; ressalva `-0.0`≠`0.0`). `PartialEq` deriva.
+Plain text and emptiness delegate to body. Both maps recurse into body and
+preserve every other field. Field/kind/payload retain defaults; non-locatable.
+Derived equality compares every field, including the later fractional one.
+Manual Hash uses Debug because Length/Sides/Corners/Color/Stroke contain f64;
+retain the signed-zero caveat. Verify full metadata/fraction preservation,
+partial-helper defaults, recursive maps, body transparency and equality.
 
-## `impl Element for BoxedElem`
+## Container reuse without replacement
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.body.plain_text()` (`content.rs:1768`) |
-| `is_empty` | **override**: `self.body.is_empty()` (`content.rs:1635`) |
-| `map_content` | **recursivo** no `body`, preserva os 9 cosméticos (`content.rs:2054`) |
-| `map_text` | **recursivo** no `body`, preserva os 9 cosméticos (`content.rs:2235`) |
-| `get_field`/`element_kind`/`to_payload` | default |
+Evidence before specification:
+`lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz`
+records HEAD, working tree, UTC, complete sources, owners, and release.
+`01_core/src/entities/elements/boxed.rs:53` preserves traversal but materializes the element even when
+descendants do not change. `01_core/src/entities/content/traversal.rs:111–192`
+unconditionally wraps results from these owners in Some. This is mechanical
+cost; language behavior and element semantic identity remain preserved.
+Refutable inference: propagating explicit absence of change reduces allocations
+and temporary retention. Probes and timing controls may refute that gain.
 
-## `eq`
+Internal refinement under ADR-0127: provide only a crate-private
+map_content_if_changed helper for elements already owned by this consumer.
+Return None only when no actually visited child was replaced; childless
+terminals return None. Transform children once in the existing map_content
+order and stop at the first error. A callback Some, even containing equal
+content, always means change. Preserve every field, value, explicit presence,
+omitted/none/present slot, flag, span, and metadata item. Do not use equality,
+hash, or address as a certificate. Allocate vectors/rows only after the first
+changed child/row; unchanged siblings retain shared content. Public signatures
+and trait methods remain unchanged, with internal adaptation to this proof;
+map_content_pre and map_text retain their previous contracts. This refinement
+does not expand any ratification of historically proposed contracts.
 
-`#[derive(PartialEq)]` compara os 10 campos (paridade `content.rs:1904`).
+Specific logic remains with this owner; Content's exhaustive match only
+delegates statically. No vtable, new enum/fields, global state, I/O, or new
+phase. Acceptance requires RED→GREEN for reuse, order, errors, equal-value
+replacement, optional fields/slots, and metadata; core suite, builds and lint;
+text/morphology/render/query qualification against the previous release and
+pinned vanilla; and paired allocation/timing measurements with provenance.
+Do not infer a universal improvement from isolated cases.
 
-## P1408 — carrier fracionário de largura
-
-Para representar a morfologia devolvida por `outline.entry.inner`, a unidade
-acrescenta `width_fraction: Option<f64>`. Constructors públicos históricos e
-struct literals anteriores a P1408 usam `None`; o constructor interno
-owner-local de P1404 e, após o gate público de P1408, `native_box(width: Nfr)`
-podem usar `Some(weight)`. Walkers, igualdade e hash preservam o campo sem
-normalizar sinal ou magnitude. `width` e `width_fraction` são mutuamente
-exclusivos em construções públicas válidas.
-
-## Reuso de contêineres sem substituição — 2026-10-10
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/boxed.rs:53` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
-
-Refinamento interno ADR-0127: disponibilizar somente helper crate-private map_content_if_changed nos elementos já owned por este consumer. Retornar None apenas se nenhum filho efetivamente visitado foi substituído; terminais sem filhos retornam None. Transformar filhos na mesma ordem do map_content vigente, uma única vez, e interromper no primeiro erro. Some do callback, inclusive conteúdo igual, sempre é mudança. Preservar todos os campos, valores, presença explícita, slots omitidos/none/presentes, flags, spans e metadados; não usar igualdade/hash/endereço como certificado. Vetores/linhas só alocam após o primeiro filho/linha alterado; os irmãos conservam seu conteúdo compartilhado. Assinaturas públicas e métodos de trait ficam iguais, com adaptação interna à nova prova; map_content_pre e map_text mantêm seu contrato anterior. Nenhuma ratificação de contratos históricos propostos é ampliada por este refinamento.
-
-A lógica específica permanece neste owner; o match exaustivo em Content apenas delega estaticamente. Sem vtable, enum novo, campos novos, estado global, I/O ou fase nova. Aceitação: RED→GREEN de reuso, ordem, erro, substituição igual, opcionais/slots e metadados; suite core, builds e lint, qualificação de texto/morfologia/render/query contra release anterior e vanilla pinado; alocações e tempos pareados com proveniência. Não alegar ganho universal a partir de casos isolados.
-
-
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+The shared proof of absence of change follows the pinned nucleus claims.
+This prompt and its sole consumer still own the algorithm, transformed fields,
+visit order, and their specific preservation obligations.

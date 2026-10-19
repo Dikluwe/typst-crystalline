@@ -3,7 +3,7 @@ Hash do Código: 08f6bbc3
 
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c
+- 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:b1f5e8d937f80e207e7cb5f1cd7ee03f3a3eebc89af5bfc0e13ebd95c615ecd0
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/underline.rs`
@@ -43,22 +43,53 @@ Acceptance covers above/below placement, width versus rule width, positive/
 zero/negative correction, cramped behavior and full vertical extents.
 
 
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
+## Nominal FrameItem projection
 
-### Medição anterior à decisão
+### Evidence before decision
 
-F050: 01_core/src/compiler/math/layout/underline.rs:57 (layout). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F050 is compiler/math/layout/underline.rs:57 (layout). AST spans/patterns/guards/
+bodies/complements were checked before code.
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+UTC/sources/L0/config/hashes/status/git diff HEAD --stat. classification.json
+records 70 cases/complements in 26 owners using the pinned CI parser. Pertinent
+L0/source were read together, without new architecture or inferred upstream
+intent. Rust exhaustiveness is mechanics; preserve product semantics/morphology/
+geometry/effects/diagnostics.
 
-### Prescrição exclusiva desta unidade
+### Exclusive prescription
 
-- **F050 — `layout`**: Trocar somente o padrão '_' pelo grupo nominal `TextReplacement`, `TextSeparator`, `Semantic`, `Line`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
+For F050 layout, replace only `_` with nominal TextReplacement/TextSeparator/
+Semantic/Line/Image/Shape/Group/Link alternatives using the in-scope FrameItem
+prefix. Preserve the complete fallback body, prior arms, guards, transformations,
+calls, returns and order.
 
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
+Preserve callbacks/effects/metadata/clipping/fonts/positions/ink/width under their
+current owners. Do not expand traversals, turn wrappers into leaves or substitute
+text/ActualText for geometry. Test helpers retain fixtures/expected results/
+tolerances/counts/Unknown failures; missing observation is not acceptance.
+Nominal groups share the previous body; keep V19 notes without equating arm
+coverage with every alternative.
 
-### Gate e aceitação
+### Acceptance and limits
 
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
+ADR-0127 internal flow adds no enum/field/public trait method/signature/default/
+dependency/compatibility/phase. Do not materialize unrelated pending proposals.
+L0 first and restricted bilateral resealing. No suppressions, threshold changes
+or match-to-if-let rewrites to hide V16.
 
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
+Before code run the new FrameVisitor control and workspace suite on unchanged
+expectations and confirm 70-family-warning RED by AST inspection. Afterwards
+require zero selected-family V16 and no new warning; external V16 stays open.
+For productive-core matches reached by cargo check -p typst-core, a disposable
+copy with sentinel FrameItem measures absent E0004 before/present after. Claim
+coverage only for compiled sites, not inaccessible cfg(test)/L3. Replay checks
+all patterns/guards/bodies, unchanged enum/signatures and real builds/tests;
+no stubbed bodies.
 
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+Validate full workspace/build, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes,
+strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/
+configuration during heavy sequential commands under MemoryMax 12 GiB,
+MemorySwapMax0/CARGO_BUILD_JOBS1. Structural sanitation proves neither global
+parity nor RAM/AI-reading benefit.

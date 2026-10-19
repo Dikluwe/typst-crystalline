@@ -2,9 +2,9 @@
 Hash do Código: 40b13995
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:d207e8a3a934b2eff2b67c4bfc7f15b9af0c0f3abc83acdfaf774326e7b242eb
-- 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:afbe9da9643b22adaaaedbff55495488d3ceac311999a5cdec8a3d005f50ef7c
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
+- 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
+- 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/table.rs`
@@ -42,82 +42,124 @@ numbering, captions or PDF headers. Those behaviors retain their respective
 stdlib/rules/PDF owners; caller-specific argument diagnostics are not duplicated
 in this cast. Do not discard fields by unwrapping an already constructed cell.
 
-## D08B2 — presença lexical ratificada em 2026-10-07
+## Ratified lexical TableCell presence
 
-### Medição anterior à decisão
+### Evidence before decision
 
-lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz e
-presence-refuters.json conservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
-working tree, diffstat, UTC, binários e argumentos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
-Upstream model/table.rs:734–778 possui campos Smart/Option; o Tekt
-entities/elements/table_cell.rs:40–51 conserva apenas Option de valor.
-X:auto e x omitido colapsam; fill:none e stroke:none perdem presença.
-Os refutadores medem auto permitido em x/y/fill/align/inset/breakable,
-rejeitado em colspan/rowspan/stroke; none permitido só em fill/stroke.
-São observáveis da linguagem, sem obrigação de copiar a estrutura upstream.
+`lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz`
+and presence-refuters.json retain HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree/diffstat/UTC/binaries/argv
+against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Upstream
+model/table.rs:734–778 uses Smart/Option; local table_cell.rs:40–51 keeps only
+value Option. x:auto/omitted collapse; fill:none/stroke:none lose presence.
+Refuters: auto is accepted for x/y/fill/align/inset/breakable and rejected for
+colspan/rowspan/stroke; none is accepted only for fill/stroke. These are language
+observables, not required upstream representation.
 
-### Contrato ratificado e responsabilidade exclusiva
+### Exclusive responsibility and acceptance
 
-Clone de TableCell conserva presence. Raw content normalizado em cell recebe presença Omitted/false integral, body conhecido. Não resolver grid neste cast.
+Clone of TableCell preserves presence. Raw content normalized as Cell has wholly
+Omitted/false presence and known body. Resolve no grid in this cast.
 
-### Aceitação e limite
+Require RED→GREEN for body/presence/methods/JSON,
+clone/map/observation and span-anchored negatives, build/suites/lint, D08A/D05/D07
+and new refuters with exact provenance. The human approved new public fields/
+types on 2026-10-07; receipt
+`lab/history/construction/records/00_nucleo/materialization/table-cell-presenca-aprovacao-2026-10-07.json`.
+This changes no render phase/default. Position/style/padding/show realization is
+the separately ratified insertion package, not implicit scope of lexical presence.
 
-RED→GREEN para body/presença/métodos/JSON, clone/map/observação e rejeições com span. Build/suítes/lint, coletas D08A/D05/D07 e novos refutadores; proveniência exata obrigatória. D08B3 completa realização por posição/estilo/padding/show em proposta separada. Contrato público por campo/tipos novos confirmado pelo humano em 2026-10-07; recibo table-cell-presenca-aprovacao-2026-10-07.json. Não altera fase/defaults de render.
+## Ratified Table insertion and incomplete Cell scope
 
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
+The approval receipt `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-aprovacao-2026-10-07.json` records user confirmation `comfirmo`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`, and materialization with documented metric residuals. This satisfies the original D08B3-A gate; it does not complete the Cell domain or promote the excluded scope. Retain the receipt’s limitations on raw default typography, D08B3-B isolated Cell/fresh reconstruction, and generic Table equality/rich properties.
 
-### Medição anterior à decisão
+### Measurement before the proposal
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree. `lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` records pin `9f2b6e8715237cb086899a42873660fe744622e8`, UTC, diffstat/status, sources/binaries, arguments, and results. Oracle binary SHA-256: `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt binary: `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`.
 
-### Responsabilidade exclusiva proposta
+Vanilla `lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278` resolves fields, `:1500–1530` rejects conflicts in order, `:1665–1703` creates empty cells, and `:1945–1988` derives breakability. Tekt `grid_placement.rs:91–112` prioritizes explicit placement and `:262–270` knows only `GridCell`; `realize/mod.rs:160–200` visits recipes bottom-up; `table.rs:127–152` discards wrappers without attributes. `order` measures zero cell effects when a table is replaced and zero heading effects when a cell hides it; `aliases` measures `LOCAL a`, `OUTER LOCAL a`, and `NEW a`. These are language observables, not requirements to copy mechanics, bytes, or Rust equality. Unknown fields, hidden effects, or wrong order after a change would refute the hypothesis; cache/pagination equivalence is not inferred.
 
-Fixtures/testes preservam observáveis e tolerâncias. Ajustar constructors para novos campos crus/defaults; adicionar RED→GREEN observando fields, order, efeitos/alias/ocultação/HTML/geometry. Testes não autorizam comportamento além do contrato ratificado.
+### Exclusive fixtures and normalization boundary
 
-### Gate, aceitação e divisão explícita
+Keep fixture/test observables/tolerances. Adapt constructors for new raw/default
+fields; add RED→GREEN observing fields/order/effects/alias/hiding/HTML/geometry.
+Tests authorize no behavior beyond ratified contract.
 
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
+### Ratified gate, acceptance, and explicit scope split
 
-## D08B3-B — candidato, não vigente antes de ratificação
+The ratified package adds five public fields, two public carriers, and one new public facade, and changes the logical phase before Cell show. The receipt above establishes ratification for this scope. Continue to require RED→GREEN, suites/build/lint/restricted preservation, and D08A/B2, D05/D06/D07/query collections. Acceptance is language, effect, and actual geometry behavior; byte equality or whitespace normalization cannot close render acceptance.
 
-### Medição anterior à decisão
+This first package D08B3-A is incomplete in the Cell domain: D08B3-B is to complete isolated Cell defaults (`raw-cell-no-placement`/`outside-fields`) and the separate decision on fresh generation by `show-cell-reconstruct`. Generic Table defaults/fields (`table-root-equality`), rich styles/functions/paint/strokes/insets, rich rows/gutters, multi-page spans, and PDF/UA conformance remain outside certification. Do not change additional legacy D08B2 casts, syntax, flags, or global non-locatable policy in this package.
 
-lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
 
-isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
 
-Fonte vanilla lab/typst-original/crates/typst-library/src/model/table.rs:734–778 declara defaults e propriedades; typst-realize/src/lib.rs:367–386 prepara/guarda o argumento, :418–429 visita produto com profundidade, :491–505 distingue guards por elemento, :571–586 materializa propriedades. Tekt entities/elements/table_cell.rs:111–143 só projeta lexical ou plano posicionado; compiler/realize/table_cells.rs:110–129 reaplica Cell crua sem preparo; :280–304 termina snapshot inteiro; eval/show_rule_termination.rs:65–70 trata mesma forma como ponto-fixo; eval/rules/apply.rs:139–166 revoga regra globalmente durante callback. Classificação: campos, efeitos, ordem, terminação e erro causal são língua. A estrutura de guards e materialização upstream é mecânica e não é requisito. Não se infere intenção do upstream; a escolha nominal abaixo é inferência refutável pelos controles de aliases, duas regras, novas gerações e conteúdo ocultado.
+## Ratified prepared-Cell occurrence termination
 
-### Responsabilidade exclusiva proposta
+### Evidence before decision
 
-Construtores/casts novos inicializam standalone=None e guards vazios. Clones de Cell existente preservam os dois carriers nominais, source_span e presence. Não assar defaults da preparação no constructor, aceitar casts extras ou alterar assinaturas públicas e erros legados.
+`lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz`
+contains 53 probes collected 2026-10-07T14:47:56.340144+00:00 through
+14:48:12.375245+00:00. HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted
+working tree, diffstat/status/hashes/sources/argv/cwd/environment and full outputs
+are recorded. Historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`,
+binary SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`;
+Tekt `6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f`.
+Do not count before/refuters/complete as additional independent rounds.
 
-### Gate, aceitação e incompletude explícita
+isolated-default exposes vanilla x/y/inset/align/fill/breakable auto, spans 1 and
+empty stroke dict; Tekt omits defaults and emits two metadata versus one.
+isolated-x fails only in Tekt; raw-fields remains body-only in both and raw-x
+fails in both. isolated-table-style proves Table defaults are not standalone
+Cell defaults. raw-vs-prepared is false in vanilla, true in Tekt.
+nested-effects/body-effects/late-rule refute once-only execution/lexical origin.
+Tekt wrongly accepts fresh-isolated/table, fresh-block, fresh-styled and
+multi-fresh; vanilla rejects `maximum show rule depth exceeded` at the new
+constructor. identity/body/alias and fresh-conditional/hidden remain valid.
+multi-identity/multi-return-table show that returning it must permit an earlier
+unconsumed recipe. isolated-query remains `cell is not locatable` and location
+none in both, without false Location. cell-set is separately excluded.
 
-Candidato não vigente até confirmação humana do manifesto D08B3-B: há um campo público novo e um tipo público novo; o contrato A aprovado não os autoriza. Após ratificação instalar somente estes candidatos, escrever testes e confirmar RED antes de implementação; selar apenas owners mudados. Aceitação: coletas acima/revisões adicionais bilaterais, efeitos uma vez, igualdade/getters, seleção, produto HTML e texto/estilos/geometria reais; mensagens/spans sem apagar diferenças. Cargo build/debug/release e suítes core/infra/shell apropriadas; crystalline-lint sem erros e owners sem V5/V6/V15/V26. Revalidar D08A/B2/B3-A, Raw defaults/blocos, Equation/math/matrix/query. Preservar árvore anterior por snapshot/diff restrito, sem commit/reset/resselo global.
+Upstream model/table.rs:734–778 declares defaults/properties;
+typst-realize/src/lib.rs:367–386 prepares/guards arguments, :418–429 visits
+products with depth, :491–505 distinguishes per-element guards, :571–586
+materializes properties. Local table_cell.rs:111–143 projects only lexical or
+positioned plans; realize/table_cells.rs:110–129 reapplies raw Cell unprepared;
+:280–304 terminates the whole snapshot; show_rule_termination.rs:65–70 treats
+equal form as fixed point; rules/apply.rs:139–166 revokes globally during callback.
+Fields/effects/order/termination/causal error are language; upstream guard/storage
+structure is mechanics. Infer no upstream intent. Aliases/two rules/new
+generations/hidden content can refute the nominal policy.
 
-Este recorte completa defaults intrínsecos da Cell isolada e distingue alias de nova geração de show. Continua incompleto no universo Cell: D08B3-C completa set table.cell/defaults de estilo (cell-set), mediante medição e L0 próprios; nenhuma promessa de prazo/implementação é legitimada por este scope-out. Defaults/igualdade gerais de Table, casts/paint/strokes/insets ricos, linhas/gutters/span multipágina, PDF/UA e política geral não-localizável ficam abertos. O warning preexistente de eval de ficheiro vazio não é corrigido ou normalizado para afirmar paridade.
+### Ratification and exclusive responsibility
+
+The human confirmed manifest
+`3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`;
+`lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-aprovacao-2026-10-07.json`
+records 2026-10-07T14:53:19.127601+00:00 and materialization completed
+2026-10-07T15:21:50.581533+00:00 with documented scope limits. The original public
+field/type gate is satisfied by this receipt, not by the earlier Table package.
+Historical candidate-only prose remains archived rather than a fresh stop gate.
+
+New constructors/casts initialize standalone=None/empty guards. Existing Cell
+clones preserve both nominal carriers/source_span/presence. Bake no preparation
+default into constructor, accept no extra casts and change no public signature/
+legacy error.
+
+### Acceptance and incomplete scope
+
+Install only ratified candidates with language tests and valid RED before code;
+reseal only changed owners. Require the collections/additional bilateral reviews,
+once-only effects, equality/getters/selection, HTML product and real text/styles/
+geometry, with causal messages/spans and no erased differences. Validate debug/
+release builds and pertinent core/infra/shell suites; crystalline-lint without
+errors and no owner V5/V6/V15/V26. Revalidate D08A/B2/B3-A, Raw defaults/blocks,
+Equation/math/matrix/query. Preserve the previous tree through snapshot/restricted
+diff, without commit/reset/global resealing.
+
+The scope completes intrinsic standalone-Cell defaults and distinguishes alias
+from a new show generation, not all Cell behavior. set table.cell/style defaults
+remain the separately measured/specifiable Cell-style package; no deadline or
+implementation promise follows from that scope-out. General Table defaults/
+equality, rich casts/paint/strokes/insets, rows/gutters/multipage spans, PDF/UA
+and general nonlocatable policy remain open. Do not fix/normalize the preexisting
+empty-file eval warning merely to claim parity.

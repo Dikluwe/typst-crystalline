@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/grid/row_groups.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited every unique paragraph plus exact previously reviewed repeats; consolidated logical groups, effective-header conflict, Source logistical view, explicit nominal fallbacks and verified A/B approval. Preserved private observed-vs-physical/stroke boundaries, all 18-match gates and spanning/level/open-scope distinctions.",
+  "original_sha256": "8131fb067a1e6e008ed47414d991f55964fd937b90ea216153fea266f8661ee2",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/grid/row_groups.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

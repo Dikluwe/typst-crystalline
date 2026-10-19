@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/convergence.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited all unique paragraphs and known exact repeats; consolidated five-attempt semantics, first semantic Bibliography discovery/raw visitor fallback, one cache-plan build and precisely materialized C010 exception with exact literal. Preserved all discovery/attribution/hanging limits and metadata gates.",
+  "original_sha256": "93a04eaf9873329edf0d36cbeacca88cfb92b0d6a99463fd609b62b23458378e",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/convergence.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

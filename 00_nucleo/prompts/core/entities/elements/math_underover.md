@@ -2,186 +2,88 @@
 Hash do Código: 4acfeb9b
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_underover.rs`
-**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
-partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
-P317). Comportamento idêntico ao braço atual do hub. Variant agregado P297
-(ADR-0054 graded; cristalino unifica o cluster vanilla under/over).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/math_underover.rs`
+**Architecture:** ADR-0105 model D; ADR-0054 bounded generic carrier.
 
----
+## Generic carrier
 
-## Struct
+MathUnderoverElem derives Debug/Clone/PartialEq/Hash with public base:Content,
+under:Option<Content>,over:Option<Content>. Content::MathUnderover holds Arc;
+Content::math_underover(base,under,over) preserves that signature.
+plain_text follows over+base+under, absent optional text empty. is_empty
+defaults false; map_content visits base then under/over, preserving None and
+error propagation. map_text is terminal and clones; get_field/kind/payload
+are default None (nonlocatable). Equality/hash include all three fields.
+Acceptance preserves visual text order, all recursive children/None states,
+terminal text mapping and structural equality.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct MathUnderoverElem {
-    pub base:  Content,            // era Box<Content>
-    pub under: Option<Content>,    // era Option<Box<Content>>
-    pub over:  Option<Content>,    // era Option<Box<Content>>
-}
-```
+## Evidence and ratified public spreaders
 
-`Content::MathUnderover { base, under, over }` →
-`Content::MathUnderover(Arc<MathUnderoverElem>)`. Construtor ergonómico:
-`Content::math_underover(base: Content, under: Option<Content>, over: Option<Content>)`.
+Historical upstream preserves each named spreader function and distinguishes
+omitted annotation from explicit none; generic geometry alone erased both.
+Each separate carrier below has body:Content,annotation:Option<Content>,
+annotation_explicit:bool. Constructors preserve presence. Equality/hash
+include all three fields. map_content descends into body and annotation;
+map_text preserves variant. For Underparen/Undershell the original walker
+clause requires transforming both children while preserving variant/presence;
+keep this explicit qualification rather than reducing it to a generic terminal
+rule. Do not infer native identity from generic MathUnderover geometry.
 
-## `impl Element for MathUnderoverElem`
+| Public carrier | Glyph | plain_text order | ADR-0127 approval |
+|---|---|---|---|
+|MathOverbraceElem|U+23DE ⏞|annotation+glyph+body|2026-09-17|
+|MathOverbracketElem|U+23B4 ⎴|annotation+glyph+body|2026-09-18|
+|MathOverparenElem|U+23DC ⏜|annotation+glyph+body|2026-09-18|
+|MathOvershellElem|U+23E0 ⏠|annotation+glyph+body|2026-09-18|
+|MathUnderbraceElem|U+23DF ⏟|body+glyph+annotation|2026-09-18|
+|MathUnderbracketElem|U+23B5 ⎵|body+glyph+annotation|2026-09-18|
+|MathUnderparenElem|U+23DD ⏝|body+glyph+annotation|2026-09-18|
+|MathUndershellElem|U+23E1 ⏡|body+glyph+annotation|2026-09-18|
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | ordem visual `over + base + under` (`Option` vazio = `""`; `content.rs:1648`) |
-| `is_empty` | default `false` (`content.rs:1568`) |
-| `map_content` | **recursivo** nos 3 campos preservando `None` (`content.rs:2139`): `base.map_content(f)?`; `under`/`over` via `.as_ref().map(map_content).transpose()?` |
-| `map_text` | **terminal** (math structural; `content.rs:2635`): `Content::MathUnderover(Arc::new(self.clone()))` |
-| `get_field` | default `None` |
-| `element_kind`/`to_payload` | default `None` (não-locatável) |
+These dated approvals supersede the original proposed-section labels within
+their individual scopes. All public spreaders and the generic carrier remain
+separate identities; none collapses omitted and explicit-none annotation.
 
-## `eq` estrutural
+## Container reuse without replacement
 
-`#[derive(PartialEq)]` compara `base + under + over` (paridade `content.rs:1835`).
+Evidence before specification:
+`lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz`
+records HEAD, working tree, UTC, complete sources, owners, and release.
+`01_core/src/entities/elements/math_underover.rs:105` preserves traversal but materializes the element even when
+descendants do not change. `01_core/src/entities/content/traversal.rs:111–192`
+unconditionally wraps results from these owners in Some. This is mechanical
+cost; language behavior and element semantic identity remain preserved.
+Refutable inference: propagating explicit absence of change reduces allocations
+and temporary retention. Probes and timing controls may refute that gain.
 
-## Critério
+Internal refinement under ADR-0127: provide only a crate-private
+map_content_if_changed helper for elements already owned by this consumer.
+Return None only when no actually visited child was replaced; childless
+terminals return None. Transform children once in the existing map_content
+order and stop at the first error. A callback Some, even containing equal
+content, always means change. Preserve every field, value, explicit presence,
+omitted/none/present slot, flag, span, and metadata item. Do not use equality,
+hash, or address as a certificate. Allocate vectors/rows only after the first
+changed child/row; unchanged siblings retain shared content. Public signatures
+and trait methods remain unchanged, with internal adaptation to this proof;
+map_content_pre and map_text retain their previous contracts. This refinement
+does not expand any ratification of historically proposed contracts.
 
-`plain_text` `over‖base‖under`; `map_content` recurse os 3 preservando `None`;
-`map_text` terminal; igualdade estrutural.
+Specific logic remains with this owner; Content's exhaustive match only
+delegates statically. No vtable, new enum/fields, global state, I/O, or new
+phase. Acceptance requires RED→GREEN for reuse, order, errors, equal-value
+replacement, optional fields/slots, and metadata; core suite, builds and lint;
+text/morphology/render/query qualification against the previous release and
+pinned vanilla; and paired allocation/timing measurements with provenance.
+Do not infer a universal improvement from isolated cases.
 
-## P1439 — identidade pública `MathOverbraceElem` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
+The shared proof of absence of change follows the pinned nucleus claims.
+This prompt and its sole consumer still own the algorithm, transformed fields,
+visit order, and their specific preservation obligations.
 
-### Medição anterior à decisão
+## Historical record
 
-O carrier agregado vigente representa a geometria, mas apaga a função pública
-`overbrace` e não distingue anotação omitida de `annotation: none`. O vanilla
-preserva ambos os estados e usa U+23DE acima do body.
-
-### Decisão proposta
-
-No mesmo owner coeso, adicionar `MathOverbraceElem { body: Content,
-annotation: Option<Content>, annotation_explicit: bool }` com constructor que
-preserva presença. `plain_text` segue a ordem visual `annotation + ⏞ + body`;
-`map_content` desce no body e na anotação; `map_text` conserva a variante.
-Igualdade/hash incluem os três campos. O carrier genérico `MathUnderoverElem`
-permanece separado e não ganha identidade inferida.
-
-## P1440 — identidade pública `MathOverbracketElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O carrier agregado representa a geometria, mas apaga a função pública
-`overbracket` e não distingue anotação omitida de `annotation: none`. O
-vanilla preserva ambos os estados e usa U+23B4 acima do body.
-
-### Decisão proposta
-
-No mesmo owner coeso, adicionar `MathOverbracketElem { body: Content,
-annotation: Option<Content>, annotation_explicit: bool }` com constructor que
-preserva presença. `plain_text` segue a ordem visual `annotation + ⎴ + body`;
-`map_content` desce no body e na anotação; `map_text` conserva a variante.
-Igualdade/hash incluem os três campos. Os carriers `MathOverbraceElem` e
-`MathUnderoverElem` permanecem identidades separadas.
-
-## P1442 — identidade pública `MathOverparenElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O carrier agregado realiza spreaders, mas apaga a função pública
-`overparen` e não distingue annotation omitida de `annotation: none`. O
-vanilla preserva ambos os estados e usa U+23DC acima do body.
-
-### Decisão proposta
-
-No mesmo owner coeso, adicionar `MathOverparenElem { body: Content,
-annotation: Option<Content>, annotation_explicit: bool }` com construtor que
-preserva presença. `plain_text` segue a ordem visual `annotation + ⏜ + body`;
-`map_content` desce no body e na annotation; `map_text` conserva a variante.
-Igualdade/hash incluem os três campos. `MathOverbraceElem`,
-`MathOverbracketElem` e `MathUnderoverElem` permanecem identidades separadas.
-
-## P1443 — identidade pública `MathOvershellElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O carrier agregado realiza spreaders, mas apaga a função pública `overshell`
-e não distingue annotation omitida de `annotation: none`. O vanilla preserva
-ambos os estados e usa U+23E0 acima do body.
-
-### Decisão proposta
-
-No mesmo owner coeso, adicionar `MathOvershellElem { body: Content,
-annotation: Option<Content>, annotation_explicit: bool }` com construtor que
-preserva presença. `plain_text` segue a ordem visual `annotation + ⏠ + body`;
-`map_content` desce no body e na annotation; `map_text` conserva a variante.
-Igualdade/hash incluem os três campos. Os outros spreaders públicos e
-`MathUnderoverElem` permanecem identidades separadas.
-
-## P1448 — identidade pública `MathUnderbraceElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O carrier agregado vigente realiza a geometria, mas apaga a função pública
-`underbrace` e não distingue annotation omitida de `annotation: none`. O
-vanilla preserva ambos os estados e usa U+23DF abaixo do body.
-
-### Decisão proposta
-
-No mesmo owner coeso, adicionar `MathUnderbraceElem { body: Content,
-annotation: Option<Content>, annotation_explicit: bool }` com construtor que
-preserva presença. `plain_text` segue a ordem visual `body + ⏟ + annotation`;
-`map_content` desce no body e na annotation; `map_text` conserva a variante.
-Igualdade/hash incluem os três campos. Os outros spreaders públicos e
-`MathUnderoverElem` permanecem identidades separadas.
-
-## P1449 — identidade pública `MathUnderbracketElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O carrier agregado vigente realiza a geometria, mas apaga a função pública
-`underbracket` e não distingue annotation omitida de `annotation: none`. O
-vanilla preserva ambos e usa U+23B5 abaixo do body.
-
-### Decisão proposta
-
-No mesmo owner coeso, adicionar `MathUnderbracketElem { body: Content,
-annotation: Option<Content>, annotation_explicit: bool }`. `plain_text` segue
-a ordem visual `body + ⎵ + annotation`; `map_content` desce no body e na
-annotation; `map_text` conserva a variante. Igualdade/hash incluem os três
-campos. Os outros spreaders públicos e `MathUnderoverElem` permanecem
-identidades separadas.
-
-## P1450 — carrier público `MathUnderparenElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O carrier agregado não preserva função pública nem distingue omissão de
-`annotation: none`; o vanilla preserva ambos e usa U+23DD abaixo do body.
-
-### Decisão proposta
-
-Adicionar `MathUnderparenElem { body, annotation, annotation_explicit }`.
-`plain_text` segue `body + ⏝ + annotation`; walkers transformam ambos os
-filhos e preservam variante/presença; igualdade/hash incluem os três campos.
-
-## P1451 — carrier público `MathUndershellElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O carrier agregado não preserva função pública nem distingue omissão de
-`annotation: none`; o vanilla preserva ambos e usa U+23E1 abaixo do body.
-
-### Decisão proposta
-
-Adicionar `MathUndershellElem { body, annotation, annotation_explicit }`.
-`plain_text` segue `body + ⏡ + annotation`; walkers transformam ambos os
-filhos e preservam variante/presença; igualdade/hash incluem os três campos.
-
-## Reuso de contêineres sem substituição — 2026-10-10
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/math_underover.rs:105` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
-
-Refinamento interno ADR-0127: disponibilizar somente helper crate-private map_content_if_changed nos elementos já owned por este consumer. Retornar None apenas se nenhum filho efetivamente visitado foi substituído; terminais sem filhos retornam None. Transformar filhos na mesma ordem do map_content vigente, uma única vez, e interromper no primeiro erro. Some do callback, inclusive conteúdo igual, sempre é mudança. Preservar todos os campos, valores, presença explícita, slots omitidos/none/presentes, flags, spans e metadados; não usar igualdade/hash/endereço como certificado. Vetores/linhas só alocam após o primeiro filho/linha alterado; os irmãos conservam seu conteúdo compartilhado. Assinaturas públicas e métodos de trait ficam iguais, com adaptação interna à nova prova; map_content_pre e map_text mantêm seu contrato anterior. Nenhuma ratificação de contratos históricos propostos é ampliada por este refinamento.
-
-A lógica específica permanece neste owner; o match exaustivo em Content apenas delega estaticamente. Sem vtable, enum novo, campos novos, estado global, I/O ou fase nova. Aceitação: RED→GREEN de reuso, ordem, erro, substituição igual, opcionais/slots e metadados; suite core, builds e lint, qualificação de texto/morfologia/render/query contra release anterior e vanilla pinado; alocações e tempos pareados com proveniência. Não alegar ganho universal a partir de casos isolados.
-
-
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/math_underover.md` preserves the original evidence and chronology.

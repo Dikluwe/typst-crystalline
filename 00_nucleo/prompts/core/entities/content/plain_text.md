@@ -2,7 +2,7 @@
 Hash do Código: 107a03aa
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/content/plain_text.rs`
@@ -20,15 +20,28 @@ Existing plain-text, representation, and morphology tests pass; the operation
 remains pure and statically dispatched.
 
 
-## Realização com avaliação única
+## Realization with one evaluation
 
-Texto plano usa body de ShowRecipe/Located e somente visual de Realized, sem duplicar origem consumida.
+Plain text uses the body of ShowRecipe/Located and only the visual portion of
+Realized; it must not duplicate consumed origin.
 
+## Ratified source transparency
 
-## D08B3-C2 — responsabilidade ratificada
+### Evidence and approval
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz`
+records HEAD, working tree, UTC, sources, argv, and binaries against historical
+pin `9f2b6e8715237cb086899a42873660fe744622e8`. This unit's existing
+ShowRecipe/Located/Realized branches supply the corresponding transparent
+operation; Source must not leak as an observable element. The exact Source contract remains `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md`.
+Human approval `confirmo` on 2026-10-07 is recorded in the final
+`lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`.
 
-Source é transparente nesta projeção, delegando ao body; não expõe span como identidade de língua nem executa receitas. Segmentação conserva origem por segmento quando aplicável.
+### Contract and acceptance
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+Source is transparent in this projection and delegates to body; it exposes no
+span as language identity and executes no recipes. Segmentation preserves
+origin per segment where applicable. Keep exclusive ownership and static
+dispatch, with no I/O, new signature/trait/flag, or eval/layout phase change.
+The C2/C/macro tests and measurements, builds, and lineage are required before
+certification. The historical pin does not certify the current upstream pin.

@@ -2,156 +2,49 @@
 Hash do Código: 163b3514
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:9d9d6c265a3840cc5a3b8e121f403bc9e3fe55b1e586ab9014948f0784de5c3e
-- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:0e7c32f877924fea773be54f9719b43bb72b4c3bb065f6ff44a842c56683ff78
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
-## Ownership e medição
+## Evidence before specification
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/layout/grid/cell_emission.rs`. O comportamento original estava em `01_core/src/compiler/layout/grid.rs:276-882` no HEAD `6fc546566`, árvore limpa, 2026-10-01 01:04:22 UTC. Esta é extração interna, não nova medição de paridade ou desempenho.
+Original behavior is at `01_core/src/compiler/layout/grid.rs:276-882`, HEAD `6fc546566`, clean tree,2026-10-01 01:04:22 UTC. This is extraction, not new parity/performance evidence. `tracks.rs:175`, `cell_body.rs:155` and `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05.md` precede private pool forwarding.
 
-## Contrato
+`lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, historical pin `9f2b6e8715237cb086899a42873660fe744622e8`, UTC/diffstat/status/sources/binaries/arguments/results. Oracle SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`. Pinned `layout/grid/resolve.rs:204–278,1500–1530,1665–1703,1945–1988` resolves fields/conflicts/padding/breakability. Tekt `grid_placement.rs:91–112,262–270`, `realize/mod.rs:160–200`, `table.rs:127–152` expose explicit-first/Grid-only placement, bottom-up recipes and discarded wrappers. order measures no cell effects under replaced Table/no Heading effects under hidden cell; aliases measures LOCAL a, OUTER LOCAL a, NEW a. Language/effects, not copied mechanics/bytes/Rust equality. Unknown fields/hidden effects/wrong order refute correction; cache/pagination equivalence is not inferred.
 
-Emite as células posicionadas de Grid/Table linha a linha, incluindo quebras de página, alinhamento e inset herdados, subframes, caudas de overflow, ordem de fill/stroke e descarregamento dos segmentos de borda. Devolve os inícios das linhas emitidas para as regras visuais explícitas. Preserva o restauro do estado do Layouter, a ordem dos itens, o ajuste dos caminhos e o suporte a regiões limitadas. Preservar contrato público, fase do pipeline, defaults, compatibilidade e pureza L1.
+Selected Clippy sites `cell_emission.rs:49,50` are preserved with source/owners/references/binary/UTC/HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`/uncommitted tree/status/diffstat and checked spans in `lab/results/construction/diagnostics/iteracao-parametros-ci-2026-10-13/before.json.gz`; mechanics/uses establish no new bilateral parity or performance gain.
 
-## Aceitação
+`lab/results/construction/diagnostics/place-fluxo-2026-10-14/before/results.json.gz`records the same HEAD, uncommitted tree/diffstat/UTC/sources/binaries/argv and historical pin. All 24 root/Box pairs after 12 prefixes differ: Linebreak/Parbreak require y22.25pt, Shape y27pt, Block/Grid/VSpace20pt y35pt, Tekt 15pt. Rotate also overlaps independently. `line_commit.rs:721–733` prepares next baseline; `shape.rs:196–206` adds below/cap; `block.rs:465` separates boundary/margin; `place.rs:91–99` recognizes still-pending line only. Pinned flow/distribute.rs:703–715 uses physical flow offset for axis-unspecified Place. Weak margins/overlap/new page/rollback/subframe leakage can refute the causal-end hypothesis.
 
-Suíte L1, `cargo build` e `crystalline-lint .` passam. Não inferir ganho de desempenho.
+`block-auto-width-2026-10-14/before/results.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC/diffstat/status/sources/binaries/argv and historical pin 9f2b6e871. The initial extractor sought blue as #0000ff; blue-geometries-corrected.json reads actual #0074d9 from the same SVGs without rerun. For Shape, Empty, Place-only, Grid and Stack, Tekt backing width is 160 versus pin54,14,14,68,68 respectively. `block.rs:222,416,453` uses available width; `line_commit.rs:753` loses cursor on closure; `sub_frame.rs:354` saves terminal cursor only. Pinned `flow/block.rs:145–166,281–290,339–363` distinguishes Auto from expansion. Geometry is language; witness structure is internal mechanics. Place contaminating width, leaking scopes, lost literal advances or changed explicit-container dimensions refute the hypothesis.
 
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` records HEAD, working tree, diffstat/UTC and sources/owners before migration. `layout_types.rs:510–511` still transports Paint/Stroke; `shape.rs:151–191` materializes only fill in groups; `tiling.rs:85` limits/clones the grid. `prepare_cell` already returns TilingFrame once per occurrence. Probes `tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz` establish that dense-open and stroke-open still diverge in all three targets. The contract was approved in manifest `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`; receipt: `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`. Preparation/object counts are transport mechanics; render, contours, text, geometry and diagnostics are observable language obligations.
 
-## Produto medido consumível — 2026-10-05
+The owner approved insertion-time resolved Table (historical D08B3-A) on 2026-10-07 (`comfirmo`), archived at `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md:3`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`: five public fields, two public carriers, one public facade and logical preparation before Cell show. This supersedes its stale proposed-only gate only within the approved scope. Standalone Cell defaults/generation (historical D08B3-B) were separately ratified/materialized (`confirmo`), archived at `lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-2026-10-07.md:3`, manifest `3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`. A did not authorize B's added public field/type; B's separate confirmation did. Neither closes broader incomplete scope.
 
-Evidência em tracks.rs:175 e cell_body.rs:155 e diagnóstico `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05.md` precede a decisão. Encaminhar a pool consumível de tracks a cada cell_body durante a emissão, conservando paginação e ordem. Não definir elegibilidade nem chave neste owner. Delegar invariantes de cache ao owner canônico `00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md`. Mudança privada de mecânica, na mesma fase e fluxo contínuo ADR-0127.
+## Exclusive ownership and contract
 
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
+Layer L1. Sole consumer: `01_core/src/compiler/layout/grid/cell_emission.rs`. Emit placed Grid/Table cells row by row with page breaks, inherited align/inset, subframes, overflow tails, fill/stroke order and border flush. Return emitted row starts for explicit visual rules. Preserve Layouter restoration, item order, path fixups, bounded-region support, public contract/phase/default/compatibility/L1 purity/static dispatch.
 
-### Medição anterior à decisão
+Forward consumable tracks pool to each cell_body without changing pagination/order. Define neither key nor eligibility here; `00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md` owns invariants.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
+Emit plan origin cells at plan row/column in appropriate order without duplicate merged slots. Physical header/footer repeat prepared visual rather than recipe; preserve pagination/tails/stroke/fill/ranges without new execution/context.
 
-### Responsabilidade exclusiva proposta
+Fill grid_owner via mutable slot references, retaining explicit row/column bounds and origin skip: origin beyond bounds produces empty iteration, never invalid slice. Compute identical endpoints with identical arithmetic, not saturating addition. Each cell assigns Some(i) at same slots/order, including later-write precedence on overlap; no border/pagination/content change.
 
-Emitir células de origem por row/col do plano, sem duplicar merged slots, em ordem pertinente. Header/footer físicos repetem visual preparado, não a recipe; preservar paginação, caudas, strokes/fill e ranges recebidos. Sem nova execução/contexto.
+After each completed row/cursor advance, record row_start_y+row_h as committed-flow end, never import cell-body local boundary. Publish horizontal extent of positioned tracks during row emission, distinct from inner paint/stroke/cell ink.
 
-### Gate, aceitação e divisão explícita
+Forward self to private border/flush helpers, preserving every emission time, declarative coalescing field and row/page geometry.
 
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
+## Acceptance and incomplete scope
 
-## Iteração e parâmetros internos — 2026-10-13
+L1 suite/build/crystalline-lint pass, with no inferred speed gain. Equivalent internal ADR-0127 iteration preserves expectations, public contract/default/phase and does not warrant tests mirroring loops or new suppressions. Validate core conflicts/spans/fixups/markers/differential selection, every target/build/docs/Clippy/lineage with restricted reseal.
 
-### Medição anterior à decisão
+Require RED→GREEN, suites/build/lint/restricted preservation and D08A/B2, D05/D06/D07/query collections. Accept real language/effects/geometry, not byte equality or whitespace normalization to close render. General Table defaults/fields (table-root-equality), rich style functions/paint/strokes/insets, rich lines/gutters, multipage spans and PDF/UA are not certified. Preserve extra legacy D08B2 casts, syntax/flags and global nonlocatable policy.
 
-`01_core/src/compiler/layout/grid/cell_emission.rs` nas linhas 49, 50 contém os avisos selecionados do Clippy. O snapshot anterior à decisão, spans conferidos contra a fonte, owners, referências, binário, UTC, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status e diffstat estão em `lab/results/construction/diagnostics/iteracao-parametros-ci-2026-10-13/before.json.gz`. A inspeção mede mecânica interna e usos; não é nova prova bilateral de paridade ou ganho de desempenho.
+Causal-end correction authorizes only necessary private state, superseding extraction-only no-state restrictions to that extent; LIFO save/restore is mandatory. L0 first/RED→GREEN/reseal without public field/flag/default/phase change; revalidate full HTML/context/PDF/SVG/build/doc/fmt/check/lineage/warning inventory. Certified line/shape/Block/Align/Grid/Raw/VSpace anchors do not close Block/inset/fragmentation or late inline Box/Transform and Heading/List/Stack/Equation/Columns producers. Invalid witness stays legacy fallback/pending, never parity credit; broad Place/tiling production scope remains separately gated.
 
-### Decisão e aceitação
+This internal parity correction under ADR-0127 adds no public contract/default/phase. L0 precedes RED→GREEN/restricted resealing. Causal width is only part of the ongoing block-region/width/transport correction: Auto height/backing, late alignment, fractions, fragmentation, outset and PDF Parent retain their own criteria. Testing a carrier alone does not approve render. Preserve full bilateral controls/refuters, suite/build/doc/fmt/lineage/inventories.
 
-Preencher grid_owner por referências mutáveis aos slots. Manter o recorte explícito ao número de linhas/colunas e o skip da origem: origem além do limite continua dando percurso vazio, sem criar um slice inválido. Calcular os mesmos extremos com a mesma aritmética; não trocar soma por saturação. Cada célula mantém a atribuição Some(i) nas mesmas posições e a mesma ordem, incluindo a precedência da última atribuição sobre região coincidente. Não alterar bordas, paginação ou emissão de conteúdo.
-
-Refatoração interna equivalente em fluxo contínuo ADR-0127, sem contrato público, default ou fase novos. Conservar as expectativas dos testes existentes; não criar testes que apenas espelhem estes loops. Validar suíte core (incluindo conflitos, spans, fixups, marcadores e seleção diferencial), todos os targets, build, documentação, Clippy e linhagem com resselo restrito. Nenhuma supressão adicional de lint é autorizada por este lote.
-
-## Place após fluxo comitado — etapa B1 — 2026-10-14
-
-### Medição antes da decisão
-
-`lab/results/construction/diagnostics/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
-
-### Responsabilidade exclusiva
-
-Após concluir cada row e avançar cursor, registrar row_start_y+row_h. Não importar a fronteira local dos bodies de células.
-
-### Aceitação e extensão pendente
-
-Correção interna ADR-0127: L0 primeiro, RED→GREEN e resselo; sem campo público, flag/default ou fase nova. Este adendo autoriza somente o estado privado necessário a esse contrato, supersedendo proibições de novo estado limitadas a extrações anteriores. Guardar/restaurar em LIFO é obrigatório. Revalidar suíte completa, HTML/contexto, PDF/SVG, build/doc/fmt/check, linhagem e inventário de avisos.
-B1 completa a âncora após produtores certificados (linha, forma, Block, Align, Grid, Raw, VSpace), sem substituir o objetivo de corrigir todo o sistema. B2 completa região de Block/inset; B3 resolve assentamento tardio de linha pendente com inline Box/Transform, e audita demais produtores (Heading/List/Stack/Equation/Columns) antes de certificar Place universal. Testemunha inválida conserva a rota legada e é pendência, não crédito de paridade. O gate público de tiling continua pendente.
-
-
-## Largura causal de Block Auto — 2026-10-14
-
-### Medição anterior à decisão
-
-block-auto-width-2026-10-14/before/results.json.gz conserva HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
-UTC/diffstat/status/fontes/binários/argv e pin 9f2b6e871. O extrator inicial
-procurou blue como #0000ff; blue-geometries-corrected.json lê a cor real
-#0074d9 dos mesmos SVGs, sem nova execução. Em shape, Empty, Place-only,
-Grid e Stack a largura do backing Tekt é160; pin54,14,14,68,68 respectivamente.
-block.rs:222,416,453 usa largura disponível; line_commit.rs:753 perde cursor
-no fechamento e sub_frame.rs:354 guarda apenas cursor terminal. Fonte pinada
-flow/block.rs:145–166,281–290,339–363 distingue Auto de expansão.
-É geometria da linguagem; estrutura da testemunha é mecânica interna.
-A hipótese é refutada se Place contaminar largura, escopos vazarem, texto
-literal perder avanço ou containers explícitos mudarem de dimensão.
-
-### Responsabilidade exclusiva
-
-Publicar a extensão horizontal das tracks posicionadas durante a emissão das linhas, sem confundir tamanho da célula com tinta interna ou stroke.
-
-### Aceitação e limites
-
-Correção interna/de paridade ADR-0127: nenhum contrato público, default ou
-fase novo; L0 primeiro, RED→GREEN, resselo restrito. A largura é uma parte
-da correção B2b/T1–T3 já em andamento: altura Auto/backing, alinhamento tardio,
-fracionários, fragmentação, outset e PDF Parent continuam com critérios próprios.
-Não declarar render aprovado por testar apenas o carrier. Preservar controles
-bilaterais completos e refutadores, suíte/build/doc/fmt/linhagem/inventários.
-
-
-## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
-HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
-layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
-materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
-prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
-`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
-comprovam que dense-open e stroke-open ainda divergem nos três targets.
-O contrato foi aprovado no manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A preparação/contagem de objetos é mecânica de transporte; render, contornos,
-texto, geometria e diagnósticos são obrigações observáveis de linguagem.
-
-### Responsabilidade exclusiva desta unidade
-
-Encaminhar self aos helpers privados de borda e flush; manter todos os momentos de emissão, campos declarativos usados em coalescência e geometria de linhas/páginas.
-
-### Aceitação e continuidade
-
-Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
-aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
-somente no âmbito do contrato aprovado. Preservar os demais comportamentos
-vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
-fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
-carriers e sem fallback sólido para obter build verde. Não elevar o limite
-antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
-clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
-página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
-quando integrados e verificados; estado intermediário quebrado ou parcial
-não é certificação de produção. T4 e publicação continuam fora deste pacote.
+Apply the pinned nucleus.Ratification supersedes older clauses awaiting approval or requiring declarative Paint/Stroke inside Shape only within the approved contract. Preserve all other existing behavior. L0 comes first, followed by RED→GREEN; explicitly migrate fixtures/consumers without a total From<Paint> conversion, PartialEq on carriers or a solid fallback merely to obtain a green build. Do not raise the old limit or move layout into L3. Validate fill/stroke transport, resources, clipping, affine Parent, native targets, Solid/Gradient controls, page semantics and the complete suite/build/doc/fmt/lineage. Prepared transport, native target integration and verification (historical T1c/T2/T3) are complete only together; a broken or partial intermediate state does not certify production. The remaining historical T4 scope and publication remain outside this package.

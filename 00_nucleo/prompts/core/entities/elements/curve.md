@@ -1,13 +1,16 @@
 # Prompt L0 — `entities/elements/curve` — `CurveElem`
 Hash do Código: f7f4de70
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/curve.rs`
-**Origem**: Passo 513 (curve elements: move/line/cubic/quad/close). **Não-locatável**
-(definição em `entities/elements/_comum.md` §A.0.1).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/curve.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
+## Evidence before specification
 
-## Struct
+The archived extraction record preserves the original source observations.
+These are historical anchors, not a fresh current-pin parity measurement.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
@@ -34,31 +37,21 @@ pub struct CurvePoint {
 }
 ```
 
-`Content::Curve(Arc<CurveElem>)`.
-Construtores ergonómicos:
-- `Content::curve_move(x, y)`
-- `Content::curve_line(x, y)`
-- `Content::curve_cubic(c1x, c1y, c2x, c2y, ex, ey)`
-- `Content::curve_quad(cx, cy, ex, ey)`
-- `Content::curve_close(mode)`; ausência pública resolve para `Smooth`
+## Behavior and acceptance
 
-## `impl Element for CurveElem`
+Preserve `Content::Curve(Arc<CurveElem>)` and constructors
+`Content::curve_move(x, y)`, `curve_line(x, y)`,
+`curve_cubic(c1x, c1y, c2x, c2y, ex, ey)`, `curve_quad(cx, cy, ex, ey)`,
+and `curve_close(mode)`. Public omission resolves to Smooth. Smooth may add
+a closing cubic using the control opposite the initial one; Straight closes
+with a straight segment. Changes to this public payload require ADR-0127.
+Manual Hash uses `format!("{:?}", self)` because Length contains f64.
+Plain text is empty, is_empty is false, and both maps are terminal, rebuilding
+`Content::Curve(Arc::new(self.clone()))`. Field/kind/payload default to None;
+non-locatable. Verify empty text, terminal maps, all segment coordinates,
+control-point order, and preserved closing mode. Rendering belongs to layout.
 
-| método | comportamento |
-|---|---|
-| `plain_text` | string vazia |
-| `is_empty` | `false` |
-| `map_content` | devolve `Content::Curve(Arc::new(self.clone()))` (terminal) |
-| `map_text` | devolve `Content::Curve(Arc::new(self.clone()))` (terminal) |
-| `get_field`/`element_kind`/`to_payload` | default `None` |
+## Historical record
 
-## `Hash`
-
-Implementar manualmente via `format!("{:?}", self)` para contornar `f64` em `Length`.
-
-## Critério
-
-`plain_text` vazio; `map_*` terminal; segmentos preservam coordenadas e o modo
-de fechamento. **P1226:** o default vanilla é `Smooth`, que pode acrescentar
-uma cúbica de fechamento usando o controle oposto ao início; `Straight` fecha
-por segmento reto. A alteração do payload público exige gate ADR-0127.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/curve.md`. Historical observations are not a new parity certification.

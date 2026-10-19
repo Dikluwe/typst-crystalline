@@ -31,39 +31,36 @@ Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do no
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
 
-## Auxiliares de teste e bindings produtivos — 2026-10-14
+## Local bindings and fixture initialization
 
-### Medição anterior à decisão
+### Evidence
 
-`03_infra/src/font_metrics/caches.rs` nas linhas [129, 210] apresenta os avisos selecionados.
 `lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/before.json.gz`
-conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
-references-before.json.gz registra chamadas, imports, módulos e referências;
-o estado da suíte/inventário anterior foi verificado por hashes. A lista de
-testes foi capturada antes da edição. Não se infere inutilidade funcional
-apenas de dead_code: as chamadas privadas e sua compilação foram auditadas.
+retains source/owner/HEAD/uncommitted tree/UTC/diffstat for caches.rs:129,210.
+references-before.json.gz records calls/imports/modules/references; previous suite/
+inventory state was hash-checked and test list captured before editing. Private
+calls/compilation were audited; dead_code alone proves no functional uselessness.
+`field-reassign-2026-10-15/before.json.gz` retains source/spans/prior L0/HEAD/tree/
+UTC/diffstat, and initial-diagnostics.json records default-then-assignment test
+styles at caches.rs:282,285. This is Rust representation, no new parity or
+product-default change.
 
-### Responsabilidade e aceitação
+### Contracts and acceptance
 
-Remover as duas atribuições locais puras variant sem consumidor e seu import exclusivo. axis_variations_for_text_style já chama text_style_to_font_variant internamente e continua sendo usado para o hash de eixos, com as mesmas variações explícitas e precedência. Preservar integralmente campos/chaves, ordem do hash, tamanhos, math, tracking bypass, locks e política de cache. Não substituir estas chamadas por locals com underscore.
+Remove only two unused pure local variant assignments and their exclusive import.
+axis_variations_for_text_style already calls text_style_to_font_variant internally
+and remains the axis-hash source with unchanged explicit variations/precedence.
+Preserve all fields/keys/hash order/sizes/math/tracking bypass/locks/cache policy;
+no underscore-local substitution. Continuous ADR-0127 adds no public field/API,
+default, phase, dependency or suppression. Selected diagnostic gate RED→GREEN is
+not a functional test/parity proof; keep test inventory/expectations, full suite,
+lib/all-target compilation/build/Rustdoc/fmt/lineage/full diagnostic inventory;
+no cfg/binding-removal mirror tests. Reseal only this owner.
 
-Manutenção interna em fluxo contínuo ADR-0127: nenhuma API pública, campo,
-default de produto, fase, dependência ou supressão de lint muda. O gate de
-diagnósticos selecionados deve falhar antes e passar depois; ele não é um
-novo teste funcional nem prova de paridade. Preservar a lista e as expectativas
-dos testes existentes, executar a suíte completa, compilar lib/all-targets,
-verificar build/rustdoc/fmt/linhagem e registrar o inventário total. Não criar
-testes que apenas espelhem cfg ou remoção de bindings. Resselo restrito ao owner.
-
-
-## Inicialização explícita dos fixtures — field_reassign_with_default
-
-### Medição anterior à decisão
-
-`03_infra/src/font_metrics/caches.rs` nas linhas 282, 285 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
-
-### Responsabilidade e aceitação
-
-Construir style_a e style_b com weight 400 e 700 nos próprios literais TextStyle. Preservar as comparações de axis_hash/chaves e o controle repetido do mesmo peso; não tocar caches, locks ou derivação de variações.
-
-Usar `..Tipo::default()` para os campos restantes e retirar `mut` apenas onde deixam de existir mutações. Sem novos tipos, builders, APIs ou supressões de lint. L0 precede código e resselo restrito (fluxo contínuo ADR-0127). O gate selecionado deve falhar antes e passar depois; preservar nomes, inputs, expectativas e tolerâncias dos testes. Revalidar Clippy all-targets, suíte workspace, build, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe do inicializador.
+Construct style_a/style_b with weights 400/700 in TextStyle literals. Preserve
+axis_hash/key comparisons and repeated same-weight control; do not change caches,
+locks or variation derivation. Use ..Type::default() for remaining fields; remove mut only where no mutations
+remain. No new types/builders/APIs/lint suppression. L0 first and scoped resealing,
+continuous ADR-0127. Selected gate must fail before and pass after; preserve test
+names/inputs/expectations/tolerances. Revalidate all-target Clippy/workspace suite/
+build/fmt/Rustdoc/lineage. No tests merely mirroring initializer syntax.

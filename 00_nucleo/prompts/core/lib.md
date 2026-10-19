@@ -1,34 +1,39 @@
-# Core — typst-core (L1)
+# L0 — Pure domain crate
 Hash do Código: 2878f5de
 
-Crate de domínio puro do compilador Typst cristalino.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/lib.rs`
 
-## Módulos existentes (Passo 1)
+## Evidence and classification
 
-### `entities/`
+`01_core/src/lib.rs:7-17` declares compiler, contracts, entities, the test-only
+verification module and internal utilities. The archived original describes an
+initial migration subset rather than the current crate. This is structural
+inspection, not a new language parity measurement.
 
-Tipos de domínio base migrados de `typst-syntax`:
+## Contract
 
-| Módulo | Tipo(s) | Origem original |
-|--------|---------|-----------------|
-| `entities/file_id` | `FileId` | `typst-syntax/src/path.rs` |
-| `entities/syntax_kind` | `SyntaxKind` | `typst-syntax/src/kind.rs` |
-| `entities/span` | `Span`, `Spanned<T>` | `typst-syntax/src/span.rs` |
+Own the pure Typst domain crate's module composition. Expose compiler, contracts
+and entities with their existing public paths. Keep testing behind `#[cfg(test)]`
+and utilities internal; their algorithms belong to their exclusive owners.
 
-## Decisões arquitecturais
+The original foundation inventory identifies FileId, SyntaxKind and Span/Spanned
+as migrated syntax-domain entities. Their current contracts remain with their
+entity owners, not this crate root. FileId remains an opaque handle; global
+interning is infrastructure, and mutable global state is prohibited in L1.
 
-- `FileId` é apenas o handle opaco (`NonZeroU16`); o interner global
-  (`static LazyLock<RwLock<...>>`) do original viola V13 e fica para L3.
-- `ecow::EcoString` não está em `[l1_allowed_external]`; tipos que dependem
-  dela (`SyntaxNode`, `PackageSpec`, `VirtualPath`) não migram neste passo.
-- `comemo` está autorizado em L1 via ADR-0001; não foi necessário neste passo.
+External dependencies follow the current `[l1_allowed_external]` configuration
+and applicable ADRs, including comemo and thiserror where authorized. The
+archived exclusion of ecow and deferred SyntaxNode/PackageSpec/VirtualPath and
+Source migrations described the initial construction state; it does not revoke
+ADR-0024 or create current blockers. Those types and parse dependencies remain
+under their own current owners. No dependency approval is inferred from this
+module declaration contract.
 
-## Dependências externas autorizadas
+## Acceptance and historical disposition
 
-`thiserror`, `comemo` — ver ADR-0001 e `crystalline.toml`.
-
-## Bloqueantes identificados (para Passo 2)
-
-- `SyntaxNode` precisa de `ecow::EcoString` → decisão antes de migrar
-- `PackageSpec` precisa de `ecow`, `serde`, `unscanny` → múltiplos externos
-- `Source` depende de `parse()` → Passo 4
+Preserve module visibility and test-only compilation boundaries, L1 purity,
+exclusive ownership and lineage. Do not move logic into this root or change
+public contracts, defaults, compatibility or phase ownership. Initial migration
+sequencing and its dependency questions are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/lib.md`.

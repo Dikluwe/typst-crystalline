@@ -1,128 +1,67 @@
-# Prompt L0 — `math_style` entity
+# L0 — Mathematical style glyph mapping
 Hash do Código: 838405d6
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/math_style.rs`
-**Passo de origem**: Passo 311b.1
-**ADRs relevantes**:
-- ADR-Math-Style-Mechanism (P311b.6 — formaliza Caminho I escolhido)
-- ADR-0018 (estratégia DEBT externals; aqui rejeitada — opção γ inline)
-- ADR-0026 (Content como enum fechado; variant MathStyled adicionado em P311b.2)
-- ADR-0033 (paridade observable — glyph mapping deve coincidir com vanilla
-  em chars cobertos)
-- ADR-0054 (perfil graded — paridade observable, não bit-exact em fontes)
+**Layer:** L1, pure domain. **Exclusive consumer:** `01_core/src/entities/math_style.rs`.
 
----
+## Evidence and responsibility
 
-## Contexto
+`lab/results/construction/diagnostics/diagnostico-math-style-passo-311a.md` chose existing Content::MathStyled plus on-demand Unicode codepoints/compact exception table for twelve public math-style functions bb/bold/cal/frak/italic/mono/sans/scr/script/serif/sscript/upright. Historical upstream uses codex::styling::to_style/MathStyle::select;that external crate is not authorized here. This module owns MathStyleKind and pure mapping,not constructor/style application/layout. The old≈120LOC estimate and historical ADR references are chronology,not implementation-size/dependency authority.
 
-P311 implementa 12 funções math style vanilla (`bb`/`bold`/`cal`/`frak`/
-`italic`/`mono`/`sans`/`scr`/`script`/`serif`/`sscript`/`upright`). O
-diagnóstico P311a (`lab/results/construction/diagnostics/diagnostico-math-style-passo-311a.md`)
-escolheu **Caminho I** (Variant `Content::MathStyled`) + **Opção γ**
-(geração on-the-fly de codepoints Unicode com tabela compacta de
-excepções).
+Historical byte/codepoint measurements in the original mapping,Greek,Roundhand and symbol rounds,with unit guards math_style.rs:248–420,support mappings below. They do not certify font-byte identity. Latin default xversus𝑥/Greekαβversus𝛼𝛽 established separate causes in the cited diagnostics;later symbol probes used actual pdftotext/ToUnicode from both PDFs,not glyph appearance.
 
-Este módulo define o tipo de domínio `MathStyleKind` (família de
-variants math style suportadas) e a função pura `map_glyph` que
-converte ASCII → codepoint Unicode variant.
+Roundhand=implicitly-bold Script was explicitly refuted:codex to_roundhand is script+VS2,not forced bold. Measured `$scr(A) cal(A) scr(L) cal(B) scr(B)$` emits `1D49C FE01 1D49C FE00 2112 FE01 212C FE00 212C FE01` in both. The later Roundhand/Greek-symbol rules below supersede only conflicting historical notes/table wildcard shorthand;all other limits remain.
 
-Vanilla usa `codex::styling::to_style` + `MathStyle::select` (crate
-externa não autorizada em cristalino). Cristalino regenera o mesmo
-mapping inline em ~120 LOC com lookup table compacta para excepções.
-
----
-
-## Interface pública
+## Public data and pure interfaces
 
 ```rust
-/// Família de variants math style suportadas em cristalino.
-///
-/// Sub-categorias:
-/// - **Variants glyph**: afectam codepoint Unicode via `map_glyph`.
-///   `Plain`/`SansSerif`/`Chancery`/`Roundhand`/`Fraktur`/`Monospace`/
-///   `DoubleStruck`.
-/// - **Variants size**: afectam `style.size` por factor multiplicativo
-///   no `MathLayouter`. Não modificam codepoint (passa-through em
-///   `map_glyph`). `Script` (factor 0.7), `SScript` (factor 0.5),
-///   `Display` e `Inline` (factor 1.0).
-///
-/// `bold` e `italic` são flags ortogonais aplicadas sobre `MathStyleKind`,
-/// não fazem parte deste enum (vivem em `Content::MathStyled`).
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum MathStyleKind {
-    // Variants glyph (modificam codepoint Unicode):
-    Plain,          // serif default (alias vanilla `MathVariant::Plain`)
+    Plain,
     SansSerif,
-    Chancery,       // family `cal` (Chancery script)
-    Roundhand,      // family `scr`: codepoints de Chancery + VS2; bold ortogonal
+    Chancery,
+    Roundhand,
     Fraktur,
     Monospace,
-    DoubleStruck,   // family `bb` (blackboard bold)
-    // Variants size (não modificam codepoint; factor `style.size`):
-    Script,         // factor 0.7
-    SScript,        // factor 0.5
-    Display,        // factor 1.0; não modifica glyph
-    Inline,         // factor 1.0; não modifica glyph
+    DoubleStruck,
+    Script,
+    SScript,
+    Display,
+    Inline,
 }
-
-/// Mapeia um caractere ASCII para o seu codepoint Unicode variant.
-///
-/// Para chars não-cobertos (símbolos, espaços, codepoints não-ASCII),
-/// retorna o char de entrada inalterado.
-///
-/// Algoritmo:
-/// 1. Se `kind` é variant size (`Script`/`SScript`/`Display`/`Inline`), retorna `c`
-///    inalterado (size é tratado em `MathLayouter`, não modifica glyph).
-/// 2. Verifica tabela de excepções BMP (~21 entradas).
-/// 3. Calcula offset no plano `U+1D400-U+1D7FF` com base em
-///    `(kind, bold, italic)` e devolve `base + (c - 'A')` ou
-///    `base + 26 + (c - 'a')`.
-/// 4. Para dígitos (`'0'`-`'9'`): tabela própria, dependente de
-///    `(kind, bold)`. Italic não tem variant separado para dígitos.
-/// 5. Falha graceful: chars fora de `[A-Za-z0-9]` passa-through.
-///
-/// **Fonte de paridade**: o algoritmo reproduz o mapeamento do vanilla
-/// (`codex::styling::to_style` + `MathStyle::select`), validado por
-/// medições byte-a-byte nos passos P311b.1, P809, P812-C e P964 (ver
-/// relatórios respectivos); guardas unitárias em
-/// `01_core/src/entities/math_style.rs:248-420`.
 pub fn map_glyph(c: char, kind: MathStyleKind, bold: bool, italic: bool) -> char;
 ```
 
----
+Seven glyph families select codepoints;bold/italic are orthogonal Content::MathStyled flags,not enum variants. Plain is default serif. Chancery is cal,Roundhand scr,DoubleStruck bb. Four size families Script/SScript/Display/Inline never change glyph or add VS. Their original delegated MathLayouter size factors are0.7/0.5/1.0/1.0;size computation remains separately owned math layout,not this char mapper.
 
-## Estrutura interna (não-API)
+map_glyph returns one char without allocation,I/O,state or cache;same inputs→same output. For size variants return original immediately. For covered Latin choose BMP exception then Mathematical Alphanumeric base+uppercase/lowercase offset. Digits use separate kind/bold bases,no independent italic digits. Unsupported characters/symbols/spaces pass through rather than panic;Greek Plain and seven symbol additions are explicit exceptions to old ASCII-only scope. Plain without flags is no-op. Callers may use this pure mapping on mathematical hot paths without requiring a particular table optimization.
 
-### Bases Unicode — plano `MATHEMATICAL ALPHANUMERIC SYMBOLS`
+map_glyph_vs(c,kind)->Option<char> selects VS1(U+FE00)for Chancery/cal,VS2(U+FE01)for Roundhand/scr,only for Latin letters,not digits/nonLatin. map_glyph normalizes Roundhand→Chancery for codepoint while retaining explicit bold. Bold Chancery/Roundhand uses bold-script U+1D4D0,not nonbold BMP letterlike exceptions. This later measured rule narrows the historical BMP-table `(Chancery,*,*)` shorthand for bold cases;it is not a new blanket wildcard policy.
 
-Documentado em §2.1 do diagnóstico P311a. Bloco contínuo
-`U+1D400`-`U+1D7FF` com 13 sub-blocos de 52 chars (26 upper + 26 lower).
+## Codepoint bases and exceptions
 
-| Family bit-state | Base upper | Comentário |
+The Mathematical Alphanumeric Symbols block U+1D400–U+1D7FF contains thirteen52-letter subblocks(uppercase26/lowercase26). Preserve this complete family table:
+
+| Family bit-state | Base upper | Meaning |
 |---|---|---|
-| `(Plain, false, false)` | (sem mapping; passa-through) | Texto plain math |
+| `(Plain, false, false)` | (unmapped; pass through) | Plain math text |
 | `(Plain, true, false)` | U+1D400 | Bold |
-| `(Plain, false, true)` | U+1D434 | Italic (excepção `h` U+210E) |
+| `(Plain, false, true)` | U+1D434 | Italic (exception `h` U+210E) |
 | `(Plain, true, true)` | U+1D468 | Bold Italic |
-| `(Chancery, false, false)` | U+1D49C | Script (9 excepções) |
+| `(Chancery, false, false)` | U+1D49C | Script (9 exceptions) |
 | `(Chancery, true, false)` | U+1D4D0 | Bold Script |
-| `(Fraktur, false, false)` | U+1D504 | Fraktur (5 excepções) |
-| `(DoubleStruck, false, false)` | U+1D538 | DoubleStruck (7 excepções) |
+| `(Fraktur, false, false)` | U+1D504 | Fraktur (5 exceptions) |
+| `(DoubleStruck, false, false)` | U+1D538 | DoubleStruck (7 exceptions) |
 | `(Fraktur, true, false)` | U+1D56C | Bold Fraktur |
 | `(SansSerif, false, false)` | U+1D5A0 | Sans-Serif |
 | `(SansSerif, true, false)` | U+1D5D4 | Sans-Serif Bold |
 | `(SansSerif, false, true)` | U+1D608 | Sans-Serif Italic |
 | `(SansSerif, true, true)` | U+1D63C | Sans-Serif Bold Italic |
 | `(Monospace, false, false)` | U+1D670 | Monospace |
-| `(Roundhand, true, false)` | U+1D4D0 | Roundhand com bold explícito usa bold-script |
+| `(Roundhand, true, false)` | U+1D4D0 | Roundhand with explicit bold uses bold-script |
 
-`Roundhand` usa os mesmos codepoints de `Chancery`, com o parâmetro bold
-preservado; `map_glyph_vs` distingue VS2 de VS1 (P812-C).
+BMP exception table records original supported letterlike forms. `*` denotes flag wildcard in the historical table;later explicit bold-script rule above prevails for Chancery/Roundhand,while Fraktur/DoubleStruck exceptions apply only without bold. Do not normalize these Unicode forms by appearance:
 
-### Tabela de excepções BMP (~21 entradas)
-
-| Variant + flags | Char | Codepoint excepção |
+| Variant + flags | Char | Codepoint exception |
 |---|---|---|
 | `(Plain, false, true)` Italic `h` | 'h' | U+210E ℎ |
 | `(Chancery, *, *)` Script `B` | 'B' | U+212C ℬ |
@@ -149,10 +88,7 @@ preservado; `map_glyph_vs` distingue VS2 de VS1 (P812-C).
 | `(DoubleStruck, false, *)` DS `R` | 'R' | U+211D ℝ |
 | `(DoubleStruck, false, *)` DS `Z` | 'Z' | U+2124 ℤ |
 
-`*` = wildcards (excepção aplica-se independente de `italic`/`bold`
-para Chancery/Roundhand; para Fraktur/DoubleStruck só sem bold).
-
-### Bases Unicode — dígitos
+Digit bases,with other cases unchanged(cal/frak have no separate digit variants):
 
 | Family bit-state | Base `'0'` |
 |---|---|
@@ -162,194 +98,17 @@ para Chancery/Roundhand; para Fraktur/DoubleStruck só sem bold).
 | `(SansSerif, true, _)` | U+1D7EC |
 | `(Monospace, _, _)` | U+1D7F6 |
 
-Outros casos: passa-through (dígitos não têm variant cal/frak/etc.).
+## Plain Greek, default italic and measured symbols
 
----
+is_math_italic_default starts with ASCII alphabetic and lowercaseα..ω,then includes the seven explicitly measured characters below. Uppercase Greek is upright by default,as `$Gamma Delta Omega alpha$`→ΓΔΩ𝛼;only explicit modifiers change it. Digits never default italic. Bold composes with default italic,so bold(x)→U+1D499,not bold-upright.
 
-## Critérios de verificação
+For Plain lowercaseα..ω,use contiguous offset c−α,including finalς/σ:italic baseU+1D6FC,boldU+1D6C2,bold-italicU+1D736. For uppercaseΑ..Ω,use c−Α with U+03A2 gap matching mathϴ slot:italicU+1D6E2,boldU+1D6A8,bold-italicU+1D71C. Greek under other kinds(Sans/Fraktur/etc.)remains pass-through/uncovered.
 
-### Variants glyph — casos felizes
+Existing application boundaries in `00_nucleo/prompts/core/compiler/math/layout/mod.md` use actual codepoint mapping for one-letter MathIdent is_var instead of merely font italic;one-character MathText applies predicate including resolved alpha;apply_math_style defaults italic to is_math_italic_default so bold(x)composes. Entity does not own those consumers or add rendering state.
 
-**Plain Bold A → U+1D400**
-- `map_glyph('A', Plain, true, false)` → `'\u{1D400}'` (𝐀)
+Symbol-measurement table(literal→historical oracle→prior local)refutes the old symbol pass-through scope only for these seven Plain-italic forms:
 
-**Plain Italic a → U+1D44E**
-- `map_glyph('a', Plain, false, true)` → `'\u{1D44E}'` (𝑎)
-
-**Sans-Serif x → U+1D5D1**
-- `map_glyph('x', SansSerif, false, false)` → `'\u{1D5D1}'` (𝗑).
-
-**Fraktur k → U+1D528**
-- `map_glyph('k', Fraktur, false, false)` → `'\u{1D528}'` (𝔨).
-
-**Monospace 3 → U+1D7F9**
-- `map_glyph('3', Monospace, false, false)` → `'\u{1D7F9}'` (𝟹) — base
-  digit U+1D7F6 + 3 = U+1D7F9. ✓
-
-### Excepções BMP
-
-**Italic h → Planck constant**
-- `map_glyph('h', Plain, false, true)` → `'\u{210E}'` (ℎ)
-
-**DoubleStruck C → ℂ**
-- `map_glyph('C', DoubleStruck, false, false)` → `'\u{2102}'` (ℂ)
-
-**Script H → ℋ**
-- `map_glyph('H', Chancery, false, false)` → `'\u{210B}'` (ℋ)
-
-**Fraktur R → ℜ**
-- `map_glyph('R', Fraktur, false, false)` → `'\u{211C}'` (ℜ)
-
-### Passa-through
-
-**Chars não-ASCII letter/digit**
-- `map_glyph('+', Fraktur, false, false)` → `'+'` (passa-through)
-- `map_glyph(' ', DoubleStruck, false, false)` → `' '`
-- `map_glyph('α', Plain, false, true)` → `'\u{1D6FC}'` (𝛼 — Greek
-  coberto desde P809; P964 inclui as sete formas de símbolo e ∂
-  indicadas na seção própria; ∇ conserva passa-through)
-
-**Variant size não modifica glyph**
-- `map_glyph('x', Script, false, false)` → `'x'` (size factor aplicado
-  em layout, não aqui)
-- `map_glyph('A', SScript, true, false)` → `'A'`
-
-**Plain sem flags**
-- `map_glyph('x', Plain, false, false)` → `'x'` (no-op)
-
-### Combinações ortogonais
-
-**Sans-Serif Bold A → U+1D5D4**
-- `map_glyph('A', SansSerif, true, false)` → `'\u{1D5D4}'` (𝗔)
-
-**Sans-Serif Bold Italic x → U+1D66D**
-- `map_glyph('x', SansSerif, true, true)` → `'\u{1D66D}'` (𝙭).
-
-### Propriedades de tipo
-
-- `MathStyleKind` é `Copy`, `Clone`, `Eq`, `PartialEq`, `Hash`.
-- `MathStyleKind::Plain == MathStyleKind::Plain`.
-- Variants distintos são distintos.
-- `map_glyph` é pura: chamadas repetidas com mesmos inputs retornam o
-  mesmo char.
-
----
-
-## Política de sincronização
-
-Quando `lab/typst-original` for actualizado, inspeccionar diff em
-`crates/typst-library/src/math/style.rs` + tabela em crate externa
-`codex::styling`. Se vanilla adicionar variants ou alterar mapping de
-codepoint:
-
-1. Actualizar `MathStyleKind` se variant nova.
-2. Actualizar tabela de bases + excepções inline.
-3. Rever este L0 + propagar hash via `crystalline-lint --fix-hashes`.
-4. Anotar drift em ADR-0033 se for paridade categoria nova.
-
-Se Unicode adicionar codepoints aos planos `U+1D400-U+1D7FF`
-(improvável — plano fechado desde Unicode 3.1), actualizar bases.
-
----
-
-## Notas de implementação
-
-- **Greek + dígitos parciais**: cobertura inicial em P311b.1 limita-se
-  a Latin ASCII + dígitos básicos. **P809 estendeu Greek** (ver secção
-  própria abaixo). `∇`/`∂` e as formas de símbolo gregas (`ϵ ϑ ϰ ϕ ϱ ϖ`)
-  continuam scope-out — passa-through, como o vanilla para chars não
-  cobertos pelo *default* (o vanilla cobre-as em `is_lower_greek`;
-  extensão futura se o corpus exigir).
-- **Roundhand (`scr`) — regra corrigida em P812-C**: o L0 pré-P812 dizia
-  "Roundhand = Bold Script com bold implícito" — **refutado por medição**
-  (codex `to_roundhand = to_script + VS2(U+FE01)`). A regra correcta:
-  `scr` usa os **mesmos codepoints** de `cal` (bloco script U+1D49C +
-  excepções letterlike; com `bold` vai para bold-script U+1D4D0, como
-  `cal`), diferenciados apenas pelo **variation selector** — VS1
-  (U+FE00) para `cal`, VS2 (U+FE01) para `scr`, emitido após cada letra
-  latina (dígitos e não-latinos não levam). `map_glyph` normaliza
-  `Roundhand → Chancery` para o codepoint; a nova `map_glyph_vs(c, kind)`
-  devolve o selector (`Option<char>`) que os consumers anexam a seguir ao
-  char mapeado. Medido byte-idêntico ao vanilla:
-  `$scr(A) cal(A) scr(L) cal(B) scr(B)$` →
-  `1D49C FE01 1D49C FE00 2112 FE01 212C FE00 212C FE01` nos dois.
-- **`Plain` sem flags = no-op**: `map_glyph('x', Plain, false, false)`
-  retorna `'x'` inalterado. Plain só modifica codepoint quando
-  combinado com `bold` ou `italic`.
-- **`map_glyph` é pura**: sem alocação, sem I/O, sem state. Aceitável
-  em hot-path do `MathLayouter` (chamada ~1× por caractere math).
-- **Variant size passa-through**: `Script`/`SScript` não modificam
-  glyph; `map_glyph` retorna `c` inalterado e o factor de tamanho é
-  aplicado em `rules/math/layout/mod.rs` (sub-passo P311b.4).
-- **Falha graceful**: codepoints não-ASCII ou fora do range coberto
-  retornam input inalterado em vez de panic. Preserva paridade
-  observable com vanilla (vanilla também passa-through para chars
-  não-cobertos).
-- **Excepções BMP**: tabela inline em `match` exhaustivo. ~21
-  entradas; ramo `_ => None` para casos não-excepcionais.
-
----
-
-## Extensão Greek + regra de itálico por defeito — P809
-
-**Origem**: observação P786 §7 (`x` vs `𝑥`, `αβ` vs `𝛼𝛽`), confirmada
-causa distinta em P799/P800. O escopo-out de Greek de P311b.1 fica
-**revogado para o caso `Plain`** (o único exigido pela regra de default).
-
-**Regra de default (paridade codex `MathStyle::select`, medida)**:
-- `is_math_italic_default(c)` = `c.is_ascii_alphabetic() || c ∈ 'α'..='ω'`
-  — latin + grego **minúsculo** têm itálico por defeito em modo math.
-- Grego **maiúsculo** é **upright por defeito** (medido: `$Gamma Delta
-  Omega alpha$` → `ΓΔΩ𝛼`); só muda com modificador explícito.
-- Dígitos nunca têm itálico por defeito.
-- `bold` **compõe** com o default: `$bold(x)$` → U+1D499 (bold-italic,
-  medido), não bold upright.
-
-**Bases Greek (`Plain`)**: minúsculas `'α'..='ω'` — fórmula contígua
-`base + (c - 'α')` (o bloco Unicode segue a ordem alfabética grega
-completa, incluindo `ς`(final)/`σ` adjacentes): italic `U+1D6FC`,
-bold `U+1D6C2`, bold-italic `U+1D736`. Maiúsculas `'Α'..='Ω'` — fórmula
-contígua `base + (c - 'Α')` (o buraco U+03A2 alinha exactamente com a
-ranhura `ϴ` do bloco math): italic `U+1D6E2`, bold `U+1D6A8`,
-bold-italic `U+1D71C`. Greek com outros `kind` (Sans/Fraktur/etc.):
-passa-through (scope-out, registado).
-
-**Pontos de aplicação do default** (`compiler/math/layout`, P809):
-1. `layout_node` arm `MathIdent` de 1 letra (`is_var`) — antes punha a
-   flag de fonte `italic: true` (invisível à extracção); agora mapeia o
-   codepoint (`map_glyph(c, Plain, false, true)`) e não usa a flag.
-2. `layout_node` arm `MathText` de 1 carácter com
-   `is_math_italic_default` — cobre `$x$` (lexer: grafema único →
-   MathText) e símbolos resolvidos (`alpha` → `α` → `𝛼`).
-3. `apply_math_style` — o default de `italic` nas folhas de 1 carácter
-   passa de `unwrap_or(false)` para `unwrap_or(is_math_italic_default)`:
-   é o que faz `bold(x)` compor para bold-italic (paridade medida).
-
----
-
-## Não-objectivos (P311b.1; revisto em P809)
-
-- Formas de símbolo gregas (`ϵ ϑ ϰ ϕ ϱ ϖ`), `∂`/`∇` e Greek com
-  `kind` não-`Plain` (scope-out registado em P809; Greek `Plain`
-  coberto desde P809).
-- Combinações exóticas vanilla (`Initial`, `Tailed`, `Looped`,
-  `Stretched` — Arabic Math) — escopo P311b.1 limita-se às 7 variants
-  base.
-- Optimização de tabela (perfect-hash, FSA, etc.) — `match` directo
-  é suficiente para hot-path.
-- Cache de resultados — `map_glyph` é trivial; cache adicionaria custo
-  sem ganho.
-
-
-## P964 — variantes gregas de símbolo (ϵ ϑ ϕ ϖ ϰ ϱ) e ∂ no plano itálico math
-
-**Medição** (`typst-passo-964` Fase A; auditoria externa 3ª ronda secção 2 —
-suspeita confirmada com codepoints reais, `pdftotext`/ToUnicode nos dois
-PDFs): o vanilla mapeia as variantes gregas de símbolo para o plano
-mathematical-italic; o cristalino deixava-as no bloco grego. Tabela medida
-(literal char → vanilla → cristalino-antes):
-
-| char | vanilla | cristalino antes |
+| char | vanilla | Crystalline before |
 |---|---|---|
 | ϵ U+03F5 | U+1D716 (𝜖) | U+03F5 |
 | ϑ U+03D1 | U+1D717 (𝜗) | U+03D1 |
@@ -359,34 +118,22 @@ mathematical-italic; o cristalino deixava-as no bloco grego. Tabela medida
 | ϰ U+03F0 | U+1D71B (𝜅) | U+03F0 |
 | ∂ U+2202 | U+1D715 (𝜕) | U+2202 |
 
-O vanilla NÃO mapeia (verificado — ficam no bloco grego): ϐ U+03D0,
-Ϝ U+03DC, ϝ U+03DD, ϴ U+03F4, ∇ U+2207 — o cristalino já coincidia
-nesses (não mexer). Fonte canónica: codex `styling.rs` (grupo "greek":
-minúsculas α–ω + ∂ + variantes ϵϑϰϕϱϖ).
+Include these seven in default-italic predicate and map individually in greek_plain Plain+italic;contiguous offsets do not cover them. Do not change existing bold/bold-italic symbol branches;their prior scope remains. Verified pass-through controls stay untouched:ϐU+03D0,ϜU+03DC,ϝU+03DD,ϴU+03F4,∇U+2207. Canonical source group is codex styling.rs lowercaseα–ω+∂+ϵϑϰϕϱϖ. Greek/nonPlain,Arabic Initial/Tailed/Looped/Stretched and other unmeasured combinations remain out of scope. No perfect-hash/FSA/table optimization or result cache is authorized/needed by this contract.
 
-**Correcção**: `is_math_italic_default` passa a incluir os 7 codepoints, e
-`greek_plain` (braço Plain+italic) mapeia cada um para o seu codepoint do
-plano itálico (tabela acima — os offsets contíguos não os cobrem). Sem
-mudança para bold/bold-italic (a família bold dos símbolos-variantes fica
-como estava — escopo já registado para variantes fora de Plain).
+## Required mapping controls
 
+Preserve exact tests:Plain boldA→U+1D400𝐀,Plain italica→U+1D44E𝑎,SansSerifx→U+1D5D1𝗑,Frakturk→U+1D528𝔨,Monospace3→U+1D7F9𝟹;italic h→U+210Eℎ,DoubleStruckC→U+2102ℂ,ChanceryH→U+210Bℋ,FrakturR→U+211Cℜ. Plus under Fraktur and space under DoubleStruck unchanged. Plain italicα→U+1D6FC𝛼,∇unchanged. Script x unchanged,SScript boldA unchanged,Plain unflaggedx unchanged. SansSerif boldA→U+1D5D4𝗔,bold-italicx→U+1D66D𝙭. Preserve Copy/Clone/Eq/PartialEq/Hash,reflexive Plain equality/distinct variants,purity/repeatability and all mapping tables.
 
-## Exaustividade de representação e identidade — V16, 2026-10-16
+## Exhaustive enum decisions and verification
 
-### Medição anterior à decisão
+math_style.rs:128,203,214,248 and tekt-enums-2026-10-16/before.json.gz preserve HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b/tree/UTC/source/L0/config/status/exact diffstat/hash-checked prior owner. Previous SARIF eleven warnings/one V16 note across seven owners,including latent fallbacks,measures Rust enum evolution rather than language defect/upstream intent/AI gain.
 
-01_core/src/entities/math_style.rs:128; 01_core/src/entities/math_style.rs:203; 01_core/src/entities/math_style.rs:214; 01_core/src/entities/math_style.rs:248. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `lab/results/construction/diagnostics/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
+Only nominal patterns change:map_glyph_vs None names Plain/SansSerif/Fraktur/Monospace/DoubleStruck/Script/SScript/Display/Inline. letter_base final None names Roundhand/Display/Inline,retaining explicit Script/SScript and other flags/arms;private Roundhand helper stays None because map_glyph normalizes first. digit_base None covers(Plain,false)and(Chancery/Roundhand/Fraktur/Script/SScript/Display/Inline,_). bmp_exception final None names all eleven first-axis enum variants,retaining open flags/char `_` and exception precedence;char is not artificially enumerated. greek_plain's two char/bool fallbacks remain. Add corrected three Unicode examples and Display/Inline/Script/SScript unchanged glyph/VS controls,no pin/new-parity/variant/default/grammar change.
 
-### Responsabilidade exclusiva
+Keep bodies/order/guards/public enum-fields-traits-signatures/defaults/dependencies/compatibility/phases,no moved owner logic/helper hiding catch-all/suppression. New enum variants must require compiler review. Precode local behavior/V16 scoped RED;disposable workspace sentinel variants independently in Color,ColorSpace,MathStyleKind,FuncRepr,StateUpdate with offline locked typst-core check/one job/shared artifact cache/full source-hash-argv-UTC-diagnostics. Each21selected matches shows no E0004 there before,required E0004 after regardless of other copied-workspace errors. Real no-sentinel build/tests approve code;negative probe is no parity proof,no productive edits during commands.
 
-map_glyph_vs: None nomeia Plain/SansSerif/Fraktur/Monospace/DoubleStruck/Script/SScript/Display/Inline. letter_base: None final nomeia Roundhand/Display/Inline, mantendo Script/SScript já explícitos e todos os outros braços/flags. O helper privado Roundhand continua None; map_glyph continua normalizando Roundhand para Chancery antes de chamar o helper. digit_base: None cobre (Plain,false) e (Chancery/Roundhand/Fraktur/Script/SScript/Display/Inline,_), preservando os demais braços. bmp_exception: None final nomeia as onze variantes no primeiro eixo e mantém _ para flags e char, preservando precedência das exceções. O eixo enum é fechado; o char permanece aberto e não recebe lista artificial. Os dois fallbacks de greek_plain, que selecionam char/booleans, ficam intactos. Adicionar controle dos três exemplos Unicode saneados e de Display/Inline/Script/SScript sem alteração de glyph/VS. Corrigir somente texto histórico ambíguo conforme fonte e testes existentes; não atualizar pin ou declarar nova paridade.
+Scoped direct/reverse lineage only,no global repair. Full build/workspace suite/strict all-target Clippy warnings+expectations/fmt/Rustdoc−Dwarnings/fourHTMLindexes/V1-V5-V15-V26/reverse/SARIF no new warning/diffcheck,12GiB/swap0/jobs1/sequential,frozen provenance,unchanged tolerance/fixture. External V16 including latent T027/T158/T160 stays outside this batch.
 
-O fragmento vigente tem onze variantes já existentes; P812-C e P964 prevalecem sobre notas históricas conflitantes. Os exemplos saneados são observáveis de codepoint, não mudança de gramática/default ou nova variante produtiva.
+On an explicitly authorized upstream resync,inspect pinned math/style.rs and codex styling changes;update necessary enum/base/exception L0 before code and lineage,record any new parity class under applicable ADRs. Unicode additions to U+1D400–U+1D7FF require base review if they occur. This is synchronization policy,not permission to move the repository's pinned oracle unilaterally.
 
-### Aceitação e gate
-
-Manutenção interna ADR-0127 em fluxo contínuo: nenhuma definição de enum, campo, trait, assinatura pública, default, dependência, compatibilidade ou fase muda. Conservar cada corpo, ordem e guard; não mover lógica entre owners nem criar helper para esconder o catchall. Padrões nominais devem forçar erro de compilação ao surgir variante nova; comentários de neutralidade não servem como supressão.
-
-Antes do código, testes funcionais locais e gate V16 RED por escopo. Executar sonda de evolução em cópia descartável do workspace: acrescentar somente uma variante sentinela a Color, ColorSpace, MathStyleKind, FuncRepr e StateUpdate, sem alterar as definições produtivas. Usar cargo check --offline --locked -p typst-core com um job e cache de artefatos compartilhado; registrar fontes/hashes/argv/UTC/diagnósticos. Para cada um dos 21 matches selecionados, a baseline deve demonstrar a ausência de E0004 naquele match; GREEN exige E0004 ali, independentemente de erros de exaustividade já emitidos por outros matches na cópia. O controle de compilação sem sentinelas e os testes de comportamento aprovam o código real; não usar a sonda negativa como prova de paridade. Não editar source produtivo durante comandos.
-
-Resselo restrito, direto e reverso, sem reparo global da working tree. Revalidar build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, suíte workspace completa, Rustdoc -D warnings e quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF sem avisos novos e diff --check. Limite MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1, tarefas pesadas sequenciais. Nenhuma tolerância/fixture histórica é relaxada. As pendências V16 externas, inclusive T027/T158/T160 rastreadas sem emissão, continuam abertas.
+Archive: `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/math_style.md`.

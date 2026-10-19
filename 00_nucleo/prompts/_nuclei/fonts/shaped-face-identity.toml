@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "shaped-face-identity"
-title = "Fonte efetiva do carrier shaped"
-
+title = "Effective font of the shaped carrier"
 [[claims]]
 id = "source-face"
 level = "must"
-statement = "TextShaped.font Some conserva a fonte carregada que produziu glyphs e units_per_em, sem substituir identidade por família, variante, GID ou slot de World. None conserva o caminho legado."
-
+statement = "TextShaped.font Some preserves the loaded font that produced glyphs and units_per_em, never substituting family, variant, GID or World slot identity. None preserves the legacy path."
 [[claims]]
 id = "transport"
 level = "must"
-statement = "Clone e transformação geométrica conservam a fonte. Merge shaped exige face e eixos compatíveis. Não apagar semântica do estilo para induzir seleção posterior."
-
+statement = "Clone and geometric transformation preserve the font. Shaped merge requires compatible face and axes. Do not erase style semantics to induce later selection."
 [[claims]]
 id = "resource-binding"
 level = "must"
-statement = "TextShaped certificado vincula glifos, subset/CMap e recurso de desenho à mesma face original e coordenadas efetivas. Origem e bytes instanciados ficam associados explicitamente; não aplicar GIDs a outra face por nome ou faixa numérica. Glyph matemático direto conserva seu contrato próprio."
-
+statement = "Certified TextShaped binds glyphs, subset/CMap and drawing resource to the same original face/effective coordinates. Explicitly associate origin and instanced bytes; never apply GIDs to another face by name or numeric range. Direct mathematical Glyph retains its own contract."
 [[claims]]
 id = "session-boundary"
 level = "must-not"
-statement = "Esta correção não cria unsafe, estado global mutável, retenção de ponteiro de World ou I/O de fontes em L1. Preparação/cache de recursos dura uma exportação."
+statement = "This correction creates no unsafe, mutable global state, retained World pointer or L1 font I/O. Resource preparation/cache lasts one export."

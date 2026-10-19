@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/gradients/parsing.md
-//! @prompt-hash 60eaba8b
+//! @prompt-hash 608ae388
 //! @layer L1
 //! @updated 2026-09-30
 

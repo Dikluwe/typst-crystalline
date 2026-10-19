@@ -1,82 +1,64 @@
-# Prompt L0 — `entities/numbering` — numbering tipado e vistas realizadas
+# Prompt L0 — `entities/numbering` — typed numbering and realized views
 Hash do Código: bec78c90
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/entities/numbering.rs`
-**Origem:** P1157 — auditoria de `page.numbering` por função.
-**ADRs:** ADR-0024, ADR-0107, ADR-0108, ADR-0127.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/numbering.rs`
+**Governance:** ADR-0024, ADR-0107, ADR-0108, ADR-0127.
 
-## 1. Medição anterior à decisão
+## Evidence before specification
 
-No vanilla ratificado `a51e02804`, `model/numbering.rs:99-128` define
-`Numbering::Pattern | Numbering::Func`. `layout/page.rs:290-311` documenta
-que página visível chama função com número corrente e total, enquanto links e
-referências chamam com apenas o corrente. `pages/run.rs:155-168` trata toda
-função como dependente do total. `layout/introspect.rs:122-125` preserva o
-objeto `Numbering` por página.
+At historical upstream `a51e02804`, model/numbering.rs:99–128 defines
+Pattern/Func; layout/page.rs:290–311 documents visible current+total versus
+unary reference callbacks; pages/run.rs:155–168 treats every function as
+total-dependent; layout/introspect.rs:122–125 preserves raw Numbering per page.
+Recorded bilateral probes show: binary callback on two pages → V1/2,V2/2;
+variadic callback with explicit footer and page ref → R1; page-numbering query
+preserves closure repr `(..) => ..`; logical counter starting 7 over three pages
+→ N7/9,N8/9,N9/9 with first reference N7; lexical callback/pattern runs →
+X1/2,II; unary visible callback errors `unexpected argument`, ternary errors
+`missing argument: c`; integer return 42 displays 42, none is empty; explicit
+footer suppresses binary marginal callback but unary reference still gives
+AUTO1. These are historical probes, not fresh current-pin certification.
 
-Sondas P1157, idênticas nos dois binários ratificados:
+## Owned contract
 
-- callback `(current, total)` em duas páginas → `V1/2`, `V2/2`;
-- callback variádico com footer explícito + `ref(form: "page")` → `R1`;
-- `loc.page-numbering()` sobre callback → repr `(..) => ..`;
-- counter lógico atualizado para 7 em três páginas → `N7/9`, `N8/9`,
-  `N9/9`; referência à primeira → `N7`;
-- page-runs lexicais callback/pattern → `X1/2`, `II`;
-- função unária falha no número visível com `unexpected argument`; ternária
-  falha com `missing argument: c`;
-- retorno de função de numbering pode ser qualquer `Value`: inteiro 42 é
-  exibido como `42`, `none` produz conteúdo vazio;
-- footer explícito suprime o callback de dois argumentos na margem, mas a
-  referência ainda o chama com um argumento (`AUTO1`).
-
-## 2. Contrato
-
-Adicionar entidade pública fechada:
-
-```text
+```rust
 pub enum Numbering {
     Pattern(EcoString),
     Func(Func),
 }
 ```
 
-`Numbering` é dado de linguagem puro, clonável O(1) e sem I/O. A variante
-`Pattern` preserva a string original; parsing/formatação permanece no owner
-`compiler/stdlib/numbering`. A variante `Func` preserva a closure capturada.
-Igualdade/hash seguem a identidade já definida por `Func`; não comparar
-resultado renderizado nem bytes.
+Pure language data, O(1) clone, no I/O. Pattern preserves the original string;
+parsing/formatting belongs to
+`00_nucleo/prompts/core/compiler/stdlib/numbering.md`. Func preserves its
+captured closure; equality/hash follow existing Func identity, never rendered
+results or bytes. A delta's outer None means omitted/retain active value;
+Some(None) disables numbering; Some(Some(Numbering)) installs a pattern or
+function. Resolved page/config snapshots use Option<Numbering>, not a delta.
 
-Estados de delta continuam distintos:
+## Realization boundary
 
-- campo exterior `None`: argumento omitido, preservar configuração ativa;
-- `Some(None)`: `numbering: none`, desativar;
-- `Some(Some(Numbering))`: instalar pattern ou função.
+Never execute callbacks in this entity. The Engine fixpoint creates separate
+visible `[current,total]` and reference `[current]` views per page. Convert
+returns through normal language content semantics: Content unchanged, Str as
+text, None as empty, others through ordinary markup display. Errors retain
+the numbering-setting span. Raw Numbering::Func remains available even though
+margin/reference consume realized content with different arities.
 
-Snapshots de configuração/página usam `Option<Numbering>` porque já
-representam o estado resolvido, não um delta.
+## Acceptance and historical gate
 
-## 3. Realização
+Preserve every recorded callback/arity/logical-counter/view/return/error case
+above. The original public-entity/field change required explicit ADR-0127
+approval before implementation. The header of
+`lab/history/construction/records/00_nucleo/materialization/typst-passo-1158.md`
+records the approved contract and phase; the later record reports completed enum/casts/
+deltas/snapshots/typed Introspector and then callback views with
+layout→Engine→relayout. Preserve that succession without turning implementation
+status into a fresh approval for further public or phase changes. This owner
+implements only the typed carrier; realization stays with its compiler owners.
 
-Callback não pertence à entidade e nunca é executado aqui. O fixpoint com
-Engine produz duas vistas por página:
+## Historical record
 
-- `visible`: callback com `[current, total]`;
-- `reference`: callback com `[current]`.
-
-O resultado de qualquer tipo é convertido pela semântica normal de conteúdo
-da linguagem: `Content` permanece; `Str` vira texto; `None` vira vazio; demais
-valores usam a mesma exibição em markup observada por `#numbering(callback)`.
-Erros conservam o span da configuração de numbering.
-
-## 4. Gate
-
-Criar esta entidade e trocar campos públicos é mudança de contrato; P1157
-para antes do código. P1158 só materializa após aprovação explícita.
-
-## 5. Divisão explícita da materialização
-
-P1158 materializou o enum, casts, deltas, snapshots e assinatura tipada do
-Introspector. P1159 completou as vistas de callback e o ciclo layout → Engine →
-relayout. `Numbering::Func` permanece cru no contrato, enquanto margem e
-referência consomem conteúdo realizado com aridades binária e unária.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/numbering.md`. Historical observations are not a new parity certification.

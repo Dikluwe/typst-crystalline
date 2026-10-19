@@ -1,0 +1,16 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/repr.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "e0117e11eda086b912809ad9821fa0dde7a3a30d828be23f154cd4897e5d5daa",
+    "result_sha256": "6d14ee7cd42a585d56f568330a1b4ce1bfc0ce52bd67f31e4283fc050016fd12",
+    "disposition": "Complete repr facade reviewed: every existing morphology/presence/escaping/array/constructor clause retained, child ownership clarified; translated only historical intro and ratified test carrier adaptation."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "5181a3d8ad27930ded74848a06aa081e049fa642e596b5cbb15e991973a7d404",
+    "result_sha256": "ff8b520a3a705faf51f4bfc2e7af7bbbb38f3894b97198d5cbfd9eb590dfa0af",
+    "disposition": "Entire language equality owner read/translated, actual bare-selector ratification and independent sRGB/Styled comparison projections consolidated without touching structural Eq/Hash; every refuter/test/scope limit retained."
+  }
+]

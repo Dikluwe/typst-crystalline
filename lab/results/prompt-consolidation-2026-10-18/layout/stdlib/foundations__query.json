@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/foundations/query.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Preserved existing English ownership/reflection contract; translated all selector amendments, reconciled explicit D08A receipt, later catalog expansion and exact diagnostics/locatability/phase limits.",
+  "original_sha256": "d78b7bf37173122644fc88f49bf936c696bb4d10294065c461ae1303e3f56465",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/foundations/query.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

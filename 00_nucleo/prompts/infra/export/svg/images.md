@@ -34,67 +34,49 @@ Check MIME/original payload alpha, physical boxes, cover clips, asymmetric EXIF,
 self-contained SVG landmarks and explicit unknown-format behavior.
 
 
-## Aridade das fronteiras — `clippy::too_many_arguments`
+## Nominal image-leaf arity exception
 
-### Evidência anterior à decisão
+### Evidence
 
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`
+retains complete sources/prior L0/signatures/hashes/UTC/status/diffstat at HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree captured
+2026-10-15T16:39:18.873477+00:00. classification.json records per-item contract
+review/reconfirmed spans. render_image at images.rs:14 has eight arguments
+(threshold seven), historical C068. The leaf receives already resolved bytes/
+physical box/orientation/clip, writer and shared clip-ID capability; it does not
+need the entire fonts/destinations session. This is Rust structure, no new parity,
+functional-defect or cognitive-benefit proof.
 
-- `C068`: `03_infra/src/export/svg/images.rs:14`, `render_image`, 8 argumentos contados pelo Clippy (limiar 7).
+`clippy-locais-2026-10-16/clippy-inventory.json` retains 79 warnings.
+clippy-excecoes-2026-10-16/before.json.gz retains source/spans/existing reasons/
+signatures/hashes/HEAD/uncommitted tree/UTC/diffstat checked before deciding.
+The nominal-metadata follow-up materializes only the justified exception below,
+superseding the old audit-only pending status, not pending corrections.
 
-### Prescrição exclusiva por função
+### Exact exception and limits
 
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
+Keep signature/body/calls/cfg/order/other attributes and semantics. Only render_image
+may carry:
+`#[expect(clippy::too_many_arguments, reason="C068: Leaf de imagem recebe bytes, caixa física, orientação e clip já resolvidos, writer e contador de clip IDs")]`.
+Use the prescribed exact reason, no module/impl/crate/global application, threshold
+increase or other lint. This narrowly supersedes generic suppression bans only
+for named item/lint. If no longer over threshold remove/review the expectation;
+never silence unfulfilled_lint_expectations. Conditional exceptions requiring
+dead-argument removal still require that correction; pending correction cases
+(including historical C047/C066) gain no annotation here.
 
-#### `C068` — `render_image`: Exceção pontual justificada
+### Acceptance
 
-Leaf de imagem recebe bytes, caixa física, orientação e clip já resolvidos, writer e contador de clip IDs. O contador compartilhado é uma capacidade explícita; a imagem não precisa receber a sessão inteira de fontes/destinos.
-
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C068: Leaf de imagem recebe bytes, caixa física, orientação e clip já resolvidos, writer e contador de clip IDs")], somente nesta função.
-
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
-
-### Limite da exceção
-
-Autorizar somente `#[expect(clippy::too_many_arguments, reason = "...")]` no item
-nominal acima, com o motivo arquitetural indicado. Não aplicar no módulo, impl,
-crate ou configuração global; não elevar o limiar nem abranger outro lint.
-Nos casos com remoção de argumento morto, a exceção residual depende dessa correção.
-Se a função deixar de exceder o limiar, retirar/revisar a expectativa; não silenciar
-`unfulfilled_lint_expectations`. Esta permissão específica supera proibições
-genéricas de supressão em seções anteriores somente para este lint e os itens
-nominais justificados aqui. As demais obrigações de correção permanecem.
-
-### Fronteira de materialização
-
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
-
-
-## Exceções nominais materializadas — 2026-10-16
-
-### Medição anterior à decisão
-
-O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
-
-### Responsabilidade e aceitação
-
-Materializar somente as expectativas diretas nominais já justificadas neste owner: C068. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
-
-Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
+Continuous ADR-0127 changes only lint metadata, no public contract/executable body/
+cfg/default/phase/dependency/architecture. L0 first/scoped resealing. Removing added
+attributes and lineage header must recover prior rustfmt-normalized source.
+Measure real RED, then all-target inventory: historical batch exactly 46 arities
+plus five test warnings satisfied by 49 expectations, no new warnings and
+unfulfilled_lint_expectations as error; its 11 correction arities remain visible.
+Keep owner functional/call controls without fixture/tolerance relaxation; private
+signature corrections migrate callers/L0 before code and new public/compatibility
+needs another ADR-0127 gate. Validate build/fmt/strict/reverse lineage/Tekt no new
+errors/warnings, existing Counter/coverage tests under 12 GiB, zero swap, one job.
+Prior full suite is evidence for identical executable code, not a fresh run;
+no lint-attribute mirror tests or new performance comparison for metadata.

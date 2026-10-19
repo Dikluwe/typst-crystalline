@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/v_space.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated causal anchor and strong-space terminal/baseline updates, preserving B1/B2/B3 partial scopes, LIFO authorization, legacy fallback and weak-collapse/other open axes.",
+  "original_sha256": "ca59ddb6110c5d8d0b004f741bb8ae75b75bf3a14622c85129a2f7a130245233",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/v_space.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

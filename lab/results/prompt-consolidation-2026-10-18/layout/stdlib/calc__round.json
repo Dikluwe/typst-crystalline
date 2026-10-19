@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/calc/round.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated complete precision saturation/finite rounding and declarative-sharing scope; preserved local nonfinite/error rules and type/value tests.",
+  "original_sha256": "e64a0ff9598e2a3981e6122775470138a792c96350dee41cad28eb1ef186dede",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/calc/round.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

@@ -8,7 +8,7 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:faf6c20021b467fdb2a864625f4f6dd4386b5ef28c137b946e5cb4e4ce073d52
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:300b35e6b7c70e79742d5edc4cda0f3419b15a41662e194fd1516b33b8cae1bb
 ```
 
 ## Current evidence
@@ -37,8 +37,17 @@ Own ordered family catalogs and the prose class lookup only. Do not open font fi
 
 Check serif/sans classification and exact catalog order through the existing inline tests. No font availability or upstream-version assumption is needed to verify these constants.
 
-## Cadeia comum de fallback — medição 2026-09-29
+## Common fallback-chain evidence
 
-Medição: `lab/typst-original/crates/typst-library/src/text/mod.rs:1083-1101` acrescenta após as famílias declaradas, quando fallback está ativo, `Libertinus Serif`, `Twitter Color Emoji`, `Noto Color Emoji`, `Apple Color Emoji`, `Segoe UI Emoji`. A sonda `correcao-rtl-restante-2026-09-29/after-leading/hebrew-0-vanilla.pdf` incorpora Libertinus para `שלום עולם`; o PDF cristalino incorpora Noto Sans Hebrew. Ambos os catálogos listam essas faces. Inferência: a cadeia explícita anterior à busca global explica a diferença; refutar se a fonte incorporada persistir após a cadeia alinhada.
+Upstream `lab/typst-original/crates/typst-library/src/text/mod.rs:1083–1101`
+appends Libertinus Serif, Twitter Color Emoji, Noto Color Emoji, Apple Color Emoji
+and Segoe UI Emoji after declared families when fallback is enabled. The historical
+`correcao-rtl-restante-2026-09-29/after-leading/hebrew-0-vanilla.pdf` probe embeds
+Libertinus for `שלום עולם`; Crystalline embeds Noto Sans Hebrew. Both catalogs
+contain those faces. Inference: the explicit chain before global search explains
+the difference, refuted if the embedded face persists after chain alignment. This
+historical probe does not certify the current ratified oracle.
 
-O catálogo comum tem exatamente a ordem da cadeia `text::families()` do pin vanilla. É distinto dos catálogos de recuperação por classe (usados quando nenhuma declarada resolve) e do catálogo matemático. Não escolhe a fonte por língua ou script.
+The common catalog preserves that exact text::families() order, separately from
+class-recovery catalogs used when no declared family resolves and from the math
+catalog. It does not select by language or script.

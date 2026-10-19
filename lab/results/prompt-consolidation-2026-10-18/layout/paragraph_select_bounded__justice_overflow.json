@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/paragraph_select_bounded/justice_overflow.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Retained experimental/test-only ownership, exact guards and final-line runt exclusion, strict tie rule, uncertainties, historical measurements and parent benchmark obligation.",
+  "original_sha256": "29a46efcde928bd41580a3ab671b407eda527af64a2d314707f5545533bab129",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/paragraph_select_bounded/justice_overflow.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

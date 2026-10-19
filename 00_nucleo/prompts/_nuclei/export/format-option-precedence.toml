@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "format-option-precedence"
-title = "Precedência entre opções explícitas e opções do documento"
-
+title = "Precedence of explicit and document options"
 [[claims]]
 id = "explicit-overrides-document"
 level = "must"
-statement = "Quando o contrato do formato expõe uma opção homóloga no documento, a opção de exportação explícita do caller, representada por Some(T), deve vencê-la."
-
+statement = "When a format exposes a corresponding document option, explicit caller export option Some(T) must override it."
 [[claims]]
 id = "absence-defers-to-document"
 level = "must"
-statement = "Quando o contrato do formato expõe uma opção homóloga no documento, a ausência de opção explícita, representada por None, deve ser preservada até essa opção documental poder ser consultada, sem inventar valor do tipo T."
-
+statement = "When a format exposes a corresponding document option, preserve absent explicit option None until that document option can be consulted, without inventing a T value."
 [[claims]]
 id = "default-after-document"
 level = "must"
-statement = "Quando há opção homóloga no documento, o default definido pelo formato só deve ser aplicado se caller e documento não fornecerem valor; cada prompt proprietário fixa o próprio default e qualquer transformação de unidade."
-
+statement = "When a corresponding document option exists, apply the format default only if neither caller nor document supplies a value; each owning prompt defines its own default and unit transformations."
 [[claims]]
 id = "no-early-collapse"
 level = "must-not"
-statement = "No fio de uma opção homóloga suportada pelo documento, uma camada anterior a esse encontro não deve colapsar ausência em false, zero nem em outro default final."
+statement = "Along a document-supported corresponding option path, a layer before that meeting must not collapse absence into false, zero or another final default."

@@ -42,65 +42,59 @@ does not evaluate callbacks, mutate scopes or add context. Canonical long type
 names delegate to the error_formatting owner.
 
 
-## Concatenação de conteúdo — paridade e limite de pilha, 2026-10-17
+## Content concatenation evidence and stack boundary
 
-### Medição anterior à decisão
+HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree;
+`lab/results/construction/diagnostics/state-stack-2026-10-17/before.json.gz`
+retains sources/UTC/status/diffstat. morphology-before.json.gz and
+morphology-measured.json.gz measure pin
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`: for/while with four [X] bodies
+and repeated + yield nested Tekt Sequence versus flat vanilla children. Sequence
+aliases and both-Sequence operands also differ. Empty+content keeps one-child
+Sequence in vanilla; Empty+Empty empty. Empty-string Text is real child, never
+filter it. Upstream foundations/ops.rs:24–45 delegates Content::add;
+content/mod.rs:645–665 appends first-level Sequence children, preserving selected
+Sequence identity/metadata without recursing into inner children.
 
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
-fontes, UTC/status/diffstat em before.json.gz de
-lab/results/construction/diagnostics/state-stack-2026-10-17. morphology-before.json.gz e
-morphology-measured.json.gz medem pin bd5ebec285505889e8ff1d4f68804ab147a699f3:
-for/while com quatro corpos [X] e + repetido produzem Sequence encaixada no Tekt,
-filhos planos no vanilla. Aliases de Sequence e ambos operandos Sequence também
-divergem. Empty + conteúdo conserva Sequence de um filho no vanilla; Empty +
-Empty é vazio. Text de string vazia é filho real e não deve ser filtrado.
-Upstream foundations/ops.rs:24–45 delega a Content::add; content/mod.rs:645–665
-apensa filhos de Sequence de primeiro nível, preserva a identidade/metadata
-da Sequence escolhida e não recursa nos filhos internos.
+GDB debug-trace/debug-root.log finds SIGSEGV in map_content_pre called by
+table_cells::needs_preparation:64-update chain creates artificial recursion;
+consecutive mapper frames differ104664 bytes. Large reader experiment (64 array
+updates with2048 values) aborts both Tekt debug binaries, vanilla release accepts.
+This proves neither State defect nor Tekt release result. Observable repr nesting
+is language; Arc/Vec/frame size mechanics. Infer no intent.
 
-GDB debug-trace/debug-root.log encontra SIGSEGV em map_content_pre, chamado
-por table_cells::needs_preparation: a cadeia produzida por 64 updates cria
-recursão artificial; dois frames consecutivos desse mapper distam 104664 bytes.
-O ensaio grande de A1 (64 updates de arrays com 2048 valores) aborta nos dois
-binários Tekt debug, mas o vanilla release aceita. Isso não prova defeito em
-State nem resultado do release Tekt. O aninhamento observável em repr é língua,
-a escolha Arc/Vec e o tamanho do frame são mecânica. Não inferir intenção.
+## Exclusive immediate-operand concatenation
 
-### Decisão e limites
+Repair producer, without configured-stack increase or indiscriminate public-tree
+flattening. Keep Content::sequence normalization unchanged. Remove only immediate
+Sequence layer per operand, recognizing transparent Source. Styled/Located/
+Realized/ShowRecipe/body-bearing elements remain opaque children. Do not recursively
+find/flatten inner Sequence children.
 
-Corrigir a operação produtora, sem aumentar stack configurada ou achatar a
-árvore pública indiscriminadamente. Content::sequence conserva sua normalização
-atual e não é alterado. Concatenação remove só a camada Sequence de cada
-operando imediato, reconhecendo Source como origem transparente. Demais wrappers
-(Styled/Located/Realized/ShowRecipe e elementos com body) continuam filhos opacos.
-Filhos Sequence já internos não são achados/achatados recursivamente.
+Keep order/immutable aliases. Result Source comes from left operand when Sequence/
+Empty, otherwise right when Sequence/Empty; without Sequence create new parent
+retaining both child origins. Use existing source_span/with_source_span without
+redefining general origin priority. Empty represents empty Sequence here: add no
+Empty child, but preserve one-child Sequence when sum involves sequence. Never
+confuse Text("") with Empty or filter via is_empty/plain_text. Value::None is prior
+identity without reconstruction. Existing Str/Symbol coercions stay; measured
+Symbol/styled morphology and empty-Sequence children/func/fields reflection are
+separate debts, no parity proof here.
 
-Preservar ordem e aliases imutáveis. Source do resultado é o do operando esquerdo
-quando ele é Sequence/Empty; senão o direito quando este é Sequence/Empty; sem
-Sequence, formar pai novo e conservar origens dos dois filhos. Reusar source_span
-e with_source_span existentes, sem redefinir a prioridade geral de origem.
-Empty é a representação Tekt da Sequence vazia para esta operação: não inserir
-Empty como filho, mas preservar Sequence com um filho quando a soma envolve
-uma sequência. Não confundir Text("") com Empty nem usar is_empty/plain_text para
-filtrar filhos. None de Value é identidade anterior à operação, sem reconstrução.
-Coerções Str/Symbol existentes ficam intactas; a morfologia de Symbol/styled e
-reflexão children/func/fields de Sequence vazia identificadas nas sondas continuam
-dívidas próprias, não provas de paridade deste recorte.
+Own sequential Value combination and private
+pub(super) concat_content(Content, Content)->Content. Five Content-with-Content/
+Str/Symbol arms delegate after existing owned coercions. Helper shares cloned
+children, mutates no alias Arc and changes no Rust equality. Classification is
+nominal Empty/Sequence after source_body; rest remain complete opaque values.
+Empty|Sequence is one sequential-operand policy, no V19 suppression.
 
-Correção interna/de paridade em fluxo contínuo ADR-0127: sem API/trait/campo público,
-modo/flag/default de produto ou fase novos. Prescrever antes de testes/código,
-RED funcional de forma/ordem/origem, GREEN e revalidar. Pesados sequenciais sob
-12GiB/High8GiB/swap0/jobs1. Confirmar o ensaio original completo, não substituí-lo
-pelo caso menor; controles maiores de for/while/add, State e callbacks, fonte e
-produto visual. Não prometer custo linear de append sobre Arc<[Content]>; medir
-tempo/RSS e conservar a limitação se a representação atual exigir cópia do prefixo.
+## Acceptance and limits
 
-Responsabilidade exclusiva: a combinação sequencial de Values e o helper privado
-pub(super) concat_content(Content, Content)->Content. Os cinco braços Content
-com Content/Str/Symbol delegam a esse helper após as coerções já owned. O helper
-conserva filhos por clone compartilhado, não muta os Arcs dos aliases nem muda
-a igualdade Rust. Seu booleano de classificação é nominal Empty/Sequence após
-source_body; casos restantes continuam valores opacos completos. Grupo nominal
-Empty|Sequence é uma só política de operando sequencial, sem supressão V19.
-Testes locais cobrem operandos de ambos os lados, Empty/Text vazio, None, aliases,
-spans, wrappers, filho Sequence interno e acumulação repetida.
+Internal/parity continuous ADR-0127, no public API/trait/field/product mode/flag/
+default/phase. L0 before tests/code, functional shape/order/origin RED, GREEN and
+revalidation. Heavy tasks sequential, 12 GiB/High 8 GiB/swap0/jobs1. Confirm original
+full experiment, not smaller substitute; larger for/while/add/State/callback/
+source/visual-product controls. Promise no linear append on Arc<[Content]>;
+measure time/RSS and retain prefix-copy limitation if current representation
+requires it. Local tests cover both operand sides, Empty/empty Text/None/aliases/
+spans/wrappers/internal Sequence child/repeated accumulation.

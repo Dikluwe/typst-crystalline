@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/registry/contextual.md
-//! @prompt-hash 18aace6c
+//! @prompt-hash df04a204
 //! @layer L1
 //! @updated 2026-09-26
 

@@ -8,10 +8,10 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
-- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
-- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
+- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:199640afc0a7243ca509288840d9c9e0c431f850f67919148fc8dac3b1cb33a0
+- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 ```
 
 ## Current evidence
@@ -39,59 +39,85 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Identidade textual — materialização aprovada
+## Transparent text identity and export font bindings
 
-### Medição anterior à decisão
+### Evidence
 
-As sondas bilaterais e o estado exato em
 `lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
-e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
-A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
+and before/ retain exact state/bilateral probes for U+002D versus SHY at matching
+geometry across eight controls. approved-before/ contains this consumer's
+FrameItem traversal audit; the owner confirmed the carrier at
+`00_nucleo/prompts/core/entities/layout_types.md`. Source identity is observable,
+not full-PDF byte identity. `identidade-fonte-shaped-2026-10-05/probe.txt` is the
+measured basis for original bound export fonts.
 
-### Responsabilidade exclusiva
+### Contract and acceptance
 
-Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
+Treat TextReplacement as visually transparent in this owner's traversals, descending
+into children with unchanged text/order/coordinates/calculation, no new algorithm
+or advance. Consume pinned shared invariants without shared productive ownership.
+Require text/bbox/causal/recursive-transport/literal-hyphen controls, no PDF-byte
+or new break-selection claim.
 
-O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
-possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
-transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+Consume private resolve_export_fonts returning bound original fonts under the
+existing instancing gate. Instancing stays at the exporter in the same render/
+export phase, retaining diagnostics/API/page selection. The old helper name did
+not authorize already-instanced bytes.
 
+## Test-module placement
 
-## Preparação de bindings de exportação — 2026-10-05
+`lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`
+retains sources/L0/hashes/HEAD/uncommitted tree/UTC/diffstat for svg.rs:160.
+Inspection preceded decision; selected Clippy must fail before code. Internal
+representation/observation proves no new intent/parity. Move only #[cfg(test)]
+p1462_tests to the consumer's end, preserving names/bodies/attributes/super import/
+APIs and productive helper order, without extraction/new dispatch.
+Continuous ADR-0127: no public/default/phase contract or lint suppression.
+L0 first/scoped resealing, exact inventory reduction/no new warnings, selected
+Clippy RED→GREEN/unfulfilled_lint_expectations as error; workspace suite/build/
+fmt/Rustdoc/lineage under 12 GiB, zero swap, one job. No derive/Entry/module-
+placement mirror tests. Any historical bbox control still requires actual
+observation in its own scope; other controls preserve fixtures/expectations.
 
-Medição: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/probe.txt`. Consumir helper privado resolve_export_fonts: fontes originais vinculadas, com gate de instanciação existente. Instanciação fica no consumidor exportador, na mesma fase de render/export, preservando diagnósticos/API/seleção de páginas. O nome antigo prometia bytes já instanciados e não descreve este contrato.
+## Exhaustive decisions for existing FrameItem variants
 
+### Evidence
 
-## Manutenção local e observação de testes — 2026-10-16
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/UTC,
+sources/L0/configuration/hashes/status/diffstat. AST spans/patterns/guards/bodies/
+complements were checked first. classification.json records 70 cases across 26
+owners using pinned CI AST. This consumer's historical F066 is svg.rs:197 collect.
+Rust pattern/exhaustivity is mechanics; semantics/morphology/geometry/effects/
+diagnostics remain. No new architecture/upstream-intent interpretation.
 
-### Medição anterior à decisão
+### Exclusive contract and acceptance
 
-`03_infra/src/pipeline/svg.rs` nas linhas 160 contém os avisos registrados em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
+Only replace collect's `_` pattern with nominal group
+FrameItem::TextSeparator/Text/TextShaped/Line/Image/Shape using the existing Rust
+prefix. Preserve fallback body/prior arms/guards/transforms/calls/returns/order
+verbatim. Keep callbacks/effects/metadata/clipping/fonts/positions/ink/width under
+their owners. No traversal expansion, wrapper→leaf reinterpretation or text/
+ActualText replacement for geometry. Test fixtures/expectations/tolerances/counts/
+Unknown failures remain; no missing-observation acceptance. Nominal alternatives
+share the prior body; V19 alternative notes stay visible without pretending one
+arm's coverage proves every alternative.
 
-### Responsabilidade e aceitação
+Continuous ADR-0127 adds no enum/field/trait method/public signature/default/
+dependency/compatibility/phase and approves no historical pending proposal.
+L0 first, scoped bidirectional resealing; no suppression/higher threshold or
+match→if-let evasion. Before code run new FrameVisitor control/workspace suite
+with unchanged expectations and confirm AST RED for all 70 family warnings.
+Afterward zero scoped-family V16/no new warnings; outside V16 remains pending.
+For productive core matches reached by cargo check -p typst-core, use a disposable
+FrameItem sentinel variant to observe absent E0004 before/present after. That
+probe covers only compiled sites, never unbuilt cfg(test) or blocked L3 sites.
+For the full batch replay patterns/guards/bodies, verify enum/signatures unchanged,
+real build/tests, no stub bodies.
 
-Mover somente o módulo #[cfg(test)] p1462_tests para o fim do consumer. Manter nomes, corpos, atributos, import super, APIs e ordem funcional de todos os helpers produtivos, sem extração/dispatch novo.
-
-Fluxo contínuo ADR-0127: sem contrato público, default de produto ou fase novos. L0 precede código e resselo restrito. Nenhuma supressão de lint nova. Conferir redução exata do inventário e ausência de avisos novos, gate Clippy RED→GREEN e unfulfilled_lint_expectations como erro; executar suíte workspace, build, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job. Não criar testes que apenas espelhem derive, Entry ou posicionamento de módulos. O caso de bbox exige observação real conforme especificado; os demais controles existentes mantêm fixtures e expectativas.
-
-
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
-
-### Medição anterior à decisão
-
-F066: 03_infra/src/pipeline/svg.rs:197 (collect). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
-
-### Prescrição exclusiva desta unidade
-
-- **F066 — `collect`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Text`, `TextShaped`, `Line`, `Image`, `Shape`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
-
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
-
-### Gate e aceitação
-
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
-
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
-
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+Revalidate full workspace suite/cargo build/strict workspace-all-target Clippy
+(-D warnings, -D unfulfilled_lint_expectations)/fmt/Rustdoc -D warnings/four HTML
+indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/L0/
+configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
+MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
+memory gain or measured AI benefit.

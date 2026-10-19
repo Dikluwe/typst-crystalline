@@ -1,96 +1,55 @@
 # Prompt L0 — entities/lang
 Hash do Código: 0f56ef44
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/lang.rs`
-**ADRs relevantes**: ADR-0052 (materialização), ADR-0033 (paridade vanilla),
-ADR-0037 (coesão por domínio)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/lang.rs`
+**Governance:** ADR-0052, ADR-0033, ADR-0037.
 
-## Contexto
+## Evidence before specification
 
-`Lang` é o identificador de língua natural. Materializado no Passo
-131B para obter paridade funcional com o Typst vanilla —
-captura `#set text(lang: "pt")`, valida formato ISO 639-1/2/3
-(2 ou 3 letras ASCII), emite erro hard com mensagem literal em
-valores inválidos.
-
-Réplica estrutural exacta de `typst::text::lang::Lang` vanilla:
-newtype compacto (3 bytes ASCII padded + length discriminator),
-Copy, zero alocação.
-
-Diagnóstico prévio:
+The original comparison is in
 `lab/results/construction/diagnostics/diagnostico-lang-passo-131a.md`.
+It motivated the compact upstream-like representation and language-code
+surface; it is not a fresh current-pin certification.
 
-## Interface pública
+## Public contract
 
 ```rust
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Lang([u8; 3], u8);
 
 impl Lang {
-    pub const ENGLISH: Self;              // único constant inicial
-    pub fn as_str(&self) -> &str;         // slice ASCII sem padding
+    pub const ENGLISH: Self;
+    pub fn as_str(&self) -> &str;
 }
 
 impl std::str::FromStr for Lang {
     type Err = &'static str;
-    // Aceita 2-3 letras ASCII; normaliza lowercase.
-    // Erro: "expected two or three letter language code (ISO 639-1/2/3)"
+
+
 }
 ```
 
-## Semântica
+Use three ASCII bytes padded with b' ' for a two-byte code plus a u8 length
+(2 or 3), with Copy and no allocation. Normalize ASCII case to lowercase;
+as_str returns only actual bytes, without trailing padding. ENGLISH.as_str()
+is `en`. The specification's detailed validation accepts two or three ASCII
+printable characters, including digits, despite the shorter prose/error saying
+"letters"; do not silently tighten this unresolved wording to letters only.
+Reject non-ASCII such as `日本`, empty input, and length-five `en-GB` with:
+`expected two or three letter language code (ISO 639-1/2/3)`.
 
-- **Forma interna**: 3 bytes ASCII (padded com `b' '` se
-  2-letter) + `u8` length (2 ou 3).
-- **Representação canónica**: lowercase, sem padding trailing
-  no `as_str()`.
-- **Validação**:
-  - 2 ou 3 caracteres.
-  - ASCII only (7-bit).
-  - Letras, dígitos, qualquer ASCII printable aceite
-    (vanilla relaxed).
-  - Hyphen (`"en-GB"`) → rejeita (length 5).
-  - Não-ASCII (`"日本"`) → rejeita.
+## Acceptance and deferred scope
 
-## Constantes
+Parse `pt` as `pt`, `PT` as `pt`, and `fil` as `fil`; reject empty and en-GB
+with the specified diagnostic. ENGLISH is the initial required constant;
+further constants are consumer-driven, not an automatic full upstream catalog.
+The original scope deferred dir(), additional constants, Region/WritingScript/
+Locale, and the hint to put en-GB's region in a region parameter. Those are
+separate-owner or future requirements; their old dependency-state descriptions
+are historical and do not certify completion or authorize a new API here.
 
-Apenas `Lang::ENGLISH` na materialização inicial. Vanilla tem
-~260 constantes — cristalino adiciona on-demand quando
-consumer (shaping, hyphenation, translations) exigir.
+## Historical record
 
-## Critérios de Verificação
-
-```
-Dado Lang::from_str("pt")
-Quando chamado as_str()
-Então "pt"
-
-Dado Lang::from_str("PT")
-Quando chamado as_str()
-Então "pt"                      (case normalizado)
-
-Dado Lang::from_str("fil")
-Quando chamado as_str()
-Então "fil"                     (3-letter, sem padding)
-
-Dado Lang::from_str("")
-Quando called
-Então Err("expected two or three letter language code (ISO 639-1/2/3)")
-
-Dado Lang::from_str("en-GB")
-Quando called
-Então Err(...)                  (length 5, rejeita)
-
-Dado Lang::ENGLISH
-Quando chamado as_str()
-Então "en"
-```
-
-## Não incluído (deferido)
-
-- `Lang::dir() -> Dir` — requer tipo `Dir` não materializado.
-- Constantes além de `ENGLISH` — on-demand.
-- Tipos `Region`, `WritingScript`, `Locale` — passos dedicados.
-- Hint "put region in region parameter" para `"en-GB"` —
-  requer `Region`.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/lang.md`. Historical observations are not a new parity certification.

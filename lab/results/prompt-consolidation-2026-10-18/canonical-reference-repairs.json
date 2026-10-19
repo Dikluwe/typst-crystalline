@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-19T02:38:52.011600+00:00",
+  "changes": [
+    {
+      "path": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods.md",
+      "before": "031f00463bbc069af74a05d85e77dad4be9d2414f4781f33a32a50299e54ba73",
+      "after": "ebb2a38371f0ee8f1818087f4fb976ff621e444d9526f353d17aaf87a2ca4aa3"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/cancel.md",
+      "before": "cf23ef71be331d868e02d481bb0447d447f2f7473a603658e7e7eb137abe122f",
+      "after": "504eb33d0fa1669855cca787f64167143bb036d64f5853ad9dbdb35afcd5b29e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/frac.md",
+      "before": "0f76fe69c8584b87713b82818ac6b580e591cb885d0ca3577218ba7bcca8a337",
+      "after": "f811012d47745dee76ddc7f4b9993020be78680a7629e4ac906f243a588db6c6"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/vector.md",
+      "before": "70a57194bef3d72fa9db3346c1353fab8175041a5f64cfc6698baca8ae883f70",
+      "after": "cdde83d08f955252aa0dc3ccf6df5f7f9eb99a5df6cd0f85d127912537f6184e"
+    }
+  ],
+  "reason": "Expand already explicit owner references to full canonical paths required by ADR-0130; no ownership or normative clause change."
+}

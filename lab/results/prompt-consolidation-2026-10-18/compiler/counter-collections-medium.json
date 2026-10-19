@@ -1,0 +1,44 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/collections/str_transform.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "14ec382d6bc6eb063d5c16758e7e0d81d75d9b0f71dbf047ff285bfd801ebfb1",
+    "result_sha256": "b27fdfab38a9035aad0f25e8c3f48741374a5b163c8d72bb09758ed461638aef",
+    "disposition": "Full behavior/validation and narrow unused-helper removal translated, with all active dispatch/precedence constraints retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/collections/validation.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "16a549b6d378e7b49f4bbefbd3ad07c7a942605d100540841620098b8998e863",
+    "result_sha256": "09a4b0a18beb785efd9a7f3b15b732da84038b05502a4473fa6f60ebe955e4f1",
+    "disposition": "Full behavior/validation and narrow unused-helper removal translated, with all active dispatch/precedence constraints retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/color.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "26ad4830fdf9988b7d3b17f1a0ef052c216d636af3f81fe12bdec89a5f0961ef",
+    "result_sha256": "e776be03edb9147db745801cb3cb02537a4d765c4401b84d08cfca946b96747b",
+    "disposition": "Full English contract reviewed; Portuguese ownership introduction translated with canonical child reference and boundary-only normative scope."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/context.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "ce58dcfdd05cc354721c1e72388d7d1cb3a578617934cd95c8241f4da0b3c77e",
+    "result_sha256": "ce58dcfdd05cc354721c1e72388d7d1cb3a578617934cd95c8241f4da0b3c77e",
+    "disposition": "Full English constructor/delayed-execution contract reviewed; unresolved nested/layout metrics scope remains explicit."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/counter/display.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "03d6c176340dba6a3f9495ba07ddda1e31e4aa2105bb9529d8dea0660094ef5b",
+    "result_sha256": "f51d8d25faf6d97278637d03c76a3e6b7dbf4bfdbf316803eea81295c7f6402d",
+    "disposition": "All display/default/callback observations and two Page corrections translated; final snapshot explicitly ratified, historical scope-out only partially superseded, causal fallback and bundle isolation preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/counter/filtered_reads.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "1f5b4398dbd562d60340310e72b84d6401801b2e6b480b085bc58aaabab9cdc2",
+    "result_sha256": "f96795f34edda0c684a7670a4dcd8c2db2c20f9a74655c5a01e4eda60adb2ef5",
+    "disposition": "Full read/replay contract and causal/Page snapshot refinements translated; snapshot approval/scope/fallback preserved without duplicate display ownership."
+  }
+]

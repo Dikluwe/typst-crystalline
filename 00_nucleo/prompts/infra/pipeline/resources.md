@@ -2,10 +2,10 @@
 Hash do Código: 96969b85
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/resources.rs`
@@ -37,190 +37,118 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Separadores textuais — materialização autorizada em 2026-09-28
+## Separator and transparent resource traversal
 
-### Medição anterior à decisão
+fatia-funcional-tekt-2026-09-28 RED/handler audit precedes2026-09-28 approved
+layout_types carrier. Collect active TextSeparator font with same family/variant/
+variation dedup. Approved identidade-hifen-discricionario-2026-09-28 initial/before
+state/eightU+002D-SHY equal-bbox controls/approved-before traversal requires visually
+transparent TextReplacement descent preserving author text/order/coordinates/
+existing calculation without added advance/algorithm. Pinned shared invariants,
+text/bbox/causal/recursive/literal-hyphen tests, no PDF-byte/new-selection claim.
 
-`03_infra/src/pipeline/resources.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
-dos handlers desse consumer precedem esta alteração. A aprovação do contrato
-público em `00_nucleo/prompts/core/entities/layout_types.md` foi recebida em
-2026-09-28 e registrada na proveniência da materialização.
+## Shared instancer diagnostic
 
-### Responsabilidade deste owner
+### Evidence and contract
 
-Recolher a fonte ativa de TextSeparator como recurso textual; conservar a mesma deduplicação de fonte/variante/variações.
-
-Conservar as responsabilidades existentes; a aceitação segue texto e geometria
-observáveis, incluindo os controles de adjacência e os invariantes pinados.
-
-## Diagnóstico comum de instanciação PDF/bundle — 2026-09-30
-
-### Medição anterior à decisão
-
-Com a mesma fonte variável Ubuntu Sans e `TYPST_CRYSTALLINE_PYTHON` apontando
-para executável inexistente, `03_infra/src/pipeline/pdf.rs:444-467` produz
+With same Ubuntu Sans variable face and missing TYPST_CRYSTALLINE_PYTHON executable,
+pdf.rs:444–467 emits
 `fonte variável 'ubuntu sans' requer instanciação, mas Python/fontTools não está disponível`;
-`03_infra/src/pipeline/bundle.rs:501-518` produz a frase inglesa correspondente.
-`03_infra/src/pipeline/resources.rs:39-63` já possui a primeira mensagem para
-SVG/PNG. Sem fonte ou com fontes estáticas, ambos exportam; com eixo existente,
-ambos rejeitam. A mensagem de erro é observável da linguagem (ADR-0107/0108),
-enquanto o número de ramos de exportação e os bytes PDF são mecânica. A
-inferência de deriva por duplicação seria refutada se as três rotas já
-delegassem o mesmo construtor de diagnóstico; as fontes citadas mostram que não.
+bundle.rs:501–518 emits divergent English. resources.rs:39–63 already has Portuguese
+for SVG/PNG. Static/no-font export succeeds, real-axis request rejects. Diagnostic
+is language-observable, export branch count/PDF bytes mechanics; shared-constructor
+hypothesis refuted by measured three distinct call sites.
 
-### Contrato do owner
+One private helper decides resolved-font dependency and diagnostic, probes only
+if merged request contains actual face axis. Preserve first matching face,
+Portuguese literal/detached span/no hint. Standalone PDF/bundle PDF/SVG-PNG share
+helper without new public API/font-selection/export dispatch change. Tests may
+inject probe result only for deterministic unavailability.
 
-Concentrar num helper privado a decisão de dependência e o diagnóstico para
-fontes resolvidas. Só consultar a disponibilidade do instanciador se algum
-pedido fundido corresponder a eixo real da fonte. Preservar a primeira fonte
-correspondente, mensagem portuguesa, span detached e ausência de hint vigentes.
-PDF isolado, PDF de bundle e SVG/PNG chamam esse helper; não criar API pública,
-mudar seleção de fontes ou alterar o despacho de exportação. O teste pode
-injetar apenas o resultado da sondagem para cobrir indisponibilidade de modo
-determinístico.
+## Borrowed textual key construction
 
-## Identidade textual — materialização aprovada
+font-keys-prioridade7-2026-10-08/before.json.gz retains HEAD/tree/UTC/released7692649.
+resources.rs:127–134 clones Vec-backed FontList/axes before seen.contains for each
+Text/TextShaped/TextSeparator. Discarded copies are mechanics; selection order/
+full FontList-variant-axes identity stay observable, gain needs measurement.
+Compare whole textual key by borrow with exact existing equality; construct owned
+only on first distinct occurrence. None/empty axes equivalent, preserve f32 equality
+including signed zero/NaN, no HashSet/extra normalization. Private static FnOnce
+thunk may build on miss only, mechanical copy not language callback. No API/public
+model/phase/target-default/dedup-order-resolution change. Glyph still uses actual
+resolve_font_combo, never style.font guess. Preserve layer/container traversal.
 
-### Medição anterior à decisão
+RED→GREEN:1, 000same-key items build one owned key; distinct keys preserve order/
+variant-axis separation/old equivalences. Count construction/time apart from CLI,
+no percentage inference. Keep only with repeated measured-path benefit and equal
+selection/output/errors. Frozen-release CLI/PDF/fonts/multi-family-axes-container/
+math controls/build/relevant suite/lint/owner-only seals, reversible internal
+continuous ADR-0127.
 
-As sondas bilaterais e o estado exato em
-`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
-e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
-A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
+## Actual shaped-face boundary
 
-### Responsabilidade exclusiva
+identidade-fonte-shaped-2026-10-05/{initial.json.gz, probe.txt, bilateral.json}
+distinguishes regular GID/Oblique mismatch; owner ratified TextShaped.font with
+manifest f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409,
+implementation inventory retained. Legacy constructors None/transforms keep Font;
+join distinguishes original face+axes. Cached hits retain actual Font without
+style forcing; collectors/subset/CMap/PDF use original binding+style coordinates.
+SVG/PNG local original/prepared arrays instance once per face/request, same resource
+index; None legacy fallback. Export-local association by bytes+axes, not name/slot;
+retain supplied order/append missing, partition multifont once before collection,
+no cross-face GID/CMap. No fake fonts/unsafe/globals/public phase/API/FontKey change;
+private explicit Font/bindings allowed. Shared nucleus only; RED→GREEN/bilateral
+miss-hit-VF controls, no promised speed gain.
 
-Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
+## Prepared Shape fixture transport
 
-O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
-possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
-transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+### Evidence and approval
 
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz`
+retains HEAD/tree/diffstat/UTC/sources/owners before migration. layout_types.rs:510–511
+carried Paint/Stroke; shape.rs:151–191 materialized only group fills; tiling.rs:85
+limited/cloned its grid. prepare_cell already returns TilingFrame once per
+occurrence. `tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
+shows dense-open/stroke-open divergences across all three targets. Manifesto
+`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d` was approved;
+receipt `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+Preparation/object counts are transport mechanics; rendering/outlines/text/geometry/
+diagnostics are language observables.
 
-## Face efetiva de TextShaped — materialização ratificada 2026-10-05
+### Contract and acceptance
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Recursively resolve text/Glyph fonts inside prepared fill/stroke cells, preserving
+existing variation/fallback decisions.
+Consume the pinned nucleus. Approval supersedes only old approval-pending or
+Shape-declarative-Paint/Stroke clauses within this package; other behavior survives.
+L0 first, RED→GREEN, explicit fixture/consumer migration, no total From<Paint>,
+carrier PartialEq or solid fallback merely to compile. Do not raise the old limit
+or move layout to L3. Validate fill/stroke/resource/clipping/affine Parent/native-
+target/Solid/Gradient/page semantics and full suite/build/doc/fmt/lineage. The
+prepared transport, native-target integration and parity slices recorded as
+T1c/T2/T3 are complete only after integrated verification; broken/partial states
+are no production certificate. T4 and publication remain out of scope.
 
-Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
+## Internal imports, Copy variant and test literals
 
-A associação é por bytes da face original e pedido de eixos; nomes e slots não bastam. A tabela local dura a exportação e conserva ordem dos recursos fornecidos, anexando faces faltantes. Para multifont, distribuir itens pelos bindings uma vez antes de coletores por fonte; não reutilizar GIDs/CMap globais em faces diferentes. Código deste owner continua 1:1 com seu L0; referências a outros owners não compartilham propriedade. Aceitação RED→GREEN e controles bilaterais incluindo miss/hit/VF, sem promessa de ganho de tempo.
+infra-imports-docs-ci-2026-10-13/before.json.gz retains source/owner/spans/original
+compiler output/HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/dirty tree/UTC/status/
+diffstat at :136. Remove only blank physical line between collect_fonts_in_items
+doc and function. Preserve technical content/assertions/cases; no public/default/
+phase/formula/acceptance/suppression. All-target compile/infra names-suite/build/
+workspace Clippy/Rustdoc/lineage/scoped seals, no import/doc mirror tests.
 
-Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
+avisos-clippy-tekt-2026-10-15/before.json.gz/selected-red.json retains sources/
+owners/HEAD/tree/UTC/diffstat/errors at :213 cloning Copy FontVariant. Dereference
+variant into resolved key, still clone families/axes, retaining order/identity/
+filtering. No public/default/phase/suppression/new syntax tests; selected GREEN/
+existing suite/build/all-target Clippy/fmt/doc/lineage/scoped seals.
 
-## Coleta textual sem construção de chaves duplicadas
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/font-keys-prioridade7-2026-10-08/before.json.gz registra
-HEAD/árvore/UTC e release d7692649. resources.rs:127-134 cria FontList/axes
-clonados antes de seen.contains em cada Text/TextShaped/TextSeparator. FontList
-contém Vec<FontFamily>; FontVariations contém Vec de eixos, não Arc. O custo de
-cópia é mecânica, não paridade da linguagem. Comparação/ordem de seleção e
-identidade de fonte/variantes/eixos são observáveis e ficam sob o contrato acima.
-Isso mostra construção descartável; o ganho será decidido só após medição.
-
-### Responsabilidade exclusiva
-
-Comparar o key textual completo por empréstimo, conservando a mesma igualdade
-de listas/variante/variações vigente, e construir o key owned só na primeira
-ocorrência distinta. None e lista vazia de eixos equivalem; conservar igualdade
-de f32, inclusive zero com sinal e NaN, sem HashSet ou normalização extra.
-Um helper privado pode receber a construção em thunk FnOnce estático, executado
-somente no miss; esse thunk é cópia mecânica local, nunca callback da linguagem.
-Não mudar API, modelo público, fases, target/defaults, dedup/ordem ou resolução.
-Preservar Glyph e seu resolve_font_combo; não inferir sua fonte de style.font.
-Preservar recursão e background/items/foreground/containers.
-
-### Aceitação e refutação
-
-RED→GREEN no owner: mil ocorrências do mesmo key constroem um owned key; chaves
-distintas seguem ordem, variantes/eixos separam e equivalências antigas permanecem.
-Medir redução de construção e tempo separado da CLI; nenhuma contagem autoriza
-percentual de tempo sem ensaio. Conservar código somente com benefício repetido
-no caminho medido e saída/seleção/diagnósticos preservados. Comparar CLI/PDF/fontes
-com release congelado, casos de múltiplas famílias/eixos/containers e matemática;
-build/suíte pertinente/lint e resselo apenas deste owner. Experimento interno,
-reversível, sem contrato novo: fluxo contínuo ADR-0127.
-
-## Imports e documentação de CI — 2026-10-13
-
-### Medição anterior à decisão
-
-`03_infra/src/pipeline/resources.rs` nas linhas 136 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
-
-### Decisão e aceitação
-
-Eliminar somente a linha física vazia entre a documentação de collect_fonts_in_items e a função a que ela pertence.
-
-Manutenção interna sem mudança de assinatura pública, default, fase, fórmulas ou critérios de aceitação (fluxo contínuo ADR-0127). Não introduzir supressões de lint. Revalidar compilação de todos os targets, nomes e execução da suíte de infraestrutura, build, Clippy do workspace, Rustdoc e linhagem com resselo restrito. Não criar testes que apenas espelhem remoção de imports ou formatação de comentários.
-
-
-## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
-HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
-layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
-materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
-prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
-`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
-comprovam que dense-open e stroke-open ainda divergem nos três targets.
-O contrato foi aprovado no manifesto
-`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
-A preparação/contagem de objetos é mecânica de transporte; render, contornos,
-texto, geometria e diagnósticos são obrigações observáveis de linguagem.
-
-### Responsabilidade exclusiva desta unidade
-
-Resolver fontes usadas em texto/glifos das células preparadas de fill e stroke, recursivamente, preservando decisões de variações e fallback existentes.
-
-### Aceitação e continuidade
-
-Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
-aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
-somente no âmbito do contrato aprovado. Preservar os demais comportamentos
-vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
-fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
-carriers e sem fallback sólido para obter build verde. Não elevar o limite
-antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
-clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
-página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
-quando integrados e verificados; estado intermediário quebrado ou parcial
-não é certificação de produção. T4 e publicação continuam fora deste pacote.
-
-
-## Simplificações locais de Clippy — 2026-10-15
-
-### Medição anterior à decisão
-
-`03_infra/src/pipeline/resources.rs:213` clona FontVariant, cujo contrato implementa Copy.
-`lab/results/construction/diagnostics/avisos-clippy-tekt-2026-10-15/before.json.gz`
-conserva fontes, owners, HEAD, working tree não commitado, UTC e diffstat;
-selected-red.json identifica os diagnósticos do compilador antes da edição.
-São expressões Rust equivalentes, sem nova medição de paridade upstream.
-
-### Responsabilidade e aceitação
-
-Copiar a variante por desreferência ao construir a chave resolvida. Continuar clonando as listas de famílias e variações, conservando ordem, identidade completa e filtragem.
-
-Manutenção interna em fluxo contínuo ADR-0127: conservar contratos públicos,
-defaults e fases. Não adicionar supressões nem testes que espelhem sintaxe.
-O gate dos avisos selecionados deve passar a GREEN; validar a suíte existente,
-build, Clippy all-targets, formato, documentação e linhagem com resselo restrito.
-
-
-## Inicialização explícita dos fixtures — field_reassign_with_default
-
-### Medição anterior à decisão
-
-`03_infra/src/pipeline/resources.rs` nas linhas 397 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
-
-### Responsabilidade e aceitação
-
-No helper de teste que gera itens repetidos, inicializar font no literal TextStyle. Manter style mutável e o if axes subsequente que atribui variations; não transformar o ramo condicional em inicialização antecipada. Preservar tamanho da coleção, famílias, valores/ordem dos eixos e contagens de deduplicação.
-
-Usar `..Tipo::default()` para os campos restantes e retirar `mut` apenas onde deixam de existir mutações. Sem novos tipos, builders, APIs ou supressões de lint. L0 precede código e resselo restrito (fluxo contínuo ADR-0127). O gate selecionado deve falhar antes e passar depois; preservar nomes, inputs, expectativas e tolerâncias dos testes. Revalidar Clippy all-targets, suíte workspace, build, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe do inicializador.
+field-reassign-2026-10-15/before.json.gz/initial-diagnostics.json retains source/
+spans/prior L0/HEAD/tree/UTC/diffstat at :397. Repeated-item helper initializes
+font in TextStyle literal, keeps mut and later conditional if axes variations
+assignment, no eager-branch evaluation. Preserve collection size/families/axes
+values-order/dedup counts; remaining ..Type::default(), no new type/builder/API/
+suppression. L0 first/scoped seals/selected RED→GREEN/same names-input-expected-
+tolerances/all-target Clippy/workspace suite/build/fmt/Rustdoc/lineage, no initializer
+syntax tests. These Rust maintenance measurements prove no new parity/default change.

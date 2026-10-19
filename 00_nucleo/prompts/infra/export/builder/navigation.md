@@ -112,14 +112,16 @@ pages and Unicode labels. Internal correction under ADR-0127: no new public
 API, default, flag or pipeline phase.
 
 
-## Expressões locais verificadas — Clippy 2026-10-16
+## Optional retained-index expression
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz`
+retains sources/L0/HEAD/uncommitted tree/status/diffstat/UTC; initial-diagnostics.json
+retains inspected uses/types/suggestions/spans at navigation.rs:583
+(clippy::manual_map). This is internal Rust representation, no new parity/performance.
 
-03_infra/src/export/builder/navigation.rs:583 (clippy::manual_map). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
-
-### Responsabilidade exclusiva e aceitação
-
-Expressar somente a opção do índice retido com pic.new_index(page_idx).map, preservando as condições anteriores: alvo nunca existente usa último retido, alvo válido excluído fica None. Não produzir heading nem alterar stack quando excluído.
-
-Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependência ou supressão novos. L0 precede código e resselo restrito. Preservar inputs e resultados dos controles existentes, sem relaxar tolerâncias. Gate dos lints selecionados RED→GREEN; executar suíte workspace, build, Clippy all-targets, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe Rust.
+Express only retained-index Option with pic.new_index(page_idx).map, keeping
+prior conditions: never-existent target uses last retained page; valid excluded
+target remains None. Do not create heading or change stack when excluded.
+Continuous ADR-0127 adds no public/default/phase/dependency/suppression. L0 first/
+scoped seals, unchanged control inputs/results/tolerances, selected-lint RED→GREEN,
+workspace suite/build/all-target Clippy/fmt/Rustdoc/lineage; no syntax-mirror tests.

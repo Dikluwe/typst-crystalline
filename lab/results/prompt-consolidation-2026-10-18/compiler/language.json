@@ -1,0 +1,44 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/lang/quotes.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "c3dc63ae056d8454065dce23e545b3154bde347def929eed690de4f67b57943d",
+    "result_sha256": "ad1fd27166b5d540e72028ec252e05bb369cbef820ff464a6000b40acbb29c76",
+    "disposition": "Full ratified SmartQuote addendum translated, no-context partial supersession explicit; exact diagnostics, signatures, defaults, glyph tables and unestablished regional scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/lang/mod.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "854d9a661f039bc8059c7db7f770df5235777284454fa5a221d159284338cbe4",
+    "result_sha256": "854d9a661f039bc8059c7db7f770df5235777284454fa5a221d159284338cbe4",
+    "disposition": "Full text reviewed; strings including non-English generated language content are intentional observables, not prose to translate."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/lang/equation_supplement.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "8605e934bfb23aa99f729e9016fc9cf681930f95cd4f75240267becedf5977e1",
+    "result_sha256": "8605e934bfb23aa99f729e9016fc9cf681930f95cd4f75240267becedf5977e1",
+    "disposition": "Full text reviewed; strings including non-English generated language content are intentional observables, not prose to translate."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/lang/figure_supplement.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "978051e9f5de9f803dffe2ccc8e4943c5af99e2e2399071d2717e47ff888b1d1",
+    "result_sha256": "978051e9f5de9f803dffe2ccc8e4943c5af99e2e2399071d2717e47ff888b1d1",
+    "disposition": "Full text reviewed; strings including non-English generated language content are intentional observables, not prose to translate."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/lang/heading_supplement.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "0334dc93825911f1e91d3b0e142b56941ab5c52d93f877dedcf2d14e4e1eff05",
+    "result_sha256": "0334dc93825911f1e91d3b0e142b56941ab5c52d93f877dedcf2d14e4e1eff05",
+    "disposition": "Full text reviewed; strings including non-English generated language content are intentional observables, not prose to translate."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/lang/outline_title.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "f79eeb306a32c5f5b7274e68d7bfdce00a6c486f8a18a08e6e70f924eed48e54",
+    "result_sha256": "f79eeb306a32c5f5b7274e68d7bfdce00a6c486f8a18a08e6e70f924eed48e54",
+    "disposition": "Full text reviewed; strings including non-English generated language content are intentional observables, not prose to translate."
+  }
+]

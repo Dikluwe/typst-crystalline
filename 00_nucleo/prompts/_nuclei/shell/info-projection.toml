@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "shell-info-projection"
-title = "Projeção sanitizada de runtime para info"
-
+title = "Sanitized runtime projection for info"
 [[claims]]
 id = "read-only"
 level = "must"
-statement = "A projeção é read-only e não força download nem varredura de fontes."
-
+statement = "Projection is read-only and forces no download/font scan."
 [[claims]]
 id = "allowlist"
 level = "must"
-statement = "Variáveis de ambiente expostas pertencem a allowlist explícita."
-
+statement = "Exposed environment variables belong to explicit allowlist."
 [[claims]]
 id = "no-secrets"
 level = "must-not"
-statement = "Valores de proxy, certificado ou credenciais são expostos."
-
+statement = "Proxy,certificate or credential values are exposed."
 [[claims]]
 id = "same-categories"
 level = "must"
-statement = "Snapshot e apresentação preservam as mesmas categorias sem exigir paths iguais entre máquinas."
+statement = "Snapshot/presentation preserve same categories without requiring machine-identical paths."

@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/equation.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited all unique clauses/exact repeats; consolidated approved automatic Equation bridge, carrier/face identity, paint_root and exact nominal FrameItem fallbacks. Verified math-bare approval/manifest and retained legacy fallback limitations, failed guards and all partial scope.",
+  "original_sha256": "b58b9ee898692fa1c04fec65a3e84740694107f416a0f2b840cd33665bd45622",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/equation.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

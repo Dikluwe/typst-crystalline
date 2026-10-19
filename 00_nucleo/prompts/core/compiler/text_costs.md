@@ -1,81 +1,117 @@
-# L0 — compiler/text_costs
+# L0 — Shared text costs
 Hash do Código: 8d75e7c9
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
+- 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/text_costs.rs`
 
-## Custos textuais personalizados — 2026-09-28
+## Evidence before decision
 
-### Medição anterior à decisão
+`correcao-custos-paragrafo-2026-09-28/before-pdf/` records 66 entries in
+initial.json and before/ against historical vanilla pin
+`9f2b6e8715237cb086899a42873660fe744622e8`. text/mod.rs:1507–1564 validates
+Dictionary, Ratio per field and partial composition; inline/mod.rs:240 reads
+shared-scope rather than per-fragment costs; inline/linebreak.rs:29–30,961–962
+multiplies defaults 135/100 by the ratio. Tekt discards costs in eval/rules and
+accepts them without constructor transport; paragraph_hyphen/paragraph_select
+use fixed defaults. Vanilla stderr retains errors/spans, including accepted
+negative costs. Do not infer intention.
 
-`correcao-custos-paragrafo-2026-09-28/before-pdf/` registra 66 entradas no
-estado `initial.json` e `before/`, contra pin 9f2b6e8715237cb086899a42873660fe744622e8.
-`text/mod.rs:1507-1564` valida Dictionary, Ratio por campo e composição parcial;
-`inline/mod.rs:240` lê costs do escopo compartilhado, não de cada fragmento;
-`inline/linebreak.rs:29-30,961-962` aplica defaults 135/100 vezes o ratio.
-O Tekt descarta costs em eval/rules e aceita sem transportar no constructor;
-paragraph_hyphen e paragraph_select usam defaults fixos. Os erros e spans
-estão no stderr vanilla, inclusive negativos aceitos. Não inferir intenção.
+The first cost binary's after-first-resultados.json/proveniencia.json records
+66 entries; only restore and inline diverge for valid inputs. inline/mod.rs:240
+reads shared.get(TextElem::costs); eval/rules.rs retains factoring of Styled
+covering all flow material before Par. paragraph_prepare.rs:45–78 rejects the
+new channels although they change no glyph attribute, causing incremental
+fallback choices to diverge. This refutes absolute exclusion of those channels,
+without promoting partial fragments to outer scope or changing pipeline phase.
+These historical readings do not establish parity against a newer pin.
 
-### Decisão vigente
+## Exclusive cost contract
 
-Correção interna/de paridade ADR-0127 em fluxo contínuo, sem novo contrato
-público, flag ou fase. Módulo privado compiler/text_costs possui owner único
-para cast, transporte por componente e resolução dos custos compartilhados.
-Hifenização/runt globais passam a consultar a configuração. Widow/orphan são validados e transportados; sua influência é limitada ao subconjunto regional certificado descrito abaixo.
-Custos de fragmentos parciais não substituem o custo compartilhado; os quatro
-canais validados são neutros para glyphs na whitelist Styled. Um wrapper integral
-é fatorado pela realização existente antes de formar Par. Largura variável
-permanece limitada. Não deduzir custo pelo glyph. Preservar todos os defaults.
+Own only LineCosts and pure private parse/resolve helpers. FIELDS defines the
+four field/channel names. Parsing returns entries for Styles/chain and validates
+Ratio in hyphenation/runt/widow/orphan order before remaining keys. Diagnostics
+map int/str/bool to integer/string/boolean and retain measured list quoting and
+Oxford commas. SourceDiagnostic uses the injected span. No World, Sink,
+Layouter, I/O or global state. Resolve each channel independently and multiply
+defaults 135/100; do not clamp negatives. Test partial/empty/restored composition,
+types, priority and unknown keys. Original cast/transport tests do not claim
+widow/orphan influence or performance by themselves.
 
-Own apenas LineCosts e helpers privados puros parse/resolve. FIELDS define
-nomes/canais dos quatro campos. Parser retorna entradas para Styles/chain,
-valida Ratio na ordem hyphenation/runt/widow/orphan e só depois chaves restantes.
-Diagnósticos traduzem int/str/bool para integer/string/boolean; listas têm
-aspas e Oxford comma medidos. SourceDiagnostic usa span injetado. Sem World,
-Sink, Layouter, I/O ou estado global. Resolver lê canais independentemente e
-multiplica defaults 135/100. Não clamp custos negativos. Testar composição
-parcial/vazio/restauração, tipos, prioridade e unknown keys. Nenhum teste ou
-contrato desta rodada afirma influência widow/orphan ou desempenho.
+Global hyphenation/runt consult configuration. Widow/orphan are validated and
+transported, with influence limited to the certified regional subset below.
+Partial-fragment costs never replace shared costs. The four validated channels
+are glyph-neutral in the Styled preparation whitelist. Existing realization
+factors a whole wrapper before Par; variable-width support remains limited.
+Do not derive cost from glyphs; preserve defaults. This is ADR-0127 internal
+parity correction without a new public contract, flag or phase.
 
-### Refinamento de custo compartilhado medido antes de implementar
+Preparation admits only text.costs.hyphenation/runt/widow/orphan. Planning reads
+the outer shared scope: preparation's temporary push is restored and does not
+change that lookup. Partial inline style does not choose paragraph costs;
+whole Styles is factored by existing realization and enters the chain before
+Par. Cost differences create no space or word boundary. Preserve physical
+widow/orphan limitations and contexts outside the certified subset.
 
-after-first-resultados.json/proveniencia.json registra 66 entradas com o primeiro
-binário de custos. Só restore e inline divergem entre os inputs válidos. A fonte
-`inline/mod.rs:240` consulta shared.get(TextElem::costs); `eval/rules.rs` conserva
-fatoração dos Styled que cobrem todo o material do fluxo antes de formar Par.
-`paragraph_prepare.rs:45-78` recusa os novos canais mesmo quando eles não alteram
-nenhum atributo de glyph: o fallback incremental produz escolhas divergentes.
-A exclusão absoluta desses canais foi refutada; isto supersede o scope-out
-anterior, sem promover fragmentos ao escopo exterior nem mudar fase de pipeline.
+Private is_channel consults only FIELDS. Preparation reuses that table rather
+than maintaining a second list or admitting arbitrary prefixes.
 
-Permitir exclusivamente text.costs.hyphenation/runt/widow/orphan na whitelist
-Styled da preparação. O custo lido pelo planejamento é o escopo compartilhado
-exterior: push temporário da preparação é restaurado e não altera tal leitura.
-Inline parcial não escolhe custos do parágrafo; Styles integral continua a ser
-fatorado pelo mecanismo existente de realização e entra na chain antes de Par.
-Não criar espaço ou fronteira de palavra por diferenças de costs. Manter
-limitações físicas widow/orphan e contextos fora do subconjunto certificado.
+## Certified regional widow/orphan boundary
 
-O helper privado is_channel consulta exclusivamente FIELDS para reconhecer
-os quatro canais canônicos; a whitelist de preparação deve reutilizar esta
-tabela, sem manter uma segunda lista ou aceitar prefixo arbitrário.
+### Evidence before decision
 
-## Proteção regional de viúvas/órfãs — 2026-09-28
+`lab/results/construction/diagnostics/correcao-viuvas-orfas-2026-09-28/before-pdf/`
+records 78 entries and before-extra/ records 24 controls, with complete state in
+initial.json and before/, against historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`.
+page-65-100%-0%-False leaves three lines and one in Tekt, two and two in vanilla;
+zero costs agree. Tiny/large-positive show the same vanilla protection.
+`lab/typst-original/crates/typst-layout/src/flow/collect.rs:196–229` uses strict
+positivity, first two/last two and whole protection of three lines;
+flow/distribute.rs:343–364 advances for grouped need only when it fits the next
+region. paragraph_emit.rs emits each line without that need. Observable
+semantics is line/word distribution across regions, not vanilla frames/Child.
+Do not infer intent from the old scope-out.
 
-### Medição anterior à decisão
+### Partial supersession and owner boundaries
 
-`lab/results/construction/diagnostics/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
+This ADR-0127 internal parity correction adds no public field/trait/signature,
+flag or phase. It supersedes the widow/orphan exclusion only for prepared
+paragraphs with uniform vertical metrics, no baseline offset, constant paginated
+geometry, and no columns/cells/subframes/notes/floats or active regional
+transaction. Other contexts retain fallback and explicit limits. Do not promise
+a complete algorithm or performance.
 
-### Decisão vigente
+`00_nucleo/prompts/core/compiler/layout/paragraph_pagination.md` owns vertical
+certification, grouping and regional admission. It receives already selected
+ranges, does not select them again, emit glyphs or duplicate new_page logic.
+Certify the whole paragraph before emission: all fragments have size/edges/
+leading equal to the outer style (bold/italic allowed when metrics agree),
+with finite nonnegative top/descent/leading. Auto bounds need no protection.
+Respect initial baseline and existing block-chain collapse before comparing
+real need with page_bottom_limit. Calculate next-page space from its resolved
+margins. Advance only with material in the current region and a group fitting
+the next. Overheight groups retain ordinary progress and complete content;
+never loop new_page. These are integration obligations on that exclusive owner,
+not permission to duplicate its algorithm here.
 
-Correção interna/de paridade em fluxo contínuo ADR-0127: nenhum campo/trait/assinatura pública, flag ou fase nova. Supersede a exclusão anterior de widow/orphan exclusivamente para parágrafos preparados com métricas verticais uniformes, sem baseline offset, geometria paginada constante, sem colunas/células/subframes/notas/floats ou transação regional ativa. Os demais contextos conservam fallback e limites explícitos. Não promete algoritmo completo nem desempenho.
+This owner's private helpers resolve widow/orphan independently of
+hyphenation/runt weights, reuse FIELDS, default Ratio to 1 and test strictly >0.
+Planning's default strategy becomes Simple for ordinary paragraphs without
+linebreaks to permit preparation for default protection; automatic justify
+selection and refused contexts remain. Emission preserves justification,
+carriers, the last open line, boundaries and lexical restoration. Notes/columns
+are preserved by avoiding incomplete protection on those paths.
 
-O módulo privado paragraph_pagination possui exclusivamente certificação vertical, agrupamento e admissão regional. Recebe ranges já escolhidos, não refaz seleção, não emite glyphs nem duplica a lógica de new_page. A certificação inteira precede emissão; todos os fragmentos devem ter size/arestas/leading iguais ao estilo exterior (negrito/itálico admissíveis se as métricas coincidirem), e finite nonnegative top/descent/leading. Bounds auto não precisam de proteção. Respeitar a baseline inicial e o colapso existente de block-chain antes de comparar necessidade real com page_bottom_limit. Novo espaço disponível é calculado com margens resolvidas para a página seguinte. Avançar só se há material na região atual e o grupo cabe na próxima. Grupos muito altos conservam progresso ordinário e conteúdo íntegro; nunca repetir new_page em laço.
+### Acceptance
 
-Helpers privados de text_costs resolvem widow/orphan independentemente dos pesos hyphenation/runt, reutilizando FIELDS, com default Ratio 1 e teste estrito > 0. O default de estratégia do planejamento passa a Simple para parágrafo comum sem linebreaks, permitindo a preparação necessária à proteção padrão; a escolha automática por justify e todos os contextos recusados permanecem. Emitir sem alterar justificação, carriers, última linha aberta, fronteiras e restauração lexical. Preservar notas e colunas por não aplicar proteção incompleta nesses caminhos.
-
-Aceitação: RED→GREEN com mesmas palavras distribuídas 2+2 versus 3+1, proteção integral de três, orphan desligado independentemente, grupo excessivo, restauração e default sem flag. Sondas bilaterais com caixas/palavras/páginas, tipos/spans anteriores preservados e controles de fallback. Não usar grupos XML como número físico de linhas. Resselo restrito aos owners, build e crystalline-lint sem erros.
+RED→GREEN with the same words distributed 2+2 versus 3+1, whole three-line
+protection, independently disabled orphan protection, overheight groups,
+restoration and default behavior without a flag. Bilateral boxes/words/pages
+probes retain prior types/spans and fallback controls. XML groups are not a
+physical line count. Restricted owner resealing, build and crystalline-lint must
+pass without errors. The regional subset does not expand general pagination
+certification. Original chronology is preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/text_costs.md`.

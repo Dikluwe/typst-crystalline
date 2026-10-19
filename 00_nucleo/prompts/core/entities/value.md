@@ -1,155 +1,62 @@
-# Prompt L0 — `entities/value`
+# L0 prompt — runtime values and type identities
 Hash do Código: 9e71842b
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
 
-## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+## Ownership, evidence, and interpretation
 
-### Medição anterior à decisão
+This L1 owner specifies `01_core/src/entities/value.rs`: the closed runtime `Value` enum, `Type`, conversions, projections, and the introspected-content carrier. L1 has zero I/O or global mutable state. `Arc` in `Module`/`Func` and the approved shared payloads manages RAM (ADR-0029). `serde` stays in L3 DTOs. Applicable decisions include ADR-0017, ADR-0023/0024/0025/0029, ADR-0107/0108, ADR-0117 clause 4, and ADR-0127/0129/0131. Revoked ADR-0028 does not override ADR-0029.
 
-Baseline histórico R5:
-HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
-preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+Historical observations below establish the specified language behavior for their recorded snapshots; they do not certify the current upstream pin without remeasurement. The complete pre-consolidation specification, chronological revisions, original counts, source spellings, and execution-step references remain in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/value.md`. Construction receipts remain under `lab/history/construction/records/00_nucleo/materialization/`. Historical “19 variants,” the initial approximately 35 upstream variants, commented future inventories, and the original primitive-to-typographic milestone are historical inventories, not limits on the later approved enum. The 2026-10-16 projection inventory measures 39 materialized variants. No new variant may be added without its ADR and migrated type; historical `_ => Ok(Value::None)` for unimplemented expressions records the deliberate eval migration boundary, not authority to materialize future variants here.
 
-`entities/value.rs:64` transporta Content nu e Location. O walk em
-`compiler/introspect.rs:1350` já perdeu a chain; R5 distingue numbering
-"1"/"I" e label nos fields, e prova que o valor deve escapar em array/closure.
+## Measured language identities before the contract
 
-### Decisão proprietária
+The original type-value probes in `lab/typst-original` showed `type(1)` rendering `int`, `type(1) == int` true, `repr(int)` unquoted `int`, `type(int)` and `type(type)` equal to `type`, `type(rgb)` equal to `function`, and `length != ratio`. Thus type names are first-class values, not strings. The original callable subset was `int`, `float`, `str`, and `type`; `bool(1)` returned `type boolean does not have a constructor`. Later approved subsets below extend that original subset; they do not make every type callable.
 
-Esta seção substitui a forma Rust de P1151; não modifica Content nem
-HeadingElem. O único owner do novo tipo continua este arquivo:
+The relative-length correction refuted the earlier assertion that a relative value has type `length`: `temp/p842/l1_type_*.typ` measured `type(50%) == ratio`, `type(50% + 0pt) == relative`, and `type(30% + 1em) == relative`. Percentage literals therefore produce `Value::Ratio`; `Ratio + Length` produces `Value::Relative`. The global `relative` binding and `Type::Relative` preserve this distinction. Arithmetic belongs to `00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md`.
+
+For the seven callable type refinements, historical vanilla `a51e02804` returned `repr(type(PATH)) == "type"` where the old product returned `"function"` for `decimal`, `duration`, `regex`, `selector`, `stroke`, `tiling`, and `version`. The catalog and probes in `lab/results/construction/diagnostics/superficie-linguagem-p1140*` record this semantic divergence; after constructor atomization the catalog and 22 probes were byte-identical to the structural baseline. The following label inventory still measured three `WRONG_KIND` entries: `label`, `math.equation`, `math.sqrt`; vanilla `repr(type(label)) == "type"`, but the old product returned `"function"`, and `label("x")` returned `label` versus the product's `content`. These observations support only the label correction below, not a claim that all three findings close here.
+
+## Runtime storage and public interface
+
+`Value::Str` uses `EcoString` under ADR-0024. Unmutated clones are O(1) with copy-on-write for argument passing, captures, and concatenation in eval; `String` would clone O(n). The parser's earlier removal of `ecow` addressed a different, build-once workload. `Value::Dict` uses insertion-ordered `IndexMap<EcoString, Value, FxBuildHasher>` under ADR-0023; `indexmap` and `rustc_hash` are authorized in L1. `Value::Array` remains `Vec<Value>` with O(n) clone and independent mutation; array sharing is separate, unapproved work.
+
+The initial carriers retained by the current contract are `None`, `Bool(bool)`, `Int(i64)`, `Float(f64)`, `Str(EcoString)`, `Array(Vec<Value>)`, `Dict(IndexMap<EcoString, Value, FxBuildHasher>)`, `Module(Module)` (internally `Arc<ModuleInner>`), `Datetime(Datetime)`, `Func(Func)` (internally `Arc<FuncRepr>`), `Content(Content)`, `Auto`, `Length(Length)`, `Relative(Rel<Length>)`, `Ratio(Ratio)`, `Angle(Angle)`, `Color(Color)`, `Tiling(Arc<Tiling>)`, `Label(Label)`, `Dir(Dir)`, and `Type(Type)`. `Dir` requires its migrated L1 entity and preserves `ltr`/`rtl`/`ttb`/`btt` (ADR-0033). Later materialized carriers and payload shapes are governed by their specific clauses below and the 2026-10-16 inventory; the historical list of future `Fraction`, `Gradient`, `Symbol`, `Version`, `Bytes`, `Decimal`, `Duration`, `Styles`, `Args`, and `Dyn` does not revoke later approvals or authorize the remaining items.
+
+`Value` derives `Debug`, `Clone`, and mechanical `PartialEq`. `Value::Int(1) != Value::Float(1.0)` under Rust equality. Language `Eq`/`Neq` explicitly handles mixed numerics with `i as f64` under ADR-0025; Rust equality for data structures and tests must not replace language equality. The latter belongs to `00_nucleo/prompts/core/compiler/eval/operators/equality.md`.
+
+The public projections remain:
 
 ```rust
-#[derive(Debug, Clone, PartialEq)]
-pub struct IntrospectedContent {
-    content: Content,
-    fields: Option<Arc<IndexMap<EcoString, Value, FxBuildHasher>>>,
+impl Value {
+    pub fn type_name(&self) -> &'static str;
+    pub fn type_of(&self) -> Type;
+    pub fn is_none(&self) -> bool;
+    pub fn truthy(&self) -> bool;
+    pub fn cast_bool(&self) -> Option<bool>;
+    pub fn cast_int(&self) -> Option<i64>;
+    pub fn cast_float(&self) -> Option<f64>;
+    pub fn cast_str(&self) -> Option<&str>;
+    pub fn cast_array(&self) -> Option<&[Value]>;
+    pub fn cast_dict(&self) -> Option<&IndexMap<EcoString, Value, FxBuildHasher>>;
 }
-impl IntrospectedContent {
-    pub fn new(content: Content,
-        fields: Option<IndexMap<EcoString, Value, FxBuildHasher>>) -> Self;
-    pub fn content(&self) -> &Content;
-    pub fn fields(&self) -> Option<&IndexMap<EcoString, Value, FxBuildHasher>>;
-    pub fn into_content(self) -> Content;
-}
-// Variante existente, com novo tipo no primeiro slot:
-Value::LocatedContent(IntrospectedContent, Location)
 ```
 
-IndexMap, EcoString, FxBuildHasher e Arc já são dependências autorizadas.
-O mapa fornece unicidade de nomes e ordem; `new` move os dados sem realizar
-campos nem fazer validação de linguagem. Cabe ao produtor entregar um mapa
-completo, sem func/location, cujo body seja o mesmo dado congelado do Content.
-Essa coerência é obrigação verificável do produtor, não garantia mágica do
-sistema de tipos. Não expor mutadores, DerefMut ou campos públicos do carrier.
-Some(empty) e None são distintos. Clones compartilham o mapa imutável via Arc.
+`cast_float` accepts `Int` by implicit coercion; the other listed casts retain their strict categories. Later existing `cast_align`, `cast_bytes`, `cast_decimal`, `cast_duration`, `cast_version`, and `cast_regex` retain the exact behavior specified in the projection-maintenance clause. Collection instance methods, such as `(1, 2, 3).first()` and `"ab".repeat(3)`, are dispatched by `try_dispatch_collection_method` from `eval_func_call`; this entity does not own that dispatch. Dict literal `(a: 1, b: 2)` evaluation is materialized under its eval owner.
 
-`type_name` e `type_of` continuam content. O derive PartialEq de Value e o
-Hash mecânico existente não viram igualdade da linguagem: a nova estrutura
-pode aparecer no Debug/Hash internos. O IR Content e seu morph_canon não
-recebem campos adicionais; IDs de ocorrência nunca são reconstruídos desses
-hashes. A igualdade pública pertence a
-`00_nucleo/prompts/core/compiler/eval/operators/equality.md`.
+Preserve `From<bool>`, `From<i64>`, `From<i32>`, `From<f64>`, `From<EcoString>`, `From<&str>`, `From<String>`, `From<Vec<Value>>`, `From<IndexMap<EcoString, Value, FxBuildHasher>>`, `From<Module>`, `From<Datetime>`, `From<Func>`, `From<Content>`, `From<Length>`, `From<Rel<Length>>`, `From<Ratio>`, `From<Angle>`, `From<Color>`, `From<Tiling>`, and `From<Type>` for `Value`. The approved `From<Stroke>` behavior below is additive to these obligations.
 
-Aceitação: clone não perde ordem/presença nem spans dos Values; fields não
-muda após outro snapshot; conversão explícita de uma cópia para render não
-altera o original; duas Locations distintas podem compartilhar campos iguais.
-Esta é uma mudança concreta de API pública e aguarda aprovação, não resselo.
+Every materialized variant has recognizable `repr_value` output under `00_nucleo/prompts/core/compiler/eval/repr.md`; round-trip is not promised. Opaque `Location`, `Gradient`, and `Tiling` use `location(...)`, `gradient(...)`, and `tiling(...)`. `Value::Type(t)` repr is its bare type name, such as `int`, `length`, or `type`. The historical statement that Symbol had not migrated is superseded by the later Symbol contract, which requires its own repr mapping.
 
----
+## First-class types and bounded callable subsets
 
+`Value::Type(Type)` is a first-class type value. `type(x)` returns `Value::Type(x.type_of())`; the applicable global names bind to those values. `Type` is a payload-free `Debug + Clone + Copy + PartialEq + Eq + Hash` enum. `Type::name(&self) -> &'static str` and the corresponding `Value::type_name` preserve the public names below. Type-value equality uses the existing structural `PartialEq` without an eval special case. This mapping includes the existing materialized categories, not permission to add a future carrier:
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/value.rs`
-**Criado em**: 2026-03-22 (Passo 13)
-**Atualizado em**: 2026-07-10 (P685 — `Value::Type(Type)`: nomes de tipo como valores de primeira classe; `type(x)` devolve `Value::Type`; bindings globais `int`/`length`/`ratio`/...)
-**ADRs relevantes**: ADR-0017 (adiamento eval), ADR-0023 (indexmap em L1), ADR-0024 (EcoString em Value::Str), ADR-0025 (Int == Float), ADR-0028/ADR-0029 (tipos tipográficos), ADR-0107 (paridade linguagem), ADR-0117 Cláusula 4 (`repr()` função pura)
-
----
-
-## Contexto
-
-`Value` é o **tipo de runtime** do compilador Typst — o enum que representa
-todos os valores possíveis durante a avaliação (`eval.rs`). O original tem
-~35 variantes. A migração adiciona variantes incrementalmente, protegida pela
-regra: **não adicionar variantes sem ADR e tipo migrado**.
-
-### Estado actual (Passo 25 + P469 + P509)
-
-19 variantes implementadas:
-
-- **Passo 13** — 5 primitivos: `None`, `Bool`, `Int`, `Float`, `Str`
-- **Passo 15** — 4 variantes compostas: `Array`, `Dict`, `Module`, `Datetime`
-- **Passo 16** — `Func`
-- **Passo 18** — `Content`
-- **Passo 25** — 5 tipos tipográficos: `Auto`, `Length`, `Ratio`, `Angle`, `Color`
-- **P469** — `Relative(Rel<Length>)` (comprimento relativo: `50%`, `100% - 1em`)
-- **Passo 395** — `Tiling` (padrão de azulejos; abertura ADR-0017)
-- **P509** — `Label(Label)` (etiqueta `<name>` como valor de primeira classe)
-- **P576** — `Dir(Dir)` (direcção de texto `ltr` / `rtl` / `ttb` / `btt`; requer `Dir` migrado em L1, ADR-0033)
-- **P685** — `Type(Type)` (nome de tipo como valor de primeira classe; `type(x)` e os bindings globais `int`/`length`/`...`)
-
-~10 variantes futuras permanecem comentadas no código (não implementar sem ADR).
-
----
-
-## Decisão sobre EcoString (ADR-0024)
-
-`Value::Str` usa `EcoString` (crate `ecow`), não `String`. Durante `eval()`,
-strings são passadas como argumentos, capturadas em closures e concatenadas
-frequentemente. Clone com `EcoString` é O(1) para strings não mutadas
-(copy-on-write). Com `String` seria O(n) em cada passagem — degradação
-de performance no hot path.
-
-Contraste com ADR-0015 (que removeu `ecow` do parser): o parser constrói strings
-uma vez; `Value::Str` é clonado no hot path de `eval()`. Contextos opostos.
-
-## Decisão sobre Dict (ADR-0023)
-
-`Value::Dict` usa `IndexMap<EcoString, Value, FxBuildHasher>` para preservar
-ordem de inserção e manter ergonomia com o Typst original. `indexmap` e
-`rustc_hash` são autorizados em L1.
-
-## Decisão sobre igualdade Int/Float (ADR-0025)
-
-`Value` usa `#[derive(PartialEq)]`, portanto `Value::Int(1) == Value::Float(1.0)`
-é `false` em Rust. Para manter paridade com a semântica do Typst original,
-`eval_binary_op` em `eval.rs` trata `Eq`/`Neq` com tipos mistos explicitamente
-(coerção `i as f64`). **Dois sistemas de igualdade coexistem**:
-igualdade Rust (para testes e estruturas de dados) vs igualdade Typst (em eval).
-
----
-
-## Decisão sobre `Value::Type` (P685)
-
-Em Typst 0.15, os nomes de tipo (`int`, `float`, `length`, `ratio`, `str`,
-`array`, `dictionary`, `function`, `content`, `type`, ...) são **valores de
-primeira classe** no scope global, e `type(x)` devolve **esse valor** — não
-uma string. Medido na fonte (`lab/typst-original`, sonda P685):
-
-- `type(1)` renderiza `int`; `type(1) == int` → `true`.
-- `repr(int)` → `int` (sem aspas — logo **não** é `Value::Str`).
-- `type(int)` → `type`; `type(type)` → `type`; `type(rgb)` → `function`.
-- `length == ratio` → `false` (tipos distintos).
-- Construtores (`int`, `float`, `str`, `type`) são **chamáveis**; os restantes
-  tipos (`bool`, `length`, `array`, `dictionary`, ...) **não** são chamáveis
-  (`bool(1)` → `type boolean does not have a constructor`).
-
-Para reproduzir isto, `Value` ganha a variante `Type(Type)`, onde `Type` é um
-enum `Copy` (sem payload) com uma variante por tipo. `type(x)` passa a devolver
-`Value::Type(x.type_of())`; os nomes de tipo são registados no scope global como
-`Value::Type(...)`. A igualdade é a de `#[derive(PartialEq)]` (já existente em
-`Value`), logo `type(1) == int` funciona **sem** braço especial em `eval_binary_op`.
-
-**Mapeamento** (`Value::type_of`):
-
-| `Value` | `Type` | `Type::name()` |
+| Value category | Type | Public type name |
 |---|---|---|
 | `None` | `None` | `"none"` |
+| `Auto` | `Auto` | `"auto"` |
 | `Bool` | `Bool` | `"bool"` |
 | `Int` | `Int` | `"int"` |
 | `Float` | `Float` | `"float"` |
@@ -159,8 +66,7 @@ enum `Copy` (sem payload) com uma variante por tipo. `type(x)` passa a devolver
 | `Module` | `Module` | `"module"` |
 | `Datetime` | `Datetime` | `"datetime"` |
 | `Func` | `Function` | `"function"` |
-| `Content` | `Content` | `"content"` |
-| `Auto` | `Auto` | `"auto"` |
+| `Content`, `LocatedContent` | `Content` | `"content"` |
 | `Length` | `Length` | `"length"` |
 | `Relative` | `Relative` | `"relative"` |
 | `Ratio` | `Ratio` | `"ratio"` |
@@ -185,536 +91,84 @@ enum `Copy` (sem payload) com uma variante por tipo. `type(x)` passa a devolver
 | `Label` | `Label` | `"label"` |
 | `Dir` | `Direction` | `"direction"` |
 | `Type(_)` | `Type` | `"type"` |
+| `SpotColorant` | `SpotColorant` | `"spot"` |
 
-**P842 (achado #32 de P831)** — a nota anterior (`Value::Relative` →
-`Type::Length`, "`type(50% + 1pt) == length` medido no vanilla") estava
-**errada** — refutada por nova medição (`temp/p842/l1_type_*.typ`):
-`type(50%)` → `ratio`, `type(50% + 0pt)` → `relative`, `type(30% + 1em)` →
-`relative`. Desde P842 o literal percentual (`50%`) é `Value::Ratio`
-(`eval/mod.rs`, `Unit::Percent`), `Type::Relative` existe no enum e o
-binding global `relative` está registado. `Ratio + Length` constrói
-`Value::Relative` nos operadores (ver `compiler/eval/operators/arithmetic.md`).
+The original `Int`/`Float`/`Str`/`Type` callable subset invokes `native_int`/`native_float`/`native_str`/`native_type`. Add the existing `Type::{Decimal, Duration, Regex, Selector, Stroke, Tiling, Version}` and `Type::Label` to `Type::is_callable()` exactly as approved, with no new enum variant for those additions. Existing callable types remain callable; other types retain `"type {name} does not have a constructor"`. Dispatch remains a closed static `match`: no vtable, `dyn`, registry, or function payload in `Type`. Existing fields use explicit field-access arms.
 
-**Chamabilidade** (despachada em `eval_func_call`, `rules/eval/closures.rs`):
-`Type::Int`/`Float`/`Str`/`Type` invocam o construtor nativo correspondente
-(`native_int`/`native_float`/`native_str`/`native_type`); qualquer outro `Type`
-→ erro eval `"type {name} does not have a constructor"`.
+Required identities and results are `repr(type(decimal)) == "type"` with `decimal("1.2")` producing Decimal; similarly `duration(seconds: 1)` → Duration, `regex("a+")` → Regex, `selector(heading)` → Selector, `stroke()` → Stroke, `tiling(...)` → Tiling, `version(1, 2)` → Version. `label` binds `Value::Type(Type::Label)` and `label("x")` produces `Value::Label`. `Content::Label` remains a distinct `content` value. These changes supersede only the old function-binding debt for those eight names. The seven-type package excluded `label`, `state`, `counter`, `color`, and `gradient`; the subsequent label package removes only label from that remainder. The original namespace-reconciliation debt for `color`, `gradient`, `state`, and `counter` remains bounded by their later canonical owners; this file does not silently convert them or promise `type(x) == color`.
 
-**Field access** (despachado em `eval_field_access`, `rules/eval/bindings.rs`):
-`Type::Int` expõe `.min` / `.max` (`i64::MIN`/`MAX`); `Type::Str` expõe
-`.from-unicode` (função nativa). Estes campos existiam antes via
-`Func::native_with_namespace` e passam a ser resolvidos directamente pelo
-`Type`, preservando `int.min`, `int.max` e `str.from-unicode` sem regressão.
+`Type::Int` exposes `.min`/`.max` as `i64::MIN`/`MAX`, plus `signum`, the six `bit-*` operations, and `from-bytes`/`to-bytes` through the stdlib owner's closed table. `Type::Str` exposes `.from-unicode` as its native function. Preserve `int.min`, `int.max`, and `str.from-unicode` previously carried through native function namespaces. No new Int wrapper is introduced. `Type::Counter` exposes unbound `get`, `display`, `at`, `final`, `step`, `update`, taking `Value::Counter` first; Counter/CounterKey are unchanged. `Type::Content` exposes unbound `func`, `has`, `at`, `fields`, `location`, taking content first; inline content has no location and declarative Content metadata is unchanged. Implementations belong to their corresponding `00_nucleo/prompts/core/compiler/stdlib/` and `00_nucleo/prompts/core/compiler/eval/bindings/field_access.md` owners.
 
-**P1147:** `Type::Int` também expõe `signum`, seis operações `bit-*` e
-`from-bytes`/`to-bytes` por tabela fechada no owner de stdlib. A entidade
-continua `Value::Int(i64)`; nenhum wrapper ou variante nova é criado.
+## Located content, frozen field snapshots, and approval boundaries
 
-**P1148:** `Type::Counter` expõe `get`, `display`, `at`, `final`, `step` e
-`update` como funções não ligadas que recebem `Value::Counter` primeiro. A
-entidade e `CounterKey` não mudam.
+Historical vanilla `a51e02804` measured two morphologically identical headings from `query(heading)` with `type == content`, indistinguishable repr/fields and language equality true, but distinct present locations. Both ratified binaries gave that result. The old product lost identity at `compiler/stdlib/foundations/query.rs:55–64`, discarding known `loc` when constructing `Value::Content(c.clone())`; `compiler/eval/bindings/field_access.rs:662–665` then received only `&Content` and always returned `none`. Location cannot be reconstructed through equality and does not belong to rendering. The located-content proposal requires a value carrying Content and Location, preserving inner type/repr/equality/fields/func/has/at and exposing Location only through `location()`. Eval-created content remains unlocated; language equality excludes Location, and declarative Content does not acquire it. This public enum/exhaustive-match change required ADR-0127 confirmation; the original proposal deferred its exact Rust shape and variant name until that confirmation.
 
-**P1150:** `Type::Content` expõe `func`, `has`, `at`, `fields` e `location`
-como funções não ligadas que recebem `Value::Content` primeiro. A entidade
-`Content` e seus metadados não mudam; location inline continua `none`.
+The later frozen-snapshot measurement records historical HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, an uncommitted working tree with full diff/stat, independent measurement SHA-256 `82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`, source/time/executable provenance, and upstream `a51e02804`. `entities/value.rs:64` carried bare Content with Location; `compiler/introspect.rs:1350` had already lost the chain. The R5 observation distinguishes numbering `"1"`/`"I"` and label fields and requires escape through arrays/closures.
 
-**Débito conhecido (não bloqueante para cetz):** nomes de tipo que **já**
-estavam registados no scope como função/módulo (`color`, `gradient`, `stroke`,
-`regex`, `tiling`, `decimal`, `duration`, `version`, `label`, `state`,
-`counter`, `selector`) **não** são convertidos para `Value::Type` neste passo
-(fazê-lo quebraria `color.rgb(...)`, `gradient.linear(...)`, `regex(...)`,
-etc.). Para esses, `type(x) == color` permanece `false` até um passo futuro que
-reconcilie módulo/função com `Value::Type`.
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: zero I/O. `Arc` em `Module`, `Func` é gestão de RAM (ADR-0029).
-- Fronteira deliberada: `_ => Ok(Value::None)` em `eval.rs` para variantes não
-  implementadas — não adicionar variantes sem ADR.
-- `serde` nunca entra em L1 — serialização é responsabilidade de L3 via DTO.
-- `Value::Array` usa `Vec<Value>` — clone O(n). Documentado como dívida técnica.
-  `Value::Dict` usa `IndexMap` com `FxBuildHasher`.
-
----
-
-## Interface pública
-
-### `repr()` (P465)
-
-Todos os variants existentes de `Value` têm representação via `repr_value`
-(`rules/eval/repr.rs`). A saída é **reconhecível**, não garante round-trip.
-Variants opacos (`Location`, `Gradient`, `Tiling`) usam placeholder
-(`location(...)`, `gradient(...)`, `tiling(...)`). `Value::Type(t)` tem
-`repr()` igual ao nome do tipo (`int`, `length`, `type`, ...) — ver
-"Decisão sobre `Value::Type`" abaixo. `Symbol` ainda não é variante de
-`Value` em L1; quando migrado terá `repr()` mapeado.
+The R5 proposal supersedes only the earlier Rust carrier shape. It changes neither Content nor HeadingElem and has this sole owner:
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
-pub enum Value {
-    // Passo 13 — primitivos
-    None,
-    Bool(bool),
-    Int(i64),
-    Float(f64),
-    Str(EcoString),              // ADR-0024
-
-    // Passo 15 — compostos
-    Array(Vec<Value>),
-    Dict(IndexMap<EcoString, Value, FxBuildHasher>),  // ADR-0023
-    Module(Module),              // Arc<ModuleInner> internamente — clone O(1)
-    Datetime(Datetime),
-
-    // Passo 16
-    Func(Func),                  // Arc<FuncRepr> internamente — clone O(1)
-
-    // Passo 18
-    Content(Content),
-
-    // Passo 25 — tipos tipográficos (ADR-0028/0029)
-    Auto,
-    Length(Length),
-    Relative(Rel<Length>),     // P469 — comprimento relativo
-    Ratio(Ratio),
-    Angle(Angle),
-    Color(Color),
-
-    // Passo 395 — Tiling (padrão de azulejos; abertura ADR-0017)
-    Tiling(Arc<Tiling>),
-
-    // P509 — Label como valor de primeira classe (query/locate com <label>)
-    Label(Label),
-
-    // P685 — nome de tipo como valor de primeira classe (int, length, type, …)
-    Type(Type),
-
-    // ~11 variantes futuras comentadas — NÃO implementar sem ADR e tipo migrado
+pub struct IntrospectedContent {
+    content: Content,
+    fields: Option<Arc<IndexMap<EcoString, Value, FxBuildHasher>>>,
 }
-
-/// P685 — enumerador fechado dos tipos Typst visíveis como valor.
-/// `Copy` (sem payload); `Type::name()` coincide com `Value::type_name()`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Type {
-    None, Auto, Bool, Int, Float, Str, Array, Dictionary, Module, Datetime,
-    Function, Content, Length, Ratio, Angle, Color, Stroke, Fraction,
-    Alignment, Location, Gradient, Regex, Tiling, Bytes, Decimal, Duration,
-    Version, Selector, Symbol, Arguments, State, Counter, Label, Direction,
-    Type,
+impl IntrospectedContent {
+    pub fn new(content: Content,
+        fields: Option<IndexMap<EcoString, Value, FxBuildHasher>>) -> Self;
+    pub fn content(&self) -> &Content;
+    pub fn fields(&self) -> Option<&IndexMap<EcoString, Value, FxBuildHasher>>;
+    pub fn into_content(self) -> Content;
 }
-
-impl Type {
-    pub fn name(&self) -> &'static str  // "none", "bool", …, "type"
-}
-
-impl Value {
-    pub fn type_name(&self) -> &'static str  // idem anterior + Self::Type(_) => "type"
-    pub fn type_of(&self) -> Type            // P685 — mapeamento da tabela acima
-    pub fn is_none(&self) -> bool
-    pub fn truthy(&self) -> bool             // P466: semântica Typst minimal
-    pub fn cast_bool(&self)  -> Option<bool>
-    pub fn cast_int(&self)   -> Option<i64>
-    pub fn cast_float(&self) -> Option<f64>  // aceita Int (coerção implícita)
-    pub fn cast_str(&self)   -> Option<&str>
-    pub fn cast_array(&self) -> Option<&[Value]>
-    pub fn cast_dict(&self)  -> Option<&IndexMap<EcoString, Value, FxBuildHasher>>
-}
-
-// P466 — métodos de coleção são despachados por `try_dispatch_collection_method`
-// em `rules/stdlib/collections.rs`, invocado desde `eval_func_call` para sintaxe
-// de método de instância (ex.: `(1, 2, 3).first()`, `"ab".repeat(3)`).
-// O eval de dict literal `(a: 1, b: 2)` foi materializado no mesmo passo.
-
-// Conversões From para ergonomia em eval() e testes
-impl From<bool>       for Value
-impl From<i64>        for Value
-impl From<i32>        for Value
-impl From<f64>        for Value
-impl From<EcoString>  for Value
-impl From<&str>       for Value
-impl From<String>     for Value
-impl From<Vec<Value>> for Value
-impl From<IndexMap<EcoString, Value, FxBuildHasher>> for Value
-impl From<Module>     for Value
-impl From<Datetime>   for Value
-impl From<Func>       for Value
-impl From<Content>    for Value
-impl From<Length>     for Value
-impl From<Rel<Length>> for Value  // P469
-impl From<Ratio>      for Value
-impl From<Angle>      for Value
-impl From<Color>      for Value
-impl From<Tiling>     for Value   // Passo 395
-impl From<Type>       for Value   // P685
+Value::LocatedContent(IntrospectedContent, Location)
 ```
 
----
-
-## Critérios de Verificação
+These dependencies are already authorized. The map provides name uniqueness and order; `new` moves data without realizing fields or validating language. The producer must supply a complete map excluding func/location whose body is the same frozen Content data. This coherence is a testable producer obligation, not a type-system guarantee. Expose no public fields, mutators, or `DerefMut`. `Some(empty)` differs from `None`; clones share immutable map data through Arc. Type names remain content. Mechanical derived equality/hash may expose the carrier internally but do not become language equality; Content IR and `morph_canon` gain no fields, and occurrence IDs are never reconstructed from hashes.
 
-```
-Value::None.type_name()         = "none"
-Value::None.is_none()           = true
-Value::Int(0).is_none()         = false
+Snapshot acceptance preserves order/presence and Value spans on clone, unchanged fields after another snapshot, an original unchanged by explicit conversion of a copy for rendering, and equal fields across distinct Locations. **Approval-record gap:** the archived R5 clause explicitly leaves this concrete public API pending approval, and no independent R5 receipt has been verified in this consolidation. Existing code and the later bounded heading approval below do not, by themselves, certify that earlier gate. Preserve that pending verification; do not use this editorial consolidation to authorize an additional public change or reseal it.
 
-Value::Int(3).cast_float()      = Some(3.0)     // coerção implícita
-Value::Float(3.14).cast_float() = Some(3.14)
-Value::Bool(true).cast_float()  = None
+## Pending path and Symbol boundaries
 
-Value::from("hello")            → Value::Str(EcoString)
-Value::from(42i64)              → Value::Int(42)
-Value::from(3.14f64)            → Value::Float(3.14)
-Value::from(true)               → Value::Bool(true)
+Historical vanilla `a51e02804`, `foundations/path.rs:134–224`, and probes in archived `typst-passo-1141.md` show callable type `path`, `type(path("x")) == path`, identity preservation for `path(existing-path)`, equality by root plus normalized path, and `repr` as `path("/...")`. The measured product `entities/value.rs:30–212` lacked `Value::Path` and `Type::Path`. The proposed public additions are `Value::Path(RootedPath)`/`Type::Path`, public name `"path"`, corresponding `type_of`, a callable contextual constructor under `00_nucleo/prompts/core/compiler/eval/mod.md`, and repr delegated to `00_nucleo/prompts/core/entities/path.md`. Do not reuse a geometric variant. Structural Rust equality may agree because those fields encode root plus normalized path, but acceptance remains measured language equality. This public enum/signature contract stays conditional on owner confirmation under ADR-0127; do not implement or reseal it without confirmation.
 
-// EcoString — clone O(1) e igualdade
-Value::Str("a".into()) == Value::Str("a".into())  = true
-Value::Str("a".into()) != Value::Str("b".into())
-
-// Array — clone O(n), independência garantida
-let v1 = Value::Array(vec![Value::Int(1)]);
-let mut v2 = v1.clone();
-// mutar v2 não afecta v1
+Historical vanilla `a51e02804`, `foundations/ops.rs:425–439`, measures `emoji.heart == emoji.heart` and `symbol("❤️") == symbol("❤️")` true, but `emoji.heart == symbol("❤️")` and `emoji.heart.arrow == symbol("💘")` false. Full Symbol equality is public semantics; `SymbolInner` is mechanics. `Value::Symbol` continues comparing the whole Symbol. Moving char to EcoString in symbol values/variants does not permit visible-text-only comparison or equality of native/runtime symbols merely sharing a rendered cluster. `Type::Symbol`, type names, and casts are unchanged. The public Symbol migration remains subject to confirmation in `00_nucleo/prompts/core/entities/symbol.md`; no implementation or reseal here can bypass that gate.
 
-// Dict
-Value::Dict(m).type_name() = "dictionary"
-cast_dict().unwrap().get("k") = Some(&Value::Int(1))
-
-// Module — clone O(1) via Arc
-Value::Module(m1) clone → type_name() ainda "module"
-
-// Tipos tipográficos (Passo 25 + P469)
-Value::Length(Length::pt(12.0)).type_name()     = "length"
-Value::Relative(Rel::from_percent(50.0)).type_name() = "relative length"
-Value::Ratio(Ratio(0.5)).type_name()            = "ratio"
-Value::Angle(Angle::deg(90.0)).type_name()      = "angle"
-Value::Color(Color::rgb(0,0,0)).type_name()     = "color"
-Value::Auto.type_name()                         = "auto"
-Value::Tiling(...).type_name()                  = "tiling"
-
-// Scope integration
-Scope::define("x", Value::Int(42))
-scope.get("x") = Some(&Value::Int(42))
-```
-
----
-
-## Variantes futuras (comentadas no código — NÃO implementar sem ADR)
-
-`Fraction`, `Gradient`, `Symbol`, `Version`,
-`Bytes`, `Decimal`, `Duration`, `Styles`, `Args`, `Dyn` (~10 restantes)
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/value.rs` com todas as variantes até ao Passo 25
-- Testes co-localizados em `#[cfg(test)]` cobrindo cada variante e os critérios acima
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-03-22 | Criação — Passo 13: 5 primitivos | `value.rs` |
-| 2026-03-24 | Passo 15: Array, Dict, Module, Datetime | `value.rs` |
-| 2026-03-25 | Passo 16: Func | `value.rs` |
-| 2026-03-26 | Passo 18: Content | `value.rs` |
-| 2026-03-28 | Passo 25: Auto, Length, Ratio, Angle, Color (ADR-0028) | `value.rs` |
-| 2026-06-22 | Passo 395: Tiling (abertura ADR-0017) | `value.rs`, `tiling.rs` |
-| 2026-04-12 | Restauro — prompt expandido para refletir Passos 15–25; sem mudanças no código | `value.md` |
-| 2026-06-25 | P469: `Value::Relative(Rel<Length>)`, `repr`, cast `NeedsContext` | `value.rs`, `rel.rs`, `repr.rs`, `cast.rs` |
-| 2026-07-10 | P685: `Value::Type(Type)` + enum `Type` + `type_of`; `type(x)` e nomes de tipo como valores | `value.rs`, `repr.rs`, `stdlib/foundations.rs`, `eval/mod.rs`, `eval/closures.rs`, `eval/bindings.rs` |
-| 2026-07-22 | P842 (#32): `Type::Relative` novo; `type_of` Relative→Relative; literal percentual → `Value::Ratio`; comentário P685 de paridade errada corrigido | `value.rs`, `eval/mod.rs`, `eval/operators.rs` |
-
-## P1141 — medição e contrato do valor `path`
-
-### Medição antes da decisão
-
-Vanilla ratificado `a51e02804`, `foundations/path.rs:134-224`, e sondas em
-`typst-passo-1141.md`: `path` é valor-tipo chamável; `type(path("x"))` é
-`path`; `path(existing-path)` preserva identidade; igualdade usa raiz + path
-normalizado; `repr` é `path("/...")`. No cristalino não existem
-`Value::Path` nem `Type::Path` (`entities/value.rs:30-212`).
-
-### Decisão condicionada ao gate ADR-0127
-
-Adicionar `Value::Path(RootedPath)` e `Type::Path`. `type_name()`/`name()`
-devolvem `"path"`; `type_of(Value::Path(_))` devolve `Type::Path`;
-`Type::Path` é chamável e despacha ao constructor contextual especificado em
-`compiler/eval.md`. `repr_value(Value::Path(p))` delega à representação de
-`entities/path.md`. A igualdade Rust pode coincidir estruturalmente porque os
-campos representam exatamente raiz + path normalizado, mas aceitação é a
-igualdade da língua medida, não o derive (ADR-0107).
-
-Nenhuma variante geométrica é reutilizada. Esta mudança altera enum e contrato
-públicos; não implementar nem ressellar antes da confirmação do dono.
-
-
-## P1140.1-B — medição anterior à decisão (2026-08-23)
-
-No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
-cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `lab/results/construction/diagnostics/superficie-linguagem-p1140*`
-medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
-`tiling` e `version`. Os construtores atuais foram novamente executados após
-a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
-baseline estrutural. Esta é divergência de semântica pública da linguagem,
-não de mecânica Rust (ADR-0107).
-
-## P1140.1-B — contrato de sete tipos chamáveis
-
-Os bindings globais dos sete nomes passam a ser `Value::Type` com as variantes
-já existentes `Type::{Decimal, Duration, Regex, Selector, Stroke, Tiling,
-Version}`. `Type::is_callable()` devolve `true` exatamente para estes sete,
-além dos tipos chamáveis já vigentes. Nenhuma variante nova de `Value` ou
-`Type` é criada.
-
-A identidade pública obrigatória é:
-
-```text
-repr(type(decimal))  == "type"   e decimal("1.2") preserva Decimal
-repr(type(duration)) == "type"   e duration(seconds: 1) preserva Duration
-repr(type(regex))    == "type"   e regex("a+") preserva Regex
-repr(type(selector)) == "type"   e selector(heading) preserva Selector
-repr(type(stroke))   == "type"   e stroke() preserva Stroke
-repr(type(tiling))   == "type"   e tiling(...) preserva Tiling
-repr(type(version))  == "type"   e version(1, 2) preserva Version
-```
-
-O despacho permanece um `match` fechado e estático. É proibido introduzir
-vtable, `dyn`, registry ou payload de função em `Type`. Fields existentes dos
-tipos permanecem acessíveis por braços explícitos de field access. Esta seção
-substitui, para estes sete nomes, o débito P685 que dizia mantê-los como
-`Value::Func`. `label`, `state`, `counter`, `color` e `gradient` não pertencem
-a este lote.
-
-## P1140.2 — medição e contrato de `Type::Label`
-
-Após P1140.1, o inventário mede três `WRONG_KIND`: `label`,
-`math.equation`, `math.sqrt`. No vanilla `repr(type(label)) == "type"`; no
-cristalino ainda é `"function"`. `label("x")` produz `label` no vanilla e
-`content` no cristalino. A divergência é pública (ADR-0107).
-
-P1140.2 registra `label` como `Value::Type(Type::Label)` e inclui
-`Type::Label` em `Type::is_callable()`. A chamada produz `Value::Label`; não
-cria variante nova nem altera `Value::Label`/`Type::Label`. O despacho segue
-fechado e estático. Esta seção retira `label` do débito P685;
-`Content::Label` é um valor de tipo `content` distinto.
-
-## P1151 — conteúdo locatável devolvido por introspecção (GATE ADR-0127)
-
-### Medição antes da decisão
-
-No vanilla ratificado `a51e02804`, duas headings morfologicamente idênticas
-devolvidas por `query(heading)` têm `type == content`, `repr` e `fields`
-indistinguíveis e igualdade de conteúdo `true`, mas locations presentes e
-distintas (`a.location() != b.location()`). Nos dois binários ratificados a
-sonda produziu o mesmo resultado. No cristalino, `native_query`
-(`compiler/stdlib/foundations/query.rs:55-64`) conhece cada `loc`, mas converte
-o par em `Value::Content(c.clone())`; `eval_content_method`
-(`compiler/eval/bindings/field_access.rs:662-665`) só recebe `&Content` e
-devolve sempre `none`. Logo a identidade locatável é perdida no limite de
-query, não pode ser reconstruída por igualdade e não pertence ao render.
-
-### Contrato proposto — não materializar antes da confirmação
-
-Adicionar uma representação pública de valor para conteúdo introspectado que
-transporte `Content` e `Location` sem alterar a morfologia pública da
-linguagem. Ela deve continuar a responder `type == content`, ter o mesmo
-`repr`, igualdade, fields, func, has e at do conteúdo interno, e devolver a
-Location apenas por `location()`. Conteúdo criado em eval continua sem
-Location. A representação não pode tornar a Location parte da igualdade da
-linguagem nem assá-la em `Content` declarativo.
-
-Esta adição altera o enum público `Value` e os matches exaustivos associados;
-é contrato público Rust, portanto PARAGEM obrigatória ADR-0127. A forma Rust
-exata e o nome da variante serão fixados no código somente após confirmação,
-preservando match fechado e despacho estático.
-
-## P1161 — igualdade pública de `Value::Symbol` multi-codepoint (GATE ADR-0127)
-
-### Medição antes da decisão
-
-Vanilla `a51e02804`: `emoji.heart == emoji.heart` e
-`symbol("❤️") == symbol("❤️")` são `true`; `emoji.heart == symbol("❤️")` e
-`emoji.heart.arrow == symbol("💘")` são `false`. A fonte usa a igualdade do
-`Symbol` completo em `foundations/ops.rs:425-439`; a estrutura concreta
-`SymbolInner` é mecânica, mas os booleanos acima são semântica pública.
-
-### Decisão condicionada ao gate
-
-`Value::Symbol` continua comparando a entidade `Symbol` completa. A migração
-de `char` para `EcoString` em valor/variants não introduz comparação apenas do
-texto visível e não torna um symbol nativo igual a um runtime só porque
-renderizam o mesmo cluster. `Type::Symbol`, `type_name` e casts não mudam.
-
-Não materializar nem ressellar antes da aprovação do contrato público em
-`entities/symbol.md` conforme ADR-0127.
-
-## P1473 — `Type` ganha a variante `SpotColorant` (MATERIALIZADO)
-
-Ver `compiler/stdlib/color.md`/`entities/color.md`, ambos §P1473, para a
-medição e o contrato completo (escopo reduzido — só a identidade `color.spot`
-como tipo/constructor, sem `.tint()`). `Value::Type` ganha uma décima quinta
-variante, `SpotColorant`, ao lado das já existentes (`None`/`Auto`/`Bool`/
-`Int`/.../`Symbol`) — `Value::Type(Type::SpotColorant)` é o valor devolvido
-por `color.spot` antes de qualquer chamada; `Value::Content`/outras variantes
-existentes **não mudam**. `type_name(Type::SpotColorant)` → `"type"` (mesma
-convenção de qualquer valor-tipo, ex. `type(color)`); o nome público do
-próprio tipo (usado por `repr`/mensagens de cast) é `"spot"` (medido:
-`type(color.spot("X", ...))` → `"spot"`, distinto do genérico `"type"`).
-Nenhuma variante de `Value` além de `Type` muda; `Color` não ganha variante
-nesta fatia (ver escopo reduzido nos dois owners citados).
-
-### Gate ADR-0127
-
-Novo tipo público na enumeração fechada `Type`. Requer L0 causal (este,
-`compiler/stdlib/color.md` e `entities/color.md`), hashes ressealados,
-V5/V15/V26, commit documental e **confirmação humana explícita posterior**.
-
-Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
-Agente A (`01a82593d`) acrescentou `Type::SpotColorant` e `Value::
-SpotColorant` (paralelo a `Value::Stroke`/`Value::Gradient`, decisão
-própria dentro do contrato) sem ver os testes; resolveu os matches
-exaustivos apontados pelo compilador em `eval/repr.rs`,
-`eval/operators/error_formatting.rs` e outros consumers de `Type`/`Value`.
-Suíte: GREEN, zero regressão.
-## P1482 — `Value::Color` inclui tinta spot (CONFIRMADO em 2026-09-23; ADR-0127)
-
-### Medição anterior à decisão
-
-`entities/value.rs:59-106,367-423` já tem `Value::Color(Color)`
-e `Value::SpotColorant` separado. Vanilla
-`visualize/color.rs:280-286,2397` devolve `Color::Spot` no tint.
-Sonda: `type(color.spot("Brand", red)) == spot`, mas
-`type(color.spot("Brand", red).tint(50%)) == color`;
-a serialização JSON da última é sua repr, não uma cor RGB.
-
-### Decisão proprietária
-
-Não criar novo `Value` nem novo `Type`: o resultado tint usa
-`Value::Color(Color::Spot)`. O colorant original continua
-`Value::SpotColorant`. Casts que aceitam `Value::Color` (fill,
-stroke, arrays/argumentos de cor) devem aceitar o novo carrier sem
-apagar nome, fallback e tint; cast de fallback do constructor spot
-continua a exigir processo. Igualdade de linguagem distingue spot da
-projeção `rgb(spot)`, mesmo quando a aparência coincide. JSON/YAML
-podem serializar pela repr canônica, não por `Debug` nem hex.
-
-## Memória 5 — proposta pendente ADR-0127; não vigente antes de confirmação
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado
-congelado em lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/before.json.gz.
-A sonda isolada layout-probe.rs.txt, command/UTC/deps/executable hashes em sizes.json,
-mede Value/Binding=272 bytes (align16), Stroke=264 (align8), Paint/Tiling=200,
-Located carrier=128 e Content=120. Fontes: entities/value.rs:111 transporta
-Stroke inline; geometry.rs e paint.rs/tiling.rs explicam sua composição.
-Modelo externo com todos os payloads existentes e somente Stroke compartilhado
-mede 144 bytes (align16). É tamanho físico, não prova de RSS ou speedup.
-
-### Decisão proposta e fronteira pública
-
-Mudar exclusivamente o payload de Value::Stroke(Stroke) para
-Value::Stroke(Arc<Stroke>). Manter o nome da variante e From<Stroke> for Value,
-que transfere o Stroke para um novo Arc. As assinaturas existentes continuam;
-nenhum campo público de Stroke/Paint/Tiling, variante adicional, Array/Dict,
-API de eval/layout ou fase/default muda. O payload público Rust muda e clientes
-que constroem/mutam/desestruturam a variante diretamente precisam adaptar-se:
-isto exige confirmação humana do pacote, não fluxo contínuo.
-
-Somente este owner define o carrier. Clone compartilha o payload e não clona
-dash/body profundo; leituras usam Stroke por referência. Nunca usar identidade
-de Arc como igualdade/identidade de ocorrência da linguagem. type_name/type_of,
-repr, campos, specified, cores/pinturas, espessura, cap/join/dash/miter/overhang,
-semântica de igualdade/hash e snapshots preservam seus contratos proprietários.
-Consumers que precisam modificar Stroke criam resultado próprio e novo Arc;
-não modificar payload de outro Value/snapshot. Não introduzir global, unsafe,
-I/O, nova dependência ou mutabilidade pública.
-
-### Aceitação depois da confirmação
-
-Escrever testes no módulo antes da implementação. RED de compartilhamento: os
-Values obtidos pelo From existente e clone projetam o mesmo Stroke por referência
-na implementação nova; antes usam cópias inline. Provar isolamento de reconstrução
-de stroke/style/field e preservação dos originais. RED de footprint no alvo
-medido (sem transformar tamanho/ABI em linguagem), GREEN de type/repr/fields e
-componentes incluindo dash, gradiente/tiling e specified. Não relaxar expectativas
-para fazer variante Arc compilar.
-
-Adaptadores sob seus L0s canônicos próprios. Todas as suites core/infra/shell e
-controles PDF/SVG/PNG/HTML relevantes, erros e warnings; RED→GREEN, resselo local
-e build/lint. Medir CLI pareado contra baseline completo desta rodada, incluindo
-arrays de ints, bindings/capturas/context100/300, plain e população de strokes
-únicos/clonados. Alocar Arc para cada stroke único pode aumentar bytes totais;
-conservar somente com ganho medido e tradeoff explícito. Não prometer 47% menos
-RSS por ter 47% menor sizeof; não misturar percentuais históricos.
-
-A proposta substitui somente a forma inline de Stroke em Value. Array continua
-Vec<Value> e Clone O(n), Dict continua IndexMap próprio; compartilhar arrays é
-outro pacote, não legitimado aqui.
-
-Ratificação Memória 5: o dono confirmou o manifesto SHA-256
-6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237
-com “confirmo” em 2026-10-08. O gate ADR-0127 deste pacote está satisfeito;
-suas cláusulas propostas passam a vigorar nesta materialização.
-
-
-## Projeções de Value — exaustividade nominal, 2026-10-16
-
-### Medição anterior à decisão
-
-01_core/src/entities/value.rs:449 (is_none, latent-projection); 01_core/src/entities/value.rs:465 (truthy, emitted-v16); 01_core/src/entities/value.rs:470 (cast_bool, latent-projection); 01_core/src/entities/value.rs:478 (cast_int, latent-projection); 01_core/src/entities/value.rs:490 (cast_float, emitted-v16); 01_core/src/entities/value.rs:495 (cast_str, latent-projection); 01_core/src/entities/value.rs:503 (cast_array, latent-projection); 01_core/src/entities/value.rs:511 (cast_dict, latent-projection); 01_core/src/entities/value.rs:519 (cast_align, latent-projection); 01_core/src/entities/value.rs:527 (cast_bytes, latent-projection); 01_core/src/entities/value.rs:544 (cast_decimal, emitted-v16); 01_core/src/entities/value.rs:565 (cast_duration, emitted-v16); 01_core/src/entities/value.rs:576 (cast_version, emitted-v16); 01_core/src/entities/value.rs:587 (cast_regex, emitted-v16). O enum atual em 01_core/src/entities/value.rs:59–195 tem 39 variantes materializadas; o catálogo e forma de payload estão no inventário desta etapa, não na tabela histórica de variantes futuras. before.json.gz em lab/results/construction/diagnostics/tekt-v16-value-projections-2026-10-16 conserva HEAD, working tree não commitado, UTC, status/diff HEAD --stat, hashes e os textos originais dos owners/consumers. contexts.json foi extraído do AST atual conferido com o SARIF pinado; classification.json distingue nove V16 emitidos e oito projeções latentes. Forma Rust/exaustividade é mecânica; nomes, conversões, empréstimos e observáveis de linguagem mantêm o contrato vigente. Não há nova medição de paridade ou desempenho.
-
-### Decisão interna
-
-Fechar is_none, truthy e os doze cast_* existentes por enumeração nominal das variantes Value. Cada fallback conserva seu resultado atual: is_none=false, truthy=true, casts=None. Manter a variante None explícita sem payload e LocatedContent com dois slots; demais variantes atuais têm um slot, Auto é unitária. Nas conversões, excluir do grupo somente as variantes já tratadas integralmente nos braços anteriores. Não tocar type_name, type_of, Type::is_callable, From, Hash, igualdade, memória compartilhada ou carriers. Nenhuma assinatura pública muda. is_none deixa matches! e torna a mesma classificação em match exaustivo. Preservar fórmulas, sinais, empréstimos e identidade de Arc em cast_version. Float em cast_duration continua segundos, Int continua nanossegundos; preservar literalmente limites e corpo, sem corrigir NaN/rounding nesta manutenção ou certificar essas bordas como paridade. Não alterar coerção de bool/str/bytes/array/dict/align; casts monovariantes seguem estritos. Não materializar propostas públicas históricas pendentes por este adendo. Testes C1–C4: verdade/vazio incluindo Dict vazio truthy; casts estritos positivos/negativos e empréstimos de str/array/dict/bytes; coerções numéricas, sinal e overflow ±infinito em Duration, inválidos Decimal; preservação de Arc Version, parse Version e Regex válidos/inválidos e categorias não conversíveis. Os testes são controles do comportamento vigente; não afirmam paridade universal nem cobertura de cada payload das 39 variantes.
-
-As variantes que compartilham resultado conservam um corpo comum. A lista nominal exige decisão se Value cresce; não duplicar corpos para remover V19. Notas V19 permanecem informativas e registram alternativas escritas, não testes executados, combinações alcançáveis ou déficit N×. Controles positivos/negativos e limites são escolhidos pelo comportamento, sem tratar a execução de um braço como prova de cada alternativa. Nenhum allow/expect ou relaxamento de severidade/exceção para ocultar V16.
-
-### Gate e aceitação
-
-Fluxo contínuo ADR-0127: nenhuma assinatura/trait/campo público, nova variante produtiva, default de produto, quebra de compatibilidade ou fase diferente. L0 antes de testes e implementação, resselo bilateral restrito e V1/V5/V15/V26 válidos. Escrever controles no módulo, confirmar comportamento antes e depois; RED estrutural é ausência de E0004 nos 17 pontos selecionados numa cópia do core com variante sentinela acrescentada somente ao Value copiado. GREEN exige E0004 em cada um dos 17 pontos, sem stubs, e remoção exata dos nove V16 selecionados com os demais diagnósticos preservados. Build, suíte workspace, Clippy estrito, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job Cargo. O gate global permanece aberto enquanto os V16 externos existirem. O falso positivo do parser sobre None explícito é investigação separada e não será escondido neste consumer.
-
-
-## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
-final-freeze.json.gz e target-controls.json.gz no diagnóstico
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
-UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
-Styled de transporte altera func. Query também vê wrapper causal temporário;
-HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
-pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
-de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
-Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
-SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
-
-### Responsabilidade exclusiva
-
-Preservar todas as assinaturas públicas de IntrospectedContent e Value. O slot
-privado fields continua Option<Arc<...>>, agora apontando para cabeçalho privado
-SnapshotFields com mapa único e heading_styles: Option<Arc<Styles>>. Derivar
-Clone/Debug/PartialEq do cabeçalho privado, preservando comparação estrutural do
-mapa e dos styles pendentes (mecânica Rust, não igualdade de linguagem).
-new move o mapa e começa sem styles pendentes; fields devolve o mesmo &IndexMap.
-Adicionar apenas helpers crate-private para anexar/consultar styles pendentes,
-via cópia local quando Arc compartilhado. Styles auxiliares nunca viram campos
-públicos. Clones existentes permanecem imutáveis. Não aumentar slots, sizeof ou
-alinhamento de Value/IntrospectedContent; medir antes/depois no mesmo ABI.
-
-### Aceitação e limites
-
-H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
-público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
-cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
-callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
-fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
-comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
+## Approved spot identities and color carrier
+
+The bilateral spot-type evidence and reduced initial scope belong to `00_nucleo/prompts/core/compiler/stdlib/color.md` and `00_nucleo/prompts/core/entities/color.md`. `Type::SpotColorant` is the spot constructor's type category; `color.spot` before a call yields `Value::Type(Type::SpotColorant)`, whose own type name is `"type"`. The constructed colorant's public type name, repr/cast name is `"spot"`, distinct from `"type"`. The initial type-only description did not yet expand Color or existing Content; subsequent owner confirmation after causal commit `3ac60a578` on 2026-09-21 approved the materialized sibling `Value::SpotColorant`, parallel to Stroke/Gradient. Agent A `01a82593d` added it and `Type::SpotColorant`, resolving exhaustive consumers including repr and error formatting, without seeing tests. The recorded suite was GREEN with no regression; this is historical evidence, not a new run. That public gate required causal L0s, reseals, V5/V15/V26, a documentary commit, and explicit later human confirmation; the recorded confirmation satisfies this bounded package. The obsolete ordinal “fifteenth” is historical counting, not an enum rule.
+
+The later language-spot package was confirmed on 2026-09-23. Before its decision, `entities/value.rs:59–106,367–423` already separated Color and SpotColorant; upstream `visualize/color.rs:280–286,2397` returned `Color::Spot` for tint. Probes measured `type(color.spot("Brand", red)) == spot`, but `type(color.spot("Brand", red).tint(50%)) == color`; JSON represents the latter by repr, not RGB. Therefore tint adds no Value or Type variant: it uses existing `Value::Color(Color::Spot)`, while the original colorant stays `Value::SpotColorant`. Fill/stroke/color-array/argument casts accepting Color must retain name, fallback, and tint. The spot constructor's fallback cast continues requiring a process color. Language equality distinguishes spot from `rgb(spot)` even when appearances agree. JSON/YAML may use canonical repr, never Debug or hex. Process projection/render/PDF boundaries remain with the Color and exporter owners.
+
+## Approved compact Stroke payload
+
+The memory measurement records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, an uncommitted working tree frozen in `lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/before.json.gz`. `layout-probe.rs.txt`, `sizes.json`, command/UTC/dependency/executable hashes measured Value/Binding 272 bytes (align16), Stroke 264 (align8), Paint/Tiling 200, located carrier 128, Content 120. `entities/value.rs:111` held inline Stroke; geometry, paint, and tiling explain its composition. An external model retaining every other payload and sharing only Stroke measured 144 bytes (align16). These are physical sizes, not RSS or speedup proof.
+
+The owner ratified manifest SHA-256 `6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237` with `confirmo` on 2026-10-08. That package's ADR-0127 gate is satisfied; its previously proposed clauses are current. Change only `Value::Stroke(Stroke)` to `Value::Stroke(Arc<Stroke>)`. Preserve the variant name and `From<Stroke> for Value`, moving into a new Arc. Existing signatures and public Stroke/Paint/Tiling fields, other variants, Array/Dict, eval/layout APIs, phases/defaults remain unchanged. The public payload change requires direct-construction/mutation/destructuring callers to adapt within the ratified package.
+
+This owner alone defines the carrier. Clone shares the payload without deep cloning dash/body; reads borrow Stroke. Arc identity is never language equality or occurrence identity. Type names/types, repr, fields, specified, colors/paints, thickness, cap/join/dash/miter/overhang, equality/hash semantics, and snapshots preserve their owners' contracts. Consumers modifying a Stroke produce owned results and a new Arc without mutating another Value/snapshot. No global, unsafe, I/O, new dependency, or public mutability.
+
+Acceptance requires tests in this module before implementation: a sharing RED shows From/clone project the same Stroke by reference after the change versus inline copies before; reconstruction of stroke/style/field leaves originals intact. Footprint RED/GREEN is confined to the measured ABI, never promoted to a language ABI contract. Type/repr/fields/components controls include dash, gradient/tiling, and specified. Do not relax expected results merely to compile Arc. Adapt consumers under their own canonical L0s; run relevant core/infra/shell and PDF/SVG/PNG/HTML controls, errors/warnings, RED→GREEN, local reseal, build/lint. Paired CLI measurements use the complete same-round baseline, covering integer arrays, bindings/captures/context100/300, plain content, and unique/cloned stroke populations. A new Arc for every unique stroke can increase total bytes: retain only with measured benefit and explicit tradeoff. A 47% smaller sizeof does not imply 47% less RSS; do not mix historical percentages. Only inline Stroke is superseded; Array remains Vec/O(n) and Dict owned IndexMap.
+
+## Value projection maintenance and acceptance
+
+Evidence precedes the internal decision: `01_core/src/entities/value.rs:449` is_none (latent); `:465` truthy (emitted V16); `:470` cast_bool (latent); `:478` cast_int (latent); `:490` cast_float (emitted); `:495` cast_str, `:503` cast_array, `:511` cast_dict, `:519` cast_align, `:527` cast_bytes (latent); `:544` cast_decimal, `:565` cast_duration, `:576` cast_version, `:587` cast_regex (emitted). The enum at `:59–195` has 39 materialized variants, with payload inventory in this diagnostic rather than the old future list. `lab/results/construction/diagnostics/tekt-v16-value-projections-2026-10-16/before.json.gz` preserves HEAD, uncommitted working tree, UTC, status/diff HEAD --stat, hashes, original owners/consumers. AST-derived `contexts.json` is checked against pinned SARIF; `classification.json` distinguishes nine emitted V16 findings and eight latent projections. Rust shape/exhaustiveness is mechanics; public names, conversions, borrows, and language observations remain unchanged. This is no new parity/performance measurement.
+
+Close is_none, truthy, and the twelve existing cast_* methods by nominal enumeration of Value variants. Fallbacks remain is_none=false, truthy=true, casts=None. `None` is explicit/unit; `LocatedContent` has two slots; other current payload variants have one slot, and `Auto` is unit. Exclude from a fallback group only variants already completely handled by earlier arms. Leave type_name/type_of/Type::is_callable/From/Hash/equality/shared memory/carriers untouched. Replace is_none's matches! with an exhaustive match classifying identically. Preserve formulas, signs, borrows, and Arc identity in cast_version. Float→Duration remains seconds and Int→Duration nanoseconds; keep exact limits/body without fixing NaN/rounding or certifying those edges as parity. Bool/str/bytes/array/dict/align coercions and single-variant strictness remain unchanged. Do not materialize historical pending public proposals through this maintenance.
+
+C1–C4 cover truth/emptiness including truthy empty Dict; strict positive/negative casts and str/array/dict/bytes borrows; numeric coercions, signs, overflow and ±infinity in Duration, invalid Decimal; Arc Version preservation, valid/invalid Version parsing and Regex, and nonconvertible categories. These controls preserve current behavior, not universal parity or coverage of every payload of all 39 variants. Alternatives with the same result share a body; nominal lists require a decision on enum growth. Do not duplicate bodies merely to remove V19. V19 notes describe written alternatives, not executed tests, reachable combinations, or an N× deficit; choose positive/negative/boundary controls by behavior, without claiming one executed arm proves each alternative. No allow/expect or severity/exception relaxation hides V16.
+
+ADR-0127 continuous flow applies: no public signature/trait/field, new productive variant, default, compatibility break, or phase change. L0 precedes tests/code, with restricted bilateral reseal and valid V1/V5/V15/V26. Run local controls before/after. Structural RED is absence of E0004 at 17 selected sites in a copied core with a sentinel added only to copied Value; GREEN requires E0004 at every selected site without stubs, and exact removal of nine selected V16 findings while retaining other diagnostics. Revalidate build, workspace suite, strict Clippy, fmt, Rustdoc, lineage under 12 GiB, zero swap, one Cargo job. Global V16 remains open while external findings remain. Parser misclassification of explicit None is separate investigation, never hidden in this consumer.
+
+## Approved heading supplement before query
+
+The heading measurement records HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, an uncommitted tree, UTC/diffstat/source/argv in `lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/final-freeze.json.gz` and `target-controls.json.gz`, upstream pin `bd5ebec285505889e8ff1d4f68804ab147a699f3`. `heading-raw-constructor-func` passed baseline/vanilla but failed the candidate because transport Styled changed func; query saw a temporary causal wrapper and HTML ignored callback panic. `walk.rs:930–945`, `pipeline/paged.rs:419–427`, and `pipeline/html.rs:101–106` prepare query by pure walk. These are language values/errors, not instructions to copy upstream mechanics. The owner confirmed H2 in `lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md`, manifest SHA-256 `66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c`.
+
+Preserve every public IntrospectedContent/Value signature. The private fields slot remains `Option<Arc<...>>`, now pointing to private `SnapshotFields` containing the unique map and `heading_styles: Option<Arc<Styles>>`. Derive Clone/Debug/PartialEq for that private header, structurally comparing the map and pending styles as Rust mechanics. `new` moves the map with no pending styles; `fields` returns the same `&IndexMap`. Add only crate-private attachment/read helpers for pending styles, copying locally when the Arc is shared. Auxiliary styles never become public fields; existing clones stay immutable. Do not increase Value/IntrospectedContent slots, sizeof, or alignment; measure before/after on the same ABI.
+
+Acceptance is ratified H1–H8 with bilateral RED before code. H2 authorizes no public contract beyond the Heading facade; the separate A1-S2 approval covers five State helpers. No new public fields. Ordinary Styled and other callbacks retain their boundaries. Run workspace/doctests/build/Clippy/Rustdoc, fmt, strict/reverse V1/V5/V15/V26, and no V16 increase under 12GiB/High8GiB/swap0/jobs1, heavy commands sequentially. RAM benefit requires measurement rather than intent.
+
+## Base value controls and unresolved scope
+
+Co-located `#[cfg(test)]` controls cover each materialized variant and these original obligations: None has type `"none"` and is_none true; Int(0) is_none false; Int(3).cast_float gives Some(3.0), Float(3.14) Some(3.14), Bool(true) None. From("hello"), 42i64, 3.14f64, and true yield Str(EcoString), Int, Float, Bool. Equal/different EcoStrings compare correspondingly; mutating a cloned Array does not affect its source. Dict has type `"dictionary"` and `cast_dict().get("k") == Some(&Value::Int(1))`; Module clone remains type `"module"` with Arc sharing. Length pt12 has type `"length"`, Ratio .5 `"ratio"`, Angle90 `"angle"`, Color rgb0 `"color"`, Auto `"auto"`, Tiling `"tiling"`. Scope::define("x", Int(42)) yields the same value from scope.get("x"). Relative's old test label `"relative length"` conflicts with the measured corrected public name `"relative"`; the measured relative-type correction supersedes that stale spelling, without deleting the constructor/cast control itself.
+
+Path approval, the Symbol owner's public gate, R5 receipt verification, the remaining namespace/type reconciliation, and unmaterialized future variants remain explicit boundaries. Neither current implementation, a historical GREEN receipt, mechanical equality, nor this English consolidation supplies missing approval or current-pin parity certification.

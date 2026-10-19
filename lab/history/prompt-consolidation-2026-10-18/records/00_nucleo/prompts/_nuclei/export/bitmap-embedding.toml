@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "export-bitmap-embedding"
+title = "Identidade de glifos bitmap no export PDF"
+
+[[claims]]
+id = "glyph-identity"
+level = "must"
+statement = "A identidade de um glifo bitmap combina a instância de fonte e o glyph id original; repetições da mesma identidade reutilizam um único recurso raster."
+
+[[claims]]
+id = "placement-metadata"
+level = "must"
+statement = "O payload compartilhado preserva dimensões, bearings e pixels-per-em necessários para posicionar o bitmap na linha de base."
+
+[[claims]]
+id = "unsupported-fallback"
+level = "must"
+statement = "Glifo sem raster suportado permanece ausente do mapa bitmap e segue o caminho normal de fonte."
+
+[[claims]]
+id = "no-cross-font-alias"
+level = "must-not"
+statement = "Glyph ids iguais de instâncias de fonte distintas são tratados como a mesma identidade de recurso."

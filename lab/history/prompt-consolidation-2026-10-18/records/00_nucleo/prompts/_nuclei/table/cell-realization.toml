@@ -1,0 +1,34 @@
+tekt = 1
+kind = "nucleus"
+id = "table-cell-realization"
+title = "Resolução lógica da tabela antes da receita da célula"
+
+[[claims]]
+id = "phase-order"
+level = "must"
+statement = "A regra da tabela precede a resolução das células da tabela sobrevivente; a resolução lógica precede a regra da célula; o corpo resultante só é realizado depois. Uma substituição não executa receitas do conteúdo ocultado."
+
+[[claims]]
+id = "placement-owner"
+level = "must"
+statement = "O único algoritmo de ocupação pertence a compiler/layout/grid_placement; a política de tabela segue ordem documental e produz plano em ordem row-major, mantendo a política legada de Grid separada por parâmetro fechado."
+
+[[claims]]
+id = "known-fields"
+level = "must"
+statement = "Campos lexicais e plano resolvido são distintos; getters da célula preparada projetam propriedades conhecidas sem mutar variável/constructor cru, e none explícito vence herança."
+
+[[claims]]
+id = "no-cell-location"
+level = "must-not"
+statement = "A preparação não torna table.cell locatable, não lhe atribui Location falsa e não altera rejeições de query/counter."
+
+[[claims]]
+id = "geometry-boundary"
+level = "must"
+statement = "Fontes, medidas, tracks físicos, paginação e tinta pertencem ao layout; o plano lógico e as receitas pertencem à realização. Layout não executa Func/Engine; HTML consome plano sem layout paginado."
+
+[[claims]]
+id = "once-and-scope"
+level = "must"
+statement = "Receitas usam ambiente causal de inserção, conservam aliases/escopo/contexto e efeitos uma vez por inserção aceita. Repetição física e replay de contribuição válida não repetem receitas. Apenas planos completos são publicados."

@@ -59,41 +59,37 @@ Supported SVG paint pairs are owned by
 `00_nucleo/prompts/infra/export/svg/paints.md`; generating samples does not promote
 Luma/CMYK or an unvalidated pair. PDF count selection remains independent.
 
-## Cálculos numéricos dos exportadores — 2026-10-13
+## Internal numeric expressions
 
-### Medição anterior à decisão
+### Evidence
 
-`03_infra/src/export/gradients/adaptive.rs` nas linhas [390] usa métodos apontados pelo Clippy. `clippy.toml` exige alternativas sem dependência da matemática da plataforma; libm =0.2.11 já está pinado no core/Cargo.lock. Os fontes da biblioteca, consumer, owner, manifest/lock, spans, HEAD, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/gradientes-numericos-ci-2026-10-13/before.json.gz`.
-
-`before-renders.json` registra 24 fontes renderizadas em PDF/SVG por Tekt e pelo vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, com hashes dos binários e comandos. `before-comparison.json` mede o canvas inteiro sem máscaras ajustadas pelo erro. Existem divergências anteriores; o corpus não é prova de paridade integral. A primeira tentativa de fixture usava hsv fora do namespace color, foi rejeitada pelo parser antes de qualquer mudança produtiva e está preservada em initial-fixture-error.log; cases.json contém as entradas válidas.
-
-### Decisão e aceitação
-
-No helper de erro usado exclusivamente pelos testes, substituir powi(2) por uma variável local delta e delta*delta, sem alterar o somatório, sqrt, premultiplicação ou budgets. Os algoritmos produtivos de amostragem não mudam.
-
-Dependência direta interna de L3 fixada em =0.2.11 no manifest, reutilizando a versão já no lock. Não atualizar versões de pacotes nem adicionar I/O. Mudança interna em fluxo contínuo ADR-0127, sem contrato público, default, fase ou estratégia novos. L0 precede código e resselo é limitado aos owners envolvidos.
-
-Validar as fórmulas com a suíte existente, exportação dos mesmos 24 documentos antes/depois e leitura raster/estrutural de PDF/SVG. Comparar a preservação local separadamente das divergências contra o pin vanilla; nenhuma diferença nova de render é aceita sem análise. Não alargar tolerâncias/limites, mudar fixtures ou supressões para esconder uma falha. Compilar todos os targets, executar a suíte infra, verificar build, Clippy, Rustdoc, formato e linhagem. Contagens e identidade de arquivos não certificam a paridade da linguagem.
+adaptive.rs:390 uses the selected math method. `lab/results/construction/diagnostics/gradientes-numericos-ci-2026-10-13/before.json.gz`
+retains library/consumer/owner/manifest/lock/spans/HEAD/dirty tree/UTC/status/diffstat.
+clippy.toml requires platform-independent math; libm =0.2.11 is already locked.
+before-renders.json has 24 sources rendered PDF/SVG by Tekt and historical vanilla
+9f2b6e8715237cb086899a42873660fe744622e8 with binary hashes/commands;
+before-comparison.json observes full canvas without error-adjusted masks.
+Pre-existing divergence is not complete parity. Rejected initial hsv-outside-color
+fixture stays in initial-fixture-error.log; cases.json has valid inputs.
 
 
-## Expressões equivalentes e CI estrito — 2026-10-14
+ci-simplificacoes-2026-10-14/before.json.gz retains source/owner/spans/HEAD/dirty
+state/UTC/diffstat at :159; red.log records selected errors before code, types/
+uses checked under pinned1.92.0. These are Rust expressions, no new parity.
 
-### Medição anterior à decisão
+### Contract and acceptance
 
-`03_infra/src/export/gradients/adaptive.rs` nas linhas [159] contém as expressões apontadas pelo inventário
-Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
-conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
-red.log registra os lints selecionados como erros antes de alterar código.
-Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.
-Esta é manutenção da expressão Rust; não é medição nova de paridade upstream.
-
-### Responsabilidade e aceitação
-
-O next_t da subdivisão SVG já é f64. Passá-lo diretamente a Ratio, sem From identidade. Preservar exatamente precisão, operações, ordem, budgets, offsets coincidentes, alpha e seleção de espaço; não mudar a interpolação ou o limite de subdivisões.
-
-Correção interna em fluxo contínuo ADR-0127, sem API pública, default, fase,
-unsafe, dependência ou supressão de lint novos. L0 precede código e resselo
-fica restrito ao owner. Usar os controles funcionais existentes; não alterar
-fixtures, expectativas, tolerâncias ou registrar testes que apenas espelhem
-esta simplificação. Os lints selecionados devem passar como erros, seguidos
-de suíte completa, build, all-targets, rustdoc, fmt, linhagem e inventário total.
+Only the test error helper replaces powi(2) with local delta*delta, preserving
+sum/sqrt/premultiplication/budgets. Productive sampling unchanged. Subdivision
+next_t already f64 passes directly to Ratio without identity From; preserve exact
+precision/operations/order/budgets/coincident offsets/alpha/space selection/
+interpolation/subdivision cap. No public/default/phase/unsafe/dependency/suppression
+beyond existing pinned numeric dependency. Selected-lint RED→GREEN/full suite/build/
+all-targets/Rustdoc/fmt/lineage/full inventory, unchanged control expectations and
+no simplification-mirror tests. Internal continuous ADR-0127 adds no public/default/phase/strategy; L0 first,
+involved-owner seals. Direct L3 libm =0.2.11 reuses locked package, no upgrades/I/O.
+Existing formula tests and same 24 before/after PDF/SVG sources, raster/structure
+observations separate local preservation from historical oracle differences.
+Analyze any new render difference; no larger tolerance/limit/fixture changes or
+suppressions to hide failure. All-target compile/infra suite/build/Clippy/Rustdoc/
+fmt/lineage; counts/file identity certify no language parity.

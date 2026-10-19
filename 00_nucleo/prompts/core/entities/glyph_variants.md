@@ -1,100 +1,59 @@
-# Prompt: GlyphVariants — Variantes de Tamanho de Glifos Matemáticos
+# Prompt: GlyphVariants — Mathematical glyph size variants
 Hash do Código: 2255c73a
 
-## Módulo
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/glyph_variants.rs`
 
-`01_core/src/entities/glyph_variants.rs`
+## Evidence and domain
 
-## Contexto
+OpenType MATH defines size variants for extensible delimiters and radicals.
+L3 reads ttf-parser::tables::math::Variants; MathLayouter selects the smallest
+sufficient variant. Historical upstream glyph.rs:293 uses font.x_advance for
+horizontal positioning. The earlier defect conflated vertical MATH height
+with horizontal width. The assembly audit also found ignored
+minConnectorOverlap (NewCMMath:20 design units); these are historical source
+observations, not fresh current-pin measurements.
 
-Fontes OpenType com tabela MATH definem variantes de tamanho para glifos
-extensíveis como delimitadores (`(`, `)`, `[`, `]`, `{`, `}`) e o símbolo
-radical (`√`). O `MathLayouter` usa estas variantes para seleccionar o glifo
-com a altura mínima necessária para cobrir o conteúdo que envolve.
+## Contract
 
-Este módulo define os tipos de domínio `GlyphVariant` e `GlyphVariants` em L1.
-L3 preenche as variantes a partir de `ttf-parser::tables::math::Variants`.
+GlyphVariant has public glyph_id:u16, advance:f64, hor_advance:f64, and
+optional top_accent_attach in design units. advance is the MATH measurement
+along the stretch axis (height vertically, width horizontally), used only
+for select/select_with_advance thresholds. hor_advance is the concrete glyph's
+native hmtx horizontal advance, used for FrameItem::Glyph.x_advance and box
+width, independently of stretch direction. Stretchy/assembly consumers must
+preserve that distinction.
 
-## Tipos exportados
+GlyphVariants has public variants:Vec<GlyphVariant>, sorted by increasing
+size. select(min_advance) returns the first sufficient glyph_id;
+select_with_advance also returns its advance. Both compare only advance and
+return None if no variant qualifies. is_empty detects no variants; Default
+is empty, allowing base-glyph fallback. Pure domain, no system I/O.
 
-```rust
-pub struct GlyphVariant {
-    pub glyph_id: u16,     // ID do glifo alternativo na fonte
-    pub advance: f64,      // medida de avanço no eixo de esticamento (design units) —
-                            // SÓ para comparar com o alvo (`select_with_advance`), nunca
-                            // para posicionar o glifo (ver `hor_advance` abaixo)
-    pub hor_advance: f64,  // avanço horizontal NATIVO do glifo (hmtx, design units) —
-                            // usado para `FrameItem::Glyph.x_advance`/largura de caixa
-}
+GlyphPart has public glyph_id:u16, start_connector:u16,
+end_connector:u16, full_advance:u16, is_extender:bool and hor_advance:f64.
+Connectors measure overlap with previous/next parts along the stacking axis;
+full_advance is the part's unoverlapped advance on that axis; an extender may
+repeat to fill height/width. None substitutes for native horizontal advance.
 
-pub struct GlyphVariants {
-    pub variants: Vec<GlyphVariant>,  // ordenadas por tamanho crescente
-}
-```
+GlyphAssembly carries public min_overlap:u16 in design units, default 0,
+preserving previous synthetic-test behavior. L3 fills it; L1 assembly repeat
+resolution and positioning consume it.
 
-## P917 — `advance` vs `hor_advance`: dois eixos, dois campos
+The optional top accent attachment belongs to the selected concrete horizontal
+variant, not the base Unicode character. L3 reads MathTopAccentAttachment;
+when absent it uses (hor_advance + italics_correction)/2. Spreader layout uses
+this metric to propagate exact widths through nested compositions.
 
-`advance` é a medida ao longo do eixo de esticamento (`AdvanceMeasurement` da tabela MATH:
-altura para construções verticais, largura para horizontais) — usada exclusivamente para
-decidir SE uma variante é grande o suficiente (`select`/`select_with_advance`). `hor_advance`
-é o avanço horizontal nativo do glifo (`hmtx`, via `face.glyph_hor_advance(glyph_id)`,
-independente do eixo de esticamento) — é o que o vanilla usa (`font.x_advance(glyph_id)`,
-`glyph.rs:293`) para posicionar o glifo e para a largura da caixa que o contém. Conflar os
-dois (usar `advance` também como avanço horizontal) foi o achado de P917: para variantes
-verticais, `advance` é uma medida de ALTURA, não de largura — usá-la como `x_advance`
-reserva espaço horizontal do tamanho da altura do glifo, não da sua largura real.
-Consumidores (`stretchy.rs`, `assembly.rs`) devem ler `advance` só para `select`/limiar de
-tamanho, e `hor_advance` para tudo que posiciona ou mede largura.
+## Acceptance
 
-`GlyphPart` (montagem por partes, mesma ficheiro) ganha o mesmo campo pelo mesmo motivo —
-`full_advance`/`start_connector`/`end_connector` são medidas ao longo do eixo de empilhamento,
-nunca avanço horizontal:
+For advances [500,800,1200], select(600) selects 800; exact 500 selects 500.
+A maximum 500 with target 1000 returns None, as does any selection on empty.
+Default is_empty is true. Changing hor_advance cannot change selection;
+callers read it separately after selection. Preserve distinct axis measures,
+min_overlap default and variant-local attachment transport.
 
-```rust
-pub struct GlyphPart {
-    pub glyph_id: u16,
-    pub start_connector: u16,  // sobreposição mínima com a peça anterior (eixo de empilhamento)
-    pub end_connector: u16,    // sobreposição mínima com a peça seguinte (eixo de empilhamento)
-    pub full_advance: u16,     // avanço da peça sem sobreposição, eixo de empilhamento
-    pub is_extender: bool,     // se true, repetível para preencher altura/largura
-    pub hor_advance: f64,      // avanço horizontal nativo do glifo (hmtx) — ver acima
-}
-```
+## Historical record
 
-## Comportamento
-
-- `select(min_advance)`/`select_with_advance(min_advance)`: comparam **só** `advance` (eixo
-  de esticamento) com o alvo; retornam o glyph_id (+ `advance` no caso de
-  `select_with_advance`) da primeira variante suficiente, None se nenhuma for
-- `is_empty()`: true se não há variantes (fonte sem tabela MATH)
-- `Default`: variantes vazias (fallback para glifo base)
-- Zero I/O de sistema — tipo de domínio puro
-
-## Critérios de verificação
-
-- `select(600.0)` com variantes [500, 800, 1200] → Some(glyph_id com advance=800)
-- `select(500.0)` com variante exacta de 500 → Some(glyph_id)
-- `select(1000.0)` com variante máxima de 500 → None
-- `select(...)` em GlyphVariants vazio → None
-- `is_empty()` em GlyphVariants::default() → true
-- `hor_advance` não participa em `select`/`select_with_advance` — só `advance` decide a
-  seleção; `hor_advance` é lido separadamente pelo caller depois de seleccionar
-
-## P945 — campo `GlyphAssembly::min_overlap: u16`
-
-**Medição**: `assembly.md` §P945 — o algoritmo do vanilla consome
-`minConnectorOverlap` da tabela MATH (NewCMMath: 20du) e o cristalino ignorava.
-
-Novo campo `pub min_overlap: u16` em `GlyphAssembly` (design units; `Default =
-0`, que reproduz exactamente o comportamento anterior — retrocompatível com os
-testes sintéticos de P913 existentes). Preenchido em L3
-(`infra/font_metrics.md` §P945); consumido em L1 por
-`resolve_assembly_repeat` e pelo posicionamento das peças
-(`compiler/math/layout/assembly.md` §P945).
-## P1132n — attachment da variante horizontal selecionada
-
-`GlyphVariant` transporta opcionalmente `top_accent_attach` em design units.
-O valor pertence à variante concreta, não ao caractere Unicode base. L3 lê
-`MathTopAccentAttachment`; sem entrada, aplica o fallback do vanilla
-`(hor_advance + italics_correction) / 2`. O layout de spreaders usa esta
-métrica para propagar dinamicamente a largura exacta em composições aninhadas.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/glyph_variants.md`. Historical observations are not a new parity certification.

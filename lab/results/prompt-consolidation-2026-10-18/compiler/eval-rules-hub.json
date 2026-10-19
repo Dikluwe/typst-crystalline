@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "13d655c83e51b9dd8e235fed553af6833ada3e35993e1ac579d0c7548e920436",
+    "result_sha256": "bbd1a42f9be796f3797b701331be09b461b58c8f434e5829c00f933c5b039227",
+    "disposition": "Full32k owner reviewed: English initial schemas retained as canonical child boundaries, every paragraph corpus/count/formula/failed hypothesis translated; current scoped policy, whole-flow exceptions, custom costs and regional widow/orphan supersessions consolidated with all fallbacks and gates."
+  }
+]

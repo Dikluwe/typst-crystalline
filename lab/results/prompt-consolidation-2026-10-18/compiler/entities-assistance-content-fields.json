@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/entities/content/fields.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "904acf77747a222a8d2590c369684c7b3bc0b369b4baf714ef2e9021d4988be8",
+    "result_sha256": "ae62eea1c54568285819d0f35306ae9e8f6a0739283c49e395ce702d332f3fb7",
+    "disposition": "Full482-line pure field owner translated: semantic SmartQuote defaults vs strict presence/quotes key order, delegated entity getters and actual approvals, Caption incomplete presence, complete six-site nominal barriers, measured dimension types/Styled opacity, marked Heading/Sequence children contracts retained."
+  }
+]

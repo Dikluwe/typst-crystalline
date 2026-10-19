@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/format_pdf_pages.md
-//! @prompt-hash f5334972
+//! @prompt-hash d0916654
 //!
 //! P1468 (RED — Agente B) — integração de binário para `pdf.pages`
 //! (`#set format.pdf(pages: ...)`) e a flag `compile --pages`. Modelado em

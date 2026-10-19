@@ -2,8 +2,8 @@
 Hash do Código: f8a8d92b
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
-- 00_nucleo/prompts/_nuclei/fonts/shaper-primary-cache.toml sha256:24dff6d00f015a26b2fdc0b84c18aa7debac4a43d5b0380b861cf5ac43403584
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/fonts/shaper-primary-cache.toml sha256:bb9850c42a48ec519f605159d6aea76b305b0ccf6643ef6a4f8137720c76c898
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/shaper/cache.rs`
@@ -49,47 +49,54 @@ ADR-0127, with no public API, default mode, compatibility or pipeline phase chan
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Migração do carrier bidi
+## Cache-carrier evidence and contracts
 
-Medição anterior à decisão: compiler RED (`context-red.log`, receipt da implementação 2026-10-05) identifica constructor de teste sem campo ratificado. Acrescentar bidi None para fixture sem origem certificada; aceitação mantém as asserções de linguagem existentes.
+### Evidence
 
+Compiler RED context-red.log in the 2026-10-05 implementation receipt identifies
+a fixture missing the ratified bidi field. The fixture has no certified origin.
+`identidade-fonte-shaped-implementacao-2026-10-05/second-benchmark.json` shows the
+larger regression removed, but shaping.rs still calls World::font on carrier
+construction, including hits, despite already loading it for CachedRun. The
+public TextShaped font was ratified by the owner with manifesto
+`f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409`.
 
-## Fonte do resultado memoizado — 2026-10-05
+`shaper-primary-reuse-2026-10-10/resolution-calls-before.json.gz` records HEAD/
+uncommitted tree/UTC, binary 5e66c09d/argv: local-set/no-fill-1600 calls
+primary_candidates 1, 602 times and resolve_candidates 9, 612, among 9, 619
+select_pattern lookups. font_selection.rs:16–91 rebuilds primary/class/MATH/common
+chains; cache.rs:64–87 retains faces but no family resolution. GDB counts are not
+times. Order/selection are semantics; repeating lookup is mechanics. Last-complete-
+resolution benefit/safety is refuted by lookup/output/time/RSS controls.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/second-benchmark.json` mostra que a regressão maior foi removida; `shaper/shaping.rs` ainda chama World::font novamente ao construir cada carrier, incluindo hits. A fonte já foi carregada para produzir CachedRun. Fonte pública de TextShaped foi ratificada pelo humano (f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409).
+### Current private contracts
 
-CachedRun privado conserva clone da Font efetivamente carregada junto dos glyphs/width. O produtor usa essa mesma fonte no carrier de miss e hit, sem consultar World novamente na saída. Keys, escopo/invalidação por documento e FaceCache anteriores ficam preservados; não adicionar unsafe nem ampliar a API pública. Ratificação se aplica ao campo público do carrier; esta alteração é interna em fluxo contínuo. Testes de fallback/hit, FonteSome, controles e revalidação de CLI.
+Add bidi None only to the uncertified test fixture, preserving language assertions.
+CachedRun retains a clone of the actually loaded Font with glyphs/width; hit/miss
+carriers use that same font without another World lookup at output. Preserve keys,
+document scope/invalidation and FaceCache; no added unsafe/public API. The public
+carrier's approval does not enlarge this internal correction. Require fallback/
+hit/FontSome controls and CLI revalidation.
 
+Under the pinned shaper-primary-cache nucleus, FaceCache holds one optional,
+initially empty primary resolution. Private carrier stores FontList/FontVariant/
+math and candidate slots/units-per-em. Preserve slot map/negative caching and
+CachedFace byte ownership; no globals/new unsafe/face-map eviction or sharing
+across distinct instances/Worlds.
 
-## Reuso da cadeia primária no shaper — 2026-10-10
+## Useful map-entry maintenance
 
-Medição anterior à decisão: font_selection.rs:16-91 reconstrói a cadeia
-primária/classe/MATH/comum a cada chamada; cache.rs:64-87 já retém faces por
-slot, mas não a resolução das famílias. resolution-calls-before.json.gz em
-lab/results/construction/diagnostics/shaper-primary-reuse-2026-10-10 registra 1.602 chamadas
-de primary_candidates e 9.612 de resolve_candidates, entre 9.619 buscas
-select_pattern por fixture local-set/no-fill-1600. HEAD, árvore não
-commitada, UTC, binário 5e66c09d e argv estão no receipt. Contagens GDB não
-são tempos. A seleção e ordem são semântica; repetir consultas é mecânica.
-Inferência: reusar a última resolução completa poupa consultas/alocações;
-gates de consultas, saída, tempo e RSS podem refutar benefício ou segurança.
+`lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`
+retains sources/L0/hashes/HEAD/uncommitted tree/UTC/diffstat for cache.rs:88;
+consumer/use inspection preceded deciding and selected gate must fail before
+implementation. This is representation/observation, no new upstream intent/parity.
 
-Responsabilidade deste owner sob o núcleo shaper-primary-cache pinado acima:
-FaceCache possui uma entrada opcional inicialmente vazia de resolução
-primária. Um carrier privado guarda FontList, FontVariant, math e candidatos
-slots/units-per-em. Manter map por slot, sua política de ausência e o dono
-dos bytes de CachedFace inalterados. Sem globals, unsafe novo, eviction da
-map de faces ou compartilhamento entre instâncias/Worlds distintos.
-
-
-## Manutenção local e observação de testes — 2026-10-16
-
-### Medição anterior à decisão
-
-`03_infra/src/shaper/cache.rs` nas linhas 88 contém os avisos registrados em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
-
-### Responsabilidade e aceitação
-
-No FaceCache::get, usar HashMap::entry(slot_idx).or_insert_with para executar World::font e CachedFace::new somente em miss. Guardar também None como resultado negativo; devolver empréstimo da face retida. Não antecipar consulta, duplicá-la, eliminar bytes owned que sustentam o borrow, alterar keys ou ampliar lifetime/escopo/API.
-
-Fluxo contínuo ADR-0127: sem contrato público, default de produto ou fase novos. L0 precede código e resselo restrito. Nenhuma supressão de lint nova. Conferir redução exata do inventário e ausência de avisos novos, gate Clippy RED→GREEN e unfulfilled_lint_expectations como erro; executar suíte workspace, build, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job. Não criar testes que apenas espelhem derive, Entry ou posicionamento de módulos. O caso de bbox exige observação real conforme especificado; os demais controles existentes mantêm fixtures e expectativas.
+FaceCache::get uses HashMap::entry(slot_idx).or_insert_with, executing World::font/
+CachedFace::new only on miss and retaining None as a negative result. Return the
+retained face borrow. No eager/duplicate lookup, loss of borrow-owning bytes,
+key/lifetime/scope/API change. Continuous ADR-0127: no public/default/phase contract or lint suppression.
+L0 first/scoped resealing, exact inventory reduction/no new warnings, selected
+Clippy RED→GREEN/unfulfilled_lint_expectations as error; workspace suite/build/
+fmt/Rustdoc/lineage under 12 GiB, zero swap, one job. No derive/Entry/module-
+placement mirror tests. Any historical bbox control still requires actual
+observation in its own scope; other controls preserve fixtures/expectations.

@@ -1,34 +1,28 @@
 tekt = 1
 kind = "nucleus"
 id = "math-callback-realization"
-title = "Realização de callbacks matemáticas dependentes de geometria"
-
+title = "Realization of geometry-dependent math callbacks"
 [[claims]]
 id = "pure-layout"
 level = "must-not"
-statement = "O layouter não executa Func, Engine ou World; ele somente produz requests puras e consome resoluções validadas."
-
+statement = "The layouter executes no Func, Engine or World; it only produces pure requests and consumes validated resolutions."
 [[claims]]
 id = "provisional-not-success"
 level = "must-not"
-statement = "Uma passagem com request pendente, store stale ou transcript não convergente não pode ser exportada ou devolvida como compilação bem-sucedida."
-
+statement = "A pass with pending request, stale store or nonconvergent transcript cannot be exported or returned as successful compilation."
 [[claims]]
 id = "stable-request-identity"
 level = "must"
-statement = "Cada request é identificada pela Location da equação, occurrence estrutural reservada uma vez na entrada do elemento antes de descer no body e índice da linha; Span é somente diagnóstico."
-
+statement = "Each request is identified by Equation Location, structural occurrence reserved once on element entry before body descent, and line index; Span is diagnostic only."
 [[claims]]
 id = "concrete-attempt-scope"
 level = "must"
-statement = "Cada tentativa concreta de Layouter possui estado de transcript novo; tentativas internas rejeitadas descartam os seus transcripts, e somente uma tentativa candidata estabilizada pode alimentar fases posteriores."
-
+statement = "Each concrete Layouter attempt has fresh transcript state; rejected internal attempts discard their transcripts, and only a stabilized candidate attempt may feed later phases."
 [[claims]]
 id = "pipeline-realization"
 level = "must"
-statement = "A pipeline realiza requests em ordem com Engine e estilo capturado, valida Angle e entrega uma store completa à passagem seguinte."
-
+statement = "Pipeline realizes requests in order through Engine/captured style, validates Angle and supplies a complete store to the next pass."
 [[claims]]
 id = "one-request-per-language-call"
 level = "must"
-statement = "A cardinalidade de requests preserva as chamadas da linguagem; cancel cross executa a callback uma vez por linha."
+statement = "Request cardinality preserves language calls; cancel cross executes callback once per line."

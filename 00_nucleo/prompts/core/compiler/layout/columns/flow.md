@@ -2,41 +2,22 @@
 Hash do Código: 2f314381
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:4e487a99ea1f1e82a67dfaced0958f98392fb26b1a7d292355230d6ffa7f2d0b
+- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
 
-## Medição anterior à decisão
+## Evidence before specification
 
-No HEAD f7195cdf6 (árvore limpa, 2026-09-30), o bloco está em `01_core/src/compiler/layout/columns.rs:125-191,640-704`. Esta observação estabelece o limite da extração; não mede desempenho ou nova paridade bilateral.
+At HEAD `f7195cdf6` (clean tree, 2026-09-30), the block is at `01_core/src/compiler/layout/columns.rs:125-191,640-704`. This observation establishes extraction boundaries, not performance or new bilateral parity.
 
-## Owner e contrato
+`lab/results/construction/diagnostics/links-paginacao-2026-10-14.md` and receipts under `posicoes-compostas-2026-10-14/automatic-boundary-probes` record source, HEAD/dirty tree/UTC, binaries and vanilla pin. On a 160×40pt page with 10pt margins, ordinary text crosses the break; Link URL, Ref and Ref Page abort with a stale index after buffers are emptied. `references.rs:270` appears in the stack; `link.rs:22-32` uses the same mechanism. `outline.rs:28-50` also saves indices before the body. Clamping an index proves neither prefix/order/fragment/destination preservation nor geometry. The pre-repair snapshot is `lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz`. Content, destination, regions and bounds are observables; private boundaries are mechanics.
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/layout/columns/flow.rs`. Fluxo contínuo e fronteiras de blocos entre colunas; preserva collapse, cursor e coordenação com paginação. Manter contrato público, comportamento por defeito, fase do pipeline, compatibilidade, pureza e despacho estático.
+## Ownership and contract
 
-## Aceitação
+Layer L1. Sole productive consumer: `01_core/src/compiler/layout/columns/flow.rs`. Own continuous flow and block boundaries between columns, preserving collapse, cursor and pagination coordination. Preserve lexical capture through column transitions performed by `00_nucleo/prompts/core/compiler/layout/columns/transitions.md`; no scope belongs to indices from the previous column.
 
-A suíte L1, o build e crystalline-lint passam. A separação não constitui prova de ganho de desempenho.
+Preserve public contract, default behavior, pipeline phase, compatibility, purity and static dispatch. Link capture is an internal correction under ADR-0127 with no new API, default or phase.
 
-## Captura de links através de fronteiras — 2026-10-14
+## Acceptance and limits
 
-### Medição anterior à decisão
+The L1 suite, build and crystalline-lint must pass. Separation does not prove a performance gain.
 
-lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
-posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
-HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
-texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
-antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
-link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
-antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
-fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
-Os observáveis são conteúdo, destino, regiões e bounds; limites privados
-são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
-
-### Contrato deste owner
-
-Preservar a captura lexical através das transições de coluna realizadas pelo owner de transições; nenhum escopo pertence aos índices da coluna anterior.
-
-Aceitação: RED→GREEN de quebras antes/dentro do corpo, preservação de
-prefixo/sufixo, regiões, destinos/bounds, corpo rico/aninhamento/colunas,
-conteúdo diferido, contexto/rollback e ausência de limites privados na saída.
-Revalidar os controles sem quebra e a suíte, build e linhagem.
+Require RED→GREEN for breaks before/within the body; preserve prefix/suffix, regions, destinations/bounds, rich body/nesting/columns, deferred content and context/rollback, with no private boundaries in output. Revalidate no-break controls, suite, build and lineage.

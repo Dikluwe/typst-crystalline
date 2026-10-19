@@ -1,0 +1,10 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/entities/content/traversal.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "4ad679b28bd10b55bcacd9d1912bc6c6f440d616b97d3a6f0f65f69f78a9946c",
+    "result_sha256": "437e200ea1ed0140c7e335a2d0e287a8f403f1482112d86ef6f4417afe3a4881",
+    "disposition": "Full485-line traversal read/translated: root callback suppression vs descendants, actual Math/Cell/C2 gates, explicit None proof/partial container extension, exhaustive static visitor and four V19 groups with active Cell-view correction, exact stack tests/outcomes and unresolved Route/show-limit contract retained. Independently reconciled archived459-line baseline after full485-line inherited working-tree review; the inherited pre-edit digest is retained separately.",
+    "reviewed_working_tree_sha256": "6bceb03b0aefb8cf31a175e587a2dc45054498f0ec214f4cd3510ba406f0e0be"
+  }
+]

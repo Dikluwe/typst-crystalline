@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/columns/flow.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated extraction and link-boundary obligations into current contract; retained full provenance, all controls, exclusive ownership and, where applicable, approved source-origin semantics.",
+  "original_sha256": "5b73c456f1d0f3fff580442ab26c6e29d56fad939799d4a33ab214ebeca02ffb",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/columns/flow.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

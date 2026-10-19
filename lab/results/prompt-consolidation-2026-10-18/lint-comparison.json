@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-19T02:45:18.348426+00:00",
+  "baseline": "lab/results/prompt-layout-migration-2026-10-18/final-lint.sarif",
+  "candidate": "lab/results/prompt-consolidation-2026-10-18/final-lint.sarif",
+  "baseline_counts": {
+    "V16:error": 105,
+    "V19:note": 1140,
+    "V20:note": 879
+  },
+  "candidate_counts": {
+    "V16:error": 105,
+    "V19:note": 1140,
+    "V20:note": 879
+  },
+  "added": [],
+  "removed": []
+}

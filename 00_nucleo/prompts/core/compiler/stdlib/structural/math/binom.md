@@ -11,7 +11,7 @@ The uncommitted working tree captured in `lab/results/construction/diagnostics/a
 
 ## Language contract
 
-Own `math.binom(upper, ..lower)` and bare bridge. Require upper plus at least one lower; reject named arguments in current order with the existing positional hint. Cast each value through the shared P1293 content cast. Join lower values with the current mathematical comma-space, construct an unlined fraction inside parenthesized MathDelimited, preserve current diagnostics and morphology. No layout.
+Own `math.binom(upper, ..lower)` and bare bridge. Require upper plus at least one lower; reject named arguments in current order with the existing positional hint. Cast each value through the shared `p1293_math_content` cast in `00_nucleo/prompts/core/compiler/stdlib/structural/math/casts.md`. Join lower values with the current mathematical comma-space, construct an unlined fraction inside parenthesized MathDelimited, preserve current diagnostics and morphology. No layout.
 
 The parent `math.rs` retains only static registration and shared catalog orchestration. Existing `compiler::stdlib` bridges retain their names and visibility via direct reexports. No public signature, default, pipeline phase or compatibility change is authorized.
 

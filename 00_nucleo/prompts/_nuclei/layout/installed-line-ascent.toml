@@ -1,9 +1,8 @@
 tekt = 1
 kind = "nucleus"
 id = "installed-line-ascent"
-title = "Ascent realmente instalado na linha"
-
+title = "Ascent actually installed on a line"
 [[claims]]
 id = "zero-is-an-installed-ascent"
 level = "must"
-statement = "O ascent privado que fixa a baseline distingue ausência de instalação de um valor instalado igual a zero. Captura, isolamento e rollback preservam essa distinção; consumidores geométricos usam o valor instalado, sem substituí-lo por métricas de fonte apenas por ser zero."
+statement = "Private baseline-setting ascent distinguishes no installation from installed zero. Capture, isolation and rollback preserve this distinction; geometric consumers use installed value without replacing zero with font metrics."

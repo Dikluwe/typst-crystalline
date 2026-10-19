@@ -1,31 +1,32 @@
 # L0 — core/entities/elements/math_accent_tests
 Hash do Código: 99382f90
 
-## Dono produtivo
+**Layer:** L1 test-only
+**Exclusive consumer:** `01_core/src/entities/elements/math_accent_tests.rs`
 
-Este L0 de teste possui exatamente um consumer:
-`01_core/src/entities/elements/math_accent_tests.rs`.
+## Contract and acceptance
 
-## Obrigação
+Construct carriers through the frozen public boundary. Discriminate base,
+normalized accent, `size`, `dotless`, and the two presence bits separately.
+Equality, hash, clone, `plain_text`, `map_content`, `map_text`, and `repr`
+preserve complete causality. Only base is a recursive child of `map_content`;
+terminal transformation must not alter the structural carrier.
 
-A suíte constrói carriers pela fronteira pública congelada e discrimina
-separadamente base, acento normalizado, `size`, `dotless` e os dois bits de
-presença. Igualdade, hash, clone, `plain_text`, `map_content`, `map_text` e
-`repr` devem preservar a causalidade completa; somente a base é filho
-recursivo de `map_content`, e transformação terminal não pode alterar o
-carrier estrutural.
+Equal values with different presence remain distinct. `repr` shows `size` and
+`dotless` only when explicitly supplied, in public order; it never prints
+effective cascading values or derived orientation.
 
-Valores iguais com presença diferente continuam diferentes. `repr` mostra
-`size` e `dotless` apenas quando explicitamente fornecidos, na ordem pública,
-e nunca imprime cascata efetiva ou orientação derivada.
+Exercise clone and hash on complete carriers. Pairs differing only in accent,
+size, dotless, size-presence, or dotless-presence must not collapse in equality
+or causal hash.
 
-## Política de opacidade
+## Opacity policy
 
-Zero ou múltiplos `MathAccent` atribuíveis, extração ambígua ou identidade
-protegida divergente são `Unknown`, sem crédito de aceitação ou mutação.
+Zero or multiple attributable `MathAccent` carriers, ambiguous extraction,
+or divergent protected identity are `Unknown`, with no acceptance or mutation
+credit.
 
-## Revisão R2
+## Historical record
 
-Clone e hash são exercidos sobre carriers completos. Pares que diferem
-isoladamente em acento, tamanho, dotless, bit de presença de tamanho ou bit
-de presença de dotless não podem colapsar em igualdade ou hash causal.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/math_accent_tests.md`. Historical observations are not a new parity certification.

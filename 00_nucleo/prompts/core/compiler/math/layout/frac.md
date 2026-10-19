@@ -53,14 +53,21 @@ precedence, both deparenthesization bits and the barless binomial control.
 The current slash-selection and shift implementation is not itself proof
 of upstream geometry parity.
 
-## Helpers e armazenamento sem uso — 2026-10-13
+## Test-only legacy wrapper boundary
 
-### Medição anterior à decisão
+### Evidence before decision
 
-`01_core/src/compiler/math/layout/frac.rs` nas linhas 101 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+compiler/math/layout/frac.rs:101 contains the historical Clippy inventory
+item. HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`
+retains sources/owners/references/UTC/status/diffstat. Call-site and productive-path
+research precedes classification, without new parity/performance evidence.
 
-### Decisão e aceitação
+### Contract and acceptance
 
-Compilar o helper interno `layout_frac` somente sob `#[cfg(test)]`, conservando assinatura e corpo para os testes existentes. O despacho produtivo usa layout_frac_with_line e as variantes de estilo; conservar o wrapper de fração com linha somente para os testes históricos.
+Compile internal layout_frac only under `#[cfg(test)]`, preserving signature/body
+for existing tests. Productive dispatch uses layout_frac_with_line and style variants; keep the lined-fraction wrapper only for historical tests.
 
-Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.
+Preserve productive routes, test names/bodies, external APIs, defaults and phase.
+This ADR-0127 internal correction requires all workspace-target build/check,
+core suite, test inventory, Clippy and lineage; remove no expectation to pass.

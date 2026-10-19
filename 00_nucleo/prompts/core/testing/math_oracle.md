@@ -1,58 +1,66 @@
-# testing/math_oracle — oráculo de fórmulas de posição do vanilla (P969)
+# L0 — Independent mathematical position formula oracle
 Hash do Código: b8fef30a
 
-**Data:** 2026-08-05 · **Passo:** 969 · **Camada:** L1 (`#[cfg(test)]`)
+**Layer:** L1, `#[cfg(test)]` only
+**Exclusive consumer:** `01_core/src/testing/math_oracle.rs`
 
-## Propósito
+## Evidence and qualification
 
-Módulo de verificação, **não** caminho de execução. Conjunto de funções
-puras, uma por fórmula de posição do vanilla já lida e confirmada na frente
-P901–P968, transcritas literalmente com `file:line` da fonte
-(`lab/typst-original/...`) no doc-comment. Usado pelos testes de geometria
-para comparar o motor de produção contra a fórmula de referência, em vez de
-valores hardcoded soltos.
+The historical formula readings and confirmations are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/testing/math_oracle.md`.
+The source coordinates below refer to those historical vanilla readings, not a
+fresh measurement against the current upstream pin. Each oracle function must
+retain its literal formula and confirmed upstream `file:line` in its doc-comment,
+with a reference to the record that confirmed it.
 
-## Regras do módulo
+## Contract
 
-1. Owner exclusivo: `01_core/src/testing/math_oracle.rs`; o módulo é alcançado
-   somente pela árvore `#[cfg(test)]` e nunca compilado em produção.
-2. Funções puras sobre primitivos (`f64`, pt): constantes MATH e dimensões
-   entram como parâmetros; **proibido** importar `MathLayouter`,
-   `FontMetrics`, `Content` ou qualquer código de produção — o oráculo não
-   pode partilhar falhas com o motor que verifica.
-3. Cada função documenta: fórmula literal, `file:line` do vanilla, passo
-   que a confirmou.
-4. Uma fórmula sem `file:line` confirmado **não entra** — re-ler a fonte
-   primeiro (disciplina ADR-0108: medir antes de decidir).
-5. Fórmulas lidas mas deliberadamente não portadas no cristalino (ex.:
-   `binom` frac-like, P946) não entram — o oráculo espelha o que o motor
-   pretende implementar, não o catálogo inteiro do vanilla.
+This is a verification module, never a production execution path. Provide pure
+functions, one per already read and confirmed position formula, for geometry
+tests to compare production behavior with an independent reference instead of
+unattributed hardcoded numbers.
 
-## Funções do lote inicial
+Functions take primitives (`f64`, points); MATH constants and dimensions arrive
+as arguments. Do not import MathLayouter, FontMetrics, Content or other
+production code: the oracle must not share the engine's failures. Expose it only
+through the `#[cfg(test)]` module tree and never compile it in production.
 
-| Função | Fórmula vanilla | Fonte | Passo |
-|---|---|---|---|
-| `large_operator_upper_shift(base_ascent, t_descent, gap_min, rise_min)` | `base.ascent + max(rise_min, gap_min + t.descent)` | `typst-layout/src/math/scripts.rs:290-313` | P959 |
-| `large_operator_lower_shift(base_descent, b_ascent, gap_min, drop_min)` | `base.descent + max(drop_min, gap_min + b.ascent)` | `scripts.rs:290-313` | P959 |
-| `grid_total_descent(rows, gap)` | `d_1 + Σ_{r≥2}(a_r + d_r) + gap × (n−1)` | `typst-layout/src/math/table.rs:103-106` | P945 |
-| `grid_axis_baseline(height, axis)` | `height/2 + axis` | `table.rs:188` | P919 |
-| `radical_gap_redistribution(gap, sqrt_height, thickness, radicand_height)` | `max(gap, (sqrt_height − thickness − radicand_height + gap)/2)` | `radical.rs:76` (TeXbook p443 item 11) | P1130 |
+Do not admit a formula without a confirmed upstream `file:line`; reread the
+source first under ADR-0108. Formulas read but deliberately not implemented in
+Crystalline, including the fraction-like binom form in the archived record, stay
+excluded: the oracle mirrors intended engine behavior, not all of vanilla.
 
-**Nota de ajuste ao rascunho da Fase A** (confirmado pelo dono com o
-desenho): o rascunho incluía `grid_cell_dy(baseline_offset, row_ascent,
-cell_ascent)` na forma `baseline_offset + row_ascent − cell_ascent`
-(tradução de `run.rs:137`). P952b (revisão cética retroativa) revogou essa
-forma — para items baseline-relativos o dy correcto é simplesmente
-`baseline_offset` (`_comum.md` §P952b, `layout_grid_boxes`). Um oráculo
-dela codificaria uma fórmula já revogada — **excluída** do lote; se um dia
-houver fórmula não-trivial confirmada para a ancoragem de célula, entra
-então.
+## Confirmed formula obligations
 
-## Uso
+| Function | Formula | Historical source |
+|---|---|---|
+| `large_operator_upper_shift(base_ascent, t_descent, gap_min, rise_min)` | `base.ascent + max(rise_min, gap_min + t.descent)` | `typst-layout/src/math/scripts.rs:290-313` |
+| `large_operator_lower_shift(base_descent, b_ascent, gap_min, drop_min)` | `base.descent + max(drop_min, gap_min + b.ascent)` | `scripts.rs:290-313` |
+| `grid_total_descent(rows, gap)` | `d_1 + Σ_{r≥2}(a_r + d_r) + gap × (n−1)` | `typst-layout/src/math/table.rs:103-106` |
+| `grid_axis_baseline(height, axis)` | `height/2 + axis` | `table.rs:188` |
+| `radical_gap_redistribution(gap, sqrt_height, thickness, radicand_height)` | `max(gap, (sqrt_height − thickness − radicand_height + gap)/2)` | `radical.rs:76`, TeXbook p443 item 11 |
 
-Testes de geometria chamam a função com os mesmos inputs do código de
-produção e comparam (tolerância típica 0.01pt). Valores esperados soltos
-em testes existentes migram para chamadas ao oráculo à medida que cada
-fórmula entra — primeira migração neste passo: os 4 asserts de shifts de
-limites de `p959_tests` e o assert de `p945_grid_total_descent_sem_dupla_
-contagem`.
+## Revoked formula and pending scope
+
+The owner-confirmed drawing review revoked
+`grid_cell_dy(baseline_offset, row_ascent, cell_ascent) = baseline_offset + row_ascent − cell_ascent`
+(the earlier translation of `run.rs:137`). Baseline-relative items require simply
+`baseline_offset`; the historical review is in the archived source and
+`layout_grid_boxes` record. Do not encode the revoked formula as an oracle.
+A future nontrivial cell-anchor formula requires independent confirmation first.
+
+The local consumer also contains later radical-degree, radical-offset and
+post-subscript helpers. Their presence does not by itself close missing
+specification evidence: retain their independently confirmed doc-comments and
+review their formula provenance before extending this table. This documentary
+consolidation does not derive new mathematical requirements from code.
+
+## Acceptance and use
+
+Geometry tests call the independent function with the production calculation's
+inputs and compare with the specified tolerance (typically 0.01pt). Migrate
+unattributed expected values to oracle calls as each formula is admitted.
+Retain the initial migration obligations for four limit-shift assertions and the
+grid-total-descent assertion identified in the archived record, including their
+existing test identities. Do not use this oracle to claim new bilateral parity,
+performance or production-phase behavior.

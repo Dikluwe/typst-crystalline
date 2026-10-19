@@ -1,0 +1,72 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/parse/code.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "e2cfd3393e67c7bbcdb5ccc362d303c506e43f2ce9ab69dab3e16e954e83042c",
+    "result_sha256": "e2cfd3393e67c7bbcdb5ccc362d303c506e43f2ce9ab69dab3e16e954e83042c",
+    "disposition": "Full text reviewed: English owner contract, parser recovery/modes/grammar boundaries, exact diagnostic and shared pin obligations retained. Existing mangled entrypoint snippets in evidence are documentary debt, not valid alternate signatures."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/parse/markup.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "ee16e7cba95fa2a025c8f3ac6841e28b89c498b734e5a5cafbd2f94a1d800768",
+    "result_sha256": "ee16e7cba95fa2a025c8f3ac6841e28b89c498b734e5a5cafbd2f94a1d800768",
+    "disposition": "Full text reviewed: English owner contract, parser recovery/modes/grammar boundaries, exact diagnostic and shared pin obligations retained. Existing mangled entrypoint snippets in evidence are documentary debt, not valid alternate signatures."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/parse/math.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "0c133ccaa2a60f9814cafed9dd58674064b71ff91c81433e040c608ffebe39ad",
+    "result_sha256": "0c133ccaa2a60f9814cafed9dd58674064b71ff91c81433e040c608ffebe39ad",
+    "disposition": "Full text reviewed: English owner contract, parser recovery/modes/grammar boundaries, exact diagnostic and shared pin obligations retained. Existing mangled entrypoint snippets in evidence are documentary debt, not valid alternate signatures."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/parse/mod.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "62de98bded938c46d6569e1aba2b2b6f3399b395b9831e57e4f88974776ffb23",
+    "result_sha256": "62de98bded938c46d6569e1aba2b2b6f3399b395b9831e57e4f88974776ffb23",
+    "disposition": "Full text reviewed: English owner contract, parser recovery/modes/grammar boundaries, exact diagnostic and shared pin obligations retained. Existing mangled entrypoint snippets in evidence are documentary debt, not valid alternate signatures."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/parse/parser/checkpoints.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "2588fffd0475ed40981b9751c3c3d38f1e8f04bb28ded1b2758c733a33240a00",
+    "result_sha256": "2588fffd0475ed40981b9751c3c3d38f1e8f04bb28ded1b2758c733a33240a00",
+    "disposition": "Full text reviewed: English owner contract, parser recovery/modes/grammar boundaries, exact diagnostic and shared pin obligations retained. Existing mangled entrypoint snippets in evidence are documentary debt, not valid alternate signatures."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/parse/parser/diagnostics.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "133988ed019176e28829c46e493112d0327c6f7f111d3e51063f419783579092",
+    "result_sha256": "133988ed019176e28829c46e493112d0327c6f7f111d3e51063f419783579092",
+    "disposition": "Full text reviewed: English owner contract, parser recovery/modes/grammar boundaries, exact diagnostic and shared pin obligations retained. Existing mangled entrypoint snippets in evidence are documentary debt, not valid alternate signatures."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/parse/parser/state.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "714a33e782c97c892765388e49bedd690b19566705b001a7b4cc76d1234aec32",
+    "result_sha256": "714a33e782c97c892765388e49bedd690b19566705b001a7b4cc76d1234aec32",
+    "disposition": "Full text reviewed: English owner contract, parser recovery/modes/grammar boundaries, exact diagnostic and shared pin obligations retained. Existing mangled entrypoint snippets in evidence are documentary debt, not valid alternate signatures."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/parse/parser.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "9eb071fdf8dc636308f98273dafe1996aa6874d760f1bd7fec508b49d978335f",
+    "result_sha256": "9eb071fdf8dc636308f98273dafe1996aa6874d760f1bd7fec508b49d978335f",
+    "disposition": "Full text reviewed: English owner contract, parser recovery/modes/grammar boundaries, exact diagnostic and shared pin obligations retained. Existing mangled entrypoint snippets in evidence are documentary debt, not valid alternate signatures."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/parse/patterns.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "ae4f5f40e382ae58d5002832f2f8b69fc8ff7603e68ff8967400aaae8389447e",
+    "result_sha256": "ae4f5f40e382ae58d5002832f2f8b69fc8ff7603e68ff8967400aaae8389447e",
+    "disposition": "Full text reviewed: English owner contract, parser recovery/modes/grammar boundaries, exact diagnostic and shared pin obligations retained. Existing mangled entrypoint snippets in evidence are documentary debt, not valid alternate signatures."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/parse/rules.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "e144489988418840d4aad371de52f9c465b64744d3b3316f62c41b3c6209ae6c",
+    "result_sha256": "e144489988418840d4aad371de52f9c465b64744d3b3316f62c41b3c6209ae6c",
+    "disposition": "Full text reviewed: English owner contract, parser recovery/modes/grammar boundaries, exact diagnostic and shared pin obligations retained. Existing mangled entrypoint snippets in evidence are documentary debt, not valid alternate signatures."
+  }
+]

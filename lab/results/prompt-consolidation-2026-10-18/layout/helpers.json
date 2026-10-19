@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/helpers.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated all helpers transport, clipping correction, legacy Realized/Source projection, face identity, cfg(test) line_content_bottom and approved paint_root preservation; retained geometric approximation limits.",
+  "original_sha256": "3e916418b6ad714ef7b5147f38e80b6ab743ae15deb165cb78cca8cb94face8a",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/helpers.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

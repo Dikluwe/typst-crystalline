@@ -1,29 +1,24 @@
 tekt = 1
 kind = "nucleus"
 id = "eval-observation-relation"
-title = "Relação observacional causal do eval"
-
+title = "Causal eval observation relation"
 [[claims]]
 id = "separate-from-language-equality"
 level = "must"
-statement = "A relação observacional é interna à estabilização do eval e permanece separada de PartialEq, Hash e da igualdade pública da linguagem Typst."
-
+statement = "The observation relation is internal to eval stabilization and separate from PartialEq, Hash and public Typst language equality."
 [[claims]]
 id = "closed-result"
 level = "must"
-statement = "Cada comparação produz Same, Different ou Unproven; Unproven nunca certifica estabilidade e invalida reutilização."
-
+statement = "Each comparison produces Same, Different or Unproven; Unproven never certifies stability and invalidates reuse."
 [[claims]]
 id = "causal-structure"
 level = "must"
-statement = "Comparações estruturais preservam variante, ordem, presença, conteúdo e metadata causal; floats comparam os bits IEEE, incluindo sinal de zero e payload NaN."
-
+statement = "Structural comparisons preserve variant, order, presence, content and causal metadata; floats compare IEEE bits, including signed zero and NaN payload."
 [[claims]]
 id = "opaque-values"
 level = "must"
-statement = "Serviços ou valores opacos só são Same quando existe prova de identidade causal imutável; ausência dessa prova produz Unproven."
-
+statement = "Opaque services or values are Same only with proof of immutable causal identity; absent proof produces Unproven."
 [[claims]]
 id = "pure-and-local"
 level = "must"
-statement = "A comparação é pura, local à memória e não executa callbacks, layout, I/O ou resolução de cascata."
+statement = "Comparison is pure and memory-local, executing no callbacks, layout, I/O or cascade resolution."

@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "math-native-metadata-bridges"
-title = "Pontes internas para identidade dos elementos matemáticos"
-
+title = "Internal mathematical element identity bridges"
 [[claims]]
 id = "original-callback"
 level = "must"
-statement = "As pontes matemáticas de metadados reexportam o callback original diretamente, preservando sua ABI; não executam constructors, criam wrappers ou escolhem identidade por nome de Func ou tipo de conteúdo produzido."
-
+statement = "Math metadata bridges reexport original callback directly,preserving ABI;they execute no constructor,create no wrapper and choose no identity from Func name or produced-content type."
 [[claims]]
 id = "internal-visibility"
 level = "must"
-statement = "As novas pontes de metadados ficam restritas a crate::compiler. Tornar scripts/limits acessíveis internamente não cria API Rust externa nem altera os reexports públicos existentes."
-
+statement = "New metadata bridges stay restricted to crate::compiler. Internal scripts/limits access creates no external Rust API or change to existing public reexports."
 [[claims]]
 id = "registration-preservation"
 level = "must-not"
-statement = "O transporte dos callbacks para a tabela de metadados não adiciona bindings, modifica o catálogo runtime de math, move casts/construção para os hubs ou altera a fase do pipeline."
+statement = "Transporting callbacks into metadata table adds no binding,changes no math runtime catalog,moves no casts/construction into hubs and changes no pipeline phase."

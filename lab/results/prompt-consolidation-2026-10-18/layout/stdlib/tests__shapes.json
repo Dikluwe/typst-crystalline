@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/tests/shapes.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated ratified compact Stroke and Paint test changes while preserving original English test scope, exact assertions and per-side exclusion.",
+  "original_sha256": "1e07bdcef3deaaec94abf517481e949beaa497e302ffd57fb07960f7d1e01dbf",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/tests/shapes.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

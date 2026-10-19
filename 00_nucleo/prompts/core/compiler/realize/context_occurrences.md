@@ -18,8 +18,8 @@ The human approved proposal `review.md` in `lab/history/construction/records/00_
 A pure arena of Locations for contextual producers within one Session. Additive public API and opaque types, without `Clone`:
 
 ```rust
-pub struct ContextOccurrenceArena { /* privado */ }
-pub struct ContextOccurrenceFrame { /* privado */ }
+pub struct ContextOccurrenceArena { /* private */ }
+pub struct ContextOccurrenceFrame { /* private */ }
 impl ContextOccurrenceArena {
     pub fn new(origin: &Content) -> Self;
     pub fn frame(&mut self) -> ContextOccurrenceFrame;
@@ -44,6 +44,8 @@ Integrated RED for count and `it.location`, then bilateral GREEN on the pinned v
 
 Validate build, full suite, strict Clippy/Rustdoc, formatting, lineage, and SARIF with no new error/warning, under 12 GiB/High8 GiB/swap0/jobs1. Do not claim general parity.
 
-## Revision history
+## Documentary provenance
 
-- 2026-10-18 — Consolidated the ratified Context occurrence identity specification in English. The API, ownership, behavior, acceptance evidence, and current materialization status are unchanged.
+The pre-consolidation owner is preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/realize/context_occurrences.md`.
+The ratified API, current materialization status and acceptance remain authoritative.

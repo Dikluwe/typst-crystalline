@@ -1,162 +1,63 @@
 # Prompt L0 — `entities/elements/outline` — `OutlineElem`
 Hash do Código: 382e6921
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/outline.rs`
-**Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura) + **P457** (campos settable).
-Trait e glossário (§A.0): ver `entities/elements/_comum.md`. Comportamento idêntico ao braço atual.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/outline.rs`
+**Architecture:** ADR-0105 model D; user element, outside DEBT-58.
 
-> **Modelo D**: `Content::Outline` encapsula `Arc<OutlineElem>`. A struct deixou
-> de ser unit em P457 e passou a transportar os campos settable do vanilla:
-> `title`, `depth`, `indent`. Migração aterrada neste módulo sem tocar o hub.
->
-> `Outline` é elemento de utilizador (fora da classe DEBT-58).
+## Contract
 
-> **Fronteira: LOCATÁVEL** (queryable desde P178, fecha lacuna #7). Absorve o
-> braço de `extract_payload` no trait: `element_kind` → `ElementKind::Outline`,
-> `to_payload` → `ElementPayload::Outline`. O consumo por `ElementPayload`
-> (`introspect.rs`/`from_tags`) é inalterado (matcheia o payload, não o
-> `Content`).
+Content::Outline holds Arc<OutlineElem>. OutlineTarget derives Debug/Clone/
+Copy/PartialEq/Eq/Hash/Default, with default Headings plus Figures and Tables.
+Targets select heading TOC, Introspector::figures_for_lof and tables_for_lot.
+OutlineIndent derives Debug/Clone/PartialEq/Hash with Auto,Bool(bool),
+Length(Length),Function(Func). Historical upstream 0.14.2 accepted length/
+function/auto; Bool preserves crystalline compatibility. Auto/Bool(true)
+activate heading indentation, Bool(false) disables it. Length/Function are
+accepted/stored; specific rendering remains a separately scoped ADR-0054 debt.
 
----
+OutlineElem derives Debug/Clone/PartialEq/Hash, not Eq (Content lacks Eq),
+and has public title:Option<Content>, depth:usize, indent:OutlineIndent,
+target:OutlineTarget, plus the private presence state specified below.
+Depth/indent apply to headings. Custom title is preserved; omitted title uses
+target defaults. The original literals "Índice", "List of Figures", "List of
+Tables" and later localized-default evidence are historical product behavior,
+not permission to force a new language or erase localization.
 
-## `OutlineTarget` — P472
+Content::outline() uses outline_with(None,3,Auto) with Headings;
+outline_with(title,depth,indent) preserves those inputs. lof(title)/lot(title)
+use Figures/Tables, depth 1 and Bool(false). with_target(title,depth,indent,target)
+returns exactly those four fields. The 2026-08-13 source check at outline.rs:87-94
+corrected an invalid two-argument example/raw bool: preserve the four-argument
+signature and typed OutlineIndent.
 
-```rust
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub enum OutlineTarget {
-    #[default] Headings,
-    Figures,
-    Tables,
-}
-```
+plain_text is empty; is_empty defaults false. Both maps recurse into title
+and preserve depth/indent/target. get_field defaults None; element_kind is
+Outline, to_payload Outline. Keep locatable/queryable payload-based consumers.
+Equality/hash compare all public fields and private presence state.
 
-- `Headings` (default): TOC clássica de headings.
-- `Figures`: List of Figures — lê `Introspector::figures_for_lof()`.
-- `Tables`: List of Tables — lê `Introspector::tables_for_lot()`.
+## Explicit title: evidence and ratification
 
-Usado internamente por `layout_outline.rs` para despachar para o arm correcto.
+At baseline fe3209458, omitted title and title:none collapsed into Option and
+both generated Contents; measured upstream omission localizes the default,
+explicit none suppresses title. Human approval on 2026-09-15 authorizes private
+supplied-title state without a new Typst-reflectable field. Omitted resolves
+default, explicit none has no title, supplied Content survives. Clone/hash/
+equality/map_content retain presence; internal constructors explicitly choose
+one of three forms. This approval supersedes the archived PROPOSED heading.
 
----
+## Explicit indent: evidence and contract
 
-## `OutlineIndent` — P502
+Baseline2ff1a23d4 could not distinguish default auto from explicit indent:auto,
+needed to apply a set rule only to omission. Preserve private supplied-indent
+state without changing existing public signature or adding a Typst field.
+Clone/hash/equality/both maps and causal realization identity preserve it.
+An internal operation may replace omitted indent with inherited style and
+mark it resolved; explicit values, including auto, are never overwritten.
+Acceptance must preserve these presence distinctions, defaults, locatability
+and recursive title transformations.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub enum OutlineIndent {
-    Auto,
-    Bool(bool),
-    Length(Length),
-    Function(Func),
-}
-```
+## Historical record
 
-Representa os tipos aceites por `outline(indent:)` no vanilla 0.14.2
-(`length | function | auto`) mais `bool` para compatibilidade reversa com
- código cristalino existente. O layout de headings consome `Auto`/`Bool(true)`
-como indentação ativa e `Bool(false)` como inactiva; `Length`/`Function`
-são aceites e armazenados, mas a renderização específica é scope-out per
-ADR-0054.
-
-## Struct
-
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct OutlineElem {
-    pub title:  Option<Content>,
-    pub depth:  usize,
-    pub indent: OutlineIndent,
-    /// **P472** — distingue TOC / LoF / LoT. Default `Headings`.
-    pub target: OutlineTarget,
-}
-```
-
-- `title`: título customizado; `None` usa default do target (TOC→`"Índice"`, LoF→`"List of Figures"`, LoT→`"List of Tables"`).
-- `depth`: profundidade máxima de headings (só relevante para `Headings`).
-- `indent`: indentação (só relevante para `Headings`).
-- `target`: qual lista gerar.
-
-`Content::Outline` → `Content::Outline(Arc<OutlineElem>)`.
-Construtores ergonómicos:
-- `Content::outline()` → `outline_with(None, 3, OutlineIndent::Auto)` com `target: Headings`.
-- `Content::outline_with(title, depth, indent)`.
-- `Content::lof(title: Option<Content>)` → P472, `target: Figures`, `indent: Bool(false)`.
-- `Content::lot(title: Option<Content>)` → P472, `target: Tables`, `indent: Bool(false)`.
-
-**Deriva `Hash`/`PartialEq`**, mas **não `Eq`** porque `Content` não implementa
-`Eq`.
-
-## `impl Element for OutlineElem`
-
-| método | comportamento |
-|---|---|
-| `plain_text` | `String::new()` |
-| `is_empty` | default `false` |
-| `map_content`/`map_text` | recursivos sobre `title`; preservam `depth`, `indent`, `target` |
-| `get_field` | default `None` |
-| `element_kind` | `Some(ElementKind::Outline)` |
-| `to_payload` | `Some(ElementPayload::Outline)` |
-
-## `with_target` — P472
-
-```rust
-pub fn with_target(
-    title: Option<Content>,
-    depth: usize,
-    indent: OutlineIndent,
-    target: OutlineTarget,
-) -> Self {
-    Self { title, depth, indent, target }
-}
-```
-
-Usado por `Content::lof` e `Content::lot`, que fixam os defaults dos sumários de
-figuras/tabelas: `depth = 1` e `indent = OutlineIndent::Bool(false)`
-(`entities/content.rs:2153-2161` para `lof`; `lot` é idêntico com
-`OutlineTarget::Tables`).
-
-> **Correcção de exemplo inválido** (2026-08-13). A versão anterior deste bloco
-> documentava `with_target(title, target)` com `depth: 3, indent: true` fixos no corpo.
-> Duas coisas erradas, medidas contra `entities/elements/outline.rs:87-94`: a assinatura
-> tem **quatro** parâmetros (`depth` e `indent` deixaram de ser fixos), e `indent: true`
-> **não compila** — o campo é `OutlineIndent` (`Auto | Bool(bool) | Length | Function`),
-> logo o valor válido é `OutlineIndent::Bool(true)`, não o `bool` cru. O bloco acima é
-> agora transcrição literal do código, que compila como parte do crate.
-
-## `eq`
-
-`#[derive(PartialEq)]` — comparação estrutural dos quatro campos (delegada ao
-`PartialEq` de `Content` para `title`, `Copy` para `target`).
-
-## P1406 — presença explícita de `title` (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline `fe3209458`, título omitido e `title: none` colapsam no mesmo
-`Option<Content>` e ambos geram `Contents`. No vanila ratificado, o omitido usa o
-default localizado e o `none` explícito omite o título.
-
-### Contrato proposto
-
-`OutlineElem` preserva privadamente se o argumento `title` foi fornecido, sem
-criar campo consultável Typst. Omitido resolve o título default do target;
-fornecido como `none` não produz título; Content fornecido é preservado. Clone,
-hash, igualdade e `map_content` preservam o estado de presença. Construtores
-internos declaram explicitamente qual das três formas criam. Confirmação humana
-explícita recebida em 2026-09-15; a correção está autorizada pelo gate ADR-0127.
-
-## P1412 — presença explícita de `indent`
-
-### Medição anterior à decisão
-
-No baseline `2ff1a23d4`, `OutlineElem` armazena o valor de `indent`, mas não
-distingue o default `auto` de um `indent: auto` explícito. Essa distinção é
-necessária para aplicar uma set rule somente ao argumento omitido.
-
-### Decisão
-
-`OutlineElem` preserva privadamente se `indent` foi fornecido pelo constructor.
-O bit não é campo consultável Typst nem altera a assinatura pública existente.
-Clone, hash, igualdade, `map_content`, `map_text` e a identidade causal de
-realização preservam o bit. Uma operação interna pode substituir o valor
-omitido pelo style herdado e marcá-lo como resolvido; um argumento explícito,
-inclusive `auto`, nunca é substituído.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/outline.md`. Historical observations are not a new parity certification.

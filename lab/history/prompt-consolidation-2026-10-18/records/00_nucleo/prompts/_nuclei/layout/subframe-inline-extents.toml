@@ -1,0 +1,9 @@
+tekt = 1
+kind = "nucleus"
+id = "subframe-inline-extents"
+title = "Resultado privado de extensões inline do subframe"
+
+[[claims]]
+id = "result-not-parent-state"
+level = "must"
+statement = "As extensões inline medidas na cauda de um subframe são metadados privados do resultado: sobrevivem à restauração da linha pai sem substituir as extensões dessa linha. A medição intrínseca lê o resultado local, e rollback conserva os metadados juntamente com os outros resultados do último subframe."

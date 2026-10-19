@@ -1,4 +1,4 @@
-# L0 — compiler/eval/rules/apply — Aplicação de show rules
+# L0 — compiler/eval/rules/apply — Show rule application
 Hash do Código: 85d29d98
 
 
@@ -6,576 +6,592 @@ Layer: L1
 Exclusive consumer: `01_core/src/compiler/eval/rules/apply.rs`
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
-- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
-- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
-- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
-- 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:c983fdb9884f90548e110fe7c1709632fc00b6e2a1387ad9e80444009c3602fd
-- 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:2ce5a50363605eb1a122920b92773b1fc956c52817dd57830c2ce12bfe5f285e
-- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
-- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
-- 00_nucleo/prompts/_nuclei/show-occurrence.toml sha256:3c1058d01f7ca34817e561ef210e78eda38dcb993028414d0b30f296d35535d7
-- 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:d207e8a3a934b2eff2b67c4bfc7f15b9af0c0f3abc83acdfaf774326e7b242eb
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
-- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:1d697fae328277525e44cad674cecc537ceb23a1bb3ae11bb68a0a9575411ae4
-- 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:f10f7afaabd1b97f3048736842df89d0ba48d4daa0ae3cd453c9be317f32ef91
+- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
+- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:a3772778f9e542de87823509c8eac57904fc73fea9526cebe6052833a69ef806
+- 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:24f0b69fa1db115ff13a786121c80cb7be3abfa2028a9a473075374a6815cfd4
+- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
+- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
+- 00_nucleo/prompts/_nuclei/show-occurrence.toml sha256:fcd0b9d9148567685d6ad281d549bdcaf1008d151f9de8afc320f76e05ca371c
+- 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
+- 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:c8570ec5f4f32c0805587230cafc796f35e5ee7c9f8e634e13d807db2afb6e00
 
-## Medição antes da decisão
+## Extraction evidence and contract
 
-A working tree não commitada capturada em `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` contém as rotinas desta família em `01_core/src/compiler/eval/rules.rs`. A suíte L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem prova bilateral nova contra o vanilla. As medidas históricas e ressalvas do pin continuam em `00_nucleo/prompts/core/compiler/eval/rules.md`.
+The uncommitted tree captured in
+`lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz`
+contains this family's routines in rules.rs. L1 passed6401 tests/two ignored
+before extraction. Structural measurement, no benchmark/fresh bilateral vanilla
+proof. Historical measurements/pin caveats remain in
+`00_nucleo/prompts/core/compiler/eval/rules.md`.
 
-## Contrato de linguagem
+Apply lexical-precedence rules with RuleId guards/depth limit, owned selector
+matcher, once-realized text/paragraph routes and causal errors/spans.
 
-Aplicar regras com precedência léxica, guardas RuleId, limite de profundidade, selector matching do owner próprio, rotas textuais e parágrafos realizados uma vez. Preservar erro e span causal.
+Preserve observed signatures/identities/casts/defaults/error precedence/eval
+phase. Parent keeps shared diagnostics/static bindings; selector matching,
+termination and textual realization retain exclusive owners, no duplicate
+algorithms. L1 suite/crystalline-lint without regression; language semantics/
+syntax/morphology under ADR-0107/0108, sole ownership/valid pins ADR-0129/0130.
 
-As assinaturas, identidades, casts, defaults, precedência de erros e fase de avaliação observados permanecem. O parent mantém diagnóstico compartilhado e bindings estáticos; outros owners de selector matching, terminação e textual realization continuam exclusivos. Não duplicar esses algoritmos.
+## Deferred recipes and occurrence identity
 
-## Aceitação
+When defer_show_rules active, capture body/rules/styles/guards/file in ShowRecipe
+and return without recipe. During realizing_show_rules prepare identity before
+recipe; prepared Located keeps identity. Transforms retain Realized origin and
+pass Located to recipe. Keep show-set/matching owners; never reemit original visual
+merely to preserve query.
 
-Suíte L1 e `crystalline-lint .` sem regressão. Paridade em semântica, sintaxe e morfologia (ADR-0107/0108), ownership exclusivo e pins válidos (ADR-0129/0130).
-
-
-## Realização com avaliação única
-
-Quando defer_show_rules está ativo, capturar body, regras, styles, guards e
-arquivo em ShowRecipe e devolver sem executar receita. Quando realizing_show_rules
-está ativo, preparar identidade antes de chamar a receita; Located já preparado
-conserva sua identidade. Transformações preservam a origem em Realized e passam
-Located à receita. Show-set e matching continuam nos owners atuais; o visual
-original não é reemitido apenas para manter query.
-
-## Proteção por ocorrência na realização produtiva — revisão 2026-10-06
-
-### Medição anterior à decisão
+### Occurrence revision evidence and approval provenance
 
 `lab/results/construction/diagnostics/show-recursao-auditoria-2026-10-06/measurement.json.gz`
-registra oito controles, fonte/L0, comandos, HEAD/working tree/UTC e binários
-contra o vanilla pinado 9f2b6e871. Quatro controles finitos coincidem na
-aceitação. fresh_same_body, fresh_z, alias_plus_generated e text_and_generated
-compilam no Tekt e são rejeitados no vanilla por maximum show rule depth exceeded.
-`apply.rs:75-92`, `eval/tests.rs:1259-1273` e o owner
-`00_nucleo/prompts/core/compiler/eval/show_rule_termination.md` descrevem a política
-α de ponto-fixo por morfologia; o rótulo consciente não comprova ratificação
-humana. `typst-realize/src/lib.rs:462-495` no oracle distingue regra já aplicada
-ao elemento de elemento novo com corpo igual. Aceitação, efeitos, contagem e
-conteúdo emitido são observáveis da linguagem, não igualdade mecânica do Rust.
-
-### Decisão e responsabilidade exclusiva
-
-Na realização produtiva de elementos localizáveis, proteger a aplicação de
-cada regra por identidade da ocorrência Located existente. Alias de it mantém
-a identidade protegida e pode ser emitido duas vezes sem aplicar novamente a
-mesma regra. Construção nova tem identidade distinta mesmo com morfologia igual;
-se o produto voltar a casar, realizar suas regras no ambiente lexical correto.
-Não encerrar essa expansão só porque corpos ou morph_canon são iguais, nem
-propagar uma guarda global de RuleId que torne todo descendente imune à regra.
-
-A expansão de produtos conserva origens Realized, estilos, regras where/show-set,
-ordem causal, namespace de contextos, erros e consultas. Seus registros de
-proteção e profundidade pertencem à realização corrente, em RAM privada; não
-usam estado global, não reavaliam o arquivo e não acrescentam entidade/trait/
-assinatura pública ou nova fase. O limite existente de profundidade interrompe
-a geração não finita com maximum show rule depth exceeded e hints correspondentes.
-Não reciclar identidades, confundir alias com clone estrutural, contar a origem
-consumida como emissão nem repetir efeitos de um original já guardado.
-
-O helper de terminação legado permanece governado exclusivamente por
-`00_nucleo/prompts/core/compiler/eval/show_rule_termination.md`; seu algoritmo não é
-alterado por esta revisão. Matching continua em seu owner; este owner coordena
-a aplicação e revisitação de produtos na realização produtiva.
-
-### Aceitação e compatibilidade
-
-As quatro gerações infinitas medidas devem rejeitar. Alias, alias duplo,
-where seletivo, substituição finita, múltiplas regras e contextos/efeitos são
-refutadores obrigatórios: devem conservar resultado, ordem e número de ocorrências
-contra o pin atual. Suítes L1/L3, corpus de realização, macro e layout precisam
-de revalidação; RED→GREEN não pode redefinir o controle adversarial como aceito.
-
-Esta revisão retira a aceitação produtiva por ponto-fixo morfológico para
-elementos novos. Documentos como show heading: it => heading[Z] passam de saída
-Z a erro, enquanto show heading: it => it permanece válido. Por essa quebra de
-comportamento expressamente documentado, materializar somente após confirmação
-do dono no gate ADR-0127. Não introduzir uma flag nova para ocultar a diferença.
-
-### Refinamento após controles adversariais
-
-controls-first.json registra expansão duplicada de aliases dentro de block e colisão de RuleId numa regra local sobre it. core-first.log registra cinco expectativas produtivas da política revogada, distintas dos testes do helper legado. Antes de aplicar regras, avançar o alocador privado acima dos IDs capturados. Produtos Realized já concluídos delimitam seus visuais preparados: coletar as identidades desses visuais antes da travessia e não reaplicar receitas nem reemitir o produto memorizado nesses descendentes. Aliases ainda em realização conservam proteção em andamento; aliases fora de visual concluído podem reutilizar produto terminado. Não usar corpos iguais ou placeholders de Content para inferir essa fronteira. Em full_error, conservar a classificação adicional por histórico privado de formas ancestrais apenas como diagnóstico, sem usá-lo para terminar expansão.
-
-core-third.log refuta usar a intercepção geral para inserções: P790 literal show com função volta a casar durante interpolação. Expor somente fronteira interna de crate para realizar localizáveis inseridos com snapshot lexical, reutilizando a mesma rotina por ocorrência; não executar regras de texto, parágrafos ou terminação não localizável nessa fronteira.
-
-## Inserção matemática automática — proposta sujeita ao gate ADR-0127
-
-### Medição anterior à decisão — D06, 2026-10-06
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
-UTC/diff/estado/fontes/binários nas coletas canônicas
-lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
-Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8; proveniência no relatório
-lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md.
-
-before: frac, mat, sqrt, lr e op nus têm uma Equation no vanilla e zero no Tekt;
-math.bold([x]) e texto comum têm zero nos dois. nested e nested-equation têm
-uma nos dois; reuse tem duas no vanilla. block-style/local-block/number-style
-resolvem o escopo de inserção. show-generated e context-generated expõem as
-mesmas lacunas. additional: Equation explícita preserva o render da fração;
-it.body é rejeitado no vanilla por maximum show rule depth exceeded, enquanto
-it é válido; o show posterior afeta apenas a segunda inserção. refuters mede
-valor frac cru e label original versus Equation explícita.
-
-lab/typst-original/crates/typst-realize/src/lib.rs:245–265,302–334 transforma
-Mathy antes de show fora de math. 01_core/src/compiler/layout/equation.rs:680–689
-projeta math nu em texto; compiler/realize/mod.rs:155–199 prepara show/identidade
-sem normalização math. entities/content/traversal.rs:14–108 é bottom-up e
-recursa no corpo matemático; rules/apply.rs:564–607 trata apenas localizáveis
-já existentes. Estes observáveis são semântica/morfologia/render de linguagem,
-não requisito de vtable, buffers, igualdade Rust ou bytes PDF.
-
-### Responsabilidade exclusiva
-
-No fluxo produtivo de realização e antes de localizar/matchear cada nova inserção,
-preparar Mathy externo com bare_math::prepare no escopo causal existente.
-Reutilizar o matching e proteção por ocorrência. Fazer o mesmo para produtos
-novos efetivamente gerados por show antes da revisitação; o corpo de Equation
-que continua em contexto matemático não é inserção externa nova.
-
-Alias de it preparado mantém Location e proteção. Devolver it.body fora de
-math cria nova Equation de identidade distinta; não encerrar por igualdade de
-corpo ou guarda global, e manter limite de profundidade e diagnóstico causal.
-Captura deferida mantém o Mathy cru e snapshot; preparação produtiva não muda
-valor de variável ou constructor durante eval. Não executar texto/parágrafo
-ou receita duas vezes por inserir o wrapper, nem perder regra onde não havia
-localizável no conteúdo cru. A fronteira realize_inserted_occurrences mantém
-seu contrato interno e apenas inclui Mathy elegível em sua realização.
-
-### Gate e aceitação
-
-Somente materializar após confirmação humana do pacote math-bare-2026-10-06.md.
-RED→GREEN e revalidação bilateral do escopo são obrigatórios. Esta cláusula
-supersede restrições de fase anteriores apenas nas fronteiras aqui nomeadas,
-sem ratificar paridade universal, D07, math label ou outros débitos.
-
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
-
-### Medição anterior à decisão
-
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
-
-### Responsabilidade exclusiva proposta
-
-Possuir aplicação root-only de Table/Cell pelo motor de regras atual. Table/Cell e corpos pendentes são fronteiras de descida até o estágio definido pelo núcleo. Na realização produtiva, aplicar regra da Table antes de seu plano/cells; delegar default sobrevivente ao helper table_cells. Aplicar Cell com propriedades conhecidas antes de descer no body; snapshot it marca RecipeApplied para impedir sua regra novamente, e produto/body é realizado uma vez antes de Complete. Conservar proteção de Table locatable e produtos gerados; não atribuir Location à Cell. Matching, guards, regras textuais, termos e sinks continuam nos owners atuais. Preservar a política legada de terminação de não-localizáveis neste recorte; a geração fresca show-cell-reconstruct continua refutador fora da certificação D08B3-A, não é usada como GREEN.
-
-### Gate, aceitação e divisão explícita
-
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
-
-## Raw defaults — medição pinada 2026-10-07 antes da decisão
-
-raw-defaults-2026-10-07/before.json.gz e before-state.json.gz registram
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, diffstat,
-UTC, fontes, comandos e binários. Tekt 58456b9b54041983612e5946f89fef2cf4591b9f31a09d8dcce9ae5c8a9c0eea;
-vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8 e binário 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-A medição dos 16 controles mostra Serif 11pt em Raw contra Mono 8.8pt,
-20pt contra16pt sob tamanho global, show-set absoluto15pt prevalecendo,
-show-font explicitamente Sans, show-size1em vanilla8.8pt/Tekt0pt,
-substituiçãoABC mantendo defaults de Raw, e fill vermelho herdado.
-Fonte pinada text/raw.rs:658–670 aplica defaults show-set antes dos overrides;
-raw.rs:103–123 conserva fonte/tamanho e descarta fill; apply.rs:207–253
-embrulha overrides mas perde defaults de Raw no produto; style_scope.rs:41–44
-resolve StyleChain.size por abs, perdendo em. São estilos/geometria
-observáveis da linguagem, não exigência de buffers ou bytes PDF.
-
-### Decisão interna de paridade, fluxo contínuo ADR-0127
-
-Usar a composição Styles/StyleDelta já existente, sem campo, trait ou
-assinatura pública novos, sem antecipar coordenadas ou mudar fase do pipeline.
-Os defaults de render ficam no owner Raw: fonte Mono, tamanho0.8 do exterior,
-bold/italic desativados e fill exterior herdado. Na emissão direta de Raw
-aplicar esses defaults e restaurar o exterior. Quando show de Raw produz
-conteúdo (inclusive Text), marcar um escopo privado raw.defaults no Styles
-exterior aos overrides, para que o mesmo owner instale defaults no render
-antes dos overrides. Marcar raw.defaults.active somente nesse escopo,
-e impedir aplicação dupla ao Raw devolvido por it. Styled resolve text.size
-Length contra tamanho anterior apenas dentro desse escopo Raw, preservando
-composição absoluta/relativa e restauração da chain. Nenhum parser ou
-algoritmo de show/matching/guard é duplicado.
-Para typc true/false, usar o foreground constant.language da paleta existente
-#d73948 quando não houver gramática suportada; não transformar em Text nem
-remover Raw morfológico. Outras gramáticas/whitespace continuam no owner atual.
-
-### Aceitação e limites explícitos
-
-RED→GREEN de fonte/tamanho/fill/restauração, overrides e substituição.
-Recoletar os16 controles, glifos reais de células e regressões. Mensagens,
-ordem, índices e targets continuam preservados; fonte subset e bytes não
-são critério. Whitespace Raw/syntaxes customizadas e reconstrução fresca
-de Raw dentro de show não são certificados por estes controles. A alegação
-histórica P1055 de tamanho100% é refutada para este pin e substituída aqui.
-
-
-## Raw bloco — medição 2026-10-07 antes da decisão
-
-raw-block-spacing-2026-10-07/{before,before-additional}.json.gz e before-state
-registram HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
-UTC/diffstat/status/fontes/comandos/binários. Tekt43207349fba51afbdbcac3847c1a7d884e9ff845b6401022be22272679c00575;
-vanilla pin9f2b6e8715237cb086899a42873660fe744622e8 e binário7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-Raw prefix/suffix: yMin85.806243/95.064120 contra91.304203/108.594100.
-Cell usa x70.86614 contra75.86614; Cell isolada acrescenta0.55208pt vertical.
-Unknown-language colapsa abc/def emabcdef. SubstituiçãoABC perde a fronteira.
-Show-size15 usa margem18pt no vanilla; show-em1 mantém13.2pt.
-block-margins e show-margins above2/below7 são efetivos; par.spacing20
-produzRaw98.104163/After122.194100. EmptyRaw temAfter101.90816.
-Fonte pinada typst-layout/src/rules.rs:655–679 realiza Raw como Block;
-container.rs:324–360 define margem/colapso. Raw consumer fecha linhas e
-usamargem global; cursor.rs:88–132 já consome below pendente;
-sub_frame.rs:315–325 usa avanço hipotético quando a linha terminal já fechou.
-São geometria/texto observáveis, não algoritmo interno ou bytes.
-
-### Decisão — correção interna de paridade ADR-0127
-
-Seguir o núcleo raw-block-boundary pinado abaixo. Nenhum campo/trait/API
-público ou fase nova. Raw possui begin/end físicos privados, local origin,
-resolução de margens e classificação terminal do produto Raw. Styled orquestra
-esses helpers para produto transformado, com markers do apply no Styles
-existente. Apply conserva flag block e Length de tamanho/margens dos
-overrides sem resolvê-los. Sub-frame terminal Raw mede a borda final real
-menos seu topo, não leading/margem pendentes. Testes cobrem região local,
-produto substituído e linhas distintas em fallback.
-
-Ao iniciar, fechar prefixo material; usar baseline/descent anteriores e
-margem acima colapsada, com baseline inicial geométrica. Primeiro Raw de
-sub-frame vazio começa no topo local. Ao terminar, registrar borda inferior
-real e deixar below no protocolo existente do Cursor. Nenhuma soma de
-margem final à altura terminal. Unknown syntax mantém quebras explícitas
-entre linhas de Raw bloco, sem normalizar espaços/tabs nem alterar inline.
-
-### Aceitação e limites
-
-RED→GREEN e recoleta dos14 controles +5 refutadores, tipografia anterior,
-Cell/morfologia/math/query, suites/build/lint e preservação restrita.
-Geometria observada decide; não introduzir tolerância posterior para apagar
-resíduos. Whitespace/tabs/linhas vazias internas, syntax customizada,
-reconstrução fresca e rich block styles/HTML continuam não certificados.
-
-### Refutação e revisão da primeira fórmula de margem
-
-after.json.gz/after-additional.json.gz (binário/snapshot/UTC completos)
-refutam o primeiro reparo: consecutivos têm gap extra2.64pt; Cell prefix
-continua5.49796pt acima; Cell isolada fica2.59598pt acima; margens explícitas
-não chegam à chain, pois set.rs:976–1006 não reconhece Native block.
-refuters-red.json.gz mostra Strong-cell perdendo altura (After83.27018
-contra89.95610); plain-cellAfter87.36012. Também identifica negativos
-preexistentes de parágrafo sizes-up/down, cada um comdelta10.8pt.
-
-A margem Raw default é fraca e usa Raw80%:10.56pt, não13.2pt. Um parágrafo
-exterior11pt contribui13.2pt, enquanto Raw consecutivo contribui10.56pt.
-Usar prev_margin_is_parbreak como protocolo já existente de margem fraca
-de parágrafo, incluindo Raw que herda essa margem: below explícito continua
-forte e não muda esse ramo. Cursor colapsa margem fraca com par.spacing
-actual, sem alterar o ramo de margens fortes, regiões/fracionárias/checkpoints.
-Parágrafo anterior já fechado em sub-frame ainda participa da margem acima.
-Primeiro Raw de sub-frame usa cursor inicial menos top-edge exterior, porque
-cell_body.rs:253–260 recompõe sub-frame legado com ascender-top-edge.
-Classificação terminal inclui Strong/Emph transparentes, sem wildcard
-descartando dados: é predicado de fronteira, não projeção de enum.
-
-Set proprietário aceita por identidade Native block e aliases somente
-o subconjunto spacing/above/below com Length ou Auto; avalia uma vez,
-publica delta apenas depois de validar o conjunto. Campos/tipos fora
-desse subconjunto conservam fallback/advertência anterior e não são
-certificados. Apply transporta essas propriedades e o tamanho como Length.
-A margem de render usa o tamanho Raw efetivo (default ou show-set); o
-parágrafo anterior contribui o exterior separado. Styles não mede glyphs.
-
-A hipótese é refutável por qualquer negativo que permaneça nas coletas.
-O parágrafo sizes-down já era negativo e não é declarado corrigido aqui;
-não ampliar para regra de tamanho de parágrafo anterior sem medição própria.
-
-### Refutadores finais de fronteira zero/auto e acesso a fontes
-
-edges-red.json.gz prova: below0 sobrepõe After (74.95612 contra82.19410);
-negativoAfter72.95612 contra77.19410; auto +spacing20 não sobrepõe auto
-corretamente (Raw98.10418 contra91.30420); primeiro below0 deve vencer
-above automático do Raw seguinte (def97.99011, não108.55011).
-A margem explícita tem prioridade nos dois sentidos; ambas explícitas ou
-ambas fracas colapsam por máximo. Auto de edge interrompe o shorthand
-spacing e retoma par.spacing/default fraco. Below explícito<=0 deixa cursor
-no fim real +below com baseline geométrica pendente; below fraco, inclusive
-zero, passa ao ramo fraco do Cursor, que adiciona top-edge do texto seguinte.
-
-suites-third.log refuta inicialização incondicional de FontMetrics: dois
-controles place nontext (image/shape) passaram a adquirir font book.
-Inicializar ascent regional somente no sub-frame legado cujo produto
-terminal é Raw block. Geometric/nontext conserva a rota sem consulta nova.
-Dados sem texto não dependem de fontes por esse reparo.
-
-## D08B3-B — candidato, não vigente antes de ratificação
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
-
-isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
-
-Fonte vanilla lab/typst-original/crates/typst-library/src/model/table.rs:734–778 declara defaults e propriedades; typst-realize/src/lib.rs:367–386 prepara/guarda o argumento, :418–429 visita produto com profundidade, :491–505 distingue guards por elemento, :571–586 materializa propriedades. Tekt entities/elements/table_cell.rs:111–143 só projeta lexical ou plano posicionado; compiler/realize/table_cells.rs:110–129 reaplica Cell crua sem preparo; :280–304 termina snapshot inteiro; eval/show_rule_termination.rs:65–70 trata mesma forma como ponto-fixo; eval/rules/apply.rs:139–166 revoga regra globalmente durante callback. Classificação: campos, efeitos, ordem, terminação e erro causal são língua. A estrutura de guards e materialização upstream é mecânica e não é requisito. Não se infere intenção do upstream; a escolha nominal abaixo é inferência refutável pelos controles de aliases, duas regras, novas gerações e conteúdo ocultado.
-
-### Responsabilidade exclusiva proposta
-
-Para Cell preparada, aplicar no máximo uma transformação de nó por visita, na precedência atual; selector observa getters já preparados. O argumento it recebe o RuleId consumido no carrier antes da função, não por mutação lexical. Preservar guards de aliases retornados e não atribuí-los a novo constructor. Permitir receitas anteriores não consumidas, inclusive quando a última devolve it ou [B #it]. Show-set segue o protocolo atual de estilos e não cria carrier em Styles. Guard global de parent Cell não impede uma nova ocorrência; guards de outros elementos ficam. Produtos escondidos não são realizados. Captura contextual e RAW/defaults/matemática/locatables não mudam. Delegar terminação ao seu owner sem repetir automaticamente a mesma forma de Cell preparada.
-
-### Gate, aceitação e incompletude explícita
-
-Candidato não vigente até confirmação humana do manifesto D08B3-B: há um campo público novo e um tipo público novo; o contrato A aprovado não os autoriza. Após ratificação instalar somente estes candidatos, escrever testes e confirmar RED antes de implementação; selar apenas owners mudados. Aceitação: coletas acima/revisões adicionais bilaterais, efeitos uma vez, igualdade/getters, seleção, produto HTML e texto/estilos/geometria reais; mensagens/spans sem apagar diferenças. Cargo build/debug/release e suítes core/infra/shell apropriadas; crystalline-lint sem erros e owners sem V5/V6/V15/V26. Revalidar D08A/B2/B3-A, Raw defaults/blocos, Equation/math/matrix/query. Preservar árvore anterior por snapshot/diff restrito, sem commit/reset/resselo global.
-
-Este recorte completa defaults intrínsecos da Cell isolada e distingue alias de nova geração de show. Continua incompleto no universo Cell: D08B3-C completa set table.cell/defaults de estilo (cell-set), mediante medição e L0 próprios; nenhuma promessa de prazo/implementação é legitimada por este scope-out. Defaults/igualdade gerais de Table, casts/paint/strokes/insets ricos, linhas/gutters/span multipágina, PDF/UA e política geral não-localizável ficam abertos. O warning preexistente de eval de ficheiro vazio não é corrigido ou normalizado para afirmar paridade.
-
-### Refutadores do binário — captura causal do produto de Cell
-
-Medição anterior à decisão: table-cell-isolada-d08b3b-2026-10-07/after-second.json.gz mede growing com erro detached e block/styled com caret do wrapper externo. Invoke intercepta wrappers e markup ainda durante a função de Cell; isso pode consumir limite/realizar produto antes da fronteira emitida. Durante a função de Cell preparada, usar o protocolo existente defer_show_rules para capturar interceptações do produto, restaurando o modo em sucesso/erro. O produto é realizado pelo owner da inserção sob sua rota causal, incluindo wrappers; constructor cru/corpo lexical e regras de outros elementos fora da função conservam seu protocolo. Não adicionar estado/campo público, lógica de I/O ou modo do produto. Testes e refutadores devem confirmar efeitos uma vez, duas regras e conteúdos ocultados; a hipótese é refutada se estilos/escopo/caret/ordem regredirem.
-
-## D08B3-C — consumo de stroke resolvido e fold de show-set
-
-Medição anterior à decisão: table-cell-styles-d08b3c-2026-10-07/show-fold-before.json.gz compara duas declarações show-set Cell/Table: vanilla combina red e 2pt, Tekt perde red. geometry-final.json.gz / cell-stroke-two-sets e cell-stroke-constructor registra PDFs/argv/binaries/HEAD/working tree/UTC, cuja conversão pdftocairo SVG contém stroke preto 1pt Tekt contra red 2pt vanilla. Tekt borders.rs:43–48 lê e.stroke lexical; apply.rs:244,465 colapsa deltas cell.stroke com top-wins. Vanilla model/table.rs:765 #[fold] e layout/grid/resolve.rs:225–237 resolve componentes; typst-layout grid/layouter.rs:568–578 desenha o stroke já resolvido. É cor/espessura visível e campos de linguagem, sem exigir igualdade de bytes SVG/PDF ou número de comandos de desenho.
-
-Decisão contínua ADR-0127: helper privado puro TableCellProperties::chain_styles combina somente Value::Stroke declarativo em cell.stroke, mantendo None explícito, demais chaves/topologia/ordem/guards. Apply usa esse helper na acumulação de show-set em ambas as rotas existentes; realizer usa ao aplicar deltas locais. Não armazenar Cell/plano em Styles. Borders, para TableCell preparada, consome somente o snapshot sobrevivente retornado pelo owner cell_body::prepared_default, inclusive None conhecido ou ausência de snapshot substituído; não faz fallback lexical/container. Grid e Table crua conservam prioridade histórica. Não mudar geometria de extremos/coalescência, assinaturas, fases, modos nem contratos públicos. RED→GREEN antes de código, cores/espessuras reais via SVG em unidades físicas, controles de default/None/substituição e corpus/suítes/lint/preservação obrigatórios. Alinhamento de linha fixa e resíduos métricos anteriores não são inferidos como resolvidos por este reparo.
-
-
-## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
-`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
-fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
-Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
-mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
-mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
-Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
-estabelece busca tipada, preferência nomeada, body restante e composição.
-style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
-style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
-É tamanho/escopo observável da linguagem; a representação Rust é escolha
-interna. Não inferir intenção histórica. Refutar por restauração, Raw,
-heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
-A sonda de igualdade refutou a hipótese de comparar os valores declarados:
-no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
-content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
-própria correção; o tipo completo não é prova de fechamento desse eixo.
-
-### Ratificação
-
-O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
-771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
-Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
-Resselo somente após implementação e grafo válido. RG1 continua independente.
-
-### Responsabilidade exclusiva adicional
-
-Adapter de tipo: delta.size agora é Length; transportar diretamente em raw.block.size sem reduzir a abs nem reembrulhar um Length como escalar. Preservar ordenação de show/Raw, guards, defaults e fase.
-
-## TS1 — precedência de tamanho no show-set Heading
-
-### Medição anterior à decisão
-
-O corpus estendido TS1, before/after-extended.json.gz e analysis.json, fixa
-fontes, binários, UTC e estado. show heading:set text(size:2em+3pt) mede37.8pt
-contra36.6pt no pin9f2b6e871; a forma2em coincide33.6pt. Pin model/heading.rs:
-289–308 aplica default1.4em/1.2em e espaçamentos divididos pela escala.
-Heading em layout multiplica o tamanho base inteiro, escalando incorretamente
-a parcela absoluta capturada. Isso refuta a suficiência da simples migração
-de campo para o critério S4. Não se infere intenção histórica.
-
-### Decisão interna
-
-Somente quando o elemento original e o resultado ainda são Heading, ao aplicar
-show-set com declaração de tamanho, anexar a marca custom privada booleana
-heading.show-set-size. A marca identifica proveniência da regra realmente
-casada; não contém um segundo tamanho, não substitui o Length e não se infere
-por texto, fonte ou geometria. Source é transparente e preserva origem.
-Regras que substituem Heading por outro conteúdo conservam neste lote o caminho
-genérico existente, ainda divergente: refuters-before-extended.json.gz mede27pt
-contra36.6pt no caso heading-replaced. Não é controle certificado de paridade;
-preservar esta dívida de default/ordem de realização para revisão própria.
-O Length declarado permanece intacto neste owner; nenhuma fonte/tamanho se
-resolve em eval e nenhuma fase muda. A normalização pertence a style_scope.
-Preservar as demais transformações/guards/Raw e a captura afim anterior.
-
-### Refinamento TS1 — ocorrência nominal medida
-
-heading-green-final.log mostra que as quatro refutações persistem; inspeção
-de apply.rs:realize_occurrence demonstra o caminho produtivo Located, distinto
-do loop morfológico legado. Marcar o delta nos dois caminhos com o mesmo helper
-privado; a inspeção nominal atravessa Source e Located sem remover wrappers
-ou alterar a identidade/localização do conteúdo renderizado. style_scope lê
-o nível pelo mesmo desembrulho de inspeção. Não alterar realização/caches,
-avançar localização nem avaliar conteúdo outra vez. A condição continua exigir
-Heading original e visual efetivo, sem certificar substituições completas.
-
-
-## R2-S — realização nominal de Sequence, ratificada em 2026-10-17
-
-### Medição anterior à decisão
-
-As coletas before/expanded/controls.json.gz e candidate.log em
-lab/results/construction/diagnostics/sequence-constructor-2026-10-17 fixam HEAD
-b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
-UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
-markup_stream.rs:240–260 aplana antes de selecionar a sequência; realize/mod.rs:
-170–210 visita filhos antes de receita; apply.rs:140–170 delega não-localizáveis
-ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
-filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
-
-O dono aprovou a revisão
-lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
-46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
-nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
-fronteira antes dos filhos/Table/math; não cobre novo contrato público.
-
-### Responsabilidade exclusiva
-
-Adicionar aplicação root-only de um único passo para a Sequence preparada,
-sem usar ponto-fixo morfológico. O descendente sequences escolhe RuleId,
-protege o argumento e coordena a expansão. Reutilizar o dispatch/cast de
-Transformation e guard de chamada já existentes; a entrada é crate-interna.
-Os wrappers/loop legados mantêm comportamento e assinatura; nenhum limite
-ou política global de outros não-localizáveis muda.
-
-### Aceitação
-
-S1–S20 ratificados, RED antes de código, GREEN bilateral e regressões; não
-reduzir expectativas por limite mecânico. Todos os owners 1:1 e núcleos pinados
-válidos antes do resselo. Build/workspace/doctests separados, Clippy/Rustdoc
-estritos, fmt/linhagem/reversa e SARIF sem novo erro/warning. 12GiB/High8GiB/
-swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.
-
-## Recuo francês — aplicação física (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
-status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
-extra-before.json.gz contém26; boundary-before.json.gz contém10 e
-repeat-before.json.gz contém4. Oracle bd5ebec285505889e8ff1d4f68804ab147a699f3,
-binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
-Tekt inicial2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095.
-Em160pt/margem8/font12, hanging10 mantém a primeira linha x8 mas move
-continuações x8→18; negativo-5 exige x3. RTL mantém primeira borda direita152
-mas continuações vão para142. O Tekt ignora o comprimento. MLA tem default
-18pt (1.5em), set ambiente3em não o troca, show-set3em exige36pt; IEEE/Plain
-não adquirem recuo de hanging por esse show-set. bibliography.where(style:"mla")
-não casa na sonda vanilla: conservar a decisão do seletor, não forçar override.
-
-Block/Box com body apenas inline ignoram hanging10; Par explícito dentro
-deles e Block com Parbreak aplicam. Heading/Raw/List/Quote simples não o
-aplicam. Declaração parcial, zero, repetida e escopo vazio fecham fronteiras:
-FIRST/MIDDLE/LAST em5.168/27.464/49.76, contra todos5.168 no Tekt. A primeira
-sonda lexical usou colchetes literais: foi refutada, corrigida para #[...] e
-preservada como extra-before-initial; não é evidência de escopo Styled.
-Valores extremos geram tinta recortada pelo extrator: não equiparar ausência
-em pdftotext a apagamento de Content. Fonte parcial24pt não muda o em do
-comprimento compartilhado12pt, como partial-font registra.
-
-Fontes pinadas: typst-realize/src/lib.rs:1061–1085,1190–1219 distinguem
-fragmento/Par e interrupção; typst-layout/src/flow/collect.rs:72–134 escolhe
-fluxo, inline/mod.rs:174,216–221 e collect.rs:141–147 resolvem forma;
-inline/line.rs:496–503 posiciona; rules.rs:510–523 faz inset/compensação CSL.
-typst-library/src/model/bibliography.rs:112–127,367 determina o default e
-precedência. Isso mede língua/geometria; não exige a estrutura Rust vanilla
-nem atribui intenção histórica. Refutação por fronteira perdida, em de run,
-recuo duplo, reset em página, fallback greedy imposto, cópia perdida, callbacks
-reexecutados ou regressões dos controles impede fechamento.
-
-### Classificação e limites
-
-Correção interna/de paridade ADR-0127, fluxo contínuo: sem campo ou assinatura
-pública, flag/default externo novo, fase ou ordem de realização diferente.
-A nova forma inicial/continuação supersede somente a limitação correspondente
-de largura constante; RTL latino certificado segue as condições do núcleo,
-sem BidiCursor ativo/tracking e sem inventar BidiSpan. Os demais limites
-anteriores continuam. Os valores/cópia fora da página requerem inspeção dos
-frames ou SVG, não igualdade de extração recortada. Não antecipar R3-T1.
-
-### Responsabilidade exclusiva deste owner
-
-Nos dois percursos de show-set já existentes, quando o nó original e a visualização ainda são Bibliography, copiar Length par.hanging-indent explicitamente casado para marcador privado bibliography.hanging-override. A presença causal é o critério, sem inferir por valor ou alterar casamento/guards, callbacks, aliases ou ordem de realização.
-
-### Aceitação
-
-RED→GREEN antes da implementação; controles fonte→layout e bilaterais dos sinais,
-fronteiras, variantes e restauração pertinentes. Não deduzir cobertura de todas
-as alternativas por executar um arm agrupado: classificações nominais fechadas
-do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
-Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
-e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.
-
-## R3-T1 — realização causal ratificada (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
-commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
-bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
-fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
-matching.rs:118–150 aplica regex reversa e depois literais em declaração;
-:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
-captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
-apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
-expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
-
-Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
-X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
-produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
-panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
-capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
-foundations/selector.rs:110–125 unifica literal escapado com regex;
-typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
-no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
-igualdade de buffers ou bytes PDF. É inferência causal que a separação de
-escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
-acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
-
-### Decisão ratificada
-
-Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
-do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
-ratificou esta ordem. Ele supersede neste escopo as
-cláusulas históricas de execução provisória de show em ContentBlock e da
-visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
-de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
-assentar render em morfologia nem criar contrato Rust público.
-
-### Responsabilidade exclusiva desta unidade
-
-Fornecer o passo privado de raiz usado pelo coordenador de receitas, sem percorrer antecipadamente filhos ocultáveis. Quando a função efetiva produz conteúdo para essa realização, avaliar sua expressão com captura de receitas e devolver o produto pendente ao coordenador. Manter a proteção de identidade de localizáveis e guards de TableCell/Sequence, sem trocar pela guarda textual global; preservar aliases it e a distinção de construções novas. Não mudar a fachada pública nem o helper legado de terminação.
-
-### Aceitação desta revisão
-
-RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.
+records eight controls/source-L0/commands/HEAD/working tree/UTC/binaries at
+historical vanilla9f2b6e871. Four finite controls match; fresh_same_body/fresh_z/
+alias_plus_generated/text_and_generated compile Tekt but vanilla rejects
+`maximum show rule depth exceeded`. apply.rs:75–92/eval/tests.rs:1259–1273 and
+show_rule_termination owner describe morphology fixed-point policy α; conscious
+label alone proves no human ratification. Pinned realize lib.rs:462–495 distinguishes
+already-applied rule on element from new element with same body. Acceptance/
+effects/count/emitted content are language, not Rust equality.
+
+Revision changes expressly documented behavior: show heading: it => heading[Z]
+from Z to error, while show heading: it => it valid. Original ADR-0127 gate
+required owner confirmation, no hiding new flag. Canonical
+`00_nucleo/prompts/core/compiler/realize/mod.md` records confirmation in receipt
+identifier apply-l0-approved.md.txt. That receipt identifier was not independently
+located during this consolidation; preserve the approval-evidence gap rather
+than infer ratification from current code. Later ratified packages retain their
+own bounded scopes/receipts below.
+
+### Exclusive productive protection and acceptance
+
+For productive locatable realization protect each rule application by existing
+Located occurrence identity. it alias retains identity/protection and may emit
+twice without same-rule replay. Fresh construction has distinct identity even
+same morphology; matching product revisits rules in causal lexical environment.
+Never terminate merely equal bodies/morph_canon or global RuleId guard immunizing
+all descendants. Preserve Realized origins/styles/where-show-set/causal order/
+context namespace/errors/query. Protection/depth is realization-local private RAM,
+no globals/file reevaluation/new entity-trait-public-signature/phase. Existing
+causal depth rejects infinite generation with existing message/hints. Recycle no
+identity, confuse alias with structural clone, count consumed origin as emission,
+or replay guarded original effects.
+
+Legacy termination helper remains exclusively
+`00_nucleo/prompts/core/compiler/eval/show_rule_termination.md`; this revision
+changes no helper algorithm. Matcher stays own owner. Four infinite controls
+must reject; alias/double alias/selective where/finite replacement/multiple rules/
+context-effects are mandatory refuters preserving pinned result/order/count.
+Revalidate L1/L3/realization corpus/macro/layout; RED→GREEN must not redefine
+adversarial control as accepted.
+
+controls-first.json records duplicate block aliases/RuleId collision for local
+rule on it. core-first.log has five revoked productive expectations distinct
+from legacy-helper tests. Advance private rule allocator past captured IDs before
+application. Completed Realized products bound prepared visuals: collect identities
+before traversal, never reapply recipe/reemit cached product in those descendants.
+In-progress aliases retain active protection; aliases outside completed visual
+may reuse finished product. No equal-body/Content-placeholder boundary inference.
+full_error uses private ancestral-form history for diagnostic classification only,
+never expansion termination.
+
+core-third.log refutes generic insertion interception: P790 literal function show
+rematches interpolation. Expose only crate-internal inserted-locatable boundary
+using same occurrence routine/lexical snapshot; no text/paragraph/nonlocatable
+termination in that boundary, except separately ratified eligible bare-math
+extension below.
+
+## Evidence and ratification
+
+Historical measurement at HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
+uncommitted working tree, is preserved with UTC/diff/state/sources/binaries in
+`lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz`
+and `lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md`.
+Its vanilla pin is `9f2b6e8715237cb086899a42873660fe744622e8`, not the current
+upstream target. Bare frac, mat, sqrt, lr and op produce one Equation in that
+vanilla snapshot and zero in Tekt; math.bold([x]) and ordinary text produce zero
+in both. nested/nested-equation produce one in both; reuse produces two in
+vanilla. block-style/local-block/number-style locate insertion scope;
+show-generated/context-generated expose the same gaps. Explicit Equation
+preserves fraction rendering; vanilla rejects it.body with
+`maximum show rule depth exceeded` while accepting it; a later show affects only
+the second insertion. Refuters cover a raw frac value and original label versus
+explicit Equation.
+
+`lab/typst-original/crates/typst-realize/src/lib.rs:245–265,302–334` transforms
+Mathy before show outside math. Historical local `compiler/layout/equation.rs:680–689`
+projects bare math to text; `compiler/realize/mod.rs:155–199` prepares show/identity
+without math normalization; `entities/content/traversal.rs:14–108` descends
+bottom-up into math bodies; `rules/apply.rs:564–607` handles only existing
+locatables. These are language semantics, morphology and render observations;
+they do not require vtables, buffers, Rust equality or equal PDF bytes.
+
+The human-confirmation gate for the math-bare package is satisfied by
+`lab/history/construction/records/00_nucleo/materialization/math-bare-aprovacao-2026-10-06.json`
+(manifest `149d6535b442a9275aa6612647ad79eac460351808ea1858175d09d1cf07e1f6`),
+as retained by `00_nucleo/prompts/core/compiler/realize/mod.md`. The historical
+proposal-only heading is superseded. Ratification changes phase restrictions
+only at the named insertion boundaries; it does not certify general parity,
+D07, math labels or other debt.
+
+### Exclusive external Mathy insertion
+
+During productive realization before locating/matching new insertion, call
+bare_math::prepare in existing causal scope. Reuse matcher/occurrence protection,
+including actually show-produced new products before revisit. Body remaining
+inside Equation math context is no external insertion. Prepared it alias keeps
+Location/protection; returned it.body outside math makes distinct new Equation,
+no body-equality/global-guard termination, existing depth/causal diagnostic.
+Deferred capture retains raw Mathy/snapshot, changes no eval variable/constructor.
+No text/Par/double recipe from wrapper or lost rule for formerly nonlocatable raw
+input. realize_inserted_occurrences keeps internal contract with eligible Mathy
+extension only. Ratified gate above supersedes phase restrictions only at named
+boundaries, real RED→GREEN/bilateral revalidation, no universal parity/D07/math
+label/debt certification.
+
+## Ratified Table insertion and incomplete Cell scope
+
+The approval receipt `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-aprovacao-2026-10-07.json` records user confirmation `comfirmo`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`, and materialization with documented metric residuals. This satisfies the original D08B3-A gate; it does not complete the Cell domain or promote the excluded scope. Retain the receipt’s limitations on raw default typography, D08B3-B isolated Cell/fresh reconstruction, and generic Table equality/rich properties.
+
+### Measurement before the proposal
+
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree. `lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` records pin `9f2b6e8715237cb086899a42873660fe744622e8`, UTC, diffstat/status, sources/binaries, arguments, and results. Oracle binary SHA-256: `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt binary: `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`.
+
+Vanilla `lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278` resolves fields, `:1500–1530` rejects conflicts in order, `:1665–1703` creates empty cells, and `:1945–1988` derives breakability. Tekt `grid_placement.rs:91–112` prioritizes explicit placement and `:262–270` knows only `GridCell`; `realize/mod.rs:160–200` visits recipes bottom-up; `table.rs:127–152` discards wrappers without attributes. `order` measures zero cell effects when a table is replaced and zero heading effects when a cell hides it; `aliases` measures `LOCAL a`, `OUTER LOCAL a`, and `NEW a`. These are language observables, not requirements to copy mechanics, bytes, or Rust equality. Unknown fields, hidden effects, or wrong order after a change would refute the hypothesis; cache/pagination equivalence is not inferred.
+
+### Exclusive root-only Table/Cell application
+
+Own root-only application through existing engine. Table/Cell/pending bodies are
+descent boundaries until pinned stage. Apply Table rule before plan/Cells;
+surviving default delegates table_cells. Cell with known properties applies before
+body descent; it marks RecipeApplied preventing own-rule replay, product/body
+realizes once before Complete. Preserve locatable Table/generated-product
+protection, give Cell no Location. Matcher/guards/text rules/termination/sinks
+retain owners. This initial package preserves other nonlocatable legacy termination;
+fresh show-cell-reconstruct was excluded refuter, not GREEN. Later standalone
+ratification below covers its explicit subset.
+
+### Ratified gate, acceptance, and explicit scope split
+
+The ratified package adds five public fields, two public carriers, and one new public facade, and changes the logical phase before Cell show. The receipt above establishes ratification for this scope. Continue to require RED→GREEN, suites/build/lint/restricted preservation, and D08A/B2, D05/D06/D07/query collections. Acceptance is language, effect, and actual geometry behavior; byte equality or whitespace normalization cannot close render acceptance.
+
+This first package D08B3-A is incomplete in the Cell domain: D08B3-B is to complete isolated Cell defaults (`raw-cell-no-placement`/`outside-fields`) and the separate decision on fresh generation by `show-cell-reconstruct`. Generic Table defaults/fields (`table-root-equality`), rich styles/functions/paint/strokes/insets, rich rows/gutters, multi-page spans, and PDF/UA conformance remain outside certification. Do not change additional legacy D08B2 casts, syntax, flags, or global non-locatable policy in this package.
+
+
+
+## Raw render defaults
+
+### Evidence before decision
+
+raw-defaults-2026-10-07/before.json.gz/before-state.json.gz retain HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/diffstat/UTC/
+sources/commands/binaries. Tekt
+`58456b9b54041983612e5946f89fef2cf4591b9f31a09d8dcce9ae5c8a9c0eea`,
+vanilla historical pin9f2b6e871/binary
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+16 controls: Raw Serif 11pt versus Mono8.8pt, global 20pt versus 16pt; absolute
+show-set 15pt wins; explicit show-font Sans; show-size 1em vanilla8.8pt/Tekt0;
+replacement ABC keeps Raw defaults; red fill inherited. Pinned text/raw.rs:658–670
+applies default show-set before overrides; local raw.rs:103–123 retains font/size,
+drops fill; apply.rs:207–253 loses defaults on product; style_scope.rs:41–44
+abs-only resolution loses em. Observable language style/geometry, no buffer/PDF
+byte requirement.
+
+### Exclusive transport and dependent Raw boundary
+
+Use existing Styles/StyleDelta, no new public field/trait/signature/coordinate
+advance/pipeline phase. Raw owner renders Mono,0.8 outer size,bold-italic false,
+outer fill inherited, restoring exterior on direct Raw emission. For Raw show
+content including Text, apply marks private raw.defaults Styles scope outside
+overrides so Raw owner installs defaults first. raw.defaults.active only there,
+prevent double default on it-returned Raw. Within Raw scope Styled resolves
+text.size Length against prior size, preserving abs/relative composition/chain
+restore. Duplicate no parser/show/matcher/guard. typc true/false uses existing
+constant.language palette foreground #d73948 when no supported grammar; retain
+Raw morphology, other grammar/whitespace owner paths.
+
+RED→GREEN font/size/fill/restore/overrides/replacement, all16 controls/real Cell
+glyphs/regressions. Preserve messages/order/index/targets; font subset/bytes no
+criterion. Raw whitespace/custom syntax/fresh Raw from show uncertified. Historical
+P1055 size100% claim refuted for this pin and superseded here.
+
+## Raw block physical boundary
+
+### Evidence before decision
+
+raw-block-spacing-2026-10-07/{before,before-additional}.json.gz/before-state retains
+same HEAD/uncommitted tree/UTC/diffstat/status/sources/commands, Tekt
+`43207349fba51afbdbcac3847c1a7d884e9ff845b6401022be22272679c00575`,
+same vanilla pin/binary. Raw prefix/suffix yMin85.806243/95.064120 versus
+91.304203/108.594100. Cell x70.86614 versus75.86614; standalone adds0.55208pt.
+Unknown language joins abc/def intoabcdef; ABC replacement loses boundary.
+show-size15 margin 18pt, show-em1 stays13.2pt. above2/below7 explicit margins work;
+par.spacing20 Raw98.104163/After122.194100; empty Raw After101.90816.
+Pinned rules.rs:655–679 realizes Raw as Block, container.rs:324–360 margin/collapse.
+Local Raw closes lines/global margin; cursor.rs:88–132 pending below;
+sub_frame.rs:315–325 hypothetical advance after terminal line closed. Observable
+geometry/text, not required algorithm/bytes.
+
+### Exclusive markers and dependent physical helpers
+
+Follow pinned raw-block-boundary nucleus, no public field/trait/API/phase.
+Raw owns private physical begin/end/local origin/margins/terminal-product
+classification. Styled orchestrates with existing Styles apply markers. Apply
+retains block flag/Length size-margin overrides unresolved. Terminal Raw subframe
+height uses real final edge minus top, no pending leading/margin. Test local region/
+replacement/fallback distinct lines. Begin closes material prefix using prior
+baseline/descent/collapsed above/initial geometric baseline; first Raw in empty
+subframe at local top. End records actual bottom/leaves below to Cursor. Add no
+final margin to terminal height. Unknown block syntax retains explicit newlines,
+no whitespace/tab normalization/inline change.
+
+RED→GREEN14 controls+five refuters/prior typography/Cell-morphology-math-query/
+suites/build/lint/restricted preservation. Geometry decides; no after-the-fact
+tolerance hiding residuals. Internal whitespace/tabs/empty lines/custom syntax/
+fresh reconstruction/rich block styles/HTML not certified.
+
+## Raw block margin evidence and delegated physical boundaries
+
+These measured refinements constrain set transport and its dependent layout
+owners; no rendering algorithm transfers to this dispatcher.
+
+after.json.gz/after-additional.json.gz (complete binary/snapshot/UTC) refute initial
+formula: consecutive extra gap2.64pt; Cell prefix5.49796pt high, standalone2.59598pt
+high; explicit margins absent because set.rs:976–1006 misses Native block.
+refuters-red.json.gz Strong-cell loses height, After83.27018 versus89.95610,
+plain-cellAfter87.36012; preexisting sizes-up/down paragraph negatives delta10.8pt.
+
+Raw weak default uses80% size:10.56pt, not13.2pt. Outer 11pt paragraph contributes
+13.2pt, consecutive Raw10.56pt. Existing prev_margin_is_parbreak handles weak
+paragraph margin including inherited Raw; explicit below remains strong/outside
+that branch. Cursor collapses weak margin with actual par.spacing, leaving strong/
+regional/fractional/checkpoint paths. Prior closed subframe paragraph contributes
+above. First Raw in subframe uses initial cursor minus outer top-edge because
+cell_body.rs:253–260 recomposes legacy subframe with ascender-top-edge. Terminal
+boundary classifier crosses Strong/Emph, with explicit complement/no dropped
+data; predicate, not enum projection.
+
+Set accepts typed Native block/aliases only for spacing/above/below Length|Auto,
+evaluated once/delta published after whole validation. Other fields/types retain
+previous fallback/warning, uncertified. Apply transports properties/size as Length.
+Render margin uses effective Raw size default/show-set; prior paragraph contributes
+separate outer size. Styles does not measure glyphs. Remaining negative controls
+refute hypothesis; preexisting sizes-down not claimed fixed. Expand no prior-
+paragraph-size rule without own measurement.
+
+edges-red.json.gz: below0 overlaps After74.95612 versus82.19410; negative
+After72.95612 versus77.19410; auto+spacing20 Raw98.10418 versus91.30420;
+first below0 must beat next Raw auto above (def97.99011, not108.55011).
+Explicit edge wins in either direction; two explicit/two weak max-collapse. Auto
+edge interrupts spacing shorthand/resumes par.spacing/weak default. Explicit
+below≤0 leaves cursor real end+below with pending geometric baseline; weak below,
+even zero, enters Cursor weak path adding next text top-edge.
+
+suites-third.log refutes unconditional FontMetrics init: two nontext place image/
+shape controls started acquiring font book. Initialize regional ascent only in
+legacy subframe with terminal Raw block product. Geometric/nontext retains route
+without new font query; nontext data gains no font dependency from repair.
+
+
+## Ratified prepared-Cell occurrence termination
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz`
+contains 53 probes collected 2026-10-07T14:47:56.340144+00:00 through
+14:48:12.375245+00:00. HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted
+working tree, diffstat/status/hashes/sources/argv/cwd/environment and full outputs
+are recorded. Historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`,
+binary SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`;
+Tekt `6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f`.
+Do not count before/refuters/complete as additional independent rounds.
+
+isolated-default exposes vanilla x/y/inset/align/fill/breakable auto, spans 1 and
+empty stroke dict; Tekt omits defaults and emits two metadata versus one.
+isolated-x fails only in Tekt; raw-fields remains body-only in both and raw-x
+fails in both. isolated-table-style proves Table defaults are not standalone
+Cell defaults. raw-vs-prepared is false in vanilla, true in Tekt.
+nested-effects/body-effects/late-rule refute once-only execution/lexical origin.
+Tekt wrongly accepts fresh-isolated/table, fresh-block, fresh-styled and
+multi-fresh; vanilla rejects `maximum show rule depth exceeded` at the new
+constructor. identity/body/alias and fresh-conditional/hidden remain valid.
+multi-identity/multi-return-table show that returning it must permit an earlier
+unconsumed recipe. isolated-query remains `cell is not locatable` and location
+none in both, without false Location. cell-set is separately excluded.
+
+Upstream model/table.rs:734–778 declares defaults/properties;
+typst-realize/src/lib.rs:367–386 prepares/guards arguments, :418–429 visits
+products with depth, :491–505 distinguishes per-element guards, :571–586
+materializes properties. Local table_cell.rs:111–143 projects only lexical or
+positioned plans; realize/table_cells.rs:110–129 reapplies raw Cell unprepared;
+:280–304 terminates the whole snapshot; show_rule_termination.rs:65–70 treats
+equal form as fixed point; rules/apply.rs:139–166 revokes globally during callback.
+Fields/effects/order/termination/causal error are language; upstream guard/storage
+structure is mechanics. Infer no upstream intent. Aliases/two rules/new
+generations/hidden content can refute the nominal policy.
+
+### Ratification and exclusive responsibility
+
+The human confirmed manifest
+`3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`;
+`lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-aprovacao-2026-10-07.json`
+records 2026-10-07T14:53:19.127601+00:00 and materialization completed
+2026-10-07T15:21:50.581533+00:00 with documented scope limits. The original public
+field/type gate is satisfied by this receipt, not by the earlier Table package.
+Historical candidate-only prose remains archived rather than a fresh stop gate.
+
+For prepared Cell apply at most one node transform per visit with current
+precedence/prepared getter selection. Before callback, it receives consumed RuleId
+in carrier, not lexical mutation. Returned aliases keep guards; fresh constructor
+inherits none. Earlier unconsumed recipes remain eligible, including it/[B #it].
+Show-set keeps style protocol without carrier in Styles. Parent Cell global guard
+cannot immunize new occurrence; other-element guards stay. Realize no hidden
+product. Context capture/Raw-default/math/locatable paths unchanged. Delegate
+termination owner without automatically replaying same prepared Cell form.
+
+### Acceptance and incomplete scope
+
+Install only ratified candidates with language tests and valid RED before code;
+reseal only changed owners. Require the collections/additional bilateral reviews,
+once-only effects, equality/getters/selection, HTML product and real text/styles/
+geometry, with causal messages/spans and no erased differences. Validate debug/
+release builds and pertinent core/infra/shell suites; crystalline-lint without
+errors and no owner V5/V6/V15/V26. Revalidate D08A/B2/B3-A, Raw defaults/blocks,
+Equation/math/matrix/query. Preserve the previous tree through snapshot/restricted
+diff, without commit/reset/global resealing.
+
+The scope completes intrinsic standalone-Cell defaults and distinguishes alias
+from a new show generation, not all Cell behavior. set table.cell/style defaults
+remain the separately measured/specifiable Cell-style package; no deadline or
+implementation promise follows from that scope-out. General Table defaults/
+equality, rich casts/paint/strokes/insets, rows/gutters/multipage spans, PDF/UA
+and general nonlocatable policy remain open. Do not fix/normalize the preexisting
+empty-file eval warning merely to claim parity.
+
+
+### Causal capture during prepared Cell callback
+
+Standalone after-second.json.gz measures detached growing error/wrapper caret in
+block-styled. Invoke/markup intercept wrappers inside Cell function, potentially
+consuming depth/realizing before emitted boundary. During prepared Cell function
+use existing defer_show_rules to capture product interceptions, restore on success/
+error. Insertion owner realizes product/wrappers causally; raw constructor/lexical
+body/other-element rules outside callback retain protocols. No public state/field/
+I/O/product mode. Tests/refuters require once effects/two rules/hidden content;
+style/scope/caret/order regression refutes hypothesis.
+
+## Declarative stroke fold and later paint boundary
+
+Cell-style show-fold-before.json.gz compares two Cell/Table show-set declarations:
+pin combines red/2pt, Tekt loses red. geometry-final.json.gz cell-stroke-two-sets/
+constructor retains PDF/argv/binary/HEAD/tree/UTC; pdftocairo SVG black 1pt versus
+red 2pt. borders.rs:43–48 reads lexical stroke; apply.rs:244,465 top-wins cell.stroke.
+Pinned model/table.rs:765 fold, resolve.rs:225–237 components, layouter.rs:568–578
+renders resolved stroke. Visible color/thickness/fields, no SVG-PDF byte/draw-count
+requirement.
+
+Private pure TableCellProperties::chain_styles combines only declarative
+Value::Stroke at cell.stroke, preserving explicit None/other keys/topology/order/
+guards. Apply uses it in both show-set accumulation paths, realizer local-delta
+path; no Cell/plan in Styles. Earlier dependent Borders clause required surviving
+prepared_default snapshot/no lexical-container fallback for prepared Cell,
+Grid/raw Table historical priority, no end/coalescing geometry/API/phase/mode
+change. The later measured Table-plan paint contract in
+`00_nucleo/prompts/core/compiler/realize/table_cells.md` explicitly supersedes
+snapshot survival for positioned fill/stroke/breakable: known external plan applies
+even when recipe replaces default visual. This does not change apply's declarative
+fold; only inset/alignment remain default-survival dependent under layout owners.
+Keep prior clause recoverable as superseded boundary, not two current paint rules.
+
+Require precode RED→GREEN/real SVG physical color-thickness/default-None-replacement
+controls/corpus/suites/lint/tree preservation. Fixed-row alignment/prior metric
+residuals are not proved solved by stroke fold.
+
+## Ratified complete text size
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`,
+before-measurement.json.gz, morph-before-measurement.json.gz and audit.json
+preserve HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+UTC, status/diffstat, sources/L0/binaries/argv and historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`. named-em measures A at 0pt versus
+24pt; affine 3pt versus 27pt; nested over 18pt measures 0pt versus 36pt. All six
+Size/Color/body permutations are accepted by the pin and rejected by Tekt.
+Positional set 18pt is ignored (12 versus 18pt). Pinned text/mod.rs:290,303,
+924–930,1136–1142 and args.rs:178–247 establish typed search, named preference,
+remaining body and composition. style_chain.rs:513–517 and constructor.rs:123
+discard em; collapse at style_chain.rs:394–395,419–422 uses top-wins where size
+needs a fold. Size/scope is observable language; Rust representation is an
+internal choice. Infer no historical intent. Restoration, Raw, heading, math,
+capture/show, duplicates/spans, zero/negative or metric failures can refute it.
+The equality probe refuted comparing declared values: the pin returns true for
+text(size:2em)[A] == text(size:24pt)[A]. Pinned StyledElem::eq at
+content/mod.rs:779–782 compares child. That equality defect requires independent
+correction; a complete size type does not close that axis.
+
+### Ratification and limits
+
+The human approved the complete-size package and its two public contracts in
+manifest `771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba`.
+Require implementation and S1–S16 tests under 12 GiB/zero swap; no release/merge/
+push. Reseal only after implementation and a valid graph. RG1 remains independent.
+
+### Exclusive affine size transport
+
+delta.size is Length; directly transport as raw.block.size, never abs-only or
+scalar-wrapping existing Length. Keep show-Raw order/guards/default/phase.
+
+## Heading show-set affine-size provenance
+
+TS1 before/after-extended.json.gz/analysis.json fixes source/binary/UTC/state.
+show heading:set text(size:2em+3pt)37.8pt versus36.6pt pin9f2b6e871;2em matches
+33.6pt. heading.rs:289–308 default1.4em/1.2em with spacing divided by scale;
+local Heading multiplies whole base, wrongly scales absolute part. Refutes mere
+field-migration sufficiency for S4, no historical-intent inference.
+
+Only when original and visual remain Heading, actual size-declaring show-set
+attaches private Bool heading.show-set-size. It marks applied-rule origin, no
+second size/Length replacement/text-font-geometry inference. Source transparent/
+origin retained. Heading replaced by other content retains generic divergent
+path: refuters-before-extended heading-replaced 27pt versus36.6pt, explicit debt
+for default/realization-order review. Length unchanged here, no eval font-size
+resolution/phase change; style_scope owns normalization. Preserve other transform/
+guard/Raw/affine capture.
+
+heading-green-final.log retains four refutations; realize_occurrence productive
+Located path differs from legacy morphology loop. Mark both paths with same
+private helper; inspection crosses Source/Located without removing wrappers/
+changing render identity-Location. style_scope reads level through same inspection.
+No realization/cache/Location advance/reevaluation. Original/effective visual
+must both Heading, no full-replacement certification.
+
+## Sequence realization evidence and approval
+
+before/expanded/controls.json.gz and candidate.log in
+`lab/results/construction/diagnostics/sequence-constructor-2026-10-17` fix HEAD
+`b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted working tree,
+UTC/diffstat/sources/binaries and vanilla pin
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. Eight initial REDs; candidate
+passed five, with show/recursion unresolved. markup_stream.rs:240–260 flattens
+before selecting Sequence; realize/mod.rs:170–210 visits children before recipe;
+apply.rs:140–170 delegates nonlocatable elements to fixed point. Vanilla accepts
+alias and rejects a new Sequence with the same children. These are language
+effects/scope/values/diagnostics.
+
+Owner approved
+`lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md`,
+manifest `46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327`,
+on 2026-10-17. ADR-0127 §2.3 gate covers realization order of this boundary
+before children/Table/math, not a new public contract.
+
+
+### Exclusive prepared Sequence step
+
+Add crate-internal root-only single step for prepared Sequence, never morphology
+fixed point. sequences owner selects RuleId/protects argument/coordinates expansion.
+Reuse existing Transformation dispatch/cast/call guard. Legacy wrapper/loop behavior/
+signature stays, no global other-nonlocatable limit/policy change. Ratified S1–S20
+precode RED/bilateral GREEN/regressions, no reduced mechanics expectation. Valid1:1/
+pins before reseal, separate build/workspace/doctests/strict Clippy-Rustdoc/fmt/
+direct-reverse lineage/SARIF without new error-warning.12GiB/High 8 GiB/swap0/jobs1/
+heavy sequential, no publication/release.
+
+## Measured physical hanging-indent transport
+
+### Evidence before decision
+
+bibliography-hanging-2026-10-18/before-sources.json.gz retains same HEAD/uncommitted
+tree/status/diffstat/UTC/2099 sources-L0. before.json.gz92 pairs, extra-before26,
+boundary-before10, repeat-before4. Same oracle pin/SHA above; Tekt initial
+`2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095`.
+160pt/margin8/font12 hanging10: first x8, continuation8→18; negative−5 x3.
+RTL first right152, continuation142. Tekt ignores Length. MLA default 18pt(1.5em),
+ambient 3em does not override, show-set 3em requires 36pt; IEEE/Plain gain none.
+bibliography.where(style:"mla") does not match vanilla probe: preserve selection,
+force no override. Inline-only Block/Box ignores hanging10; explicit Par inside/
+Block with Parbreak applies. Simple Heading/Raw/List/Quote does not. Partial/
+zero/repeated/empty scope declarations close boundaries: FIRST/MIDDLE/LAST
+5.168/27.464/49.76 versus all5.168 Tekt. Initial literal-bracket probe refuted,
+corrected to #[...] and archived extra-before-initial, not Styled-scope evidence.
+Extreme values clip ink in extractor: absent pdftotext is not erased Content.
+partial-font 24pt does not change shared 12pt em.
+
+Pinned realize lib.rs:1061–1085,1190–1219 distinguishes fragment/Par/interruption;
+flow/collect.rs:72–134 selects flow; inline/mod.rs:174,216–221/collect.rs:141–147
+resolves shape; line.rs:496–503 positions; rules.rs:510–523 CSL inset/compensation;
+bibliography.rs:112–127,367 defaults/precedence. Language geometry, not required
+Rust structure/historical intent. Lost boundary/run-em/double indent/page reset/
+forced greedy fallback/lost copy/repeated callback/control regression refutes closure.
+
+### Current exclusive transport and acceptance
+
+Internal continuous ADR-0127, no public field/signature/new external default-flag/
+phase/realization order. Initial/continuation shape supersedes corresponding
+constant-width limitation only. Certified Latin RTL follows pinned nucleus,
+no active BidiCursor/tracking/invented BidiSpan; other limits stay. Offpage values/
+copy require frames/SVG inspection, not equal clipped extraction. Earlier physical
+scope did not itself authorize later textual-causal package.
+
+In both existing show-set paths, only when original/effective visual remain
+Bibliography, copy actually matched Length par.hanging-indent to private
+bibliography.hanging-override. Causal presence, not value inference; keep matching/
+guards/callbacks/aliases/realization order.
+
+Precode RED→GREEN/source-layout/bilateral sign/boundary/variant/restoration
+controls. Grouped-arm execution proves no all-alternative coverage; closed inline/
+flow classifications require class/variant controls. Valid V15/V26 before reseal,
+tests/build/strict Clippy-Rustdoc/fmt/reverse/differential Tekt at pin1279707,
+12GiB/High 8 GiB/swap0/jobs1. No publication.
+
+## Causal realization evidence and ratification
+
+`lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz`
+retains HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted working
+tree, UTC/status/diffstat/sources/argv/binary hashes and vanilla pin
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. before-sources.json.gz contains
+complete current sources/L0. No candidate code was implemented at measurement.
+matching.rs:118–150 applies reverse regex then literals in declaration order;
+:194–207 exposes products to later passes. textual.rs:102–123 captures full
+snapshot. realize/mod.rs:177–217 visits recipes bottom-up. apply.rs:620–648/
+matching.rs:218–225 call functions without capturing children.
+expression_dispatch.rs:125–129 already distinguishes insertion_rules from local
+state.
+
+Measured pairs: identical literals C/B; literal/regex tie R/L; overlap X/YB;
+first effect LATER/FIRST; inverse chained function BBBB/BB; separate product
+AB/X; product+neighbor X/AB; Strong hiding child gives panic HIDDEN/Q;
+captured global followed by new global L/R, captured local L/L; local CJK
+水\n果 gives 水果/X. Pinned foundations/selector.rs:110–125 unifies escaped
+literal/regex; typst-realize/src/lib.rs:1328–1405 chooses start and carries
+revocation into product. These are language/effects, not ratification of Rust
+mechanics/buffer equality/PDF bytes. Scope separation and earlier child visits
+are inferred causes, refutable by acceptance.json, equality/fields/style/query
+and error controls.
+
+Human confirmation of manifest
+`47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302`
+ratified the pinned textual-recipe-frontier nucleus and this order. Within this
+scope it supersedes provisional ContentBlock show execution and pending-recipe
+bottom-up visits. Ordinary expression evaluation order stays. Do not reevaluate
+the program, advance State/Counter, bake render into morphology or create a
+public Rust contract.
+
+
+## Current causal root-step boundary
+
+Provide private recipe-coordinator root step without prematurely visiting hidable
+children. When effective callback produces Content for realization, evaluate
+expression with recipe capture and return pending product to coordinator. Keep
+locatable identity protection/Cell-Sequence guards rather than global text guard;
+it aliases versus new constructions remain distinct. Public facade/legacy
+termination helper unchanged.
+
+Require acceptance.json/R2-S-R3/single-evaluation RED→GREEN/separate PDF-HTML/
+build-workspace-doctests/strict Clippy-Rustdoc/fmt/V1/V5/V15/V26/reverse/differential
+SARIF without new error-warning.12GiB/High 8 GiB/swap0/jobs1/heavy sequential.
+No RAM claim without paired trial/suppression clearing gate/commit/push/release.

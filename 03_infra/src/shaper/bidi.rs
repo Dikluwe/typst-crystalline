@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/bidi.md
-//! @prompt-hash 606d92fd
+//! @prompt-hash b1f01cce
 //! @layer L3
 //! @updated 2026-09-26
 

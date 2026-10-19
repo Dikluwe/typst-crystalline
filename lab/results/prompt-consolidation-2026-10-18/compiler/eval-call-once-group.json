@@ -1,0 +1,44 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/selector_intercepts.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "182819d4b76b013eeeff2ffb77aec870cb8d04c8b69f72eca5c1bfe9d17ad7c5",
+    "result_sha256": "a4342e0992e204e501caeb849b8449a9ee9a2e37de22533b37a978651d78405b",
+    "disposition": "Full call owner translated: original extraction/API boundaries, shared call-once evidence/invalid-fixture debt, exact cache/ownership and feature/receiver special cases plus acceptance preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/contextual_calls.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "71db70c02a8ad3f45e0c89ab92781df0d415bc9cc6e44abeccaa27feca70cbe8",
+    "result_sha256": "028c970c019009245a7d60a4206c6bba5ef0679d6e46eb1e0aff089eb1a6d0e7",
+    "disposition": "Full call owner translated: original extraction/API boundaries, shared call-once evidence/invalid-fixture debt, exact cache/ownership and feature/receiver special cases plus acceptance preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "6613f0a9166fd8d932f7614618015b501b7fd1ccf31e1a7275333b49dbed506a",
+    "result_sha256": "a3caec3af415bf0fcf62c63817f5891b1977a3ac74b9bd508a1096ad4f6b50b4",
+    "disposition": "Full call owner translated: original extraction/API boundaries, shared call-once evidence/invalid-fixture debt, exact cache/ownership and feature/receiver special cases plus acceptance preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/collection_methods.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "135391d9f518d6ab39add27a076789d8ff26b7f4f185131e5003955e032ab516",
+    "result_sha256": "a5499b6e795285aeeb23ea3cc5ad8a1d895232306b6fdcf6c1e75083234a68de",
+    "disposition": "Full call owner translated: original extraction/API boundaries, shared call-once evidence/invalid-fixture debt, exact cache/ownership and feature/receiver special cases plus acceptance preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/call.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "1f53b81ad738c48690a6eb9b81014063d3ec0f308c7d4906994d67089eadc459",
+    "result_sha256": "defafae5e1f70b2664fca5d5ee97042729d70759abfdbc825fd90a0395a6b2b1",
+    "disposition": "Full call owner translated: original extraction/API boundaries, shared call-once evidence/invalid-fixture debt, exact cache/ownership and feature/receiver special cases plus acceptance preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "581683be1bc0bc7f76e6c2a852af8244a7dad3995632f61aa9a61d8d43d0fa9c",
+    "result_sha256": "f537573c68efdb35f88b018f5d48e81bd84cfb291b918d8aeafd694b034de208",
+    "disposition": "Full call owner translated: original extraction/API boundaries, shared call-once evidence/invalid-fixture debt, exact cache/ownership and feature/receiver special cases plus acceptance preserved."
+  }
+]

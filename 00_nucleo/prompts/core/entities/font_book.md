@@ -8,14 +8,14 @@ Hash do Código: 4582deac
 ## Evidence before the construction decision
 
 - `03_infra/src/fonts.rs:403` collects codepoints from every Unicode cmap subtable and calls the existing vector-based constructor. L3 owns font bytes, discovery and acquisition.
-- Pinned vanilla `9f2b6e8715237cb086899a42873660fe744622e8`, `lab/typst-original/crates/typst-library/src/text/font/info.rs:119-134`, builds compact coverage for each ordered Unicode subtable and unions intervals. Its general vector constructor at `info.rs:296` still sorts and deduplicates individual codepoints.
+- Historical pinned vanilla `9f2b6e8715237cb086899a42873660fe744622e8`, `lab/typst-original/crates/typst-library/src/text/font/info.rs:119-134`, builds compact coverage for each ordered Unicode subtable and unions intervals. Its general vector constructor at `info.rs:296` still sorts and deduplicates individual codepoints.
 - `01_core/src/entities/font_book.rs:161` stores alternating outside/inside run lengths. The observable contract is exact Unicode membership and ordered iteration, including gaps and duplicates; the collection algorithm is internal mechanics.
 
 The existing vector API must be retained. Compact contiguous input sequences into intervals, order those intervals and merge overlapping or adjacent intervals before encoding the canonical runs. The earlier refinement kept this API without adding a public range builder or importing font bytes into L1. The range-constructor decision below explicitly updates that restriction; font bytes remain outside L1. Performance claims belong to `lab/results/construction/diagnostics/font-lifecycle-experiment.md` and its reproducible dataset.
 
-## Current fixed-cost evidence and internal refinement
+## Recorded fixed-cost evidence and internal refinement
 
-`lab/results/construction/diagnostics/custo-fixo-2026-10-05/audit.json.gz` records the current dirty-tree/binary/input provenance. Its catalog diagnostic composition measures roughly 46 ms in this constructor, after collecting 28,689,553 codepoint occurrences for 1,112 system faces. This is a nested component measurement, not a decomposition of plain CLI medians. `compression.json.gz` compares the current real constructor with an isolated scalar-interval implementation across three processes and nine batches each: about 44–45 ms versus 23–25 ms, with canonical encoding equal for every face. These measurements precede the production refinement; final CLI gains remain to be established.
+`lab/results/construction/diagnostics/custo-fixo-2026-10-05/audit.json.gz` records the measured dirty-tree/binary/input provenance. Its catalog diagnostic composition measures roughly 46 ms in this constructor, after collecting 28,689,553 codepoint occurrences for 1,112 system faces. This is a nested component measurement, not a decomposition of plain CLI medians. `compression.json.gz` compares the current real constructor with an isolated scalar-interval implementation across three processes and nine batches each: about 44–45 ms versus 23–25 ms, with canonical encoding equal for every face. These measurements precede the production refinement; final CLI gains remain to be established.
 
 Keep the vector input and the existing sorting, merging and gap/count encoding. During the initial compaction, retain the active inclusive interval in local scalar start/end variables instead of accessing and updating the last Vec entry for every codepoint. Flush an interval only when a point is disjoint and nonadjacent, then flush the final interval. Empty input has no active interval. Check forward adjacency first for ordered cmap streams, then membership and reverse adjacency; arbitrary input order, overlap, duplicates and both interval edges remain supported. Checked adjacency arithmetic and the Unicode upper boundary remain valid. No API, acquisition policy, pipeline phase, unsafe or mutable global changes.
 
@@ -27,7 +27,7 @@ Classification: internal mechanics, with set membership/ordered iteration as sem
 
 Measured parser anchors: ttf-parser 0.25.1 `tables/cmap/format4.rs:103–115` enumerates declared inclusive segment bounds and stops at the singleton FFFF sentinel; `format12.rs:68–75` and `format13.rs:41–48` enumerate inclusive group bounds without checking the glyph ID. Raw byte access and eligibility remain L3 concerns. The experimental adapter lives under diagnostics, not in productive L1/L3. The pinned vanilla mechanism at `lab/typst-original/crates/typst-library/src/text/font/info.rs:119–134` streams declared codepoints into a builder and unions subtable coverage; it does not prove direct range extraction equivalent.
 
-Decision/classification: add a public pure constructor for neutral integer ranges, keeping union/canonicalization in L1 and byte parsing in L3. This extends the public contract and requires ADR-0127 ratification before materialization. Existing public signatures, metadata representation, discovery policy and pipeline phases remain unchanged. No foreign parser types, unsafe, I/O, mutable globals or new public entities are introduced.
+Decision/classification: add a public pure constructor for neutral integer ranges, keeping union/canonicalization in L1 and byte parsing in L3. This extended the public contract; its ADR-0127 ratification is recorded below. Existing public signatures, metadata representation, discovery policy and pipeline phases remain unchanged. No foreign parser types, unsafe, I/O, mutable globals or new public entities are introduced.
 
 New constructor:
 
@@ -41,7 +41,7 @@ Ranges are half-open: start is included and end excluded. Empty and reversed ran
 
 Compact connected input ranges using local start/end scalars, flushing only at a disjoint/nonadjacent range or end of input. Two ranges connect when their closed endpoint tests permit overlap or adjacency (`next.start <= active.end && active.start <= next.end` for half-open bounds); update with min(start)/max(end). Ignore empty/reversed inputs before compaction. Sort the resulting intervals by start, merge globally and encode the existing gaps/counts. Shared normalization/encoding remains owned by this module; from_codepoints may delegate its already compacted intervals without changing its public vector signature or exact supported point semantics.
 
-Acceptance after ratification: implement the public constructor through a genuine runtime RED with a temporary empty implementation, then GREEN with independent set-oracle tests of unordered/overlapping/reversed/empty intervals, gaps, adjacency, zero and the Unicode maximum. Preserve all existing point-constructor and catalog tests. The adapter owner's separate L0 must precede any productive byte/range extraction; synthetic controls cover formats 4/12/13, fallback formats, Unicode eligibility, glyph-zero declarations, sentinel behavior, invalid-record termination and legacy fallback. Validate complete CLI/PDF/font outputs and paired performance before asserting production gain. Measurements support the experiment, not an unconditional speedup promise.
+Acceptance: implement the public constructor through a genuine runtime RED with a temporary empty implementation, then GREEN with independent set-oracle tests of unordered/overlapping/reversed/empty intervals, gaps, adjacency, zero and the Unicode maximum. Preserve all existing point-constructor and catalog tests. The adapter owner's separate L0 must precede any productive byte/range extraction; synthetic controls cover formats 4/12/13, fallback formats, Unicode eligibility, glyph-zero declarations, sentinel behavior, invalid-record termination and legacy fallback. Validate complete CLI/PDF/font outputs and paired performance before asserting production gain. Measurements support the experiment, not an unconditional speedup promise.
 
 ## Owned coverage contract
 
@@ -81,9 +81,9 @@ Font storage, mmap-backed bytes and the `Font` API belong exclusively to `00_nuc
 Verify exact membership and ordered iteration against an independent set oracle for duplicate and overlapping subtables, reversed ranges, arbitrary order, gaps, zero and the Unicode maximum. Preserve catalog selection and fallback tests. Acceptance is set/selection semantics; wall-clock thresholds are not unit-test requirements. The historical bitmap and vector-sort decisions remain evidence in the diagnostic dataset, not current acquisition policy.
 
 
-Ratificação: dono confirmou o pacote coverage-ranges-2026-10-07 com `confirmo` em2026-10-07; manifesto f8f7805c6d2ca08d1d14296ed5c93767c416b536fa9c17532eaa8310ca93a549.
+Human ratification: the owner confirmed the coverage-ranges package with `confirmo` on 2026-10-07; manifesto SHA-256 `f8f7805c6d2ca08d1d14296ed5c93767c416b536fa9c17532eaa8310ca93a549`. The proposed range constructor is therefore part of the current contract.
 
-## Explicit range fixtures for Clippy — 2026-10-13
+## Explicit range fixture acceptance
 
 Measurement: Rust 1.92 Clippy reports the intentional reversed range at
 `01_core/src/entities/font_book.rs:913` and the singleton range collections at

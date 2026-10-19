@@ -1,30 +1,57 @@
 # L0 — compiler/eval/math/delimiters
 Hash do Código: 35140159
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/delimiters.rs`. No HEAD `e754ab364a221dbe344852178e84bd42b02c463e` e árvore limpa, `01_core/src/compiler/eval/math.rs:1555-1671` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-eval-math-2026-09-30-before.json.gz`.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/eval/math/delimiters.rs`. At HEAD `e754ab364a221dbe344852178e84bd42b02c463e` with a clean tree, `01_core/src/compiler/eval/math.rs:1555-1671` contains the extracted behavior. SHA-256, time and initial state are recorded in `lab/results/construction/diagnostics/atomizacao-eval-math-2026-09-30-before.json.gz`.
 
-## Contrato
+## Contract
 
-Interpretar delimitadores e opções de sintaxe vetorial com os erros existentes. Preservar assinaturas, semântica da linguagem e diagnósticos de `00_nucleo/prompts/core/compiler/eval/math.md`; não alterar fase do pipeline, defaults ou compatibilidade. A extração é interna a L1, sem I/O nem estado global mutável.
+Parse delimiters and vector-syntax options with existing errors. Preserve signatures, language semantics and diagnostics from `00_nucleo/prompts/core/compiler/eval/math.md`; preserve pipeline phase, defaults and compatibility. Extraction remains internal to L1, without I/O or mutable global state.
 
-## Aceitação
+## Acceptance
 
-A suíte L1 e os testes de math passam; `crystalline-lint .` valida ownership e hashes. Não inferir ganho de desempenho.
+The L1 suite and math tests must pass; `crystalline-lint .` must validate ownership and hashes. Do not infer performance gains.
 
-## Exaustividade nominal Value — V16, 2026-10-16
+## Nominal Value exhaustiveness
 
-### Medição anterior à decisão
+### Evidence before decision
 
-M1 em 01_core/src/compiler/eval/math/delimiters.rs:19, M2 em 01_core/src/compiler/eval/math/delimiters.rs:28. O inventário desta árvore não commitada (HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`) e os L0 vigentes foram lidos antes da prescrição. before.json.gz em `lab/results/construction/diagnostics/tekt-v16-math-value-2026-10-16/` conserva UTC, status, git diff HEAD --stat e hashes integrais. Value possui 39 variantes; os braços fallback medidos são internos e hoje uniformes. São avisos estruturais de evolução Rust, não prova de falha funcional ou de melhor leitura por IA. Não inferir intenção upstream.
+M1 at compiler/eval/math/delimiters.rs:19 and M2 at :28 were read with current
+L0 before prescription. The uncommitted tree has HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`;
+`lab/results/construction/diagnostics/tekt-v16-math-value-2026-10-16/before.json.gz`
+retains UTC, status, git diff HEAD --stat and full hashes. Value has 39 variants;
+the measured fallback arms are internal and currently uniform. These are Rust
+evolution warnings, not evidence of functional failure or improved AI reading.
+Do not infer upstream intent.
 
-### Decisão do owner e aceitação
+### Contract and acceptance
 
-M1 parse_delim_val aceita Str/Symbol, None e Array. O complemento nominal das outras 35 variantes atuais retorna None no mesmo braço; M2 parse_delim_char aceita Str/Symbol e None, e o complemento das outras 36 variantes retorna None. Preservar aliases de strings, pares Unicode, primeiro caractere de Symbol/string e todos os defaults de arrays (primeiro inválido/vazio vira NUL; segundo ausente/inválido repete o primeiro; elementos excedentes ignorados).
+M1 parse_delim_val accepts Str/Symbol, None and Array; explicitly group the other
+35 current variants to return None in the same arm. M2 parse_delim_char accepts
+Str/Symbol and None; the other 36 return None. Preserve string aliases, Unicode
+pairs, the first character of Symbol/string and every array default: invalid/
+empty first entry becomes NUL, absent/invalid second repeats the first, excess
+entries are ignored.
 
-Substituir somente o wildcard selecionado pelo complemento nominal das variantes atuais; compartilhar o corpo existente como grupo de alternativas equivalentes. V19 informativo é legítimo aqui por consequência/efeito idênticos e deve permanecer visível. Não duplicar corpos, criar helper de fachada, usar binding catchall, isenção ou mudança na configuração para esconder V16. Payloads não utilizados podem manter padrões internos `_` dentro de uma variante nominal. Assinaturas públicas, carriers, fase, defaults e diagnósticos não mudam.
+Replace only each selected wildcard with the nominal complement of current
+variants and retain one shared result body. Informational V19 is legitimate for
+identical results/effects and remains visible. Do not duplicate bodies, create
+a facade helper, use a catchall binding/exemption or change configuration to
+hide V16. Unused payloads may keep internal `_` patterns within named variants.
+Public signatures, carriers, phase, defaults and diagnostics remain unchanged.
 
-Antes da implementação, escrever controles co-localizados para os casos aceitos/rejeitados e a morfologia/presença indicadas. Os controles de preservação devem passar antes/depois; o RED é V16 no fonte atual e o teste de evolução em cópia do workspace real: adicionar uma variante sentinela em Value deve ser barrado em cada decisão selecionada (hoje o fallback a absorve). GREEN exige E0004 nesses mesmos pontos, zero V16 selecionado, somente novos V19 equivalentes e nenhum outro diagnóstico novo. Os controles não afirmam cobertura de execução das 39 variantes nem paridade vanilla global.
+Before implementation write local accepted/rejected and specified morphology/
+presence controls. Preservation controls pass before/after; RED is current V16
+and evolution in a real workspace copy: a sentinel added to copied Value must
+be rejected at each selected decision (the current fallback absorbs it).
+GREEN requires E0004 at those points, zero selected V16, only equivalent new
+V19 and no other new diagnostic. Controls do not claim execution coverage of
+all 39 variants or global vanilla parity.
 
-Resselo direto/reverso apenas deste owner e consumer; revalidar build, workspace completo, Clippy all-targets com warnings/expectativas não cumpridas como erro, fmt, Rustdoc estrito, V1/V5/V15/V26 e linhagem reversa. Executar comandos pesados sequencialmente sob 12 GiB, swap zero, Cargo um job. Guardar comandos, fontes/hashes e UTC; preservar código alheio à etapa.
+Reseal direct/reverse lineage only for this owner/consumer; validate build, full
+workspace, all-targets Clippy with warnings/unfulfilled expectations as errors,
+fmt, strict Rustdoc, V1/V5/V15/V26 and reverse lineage. Heavy commands run
+sequentially under 12 GiB, zero swap and one Cargo job. Preserve commands,
+source/hashes and UTC, and unrelated source.

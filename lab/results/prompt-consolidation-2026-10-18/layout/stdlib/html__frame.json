@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/html/frame.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated full HTML child extraction and native-format revision, preserving exact limited visibility/root representation and complete gates.",
+  "original_sha256": "95107dd87b9860365bd1ce3b1ac4a5e0cbbb24f7bbdd770e6733eb2e799abc19",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/html/frame.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

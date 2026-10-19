@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/modules.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "41d3c928eacbed52e0e0f3f23e1afee0a5a7cbe74bee7a7bcccdfcbf4db88636",
+    "result_sha256": "dbabba1f59c79e46e34aea4d2f8b293ab0152458c51c551c96642441842e42e3",
+    "disposition": "Full import/include owner translated: feature identity, syntax validation before effects, isolated context inheritance and causal import/include trace boundaries plus all warning and unsupported-contract debts retained."
+  }
+]

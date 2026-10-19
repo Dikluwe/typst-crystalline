@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "pdf-group-local-space"
-title = "Coordenadas locais de grupos no PDF"
-
+title = "PDF group-local coordinates"
 [[claims]]
 id = "local-y-down"
 level = "must"
-statement = "Após o grupo de página estabelecer o espaço local Y-down, geometria e clip dos descendentes usam esse espaço; grupos aninhados compõem suas matrizes afins sem reaplicar a reflexão de página. Adaptações próprias de texto ou imagem não alteram o espaço do grupo."
-
+statement = "After page group establishes local Y-down,descendant geometry/clips use it; nested groups compose affine matrices without repeating page reflection. Text/image adaptations never change group space."
 [[claims]]
 id = "scoped-geometry"
 level = "must"
-statement = "A transformação e o recorte de um grupo afetam seus descendentes e são restaurados antes de pintar irmãos; o caminho de clip usa as mesmas coordenadas locais que o conteúdo recortado."
+statement = "Group transform/clip affects descendants and restores before siblings; clip path uses same local coordinates as clipped content."

@@ -2,53 +2,89 @@
 Hash do Código: 780d8ec5
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/pdf_tiling.rs`
 
-## Medição anterior à decisão
+## Evidence and approval
 
-O snapshot tiling-nativo-2026-10-14/before.json.gz registra fontes/UTC/HEAD/working tree. stream/shape.rs:156/204 converte Tiling a cor; builder.rs:277 reserva somente gradientes. O manifesto aprovado d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d exige célula preparada nativa. O pin vanilla 9f2b6e871 em typst-pdf/src/paint.rs:161–195 prepara stream de célula com raiz local e transformação corrigida.
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz`
+retains sources/UTC/HEAD/working tree: stream/shape.rs:156/204 reduces Tiling to
+color, builder.rs:277 reserves only gradients. Approved manifesto
+`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
+requires native prepared cells. Historical vanilla 9f2b6e871 paint.rs:161–195
+prepares a local-root/corrected-transform cell stream; this is supporting source,
+not a requirement to copy every upstream mechanical choice.
 
-## Decisão e contrato privado
+native-v1/dense-open-tekt.pdf used Matrix [1 0 0 1 0 139] with Y-up paths; 144-DPI
+pdftoppm shifted lines/merged 0.5pt columns. The oracle's [1 0 0 -1 20 120] uses
+Y-down. Continuous geometry equivalence did not preserve raster pattern coverage.
+The measured refinement therefore uses Y-down local items and to_pdf*placement;
+this supersedes the earlier double-flip Y-up expression only for this cell frame.
 
-Registrar padrões por ocorrência emprestada de Shape e identidade do Arc de célula, sem serializar endereços. IDs e nomes são locais determinísticos. Recorrer Groups com matriz local e raiz lógica paint_root; Link/Semantic apenas contém itens visuais. Cada célula aninhada tem canvas próprio e raiz identidade. O grafo de frames é finito e não contém referências de retorno mutáveis.
+Inspection found global Pattern names/first Pattern.page unsafe for shared Arc
+cells reused after page selection. The refuter clones pages with nested tiling
+and selects only the second. verified-v3/followup-clippy-inventory.json and
+followup-architecture.log (candidate-final/workspace-pre) record four forbidden
+f32::hypot, an extra argument, two productive items after test modules and two
+new neutral wildcards.
 
-Emitir PatternType 1 PaintType 1 TilingType 1, BBox [0 0 cell.width cell.height], XStep/YStep = size + spacing positivos, recursos compartilhados, e stream vetorial da célula sem layout L3. A matriz converte coordenadas Y-up da célula para default user space do stream dono: flip(owner.height) * local_to_owner * placement * flip(cell.height). O helper afim de tiling decide Self/Parent e normaliza períodos. Rejeitar placement inválido explicitamente, sem sólido substituto.
+`tiling-overlap-2026-10-14/before.json.gz` retains sources/owners/HEAD/UTC/tree.
+Final renders/remaining-analysis.md in tiling-nativo-2026-10-14 observe 8×8 cell,
+4×4 pitch, 50% alpha: opaque-red PDF, one-contribution SVG, four-contribution PNG
+(255,15,15). pdf_tiling.rs:184 BBox=size, svg/paints.rs:148 overflow visible and
+shape/text alpha loss explain observable composition defects. Vanilla also clips
+overlap, which is no requirement to reproduce the defect. Explicit period
+composition is a hypothesis refuted by changed nonoverlap controls or disagreement
+with analytic source-over, including distinct-color order. Full chronology:
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/infra/export/pdf_tiling.md`.
 
-O stream da célula usa itens emprestados, sem clonar ocorrências nem invalidar chaves de gradientes. Desabilitar tagging/MCIDs/UA1 durante a emissão e restaurar contexto antes da página; nenhuma anotação/destino é criado a partir da célula. A célula é recortada por BBox, inclusive overflow de conteúdo. Overlap de spacing negativo fica no padrão PDF nativo. Compartilhar fontes/imagens/spot/gradientes/patterns aninhados, sem ciclos em Resources: cada pattern deve referenciar apenas seus descendentes de tiling. Recursos de página incluem todos os padrões usados na página, inclusive descendentes.
+## Current private contract
 
-## Aceitação
+Register patterns by borrowed Shape occurrence and cell Arc identity without
+serializing addresses; names/IDs are local deterministic mechanics. Traverse
+Groups with local matrix and logical paint_root; Link/Semantic contain visual
+items only. Each nested cell owns its canvas and identity root. The frame graph
+is finite with no mutable backreferences.
 
-T1–T3 aprovado; este módulo não autoriza publicação. Conferir estrutura PDF/qpdf, limites/célula/spacing/offset/rotação/Parent afim/contorno/densidade, texto e imagens aninhados e isolamento semântico. Render e diagnósticos são a aceitação de linguagem; IDs e bytes não certificam paridade. Build e linhagem completos devem ficar verdes.
+The affine tiling helper chooses Self/Parent and normalizes periods. Reject invalid
+placement explicitly, never substitute solid. Emit borrowed cell items without
+cloning occurrences or invalidating gradient keys, in local Y-down; matrix is
+`to_pdf * placement`, nested cells start to_pdf identity and their gradients use
+the same Y-down frame. The original direct-native-overlap/BBox=size Pattern
+proposal is superseded by period composition below, not a fallback.
 
-A montagem retorna objetos (ID, bytes) ao builder proprietário, que os armazena pela API privada existente.
+Emit the cell vector body once into a Form XObject with BBox=size. Reserve two IDs
+per occurrence, pattern and form. PatternType 1 / PaintType 1 / TilingType 1 uses
+BBox=pitch, positive XStep/YStep=pitch=size+spacing, and translated Form references
+for each helper-supplied contribution. Form resources retain fonts/images/
+ExtGState/gradients and only descendant tiling; Pattern resources reference only
+its Form. Do not add an isolated transparency group changing leaf composition.
+Preserve placement and semantic isolation. Nested pattern default user space
+remains the cell's; test before promotion. Native PDF overlap is no longer relied
+on for negative spacing.
 
-## Refinamento medido do referencial da célula
+During cell emission disable tagging/MCIDs/UA1 and restore context before page
+emission. No cell annotation/destination. Clip cell content/overflow to its BBox.
+Share font/image/spot/gradient/nested-pattern resources without cycles: each pattern
+references only descendants. Page resources include every used pattern/descendant.
+Names are per page; every descendant is emitted with the selected page's resources,
+never requiring an excluded page to have emitted them. Assembly returns (ID,bytes)
+objects to the owning builder's existing private storage API.
 
-A sonda native-v1/dense-open-tekt.pdf tem Matrix [1 0 0 1 0 139] e retângulo Y-up; pdftoppm a 144 DPI desloca as linhas e funde colunas de 0.5pt. O pin vanilla usa Matrix [1 0 0 -1 20 120] com caminho Y-down. A geometria contínua equivalente não produz a mesma cobertura na grade de raster do padrão. Emitir itens no espaço local Y-down, com matriz to_pdf * placement, e células aninhadas iniciam to_pdf identidade. Isto corrige o observável de cobertura, sem impor igualdade de bytes. Gradientes da célula usam o mesmo referencial Y-down.
+Explicitly enumerate FrameItem leaves without paints; no neutral wildcard, raised
+limit or allow. Future variants require an explicit decision. Preserve suite/
+renders before/after plus fmt/doc/lineage.
 
-## Reuso entre páginas e seleção
+## Acceptance and unresolved scope
 
-Inspeção: Patterns guarda nomes em um HashMap global e Pattern.page no primeiro encontro; Arc de célula é compartilhado entre páginas, então o segundo caminho pode reutilizar um descendente marcado na página excluída. Refutador: páginas clonadas com tiling aninhado e seleção somente da segunda. O registro de nomes deve ser separado por página, e cada descendente deve ser emitido com os recursos de sua página selecionada. Não depender da emissão de uma página excluída.
-
-## Higiene da migração nativa
-
-Medição: verified-v3/followup-clippy-inventory.json e followup-architecture.log, com candidate-final e workspace-pre próprios, registram quatro f32::hypot proibidos, um argumento adicional, dois itens produtivos depois de módulos de teste e dois wildcards neutros novos.
-
-Decisão interna em fluxo contínuo (ADR-0127): A varredura enumera explicitamente as folhas FrameItem que não contêm paints, sem wildcard neutro; futuras variantes exigem decisão explícita. Não elevar limites nem adicionar allow. Validar suíte e renders antes/depois, além de formato, doc e linhagem.
-
-## Composição de período e alpha sólido — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/tiling-overlap-2026-10-14/before.json.gz` preserva fontes, owners, HEAD, UTC e working tree. `tiling-nativo-2026-10-14/final-renders` e `remaining-analysis.md` registram cell8×8/pitch4×4 alpha50%: PDF vermelho opaco; SVG só uma contribuição; PNG quatro contribuições (255,15,15). `pdf_tiling.rs:184` emite BBox=size, `svg/paints.rs:148` usa overflow visible; `stream/shape.rs:155` e `stream/text.rs:275` descartam alpha. São defeitos observáveis de composição; o vanilla também corta overlap e não serve de requisito para esse defeito. Hipótese refutável: compor explicitamente um período preserva controles sem overlap e quatro contribuições coincidem com fonte-over analítica.
-
-### Responsabilidade desta unidade
-
-Substituir a dependência de overlap nativo por Form XObject da célula, BBox=size e corpo vetorial emitido uma vez. Reservar dois IDs por ocorrência (pattern e form); PatternType1 tem BBox=pitch, XStep/YStep=pitch e referências traduzidas ao Form para cada contribuição do helper. Recursos do Form conservam fontes/imagens/ExtGState/gradientes e apenas descendentes de tiling; recursos do Pattern referenciam somente o Form. Célula Y-down, matriz de placement e isolamento semântico permanecem. Não inserir grupo de transparência isolado que mude a composição de folhas. O default user space de padrões aninhados deve permanecer o da célula; testar antes de promover.
-
-### Aceitação
-
-Correção interna ADR-0127 dentro do T1–T3 já aprovado, sem nova API/fase/flag/default. L0 primeiro, RED→GREEN, composição analítica (incluindo ordem com cores distintas), controles simples/nested/rotated/text/image e extração/seleção de páginas. Build, suíte workspace, formato, Rustdoc e linhagem. Alpha variável de gradientes e qualidade PNG seguem incompletos; não certificar pacote de produção com esses itens abertos.
+Within the approved native-tiling package (historical T1–T3), no new API/phase/
+flag/default or publication authorization. L0 first, RED→GREEN, analytic composition
+including color order, PDF/qpdf structure, bounds/cell/spacing/offset/rotation/
+affine Parent/stroke/density, nested text/images and semantic isolation. Check
+simple/nested/rotated/text/image controls and page extraction/selection, especially
+second-page-only nested reuse. Render/diagnostics are language acceptance; IDs/
+bytes certify no parity. Full build/workspace suite/fmt/Rustdoc/lineage green.
+Variable-gradient alpha and PNG quality remain incomplete; do not certify a
+production package with these open issues. Later publication remains out of scope.

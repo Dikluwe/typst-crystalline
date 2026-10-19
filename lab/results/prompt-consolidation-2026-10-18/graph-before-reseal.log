@@ -1,0 +1,3369 @@
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/caption-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/sequence-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/raw-field-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/builtin-module-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/builtin-module-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access/identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/builtin-module-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/field_access.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/method_dispatch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/builtin-module-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/caption-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/arguments.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/call.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/builtin-module-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/collection_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/collection_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/contextual_calls.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/sequence-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/bare-insertion.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/selector_intercepts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch/trace_plugin.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/call_dispatch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/context_reads.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/control_flow.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/sequence-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/bare-insertion.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/flow.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/markup.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/markup-sequence-children.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/markup_stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/sequence-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/markup_stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/markup_stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/pending-text.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/markup_stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/markup_stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/markup_stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/markup_stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/markup_stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/markup_stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/math.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/math.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/builtin-module-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/sequence-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/source-validation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/expression-source-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/bare-insertion.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/show-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/builtin-module-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/modules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/modules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/source-validation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/modules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/content.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/observation-relation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/content.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/observation-relation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/elements.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/raw-field-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/elements.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/elements.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/elements.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/elements.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/elements.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/elements.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/elements.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/observation-relation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/geometry.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/observation-relation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/math.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/observation-relation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/observation-relation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/page.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/observation-relation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/style.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/observation-relation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/value.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/value.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/observation/value.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/operators/equality.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/operators/equality.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/repr/content.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/repr/content.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/repr/content.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/repr/math.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/decimal-rounding.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/repr/measure.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/repr/selector.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/repr/value.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/sequence-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/bare-insertion.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/show-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/text-size-affine.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/apply.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/intercept.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/intercept.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/intercept.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/outline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/realize.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/realize.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/realize.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/realize.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/realize.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/set/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/set/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/set/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/text-size-affine.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/set/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/set.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-hanging-validation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/set.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/show.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/show.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/bare-insertion.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/show.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/show.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/show.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual/matching/projection.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual/matching/projection.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual/matching.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual/matching.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual/matching.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual/matching.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual/space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual/space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/pending-text.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules/textual.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/rules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/sequence-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/selector_matching.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/selector_matching.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/selector_matching.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/selector_matching.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/show_rule_termination.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/source-validation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/syntax_diagnostics.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/table.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/table.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/table.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/markup-sequence-children.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/sequence-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/eval/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/bibliography.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/bibliography.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/classification.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/realization-order.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/entrypoints.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/extract_payload.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/from_tags/counter_updates.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/realization-order.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/from_tags/counter_updates.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/from_tags/headings.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/from_tags.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/heading.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/heading.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/labelled.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/labelled.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/locatable.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/materialize_time.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/materialize_time.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/materialize_time.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/materialize_time.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/materialize_time.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/realization-order.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/queries.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/queries.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/walk.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/realization-order.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/walk.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/walk.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect/walk.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/introspect.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/lang/defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/lang/equation_supplement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/lang/defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/lang/figure_supplement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/lang/defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/lang/heading_supplement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/lang/defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/lang/outline_title.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/lang/defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/lang/quotes.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/lang/quotes.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/align.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/bib_csl/plan.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/bib_csl.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/bibliography.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/bibliography.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/bibliography.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/bidi_origin.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/bidi_origin.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/bidi_origin.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/block-place-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-margin-priority.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-spacing-resolution.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/intrinsic-literal-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/boxed.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/boxed.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/boxed.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/boxed.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/boxed.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/boxed.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/boxed.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/break_selection.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/break_selection.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cell_tail_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cell_tail_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cell_tail_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cell_tail_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/block-place-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/subframe-inline-extents.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/checkpoint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cite.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/colbreak.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/columns/flow.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/columns/segmented.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/columns/segmented.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/columns/transitions.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/columns.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/columns.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/columns.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/context_block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/context_block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/context_block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/convergence.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/counter_display.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/counter_display_callback.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cursor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cursor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cursor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cursor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cursor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cursor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cursor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cursor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/cursor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/curve.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/curve.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/decorations.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/decorations.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/divider.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/divider.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/enum_item.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/enum_item.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/equation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/equation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/equation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/bare-insertion.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/equation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/callback-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/equation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/equation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/equation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/finish.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/finish.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/finish.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/flow_suffix.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/footnote_flush.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/footnote_flush.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/footnote_flush.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/footnote_flush.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/footnote_flush.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/footnote_flush.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/format_options.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/borders.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/cell_body.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/cell_body.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/cell_body.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/cell_body.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/cell_emission.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/cell_emission.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/cell_emission.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/cell_emission.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/row_groups.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/row_groups.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/row_groups.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/row_pagination.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/rules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/tracks.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid/tracks.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid_footer.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid_header.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid_placement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/grid_placement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/h_space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/h_space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-margin-priority.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/heading.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/heading.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/text-size-affine.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/heading.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/helpers.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/helpers.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/helpers.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/helpers.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/helpers.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/helpers.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/helpers.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/hide.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/html_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/html_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/html_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/html_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/html_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/html_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/image.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/image.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/line_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/linebreak.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/linebreak.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/linebreak.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/link.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/link.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/link.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/link.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/link_capture.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/list_item.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/list_item.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/measurement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/measurement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/intrinsic-literal-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/measurement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/subframe-inline-extents.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/measurement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/metrics.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/metrics.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/block-place-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/subframe-inline-extents.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/callback-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/outline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/outline_entry.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/pad.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/page_canvas.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/page-canvas.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/page_canvas.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/page_canvas.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/page_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/page_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/page_commit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/page_running.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/page-running.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/page_running.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/page_running.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/pagebreak.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/pagebreak.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/prepared-text-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_emit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_emit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_emit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_emit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_emit.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_hyphen.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_hyphen.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_hyphen.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_hyphen.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_indent.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_pagination.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_pagination.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_plan.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_plan.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_plan.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_plan.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_prepare.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_prepare.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_prepare.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_prepare.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_prepare.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_select.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_select.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/paragraph_select.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/parbreak.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/parbreak.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/parbreak.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/parbreak.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/pdf_artifact.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/pdf_attach.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/block-place-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/block-place-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/placement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/placement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/placement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/placement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/placement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/placement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/placement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/position_marker.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/position_marker.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/quote.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/quote.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/raw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/raw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/raw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/raw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/raw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/raw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/raw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/realized.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/realized.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/references.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/references.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/references.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/block-place-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/region_progress.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/region_progress.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/region_progress.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/region_progress.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/region_progress.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/region_progress.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/region_progress.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/repeat.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence/fractional_preflight.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-spacing-resolution.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence/fractional_preflight.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence/fractional_preflight.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence/fractional_preflight.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence/inline_prefix.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/prepared-text-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence/inline_prefix.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence/inline_prefix.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sequence.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/shape.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/shape.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/shape.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/shape.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/shape.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/slicing.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/slicing.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/slicing.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/slicing.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/slicing.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/slicing.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/smartquote.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/smartquote.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-tracking.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/stack.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/stack.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/stack.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/stack.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/stack.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/state_display.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/style_scope.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/style_scope.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/style_scope.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/style_scope.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/style_scope.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/text-size-affine.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/style_scope.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/block-place-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/subframe-inline-extents.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/sub_frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/table.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/table.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/table_footer.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/table_header.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/term_item.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/terms.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/block-place-region.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/block-spacing-resolution.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text/style.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text_baseline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text_baseline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text_baseline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-tracking.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text_tracking.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/text_tracking.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tiling.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-placement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/tiling.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/title.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/transform.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/transform.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/transform.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/transform.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/transform.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/element-form-b.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/v_space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-flow-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/v_space.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-tracking.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-composition.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-selection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/coordinates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/layout/word_segment.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/lexer/code.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/lexer/markup.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/lexer/math.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/lexer/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/accent.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/attach.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/attach.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/callback-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/callbacks.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/callback-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/cancel.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/external_bridge.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/matrix.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/callback-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/layout-observables.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/sequence_composition.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/source_transparency_tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/spacing.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/stretch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/style_transform.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/layout-observables.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/layout-observables.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/underline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/underover.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/layout-observables.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/math/layout/vec.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/parse/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/parse/code.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/parse/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/parse/markup.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/parse/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/parse/math.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/parse/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/parse/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/parse/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/parse/parser/checkpoints.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/parse/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/parse/parser/diagnostics.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/parse/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/parse/parser/state.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/parse/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/parse/parser.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/parse/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/parse/patterns.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/parse/core.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/parse/rules.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/bare-insertion.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/bare_math.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/sequence-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/bare-insertion.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/recipes.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/sequence-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/sequences.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/pending-text.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/sequences.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/sequences.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/table_cells.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/table_cells.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/table_cells.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/realize/table_cells.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/decimal-rounding.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/calc/round.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/collections/bytes.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/collections.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/context/block-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/context.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/counter/display.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/realization-order.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/counter/display.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/counter/filtered_reads.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/realization-order.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/counter/filtered_reads.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/counter.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/counter.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/caption-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/figure_image.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/builtin-module-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/format.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/format.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/format.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/foundations/query.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/foundations/query.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/html/frame.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/html/namespace.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/html.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/layout/place.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/stroke-paint-inputs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/caption-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/raw-field-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/loading/json_encode.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/loading/toml_encode.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/call-once.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/pdf.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/pdf.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/primitives_constructors/array.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/primitives_constructors/decimal.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/primitives_constructors/duration.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/primitives_constructors/version.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/primitives_constructors.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/shapes/optional-stroke.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/stroke-paint-inputs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/shapes/paint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/shapes/optional-stroke.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/shapes/rect.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/realization-order.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/state/resolve.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/state/language-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/state/resolve.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/state/language-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/state.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/raw-field-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/markup.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/math/attach.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/math/limits.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/math.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/par.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-hanging-validation.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/par.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/tests/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/tests/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/text/constructor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/text/constructor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/text-size-affine.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/text/constructor.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/text/smartquote.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/transforms.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-placement.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/stdlib/visualize.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/core/compiler/text_costs.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/packages/downloader-contract.toml [V26]
+   --> ./00_nucleo/prompts/core/contracts/package_downloader.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/bidi_context.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/compiler_features.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/construction/layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/construction/layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/construction/tables.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/construction/tables.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/construction/tables.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/raw-field-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/construction.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/projection-exhaustiveness.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/emptiness.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/emptiness.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/equality.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/caption-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/projection-exhaustiveness.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/raw-field-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/fields.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/projection-exhaustiveness.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/morphology.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/morphology.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/morphology.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/morphology.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/morphology.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/page_structure.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/page_structure.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/page_structure.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/plain_text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/projection-exhaustiveness.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/rust_hash.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/rust_hash.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/projection-exhaustiveness.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/source.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/source.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/tests/representation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/tests/representation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/tests/representation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/tests/representation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/traversal.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/traversal.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/traversal.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/traversal.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content/traversal.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/content.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/realization-order.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/counter_registry.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/entities/element-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/element_registry.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/boxed.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/context/block-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/context_block.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/entities/element-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/dynamic.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/emph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/entities/element-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/emph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/equation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/caption-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/figure.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/caption-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/figure_caption.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_accent.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_align_point.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_attach.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_attach.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_cancel.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_cases.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_class_override.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_delimited.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_frac.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_limits_override.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_matrix.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_matrix.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_op.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_root.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_stretch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_styled.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_underline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_underover.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/math_vec.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/outline_entry.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/raw-field-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/raw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/smartquote.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/strong.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/entities/element-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/strong.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/table.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/table.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/map-content-change.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-projection.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/table_cell.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/entities/element-boundary.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/test_callout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/transform-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/elements/transform.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/frame_paint.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/func.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/html.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/introspector.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/introspector.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/label_kind.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/layout_types.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/layout_types.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/layout_types.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/layout_types.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/builtin-module-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/module.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/page-canvas.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/page_canvas.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/page-running.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/page_running.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/selector.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/show.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/state/language-semantics.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/state.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/realization-order.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/state_registry.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/text-size-affine.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/style.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/text-size-affine.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/style_chain.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-placement.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/tiling.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/core/entities/value.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/bidi_context.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/bitmap_glyphs.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/metadata.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/metadata.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/resources.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-conic-mesh.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/resources.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-conic-placement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/resources.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/resources.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/resources.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder/streams.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/builder.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/font_binding.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/font_binding.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-conic-mesh.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/gradients/conic.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/gradients/conic.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/gradients/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/gradients/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-conic-mesh.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/gradients/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-conic-placement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/gradients/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/gradients/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/document.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/document.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/encoding.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/inline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/inline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/inline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/table.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/whitespace.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/html/whitespace.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/images/scan.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/line_cap_tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/pdf_tiling.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/render.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/render.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/render.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/render.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/render.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/draw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/draw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/draw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/draw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-conic-placement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/draw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-group-local-space.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/draw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/draw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/draw.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/page.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/separator.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/separator.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-conic-placement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/shape.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-group-local-space.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/shape.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/shape.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/shape.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text/runs.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text/runs.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-tracking.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text/runs.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-tracking.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text_replacement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text_replacement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream/text_replacement.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/stream.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg/geometry.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg/glyphs.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg/groups.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg/navigation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg/navigation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg/paints.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/tests/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/tests/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/tests/mod.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/tests/pdf_spot_colors_tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/tests/pdfua_structure_tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/tiling.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-placement.toml [V26]
+   --> ./00_nucleo/prompts/infra/export/tiling.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml [V26]
+   --> ./00_nucleo/prompts/infra/fallback_fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml [V26]
+   --> ./00_nucleo/prompts/infra/font_metrics/fallback.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/ssty-math-size.toml [V26]
+   --> ./00_nucleo/prompts/infra/font_metrics/math.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml [V26]
+   --> ./00_nucleo/prompts/infra/font_metrics/resolution.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/primary-resolution-cache.toml [V26]
+   --> ./00_nucleo/prompts/infra/font_metrics/resolution.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/primary-resolution-cache.toml [V26]
+   --> ./00_nucleo/prompts/infra/font_metrics.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-font-generation.toml [V26]
+   --> ./00_nucleo/prompts/infra/fontdb/generation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-font-generation.toml [V26]
+   --> ./00_nucleo/prompts/infra/fontdb.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/integration_tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/integration_tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/bare-insertion.toml [V26]
+   --> ./00_nucleo/prompts/infra/integration_tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/integration_tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-costs.toml [V26]
+   --> ./00_nucleo/prompts/infra/integration_tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/integration_tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/callback-realization.toml [V26]
+   --> ./00_nucleo/prompts/infra/layout.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/layout_bidi.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/layout_bidi.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/layout_bidi.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/layout_bidi.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/lib.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml [V26]
+   --> ./00_nucleo/prompts/infra/package_downloader.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/packages/downloader-contract.toml [V26]
+   --> ./00_nucleo/prompts/infra/package_downloader.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/bundle.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/bundle.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/bundle.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/bundle.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/bundle.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/bundle.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/context_stabilization.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/bare-insertion.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/context_stabilization.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/context_stabilization.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/context_stabilization.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/html.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/html.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/html.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/paged.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/paged.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/paged.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/callback-realization.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/paged.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/paged.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/paged.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/paged.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/pdf.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/pdf.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/pdf.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/raster.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/resources.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/resources.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/resources.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/resources.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/svg.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/expression-source-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/expression-source-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/pipeline.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/query_helpers.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/infra/query_helpers.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/infra/query_helpers.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/shell/info-projection.toml [V26]
+   --> ./00_nucleo/prompts/infra/runtime_info.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/bidi.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/cache.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaper-primary-cache.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/cache.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/font_selection.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/font_selection.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaper-primary-cache.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/font_selection.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/reconciliation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/reconciliation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-tracking.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/reconciliation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/reconciliation.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/shaping.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/shaping.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/shaping.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/ssty-math-size.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/shaping.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-tracking.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/shaping.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/shaping.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/text_identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/text_identity.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-tracking.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/tracking.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-replacement.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/traversal.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-separators.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/traversal.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/traversal.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper/traversal.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/layout/text-tracking.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml [V26]
+   --> ./00_nucleo/prompts/infra/shaper.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml [V26]
+   --> ./00_nucleo/prompts/infra/tests/svg_composite_graph.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/expression-source-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/world/cache.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-source-generation.toml [V26]
+   --> ./00_nucleo/prompts/infra/world/cache.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-font-generation.toml [V26]
+   --> ./00_nucleo/prompts/infra/world/font_session.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-font-generation.toml [V26]
+   --> ./00_nucleo/prompts/infra/world/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml [V26]
+   --> ./00_nucleo/prompts/infra/world/packages.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-source-generation.toml [V26]
+   --> ./00_nucleo/prompts/infra/world/source_session.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/expression-source-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/world/tests.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/expression-source-identity.toml [V26]
+   --> ./00_nucleo/prompts/infra/world.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-font-generation.toml [V26]
+   --> ./00_nucleo/prompts/infra/world.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-source-generation.toml [V26]
+   --> ./00_nucleo/prompts/infra/world.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/shell/build-identity.toml [V26]
+   --> ./00_nucleo/prompts/shell/build.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/caption-projection.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/content/source-origin.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/raw-field-presence.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/shell/build-identity.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-presence.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/table/cell-realization.toml [V26]
+   --> ./00_nucleo/prompts/shell/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/shell/info-projection.toml [V26]
+   --> ./00_nucleo/prompts/shell/info.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/wiring/compile.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml [V26]
+   --> ./00_nucleo/prompts/wiring/compile.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml [V26]
+   --> ./00_nucleo/prompts/wiring/compile.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-font-generation.toml [V26]
+   --> ./00_nucleo/prompts/wiring/compile.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-source-generation.toml [V26]
+   --> ./00_nucleo/prompts/wiring/compile.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/compile.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/completions.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/diagnostics.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/wiring/eval.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/expression-source-identity.toml [V26]
+   --> ./00_nucleo/prompts/wiring/eval.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml [V26]
+   --> ./00_nucleo/prompts/wiring/eval.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/eval.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/fonts.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml [V26]
+   --> ./00_nucleo/prompts/wiring/info.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/info.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/init.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/main.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml [V26]
+   --> ./00_nucleo/prompts/wiring/query.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/query.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/expression-source-identity.toml [V26]
+   --> ./00_nucleo/prompts/wiring/tests/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/smartquote-semantics.toml [V26]
+   --> ./00_nucleo/prompts/wiring/tests/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/tests/cli.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/wiring/tests/format_html.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml [V26]
+   --> ./00_nucleo/prompts/wiring/tests/format_html.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml [V26]
+   --> ./00_nucleo/prompts/wiring/tests/format_pdf_namespace.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/math/callback-realization.toml [V26]
+   --> ./00_nucleo/prompts/wiring/tests/math_cancel_callback_runtime.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-font-generation.toml [V26]
+   --> ./00_nucleo/prompts/wiring/watch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/watch-source-generation.toml [V26]
+   --> ./00_nucleo/prompts/wiring/watch.md:1
+
+error: stale nucleus pin 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml [V26]
+   --> ./00_nucleo/prompts/wiring/watch.md:1
+

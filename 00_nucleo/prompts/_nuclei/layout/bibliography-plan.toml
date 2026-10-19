@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "bibliography-plan"
-title = "Plano privado de entradas bibliográficas"
-
+title = "Private bibliography-entry plan"
 [[claims]]
 id = "ordered-entries"
 level = "must"
-statement = "Preservar ordem e fronteiras das entradas, prefixo opcional e corpo Content do CSL. Prefixo em qualquer entrada seleciona colunas para a lista; sem prefixos, distinguir hanging e plain pela indicação do CSL. Não inferir prefixos analisando texto já concatenado."
-
+statement = "Preserve CSL entry order/boundaries, optional prefix and Content body. Any entry prefix selects columns for the list; without prefixes distinguish hanging/plain by CSL indication. Never infer prefixes from already concatenated text."
 [[claims]]
 id = "private-transport"
 level = "must"
-statement = "O plano é privado ao layout, imutável e compartilhado por Arc entre tentativas e checkpoints; rollback conserva integralmente o plano. Não adicionar campos a BibRenderCache nem mudar assinaturas públicas. Não executar callbacks, nova introspecção ou outra passagem CSL para reconstruir fronteiras."
-
+statement = "The plan is layout-private, immutable and Arc-shared across attempts/checkpoints; rollback retains the complete plan. Add no BibRenderCache fields or public signature changes. Execute no callbacks, new introspection or extra CSL pass to reconstruct boundaries."
 [[claims]]
 id = "language-not-mechanics"
 level = "must"
-statement = "Cache público conserva sua composição Content anterior. O consumidor físico usa fronteiras tipadas e containers existentes sem acrescentar ocorrências semânticas de Grid/Block/Place ou Location artificial. Estado temporariamente incompleto de hanging precisa permanecer explícito nos L0s e nos resultados, sem ser certificado por melhora das colunas."
+statement = "Public cache retains prior Content composition. Physical consumer uses typed boundaries/existing containers without adding semantic Grid/Block/Place occurrences or artificial Location. Temporarily incomplete hanging must stay explicit in L0/results, not certified by column improvement."

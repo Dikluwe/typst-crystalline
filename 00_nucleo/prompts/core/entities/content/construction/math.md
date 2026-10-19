@@ -1,14 +1,26 @@
 # L0 — entities/content/construction/math
 Hash do Código: 0c6baaf0
 
-## Medição anterior à decisão
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/content/construction/math.rs`
 
-No HEAD f7195cdf6 (árvore limpa, 2026-09-30), o bloco está em `01_core/src/entities/content/construction.rs:167-614`. Esta observação estabelece o limite da extração; não mede desempenho ou nova paridade bilateral.
+## Evidence before specification
 
-## Owner e contrato
+At clean commit `f7195cdf6` (2026-09-30), the extracted behavior was in
+`01_core/src/entities/content/construction.rs:167-614`. This establishes the
+ownership boundary; it measures neither performance nor new bilateral parity.
 
-Camada L1. Consumer produtivo único: `01_core/src/entities/content/construction/math.rs`. Construtores de Content matemático; preservam payload, defaults, presença de argumentos e assinaturas existentes. Manter contrato público, comportamento por defeito, fase do pipeline, compatibilidade, pureza e despacho estático.
+## Contract
 
-## Aceitação
+Mathematical Content constructors preserve payloads, defaults, argument presence, and existing signatures. Preserve public contracts, default behavior, pipeline phase,
+compatibility, purity, and static dispatch.
 
-A suíte L1, o build e crystalline-lint passam. A separação não constitui prova de ganho de desempenho.
+## Acceptance
+
+The L1 suite, build, and `crystalline-lint` must pass. Separation alone is not
+proof of a performance improvement.
+
+## Historical record
+
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content/construction/math.md`. Historical observations are not a new parity certification.

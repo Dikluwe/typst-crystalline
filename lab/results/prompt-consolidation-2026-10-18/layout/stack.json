@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/stack.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated separators/replacement/bidi, causal composed width and exhaustive existing fallbacks; retained vertical/direction approximations, exact nominal groups and full structural gates.",
+  "original_sha256": "ab62f507295bc02f711027d93c9392bd6590ccc0ee31003b9e86e0aba3fc9d71",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/stack.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

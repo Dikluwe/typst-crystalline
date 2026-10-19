@@ -1,0 +1,37 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/calc/hyperbolic.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "75808e396540f71199fdaa686bd907af9f94d1b896b96fa7405e48ac5c7d3ad8",
+    "result_sha256": "d3a8fb661fe875c4e394868e1c0660f07958bbbdeba411efa70b2e011e7d0618",
+    "disposition": "Full extraction and deterministic libm decision translated; all domain/order/guard and independent tolerance/probe qualifications retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/calc/logarithms.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "7757a0b72c2c63757cea503404575a4b66b91d296ff8ae34682d9d8da920f916",
+    "result_sha256": "d6953de8cdf033a52e90a922d65fa604523ff1a3de992e3277445ec178111849",
+    "disposition": "Full extraction and deterministic libm decision translated; all domain/order/guard and independent tolerance/probe qualifications retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/calc/trig.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "194dd9a8090decca3819445cb0dd71c9481db6419b542d27e58648eeb517ed17",
+    "result_sha256": "683dc4c89bacafa71a43fd346ef057be03d3a9d4e89e9881192108cbc8cba794",
+    "disposition": "Full extraction and deterministic libm decision translated; all domain/order/guard and independent tolerance/probe qualifications retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/assert.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "3861698e90ae2f44d561921daa737b71cfc3e48a035468bdb519a0b20641beab",
+    "result_sha256": "b1336cae253024c84d527627fc773decbd0db4d4b2df49944f1a0565f046cfe3",
+    "disposition": "Canonical equality prerequisite translated, preserving separate supplement/identity debt and frozen RED controls."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/selector_matching/textual.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "5a2d4be95c11f69eee458f6b99c81ec6e68245feeb1a52265eec29157acc1d08",
+    "result_sha256": "3041516880b127dfe091e22bf09b1d9e99c505a25e37581ec9ab5d81f6007b6c",
+    "disposition": "Full textual selector predicate/range contract translated; guarded empty Text complement and latent-vs-emitted distinctions preserved."
+  }
+]

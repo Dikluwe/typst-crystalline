@@ -5,7 +5,7 @@ Hash do Código: ec4261c9
 **Exclusive consumer:** `01_core/src/entities/compiler_features.rs`
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
 
 ## Evidence
 

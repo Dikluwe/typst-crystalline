@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "context-block-semantics"
+title = "Identidade delayed do bloco context"
+
+[[claims]]
+id = "delayed"
+level = "must"
+statement = "O corpo permanece closure não avaliada até a expansão contextual."
+
+[[claims]]
+id = "stable-id"
+level = "must"
+statement = "A identidade numérica liga o elemento à localização contextual."
+
+[[claims]]
+id = "no-plain-text"
+level = "must"
+statement = "Antes da expansão o bloco não fabrica plain text nem layout visível."

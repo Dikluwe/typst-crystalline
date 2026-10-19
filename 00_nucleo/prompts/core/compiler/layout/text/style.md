@@ -2,60 +2,22 @@
 Hash do Código: a4e0e21d
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 
 Layer: L1. Exclusive consumer: `01_core/src/compiler/layout/text/style.rs`.
 
-## Evidence before decision
+## Evidence before specification
 
-`01_core/src/compiler/layout/text.rs:29-222` resolves TextStyle by typed and
-custom chain precedence, including script scaling. Space previously only
-used cached style at `01_core/src/compiler/layout/space.rs:14`; this is not
-proof of the effective font at a lexical boundary. The approved carrier
-requires actual font identity. No new parity measurement is claimed here.
+`01_core/src/compiler/layout/text.rs:29-222` resolves TextStyle through typed/custom chain precedence, including script scaling. Space previously used only cached style at `01_core/src/compiler/layout/space.rs:14`, which does not prove effective font at a lexical boundary. The approved carrier requires actual font identity. No new parity measurement is claimed.
 
-## Contract
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, before-measurement.json.gz, morph-before-measurement.json.gz and audit.json preserve HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC, status/diffstat, sources/L0/binaries/argv and historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. named-em A measures 0pt versus 24pt; affine 3pt versus 27pt; nested over 18pt measures 0pt versus 36pt. Pin accepts all six Size/Color/body permutations but Tekt rejects them. Positional set 18pt is ignored (12 versus 18pt). Pinned `text/mod.rs:290,303,924–930,1136–1142` and `args.rs:178–247` establish typed search, named preference, remaining body and composition. `style_chain.rs:513–517` and `constructor.rs:123` discard em; collapse at `style_chain.rs:394–395,419–422` uses top-wins where size needs folding. Size/scope are language observables; Rust representation is internal. Infer no historical intent. Restoration, Raw, heading, math, capture/show, duplicates/spans, zero/negative or metrics divergence can refute the correction. Equality probe refuted comparing declared values: in pin, text(size:2em)[A] == text(size:24pt)[A] is true; pinned StyledElem::eq at `content/mod.rs:779–782` compares child. That equality defect needs a separate correction; full type alone does not close it.
 
-Own pure effective-style resolution extracted unchanged from Text. Preserve
-field-specific precedence, typed size, custom font override, folded variations,
-semantic strong/emph provenance, math fields, script scaling 0.65, explicit
-script size and baseline offsets. Do not mutate layouter, do I/O, choose installed
-fonts, or emit text. Text invokes once before its temporary style scope. Markup
-and Newline separators invoke once at their current chain. Literal separators
-already inside the resolved scope reuse that style to avoid scaling twice.
-This internal descendant function introduces no public data or trait contract.
+## Ownership and contract
 
+Own pure effective-style resolution extracted unchanged from Text. Preserve field-specific precedence, typed size, custom font override, folded variations, semantic strong/emph provenance, math fields, script scaling 0.65, explicit script size and baseline offsets. Do not mutate Layouter, perform I/O, choose installed fonts or emit text. Text invokes once before its temporary style scope. Markup/Newline separators invoke once at current chain; Literal separators already within the resolved scope reuse that style to avoid double scaling. This internal descendant function introduces no public data/trait contract.
 
-## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
+Use the already-resolved Pt size from active style; remove dead abs-only custom text.size projection without replacing deliberate heading/math/script sizes with exterior style. Preserve all other folds, metrics and emission.
 
-### Medição anterior à decisão
+## Approval, acceptance and remaining scope
 
-`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
-`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
-fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
-Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
-mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
-mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
-Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
-estabelece busca tipada, preferência nomeada, body restante e composição.
-style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
-style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
-É tamanho/escopo observável da linguagem; a representação Rust é escolha
-interna. Não inferir intenção histórica. Refutar por restauração, Raw,
-heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
-A sonda de igualdade refutou a hipótese de comparar os valores declarados:
-no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
-content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
-própria correção; o tipo completo não é prova de fechamento desse eixo.
-
-### Ratificação
-
-O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
-771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
-Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
-Resselo somente após implementação e grafo válido. RG1 continua independente.
-
-### Responsabilidade exclusiva adicional
-
-Usar tamanho Pt já resolvido no estilo ativo; retirar a projeção morta abs-only de custom text.size sem substituir tamanhos deliberados de heading/math/script por estilo externo. Não alterar os demais folds, métricas ou emissões.
+The human ratified full text size (TS1) and both public contracts in proposal manifest `771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba` on 2026-10-17. Implementation/tests S1–S16 operate under 12GiB/zero swap; no release/merge/push. Reseal only after implementation and valid graph. RG1 remains independent. The approved cross-owner public changes are boundary criteria, not extra ownership of those consumers; language equality remains separately unresolved.

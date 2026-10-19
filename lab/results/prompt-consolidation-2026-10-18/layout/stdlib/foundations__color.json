@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/foundations/color.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated all color constructor forms/types/ranges and later Color-alternative/precision supersessions, Spot explicit projection and bounded CMYK calibration; preserved diagnostics/known upstream bug/guard proof.",
+  "original_sha256": "07b9e523aea881d87b1ab3c40c8a0b4b7deac9b2194b3a76036733d4e236261f",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/foundations/color.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

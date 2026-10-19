@@ -6,8 +6,8 @@ Hash do Código: 4c3e29ad
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
+- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:199640afc0a7243ca509288840d9c9e0c431f850f67919148fc8dac3b1cb33a0
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 
 ## Consumer evidence
 
@@ -36,63 +36,46 @@ Check same-page closure, deterministic IDs, missing/cross-page fallback, URL tar
 escaped labels, nesting and hit-area transforms.
 
 
-## Binding da face ratificada — 2026-10-05
+## Prepared fonts and navigation session
 
-Medição: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/probe.txt`. Transportar o contexto privado PreparedFonts pelos wrappers SVG; preservar geometria/semântica/API pública. Contexto discrimina face original/eixos e fornece bytes preparados, sem resolução nova por nome. O campo TextShaped.font foi confirmado pelo humano.
+### Evidence
 
-Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
+`lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/probe.txt`
+supports private PreparedFonts transport distinguishing original face/axes and
+prepared bytes. Human approval covers TextShaped.font; pinned shaped-face-identity
+owns shared invariants, not this consumer.
+`too-many-arguments-2026-10-15/before.json.gz` retains full sources/prior L0/
+signatures/hashes/UTC/status/diffstat at HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree captured
+2026-10-15T16:39:18.873477+00:00; classification.json records individually read
+contracts/reconfirmed spans. render_link at navigation.rs:83 has 12 arguments
+(threshold seven), historical C069. Forwarded SVG session components are shared;
+arity alone proves no functional defect. No new parity/upstream intent inferred.
 
+`clippy-aridade-final-2026-10-16/before.json.gz` retains checked sources/L0/HEAD/
+tree/UTC/status/diffstat/global hashes; callers.txt covers workspace/fixtures.
+MathLayouter homonyms are another engine. Prior inventory: 22 warnings/five
+arities. The follow-up materializes only this named correction, superseding its
+earlier audit-only pending status.
 
-## Aridade das fronteiras — `clippy::too_many_arguments`
+### Contract and acceptance
 
-### Evidência anterior à decisão
+Preserve public geometry/semantics/API while transporting private PreparedFonts
+through wrappers, no new name resolution. Consume hub's private session with
+definitions/fonts/IDs/mode; keep target/items/pos/size explicit and a static
+navigation free function. Current signature:
+render_link(xml,target,items,pos,size,session). Destinations come from
+session.destinations; children reuse session. Preserve immutable registry/public
+API, href/fallback/hit area/transforms/serialization/children/HTML mode. No filename
+inference/layout.
 
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
-
-- `C069`: `03_infra/src/export/svg/navigation.rs:83`, `render_link`, 12 argumentos contados pelo Clippy (limiar 7).
-
-### Prescrição exclusiva por função
-
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
-
-#### `C069` — `render_link`: Correção interna prescrita
-
-Link reenvia a mesma sessão SVG usada pelo dispatcher/grupos. Manter target, área de hit e filhos explícitos, mas transportar as definições/fontes/IDs/modo no contexto privado do hub.
-
-Receber a sessão privada do owner SVG, mantendo target, items, pos e size separados; continuar free function de navegação.
-
-Aceitação: URLs, destinos presentes/ausentes, área de hit, transforms, conteúdo e modo HTML iguais; não derivar filenames ou fazer novo layout.
-
-### Fronteira de materialização
-
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
-
-
-## Aridade final — materialização interna, 2026-10-16
-
-### Medição anterior à decisão
-
-Fontes e L0 vigentes conferidos antes do código; snapshot lab/results/construction/diagnostics/clippy-aridade-final-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, status, diffstat e hashes globais. callers.txt registra busca no workspace, incluindo fixtures; as chamadas homônimas do math::MathLayouter são outro motor e permanecem intactas. Inventário anterior tem 22 avisos, cinco destas aridades. Trata-se de estrutura privada Rust, sem nova afirmação de paridade ou intenção upstream.
-
-### Responsabilidade exclusiva e aceitação
-
-Concretizar C069 com render_link(xml,target,items,pos,size,session). Destinos vêm de session.destinations; filhos reusam a sessão. Preservar registro imutável e sua API, href/fallback, hit-area, transformação e serialização. Sessão privada definida em 00_nucleo/prompts/infra/export/svg.md.
-
-Este adendo materializa somente o escopo nominal e supersede seu estado pendente da auditoria. Fluxo contínuo ADR-0127: sem contrato externo, default, fase ou compatibilidade novos. L0 primeiro e resselo restrito. RED de too_many_arguments antes do código, GREEN sem novas supressões ou alteração de limiar; expectativas anteriores devem continuar satisfeitas. Conferir corpos e transporte de valores, preservar fixtures/esperados, sem testes que espelhem carriers. Executar controles existentes de Grid/Table/outline e SVG/tiling antes/depois, suíte workspace completa, build, Clippy all-targets, Rustdoc, formato, linhagem estrita/reversa e Tekt sem novos avisos, sob 12 GiB, swap zero e um job. Resultados não certificam paridade global ou conformidade PDF/UA.
+Keep layers/phase/defaults/static dispatch/no mutable globals; migrate private
+callers/their L0 before code. New public/external compatibility needs concrete
+ADR-0127 approval. Internal continuous materialization adds no external/default/
+phase/compatibility contract. L0 first/scoped resealing, too_many_arguments real
+RED→GREEN without suppression/threshold changes, previous expectations intact.
+Check bodies/value transport/existing language-integration/call controls with no
+relaxed fixtures/tolerances/carrier-mirror tests; Grid/Table/outline/SVG/tiling
+before/after, full workspace suite/build/all-target Clippy/Rustdoc/fmt/strict/
+reverse lineage/Tekt no new warnings under 12 GiB, zero swap, one job. No global
+parity/PDF-UA certification.

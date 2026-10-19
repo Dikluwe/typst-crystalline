@@ -2,212 +2,49 @@
 Hash do Código: fc16ae5c
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/layout/block-spacing-resolution.toml sha256:2e2f3cfb51bd0c484e65cc9e5c3e1eee9f3dad12c77aa9330674b474e11f3342
-- 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:77528cd6193277b9f776b29da06327d974f5cea26fb89abf821879b363185b0a
-- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/layout/block-spacing-resolution.toml sha256:0177da7d5af56bbce26198ac775e603cec4529be91fb3567373c243543fa85e3
+- 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:68203377765579bc29327c7d8fded6f4f831d11682b6b7c9abbf2dbf65b28bad
+- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
 
-## Medição anterior à decisão
+## Evidence before specification
 
-No HEAD ea7ae25ab (árvore limpa, 2026-09-30), a implementação vigente está em `01_core/src/compiler/layout/sequence.rs:19-72,559-747`. A medição identifica o limite do bloco a extrair; não mede desempenho nem altera a paridade de linguagem.
+At HEAD `ea7ae25ab` (clean tree,2026-09-30), block is `sequence.rs:19-72,559-747`; extraction boundaries, not new performance/language parity.
 
-## Owner e contrato
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/working tree/UTC/sources/argv/binaries against historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. Existing ShowRecipe/Located/Realized branches contain the corresponding transparent operation; Source must not leak as observable content. Human approval `confirmo` was received 2026-10-07; contract: `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md`.
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/layout/sequence/fractional_preflight.rs`. Calcular a parcela fracionária da região e medir a cauda fixa antes da emissão. Preservar os guards de região, a base herdada ou restante e a restauração do estado de medição. Esta extração mantém contrato público, defaults, fase do pipeline, compatibilidade e pureza L1.
+workspace-sixth refutes Source-wrapped Text prefix/tail classification before fractional Block; transparent-body inspection must preserve existing top/bottom formula and Block-through-wrapper recognition.
 
-## Aceitação
+implementation/block-boundary-layout-{pre,result}.json.gz preserves HEAD/tree/UTC/diffstat/source and FixedMetrics After222.3 versus Tail230 after top7.7 origin removal. block-boundaries-before already showed One baseline must rise by real top7.238 while After/Tail matched. fractional_preflight.rs:140-141 reserves prefix.fixed_height including next top from inline_prefix.rs:484; geometric Block origin already removes it, so free distribution must recover that reservation once rather than leave bottom gap.
 
-O despacho permanece estático. Testes L1, build e crystalline-lint devem passar. Não inferir ganho de desempenho da separação.
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/block-par-spacing-before/results.json.gz` preserves same HEAD/dirty state/UTC/diffstat/source-binary hashes/historical pin; font 10/top10/bottom0/par.spacing0-5-2em exposes hardcoded 1.2em in block.rs:127-130,585-588/fractional_preflight.rs:216-227 and lost next top at cursor.rs:103-110. Pinned flow/collect.rs:253-258 resolves Auto via ParElem::spacing. block-par-extra-before shows two 1fr Blocks should vary second baseline with spacing, not fixed 66. Explicit overrides/regions/terminal/style/Raw/Place/Align refute formula. scope19 refutes consensus of equal-sized runs as shared paragraph scope; before-edit.json.gz preserves owners.
 
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/scope-tail-before/results.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, dirty tree/UTC/status/diffstat/source/binary hashes against historical pin 9f2b6e871; block-par-spacing-after/block-par-extra-after refute run-size consensus (one 18pt wrapper differs from two adjacent 18pt wrappers). sequence.rs:196-245 closes in exterior chain while paragraph.rs:12-90 already finds lexical common ancestor; pinned flow/collect.rs:129-145 resolves shared style before spacing. Tail after 1fr spills despite fitting, Styled18 height is wrong, explicit Linebreak overflows; cursor.rs:127-135 rejects exact bound, fractional_preflight.rs:170-211 separately measures nodes/direct Text correction. Source/L0 before-edit.json.gz and wrap/font 8-18/Strong/sibling/Align/column probes support whole-segment measurement, not copied Rust/bytes or universal too-tall-tail parity.
 
-## D08B3-C2 — responsabilidade ratificada
+implementation/scope-tail-first.log shows initial scope tests pass but TAIL spacing5 is 5pt high and multiline12pt high: whitespace-only prefix got zero causal height plus nonexistent margin. scope-tail-after-first confirms 26/28 documents; five-line tails exceed first region and full-tail reservation misplaces start 32/17pt high. scope-tail-refutators aligns three-fragment one-line control but multiline leading and partial OUTER18/Styled8 defects persist. scope-tail-green-final refutes separator-only diagnosis: One 37.45 instead 43.5 after prefix had already closed; close_segment rejects empty pending line and subframe returns next-baseline cursor, losing real textual bottom/margin. These are distinct recorded failed candidates, not reasons to alter opaque expected outputs.
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz` preserves same HEAD/uncommitted state/status/stat/UTC/source/binary/historical pin. Multiword21 gains page/line leading, par40/8-fill gains page, OUTER18/INNER8 shifts BODY/upshrinks auto page. fractional_preflight.rs:151-171 refuses multiline; word_layout.rs:49 closes in local style; line_commit.rs:398-480 uses it for floor/leading/predicted top; sequence.rs:239 refuses partial closure and missing prior chain uses spacing 8. Pinned flow/collect.rs:129-145,179-214 resolves shared trunk/spacing/leading, each frame contributing geometry. These are language text/geometry/pages without buffer/algorithm/byte or historical-intent obligation.
 
-workspace-sixth mede reservas finais divergentes quando Text transporta Source: classificação de fragmento antes de Block fracionário e cauda transparente deve inspecionar body, preservando fórmula top/bottom-edge existente e reconhecimento de Block através de wrappers. Nenhum default ou estimativa geométrica nova.
+## Exclusive ownership and current contract
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+Layer L1. Sole consumer: `01_core/src/compiler/layout/sequence/fractional_preflight.rs`. Compute fractional-region share and fixed-tail reservation before emission, preserving region guards/inherited-versus-remaining base/measuring-state restore/public contract/default/phase/compatibility/L1 purity/static dispatch. Own no actual emission/effect replay.
 
+Inspect Source body transparently for prefix-fragment/tail and wrapped Block classification, preserving measured formulas/guards with no new default/geometry guess. For a legacy certified closing prefix, subtract exterior top-edge from fixed prefix reservation once before dividing fractional weights; empty prefix has no such reserve. Do not compensate each Block independently.
 
-## Fronteira fracionária geométrica — 2026-10-14
+Resolve Auto Block/neighbor margins through pinned block-spacing-resolution in current exterior scope. Do not alter weights/guards/prefix/tail/collapse strength as part of spacing resolution. Later complete-segment and multiline refinements below supersede only their specifically refuted earlier scope limits.
 
-Medição anterior: implementation/block-boundary-layout-{pre,result}.json.gz
-registra HEAD/árvore/UTC/diffstat/fontes; o log mostra caudas After222.3 contra
-Tail230 sob FixedMetrics após retirar top7.7 da origem. A sonda bilateral
-block-boundaries-before/results.json.gz já demonstrou que a baseline de One
-precisa subir o top7.238 das métricas reais, enquanto After/Tail já coincidem.
-sequence/fractional_preflight.rs:140–141 reserva prefix.fixed_height, que em
-inline_prefix.rs:484 inclui também o top da próxima baseline; a nova origem
-geométrica de Block já o retira. Portanto a parcela precisa devolver esse
-espaço reservado, não deixar um buraco no fundo. Critério é a geometria dos
-filhos e da cauda, não a forma de calcular a distribuição Rust.
+Measure certified textual tail as one complete segment including Styled/Strong/Emph/Linebreak/Source/Located/wrap via `00_nucleo/prompts/core/compiler/layout/paragraph.md` isolated helper. Reserve causal height once, not vertical_metrics deduction as for a leaf. For tail exceeding first region, measure first fragment under available capacity and identical widow/orphan admission; reserve only that fragment's causal height before 1fr. Later regions keep normal capacity and no terminal paragraph margin. Opaque body keeps prior path; empty tail measurement is 0 and creates no prefix boundary. Never convert unknown to 0.
 
-Contrato exclusivo: para prefixo certificado que fecha linha, descontar uma
-única vez o top-edge exterior da reserva fixa de prefixo antes de distribuir
-os pesos fracionários. Prefixo vazio não tem essa reserva. Conservar guards,
-caudas, pesos, ausência de efeitos e protocolo de prefixos. Não adicionar
-compensação ao resultado de cada bloco: a distribuição partilha a região
-livre corrigida. Correção interna ADR-0127, sem API/fase nova. Regressões
-existentes de prefixos, wraps e caudas são obrigatórias; L0 primeiro e resselo.
+When legacy prefix rejects a complete positively certified text segment, use causal bottom plus margin collapsed with first Block's explicit/Auto above. Only positive causal height creates geometric prefix; empty/transparent/whitespace-only prefix consumes no nonexistent margin. If cursor baseline already prepared, subtract its top-edge once. Runtime receives private geometric marker, bypassing legacy top adjustment/hooks; do not sum individual leaves or repeat boundary.
 
+For a complete prefix with last line already closed, valid causal witness and no active chain, use actual logical text bottom from items, never prepared next baseline. Establish shared weak margin on that end without another emission/flush. Initial origin/invalid witness/existing chain do not qualify. Local partial segment entered with exterior line open is not whole-paragraph proof and receives no new closure.
 
-## Margens automáticas de Block — 2026-10-14
+After legacy and single-line fallback refusal, try paragraph's positively certified multiline measurement. Reserve causal bottom+gap-prepared Top once and mark private multiline runtime; no legacy hooks/leaf summation. Reject this new route when prefix+tail cannot fit region rather than emit partially. Prior scalar certificates remain; multiline tails still use integral/first-fragment measure. Do not claim opaque/bidi/float/universal pagination from this extension.
 
-### Medição anterior à decisão
+## Acceptance and incomplete scope
 
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/block-par-spacing-before/results.json.gz`
-registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
-UTC, diffstat, hashes de fontes/binários e pin vanilla 9f2b6e871. Com fonte10,
-top10 e bottom0, PRE seguido de Block20 produz página62 no Tekt contra50/55/70
-com par.spacing0/5/2em. Block20 below0 seguido de texto produz página40 contra50.
-block.rs:127–130,585–588 e sequence/fractional_preflight.rs:216–227 substituem
-par.spacing por 1.2em; cursor.rs:103–110 omite top quando below zero.
-Fonte pinada typst-layout/src/flow/collect.rs:253–258 resolve Auto por ParElem::spacing.
-`block-par-extra-before/results.json.gz` mede dois Blocks1fr numa região80:
-a baseline de B deve ser60/62.5/70 para spacing0/5/2em, contra66 em todos.
-São posições/paginação observáveis da língua. Não é obrigação de copiar o Rust.
-A inferência é refutada por overrides explícitos, troca de região, margens
-terminais, estilos e regressões de Raw/Place/Align. before-edit.json.gz no
-diretório block-par-spacing conserva os owners antes da edição.
+Internal parity follows continuous-flow ADR-0127: L0 first/RED→GREEN/revalidation/restricted reseal, no new public entity/API/default/compatibility/eval-layout phase. Preserve prefix/wrap/tail regressions and all shared source-origin tests/C2/C/macro/build/lineage gates. Refute through sibling wrappers/order/last line/opaque input/columns/effect-free measurement; never copy upstream defects or weaken failed opaque assertions.
 
-### Classificação e limites
+Spacing controls retain explicit overrides/region/terminal/styles/Raw-Place-Align. Earlier scope/terminal-after 1fr/priority gaps are refined only where current whole-segment/multiline contracts say; negative constructor rejection and unmeasured mixed-strength collapse remain their separate obligations. Empty-prefix/no-margin and closed-line-bottom refuters remain unchanged, no shifted tail expectations.
 
-Correção interna ADR-0127, L0 primeiro, RED→GREEN e resselo restrito; sem
-API pública, fase, default novo ou compatibilidade alterada. A amostra
-scope19 refuta usar consenso de tamanhos dos runs como escopo de parágrafo:
-um wrapper18 e dois wrappers18 adjacentes têm margens distintas no pin.
-O escopo lexical continua pendente, assim como a cauda textual após Block1fr,
-valores negativos rejeitados pelo constructor e colapso entre margens de
-forças diferentes. Não marcar esses casos como corrigidos por esta fórmula.
-
-### Responsabilidade exclusiva
-
-Na reserva de margens de Block e seu vizinho, aplicar o núcleo pinado no
-escopo exterior vigente. Não alterar pesos, guards, contribuição de prefixo,
-cauda ou força do colapso como parte desta resolução.
-
-
-## Escopo textual e cauda fracionária — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
-registra HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
-UTC/status/diffstat e hashes de fontes/binários contra vanilla pinado9f2b6e871.
-Os lotes block-par-spacing-after e block-par-extra-after anteriores já
-refutam escopo por consenso de runs: um wrapper18 em Lead More exige margem
-21.6pt, enquanto dois wrappers18 adjacentes mantêm o escopo exterior.
-sequence.rs:196–245 fecha prefixos na chain exterior; paragraph.rs:12–90 já
-resolve direção pelo ancestral lexical comum. Fonte vanilla flow/collect.rs:
-129–145 resolve estilos comuns antes de compor linhas e espaçamento.
-A cauda TAIL top10/bottom0 após Block1fr ocupa página2 contra página1 no pin:
-cursor.rs:127–135 rejeita igualdade com o limite embora a cauda esteja
-certificada. Cauda Styled18 fica10.52pt acima; fractional_preflight.rs:170–211
-mede nós individualmente e só corrige a altura de Text direto. Linebreak
-explícito também excede a região. A nova sonda inclui wraps, fonte8/18,
-Strong, wrappers irmãos, Align e colunas. Isso é geometria e paginação de
-linguagem; não exige estrutura ou bytes iguais. before-edit.json.gz em
-scope-tail conserva os consumers/owners anteriores.
-
-### Classificação
-
-Correção interna de paridade ADR-0127: L0 primeiro, RED→GREEN e revalidação.
-Sem API pública, nova entidade, fase eval/layout ou default novo. Refutar
-por wrappers irmãos, preservação da ordem, última linha, corpos opacos,
-colunas e ausência de efeitos/estado vazando da medição. Não copiar defeito
-upstream nem declarar paginação universal para cauda maior que a região.
-
-### Responsabilidade exclusiva
-
-Medir uma cauda textual certificada como segmento completo, incluindo
-Styled/Strong/Emph/Linebreak/Source/Located e wrap, pelo helper isolado de
-paragraph. Reservar sua altura causal uma vez, sem descontar vertical_metrics
-como se fosse uma folha. Corpos opacos mantêm o percurso anterior.
-Quando o prefixo legado recusar um segmento textual integral certificado,
-reservar altura causal + margem colapsada com above explícito/automático do
-primeiro Block. Em cursor de baseline já preparado, descontar seu top-edge
-uma única vez. Entregar um marcador privado de prefixo geométrico ao runtime;
-nessa rota não aplicar o ajuste top nem os hooks da fórmula legada.
-Não emitir no emissor, reavaliar efeitos ou converter desconhecido em zero.
-
-
-### Refutador: whitespace antes do primeiro bloco
-
-implementation/scope-tail-first.log registra P1381 e escopo GREEN, mas TAIL
-fica5pt acima com spacing5 e a cauda multiline12pt acima no default. O novo
-fallback aceitou o prefixo só de whitespace (altura causal zero) e reservou
-uma margem inicial inexistente. Prefixo geométrico exige altura causal
-positiva; prefixo vazio/transparente não consome margem. Não subtrair esse
-erro da cauda nem alterar seus esperados. A medição de cauda vazia continua
-zero, distinta da criação de uma fronteira de prefixo.
-
-
-### Refutadores de extensão e primeira região
-
-scope-tail-after-first/results.json.gz confirma26/28 documentos. Os dois
-restantes são caudas com cinco linhas que excedem a primeira região; reservar
-altura integral deixa o início32/17pt acima. O primeiro fragmento deve ser
-medido sob a capacidade disponível, usando a mesma admissão de viúvas/órfãs,
-e somente sua altura causal entra na reserva anterior ao1fr. Próximas regiões
-preservam sua capacidade normal; não somar margem terminal de parágrafo.
-
-scope-tail-refutators/results.json.gz mede os três controles antigos que
-exigiam caudas desalinhadas. Três fragmentos numa linha agora coincidem
-integralmente. Multiword21 e par40/8 com fill ainda divergem em entrelinha:
-a medição isolada reproduz essa geometria defeituosa, não a certifica.
-O novo fallback de prefixo geométrico exige uma única baseline textual;
-prefixos multiline conservam os certificados escalares anteriores ou a rota
-opaca. Caudas multiline continuam sob medição integral/primeiro fragmento.
-Não alterar as asserções opacas desses dois prefixos para declará-los verdes.
-O aninhamento parcial OUTER18 + Styled8 contendo Block também continua
-incorreto no pin; um segmento local que entrou com linha exterior aberta
-não prova o escopo do parágrafo inteiro e não recebe novo fechamento.
-
-
-### Linha já fechada conserva sua fronteira
-
-scope-tail-green-final.log refuta que somente ignorar TextSeparator resolve
-P1383: One ainda37.45 em vez43.5. O prefixo pode fechar sua última linha
-antes de chegar ao Block. close_segment recusava current_line vazio e
-perdia a margem, enquanto sub_frame devolvia o cursor da próxima baseline
-como altura. Prefixo geométrico certificado usa o fundo textual lógico dos
-items, não a baseline preparada. Para linha já fechada, com testemunha
-causal válida, segmento completo e cadeia ainda ausente, registrar a margem
-fraca compartilhada sobre esse fim, sem emitir outra linha nem repetir flush.
-Origem inicial, testemunha inválida e cadeia existente não recebem essa rota.
-O ajuste de separadores continua correto por sua neutralidade, mas não era
-a causa suficiente deste RED. Cauda multiline mantém sua medição integral.
-
-
-## Prefixo multiline e aninhamento parcial — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
-registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
-commitado, status/stat/UTC, fontes e binários contra o pin vanilla
-9f2b6e8715237cb086899a42873660fe744622e8. Multiword21 gera duas páginas
-contra uma; Long/More estão 6.5/13pt abaixo. O prefixo40/8 com fill gera duas
-páginas; More está39.906pt abaixo. Nested OUTER18/INNER8 tem BODY12pt acima
-e página auto12pt menor. sequence/fractional_preflight.rs:151–171 recusa
-multiline; word_layout.rs:49 fecha dentro do estilo local; line_commit.rs:
-398–480 usa esse estilo para floor/leading/top previsto. sequence.rs:239
-recusa fechar segmento parcial; Block sem cadeia anterior usa spacing8pt.
-Vanilla flow/collect.rs:129–145,179–214 resolve trunk dos filhos, spacing e
-leading comuns; cada frame contribui sua geometria. Esses são observáveis
-textuais, geométricos e de paginação da linguagem (ADR-0107), não obrigação
-de copiar buffers, algoritmos ou bytes. A intenção histórica não é inferida.
-
-### Decisão e limite
-
-Correção interna de paridade ADR-0127 em fluxo contínuo: sem entidade,
-trait/assinatura pública, nova flag/default ou fase. O núcleo text-segment-scope
-pinado define as invariantes compartilhadas. Aceitação RED→GREEN dos três
-casos, controles de fontes, cores, margens, colunas, restauração, checkpoint
-e subframes, mais suíte completa e linhagem. A nova rota só amplia prefixos
-multiline textuais positivamente certificados; não declara paginação universal,
-bidi/floats nem conteúdo opaco. Preservar os certificados escalares anteriores.
-
-### Responsabilidade exclusiva
-
-Após recusa legacy e single-line, tentar medição multiline certificada de paragraph. Reservar seu fundo causal + gap - top já preparado, uma vez; retornar marcador multiline privado. Não somar folhas desse prefixo nem aplicar hooks legacy. Se prefixo mais cauda não couber na região, recusar nova rota em vez de emitir parcialmente.
+Multiline extension requires RED→GREEN all three measured cases, fonts/colors/margins/columns/restoration/checkpoints/subframes plus full suite/lineage. Preserve earlier scalar certificates and no partial open-line scope promotion. This completes neither all too-tall tails nor arbitrary prefix flow.

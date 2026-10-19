@@ -2,168 +2,145 @@
 Hash do Código: d1985474
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:2b8888460a1e6008abda0ff71603fe4dace79ff0a2a7aad598f8aabfab3e3776
-- 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:32890de1247262b54fa39d7ae1d640a068774a28cf1fa1c8890d0508d999af51
+- 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
+- 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329
 
-## Ownership e medição
+## Ownership and extraction evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/bindings/field_access/identity.rs`. No HEAD `ba5a4c7d305ed1444660d9eb80862f51b417efb6` e árvore limpa, `01_core/src/compiler/eval/bindings/field_access.rs:434-556` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-field-access-2026-09-30-before.json.gz`.
+Layer L1. Sole productive consumer:
+`01_core/src/compiler/eval/bindings/field_access/identity.rs`. At clean HEAD
+`ba5a4c7d305ed1444660d9eb80862f51b417efb6`, field_access.rs:434–556 contains
+extracted behavior. SHA/time/initial state in
+`lab/results/construction/diagnostics/atomizacao-field-access-2026-09-30-before.json.gz`.
 
-## Contrato
+## Exclusive identity boundary
 
-Identificar funções nativas e módulos efetivos e emitir avisos de símbolos obsoletos com base no binding resolvido. Preservar as assinaturas e semântica de `00_nucleo/prompts/core/compiler/eval/bindings/field_access.md`; despacho estático na mesma camada L1, sem I/O nem estado global mutável.
+Identify native functions/effective modules; emit deprecated-symbol warnings
+from resolved binding. Preserve field_access parent's signatures/semantics:
+`00_nucleo/prompts/core/compiler/eval/bindings/field_access.md`. Static same-layer
+L1, no I/O/mutable globals. Preserve L1/field-access tests/crystalline-lint with
+valid ownership/hashes; no inferred performance gain.
 
-## Aceitação
+## Native-format identity evidence and application boundary
 
-Preservar a suíte L1 e os testes de acesso a campos; `crystalline-lint .` passa com ownership e hashes corretos. Não inferir ganho de desempenho.
+### Evidence before decision
 
-
-## Formatos como funções de elemento — 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
-conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
-baseline-reuse.json prova igualdade de fontes/configuração/binário com a
-matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
-mede 144 casos detalhados; before-compat.json.gz mede 456 controles de
-nomes, aliases e namespace. Cada sonda conserva argv, binários e saídas.
-O pin é `9f2b6e8715237cb086899a42873660fe744622e8`, executável SHA-256
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree.
+`lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/before.json.gz`
+retains UTC/status/exact diffstat/hashes; baseline-reuse.json proves source/
+configuration/binary equality with prior3956-case/eight-profile final matrix.
+before-batch.json.gz measures144 detailed cases; before-compat.json.gz456 name/
+alias/namespace controls. Probes keep argv/binaries/output. Historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`, executable SHA
 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+Fifteen remaining routes reject where/kind only in Tekt. format.rs:17–27/96–146
+shares native_format across five formats, so pointer alone cannot distinguish
+schemas. pinned-schema.json.gz retains nine upstream declarations/blob/hash/
+lines/elem attributes. FuncRepr is pub(crate), entities/func.md:21/func.rs:24;
+retificacao-func-repr.md refutes prior claim L0 made it public.
+public-contract-before.json fixes public signatures/reexports/structs. Internal
+representation/parity classification, not new public contract or render-inferred
+intent.
 
-As quinze rotas restantes são rejeitadas por where/kind no Tekt e aceitas
-no pin. format.rs:17–27/96–146 compartilha native_format entre os cinco
-formatos, logo só ponteiro não distingue schemas. pinned-schema.json.gz
-conserva nove declarações upstream com blobs/hash/linhas e atributos elem.
-FuncRepr é pub(crate) em entities/func.md:21 e entities/func.rs:24; a nota
-anterior de que o L0 o mostrava público foi refutada em retificacao-func-repr.md.
-public-contract-before.json fixa assinaturas, reexports e structs públicos
-antes da mudança; a classificação é representação interna e paridade, não
-novo contrato público ou inferência de intenção por render.
+native_public_name includes Format payload with Native, including With unwrapping.
+is_user_defined_closure explicitly classifies Format false. is_format_pdf_function's
+Native arm also accepts Format, preserving exact current name/namespace validation,
+gates/aliases. Never use it to authenticate element capability. Keep std/format
+module policies, symbol warnings/a11y diagnostics.
 
-### Responsabilidade exclusiva
+### Acceptance and scope
 
-native_public_name inclui o payload Format junto de Native, inclusive ao
-descascar With. is_user_defined_closure nomeia Format como false. O braço
-Native de is_format_pdf_function também aceita Format e preserva exatamente
-a validação atual de nome/namespace, gates e aliases; não usar essa função
-como autenticação da capacidade de elemento. Não mudar políticas dos módulos
-std/format, avisos de símbolos ou diagnósticos a11y.
+Consume pinned format-native-identity nucleus. Native/Format may share body
+because payload/ABI/projection/execution are same; independently exercise both
+in name/namespace/pointer/Eq-Hash/clone-With/dispatch tests. Inventory new V19
+unions/link tests, no suppression. Explicitly name new variant in closed matches.
+Continuous ADR-0127: no new external definition/signature/field/trait,
+compatibility/default/phase. Before code, real functional RED for15 routes via
+current factories plus real observation against unmarked Native. GREEN requires
+full corpus/144 field-call cases/456 compatibility controls unchanged outside
+where/kind. Compare public-contract-before/after and sizeof before/after.
 
-### Aceitação e fronteiras
+L0 before code, ownership/V26 before restricted11-pair reseal. Build/full suite/
+strict Clippy-Rustdoc/fmt/V1/V5/V15/V26/reverse/global differential without new
+error-warning. Heavy tasks sequential MemoryMax 12 GiB/High 10 GiB/swap0/jobs1.
+Track legitimate V19 with coverage. Closes where/kind admission only, not all
+selection/show/query/synthesis/carrier morphology/counter. FG1/RM1/SY1/RG1/prior
+V16 retain scope/gates; copy no old candidate or publish.
 
-Consumir as invariantes compartilhadas do Núcleo Tekt pinado
-`00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml`. As novas
-alternativas Native/Format são agrupáveis porque usam o mesmo payload/ABI
-para projeção e execução; cada uma deve ser exercitada nos testes de nome,
-namespace, ponteiro, Eq/Hash, clone/With e despacho. V19 novo nessas uniões
-deve ser inventariado e ligado aos testes; não adicionar suppressions.
-A nova variante deve ser explicitamente nomeada nos matches fechados.
+## Direct nominal-alternative coverage
 
-Fluxo contínuo ADR-0127: nenhuma definição, assinatura, campo ou trait
-externo novo, compatibilidade, default ou fase muda. Antes do código, RED
-funcional dos quinze casos por factories atuais e controle de observação
-real contra Native não marcada. GREEN exige corpus completo, 144 casos de
-campos/chamadas e 456 controles de compatibilidade preservados fora de
-where/kind. Comparar public-contract-before/after e sizeof antes/depois.
+candidate-1/state.json.gz/differential-review.json in native-format-catalogue-
+2026-10-17 record eight new V19/four updated. Updates only include Format/increase
+count, not removed violations. First comparator wrongly demanded identical
+message. Add direct tests without productive changes/suppression/single-path
+group proof: native_public_name/is_user_defined_closure with Native/Format/Engine/
+Closure/Element/Plugin/With, including closure/format With. is_format_pdf_function
+covers both compatible native arms, non-PDF formats and remaining types. Name/
+namespace remains field/gate policy, no element-capability authentication.
 
-L0 antes do código; ownership/V26 antes de resselo restrito aos onze pares.
-Build, suíte workspace, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26, reverse
-e diferencial global sem novo erro/aviso. Comandos pesados sequenciais sob
-MemoryMax12GiB/High10GiB/swap0/jobs1. Rastrear notas V19 legítimas com cobertura.
+## HTML feature gates and module identity
 
-Esta etapa fecha admissão where/kind, não todas as operações de seleção,
-show/query, síntese, morfologia dos carriers ou counter. As frentes FG1, RM1,
-SY1, RG1 e V16 anteriores preservam seus escopos/gates; não aplicar candidatos
-antigos por cópia nem publicar.
+### Evidence before decision
 
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree.
+`lab/results/construction/diagnostics/html-feature-identity-2026-10-17/before.json.gz`
+retains UTC/status/exact diffstat/full sources-L0/hashes; all2123 prior hashes
+checked before matrix reuse. before-probe.json.gz keeps argv/fixtures/output/
+binary SHA. Historical vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`,
+binary `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+fields.rs:39–52 gates format.html, not std.html; identity.rs:84–101 identifies
+modules by names/bindings. Valid-import probes refute parity: std.html direct/
+alias/closure/reexport accepts disabled Html; global.typ with type/format/document/
+ordinary asset is wrongly gated; format.typ with svg/png/pdf/html functions gets
+wrong html/bundle gates. Initial let m = import probe invalid (import returns none),
+archived candidate-probe-syntax, no evidence credit. Pinned module.rs:138–154 reads
+binding guard, code.rs:347–368 anchors field. Language semantics/diagnostics,
+not required BindingGuard/upstream addresses. Parent L0 field_access.md:61–62
+already forbids std identification by binding comparison.
 
-### Cobertura direta das alternativas V19 — 2026-10-17
+### Exclusive effective-module recognition
 
-Medição anterior à decisão: candidate-1/state.json.gz e
-differential-review.json em
-lab/results/construction/diagnostics/native-format-catalogue-2026-10-17 registram oito
-notas V19 novas e quatro atualizadas. Estas últimas apenas incluem Format
-no padrão e elevam a contagem; não são violações removidas. O primeiro
-comparador exigia mensagem idêntica e por isso recusou a atualização.
+is_effective_std_module/is_effective_format_module delegate to Module's internal
+predicates. Remove authentication via name/type/document/svg/png/pdf/html.
+Keep deprecated-symbol/PDF-a11y/function-identity policies. Test Module::new native
+scope copies and real clones, not empty-name-only cases.
 
-Este owner recebe testes diretos complementares; não mudar o comportamento
-produtivo, suprimir notas ou usar somente um caminho como prova do grupo.
-Exercitar diretamente native_public_name e is_user_defined_closure com
-Native, Format, Engine, Closure, Element, Plugin e With, incluindo With de
-closure e de formato. Exercitar is_format_pdf_function nos dois braços
-nativos compatíveis, formatos não-PDF e nos tipos restantes; nome/namespace
-continua política de campo/gate, sem autenticar capacidade de elemento.
+Consume pinned builtin-module-identity nucleus. Private marker implements existing
+gates, not public contract; continuous ADR-0127 internal/parity. Module remains
+publicly opaque without new exported field/method; compare public declarations/
+signatures before/after. No public/phase/default change.
 
+### Acceptance and limits
 
-## Gate HTML e identidade de módulos — 2026-10-17
+Real RED before code; GREEN gates/homonyms/aliases/closures/imports in eight
+profiles, preserving message/hint/span/causal precedence. Disabled-feature
+rejection and active-feature acceptance classified separately; no MATCH/Preserved
+credit from active-feature cases for disabled cases. Keep prior cross-file std
+module equality divergence; no Module Eq/global-parity claim. Revalidate prior
+std.html-disabled matrix/active controls. No publication/commit/release. Require
+build/full suite/strict all-targets Clippy-Rustdoc/fmt/V1/V5/V15/V26/reverse/global
+differential without new error-warning. Reseal only six owners after valid
+ownership/nuclei; heavy tasks sequential MemoryMax 12 GiB/High 10 GiB/swap0/jobs1.
 
-### Medição anterior à decisão
+## Feature-gate causal continuation
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/html-feature-identity-2026-10-17/before.json.gz registra
-UTC, status, diff HEAD --stat, fontes e L0 completos e hashes; todos os 2123
-hashes da etapa anterior foram conferidos antes de reutilizar sua matriz.
-before-probe.json.gz conserva argv, fixtures, outputs e SHA-256 dos binários.
-O vanilla é o pin 9f2b6e8715237cb086899a42873660fe744622e8 e o binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
-fields.rs:39–52 só aplica o gate html a format, não a std; identity.rs:84–101
-reconhece módulos por nomes/bindings. As sondas com import correto refutam
-paridade: std.html direto/alias/closure/reexport aceita Html desligada;
-global.typ com type/format/document e asset comum recebe gate indevido;
-format.typ com funções svg/png/pdf/html recebe gates html/bundle indevidos.
-A tentativa inicial de sonda com let m = import foi inválida (import retorna
-none) e está arquivada em candidate-probe-syntax; não conta como evidência.
-A fonte upstream pinada module.rs:138–154 lê o guard do binding e code.rs:
-347–368 ancora no field. Isto comprova semântica/diagnóstico, não exige
-replicar BindingGuard ou endereços upstream. A instrução vigente no L0 pai
-field_access.md:61–62 proíbe identificar std comparando bindings.
+candidate-1/validation-green.log records four passing controls and real argument
+test failure: std.html(panic(...)) panics before gate. before-set-probe.json.gz
+retains UTC/hashes/sources/bilateral outputs at same HEAD/uncommitted tree:
+called std.html/format.html/std.asset/format.bundle evaluate args before gate;
+set std.html/std.format.html/alias hides target error/ignores args. Missing
+set variable/field wrongly accepted; false condition short-circuits. Active-HTML
+set alias ignores panic only in Tekt. Language order/diagnostic/effect.
+collection_methods.rs:36 evaluates args before module authentication;
+set.rs:44 uses ok() resolving target, :326 authenticates HTML by literal syntax.
 
-### Decisão e responsabilidade exclusiva
+Preserve prior identity responsibility. fields owner extracts three gates into
+eval-internal check_module_field_feature(&Value, &str, Span, Features) ->
+SourceResult<()> and calls it before lookup; other owners duplicate no diagnostics/
+rules.
 
-is_effective_std_module e is_effective_format_module delegam aos predicados internos do Module; remover autenticação por nome/type/document/svg/png/pdf/html. A política de símbolo obsoleto, PDF/a11y e identidades de funções permanece intocada. Testar com scopes nativos copiados por Module::new e por clones reais, não só nomes vazios.
-
-Consumir o núcleo canônico pinado builtin-module-identity.toml. O marcador é
-mecânica privada para cumprir gates vigentes, não novo contrato público;
-ADR-0127 permite fluxo contínuo de correção/paridade. A API pública de Module
-continua opaca, sem novos campos/métodos exportados; comparar declarações e
-assinaturas antes/depois. Nenhuma alteração pública/fase/default é autorizada.
-
-### Aceitação e limites
-
-RED funcional antes da implementação; GREEN dos gates, homônimos, aliases,
-closures e imports nos oito perfis; mensagem/hints/span e precedência causal.
-Não atribuir crédito MATCH/Preserved de feature ativa a casos desligados:
-classificar separadamente rejeição de feature e aceitação com feature ativa.
-Conservar divergência prévia de igualdade entre std de arquivos distintos;
-esta etapa não altera Eq de Module nem declara paridade global.
-Testar a matriz anterior de caminhos std.html desligados e controles ativados;
-sem publicar, commit ou release. Build, suíte workspace, Clippy all-targets e
-Rustdoc estritos, fmt, V1/V5/V15/V26, reverse e diferencial global sem novo
-erro/aviso. Somente resselo dos seis owners após validar ownership/núcleos.
-Comandos pesados sequenciais com MemoryMax12GiB/High10GiB/swap0/jobs1.
-
-
-## Continuação causal do gate — chamadas e set rules
-
-Medição anterior à decisão: candidate-1/validation-green.log registra quatro
-controles aprovados e falha real do teste de argumentos: std.html(panic(...))
-executa panic antes do gate. before-set-probe.json.gz registra UTC, hashes,
-fontes e saídas bilaterais no mesmo HEAD/árvore não commitada: std.html,
-format.html, std.asset e format.bundle chamados avaliam argumentos antes do
-gate; set std.html/std.format.html/alias apaga o erro do target e ignora os
-argumentos. Variável/field ausente em set também é aceito indevidamente;
-condition false conserva atalhamento. Html ativo em set por alias ignora panic
-no Tekt e o executa no pin. São ordem causal, diagnóstico e efeito da linguagem.
-collection_methods.rs:36 avalia argumentos antes de autenticar módulo; set.rs:
-44 usa ok() na resolução e :326 autentica HTML pela sintaxe literal.
-
-Conservar a responsabilidade anterior; fields extrai os três gates para check_module_field_feature(&Value, &str, Span, Features) -> SourceResult<()>, interno a eval, e o chama antes do lookup. Os demais owners não duplicam os diagnósticos nem regras.
-
-L0 precede esta continuação; correção interna/paridade em fluxo ADR-0127.
-O núcleo builtin-module-identity continua pinado e sem alteração. O contrato
-público e os campos externos permanecem iguais; nenhum fallback novo ou
-supressão. Os controles e a matriz dos oito perfis permanecem; acrescentar
-verificação bilateral dos efeitos e de set com/sem feature. A suite completa
-regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
+L0 precedes correction; internal/parity continuous ADR-0127, pinned
+builtin-module-identity unchanged, no public field/fallback/suppression change.
+Keep controls/eight-profile matrix; add bilateral effect/set checks with/without
+feature. Full suite reruns after new source freeze; changed source cannot reuse
+old gates.

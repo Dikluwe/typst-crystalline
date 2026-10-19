@@ -1,0 +1,11 @@
+{
+  "files": [
+    "00_nucleo/prompts/shell/cli.md",
+    "00_nucleo/prompts/infra/export/html/table.md"
+  ],
+  "evidence": [
+    "lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md:3",
+    "lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-2026-10-07.md:3"
+  ],
+  "disposition": "stale pending status superseded only by exact historical package ratifications; all acceptance/scope-out obligations retained"
+}

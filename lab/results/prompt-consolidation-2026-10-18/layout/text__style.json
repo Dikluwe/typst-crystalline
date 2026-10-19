@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/text/style.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated effective-style resolver and explicitly approved resolved-Pt refinement, preserving TS1 public ratification, validation scope, RG1 and independent equality defect.",
+  "original_sha256": "a4e7b6a7ece6503e41fe835409adb096b3f2fb49c164cf7479f681d993d87ea3",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/text/style.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

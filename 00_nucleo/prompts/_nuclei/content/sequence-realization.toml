@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "sequence-realization"
-title = "Realização de Sequence preservando escopo e ocorrência"
-
+title = "Sequence realization preserving scope and occurrence"
 [[claims]]
 id = "capture-before-flatten"
 level = "must"
-statement = "Inserção e cauda lexical Sequence selecionável conservam corpo e ambiente antes do aplanamento. Captura não executa receita; prefixos anteriores à regra não recebem regras futuras."
-
+statement = "Insertion and selectable lexical Sequence tails preserve body and environment before flattening. Capture does not execute recipes; prefixes before a rule receive no future rules."
 [[claims]]
 id = "parent-before-hidden-children"
 level = "must"
-statement = "Uma receita Sequence marcada é decidida antes das receitas e preparações dos filhos que pode ocultar. Somente conteúdo emitido continua sua realização. O transporte é privado em RAM, com tipos públicos existentes."
-
+statement = "A marked Sequence recipe is decided before recipes and preparations of children it may hide. Only emitted content continues realization. Transport is private in RAM using existing public types."
 [[claims]]
 id = "nominal-guards"
 level = "must"
-statement = "Alias de it conserva a proteção dos RuleIds já aplicados à ocorrência; reconstrução nova não herda essa proteção só por ter children iguais. A profundidade existente de show limita novas gerações, sem ponto-fixo morfológico ou Location fabricada."
-
+statement = "An alias of it retains protection from RuleIds already applied to its occurrence; a fresh reconstruction does not inherit protection merely from equal children. Existing show-depth bounds new generations, without morphological fixpoint or fabricated Location."
 [[claims]]
 id = "preserve-other-owners"
 level = "must-not"
-statement = "Não mudar limites de Route, interfaces públicas, fase de State/Counter/Heading, transparência de Styled comum ou política de terminação dos demais não-localizáveis. Capturas mantêm regras/styles/guards/file lexicais e Source causal."
+statement = "Do not change Route limits, public interfaces, State/Counter/Heading phases, ordinary Styled transparency or other nonlocatable termination policies. Captures retain lexical rules/styles/guards/file and causal Source."

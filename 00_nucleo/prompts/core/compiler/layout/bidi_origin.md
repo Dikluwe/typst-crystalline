@@ -1,66 +1,41 @@
-# L0 — Origem lógica textual de bidi
+# L0 — Logical text origin for bidi
 Hash do Código: c9aa0b18
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml sha256:dd8c7661f2246385e2aed1737e8494d778b9f563b7ac709fc3c750a23fe50596
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml sha256:5c733e4756935ef5e4841991852a5f60f0f00e2b76c988c6af340b52cc0ce977
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 
 **Layer:** L1.
 **Exclusive consumer:** `01_core/src/compiler/layout/bidi_origin.rs`.
 
-## Medição anterior à decisão
+## Evidence before specification
 
-`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` registra a refutação de resolução por fragmento com base igual. `paragraph.rs:15–51` já certifica direção integral; `text.rs:66` divide palavras e `space.rs:31` emite separadores. `initial.json.gz` guarda fonte, estado e binários. O contrato público foi ratificado em `bidi-contexto-aprovacao-2026-10-05.json`.
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` records the refutation of per-fragment resolution with equal base. `paragraph.rs:15–51` already certifies integral direction; `text.rs:66` splits words and `space.rs:31` emits separators. `initial.json.gz` preserves source, state and binaries. The public contract was ratified in `bidi-contexto-aprovacao-2026-10-05.json`.
 
-## Decisão e escopo
+`lab/results/construction/diagnostics/bidi-contexto-implementacao-2026-10-05/verification.json.gz` preserves the first candidate: RTL mixed/LTR numeric still match the incorrect baseline. `pipeline-context.log` records full-pipeline RED: every leaf lacks a span; `realize/mod.rs:38–44` inserts Located around occurrences. Direct evaluation had not exercised that envelope. Preserve first-candidate artifacts. Vanilla `collect.rs:191–194` requires LF in the default case; numeric-explicit measurement is in the implementation receipt.
 
-Helper privado de descendência de layout, sem ampliar API pública. Cursor Clone possui Arc input e próximo índice; next retorna span completo de Text/Space por ordem, Linebreak avança sem span. Preparar por travessia estrutural integral, Styled atualiza chain; Strong/Emph preservam ordem. Text guarda EcoString original e Dir horizontal efetiva; Space/Newline guardam origem; Linebreak guarda fronteira. Unsupported recusa toda preparação. Não usar busca de strings para descobrir origem.
+Typed Styled evidence: `word_layout.rs:89–121` emits Shape for highlight; `text/style.rs` decodes typed tracking and baseline, so rejecting only chain.custom would miss typed deltas. `style_scope.rs:42–69` handles pdf.marker.tag=label with an inline subframe and outline.link.destination with Link. Current reorder works on direct line leaves.
 
-Restringir a região simples e incremental: sem colunas/subframes genéricos/justificação (célula isolada exige capacidade especificada abaixo)/hifenização/smallcaps/tracking/optimized, Text sem newline/tab e sem words que pedem segmentação, sem transformação cujo texto não corresponda. Ativar nesta etapa apenas quando base RTL, run RTL ou run difere da base; LTR puro continua no planejamento anterior. Base fornecida pela direção lexical certificada, não pelo primeiro caractere. Cursor não é global, checkpoint clona, subframe suspende. O fragmento exato fica em campo privado do Layouter apenas durante emissão, depois é restaurado.
+`focused-candidate-verification.json.gz` and `candidate-source.json.gz` under `lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/` preserve a candidate with correct width/anchor but incorrect ABC/123/Arabic RTL order. `bidi_origin.rs:111-117` rejects all cells/subframes, preventing integral input from reaching L3 reorder. `cell_body.rs:223-235` treats Text/TextShaped, but not TextSeparator, as text for baseline rebasing, introducing a top-edge delta within the same line. The two internal causes can be refuted by order/baseline still differing after limited certification and consistent recomposition.
 
-## Aceitação
+The source-origin baseline `lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/working tree/UTC/sources/argv and binaries at historical pin `9f2b6e8715237cb086899a42873660fe744622e8`. The source has corresponding transparent operations in ShowRecipe/Located/Realized branches; Source must not leak as an observable element. Human approval `confirmo` was received on 2026-10-07; contract: `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md`. These historical measurements do not certify the current ratified reference without a new run.
 
-RED→GREEN para travessia com duas palavras iguais e offsets UTF8 distintos, Space causal, override e unsupported None. Testes de fonte real por Sequence/Par, wraps e checkpoint. Zero I/O e unsafe.
+## Ownership and certified scope
 
-Recusa integral não permite recertificar um filho parcial: guard privado de escopo em Sequence/Par impede reentrada; subframe suspende o guard com o cursor. Validar None para sequências com objetos opacos e folhas separadas.
+Own a private layout descendant helper, without expanding public API. A Clone cursor contains Arc input and the next index; next returns a complete Text/Space span in order, while Linebreak advances without a span. Prepare through integral structural traversal: Styled updates chain, Strong/Emph preserve order. Text keeps original EcoString and effective horizontal Dir; Space/Newline retain origin; Linebreak retains boundary. Unsupported rejects the entire preparation. Do not discover origin through string search.
 
+Restrict certification to a simple incremental region: no columns, generic subframes, justification except the specifically permitted isolated-cell capability, hyphenation, smallcaps, tracking or optimized selection; Text has no newline/tab, words require no segmentation, and no transformation may mismatch the text. Activate only when base RTL, run RTL or run differs from base; pure LTR stays on the previous planning path. Base comes from certified lexical direction, never the first character. Cursor is not global; checkpoint clones it and subframes suspend it. The exact fragment occupies a private Layouter field only during emission, then is restored.
 
-## Envelopes de identidade no pipeline completo
+Integral refusal forbids recertifying a partial child. A private Sequence/Par scope guard prevents reentry; subframes suspend guard together with cursor. Located is transparent only for certification of its complete textual body: do not ignore opaque bodies or change Location registration. Lexical direction and collection traverse the same envelope. Linebreak justify=true remains uncertified because the ratified unit carrier does not encode that distinction.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-implementacao-2026-10-05/verification.json.gz` preserva o primeiro candidato; RTL mixed/LTR numeric ainda coincidem com baseline errado. `pipeline-context.log` registra RED pelo pipeline completo: todas as folhas sem span; `realize/mod.rs:38–44` insere Located em ocorrências. Avaliação direta não exercitava esse envelope. Correção interna: Located é transparente somente para certificação da sua body textual integral, sem ignorar corpos opacos nem alterar registro de Location. Direção lexical e coleta devem atravessar o mesmo envelope. O teste do pipeline exige spans em todas as folhas textuais e ordem RTL com primeiro trecho latino; preservar artefatos do primeiro candidato.
+Styled certification also inspects typed deltas. Tracking, highlight, subscript/superscript and shifted baseline produce paint/positions outside the known reconstruction and reject the entire input, even only within a wrapper. Font/size/bold/italic/font-variation without text transformation remain allowed. Par line numbering and pending floats reject certification because they add material/change region. Internal pdf.marker.tag=label and outline.link.destination channels likewise reject integral certification; do not presume their leaves transparent.
 
-Linebreak justify=true está fora do certificado nesta rodada: o carrier unitário ratificado não transporta essa distinção. A fonte vanilla collect.rs:191–194 exige LF no caso padrão; a medição numeric-explicit está no receipt da implementação.
+Permit a cell region only with existing cell_bidi_allowed and regions.cell; generic subframes remain rejected. Do not change collect, grammar, chain, lexical base, ranges or transform guards. Certify the complete original cell input, without authored virtual text. The cell correction is internal parity work with no public contract, phase, product flag or new unsafe.
 
-Certificação de Styled considera também deltas tipados: tracking, highlight, subscript/superscript e baseline deslocada produzem tinta/posição fora da reconstrução conhecida, logo recusam input inteiro, inclusive quando aparecem somente dentro do wrapper. Font/size/bold/italic/font-variation sem transformação de texto continuam permitidos. Par line numbering e floats pendentes recusam o certificado porque acrescentam material/alteram região. Medição de código: word_layout.rs:89–121 emite Shape para highlight; text/style.rs decodifica tracking tipado e baseline, rejeição só em chain.custom não cobrira o delta tipado. Teste RED direto de Styled com Tracking/Highlight/Superscript.
+Certification traverses Source without changing logical text, direction, complete ranges, chain or order; an origin wrapper does not cause Unsupported. Preserve exclusive ownership/static dispatch, without I/O or a new signature/trait/flag or eval↔layout phase.
 
-Medição da fronteira de Styled: style_scope.rs:42–69 trata pdf.marker.tag=label com subframe inline e outline.link.destination com Link. Esses canais internos também recusam a certificação integral, porque o reorder atual opera nas folhas diretas da linha; não certificar suas folhas por transparência presumida.
+## Acceptance and limits
 
-## Célula textual certificada — refutação 2026-10-06
-
-### Medição anterior à decisão
-
-focused-candidate-verification.json.gz e candidate-source.json.gz em
-`lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/` preservam candidato
-com largura/âncora corretas mas ordem ABC/123/árabe incorreta em RTL.
-bidi_origin.rs:111-117 recusa todas as células/subframes; o input integral
-não chega à reordenação L3. cell_body.rs:223-235 classifica Text e TextShaped
-como texto para rebase de baseline, mas não TextSeparator, introduzindo
-um delta de top-edge nos separadores da mesma linha. São duas causas
-internas refutáveis por ordem/baseline ainda divergentes após certificação
-limitada e recomposição consistente. Correção de paridade interna, sem
-contrato público, fase, flags de produto ou unsafe novo.
-
-### Responsabilidade exclusiva
-
-Permitir a região de célula somente com cell_bidi_allowed e regions.cell existente; subframes genéricos continuam recusados. Não mudar collect, gramática, chain, base lexical, ranges ou guards de transforms. Isso certifica a entrada original completa da célula, sem texto virtual autoral.
-
-
-## D08B3-C2 — responsabilidade ratificada
-
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
-
-Certificação bidi atravessa Source sem alterar texto lógico, direção, ranges completos, chain ou ordem. wrapper de origem não causa Unsupported.
-
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+Require RED→GREEN for traversal of two equal words with distinct UTF8 offsets, causal Space, override and unsupported None; real-source Sequence/Par, wraps and checkpoint tests; zero I/O and unsafe. Verify None for sequences with opaque objects and separated leaves. Full-pipeline tests require spans in every text leaf and RTL order with an initial Latin fragment. Direct Styled Tracking/Highlight/Superscript tests must first be RED. Source-origin tests and C2/C/macro collections, builds and lineage are required before certification. Preserve all restrictions above rather than claiming general bidi parity.

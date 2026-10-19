@@ -1,96 +1,64 @@
 # Prompt L0 — `entities/elements/enum_item` — `EnumItemElem`
 Hash do Código: f6fd97e4
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/enum_item.rs`
-**Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Campo
-`numbering` adicionado em **P470**; campos `indent`/`body_indent`/`tight`
-adicionados em **P505**. Trait, regras partilhadas e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável** (confirmado P318).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/enum_item.rs`
+**Trait owner:** `00_nucleo/prompts/core/entities/elements/mod.md`
 
----
+## Evidence before specification
 
-## Struct
+Historical upstream `e0e8ca4d`, crates/typst-library/src/model/enum.rs:
+89–90,149–154 places tight(default true), indent and body_indent(default 0.5em)
+on EnumElem, not its item. The 2026-08-13 two-item probe rendered `1. Um` /
+`2. Dois` upstream and `1.Um` / `2.Dois` locally. Replicating container settings
+into item data is permitted mechanics; a wrong rendered 0pt versus 0.5em
+default is an actual language divergence. Its fix belongs to
+`00_nucleo/prompts/core/compiler/layout/enum_item.md` and the corresponding
+list-item owner; this carrier does not certify it fixed.
+
+## Carrier and constructors
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct EnumItemElem {
-    pub number:       Option<u32>,
-    pub body:         Content,
-    pub numbering:    Option<EnumNumbering>,  // None = Decimal default
-    /// **P505** — indentação do rótulo numérico em relação à margem esquerda.
-    pub indent:       Option<Length>,
-    /// **P505** — indentação do corpo do item em relação ao rótulo.
-    pub body_indent:  Option<Length>,
-    /// **P505** — `false` adiciona espaçamento de parágrafo entre itens;
-    /// `true` (default) mantém os itens justapostos.
-    pub tight:        Option<bool>,
+    pub number: Option<u32>,
+    pub body: Content,
+    pub numbering: Option<EnumNumbering>,
+    pub indent: Option<Length>,
+    pub body_indent: Option<Length>,
+    pub tight: Option<bool>,
 }
 ```
 
-`Content::EnumItem(Arc<EnumItemElem>)`.
+Preserve Content::EnumItem(Arc<EnumItemElem>). None numbering resolves to
+Decimal at the applicable boundary. indent offsets numbering from left margin;
+body_indent offsets body from numbering. tight false adds paragraph spacing;
+true is the default adjoining behavior. enum_item(number,body) sets all other
+options None; enum_item_with_numbering(number,body,numbering) sets only
+numbering Some; enum_item_full(number:Option<u32>,body:Content,
+numbering:Option<EnumNumbering>,indent:Option<Length>,body_indent:Option<Length>,
+tight:Option<bool>) propagates every field.
 
-Construtor sem numbering (retrocompatível):
-`Content::enum_item(number: Option<u32>, body: Content)`
-→ `EnumItemElem { number, body, numbering: None, indent: None, body_indent: None, tight: None }`.
+## Behavior and acceptance
 
-Construtor com numbering (P470):
-`Content::enum_item_with_numbering(number: Option<u32>, body: Content, numbering: EnumNumbering)`
-→ `EnumItemElem { number, body, numbering: Some(numbering), indent: None, body_indent: None, tight: None }`.
+Text uses no numeric label when number is None. The original formula formats
+numbering (or Decimal) with number.unwrap_or(1) and concatenates body. Its
+explicit compatibility rule and examples require a separating space when a
+number is present: Some(3),body x,no numbering → `3. x`;
+None,body x → `x`; Some(1),body a,LowerAlpha → `a) a`.
+The compact formula omitted that separator; preserve these explicit observable
+criteria, not a silent whitespace change. Both maps recurse into body and
+preserve all five other fields. is_empty defaults false; field/kind/payload
+default None, non-locatable. Derived equality compares all six fields.
+Verify text cases, recursive maps preserving every option, equality including
+indent/body_indent/tight, and full-constructor propagation.
 
-Construtor completo (P505):
-`Content::enum_item_full(number: Option<u32>, body: Content, numbering: Option<EnumNumbering>, indent: Option<Length>, body_indent: Option<Length>, tight: Option<bool>)`
-→ `EnumItemElem { number, body, numbering, indent, body_indent, tight }`.
+Enum expands to a Sequence of items with container settings replicated. This
+is intentional under ADR-0107: preserve language argument/visual semantics,
+not identical upstream storage. Layout indentation debt remains separately
+owned and is not closed by this editorial consolidation.
 
-## `impl Element for EnumItemElem`
+## Historical record
 
-| método | comportamento |
-|---|---|
-| `plain_text` | `format!("{}{}", label, body.plain_text())` onde `label` usa `numbering.as_ref().unwrap_or(&EnumNumbering::Decimal).format(number.unwrap_or(1))` quando `number.is_some()`, senão `""` |
-| `is_empty` | default `false` |
-| `map_content` | **recursivo** no body; **preserva** `number`, `numbering`, `indent`, `body_indent`, `tight` |
-| `map_text` | **recursivo** no body; **preserva** `number`, `numbering`, `indent`, `body_indent`, `tight` |
-| `get_field` | default `None` |
-| `element_kind`/`to_payload` | default `None` (não-locatável) |
-
-**Nota `plain_text`:** retrocompatibilidade — quando `number` é `Some` e `numbering` é `None`,
-usa `Decimal` como antes: `format!("{}. ", n)`. Quando `numbering` é `Some`, usa
-`numbering.format(n)`.
-
-## `eq` estrutural
-
-`#[derive(PartialEq)]` compara `number + body + numbering + indent + body_indent + tight`.
-
-## Nota arquitetural P505
-
-No Typst vanilla `indent`/`body-indent`/`tight` são propriedades do container
-`enum`. No cristalino a função `enum(...)` expande para uma `Sequence` de
-`EnumItemElem`; os valores do container são **replicados em cada item**.
-Esta é uma divergência mecânica intencional (ADR-0107): a paridade é com a
-**linguagem** (resultado visual e semântica dos argumentos), não com a estrutura
-interna de dados.
-
-> **Fonte de paridade (P1031)** — a premissa ("são propriedades do container `enum`") é
-> literal no vanilla ratificado (`e0e8ca4d`): os três campos estão declarados em
-> `crates/typst-library/src/model/enum.rs`, dentro de `pub struct EnumElem` — `tight` em
-> `enum.rs:89-90` (`#[default(true)]`), `indent` em `enum.rs:149-150` (*"The indentation of
-> each item."*), `body_indent` em `enum.rs:152-154` (*"The space between the numbering and
-> the body of each item."*, `#[default(Em::new(0.5).into())]`). O sub-elemento de item
-> (`EnumItem`) não os declara. Publicado em `typst.app/docs/reference/model/enum/`.
->
-> **A divergência mecânica é legítima; o *valor* replicado é que não é.** A replicação
-> container→item é estrutura de dados e diverge de propósito. Mas o default de
-> `body_indent` do cristalino é `0pt` e o da linguagem é `0.5em`, o que **é** observável no
-> resultado visual — precisamente o critério que este parágrafo invoca. Medido em
-> 2026-08-13: documento `+ Um` / (linha em branco) / `+ Dois` dá `1. Um` / `2. Dois` no
-> vanilla e `1.Um` / `2.Dois` no cristalino. Achado escalado e detalhado em
-> `compiler/layout/enum_item.md` §"Resolve indentação" (mesma causa em
-> `compiler/layout/list_item.md`). **Não implementado aqui.**
-
-## Critério
-
-- `plain_text` de `{ number: Some(3), body: "x", numbering: None, ... }` == `"3. x"`.
-- `plain_text` de `{ number: None, body: "x", numbering: None, ... }` == `"x"`.
-- `plain_text` de `{ number: Some(1), body: "a", numbering: Some(LowerAlpha), ... }` == `"a) a"`.
-- `map_content`/`map_text` recursam no body e preservam `number`, `numbering`, `indent`, `body_indent`, `tight`.
-- Igualdade estrutural inclui `indent`, `body_indent`, `tight`.
-- `Content::enum_item_full` cria item com todos os campos propagados.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/enum_item.md`. Historical observations are not a new parity certification.

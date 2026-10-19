@@ -1,76 +1,103 @@
-# L0 — Contexto lógico imutável de bidi
+# L0 — Immutable logical bidi context
 Hash do Código: 1c529395
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
-**Status:** contrato ratificado pelo humano; consumer materializado. Aprovação imutável em `lab/history/construction/records/00_nucleo/materialization/bidi-contexto-aprovacao-2026-10-05.json`.
-**Layer:** L1.
-**Exclusive consumer:** `01_core/src/entities/bidi_context.rs`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/bidi_context.rs`
+**Status:** human-ratified; consumer implemented. Immutable receipt:
+`lab/history/construction/records/00_nucleo/materialization/bidi-contexto-aprovacao-2026-10-05.json`.
 
-## Medição anterior à decisão
+## Evidence before logical context
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree integral, UTC, fontes e binários; treze entradas CLI com vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. rtl_auto_mixed põe ABC em x=124.020510 no Tekt contra152.949220 no vanilla; ltr_numeric põe árabe à esquerda e inverte 123/456, contra números à esquerda no vanilla. `layout_bidi.rs:73–82` usa primeiro caractere forte da linha e `:227–240` usa qualquer style.dir RTL como nível padrão; `shaper/bidi.rs:34` resolve cada string novamente com base automática. O contexto privado de paragraph.rs não chega a esses consumers. Vanilla `inline/mod.rs:189,232` resolve direção compartilhada; `inline/collect.rs:156–178` conserva embedding explícito por TextElem com direção diferente da base. `probe.json.gz` registra receita, rustc, hashes da biblioteca unicode-bidi 0.3.18 e sonda independente: dentro de ABC 123 456 789 مرحبا, linha 456 789 é um run LTR; a mesma string isolada com a mesma base RTL tem runs 789, espaço, 456. Isso refuta o transporte somente de Dir e a resolução por linha/palavra isolada. Não é prova de geometria de um candidato produtivo. Semântica/sintaxe/morfologia são obrigações; biblioteca, ranges, Arc e estratégia de cache são mecânica interna (ADR-0107).
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/initial.json.gz`
+preserves HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,complete tree,UTC,source/
+binaries and 13 CLI inputs against 9f2b6e8715237cb086899a42873660fe744622e8.
+rtl_auto_mixed placed ABC at x124.020510 locally versus 152.949220 upstream;
+ltr_numeric placed Arabic left and reversed123/456 versus upstream numbers left.
+layout_bidi.rs:73-82 chose first strong character per line;227-240 used any
+RTL style as default level; shaper/bidi.rs:34 resolved each string afresh.
+Private paragraph context did not reach these consumers. Upstream inline/mod.rs:
+189,232 shares direction; collect.rs:156-178 embeds text whose direction differs.
+probe.json.gz records recipe/rustc/unicode-bidi0.3.18 hashes/independent probe:
+inside ABC123456789مرحبا, the 456789 line is LTR, while isolated 456789 with the
+same RTL base produces 789,space,456. This refutes Dir-only transport and isolated
+line/word resolution, not a candidate's full production geometry.
 
-## Decisão ratificada e limites
+## Public pure data contract
 
-Representar a entrada lógica completa de um parágrafo textual certificado e a origem de um fragmento nela. Não representar coordenadas como identidade, não inserir controles virtuais no Content/texto copiável, não sobrescrever a direção dos trechos nem guardar o contexto de parágrafo em TextStyle. Esta unidade possui somente dados/validação puros, sem algoritmo Unicode, fontes, regiões, I/O, relógio, globals mutáveis ou despacho dinâmico. Arc em campos é permitido por ADR-0029/0030; nenhum unsafe.
+ParagraphBidiSegment is Text{text:EcoString,dir:Dir},
+Space{origin:TextSeparatorOrigin},or Linebreak.
+ParagraphBidiInput and BidiSpan have private fields and implement Clone/Debug.
+Input exposes new(base_dir:Dir,segments:Vec<ParagraphBidiSegment>)->Option<Self>,
+base_dir(&self)->Dir and segments(&self)->&[ParagraphBidiSegment].
+Span exposes new(input:Arc<ParagraphBidiInput>,segment:usize,range:Range<usize>)
+->Option<Self>,input(&self)->&Arc<ParagraphBidiInput>,segment(&self)->usize,
+range(&self)->Range<usize>,subspan(&self,relative:Range<usize>)->Option<Self>.
+Use canonical Dir/EcoString/TextSeparatorOrigin and pure Arc/Range. No setters,
+Hash/address/global identity requirement; clone preserves Arc/index/range.
 
-A avaliação de Unicode bidi continua em L3, na ordem existente layout→bidi→shaping. L1 fornece dados lógicos; não transferir o algoritmo de bidi para L1, nem adicionar dependência externa à whitelist neste contrato. Não certificar a linguagem inteira, objetos, matemática, links, regiões compostas, hifenização/smallcaps ou transformação cujo texto não tenha correspondência exata. Fallback sem contexto permanece explícito, não deve inventar uma origem por busca de texto ou por comparação de estilos.
+Input requires LTR/RTL,nonempty segments and at least one nonempty Text;
+vertical/no substantive text rejects. Do not normalize/reorder/trim Text.
+Space is actual U+0020 with supplied origin, never inferred from geometry.
+Linebreak is explicit source boundary; soft wrap adds no segment.
+BidiSpan requires existing segment,start≤end,in-bounds valid UTF-8 boundaries.
+Space spans index its U+0020 bytes and retain origin; Linebreak accepts no text
+span. Invalid input returns None without panic/mutation/approximation.
+subspan uses checked relative-offset addition,contained range and fresh UTF-8
+validation, retaining input/segment. Repeated equal words remain separate
+occurrences; never find subparts by string equality.
 
-## Contrato público ratificado
+## Producer/consumer boundaries
 
-```rust
-pub enum ParagraphBidiSegment {
-    Text { text: EcoString, dir: Dir },
-    Space { origin: TextSeparatorOrigin },
-    Linebreak,
-}
+Leaf text must exactly equal the referenced slice; splitting derives matching
+subspans. Physical reordering/translation/clone/envelopes/rollback preserve
+logical origin. Merge to one span only for contiguous ranges in the same
+input/segment; otherwise retain separate fragments/spans. Lifetime is RAM,
+not World/filesystem, with no retention across compilations/watch in this slice.
+No coordinate identity,virtual controls in Content/copyable text,direction
+overwrite or paragraph context in TextStyle/font keys.
 
-pub struct ParagraphBidiInput { /* campos privados */ }
-pub struct BidiSpan { /* campos privados */ }
+This unit is pure data/validation, no Unicode algorithm/fonts/regions/I/O/
+clock/mutable globals/dynamic dispatch/unsafe. Bidi remains L3 in existing
+layout→bidi→shaping order, without a new L1 external whitelist entry.
+Paragraph owner certifies/prepares complete segments/base/effective directions/
+real spaces/explicit breaks before emission. It supplies deterministic original
+UTF-8 ranges, keeps mutable cursors separate from immutable data and rejects
+unmappable paths. Ending outer scope never erases accepted tail context.
 
-impl ParagraphBidiInput {
-    pub fn new(base_dir: Dir, segments: Vec<ParagraphBidiSegment>) -> Option<Self>;
-    pub fn base_dir(&self) -> Dir;
-    pub fn segments(&self) -> &[ParagraphBidiSegment];
-}
+L3 builds auxiliary Unicode input with virtual embeddings and original-byte
+maps, never placing controls in source/glyphs/ToUnicode. Resolve full paragraph;
+query line ranges with line-ending rules and fragment shaping ranges without
+redetecting fragmented-string base. L3 owns auxiliary representation/library.
+Any bidi cache is compilation-local and reuses immutable input, not x/y origin,
+self-reference or unsafe. Owned strings and borrowed views may use normal
+separate-variable lifetimes. No new FontMetrics method is authorized; a measured
+public-trait need requires its own L0/gate.
 
-impl BidiSpan {
-    pub fn new(input: Arc<ParagraphBidiInput>, segment: usize,
-               range: Range<usize>) -> Option<Self>;
-    pub fn input(&self) -> &Arc<ParagraphBidiInput>;
-    pub fn segment(&self) -> usize;
-    pub fn range(&self) -> Range<usize>;
-    pub fn subspan(&self, relative: Range<usize>) -> Option<Self>;
-}
-```
+## Acceptance and explicit exclusions
 
-Usar tipos canônicos L1 `Dir`, `EcoString`, `TextSeparatorOrigin` e stdlib pura `Arc`/`Range`. Tipos devem implementar Clone e Debug; não exigir Hash, comparação por endereço ou identidade global como contrato da língua. Clone de BidiSpan conserva Arc/índice/range; a entrada é imutável, com base e segmentos privados. Não disponibilizar setters.
+Require UTF-8/bounds/overflow,clone/subspan and repeated-word distinct-range
+RED→GREEN; compare full context versus isolated 456789. Bidi Some requires
+whole-path certification; out-of-scope paths use None without invented origins
+or style-based matching. Objects/math/links/composite regions/hyphenation/
+smallcaps/nonexact text transforms and the whole language are not certified.
 
-### Validação e identidade
+Source→PDF probes against ratified pin cover opposite bases/first reversed run,
+explicit overrides,numbers/neutrals,soft wrap/linebreak,whole scopes/parbreak,
+restoration/checkpoints and prior controls including attached suffixes.
+Check text/codepoints,word/baseline-grouped boxes,space origin,no auxiliary
+controls in extraction and last-line spans. Distinguish space failures from
+bidi order; total bbox equality is insufficient. Never use Rust Eq/PDF bytes
+as language acceptance.
 
-- `new` de input aceita somente LTR/RTL, segmentos não vazios e pelo menos um Text não vazio; retorna None para vertical ou ausência de texto substantivo. Não normalizar, reordenar ou recortar caracteres em Text. Espaço é U+0020 de origem já fornecida, não inferido de gaps. Linebreak é fronteira explícita da fonte; wrap suave não cria um segmento adicional.
-- `BidiSpan::new` exige índice existente, start≤end, bounds dentro do texto original do segmento e fronteiras UTF-8 válidas. Em Space, o domínio de bytes é o U+0020 e conserva origem; Linebreak não aceita BidiSpan de texto. Não aceitar índice/range por aproximação. None indica entrada inválida, sem panic ou mutação.
-- `subspan` interpreta os bounds relativamente ao começo do span atual, faz soma verificada, exige contenção no span atual e valida novamente UTF-8. Mantém input/segment. Não encontrar a subparte por igualdade de string: palavras repetidas são ocorrências distintas.
-- O produtor deve garantir que o texto da folha é exatamente a fatia referida; após split usar subspans correspondentes. Reordenação física, translação, clone, envelopes e rollback não alteram origem lógica. Um merge somente conserva um span único quando os intervalos são contíguos no mesmo segmento/input; caso contrário deve conservar fragmentos e spans separados.
-- A referência tem lifetime de RAM, não de World/filesystem. Não reter entre compilações/watch nesta etapa. Não comparar Eq Rust ou bytes PDF como aceitação de linguagem.
+Each producer/pattern changes under its own L0 first. None in uncertified
+producers preserves scope. Audit frame caches: invalidate/avoid reuse if
+exterior context is not proved equal; equal geometry/text alone cannot certify
+origin. Debug/release builds,appropriate L1/L3 tests and clean V15/V26 precede
+restricted reseal. Approval excludes publication,upstream resync/new defaults.
 
-## Responsabilidades dos futuros consumers
+## Historical record
 
-O owner de paragraph prepara o segmento inteiro certificado antes da emissão, incluindo direção-base e os trechos de direção efetiva, espaços reais e quebras explícitas. A emissão de Text/Space/fragmentos fornece ranges originais determinísticos sem matching posterior por string e conserva offsets UTF-8. O estado de layout/checkpoints/subframes guarda cursores separados de dados imutáveis; rejeita certificação de paths que não consiga mapear exatamente. Acabar o escopo exterior não apaga o contexto aceito da cauda.
-
-L3 constrói sua entrada Unicode auxiliar a partir destes segmentos, aplicando embeddings virtuais para Text cuja direção difere da base e conservando mapas para bytes originais. Esses caracteres auxiliares nunca entram no texto fonte, nos glifos ou no ToUnicode. Resolver o parágrafo completo; consultar ranges efetivos das linhas com as regras de fim de linha, e ranges de shaping dos fragmentos, sem redetectar base pela string fragmentada. A representação auxiliar e a biblioteca continuam pertencendo aos owners L3, não a esta entidade.
-
-Caches de bidi, se necessários, são locais à compilação e reutilizam a mesma entrada imutável; não associar a origem por y/x ou guardar self-reference/unsafe para manter strings e BidiInfo. Pode haver um registro proprietário de strings e views emprestadas com lifetimes Rust normais em variáveis separadas. Não exigir novo método de FontMetrics nesta rodada; qualquer necessidade medida de ampliação de trait público requer L0 próprio e novo gate ADR-0127. O contexto não entra nas chaves de fontes por meio de TextStyle.
-
-## Aceitação obrigatória após confirmação
-
-RED→GREEN de validação UTF-8/bounds/overflow, clone/subspan e duas palavras iguais com ranges distintos. RED→GREEN do contexto completo versus resolução isolada de 456 789; campos bidi Some somente em certificação inteira, None nos caminhos fora do escopo.
-
-Sondas fonte→PDF contra pin ratificado: bases opostas com primeiro run invertido, overrides explícitos, números/neutral, soft wrap e linebreak, escopos integrais/parbreak, restauração/checkpoints e controles antes certificados (inclusive sufixos colados). Conferir texto/codepoints, caixas agrupadas por palavras/baselines, origem dos espaços e ausência de controles auxiliares na extração. Medir os spans da última linha e discriminar falhas de espaço das de ordem bidi; não fechar por igualdade do bbox total.
-
-Migrar cada producer/pattern afetado sob seu L0 proprietário antes de escrever código. Preenchimento None em produtores sem certificação conserva comportamento e não amplia escopo por acidente. Auditoria do cache de frames: se uma entrada carregada depende de contexto exterior que não está provado igual, invalidar ou não reutilizar; não certificar a origem de um frame só porque seu texto/geometria coincide.
-
-Build debug/release, testes apropriados L1/L3 e V15/V26 limpos antes do resselo restrito. Publicação/re-sync vanilla/novos defaults não fazem parte desta aprovação.
-
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/bidi_context.md` preserves the original evidence and chronology.

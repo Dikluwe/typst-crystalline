@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "realization-order"
-title = "Identidade de ocorrência e ordem causal de realização"
-
+title = "Occurrence identity and causal realization order"
 [[claims]]
 id = "identity-is-not-order"
 level = "must-not"
-statement = "O número interno de Location não representa a ordem do documento quando ocorrências são preparadas antes de transformar. Não ordenar queries, estados, contadores ou seus eventos pelo identificador bruto quando há ordem causal registrada."
-
+statement = "Internal Location number does not represent document order when occurrences prepare before transformation. Never sort queries,states,counters or their events by raw id when causal order is recorded."
 [[claims]]
 id = "causal-order"
 level = "must"
-statement = "O walk de introspecção registra a ordem de primeira ocorrência das tags. Consumers temporais usam essa ordem para prefixos e comparações; aliases de ocorrência preparada conservam identidade e não duplicam registros. Testes isolados sem walk podem conservar fallback numérico de Locator."
+statement = "Introspection walk records tags' first-occurrence order. Temporal consumers use it for prefixes/comparisons;prepared-occurrence aliases retain identity without duplicate records. Isolated tests without walk may retain numeric fallback from Locator."

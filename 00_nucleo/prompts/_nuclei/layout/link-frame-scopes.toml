@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "link-frame-scopes"
-title = "Links preservam fragmentos e limites de fluxo"
-
+title = "Links preserve fragments and flow boundaries"
 [[claims]]
 id = "capture-fragments-once"
 level = "must"
-statement = "O corpo de um link é disposto uma vez. Seus fragmentos continuam na linha, página, coluna e referencial de origem; prefixos/sufixos e emissões alheias não se tornam clicáveis. Limites privados de escopo acompanham os frames sem contribuir para geometria e são retirados antes da saída pública."
-
+statement = "Lay out a link body once. Its fragments retain original line, page, column and frame; unrelated prefixes/suffixes/emission never become clickable. Private scope boundaries follow frames without geometry contribution and are removed before public output."
 [[claims]]
 id = "composition-and-rollback"
 level = "must"
-statement = "Fechamento de linha/região segmenta a captura sem deslocar conteúdo nem invalidar fixups. Subframes transportam a pertença lexical, marginais não a herdam acidentalmente, emissões diferidas conservam a pertença capturada e checkpoints restauram registro/escopos/frames coerentemente."
+statement = "Line/region closure segments capture without moving content or invalidating fixups. Subframes transport lexical membership, marginals do not inherit it accidentally, deferred emissions retain captured membership, and checkpoints coherently restore registry/scopes/frames."

@@ -1,41 +1,38 @@
 # Prompt L0 — `entities/elements/repeat` — `RepeatElem`
 Hash do Código: 08559690
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/repeat.rs`
-**Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável** (confirmado P322). Contentor —
-`map_*` recursam no body.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/repeat.rs`
+**Architecture:** ADR-0105. The trait contract is owned by
+`00_nucleo/prompts/core/entities/elements/mod.md`.
 
----
+## Evidence before specification
 
-## Struct
+Original extraction anchors: `content.rs:1659`, `content.rs:1829`, `content.rs:2016`, `content.rs:2207`, `content.rs:2491`.
+These historical coordinates support the ownership boundary; they are not
+fresh current-pin language-parity measurements.
+
+## Data contract
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepeatElem {
-    pub body:    Content,         // era Box<Content>
+    pub body:    Content,
     pub gap:     Option<Length>,
     pub justify: bool,
 }
 ```
 
-`Content::Repeat { body, gap, justify }` → `Content::Repeat(Arc<RepeatElem>)`.
-Construtor ergonómico preservado: `Content::repeat(body, gap, justify)`.
+## Behavior and acceptance
 
-> **`Hash` manual via Debug** (precedente Lote 4/5): `Length` carrega `f64` e não
-> implementa `Hash` → `impl Hash { format!("{self:?}")… }` (paridade
-> `content_hash`). `PartialEq` deriva.
+Preserve `Content::Repeat(Arc<RepeatElem>)` and `Content::repeat(body, gap, justify)`.
+Manual Hash uses Debug because Length contains f64; PartialEq derives and
+compares body, gap, and justify. `plain_text` and `is_empty` delegate to body.
+Both maps recurse into body and preserve gap/justify. Field, kind, and payload
+access retain the trait defaults. The element is non-locatable.
+Verify recursive maps, text/emptiness delegation, and structural equality.
 
-## `impl Element`
+## Historical record
 
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.body.plain_text()` (`content.rs:1829`) |
-| `is_empty` | **override**: `self.body.is_empty()` (`content.rs:1659`) |
-| `map_content` | **recursivo** no body, preserva `gap`/`justify` (`content.rs:2207`) |
-| `map_text` | **recursivo** no body (`content.rs:2491`), preserva `gap`/`justify` |
-| `get_field`/`element_kind`/`to_payload` | default |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara `body + gap + justify` (paridade `content.rs:2016`).
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/repeat.md`. Historical observations are not a new parity certification.

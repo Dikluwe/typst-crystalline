@@ -2,15 +2,15 @@
 Hash do Código: f2df1ef9
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
-- 00_nucleo/prompts/_nuclei/layout/prepared-text-carriers.toml sha256:b2899862f439550920cdee8b3aec6a63c441b9bd2770e563d0a8fd49f93572d2
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
-- 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:77528cd6193277b9f776b29da06327d974f5cea26fb89abf821879b363185b0a
-- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
-- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
-- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:a28cd4f2dd22d2bdb2cb30085596c2a758af7770fa21eb28c38dc35e904928eb
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/prepared-text-carriers.toml sha256:447289c8c45df27081c71b98e7aa32b1fbaab3883018f585540285e658122090
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
+- 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:68203377765579bc29327c7d8fded6f4f831d11682b6b7c9abbf2dbf65b28bad
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
 
 
 
@@ -18,666 +18,74 @@ Núcleos Tekt:
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph.rs`
 
 
-## Composição de parágrafos — 2026-09-28
+## Evidence before specification
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/correcao-composicao-paragrafos-2026-09-28/` before-pdf 34, initial/before and empty-details/results.json distinguish physical line closure/justification, Par versus inline flow, empty body versus Text("") virtual edges and style restoration. Historical oracle 9f2b6e871 measurements are snapshot-specific, not current `bd5ebec285505889e8ff1d4f68804ab147a699f3` certification. Mechanics may diverge; text/geometry/morphology/diagnostics govern. Full former clauses/measurements remain in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/paragraph.md`.
 
-O lote before-pdf em correcao-composicao-paragrafos-2026-09-28 mede 34 entradas contra o pin 9f2b6e8715237cb086899a42873660fe744622e8, no estado initial.json e before/. Com 180pt e margem 8pt, a primeira linha justificada termina em 145.52pt no Tekt e 172.000002pt no vanilla; a última fica em 110.048pt em ambos. BEFORE/par[MIDDLE]/AFTER produz 2 linhas físicas contra 3. Empty-start põe AFTER em yMin 3.74 contra 18.14; empty-auto mede altura 24.568 contra 38.968. native-leading-two-lines demonstra que o escopo de leading precisa fechar antes de restaurar estilo. Fonte: line_commit.rs:195-236 já possui justificação; word_layout.rs usa flush ordinário em quebras; layout/mod.rs:1469 trata Par como transparente; style_scope.rs:18-77 restaura estilo depois do body; eval/rules.rs:663-705 agrupa fluxo para show. Agrupamentos XML do extrator não são linhas físicas: coordenadas coincidentes são medidas separadamente.
+Selector before/after evidence and strategy-red/strategy-green show that an initial FixedMetrics fixture had the same optimum as greedy. The discriminating replacement uses lengths [1,5,2,7,5,2,1,7,9,9,6,6,1,3,3] at 124pt; bilateral Noto Sans evidence is independent. core-first.log refutes an open-prefix rollback fixture: FlowSuffixCheckpoint restores by length, not drained current_line items. Hyphenation-at-origin probes compare break_selection.rs:18 and pinned linebreak.rs:170-209. correcao-auto-proximas-2026-09-29 core-tests/green-paragraph distinguish standalone Text-empty from Par's virtual branch and explicit empty-Par terminal spacing after confirmed material.
 
-### Decisão vigente
+Direction tree-state/first-candidate probes distinguish initial newline Space from a substantive producer. Ratified logical transport and Source approvals precede their bounded changes. `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{probe.json.gz,initial.json.gz,inventory.json}` refutes isolated 456 789 resolution and preserves source/state/binaries. Human ratification of immutable API/three optional fields is manifest 1ae7513e.
 
-Correção de paridade ADR-0127, em fluxo contínuo: sem nova assinatura pública, entidade, trait, flag ou fase. O núcleo pinado define invariantes compartilhados, não é owner de código. Preparação global e optimized ficam incompletos e pertencem à futura rodada-paragrafo-seletores, depois de medir escolhas/custos.
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/scope-tail-before/results.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, dirty tree/UTC/status/diffstat/source/binary hashes against historical pin 9f2b6e871; block-par-spacing-after/block-par-extra-after refute run-size consensus (one 18pt wrapper differs from two adjacent 18pt wrappers). sequence.rs:196-245 closes in exterior chain while paragraph.rs:12-90 already finds lexical common ancestor; pinned flow/collect.rs:129-145 resolves shared style before spacing. Tail after 1fr spills despite fitting, Styled18 height is wrong, explicit Linebreak overflows; cursor.rs:127-135 rejects exact bound, fractional_preflight.rs:170-211 separately measures nodes/direct Text correction. Source/L0 before-edit.json.gz and wrap/font 8-18/Strong/sibling/Align/column probes support whole-segment measurement, not copied Rust/bytes or universal too-tall-tail parity.
 
-Unidade dona da realização paginada de Content::Par. Fornecer is_paragraph para reconhecimento de Par através de Styled apenas. layout fecha o fluxo anterior com parbreak, renderiza o body e fecha sua última linha material com parbreak, armando terminal_paragraph_line após esse fechamento. Parbreak repetido sem material colapsa, não cria linha vazia fictícia. Para body vazio (Empty, Text vazio, spaces, Sequence/Styled recursivos), preservar avanço de par.spacing: no início usar cursor + spacing; depois de texto usar prev_line_baseline + spacing. Acrescentar spacing ao orçamento de bloco pendente e limpar a evidência de linha terminal. O caso de Par aninhado fica fora da aceitação desta correção: o stderr vanilla e inline/collect.rs:247 mostram rejeição explícita com warning; o comportamento atual preserva B, mas não constitui paridade aceita e exige uma correção própria de admissão/diagnóstico. Todo cálculo é puro, campos privados existentes mais a evidência do hub, nenhuma entidade ou interface pública nova.
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz` preserves same HEAD/uncommitted state/status/stat/UTC/source/binary/historical pin. Multiword21 gains page/line leading, par40/8-fill gains page, OUTER18/INNER8 shifts BODY/upshrinks auto page. fractional_preflight.rs:151-171 refuses multiline; word_layout.rs:49 closes in local style; line_commit.rs:398-480 uses it for floor/leading/predicted top; sequence.rs:239 refuses partial closure and missing prior chain uses spacing 8. Pinned flow/collect.rs:129-145,179-214 resolves shared trunk/spacing/leading, each frame contributing geometry. These are language text/geometry/pages without buffer/algorithm/byte or historical-intent obligation.
 
-### Medição adicional: parágrafos vazios e altura automática
+scope-tail-after-first/scope-tail-refutators and scope-tail-layout-final-candidate.log distinguish admitted first fragment, single-line versus multiline, already closed lines and separators falsely counted as baselines. followup-architecture.log exposes text_frame_bottom wildcard refusal.
 
-`lab/results/construction/diagnostics/correcao-composicao-paragrafos-2026-09-28/empty-details/results.json` registra pin, binários, HEAD, working tree e hora. O vanilla distingue corpo vazio de Text(""): sozinho mede altura 16pt contra 24.568pt, com margens 8pt; antes de AFTER, Text vazio acrescenta o top-edge 8.568pt à posição de par[]; após BEFORE a altura automática é 38.968pt para vazio e 47.536pt para Text vazio. O teste composition_empty_styled_terminal_auto_height_keeps_explicit_spacing falhou no estado após a primeira implementação (styled-empty-red.log): fechar antes do estilo perdeu a evidência causal anterior.
+`lab/results/construction/diagnostics/tekt-v16-paragraph-2026-10-17/` before.json.gz, before-measurement.json.gz/reference.json record exact dirty HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC/status/diffstat, sources/L0/config/binaries/font and 18 bilateral cases/36 runs. Source-wrapped Empty Par loses spacing while Text-empty already matches. first-candidate proves Source projection insufficient: styled-empty margins still lose 7.2pt. supplement/refuters/edges add size 8/18, terminal/consecutive/only-empty/explicit-zero-negative-spacing and Box/Block cases; pinned par.rs:212-225 and distribute.rs:244-260 separate above/below strength. empty-fonts/descents/fallback-before receipts refute exterior metrics and maximum-sibling fallback: the last empty Text supplies local style, as pinned line.rs:311-315,224-228,559-568 measures. All retain state/time/hash provenance; no historical intent or byte equivalence is inferred.
 
-Decisão interna: o fechamento anterior a Styled/Par preserva terminal_paragraph_line quando houve material. Body vazio mantém spacing entre fluxos; Text vazio, atravessando Styled/Sequence, também reserva seu top-edge, sem tinta. Acumular em campo privado empty_paragraph_weak_spacing os espaçamentos iniciais enquanto initial_baseline_pending; no término inteiramente vazio, sem bloco material, remover apenas esse spacing fraco, preservando o top-edge virtual. Incluir o campo no checkpoint/rollback. Não reduzir spacing depois de material nem de vazios consecutivos entre fluxos. Nenhuma interface pública muda.
+Current prepared-text-carrier evidence precedes transparent certification only; its identity projection does not admit opaque nodes. TS1 full-size manifest `771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba` is approved for bounded implementation/tests under 12GiB/zero swap, no release/merge/push; separate equality/RG1 is not closed.
 
-## Preparação e seletores — 2026-09-28
+Bilateral probes/exact state in `lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json` and before/ measure U+002D versus SHY with coincident geometry in eight controls. This consumer's FrameItem traversal is archived in approved-before/. The owner confirmed `00_nucleo/prompts/core/entities/layout_types.md`.
 
-### Medição anterior à decisão
+AST spans, patterns/guards/bodies and complements were checked before code. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC, sources/L0/configuration, hashes, status and git diff HEAD --stat. classification.json records 70 cases/complements across 26 owners using pinned CI-parser tree. Relevant L0 clauses were read with source; this proposes neither new architecture nor inferred upstream intent. Rust patterns/exhaustiveness are mechanics; product semantics/morphology/geometry/effects/diagnostics remain unchanged.
 
-O lote bilateral `lab/results/construction/diagnostics/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` mede 32 entradas, com estado exato em initial.json e before/, contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Em 140pt/margem 8pt, simple escolhe delta epsilon zeta eta, optimized escolhe delta epsilon zeta e junta eta à linha seguinte; Tekt ignora a estratégia. Em 240pt justificado, optimized admite eta na primeira linha reduzindo os espaços. Fonte: eval/rules.rs:3070-3100 e stdlib/structural/par.rs:131-150 validam e descartam linebreaks; text.rs:41 e word_layout.rs:29 escolhem incrementalmente; vanilla inline/mod.rs:194-196 resolve auto pela justificação, linebreak.rs:raw_ratio/raw_cost aplica redução até 1/3 e custos cúbicos/quadráticos; model/par.rs:Limits::SPACING_DEFAULT fixa 2/3..1.5. Estilos adjacentes, literal leading/trailing e conteúdo opaco estão medidos separadamente. Observação não prova intenção histórica; inferência refutável: os scope-outs L0 explícitos de preparação/optimized legitimaram o adiamento, pois ainda vedam a implementação global apesar do transporte aceito.
+`lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz` preserves HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree, status/diffstat/UTC and 2,099 sources/L0s. before.json.gz contains 92 pairs; extra-before.json.gz 26; boundary-before.json.gz 10; repeat-before.json.gz 4. Oracle commit: `bd5ebec285505889e8ff1d4f68804ab147a699f3`; binary SHA-256: `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`; initial Tekt: `2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095`. At width 160pt/margin 8/font12, hanging10 leaves first-line x8 and moves continuations x8→18; negative-5 requires x3. RTL leaves first right edge 152 and moves continuations to 142. Tekt ignores the length. MLA defaults to 18pt (1.5em); ambient set 3em does not replace it, while show-set3em requires 36pt; IEEE/Plain do not acquire hanging indent through that show-set. bibliography.where(style:"mla") does not match in the vanilla probe: preserve selector choice rather than forcing override.
 
-### Decisão e escopo
+Inline-only Block/Box bodies ignore hanging10; explicit Par inside them and Block with Parbreak apply it. Simple Heading/Raw/List/Quote do not. Partial, zero, repeated and empty-scope declarations close boundaries: FIRST/MIDDLE/LAST at 5.168/27.464/49.76 versus all 5.168 in Tekt. The first lexical probe used literal brackets; it was refuted, corrected to #[...] and retained as extra-before-initial, not evidence of Styled scope. Extreme values produce extractor-clipped paint; missing pdftotext output does not mean Content deletion. A partial 24pt font does not change the shared length's 12pt em, as partial-font records.
 
-Correção interna de paridade ADR-0127: sem novos contratos públicos, flags ou fase. Primeira preparação global certificada: parágrafo latino composto por Text, Space, SpaceFromNewline, Empty, Sequence, Styled tipográfico e Strong/Emph, com hifenização desligada, direção LTR, sem tracking/math/smallcaps, largura finita e constante, fora de colunas/células/floats. O conjunto completo deve ser certificado antes de emitir; uma unidade recusada preserva o caminho anterior. Hifenização, Unicode UAX14 completo, links/objetos/linebreaks, largura variável, limites customizados e seleção incremental restante continuam explicitamente incompletos; este lote não declara estado da arte nem otimização completa da língua.
+Pinned source: `typst-realize/src/lib.rs:1061–1085,1190–1219` distinguishes fragment/Par and interruption; `typst-layout/src/flow/collect.rs:72–134` selects flow; `inline/mod.rs:174,216–221` and `collect.rs:141–147` resolve shape; `inline/line.rs:496–503` positions; `rules.rs:510–523` provides CSL inset/compensation. `typst-library/src/model/bibliography.rs:112–127,367` determines default/precedence. This measures language/geometry, requiring neither vanilla Rust structure nor inferred historical intent. Lost boundaries, run-relative em, double indent, page reset, imposed greedy fallback, lost copies, reexecuted callbacks or control regressions refute closure.
 
-Depois de fechar anterior e antes de render body, tentar paragraph_plan no body inteiro; fallback anterior se recusado. Empty e fechamento terminal permanecem.
+## Exclusive ownership and current contract
 
-### Refinamento da fixture
+Own paginated Content::Par realization, pure shared text-scope/direction certification, lexical segment closure and certified isolated geometry measurement. Hub storage is `00_nucleo/prompts/core/compiler/layout/mod.md`; prepare/select/emit algorithms retain their own owners. Close prior flow with parbreak, try paragraph_plan on whole nonempty body before fallback, and close final material line under active chain with parbreak, arming terminal_paragraph_line only afterward. Repeated nonmaterial Parbreak does not invent a line. Empty classified body is handled virtually and not emitted again; Text-empty outside Par retains its own contract. Test Par true/simple hyphenation from origin preserves every character/distinct baselines, without moving cut algorithms here.
 
-strategy-red.log refuta o descarte inicial de estratégia, mas strategy-green.log mostrou que aquela fixture FixedMetrics também possui o mesmo ótimo depois da implementação; ela não distingue um seletor correto do greedy. A fixture vigente usa comprimentos [1,5,2,7,5,2,1,7,9,9,6,6,1,3,3] em 124pt, em que os ranges diferem pelo custo global. A prova bilateral do lote com Noto Sans é independente desse refinamento.
+Source-transparent private ParagraphBody projection has Empty, Space, Text(&str), Sequence(&[Content]), Styled(&StyledContent), Par and Opaque. One exhaustive Content match owns admission: Source recurses only body, Space/SpaceFromNewline share Space, all other unsupported variants enumerate Opaque without executing callbacks. is_paragraph accepts only Par through existing Styled/Source, never promotes Sequence/Strong/Emph/Located/Realized/ShowRecipe. is_empty_body preserves existing all quantifier/Styled recursion. empty_text_style replaces the former boolean: return Option<StyleChain> of the last empty Text occurrence in ordered Sequence, pushing Styled's actual Styles; Source is transparent. Empty/Space/Par/Opaque/material Text supply no strut. Every projection/predicate is exhaustive, with intentional V19 shared-policy notes; no if-let/matches/suppression to hide V16. Future Content requires projection decision, future ParagraphBody requires all three predicates. Do not alter other owner formulas/certificates through this projection.
 
-O teste de guard usa prefixo já confirmado/fechado, seguindo FlowSuffixCheckpoint: checkpoint por comprimento não restaura items do current_line que tenham sido drenados pelo próprio teste. core-first.log mostrou a inadequação da primeira fixture (prefixo aberto que a tentativa fazia flush), não uma autorização para clonar buffers ou redefinir rollback.
+The final empty-Par protocol supersedes earlier initial weak-spacing accumulation/removal only for this branch. Treat Empty Par as zero-height causal unit, or a virtual Text-empty frame. Drop above only at empty initial flow; after a causal unit collapse weak above with pending weak margin by max; strong Block margin wins, including zero. New end is prior anchor+admitted gap+virtual height once. Install cursor_y/prev_line_baseline, zero preceding descent, publish last_block_descent_y and flow witness, reserve only own spacing in prev_block_below_pending, preserving block_chain_active/prev_margin_is_parbreak. initial_baseline_pending=false because height is known even without ink. Clear empty_paragraph_weak_spacing: no terminal margin is preapplied. Cursor's existing block-chain admission resolves following above/top once. Do not modify Cursor/Finish/checkpoint/hub or add state for this correction. Material-body formulas, Text-empty outside Par, callbacks/font/bidi/regions/strong margins/hidden content remain unchanged.
 
-## Hifenização na origem — 2026-09-28
+For virtual Text-empty resolve the last occurrence's TextStyle and text_edges once, including baseline_offset; top and descent are nonnegative and sum once. No empty Text means zero virtual height/no font lookup. No ink/effects/Location/new callbacks. Do not use max across siblings or resolve discarded styles. Preserve end/margins protocol. `spacing_for_size(chain,size)` resolves Length or canonical PAR_SPACING; spacing(chain) delegates with lexical TextStyle. Absent/wrong-type fallback remains visible in inventory without suppression.
 
-Medição: break_selection.rs:18 exige cursor além da origem para cortar; before-pdf da rodada correcao-hifenizacao-global-2026-09-28 difere do vanilla; inline/linebreak.rs:170-209 enumera os cortes desde a origem. Testar através de Par que a política true/simple corta uma palavra overlong, preserva todos os caracteres e produz baselines distintas. Implementação fica nos owners de preparo, seleção e emissão; Par só coordena sua fronteira já vigente.
+Resolve shared paragraph direction before emission. A single substantive Styled/Strong/Emph/Sequence may provide integral style; independent siblings use exterior direction, never consensus of equal values. Empty/weak Space/SpaceFromNewline are non-substantive for this resolution while literal whitespace Text remains substantive and emitted unchanged. Explicit Par uses exterior chain, not first child. Unknown returns None. Active direction spans wraps; preserve accepted pending-tail direction at scope exit and restore parent; alignment queries active, pending, then historical first-Text fallback. Preserve each run's TextStyle direction. Source does not change anchor/direction or invent fragments. Ratified logical transport uses private Cursor, Arc input and exact spans prepared for the whole paragraph under certified lexical base before emission. Preserve visit-order offsets, not string matching. Sequence/Par create scope and nested Sequence inherits; checkpoint retains cursor/current span and subframe isolates/restores. Text supplies word/Literal-space subspans; Space consumes its segment even when weak; Linebreak consumes boundary; Word emits span only for exact untransformed text. Initial scope is incremental Simple outside generic cells/columns/subframes, without tracking/hyphenation/justification/smallcaps and Text newline/tab/language segmentation. Refused regions have None; old global preparation remains for no-context paragraphs. Certified RTL-base/RTL-character/opposite-override subset uses incremental without changing permitted breaks; explicitly selected Optimized is untouched. `00_nucleo/prompts/core/compiler/layout/bidi_origin.md` owns preparation/validation; each consumer performs only its own role. Uncertified constructors use None and read patterns `..`, preserving pinned origin transforms without broadening API/phase.
 
-## Identidade textual — materialização aprovada
+Extract shared text certificate/common lexical chain: Source/Located transparent; Styled changes chain only if it covers all substantive segment; Strong/Emph do not invent par.spacing scope. Private prepared_text_body projects exactly prepared identity envelopes to first distinct node, returning original borrowed complement via exhaustive nominal identity-policy match; shared_chain uses this for certification/material filter/lexical descent without changing ParagraphBody or admitting complement as text. TextReplacement is transparent in frame traversals with text/order/coordinates intact and no extra advance.
 
-### Medição anterior à decisão
+Provide segment closure before Block/Align under temporarily installed common chain/TextStyle, restore afterward; no close for empty/opaque/no causal line. Separate explicit-chain closure from integral-segment closure for partial nesting. Measure certified text in isolated Layouter, borrowed metrics/chain, empty Introspector, no callbacks/Location/external query/emitter mutation. Include actual wraps/Linebreak/style, return causal height and common margin, never sum leaf heights/ink bbox. Initial-fragment measurement uses finite first region/zero margins and logical baseline+bottom through certified carriers/envelopes; unknown frame refuses, not zero. Exclude TextSeparator from material baseline count/first-fragment bottom while retaining its bytes/positions. Enumerate Glyph/Image/Shape/Group/Link/Line refusal in text_frame_bottom, without widening admission. Closed causal lines retain their boundary rather than inventing a second close.
 
-As sondas bilaterais e o estado exato em
-`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
-e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
-A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
-O dono confirmou o contrato em `00_nucleo/prompts/core/entities/layout_types.md`.
+New multiline-prefix measurement additionally requires positive paragraph_prepare::prepare_parts certification, finite width/zero margins/unconstrained height/geometric mode/common chain; close last line under common chain, require >1 material baseline and finite positive logical height. Explicit Linebreak/unsupported overrides/opaque nodes remain refused by this extension. Measurement never reuses prepared output or changes global selection/effect execution. Single-line legacy and previously certified scalar routes remain separately bounded.
 
-### Responsabilidade exclusiva
+F008 texts at 686 replaces only wildcard by TextSeparator/Text/TextShaped/Line/Glyph/Image/Shape, retaining prior guarded cases in complement when guards fail, all bodies/arms/calls/returns/order and in-scope FrameItem prefix. Preserve callbacks/effects/metadata/clipping/fonts/positions/paint/width under their current owners. This work does not expand traversals, turn wrappers into leaves or substitute text/ActualText for geometry. Test helpers preserve fixtures/expected outputs/tolerances/counts/Unknown failure; cleanup cannot accept missing observation. Nominal alternatives retain the prior shared body and visible informative V19 notes; one arm's execution does not prove every alternative.
 
-Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
+After prior closure install Paragraph hanging context and full shared scope for Par body, close/restore including empty bodies, without changing spacing/height or executing empty body again. TS1 changes only type fixtures/adapters to absolute Length/Option<Length>, preserving language observables.
 
-O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
-possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
-transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+## Acceptance and remaining scope
 
-## Text vazio dentro de Par — medição e contrato (2026-09-29)
+Require functional geometry/spacing/style-restoration RED before code (compile failure/AST reading is not functional RED), GREEN and all earlier controls. Repeat 18 main,12 supplement,12 refuters,6 constructible edge and additional empty-font/fallback cases, including size 8/18, initial/intermediate/terminal, consecutive no-ink, Text virtual, top 0/negative/20/descent 10/order, constructor spacing transport/error and strong zero margins. Pages/words/yMin/yMax and vertical/xMin tolerance 0.002pt are fixed; keep xMin/xMax unchanged within each binary. Existing xMax residual up to≈0.0051pt is recorded for separate glyph-versus-PDF-metadata classification, not widened tolerance or fixed credit. Preserve Text-empty/material/object controls and nine prior tests.
 
-A suíte `lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/core-tests.log` identificou três testes existentes de Par vazio com altura duplicada após `text.rs` preservar Text vazio como unidade de linha. `paragraph.rs:28-34,52-73` já classifica body vazio e calcula seu `virtual_top` tipográfico para Par; `:47-50` ainda renderiza o mesmo Text vazio, repetindo a causa. O corpus bilateral `before/results.json` distingue `#text("")` isolado de `#text("")` dentro de Par. Para body classificado vazio, conservar o caminho virtual de Par sem emitir de novo o body; conteúdo não vazio continua pelo planeador/fallback. Isto preserva altura de parágrafos vazios com spacing explícito e sem spacing, e não muda o contrato de Text fora de Par. Correção interna ADR-0127, teste RED→GREEN e resselo do owner.
+Compile real four-match isolated probe with all current Content payloads, then demand E0004 for future Content at projection and future ParagraphBody at is_paragraph/is_empty_body/empty_text_style; this measures structural coverage only. Keep six prescribed V19 groups and None refusal for final predicate. Differential SARIF removes exactly three covered V16, replaces only specified old-space/constructor-spacing V19 notes, no new V16; no V19 count reduction claim. Reseal only declared owner/consumer pairs once graph valid. Run build/fmt/strict Clippy/all-targets/Rustdoc -D warnings/four indexes/full workspace/strict-reverse V1/V5/V15/V26/diff; freeze sources/config, heavy gates sequential each cgroup 12GiB/High 10GiB/swap0/jobs1.
 
-### Refinamento: espaçamento explícito após linha causal
+Par nested admission/diagnostic remains open (upstream warns/rejects although existing path keeps B), as do unsupported envelopes/HTML, preexisting positional text-constructor failures and two negative-Block edge cases. They are inventoried, never hidden by named-size fixtures or new expected values. Whole selector/global pagination/costs stay under their owners' certified limits, not universal from this coordinator.
 
-`lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/green-paragraph.log` preserva o RED de dois testes existentes: `Content::text("A")` seguido de `Content::par(Content::Empty)` deve fechar em 22.8pt, mas o fundo da linha confirmado por Parbreak faz `page_geometry.rs` ignorar o cursor do Par vazio. Quando já há fundo causal confirmado, o Par vazio explícito confirma também seu avanço de spacing/virtual top como novo fundo, sem criar tinta. Se não há fundo causal, manter o cancelamento de weak spacing de um documento apenas vazio.
+Preserve observable text/geometry, adjacency controls and pinned invariants. TextReplacement acceptance covers text/boxes, causal tests, recursive transport and literal-hyphen controls, never PDF bytes or new selection.
 
-## Direção de parágrafo distinta de direção de run — 2026-10-05
+Require occurrence/UTF8/restoration/parbreak tests and bilateral wraps for logical transport. Tracking corrections require RED→GREEN, bilateral text/position/line controls for both directions/signed values and preserved LTR/uniform/terminal controls, error-free build/lint and restricted resealing; all other recorded limits stay open.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/direcao-alinhamento-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes, binários e treze sondas. rtl_lines põe ABC em x=20 no Tekt e x=152.949220 no vanilla pinado; rtl_inline_only e rtl_scope coincidem à esquerda. ltr_lines põe árabe em x=174.567870 no Tekt contra x=20 no vanilla. Em `cursor.rs:156–162` e `line_commit.rs:210–216`, a âncora depende do primeiro item da linha. Vanilla `flow/collect.rs:129–136` obtém trunk_from_pairs e `inline/mod.rs:189,232` resolve direção/alinhamento compartilhados antes das linhas. Semântica observável: direção dos trechos e âncora de todas as linhas do parágrafo. Estratégia de state/preflight é mecânica interna, não cópia do vanilla. Inferência: preservar direção compartilhada evita perder a âncora em linhas só com override; refutada por controles integralmente estilizados/parbreak/wrap.
+This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
-Correção interna/de paridade ADR-0127, fluxo contínuo L0 primeiro e RED→GREEN. Apenas campos privados de Layouter e helpers descendentes, nenhuma entidade ou assinatura pública/fase/default novo. Esta rodada certifica conteúdo textual estrutural (Text, Empty, Space/SpaceFromNewline, Linebreak, Sequence, Styled e Strong/Emph); unidades desconhecidas conservam fallback anterior. Não prometer ordem bidi mista, align explícito, HTML ou todas as formas de parágrafo. As equações existentes de largura/tracking permanecem.
+Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
 
-Responsabilidade deste owner: Possuir resolução pura da direção compartilhada do segmento textual certificado. Single substantive Styled/Strong/Emph/Sequence pode fornecer o estilo integral; múltiplos siblings independentes usam a direção exterior, nunca consenso de valores de runs. Certificar antes de emitir; desconhecido retorna None. Par explícito usa sua cadeia exterior, não o primeiro filho. Escopo ativo conserva direção entre wraps; na saída guarda direção para a cauda ainda aberta e restaura o escopo pai. Consulta para alinhamento usa ativa, depois cauda, depois fallback histórico do primeiro Text quando nenhum contexto certificado existir. Preservar direção de cada TextStyle.
+Internal continuous-flow ADR-0127 maintenance introduces no enum/field, trait method/public signature, default, dependency, compatibility or phase. Do not materialize historical pending proposals. L0 precedes restricted bilateral resealing. Add no suppression, threshold change or match→if-let rewrite to hide V16.
 
-Aceitação: RED→GREEN em parágrafo RTL com linha LTR e inverso, escopo integral e reset por parbreak; checar checkpoints e subframes, texto/posições em CLI bilateral, build e lint sem novos findings. Slots e helper não transportam metadados ao L3; divergências de ordenação bidi ou align explícito ficam registradas separadamente.
+Before code, run new FrameVisitor control and workspace suite with unchanged expected outputs, and establish structural RED for 70 family warnings through AST reading. Afterwards require zero covered-family V16 and no new warning, retaining external V16 as pending. For productive core matches reached by cargo check -p typst-core, use a disposable copy with a sentinel FrameItem variant to measure absent E0004 barriers before/present after. The probe covers only compiled sites, not cfg(test) helpers or L3 blocked by dependency. Across the whole package replay patterns/guards/bodies, verify unchanged enum/signatures, real build/tests and no stub bodies.
 
-Refinamento por sonda causal: tree-state.json.gz registra fonte real `#set text(dir: rtl)` como Styled de fluxo com Sequence iniciada por Space de newline e depois texto/linebreak/override. first-candidate.json.gz refutou o tratamento desse Space vazio inicial como produtor que impede o escopo integral, deslocando até a primeira linha RTL. Para resolução do estilo compartilhado, Empty e os carriers fracos Space/SpaceFromNewline não são produtores substantivos; continuam certificados e emitidos normalmente. Texto literal whitespace não é descartado. O preflight não muda o conteúdo, as larguras ou a ordem de emissão. Aceitação inclui fonte real com #set e newline, não só construção manual do enum.
-
-## Migração do carrier bidi ratificado (2026-10-05)
-
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
-
-## Transporte lógico textual — contrato ratificado em 2026-10-05
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
-
-Esta unidade participa do transporte por Cursor privado, input Arc e spans exatos. Preparar antes de emitir o parágrafo textual inteiro, base lexical já certificada; conservar offsets por ordem de visita, não matching de strings. Sequence/Par criam escopo, nested Sequence herda; checkpoint conserva cursor e span corrente; subframe isola e restaura. Text fornece subspans para palavras e espaços literais; Space consome seu segmento mesmo quando fraco; Linebreak consome fronteira. Word emite span somente se texto exato não foi transformado.
-
-Escopo inicial: incremental simple, fora de células/colunas/subframes, sem tracking/hifenização/justificação/smallcaps, Text sem newline/tab/segmentação linguística. Região recusada tem None. Preparação global anterior permanece para parágrafos que não precisam do contexto bidi; para o subconjunto certificado com base RTL ou caracteres RTL/override oposto, encaminhar pelo incremental sem mudar os breaks permitidos. Não interferir em optimized explicitamente escolhido. O owner privado bidi_origin prepara/valida; esta unidade só coordena o seu papel. Testes de origem por ocorrências, UTF8, restauração e parbreak; validação bilateral de wraps.
-
-Guard privado bidi_scope_active distingue ausência de cursor certificado de ausência de escopo; após recusa integral, filhos não certificam um subconjunto parcial. Checkpoint e subframe conservam/suspendem/restauram este guard.
-
-## Envelopes de identidade no pipeline completo
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-implementacao-2026-10-05/verification.json.gz` preserva o primeiro candidato; RTL mixed/LTR numeric ainda coincidem com baseline errado. `pipeline-context.log` registra RED pelo pipeline completo: todas as folhas sem span; `realize/mod.rs:38–44` insere Located em ocorrências. Avaliação direta não exercitava esse envelope. Correção interna: Located é transparente somente para certificação da sua body textual integral, sem ignorar corpos opacos nem alterar registro de Location. Direção lexical e coleta devem atravessar o mesmo envelope. O teste do pipeline exige spans em todas as folhas textuais e ordem RTL com primeiro trecho latino; preservar artefatos do primeiro candidato.
-
-
-## D08B3-C2 — responsabilidade ratificada
-
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
-
-Certificação do contexto de parágrafo e direção compartilhada atravessam Source sem mudar âncora/direção nem criar fragmento independente; refutadores workspace-second exigem mesmos limites bidi e leading.
-
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
-
-
-## Escopo textual e cauda fracionária — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
-registra HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
-UTC/status/diffstat e hashes de fontes/binários contra vanilla pinado9f2b6e871.
-Os lotes block-par-spacing-after e block-par-extra-after anteriores já
-refutam escopo por consenso de runs: um wrapper18 em Lead More exige margem
-21.6pt, enquanto dois wrappers18 adjacentes mantêm o escopo exterior.
-sequence.rs:196–245 fecha prefixos na chain exterior; paragraph.rs:12–90 já
-resolve direção pelo ancestral lexical comum. Fonte vanilla flow/collect.rs:
-129–145 resolve estilos comuns antes de compor linhas e espaçamento.
-A cauda TAIL top10/bottom0 após Block1fr ocupa página2 contra página1 no pin:
-cursor.rs:127–135 rejeita igualdade com o limite embora a cauda esteja
-certificada. Cauda Styled18 fica10.52pt acima; fractional_preflight.rs:170–211
-mede nós individualmente e só corrige a altura de Text direto. Linebreak
-explícito também excede a região. A nova sonda inclui wraps, fonte8/18,
-Strong, wrappers irmãos, Align e colunas. Isso é geometria e paginação de
-linguagem; não exige estrutura ou bytes iguais. before-edit.json.gz em
-scope-tail conserva os consumers/owners anteriores.
-
-### Classificação
-
-Correção interna de paridade ADR-0127: L0 primeiro, RED→GREEN e revalidação.
-Sem API pública, nova entidade, fase eval/layout ou default novo. Refutar
-por wrappers irmãos, preservação da ordem, última linha, corpos opacos,
-colunas e ausência de efeitos/estado vazando da medição. Não copiar defeito
-upstream nem declarar paginação universal para cauda maior que a região.
-
-### Responsabilidade exclusiva
-
-Extrair a certificação textual e ancestral lexical comum já usados pela
-direção para helpers privados. Source/Located são transparentes; Styled
-aplica a chain somente se cobre todo material do segmento. Strong/Emph não
-fabricam novo escopo de par.spacing. Não deduzir escopo por valores de run.
-Oferecer fechamento do segmento textual antes de fronteira Block/Align,
-instalando temporariamente a chain/style comum para Parbreak e restaurando
-em seguida. Nada se fecha para segmento vazio/opaco ou sem linha causal.
-Oferecer medição geométrica do segmento textual certificado em Layouter
-isolado com métricas emprestadas e Introspector vazio: somente nós textuais,
-sem callbacks, Location, consulta externa ou mutação do emissor. Retornar
-altura causal e margem resolvida na chain comum. Medição inclui wrap,
-Linebreak e estilos; não usa soma de alturas de folhas nem tinta como frame.
-
-
-### Refutadores de extensão e primeira região
-
-scope-tail-after-first/results.json.gz confirma26/28 documentos. Os dois
-restantes são caudas com cinco linhas que excedem a primeira região; reservar
-altura integral deixa o início32/17pt acima. O primeiro fragmento deve ser
-medido sob a capacidade disponível, usando a mesma admissão de viúvas/órfãs,
-e somente sua altura causal entra na reserva anterior ao1fr. Próximas regiões
-preservam sua capacidade normal; não somar margem terminal de parágrafo.
-
-scope-tail-refutators/results.json.gz mede os três controles antigos que
-exigiam caudas desalinhadas. Três fragmentos numa linha agora coincidem
-integralmente. Multiword21 e par40/8 com fill ainda divergem em entrelinha:
-a medição isolada reproduz essa geometria defeituosa, não a certifica.
-O novo fallback de prefixo geométrico exige uma única baseline textual;
-prefixos multiline conservam os certificados escalares anteriores ou a rota
-opaca. Caudas multiline continuam sob medição integral/primeiro fragmento.
-Não alterar as asserções opacas desses dois prefixos para declará-los verdes.
-O aninhamento parcial OUTER18 + Styled8 contendo Block também continua
-incorreto no pin; um segmento local que entrou com linha exterior aberta
-não prova o escopo do parágrafo inteiro e não recebe novo fechamento.
-
-A medição da primeira região usa Layouter isolado, região inicial finita,
-margens zero e métricas/chain emprestadas. Nós são certificados textuais,
-e somente a altura causal do primeiro Page é lida por baseline + bottom-edge
-lógico (incluindo carriers e envelopes semânticos), nunca bbox de tinta.
-Unidade de frame não reconhecida recusa a medição, não vale zero. Não altera
-política de paginação nem reexecuta callbacks no emissor.
-
-
-### Separador não é linha causal
-
-scope-tail-layout-final-candidate.log mede One37.45 contra43.5 na fixture
-unwrapped FixedMetrics, embora todos os28 documentos PDF coincidam no pin.
-O certificado inspecionou a baseline do TextSeparator como texto material;
-separadores são neutros para altura (núcleo text-separators), e sua posição
-não prova uma segunda linha. Ignorá-los tanto na contagem de baselines
-quanto no fundo causal do primeiro fragmento. Preservar seus bytes/posição
-no emissor. Não alterar os valores esperados de One nem a largura novamente.
-
-
-### Linha já fechada conserva sua fronteira
-
-scope-tail-green-final.log refuta que somente ignorar TextSeparator resolve
-P1383: One ainda37.45 em vez43.5. O prefixo pode fechar sua última linha
-antes de chegar ao Block. close_segment recusava current_line vazio e
-perdia a margem, enquanto sub_frame devolvia o cursor da próxima baseline
-como altura. Prefixo geométrico certificado usa o fundo textual lógico dos
-items, não a baseline preparada. Para linha já fechada, com testemunha
-causal válida, segmento completo e cadeia ainda ausente, registrar a margem
-fraca compartilhada sobre esse fim, sem emitir outra linha nem repetir flush.
-Origem inicial, testemunha inválida e cadeia existente não recebem essa rota.
-O ajuste de separadores continua correto por sua neutralidade, mas não era
-a causa suficiente deste RED. Cauda multiline mantém sua medição integral.
-
-
-### Exaustividade do certificado de frame
-
-A validação scope-tail/validation/followup-architecture.log registra V16 no
-wildcard de text_frame_bottom: rejeição genérica de variante do domínio.
-Manter a recusa dos carriers não textuais, enumerando explicitamente Glyph,
-Image, Shape, Group, Link e Line. Não atribuir altura zero nem aceitar esses
-carriers. Nova variante exige decisão explícita por match exaustivo. É uma
-correção interna sem mudança do conjunto atualmente aceito pelo certificado.
-
-
-## Prefixo multiline e aninhamento parcial — 2026-10-14
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
-registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
-commitado, status/stat/UTC, fontes e binários contra o pin vanilla
-9f2b6e8715237cb086899a42873660fe744622e8. Multiword21 gera duas páginas
-contra uma; Long/More estão 6.5/13pt abaixo. O prefixo40/8 com fill gera duas
-páginas; More está39.906pt abaixo. Nested OUTER18/INNER8 tem BODY12pt acima
-e página auto12pt menor. sequence/fractional_preflight.rs:151–171 recusa
-multiline; word_layout.rs:49 fecha dentro do estilo local; line_commit.rs:
-398–480 usa esse estilo para floor/leading/top previsto. sequence.rs:239
-recusa fechar segmento parcial; Block sem cadeia anterior usa spacing8pt.
-Vanilla flow/collect.rs:129–145,179–214 resolve trunk dos filhos, spacing e
-leading comuns; cada frame contribui sua geometria. Esses são observáveis
-textuais, geométricos e de paginação da linguagem (ADR-0107), não obrigação
-de copiar buffers, algoritmos ou bytes. A intenção histórica não é inferida.
-
-### Decisão e limite
-
-Correção interna de paridade ADR-0127 em fluxo contínuo: sem entidade,
-trait/assinatura pública, nova flag/default ou fase. O núcleo text-segment-scope
-pinado define as invariantes compartilhadas. Aceitação RED→GREEN dos três
-casos, controles de fontes, cores, margens, colunas, restauração, checkpoint
-e subframes, mais suíte completa e linhagem. A nova rota só amplia prefixos
-multiline textuais positivamente certificados; não declara paginação universal,
-bidi/floats nem conteúdo opaco. Preservar os certificados escalares anteriores.
-
-### Responsabilidade exclusiva
-
-Separar fechamento sob chain explícita do fechamento de segmento integral. Medir prefixo multiline em Layouter isolado com métricas emprestadas, região de largura finita/margens zero e altura não constrangida, modo geométrico e chain comum. Fechar a última linha sob chain comum e obter fundo textual lógico pelos carriers certificados; exigir mais de uma baseline material e altura finita positiva. Não tratar TextSeparator como linha nem altura. Não reavaliar efeitos.
-
-O prefixo multiline novo exige também a certificação positiva de paragraph_prepare::prepare_parts antes de medir. O conjunto é o subconjunto tipográfico desse preparador; Linebreak explícito, overrides não suportados e unidades opacas continuam recusados por esta extensão. A medição não reutiliza a estrutura preparada como output nem muda seleção global.
-
-
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
-
-### Medição anterior à decisão
-
-F008: 01_core/src/compiler/layout/paragraph.rs:686 (texts). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
-
-### Prescrição exclusiva desta unidade
-
-- **F008 — `texts`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem. Guards ou campos restritos não cobrem a variante integralmente: manter no fallback os casos que falham na condição anterior. Medição específica: guard.
-
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
-
-### Gate e aceitação
-
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
-
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
-
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
-
-
-## V16 — Source, corpo vazio e fronteira Par (2026-10-17)
-
-### Medição antes da decisão
-
-No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado, `01_core/src/compiler/layout/paragraph.rs:340-363` reconhece Par
-somente por Styled e classifica corpos vazios/texto vazio sem atravessar Source.
-`01_core/src/compiler/layout/style_scope.rs:23-31` precisa desse reconhecimento
-para fechar a linha anterior antes do estilo; `paragraph.rs:385-422` decide
-avanço vazio/virtual top pelos outros dois predicados. O eval anexa Source a
-ContentBlock em `01_core/src/compiler/eval/expression_dispatch.rs:49-55`.
-
-`lab/results/construction/diagnostics/tekt-v16-paragraph-2026-10-17/before.json.gz` e
-`before-measurement.json.gz` conservam UTC, HEAD/status/diffstat, hashes de
-fontes/L0/configurações/binários/fonte tipográfica e 18 casos bilaterais (36
-execuções) contra `9f2b6e8715237cb086899a42873660fe744622e8`. Com DejaVu Sans
-12pt, página auto e margem 8pt, empty-before e source-empty põem AFTER em
-8.000013pt versus 22.400001pt; empty-after mede altura 25.1172pt versus
-39.51719pt; styled-empty põe AFTER em 38.717213pt versus 60.317183pt.
-space-par também perde 14.4pt. Text vazio já coincide e precisa preservar seu
-top-edge virtual. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:100-101,164-190`
-conserva a fronteira e o spacing de Par. A fonte foi comparada ao objeto Git do
-pin (reference.json). Isso mede linguagem, não intenção ou equivalência de bytes.
-
-### Decisão e prescrição exclusiva
-
-Correção interna/de paridade, fluxo contínuo ADR-0127. A inferência de que Source
-causa as perdas será refutada se a mudança não restaurar altura/espaçamento dos
-casos de origem ou alterar controles materiais/opacos. O núcleo source-origin
-já exige transparência; a mecânica do match não pertence à paridade.
-
-Nos três predicados is_paragraph/is_empty_body/contains_empty_text, Source
-recorre somente ao body. Preservar Styled e Sequence exatamente onde já eram
-admitidos; não promover Sequence a Par, Strong/Emph/Located/Realized/ShowRecipe
-ou unidade opaca a corpo vazio por esta revisão. Reconhecimento via Source
-permite fechar a linha anterior antes de instalar o estilo do Par. Corpo vazio
-com Source conserva a fronteira e spacing explícito; Text vazio continua a
-reservar seu top-edge uma única vez. Não emitir tinta, reavaliar callbacks,
-fabricar Location, mudar a primeira origem ou mover decisões de eval para layout.
-
-A auditoria nominal content-variants.json enumera 120 variantes Content antes
-da decisão de representação. Evitar repetir o mesmo complemento extenso nos
-três predicados: criar uma projeção privada emprestada ParagraphBody com
-Empty, Space, Text(&str), Sequence(&[Content]), Styled(&Content), Par e Opaque.
-Um único match Content exaustivo possui a política de admissão: Source recorre
-à projeção do body; Space/SpaceFromNewline compartilham Space; as variantes
-não admitidas são enumeradas explicitamente em Opaque. Não executar nem
-percorrer callbacks de Opaque. Isso é mecânica privada, sem novo contrato.
-
-Os três predicados fazem match exaustivo dessa projeção pequena, preservando
-os quantificadores all/any de Sequence e a recursão de Styled. Cada grupo V19
-compartilha uma política única: espaços equivalentes na projeção, unidades
-opacas no domínio ou recusa do predicado. Manter as notas e a justificativa,
-sem braços idênticos separados nem supressão V16. A nota antiga do grupo de
-espaços pode ser substituída pelas notas explícitas da nova representação;
-nenhuma redução de V19 é critério de sucesso. Variante Content futura exige
-revisão na fronteira e variante ParagraphBody futura exige revisão nos três
-predicados, por exaustividade Rust. Não reescrever como if-let ou matches
-para ocultar os avisos. Demais funções, fórmulas, certificados, corpos opacos
-e estados privados deste owner permanecem inalterados.
-
-### Aceitação e pendências
-
-Antes da implementação: testes funcionais RED de geometria/espaçamento e
-restauração de estilo com Source e controles de Text vazio/material/objeto;
-não contar falha de compilação ou leitura AST como RED funcional. Depois:
-GREEN, repetição dos 18 casos com páginas/palavras/caixas e tolerância absoluta
-0.002pt para arredondamento PDF (nunca bytes nem normalização de texto).
-Nenhum caso previamente coincidente pode regredir. Sonda rustc isolada com os
-quatro matches reais, todas as formas Content vigentes e payloads mínimos deve
-compilar o controle, rejeitar Content futura com E0004 na projeção e rejeitar
-ParagraphBody futura com E0004 nos três predicados.
-Essa sonda mede cobertura estrutural, não execução completa do compilador.
-
-Resselo somente deste owner/consumer; build, fmt, Clippy estrito/all-targets,
-Rustdoc -D warnings/quatro índices, suíte workspace, V1/V5/V15/V26, linhagem
-reversa e diff check. Diferencial SARIF remove exatamente três V16, substitui somente a nota V19
-do antigo grupo de espaços pelas seis notas dos grupos prescritos e preserva
-os demais diagnósticos. Comandos
-pesados sequenciais, cada gate em seu cgroup com MemoryMax=12GiB, swap zero,
-MemoryHigh=10GiB e Cargo jobs=1; não atribuir cache agregado a um processo.
-
-O corpus inicial com text(18pt) mediu quatro falhas independentes do constructor
-antes de Par. Elas permanecem abertas em positional-size.json.gz e não são
-resolvidas usando size nomeado nos controles. Par aninhado, outros envelopes,
-HTML e demais limites anteriores não são certificados por esta rodada.
-
-
-## Refutação do primeiro candidato — margens de Par vazio (2026-10-17)
-
-### Medição anterior à nova decisão
-
-first-candidate/ conserva integralmente código/L0, PDFs e before/after do
-primeiro reparo de Source. A checagem falhou: styled-empty ainda perde 7.2pt,
-e styled-empty-text, antes coincidente verticalmente, perde os mesmos 7.2pt.
-Isso refuta a suficiência da projeção. supplement-before-measurement.json.gz e
-refuters-before-measurement.json.gz no diagnóstico desta revisão acrescentam
-24 casos bilaterais: tamanho 8/18, terminais, consecutivos, somente vazios,
-spacing explícito/zero/negativo e caixa/blocos. Estado exato por coleta em
-HEAD/working tree/UTC/hashes/status/diffstat. Com 12pt externo e 18pt interno,
-AFTER está em y53.117213 versus60.317183; com8pt, y41.117213 versus45.917187.
-Dois vazios8→18 sem tinta medem16pt de página versus37.6pt. O constructor
-`01_core/src/compiler/stdlib/structural/par.rs:153-157` descarta spacing.
-A fonte pinada `lab/typst-original/crates/typst-library/src/model/par.rs:212-225`
-define margens de ambos os lados, colapsadas pelo maior valor. A distribuição
-em `lab/typst-original/crates/typst-layout/src/flow/distribute.rs:244-260`
-confirma a força das margens. Objetos Git conferidos no pin vigente.
-
-### Fórmula e estado próprios deste owner
-
-Esta revisão supersede somente a proibição de mudar a fórmula do ramo vazio.
-Tratar Par vazio como unidade de altura zero (ou virtual_top quando contém
-Text vazio), com fim causal próprio. Descartar a margem acima somente no
-início vazio do fluxo; havendo unidade anterior, colapsar acima com o pending
-anterior por máximo para margens fracas. Margem forte de Block anterior tem
-precedência e conserva seu valor, inclusive zero. O fim é a âncora anterior
-mais o gap admitido e virtual_top, contado uma vez.
-
-Depois, instalar o fim em cursor_y e prev_line_baseline, zerar descida da
-unidade anterior, confirmar last_block_descent_y e testemunha de fluxo;
-reservar somente spacing próprio em prev_block_below_pending. A margem abaixo
-fica pendente para o consumidor seguinte e colapsa separadamente com seu above.
-Conservar block_chain_active/prev_margin_is_parbreak para o protocolo vigente;
-initial_baseline_pending torna-se false porque há uma unidade causal de
-altura conhecida, mesmo sem tinta. Limpar empty_paragraph_weak_spacing: não
-preaplicar a margem terminal, logo não há soma fraca fictícia a remover.
-A admissão já existente de Cursor para block-chain acrescenta top-edge real
-do próximo texto e resolve seu gap. Não modificar Cursor, Finish, checkpoint,
-layout hub nem criar estado/campo público ou privado novo neste pacote.
-
-Conservar a projeção Source e os três predicados já prescritos. Não modificar
-fórmulas de corpos materiais, regras de texto vazio fora de Par, callbacks,
-fonte, bidi, migração regional, direções, margens fortes ou conteúdo ocultado.
-A nova inferência é refutável por qualquer regressão dos controles construíveis
-ou perda da geometria própria de dois vazios consecutivos sem tinta.
-
-### Aceitação refinada, sem encobrir diferenças preexistentes
-
-Adicionar RED funcional para tamanho8/18 inicial/intermediário/terminal, dois
-vazios, Text vazio virtual e transporte/erro de spacing no constructor. Preservar
-os nove testes anteriores e todos os controles. Repetir os18 casos principais,
-12 supplement e12 refuters; edges acrescenta6 controles construíveis e2
-limitações conhecidas de Block negativo, que permanecem abertas. Tipos de
-spacing devem concordar com o pin. Quaisquer falhas fora do reparo continuam
-inventariadas, sem crédito de paridade universal.
-
-A tolerância vertical e de xMin continua0.002pt, com texto/páginas exatos.
-O xMax do pdftotext já difere até cerca de0.0051pt antes do reparo (AFTER
-46.148 versus46.15039; MIDDLE18pt77.966 versus77.960938); não alargar a
-tolerância para chamar isso de equivalente. Registrar o resíduo horizontal
-preexistente e exigir xMin/xMax inalterados dentro de cada binário entre
-coletas. A sua natureza (geometria de glyph ou metadado PDF) continua por
-classificar, não é declarada corrigida por este lote de fluxo vertical.
-Páginas, palavras e yMin/yMax devem coincidir com o pin nos casos abrangidos;
-controles antes coincidentes não podem regredir verticalmente.
-
-Adicionar o segundo par owner/consumer ao resselo e à proveniência congelada.
-O diferencial pode substituir somente a nota V19 do antigo grupo que incluía
-spacing no constructor pela nota do grupo residual de três propriedades ainda
-incompletas. Nenhum V16 extra é admitido; demais gates e teto de RAM mantêm-se.
-
-### Métricas locais e fallback de Text vazio — 2026-10-17
-
-Medição anterior: empty-fonts-before-measurement.json.gz e descents-before-
-measurement.json.gz no diagnóstico deste lote medem16 casos adicionais com
-estado/UTC/hashes completos. Text vazio local18pt produz altura25.1172pt no
-Tekt versus29.675781pt no pin; local8pt exige22.078125pt. top-edge:0pt ou
--5pt exigem altura16pt sem tinta, mas Tekt mantém25.1172pt. Texto seguinte
-com top-edge:20pt deve começar42.400003pt em vez31.517213pt. Descida local10
-acrescenta10pt ao frame. O booleano contains_empty_text perde o estilo local.
-
-A hipótese inicial de combinar máximos de siblings foi refutada ANTES do
-código: mixed-local-edges produz y41.51719, usando a aresta do último Text
-vazio, e não a aresta20pt do primeiro. A fonte pinada
-lab/typst-original/crates/typst-layout/src/inline/line.rs:311-315 substitui o
-fallback a cada Text vazio, e :224-228 o usa quando não há outro texto material;
-:559-568 limita as arestas do frame por zero. fallback-before-measurement.json.gz
-mede as ordens18→8, aresta20→default e espaços finais separadamente. Isso é
-geometria observável; não obriga copiar buffers ou a estrutura do algoritmo.
-Não há evidência nesta coleta de defeito dessa política upstream.
-
-Substituir o terceiro predicado privado por empty_text_style, que devolve
-Option<StyleChain> da última ocorrência Text vazia do corpo certificado.
-ParagraphBody::Styled preserva referência ao StyledContent inteiro; os outros
-dois predicados continuam consultando somente seu body. Source permanece
-transparente. Sequence procura o último Text vazio em ordem; Styled empurra
-sua Styles antes de descer. Empty/Space/Par/Opaque e Text material não oferecem
-strut. Não resolver fonte para ramos descartados nem avaliar callbacks.
-
-Na realização de Par vazio, resolver TextStyle da cadeia escolhida e consultar
-FontMetrics.text_edges uma vez. Top e descida são não negativos, incluindo
-baseline_offset do estilo; altura virtual é sua soma, uma única vez. Sem Text
-vazio, altura virtual zero e nenhuma consulta de fontes. O frame virtual não
-emite tinta nem novos callbacks. Conservar o protocolo de margens do ramo vazio.
-
-Esta cláusula supersede somente o booleano e a métrica exterior. A sonda futura
-da projeção deve rejeitar a variante nova em is_paragraph, is_empty_body e
-empty_text_style. Manter os seis grupos V19 previstos, com None na recusa do
-terceiro consumidor. RED de fonte8/18, top-edge0/negativo/20, descida10 e ordem
-de siblings; o teste prospectivo de máximo foi corrigido pela medição e não
-conta como prova funcional. Repetir todos os casos sem reduzir os esperados de
-controles estabelecidos. Não certificar campos do constructor de texto ainda
-aceitos sem efeito nem geometria universal de wrappers opacos.
-
-## Fronteira Par/Box e região finita — 2026-10-17
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/par-box-fronteira-2026-10-17/before.json.gz`,
-`before-measurement.json.gz`, `before-analysis.json`,
-`supplement-before-measurement.json.gz` e `finite-before-measurement.json.gz`
-guardam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
-commitado, status/diffstat, UTC, fontes, argv, hashes de binários e o pin
-vanilla 9f2b6e8715237cb086899a42873660fe744622e8.
-Em EmptyPar→Box8×7→AFTER, Tekt yMin31.108413 contra22.400001pt;
-em BEFORE→EmptyPar→Box→AFTER,54.625613 contra45.917187pt.
-Espaçamento30pt inverte o erro:70.225613 contra77.117188pt.
-Block8 abaixo0 seguido só de Box tem altura33.1172 contra31pt.
-Em alturas finitas60–63pt, AFTER desaparece no Tekt e fica visível na página2
-no pin;64–70pt deixam tinta na página1 mas página terminal extra no Tekt.
-Box alto45pt na primeira região30pt cria duas páginas contra uma no pin.
-boxed.rs:22–42 usa constantes normalizadas e ensure_initial_baseline;
-line_commit.rs:501–539 só admite antes do commit em altura reduzida;
-region_progress.rs:118–133 pode avançar após tinta já comitada fora da página.
-Fonte pinada inline/box.rs:35–68 publica a baseline do frame;
-flow/distribute.rs:321–373 admite frames pela geometria real.
-São posições, dimensões e páginas da linguagem, não exigência de copiar
-buffers/algoritmos Rust ou bytes PDF. A intenção histórica não é inferida.
-A hipótese de fronteira geométrica é refutada por controles inline,
-margens fortes, fontes, baseline deslocada, assentamento tardio, posições,
-primeiro frame alto, subframes ou reservas/rollback alterados.
-
-### Decisão e limites
-
-Correção interna/de paridade ADR-0127: L0 primeiro, RED→GREEN e resselo
-restrito, sem API pública, novo modo/default, dependência ou fase.
-A composição fracionária de Box permanece incompleta na etapa B anterior:
-a testemunha width:1fr tem largura0 contra145.849609pt. Sua rota de
-calibração é conservada neste reparo e não recebe crédito de paridade.
-A admissão nova certifica somente página raiz finita ordinária, sem colunas,
-reservas/floats, transação/checkpoint pendente ou collector externo de
-decoração. Esses mecanismos conservam os protocolos próprios, não são
-silenciados nem declarados corrigidos. Aceitação inclui matriz bilateral,
-controles sem fronteira, finite60–70, fonte maior posterior, primeira caixa
-alta e rebase de origem/contexto; suíte completa, build, Clippy, rustdoc,
-linhagem bidirecional e inventário SARIF diferencial sob12GiB e swap zero.
-
-### Responsabilidade exclusiva deste owner
-
-Expor ao módulo irmão apenas helper privado spacing_for_size(chain,size):
-resolver Length com o tamanho fornecido, ou o fator canônico PAR_SPACING.
-spacing(chain) delega usando seu TextStyle lexical; isso preserva seus
-consumidores anteriores. O curinga existente trata ausência/tipos distintos
-como default e continua visível no inventário, sem silenciamento.
-
-
-## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
-`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
-fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
-Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
-mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
-mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
-Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
-estabelece busca tipada, preferência nomeada, body restante e composição.
-style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
-style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
-É tamanho/escopo observável da linguagem; a representação Rust é escolha
-interna. Não inferir intenção histórica. Refutar por restauração, Raw,
-heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
-A sonda de igualdade refutou a hipótese de comparar os valores declarados:
-no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
-content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
-própria correção; o tipo completo não é prova de fechamento desse eixo.
-
-### Ratificação
-
-O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
-771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
-Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
-Resselo somente após implementação e grafo válido. RG1 continua independente.
-
-### Responsabilidade exclusiva adicional
-
-Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length absoluto), e expectativas de StyleDelta.size por Option<Length>. Conservar os observáveis linguísticos e os contratos funcionais existentes; não trocar geometria correta por snapshots da representação nova.
-
-
-## R2-S — envelopes preparados e prefixo fracionário (2026-10-18)
-
-### Medição anterior à decisão
-
-No HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
-commitado, complete5/complete-alias-layout.log em
-lab/results/construction/diagnostics/sequence-constructor-2026-10-17/ registra UTC,
-estado exato e o controle com/sem show sequence identidade. Prefixo *Lead*
-antes de Block1fr em columns passa de uma para duas páginas no Tekt;
-o mesmo alias conserva uma página no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Prefixo simples conserva geometria nos dois. inline_prefix.rs:181–231
-inspeciona somente source_body; apply.rs:551–688 localiza a ocorrência
-Strong mesmo sem transformação aplicável. paragraph.rs:19–98 aceita Located
-mas recusa Realized. Isso refuta transparência da identidade no certificado,
-não justifica remover tags ou a localização. carriers-before.json.gz guarda
-fontes/L0 antes deste reparo, HEAD, diffstat e UTC.
-
-### Decisão e aceitação
-
-Correção interna de paridade em fluxo contínuo ADR-0127, sem contrato público,
-nova fase/default ou entidade. Projeção visual emprestada conforme núcleo
-pinado; nenhum callback executado. Fórmulas, gates de estilo, largura, wrap,
-profundidade tipográfica e fallback opaco permanecem. Não ampliar a projeção
-ParagraphBody nem promover corpo opaco a Par/vazio. Inferência refutada se o
-alias mudar páginas, palavras ou coordenadas, ou se conteúdo opaco for aceito.
-RED funcional de prefixo Strong/Emph/Styled com Source/Located/Realized,
-escolha visual diferente do original e recusa de Link; GREEN mais controles
-PDF com/sem alias dentro de cada compilador, três prefixos, tolerância 1e-6pt.
-Conteúdo emitido conserva seus carriers e tags. Suíte completa e gates sob
-12GiB, swap zero, jobs1, sem alterar esperados anteriores.
-
-Responsabilidade exclusiva: helper privado de módulo prepared_text_body
-projeta os três envelopes até o primeiro nó distinto. Um match exaustivo
-retorna o empréstimo original para o complemento nominal; esse grupo V19
-compartilha a política identidade, não admite seu conteúdo como texto.
-shared_chain usa a projeção em certificação, filtro de material e descida
-lexical, conservando seus critérios e estilos. Não alterar ParagraphBody.
-
-## Recuo francês — aplicação física (2026-10-18)
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
-status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
-extra-before.json.gz contém26; boundary-before.json.gz contém10 e
-repeat-before.json.gz contém4. Oracle bd5ebec285505889e8ff1d4f68804ab147a699f3,
-binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
-Tekt inicial2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095.
-Em160pt/margem8/font12, hanging10 mantém a primeira linha x8 mas move
-continuações x8→18; negativo-5 exige x3. RTL mantém primeira borda direita152
-mas continuações vão para142. O Tekt ignora o comprimento. MLA tem default
-18pt (1.5em), set ambiente3em não o troca, show-set3em exige36pt; IEEE/Plain
-não adquirem recuo de hanging por esse show-set. bibliography.where(style:"mla")
-não casa na sonda vanilla: conservar a decisão do seletor, não forçar override.
-
-Block/Box com body apenas inline ignoram hanging10; Par explícito dentro
-deles e Block com Parbreak aplicam. Heading/Raw/List/Quote simples não o
-aplicam. Declaração parcial, zero, repetida e escopo vazio fecham fronteiras:
-FIRST/MIDDLE/LAST em5.168/27.464/49.76, contra todos5.168 no Tekt. A primeira
-sonda lexical usou colchetes literais: foi refutada, corrigida para #[...] e
-preservada como extra-before-initial; não é evidência de escopo Styled.
-Valores extremos geram tinta recortada pelo extrator: não equiparar ausência
-em pdftotext a apagamento de Content. Fonte parcial24pt não muda o em do
-comprimento compartilhado12pt, como partial-font registra.
-
-Fontes pinadas: typst-realize/src/lib.rs:1061–1085,1190–1219 distinguem
-fragmento/Par e interrupção; typst-layout/src/flow/collect.rs:72–134 escolhe
-fluxo, inline/mod.rs:174,216–221 e collect.rs:141–147 resolvem forma;
-inline/line.rs:496–503 posiciona; rules.rs:510–523 faz inset/compensação CSL.
-typst-library/src/model/bibliography.rs:112–127,367 determina o default e
-precedência. Isso mede língua/geometria; não exige a estrutura Rust vanilla
-nem atribui intenção histórica. Refutação por fronteira perdida, em de run,
-recuo duplo, reset em página, fallback greedy imposto, cópia perdida, callbacks
-reexecutados ou regressões dos controles impede fechamento.
-
-### Classificação e limites
-
-Correção interna/de paridade ADR-0127, fluxo contínuo: sem campo ou assinatura
-pública, flag/default externo novo, fase ou ordem de realização diferente.
-A nova forma inicial/continuação supersede somente a limitação correspondente
-de largura constante; RTL latino certificado segue as condições do núcleo,
-sem BidiCursor ativo/tracking e sem inventar BidiSpan. Os demais limites
-anteriores continuam. Os valores/cópia fora da página requerem inspeção dos
-frames ou SVG, não igualdade de extração recortada. Não antecipar R3-T1.
-
-### Responsabilidade exclusiva deste owner
-
-Após fechar fronteira anterior, instalar contexto Paragraph no corpo de Par e preparar seu escopo completo; fechar/restaurar contexto ao sair, inclusive vazios. Não mudar fórmula de espaçamento/altura nem executar body vazio novamente.
-
-### Aceitação
-
-RED→GREEN antes da implementação; controles fonte→layout e bilaterais dos sinais,
-fronteiras, variantes e restauração pertinentes. Não deduzir cobertura de todas
-as alternativas por executar um arm agrupado: classificações nominais fechadas
-do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
-Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
-e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.
+Revalidate full workspace suite, cargo build, Clippy workspace/all-targets -D warnings and -D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes, strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/configuration during commands. Heavy commands run sequentially with MemoryMax 12GiB/MemorySwapMax 0/CARGO_BUILD_JOBS1. Structural cleanup does not establish new global parity, memory gain or measured AI benefit.

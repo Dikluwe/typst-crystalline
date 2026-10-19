@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "pdf-solid-opacity"
-title = "Opacidade sólida PDF e escopo gráfico"
-
+title = "PDF solid opacity and graphics scope"
 [[claims]]
 id = "leaf-alpha"
 level = "must"
-statement = "Opacidade sólida usa o alpha f32 da cor convertida, preservado sem quantização u8; nomes e pares de recursos seguem helper único. Fill e stroke são independentes; texto usa ambos para faux-bold. Gradientes e tiling não usam alpha representativo."
-
+statement = "Solid opacity uses converted-color f32 alpha without u8 quantization; resource names/pairs follow one helper. Fill/stroke independent;text uses both for faux-bold. Gradients/tiling use no representative alpha."
 [[claims]]
 id = "isolation"
 level = "must"
-statement = "Estado de alpha não vaza entre folhas, canvas e células. Em ActualText, restauração gráfica diferida permanece depois do fechamento semântico; recursos de páginas e células cobrem todos os operadores usados."
+statement = "Alpha state never leaks among leaves,canvas or cells. In ActualText,deferred graphic restoration stays after semantic closure; page/cell resources cover all used operators."

@@ -1,0 +1,30 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/from_tags/displays.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "1004e12f3f9cbaeb39a7d31684f610a44950f51371bdfac86b43385589ce124f",
+    "result_sha256": "792e8ddad2faf03d04add0601fd85b87969a95cae0d83a996cb9dbb4a9171703",
+    "disposition": "Full owner translated; historical extraction plus current bounded refinement, ratification, fallback and acceptance preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/from_tags/state_updates.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "3451e15995ff7fbcd7946bf91fe3b259ee2fc4ee65d3c4bef03297f1700ca9db",
+    "result_sha256": "711c6053e392079d0827f16a8c427d904e38646c7cdba28c063cbb493a8870e2",
+    "disposition": "Full owner translated; historical extraction plus current bounded refinement, ratification, fallback and acceptance preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/classification.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "c8c5aa8558eba34b4f36fe3ee1a45617c2d31d85cdb1d6107c9a13e2bb6a53e3",
+    "result_sha256": "387869b7072c364bee078b79a306e9e9f543cad84e19108f6de8a29ebfbe1b68",
+    "disposition": "Full owner translated; historical extraction plus current bounded refinement, ratification, fallback and acceptance preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/outline_entries.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "932ce5b9082064a7d537fbc3348225acc1047b37a36924c54c7efd309ec6f2fd",
+    "result_sha256": "d534f19185fa484c44b877b4e088be6675ede88a392e5c78fdfd962a0e2bf6f6",
+    "disposition": "Full owner translated; historical extraction plus current bounded refinement, ratification, fallback and acceptance preserved."
+  }
+]

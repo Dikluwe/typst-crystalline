@@ -1,0 +1,2398 @@
+{
+  "scope": "Only the 219 keys in entities/ledger.json; bounded prose word-boundary review, no semantic/metadata/pin changes. Fences, inline code, quoted literals, paths/URLs and identifiers protected. Technical compounds retained.",
+  "reviewed_files": 219,
+  "touched_files": 62,
+  "inserted_spaces": 168,
+  "touched": [
+    {
+      "path": "00_nucleo/prompts/core/entities/file_id.md",
+      "before_sha256": "98cd4320d54f70b6c75750681e65e440ff6eadae4e029c90dedcc5d59e0a1657",
+      "after_sha256": "0356fe7763dd7f122e2a77f87d803d70b9d48d5a658e2c4bef3e1b55b4e053f4",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 30,
+          "before": "top",
+          "after": "top ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/image_format.md",
+      "before_sha256": "bebd6362aae7573473b93b314529eaae611377dc678300fe72e2af96fb6ddedc",
+      "after_sha256": "07ed2c203f4f54973324f8a3e49a77c08d79dd753b42c2ed758be1c05d8a17b5",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 32,
+          "before": "offset",
+          "after": "offset ",
+          "next_character": "8"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/glyph_variants.md",
+      "before_sha256": "45f1bdfe48e958b0809f5ef41010efe31b13feddf480dac380f56df47db80bf4",
+      "after_sha256": "26861991b660bad861865785683e25764b47bca00f04f07473afb555b23a863c",
+      "inserted_spaces": 6,
+      "edits": [
+        {
+          "line": 39,
+          "before": "default",
+          "after": "default ",
+          "next_character": "0"
+        },
+        {
+          "line": 50,
+          "before": "selects",
+          "after": "selects ",
+          "next_character": "5"
+        },
+        {
+          "line": 50,
+          "before": "exact",
+          "after": "exact ",
+          "next_character": "5"
+        },
+        {
+          "line": 50,
+          "before": "selects",
+          "after": "selects ",
+          "next_character": "8"
+        },
+        {
+          "line": 51,
+          "before": "target",
+          "after": "target ",
+          "next_character": "1"
+        },
+        {
+          "line": 51,
+          "before": "maximum",
+          "after": "maximum ",
+          "next_character": "5"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_set.md",
+      "before_sha256": "31762f3305db94c3c808c889087e3011228e47488d28308b5ee2723ca57cb28d",
+      "after_sha256": "0c21632342ddec18cb94603db8198166833cb8d2d69dc79e595359c62f9449a5",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 10,
+          "before": "are",
+          "after": "are ",
+          "next_character": "0"
+        },
+        {
+          "line": 16,
+          "before": "yields",
+          "after": "yields ",
+          "next_character": "0"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter.md",
+      "before_sha256": "f76b37a5c6e717ee1268450bb7ecc1b46da9f90ea4968d4c5188a86f8029d656",
+      "after_sha256": "8c0abad514013a94be8684bbf8372fb14b8421a4ca4730b0e06d4236c86acf68",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 39,
+          "before": "records",
+          "after": "records ",
+          "next_character": "7"
+        },
+        {
+          "line": 58,
+          "before": "The",
+          "after": "The ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/color/mixing.md",
+      "before_sha256": "51d4f534c269779671a38c396b3026d86b167ba4e9aaf30e1b839469c4f7deff",
+      "after_sha256": "9c8cb9740e3ccd905e3d3723821f3d0c675f6848d0259f8078e528df1316311a",
+      "inserted_spaces": 5,
+      "edits": [
+        {
+          "line": 11,
+          "before": "line",
+          "after": "line ",
+          "next_character": "1"
+        },
+        {
+          "line": 16,
+          "before": "lines",
+          "after": "lines ",
+          "next_character": "7"
+        },
+        {
+          "line": 19,
+          "before": "records",
+          "after": "records ",
+          "next_character": "1"
+        },
+        {
+          "line": 38,
+          "before": "index",
+          "after": "index ",
+          "next_character": "0"
+        },
+        {
+          "line": 38,
+          "before": "index",
+          "after": "index ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/figure_caption.md",
+      "before_sha256": "e0408cfd2f8bf0c859935fef282a6dcfca76add41ed4d522995ee17fa98ab539",
+      "after_sha256": "b4d0a0944a37b05c815659e2274c380812c41dc76aed719a2bbb87fd380fd718",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 15,
+          "before": "upstream",
+          "after": "upstream ",
+          "next_character": "5"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/html.md",
+      "before_sha256": "335b2dca2d363b52ea2cdf9fd6197bebafc2548955f6ef8fc061b9c6f62b2189",
+      "after_sha256": "3878e0f2d54e1d46126b5766862b45d4f279b5959e62de29f5ef22683f82ea1c",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 15,
+          "before": "converting",
+          "after": "converting ",
+          "next_character": "7"
+        },
+        {
+          "line": 43,
+          "before": "The",
+          "after": "The ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_attach.md",
+      "before_sha256": "88a707c8cd7bcfa70418d61128e1db1a4fda57fcda07fe916ee2f36cbbb9333b",
+      "after_sha256": "f9a65f770a5949ab174d8f271522a077ded28ec13e405abee27050881bae40ac",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 46,
+          "before": "counts",
+          "after": "counts ",
+          "next_character": "1"
+        },
+        {
+          "line": 47,
+          "before": "for",
+          "after": "for ",
+          "next_character": "0"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/span.md",
+      "before_sha256": "b57a7fc2da5c5c2c7b2eac14166df11fc60950f689514af3c940dc0814b167b4",
+      "after_sha256": "e4fff6f845d657707be7ae6c89f6c7f1e167a470ce4feb305766bc41f901751d",
+      "inserted_spaces": 12,
+      "edits": [
+        {
+          "line": 10,
+          "before": "also",
+          "after": "also ",
+          "next_character": "8"
+        },
+        {
+          "line": 10,
+          "before": "is",
+          "after": "is ",
+          "next_character": "8"
+        },
+        {
+          "line": 11,
+          "before": "low",
+          "after": "low ",
+          "next_character": "4"
+        },
+        {
+          "line": 11,
+          "before": "high",
+          "after": "high ",
+          "next_character": "1"
+        },
+        {
+          "line": 14,
+          "before": "the",
+          "after": "the ",
+          "next_character": "2"
+        },
+        {
+          "line": 22,
+          "before": "declared",
+          "after": "declared ",
+          "next_character": "2"
+        },
+        {
+          "line": 27,
+          "before": "low",
+          "after": "low ",
+          "next_character": "4"
+        },
+        {
+          "line": 38,
+          "before": "number",
+          "after": "number ",
+          "next_character": "1"
+        },
+        {
+          "line": 39,
+          "before": "number",
+          "after": "number ",
+          "next_character": "1"
+        },
+        {
+          "line": 40,
+          "before": "do",
+          "after": "do ",
+          "next_character": "0"
+        },
+        {
+          "line": 43,
+          "before": "preserves",
+          "after": "preserves ",
+          "next_character": "4"
+        },
+        {
+          "line": 44,
+          "before": "gives",
+          "after": "gives ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_frac.md",
+      "before_sha256": "4c1c0fe299e7630626d99c3f3e501af73bd97e255f0ec711f5cc2d17475f53af",
+      "after_sha256": "164d3ef41f3704170300aa380d2784071cc4f54025088e3282cc821e89e34046",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 15,
+          "before": "measured",
+          "after": "measured ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/cite.md",
+      "before_sha256": "23063cbce993c28b60bba819dd4403b927149a9ed8eb2f6026fdfbfc1ed56645",
+      "after_sha256": "de7c28a0a195c75cc452ee3d5242976af9dfaa33d562d6ccbcb714a8bdd530db",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 34,
+          "before": "Lines",
+          "after": "Lines ",
+          "next_character": "4"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/transform.md",
+      "before_sha256": "69926a18f73877d703e5ed576cd57294020858235cbdcb246d591960df258234",
+      "after_sha256": "c699bc00e7147f2968d0ed522238605cd203efb4c1ff391029460fe598fe19a9",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 17,
+          "before": "line",
+          "after": "line ",
+          "next_character": "1"
+        },
+        {
+          "line": 24,
+          "before": "upstream",
+          "after": "upstream ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/source.md",
+      "before_sha256": "a6e982a7a0ec4216d34aae593de86ddb9f2eda6c30dc707e7f720116663847be",
+      "after_sha256": "860cc938e2028ff35c4478a8321f6699799d1623d2e51a58a937fd270cb0b2f5",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 58,
+          "before": "other",
+          "after": "other ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/rust_hash.md",
+      "before_sha256": "de5abd0f707890983ac1994c75036a3441d8c914ee29f4c442657e56e4f7653b",
+      "after_sha256": "06ca3e4e96ea6057eee2bc19553cf7f0de2a6119072acec837c05304d5de2492",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 64,
+          "before": "other",
+          "after": "other ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/math_class.md",
+      "before_sha256": "24cba284f664b298c75266684229189317736944e5597ff5067d2c957d4579c5",
+      "after_sha256": "74c98b96de1cfeb3d97bcb488ee8a879c9218a085e2d31d2553707425cad90a7",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 19,
+          "before": "has",
+          "after": "has ",
+          "next_character": "1"
+        },
+        {
+          "line": 40,
+          "before": "All",
+          "after": "All ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/citation_style.md",
+      "before_sha256": "b5b447844f4a23ccb36aeb8ea50d8cd64031520b32511de88d9229355d087b62",
+      "after_sha256": "647175d7bb99e45374bc039d51cf2419b859b510b1fb979afb8ed5fbf0e0c2ab",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 16,
+          "before": "lines",
+          "after": "lines ",
+          "next_character": "7"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/page_run.md",
+      "before_sha256": "4a03938879bc48feb0d3ae60d8d86719eadcf034ea4e5066fb948283c9e99758",
+      "after_sha256": "8b3de6b30f3ed4c1844772a0d7501ede632504aed3848f9372cc7f5ca4b55928",
+      "inserted_spaces": 5,
+      "edits": [
+        {
+          "line": 15,
+          "before": "its",
+          "after": "its ",
+          "next_character": "1"
+        },
+        {
+          "line": 15,
+          "before": "restores",
+          "after": "restores ",
+          "next_character": "2"
+        },
+        {
+          "line": 15,
+          "before": "inside",
+          "after": "inside ",
+          "next_character": "2"
+        },
+        {
+          "line": 16,
+          "before": "consecutive",
+          "after": "consecutive ",
+          "next_character": "1"
+        },
+        {
+          "line": 63,
+          "before": "confirmation",
+          "after": "confirmation ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/outline.md",
+      "before_sha256": "fafe30f2a395b2c4e10b9971d36dd36a26a406eda04efcfb657694924dd5a44c",
+      "after_sha256": "c5d7e599dbe8f17ffaa679a83a5830b668c8f2f97dba2c648cfaac4775f07e85",
+      "inserted_spaces": 3,
+      "edits": [
+        {
+          "line": 14,
+          "before": "upstream",
+          "after": "upstream ",
+          "next_character": "0"
+        },
+        {
+          "line": 29,
+          "before": "depth",
+          "after": "depth ",
+          "next_character": "1"
+        },
+        {
+          "line": 41,
+          "before": "baseline",
+          "after": "baseline ",
+          "next_character": "f"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/citation_form.md",
+      "before_sha256": "20ea04bd0c59ef35ae3db7ea263bc7a051f83ef9c563207829dc20819eab726f",
+      "after_sha256": "fc872626808453ffa343cd89cad3aa28350ec1e5444ed2a0318c60b9721db840",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 6,
+          "before": "criterion",
+          "after": "criterion ",
+          "next_character": "2"
+        },
+        {
+          "line": 14,
+          "before": "lines",
+          "after": "lines ",
+          "next_character": "7"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/raw.md",
+      "before_sha256": "97c68be51abd6c74e8eb27359218119c9ccce5d63e0651064e892494e1e87b5e",
+      "after_sha256": "5e10c5fd59e4d863449fce3e05fbe284b1ea37dda82b45e84e0355380ff97092",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 15,
+          "before": "upstream",
+          "after": "upstream ",
+          "next_character": "9"
+        },
+        {
+          "line": 62,
+          "before": "approval",
+          "after": "approval ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_delimited.md",
+      "before_sha256": "f64c9399d5c6b3e6ab6a16ffd98c7cce5402a02fa2a9d7da3b12e14ffb8175fb",
+      "after_sha256": "e2a255b1be4bc54dfe98416f8dcf9b08723953707f3ed6bcaa2d2ee7ba36319e",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 26,
+          "before": "approval",
+          "after": "approval ",
+          "next_character": "2"
+        },
+        {
+          "line": 49,
+          "before": "implementation",
+          "after": "implementation ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/frame_paint.md",
+      "before_sha256": "3d4f1c7ee70aca9a7f91e31007db246fd4f30dbc2ed58c427ec1ed038fa57d37",
+      "after_sha256": "bc0634bf36d124c5a87585e0247c07be0e8bac344868df7945b06b2ac02427d2",
+      "inserted_spaces": 4,
+      "edits": [
+        {
+          "line": 24,
+          "before": "limit",
+          "after": "limit ",
+          "next_character": "2"
+        },
+        {
+          "line": 27,
+          "before": "At",
+          "after": "At ",
+          "next_character": "2"
+        },
+        {
+          "line": 29,
+          "before": "max",
+          "after": "max ",
+          "next_character": "2"
+        },
+        {
+          "line": 29,
+          "before": "had",
+          "after": "had ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter_state_legacy.md",
+      "before_sha256": "b9cacbcc180ee1d1416f0d508e58b18563ef6337fac07f8edadde219b487b434",
+      "after_sha256": "6d1132fe09f36ba60b0dd4a2f13c7da0e1cfe5e6fef3940ea38fc09a92536b49",
+      "inserted_spaces": 4,
+      "edits": [
+        {
+          "line": 14,
+          "before": "section",
+          "after": "section ",
+          "next_character": "1"
+        },
+        {
+          "line": 36,
+          "before": "as",
+          "after": "as ",
+          "next_character": "1"
+        },
+        {
+          "line": 37,
+          "before": "as",
+          "after": "as ",
+          "next_character": "5"
+        },
+        {
+          "line": 57,
+          "before": "The",
+          "after": "The ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/ast/markup.md",
+      "before_sha256": "4c84ab76c26a261e497bb4a3d2ba45e5e79339e687a155a502a124fa0722f2b7",
+      "after_sha256": "59fa3c954dd75728ea4dec0db9298b967b2a434482ff63c8a7364ab7bfe87e8d",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 118,
+          "before": "depth",
+          "after": "depth ",
+          "next_character": "2"
+        },
+        {
+          "line": 118,
+          "before": "is",
+          "after": "is ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/world_types.md",
+      "before_sha256": "a246b86be254151054156a19ef0b3457398ba56329420628cd27cd6265b44cc7",
+      "after_sha256": "854eae4cc6c6f9e1c8808492a2f4b288a81e8f8dfd03375477557f15a07047a1",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 35,
+          "before": "found",
+          "after": "found ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/figure.md",
+      "before_sha256": "576da4d69baa2f33fe9c9e693ca07e1987cecd6dc678483409f7ae31d0bcc9a3",
+      "after_sha256": "2a8cffd96c603a0f50c6e7284354ab2c97fa52cfbdbd48b3aa8c439f8133e5f1",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 16,
+          "before": "The",
+          "after": "The ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/regex.md",
+      "before_sha256": "70a2bc0756327a002c12edc10f207552881dd14b4d818802dde18919daff09d0",
+      "after_sha256": "25060f01640ba0c7ee24335b5102a5a5c556c40c4d0a66b735ede0cc7d89adb2",
+      "inserted_spaces": 3,
+      "edits": [
+        {
+          "line": 29,
+          "before": "group",
+          "after": "group ",
+          "next_character": "0"
+        },
+        {
+          "line": 30,
+          "before": "The",
+          "after": "The ",
+          "next_character": "2"
+        },
+        {
+          "line": 32,
+          "before": "prefix",
+          "after": "prefix ",
+          "next_character": "8"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter_format.md",
+      "before_sha256": "e289488d87e9aea7b97ed515de4e038b898cd812392b6e7fa39dd109b36a6a9e",
+      "after_sha256": "5797a04c81fe31c9713f3fbc973f3788e9324ca868defc417175d060011f1f31",
+      "inserted_spaces": 6,
+      "edits": [
+        {
+          "line": 15,
+          "before": "measured",
+          "after": "measured ",
+          "next_character": "2"
+        },
+        {
+          "line": 50,
+          "before": "Roman",
+          "after": "Roman ",
+          "next_character": "I"
+        },
+        {
+          "line": 50,
+          "before": "hierarchical",
+          "after": "hierarchical ",
+          "next_character": "1"
+        },
+        {
+          "line": 51,
+          "before": "uppercase",
+          "after": "uppercase ",
+          "next_character": "A"
+        },
+        {
+          "line": 57,
+          "before": "enumerated",
+          "after": "enumerated ",
+          "next_character": "2"
+        },
+        {
+          "line": 59,
+          "before": "other",
+          "after": "other ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/smartquote.md",
+      "before_sha256": "3532dbe64a335503e92477ef2d394448c6fa00d168505f35fefa2f794f4b4981",
+      "after_sha256": "e392725a40e2fa027ed46ab90c49a2308c02e965ee9a129b18ea8f161e5266b9",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 38,
+          "before": "ratified",
+          "after": "ratified ",
+          "next_character": "2"
+        },
+        {
+          "line": 73,
+          "before": "confirmation",
+          "after": "confirmation ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/block.md",
+      "before_sha256": "9978de948302c93a566a8a62195e18bdbc6eaf8dd4364686cba61a1f9b7482d2",
+      "after_sha256": "5ff23aea8ee7a496ca647dceecd5555164a621f8554c624c7d3e3eda548a6f7c",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 68,
+          "before": "other",
+          "after": "other ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/gradient/interpolation.md",
+      "before_sha256": "c07cdb834f6063d36118561b720255bef1873e371d9990416779fc6c2443d672",
+      "after_sha256": "7ddd90985bd12ffaebb2d7e41f0b7d33151113beefd87fa67e35989586a3e091",
+      "inserted_spaces": 4,
+      "edits": [
+        {
+          "line": 61,
+          "before": "local",
+          "after": "local ",
+          "next_character": "2"
+        },
+        {
+          "line": 61,
+          "before": "hue",
+          "after": "hue ",
+          "next_character": "2"
+        },
+        {
+          "line": 72,
+          "before": "inventory",
+          "after": "inventory ",
+          "next_character": "2"
+        },
+        {
+          "line": 85,
+          "before": "is",
+          "after": "is ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/outline_entry.md",
+      "before_sha256": "22c61643f429c9caf1f1945afa5169cb2acd7a358591e1d9ec7ff35b4c53f831",
+      "after_sha256": "237793bba29baf2b26ee20ffb6f09b09d2d42be8e9845f9f418b59a9f81605b8",
+      "inserted_spaces": 3,
+      "edits": [
+        {
+          "line": 12,
+          "before": "upstream",
+          "after": "upstream ",
+          "next_character": "5"
+        },
+        {
+          "line": 33,
+          "before": "lines",
+          "after": "lines ",
+          "next_character": "2"
+        },
+        {
+          "line": 72,
+          "before": "removed",
+          "after": "removed ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/package_spec.md",
+      "before_sha256": "da792b7bdbb8dd2b962b9130f7b1556a7a0aa24260530c5d77e164666a020355",
+      "after_sha256": "ddaf21b486e6f7e55636f7809c7bfe329b8ed8317aa85ea0fa98fcf7405ea72c",
+      "inserted_spaces": 4,
+      "edits": [
+        {
+          "line": 12,
+          "before": "The",
+          "after": "The ",
+          "next_character": "2"
+        },
+        {
+          "line": 14,
+          "before": "column",
+          "after": "column ",
+          "next_character": "8"
+        },
+        {
+          "line": 107,
+          "before": "displays",
+          "after": "displays ",
+          "next_character": "1"
+        },
+        {
+          "line": 109,
+          "before": "not",
+          "after": "not ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/module.md",
+      "before_sha256": "8515dc5db4b152d410d66f12cdf260fb62dc725e1ec6fffad3d76dbe303e3d8b",
+      "after_sha256": "951aab67443ea0c6492d37057899579f59ada6b845a6a0976bdafa12bf073e3e",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 60,
+          "before": "approval",
+          "after": "approval ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/bidi_context.md",
+      "before_sha256": "489395438b146965485c2eddd3866bae8c1c683d36bed9bba054c7a188cd1567",
+      "after_sha256": "a481adefeaec5864bcb8dcd76d782f26dbbe7859dbac0bc2af47760cb1b83512",
+      "inserted_spaces": 4,
+      "edits": [
+        {
+          "line": 24,
+          "before": "isolated",
+          "after": "isolated ",
+          "next_character": "4"
+        },
+        {
+          "line": 24,
+          "before": "the",
+          "after": "the ",
+          "next_character": "4"
+        },
+        {
+          "line": 25,
+          "before": "produces",
+          "after": "produces ",
+          "next_character": "7"
+        },
+        {
+          "line": 82,
+          "before": "isolated",
+          "after": "isolated ",
+          "next_character": "4"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_cancel.md",
+      "before_sha256": "f54008912575bab1928d1d71a4e70abebed907a0a1eb85a555a7e3f134464244",
+      "after_sha256": "a8a2388fc375a9a5e5abef4b0bfa733d2d2f8eda9bf6703746d77b942cf5ecf2",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 16,
+          "before": "The",
+          "after": "The ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/args.md",
+      "before_sha256": "5eda0ca4194d069222d8a3b139df2d6b32c78fcc7ca1e1924093518fcb394811",
+      "after_sha256": "53f9febd949398376ea4432553dca7dd211c6cf388302691222b914d0cdc03e0",
+      "inserted_spaces": 3,
+      "edits": [
+        {
+          "line": 11,
+          "before": "captured",
+          "after": "captured ",
+          "next_character": "2"
+        },
+        {
+          "line": 22,
+          "before": "upstream",
+          "after": "upstream ",
+          "next_character": "4"
+        },
+        {
+          "line": 123,
+          "before": "stays",
+          "after": "stays ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/mod.md",
+      "before_sha256": "aaf59fd9f2aed27e89fe4838740f226e1e8aa13aa810a5a5fa19e47c78f20f88",
+      "after_sha256": "682816b5d319402243a689dac510754e970ff16688bb23abde0210dbfbf30dc8",
+      "inserted_spaces": 3,
+      "edits": [
+        {
+          "line": 14,
+          "before": "line",
+          "after": "line ",
+          "next_character": "1"
+        },
+        {
+          "line": 16,
+          "before": "maximum",
+          "after": "maximum ",
+          "next_character": "2"
+        },
+        {
+          "line": 16,
+          "before": "limit",
+          "after": "limit ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/bibliography.md",
+      "before_sha256": "2986f9a2f5c5a15afe83b6d23598448c0fef2082a1e12271e29d047207c85394",
+      "after_sha256": "84e0c856f402cb9b6b66cdd553e6a6e97ac21c0d6265f3dd1f259f5062fe8fbe",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 11,
+          "before": "archived",
+          "after": "archived ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/locator.md",
+      "before_sha256": "43c256f44ef6680dfb175c4df125aadc8bb9e798752352c2b07a6e8d6d463c66",
+      "after_sha256": "6d24e6d2058b466327a5b654fbbf5f8ea4b4f91cc73fdca00bd12fd08469eeec",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 13,
+          "before": "the",
+          "after": "the ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/state_update.md",
+      "before_sha256": "7056de82c2229082f81dd217ac01a30b11504ddf38247ffe68b4c3189b63be6b",
+      "after_sha256": "050de37edbbb1fdeb4a86db82713db8a497fc0fc78411824fdf53a943d84fdb1",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 9,
+          "before": "covers",
+          "after": "covers ",
+          "next_character": "8"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter_update.md",
+      "before_sha256": "fd28f6fa73f7f9c1fa2f303107ac59ed35872f684be90c34aae376073d984dcf",
+      "after_sha256": "d3d6e681a828c096cfbfa3fc989cc52a26d3949ea5388e193e0625acf70c09e1",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 11,
+          "before": "section",
+          "after": "section ",
+          "next_character": "1"
+        },
+        {
+          "line": 11,
+          "before": "default",
+          "after": "default ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/tiling.md",
+      "before_sha256": "af6262b0f16b5659fbe1a6c3adc584b5a887037bef7f5bc3aae175c5c1eab7d6",
+      "after_sha256": "0dcd24ba02be6d03542713bed3c6059c5fba8156f75c5932285436125e761119",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 19,
+          "before": "full",
+          "after": "full ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/bib_store.md",
+      "before_sha256": "ad6a817864ad432310cefe1a58255845e76e386c8ce6a44862db898bd27d1197",
+      "after_sha256": "9500632873f3f44c12ada8716121536058d34dc7d77fbdc13ccb23b24d6dad30",
+      "inserted_spaces": 3,
+      "edits": [
+        {
+          "line": 55,
+          "before": "retains",
+          "after": "retains ",
+          "next_character": "1"
+        },
+        {
+          "line": 55,
+          "before": "then",
+          "after": "then ",
+          "next_character": "4"
+        },
+        {
+          "line": 55,
+          "before": "lengths",
+          "after": "lengths ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/table.md",
+      "before_sha256": "cdd3a6895dbd528fe8f1a81edffaef94bb2eb7d66abf105a8b78f568218c57f1",
+      "after_sha256": "532fde83b903e5bf8e9645f26ca53febe702ca49517ea1b08b243efe733b7044",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 67,
+          "before": "predefined",
+          "after": "predefined ",
+          "next_character": "4"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/construction/tables.md",
+      "before_sha256": "3b0736ad928d8cc5658466fb0bcc131764199cc43a47722e1f81a6e10bd11b1e",
+      "after_sha256": "9623d3ba7a30ab904ca967ba7b5ab74db3ab452d5a7ddc13fab5403862894487",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 44,
+          "before": "contains",
+          "after": "contains ",
+          "next_character": "5"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/tests/representation.md",
+      "before_sha256": "edaf686bfef84226baf63f4c2cdc3be5bb4281d256525af79b81470e1375328a",
+      "after_sha256": "c9ad20a7f0783dcea4c5a9107f198785616ea74cc4104cb20dbff18d0ab5bcb7",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 46,
+          "before": "contains",
+          "after": "contains ",
+          "next_character": "5"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_limits_override.md",
+      "before_sha256": "82085594296a8fcdeebc2823cb5ae0bb2827316f8dd194250a306cebbffdc36e",
+      "after_sha256": "0728025d5c6e02696d37a37c09da7276b285ca1d3ecf54b8a7d307490a0ef60b",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 14,
+          "before": "where",
+          "after": "where ",
+          "next_character": "5"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/symbol.md",
+      "before_sha256": "858132e2334b6aa78fef70e8ff02e8cdc1490c6d3c48c7b7193a1f166bff7b2a",
+      "after_sha256": "08f0c4a515c76c7cfb6e915b0e8567483e93aabffadccdf85dd00f8fd861e5c9",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 12,
+          "before": "serial",
+          "after": "serial ",
+          "next_character": "5"
+        },
+        {
+          "line": 12,
+          "before": "At",
+          "after": "At ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_matrix.md",
+      "before_sha256": "191e29b9561d694daf22fda4cd63969e87060d096f972a1cce5ba8d1f44948b0",
+      "after_sha256": "af5257fcb6a9aaa132d31adf6de6a8690a99ae28e3f2999064b34a74a1f2e5a5",
+      "inserted_spaces": 4,
+      "edits": [
+        {
+          "line": 13,
+          "before": "other",
+          "after": "other ",
+          "next_character": "1"
+        },
+        {
+          "line": 29,
+          "before": "model",
+          "after": "model ",
+          "next_character": "2"
+        },
+        {
+          "line": 33,
+          "before": "for",
+          "after": "for ",
+          "next_character": "2"
+        },
+        {
+          "line": 39,
+          "before": "Use",
+          "after": "Use ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/color/conversion.md",
+      "before_sha256": "3d8984b4ba85d6b8e5d8432daf5fddf8a64d9e767f0c5b33abdcd1a66f703631",
+      "after_sha256": "1b1802558e67ccf690340975dbd3e95a6ccf5bdfb6b96557bc78187312c3f44f",
+      "inserted_spaces": 4,
+      "edits": [
+        {
+          "line": 11,
+          "before": "All",
+          "after": "All ",
+          "next_character": "5"
+        },
+        {
+          "line": 11,
+          "before": "Rust",
+          "after": "Rust ",
+          "next_character": "1"
+        },
+        {
+          "line": 15,
+          "before": "exposes",
+          "after": "exposes ",
+          "next_character": "1"
+        },
+        {
+          "line": 17,
+          "before": "hue",
+          "after": "hue ",
+          "next_character": "2"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content.md",
+      "before_sha256": "3f4ad4bcee364304224117eca5e8703f56764365f34ea59bf18775da02a3866a",
+      "after_sha256": "ce3fe673387ed051a77538526d669106dbbf11761e5fdd531ab75d523fa8830c",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 214,
+          "before": "line",
+          "after": "line ",
+          "next_character": "3"
+        },
+        {
+          "line": 214,
+          "before": "line",
+          "after": "line ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/decimal.md",
+      "before_sha256": "b5271509197cc6569db095ac942a8e957d047c8be69aa3b3f35faf8d7869b343",
+      "after_sha256": "dce461c17bc32eb5f1dd94ef591178267430c30ac6c9220e3cc933ece0d3666f",
+      "inserted_spaces": 3,
+      "edits": [
+        {
+          "line": 14,
+          "before": "the",
+          "after": "the ",
+          "next_character": "1"
+        },
+        {
+          "line": 24,
+          "before": "Rust",
+          "after": "Rust ",
+          "next_character": "1"
+        },
+        {
+          "line": 40,
+          "before": "Use",
+          "after": "Use ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/construction/layout.md",
+      "before_sha256": "52f35d62f4f566613f3f0d2025805294095e3242be885f3cd14ff5c206314772",
+      "after_sha256": "2c35c2abf7ffca69e35dd930c517fff8d055b524b4ecec1e80a29196b1940ec5",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 39,
+          "before": "records",
+          "after": "records ",
+          "next_character": "7"
+        },
+        {
+          "line": 45,
+          "before": "the",
+          "after": "the ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/tag.md",
+      "before_sha256": "3d8d410c3634353c7e6ec6b52fc1f6f56091958e099239d7d8c5ca391646b132",
+      "after_sha256": "d2fced80831481f4b8053364fc963ef70fed12ed7a0307e18ca1bab8875651d7",
+      "inserted_spaces": 11,
+      "edits": [
+        {
+          "line": 13,
+          "before": "records",
+          "after": "records ",
+          "next_character": "1"
+        },
+        {
+          "line": 15,
+          "before": "For",
+          "after": "For ",
+          "next_character": "4"
+        },
+        {
+          "line": 15,
+          "before": "candidates",
+          "after": "candidates ",
+          "next_character": "4"
+        },
+        {
+          "line": 15,
+          "before": "is",
+          "after": "is ",
+          "next_character": "4"
+        },
+        {
+          "line": 17,
+          "before": "copying",
+          "after": "copying ",
+          "next_character": "4"
+        },
+        {
+          "line": 17,
+          "before": "are",
+          "after": "are ",
+          "next_character": "3"
+        },
+        {
+          "line": 17,
+          "before": "Across",
+          "after": "Across ",
+          "next_character": "1"
+        },
+        {
+          "line": 19,
+          "before": "are",
+          "after": "are ",
+          "next_character": "7"
+        },
+        {
+          "line": 19,
+          "before": "rich",
+          "after": "rich ",
+          "next_character": "1"
+        },
+        {
+          "line": 17,
+          "before": "are328/376",
+          "after": "are 328/376",
+          "kind": "explicit prose word-boundary"
+        },
+        {
+          "line": 17,
+          "before": "candidates120/168",
+          "after": "candidates 120/168",
+          "kind": "explicit prose word-boundary"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/math_constants.md",
+      "before_sha256": "bf92cf95748b2b25121cc0ca6a25c77c65c8d50c471ad345452ef7b7d4146886",
+      "after_sha256": "b295d1fc20f5f2233f85abfa4d10697ba12fa785e406239f264bdb869f020c2b",
+      "inserted_spaces": 5,
+      "edits": [
+        {
+          "line": 9,
+          "before": "old",
+          "after": "old ",
+          "next_character": "1"
+        },
+        {
+          "line": 39,
+          "before": "normal",
+          "after": "normal ",
+          "next_character": "3"
+        },
+        {
+          "line": 57,
+          "before": "percent",
+          "after": "percent ",
+          "next_character": "6"
+        },
+        {
+          "line": 58,
+          "before": "ordinary",
+          "after": "ordinary ",
+          "next_character": "5"
+        },
+        {
+          "line": 59,
+          "before": "archived",
+          "after": "archived ",
+          "next_character": "6"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter_registry.md",
+      "before_sha256": "47b94ce08d59e9fd225ba68352422d095abed62e745d790723d4ee43da3dd53e",
+      "after_sha256": "820d260dd9a72963c93695868a1805abf1e24a42a601068da0b03d16108dc7f8",
+      "inserted_spaces": 4,
+      "edits": [
+        {
+          "line": 44,
+          "before": "least",
+          "after": "least ",
+          "next_character": "1"
+        },
+        {
+          "line": 50,
+          "before": "section",
+          "after": "section ",
+          "next_character": "1"
+        },
+        {
+          "line": 54,
+          "before": "produces",
+          "after": "produces ",
+          "next_character": "1"
+        },
+        {
+          "line": 80,
+          "before": "Use",
+          "after": "Use ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/state_registry.md",
+      "before_sha256": "5589069e28ff0281bda48475f87d7d144a63170ec41e4b0256670b6ff3f20cab",
+      "after_sha256": "d2feee94b9fa63c00501d1c5a7780d8671cdb8301f8209400d5669bafa374966",
+      "inserted_spaces": 1,
+      "edits": [
+        {
+          "line": 56,
+          "before": "Use",
+          "after": "Use ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/element_payload.md",
+      "before_sha256": "01e07d1137835de5f2bce308d889a8e526b1c9628a1077544a7806942589feee",
+      "after_sha256": "67d7a896f9d1e26324956a6a1c6f602a696fb5b1e182e94a81aca045657304e7",
+      "inserted_spaces": 2,
+      "edits": [
+        {
+          "line": 11,
+          "before": "section",
+          "after": "section ",
+          "next_character": "2"
+        },
+        {
+          "line": 77,
+          "before": "clamped",
+          "after": "clamped ",
+          "next_character": "1"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/style.md",
+      "before_sha256": "90ea6de53c6ea8318f9162397da78845884febd9abf04564b5c699c8f2718848",
+      "after_sha256": "a8166ccdb8d5ea03cc3ad7e6eda94faee5ef2969724dbf0e843e35f0a2106618",
+      "inserted_spaces": 4,
+      "edits": [
+        {
+          "line": 12,
+          "before": "column",
+          "after": "column ",
+          "next_character": "1"
+        },
+        {
+          "line": 24,
+          "before": "programmatic",
+          "after": "programmatic ",
+          "next_character": "0"
+        },
+        {
+          "line": 58,
+          "before": "then",
+          "after": "then ",
+          "next_character": "7"
+        },
+        {
+          "line": 12,
+          "before": "A2026-08-13",
+          "after": "A 2026-08-13",
+          "kind": "explicit prose word-boundary"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/morphology.md",
+      "before_sha256": "ff0b774ad891d94827a027604410daba12b18e5b4418248fc5300290b345caa8",
+      "after_sha256": "8ddbfcf15962db7c38145ad7221da46192a7367265a9c811b6f198b0392291d9",
+      "inserted_spaces": 7,
+      "edits": [
+        {
+          "line": 37,
+          "before": "contains",
+          "after": "contains ",
+          "next_character": "5"
+        },
+        {
+          "line": 57,
+          "before": "records",
+          "after": "records ",
+          "next_character": "5"
+        },
+        {
+          "line": 71,
+          "before": "stay",
+          "after": "stay ",
+          "next_character": "1"
+        },
+        {
+          "line": 71,
+          "before": "occupied",
+          "after": "occupied ",
+          "next_character": "1"
+        },
+        {
+          "line": 77,
+          "before": "produces",
+          "after": "produces ",
+          "next_character": "2"
+        },
+        {
+          "line": 77,
+          "before": "then",
+          "after": "then ",
+          "next_character": "2"
+        },
+        {
+          "line": 122,
+          "before": "nominal",
+          "after": "nominal ",
+          "next_character": "1"
+        }
+      ]
+    }
+  ],
+  "reviewed": [
+    {
+      "path": "00_nucleo/prompts/core/entities/content/sequence.md",
+      "sha256": "539e2de1ef7355ac39939b3b382c0e003d0a51448d91639434bf43a3de9db073"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/label_kind.md",
+      "sha256": "552806b9245f25dcb6157575f98394794cba006996272bdec202aae9b95ff262"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/tests/sequence.md",
+      "sha256": "682d2848a008420c3c8b1511e24a6d0eb10b95bb3079c8166a36df994ebc26d0"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/tests/traversal.md",
+      "sha256": "39b400d627881b33344808f7927641de11aee818182c846fb93fba7f499031f7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/tests/morphology.md",
+      "sha256": "2530108641d913de279d1089ba8607fd34df297f76d3ac6646db5a06faa517a3"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/state.md",
+      "sha256": "788d6755760462c7bbe6958585f903d299324c919071710a56f2b1705582f008"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/tests/mod.md",
+      "sha256": "29311e0b0e950156e7e9f51c8dbf0db07193a0e18c077e30a1cd8cbf22ecab90"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/hide.md",
+      "sha256": "663beb8b15634c00111cc1ba69fc3708bc49d46ed93bfe3d4a3e04f971232c80"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/parity.md",
+      "sha256": "63d2af7d7683da4f79e02821deacb8c9bab50f8998067410da8c0ec6d73c25d3"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/corners.md",
+      "sha256": "2c2ce960a6deae9f6ee5ad11ba2c1b3887fb9d97ccb83b3217d8a68207108883"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/grid_footer.md",
+      "sha256": "3c0ffab82b22f65a64bacd2f00e0c7139d026e727902abc7720ed6dca7799211"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/grid_header.md",
+      "sha256": "3973a72eb6fa8d6a4428c5c4a79eae6e787641610698313e2ec776e47d1ed97a"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/table_footer.md",
+      "sha256": "b9e8699e77b23354d83b860c8c6f6cc1147b1bcaaa4602be4744cca4d021b106"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/table_header.md",
+      "sha256": "190a3b0f40d52c3bc912c88d7d18a4252cc9fa32a7989d9b09b74e4c8f86317b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_node.md",
+      "sha256": "e74c3be2bf06d8dc6337783b732c9423542333125c0f7a14a317532af4065525"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/pad.md",
+      "sha256": "2e2b31c86fdcabc6edabb930d03a75c4aaa3a8413fe09c9ffbc6c0c7d250bf24"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/test_callout.md",
+      "sha256": "b4872b9df13db41cabd43f50270f984fd2f1ccdd042780894fab9008ac106891"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/context_block.md",
+      "sha256": "394986bafd36e72ebcd359ba85bf31ab8570af937de97517b42bc53006cbdcfe"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/state_display.md",
+      "sha256": "b198077842a6b68191b1a89dbbc79441110cf2077c955d25c4f9ef8526bf7152"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/element_registry.md",
+      "sha256": "3b0351bb30d8c5a5a1e24d116353886a69ea9679808d06e168b2f82165b0601b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/divider.md",
+      "sha256": "83b072eaec8c75cf049fe9796fd84c63577d3e80c21ab443262275a629bf2963"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/counter_display.md",
+      "sha256": "16e21f16ea54bfb91d65cee04c2edba2adb5ce54c3cf4467887d9af150aa268c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/dynamic.md",
+      "sha256": "73dbecb27f67b8c53b8f8bafd07decde742d95ed3ca39de78dbde3476a403941"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/title.md",
+      "sha256": "507c10b77f6f11ed4341cd02ef99c0ae10b4765474c8213af149b08f9b5b5d81"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/rel.md",
+      "sha256": "e0802a499ff14e8e6c3c118c581386e2cba3197faad3445685b3d28fb55935ef"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/location.md",
+      "sha256": "7ca0523af1b56fcc11d3864f9ed19dd56b9fdde894e83635db847684e5162c78"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/shaped_glyph.md",
+      "sha256": "2d54d6ef6b7a1be7a5b7aa97076d3c6c5e002475a0e33b5532203821b12bfc25"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/dir.md",
+      "sha256": "7bd846cd1bb8c7402ff9169c8eb6e0e79d924fa9a1d48318ab94b4a8df466218"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/state.md",
+      "sha256": "c06c42de63a7013692d12010c94c3409764b399f0ef104cc9a5b4b4345461c9e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/align.md",
+      "sha256": "2817fdabf43d766899ce4504ea23aaf1f153a11c458a8dfc5f899498a0f8db51"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/colbreak.md",
+      "sha256": "4971cb60ad6cab119640827beca8d41d91dee873c854bc199381327aa203dde1"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/construction/math.md",
+      "sha256": "e97a76635f8402cdd894ec9e29f43251531778080ad5cf2fa49a9b02e72fb786"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/construction/references.md",
+      "sha256": "0d42f4bf6c364c004424968087ec8619c87d738dc8347a007326acd8fbca54b4"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/gradient/conic.md",
+      "sha256": "50a149c2f9d285c040e20487dbf8f53308a719580b770d5f8d3f0979a124c9a6"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/gradient/radial.md",
+      "sha256": "372826a684e5ebacd4433a98a794caee23de5ca3c7dc6dc569b5fc9a3058afd1"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/gradient/offsets.md",
+      "sha256": "29456221af2cb4093a15598ef22e17e62e77b9710cd14c7e66504efe805e973d"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/gradient/linear.md",
+      "sha256": "92978809cb9a878e0e5efdada39ffe1ad3a6fa6c680eb7ad7021ae22f233b822"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/gradient/kind.md",
+      "sha256": "0e2c3490a165e4747051bc0b7657f51d3f06607e50095c75c16ec2271051d32a"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_cases_tests.md",
+      "sha256": "232e2f21aa08ef7c33dcdbc7657ce827350f9fae41ee6c00ff2cdb01f12e0ae8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/terms.md",
+      "sha256": "71d99607d9a6ae696c88796557ed8dc80a0d6c207ee6cb7352ceab083e54e7fb"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_node/errors.md",
+      "sha256": "788f00c5b93fa0730fa8ff7ca34b7abcad50a6542c4c8acf7b44aad38c78719c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_node/linked.md",
+      "sha256": "b33500820922e73f0e1d8716a51c8f9fa6f5e7e47c8c481869ddeaeb6cd58d2b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/flush.md",
+      "sha256": "32b7631c9bf64f4e29046cf659b3e9e5cc01a61714401adc8a740f0e609c86e2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/ptr_eq_arc.md",
+      "sha256": "1b73107dccdd84286d65a1b3c73128dc4ca2c958796dbacedb0f9c7b089dcbe0"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/document_info.md",
+      "sha256": "5cb3371899a580ac6ed7486ee5386a422eb7398590975035b45f6887705c1a2c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content_hash.md",
+      "sha256": "87a722a274beaa0767b046782c4084572fb76c32d9a4749811b95d5a9ea6d272"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_node/representation.md",
+      "sha256": "f23c7a32e70a385627c4a4955f7af692681aca1a1cc62382dbf5658b5160923a"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/linebreak.md",
+      "sha256": "f9a25954d281625b7dd69d0e5ee06fd1fc3177b67937c06ba9f7e1ae82437e94"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/compiler_features.md",
+      "sha256": "00ea39413b199332b2bb16aa66e8aa29462f6fb12b8e6a329fc9ae4f068e5dbe"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/bytes.md",
+      "sha256": "36189ae6b5a6d4adb49e7f9a791e4b99f1affe1667558a76e129eef573f5dac8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/page_geometry.md",
+      "sha256": "0e55f43cd3e0fd5e0bf8263306b3760874b20f09c847ea8574022dd11d03e3cc"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/page_canvas.md",
+      "sha256": "7125ce55021cf13753f5e047f25f1c597c3b4513adf2bc77b5e193e0a5d76ab0"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_accent_tests.md",
+      "sha256": "91f0db3cc83eca1d884442471fdcb9b0d77f101f195043619070eff6a0070dd6"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/repeat.md",
+      "sha256": "7321cc0e7aa311292879b5621d08f45f0bca2637884f43dcce26a3069f23bf24"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/term_item.md",
+      "sha256": "2ec1ff296bbaa00957fa3571cf88e1912241ff469d332a5a5d3f55c6d9eac444"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/stack.md",
+      "sha256": "0ab3e680f417397c152127d4a6ec0d2dbe4b6a2262b22e1dcb3d4208fdc5ab7e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/quote.md",
+      "sha256": "a5b69f431dd5f5c67ef859a79947a1812d39308a591f603be0cc045a7f277e4c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/state_update.md",
+      "sha256": "f7c76b6aade476a7d310db9007d4dc468abc1aaed3ab5ffc0ffc911f96bd8d1e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/counter_display_callback.md",
+      "sha256": "f4958e8b3a2ac644e13b8825213015c908347e28a74092db295f575b6e5c086e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/place.md",
+      "sha256": "5f2a22d75691555905eb86a63638fbb10286dc170ac54b51118409940fafc119"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/grid_cell.md",
+      "sha256": "7aad340647eeb56b620d12eea4d54ab8e50f43c6602ef1d6ffd54d7e00588709"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/grid_hline.md",
+      "sha256": "4346039f2ec48a6dae9f73a5090ec994d8db8b85dfb212da9596e0604092df3a"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/grid_vline.md",
+      "sha256": "6912805104d41deca40e5123ccbea1b7b94cc35d73850bba3e136fa67e560667"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/table_hline.md",
+      "sha256": "71f672cbf79969ee394ded2281686356b33470f15c2bec5c4a1e297a25210a4d"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/table_vline.md",
+      "sha256": "4176ac902b8d52005e2cf7f68c1aa4cda13dc7118f79c810df70a106844eccda"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/axes.md",
+      "sha256": "72a2a2577231bd464c429a73bed55647d218b1e0aab797b15db5012706f6ec57"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/plain_text.md",
+      "sha256": "d997c72d0c425168d6b8477b2c7dff0779215fb395042dc453d12994afd17d32"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/version.md",
+      "sha256": "bf9833f21b6da03de5342387ff8dd6cb042c6cc30cbd9b1fe321efc37045f2b8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/v_space.md",
+      "sha256": "cbebae8ded7c45c348a293d368486b5f47280269971ca12aad5e619479acada8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/strike.md",
+      "sha256": "6ece8922aff1d4ec4e800fe86b847652cc6ac88490049be76f7a64401ac39a17"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/underline.md",
+      "sha256": "9650fca4ac700c1e56f46f9f9c890628f35d0e742e00f7c90cfe81c897a1a959"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/curve.md",
+      "sha256": "d0d300c9943ae1033c4d90b5e52da83051c72316252c928d915ff276d35200fa"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/label.md",
+      "sha256": "06bfb006293912647edfaf02b7e9e0750346b23bb1d1c21e22aac40ba5b3e550"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/grid.md",
+      "sha256": "7ddeeecce709f1fe472a6bd846ec57e785d97facf9a708c43f05017263f4e766"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/shape.md",
+      "sha256": "5012d8d01ac604f6c8544530e8bd0090dca047ae0d8810a003ddc1cd29b04288"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/link.md",
+      "sha256": "80952e3a8b69a31d9b7a8329bb7ffa4bf21a01ec5bc9d96be496ccce194006a9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/image_sizer.md",
+      "sha256": "38b02f6835b7ed3a0ce30a2862b4f06bf25d667d3705add208d07f694479a9ed"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/source_result.md",
+      "sha256": "9a4e8d706c3032c44049bdd924529fc1ef42c53ed12fec57ab24fbec735ebc2e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/equality.md",
+      "sha256": "3bf5551c19855d6788438e5e9a7a618cdfdbf4ce92f7b0557f59a8a3fabb4cba"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/construction.md",
+      "sha256": "320f9a7a1cff811e64f2b7d5b598d1486b319a35c802240d6ea1ded446ad02b9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/font_variations.md",
+      "sha256": "21ed3fdbbe0ad6030d6f49747e3a3bd3bbea5138cfc3183a2977d7b0b2afaa24"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/page_store.md",
+      "sha256": "09bedc205da2ccc14cb3bba3b5fb523443d44cf392a21c9f314791766465578a"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/counter_update.md",
+      "sha256": "e62652c8788599bcee208ea48d6422b02bfa1951dc6ff22ed0634b322ed176e7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_matrix_tests.md",
+      "sha256": "23076edea922c12f049e31adeb360df1ad208500e683a005308e3ad98d2cabbe"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/image.md",
+      "sha256": "87c721b1cb60280f55ecc3b1af2b47928258f73234f0387a85664c07b2e57d7c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/bib_entry.md",
+      "sha256": "4fff81b03c3d148286b4749941601137e644a151e917a677bbc171790ed2ab3f"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/list_marker.md",
+      "sha256": "cdce6478d1acbc84b0b6b5ad447eb4a888f32675870df874c244fcf59e1cf0d7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/lang.md",
+      "sha256": "f65f93440741d8aeaabfd488841825018c7c50d6ccfc6a81c42d603a98b4aea8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/overline.md",
+      "sha256": "67695dba50e6e62eab09790c0edd94f8a8752f731150be60b0a9a408ee7baace"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/paint.md",
+      "sha256": "0d6a55a2c269737b397ccbbc4ceb1a13c4fec9e4eef860e0d8c6fc01e2ff0826"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/document_format_options.md",
+      "sha256": "4d088159e6b03b93bd4881d150a59f8606506219146803603dcb2d169a066b15"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/emph.md",
+      "sha256": "dc4adc96f2c27b492a3273fc539e36c46e7ad58330306c13ae869ef2b3fa5985"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/strong.md",
+      "sha256": "216d611e50eb6f57ac35dcef1b5dba11dba065f33502bcff17429b8b88c3a911"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/font_book.md",
+      "sha256": "18ae3a6bc341623d635565190a014de1251f40c6989c3a74fc7339998aa121dc"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/h_space.md",
+      "sha256": "6838770633753549aff30e370409887fd9a40c112cf1e92b1d6c5ceadf8d95e7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/engine.md",
+      "sha256": "d3800fc50ce8417f069a1c969c983f6413efcbd8e0a672958f7530cb6026af29"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_mode.md",
+      "sha256": "48743bcdc6d1df9c5b8c3f9054924774fd71021cab288e03395fc37628e5b0ff"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/pdf_artifact.md",
+      "sha256": "8b5b06788c7748b362b26e3d8c49c8cb3a4017c2d22535554f578a612d02edd2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/pdf_attach.md",
+      "sha256": "52d673f61963e178ab8f05e5b0aca7d039f5437888832c39171e4956376eddc2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/pagebreak.md",
+      "sha256": "279028f03666f175ea9e4b826fd2c0d5acb17c6e4e956b77aa46d3b4f59fed60"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/metadata_store.md",
+      "sha256": "b3d261aec9a8389c6b7297017e35a797959d9963337d69d31919b023e0ebdb34"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/tests/projections.md",
+      "sha256": "acee46e093ab6e4346a94e0fd1d4f21a59e5c7f54627be06b5b8d4b5f15b3667"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/numbering.md",
+      "sha256": "f156e5fdce5421782110a15a8b9ba998176a8904d373976a4a29d813fea35db9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_stretch.md",
+      "sha256": "b3b7e4fbecb3492237aeac2b5299301e0b7b2e03612d5d16cfbf849bfb617a1d"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/enum_numbering.md",
+      "sha256": "aa037a88960bac541c8e9f9f539541af3cacf0d44bc1c3ae741e21056f88d805"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/source.md",
+      "sha256": "c5ee4debcd5b7b564e43d2c3e3c5673803840bd0366bac562e1a67f03470738b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/sides.md",
+      "sha256": "f8327d8140d34169ec86766c9dcf9eaa4814cc526ea04e983ee7dbc2e6f6724d"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/page_supplement.md",
+      "sha256": "ad84eed8e483ce51841ae58701c32f59476ca57c457de84915a15e8d79635553"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/list_item.md",
+      "sha256": "90468a457f3b57f8a74ae02b206c74343730fd4d7d86f33f2987ca5e76378315"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/page_running.md",
+      "sha256": "b0772e454706c8db5a3b161e042d8742b17386600e6cfe27b7944d43b8246244"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/path.md",
+      "sha256": "62d2f356442c6cf5b8dfbc648239b93a844ee8a0625d177449995dc65423437f"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/layouter_runtime_state.md",
+      "sha256": "f7bce76d274cc85fe9100394441c3d524a911cb1a1b8df48d97fcc43df2e650f"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/footnote_entry.md",
+      "sha256": "5b9afa73699e78f5a95c62693889c5a793e75db9a7768be4b87002e8144491ad"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/element_info.md",
+      "sha256": "be24617a0f0c58fd59ad7be1060c63de5f40da02d58fe17f5346a2d24ac15edb"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/columns.md",
+      "sha256": "bf9511cbf54661c06264f829b0d6b74b8cc2281867be2d708176a1ae742ce0d4"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_align_point.md",
+      "sha256": "749e1e5446ef4e88e6f6994a7d009a983319010d25edde9d956d80ab9835dfc9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_op.md",
+      "sha256": "3d49f6215ae4e858cbf8bdf47ff7bfc66db3f090a16d38deac784170402da5cb"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_styled.md",
+      "sha256": "a95cc6b9e820508cd46d9e7880d3a03eb4bfb1a51819b213f3d1548a40c29093"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/boxed.md",
+      "sha256": "f400192b4d783eb11d5fbe6e918f3a896d7349d439a51bf5908a60f15d679f4e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/mod.md",
+      "sha256": "95733cc12d0161aa85074452e38008af0346d4d5ba1e4c70b92ba702948f3f0e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/heading.md",
+      "sha256": "074882e45075ca40e0d68bc2190d41265da39968179a01e11fce4ff28f3c8b6e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_accent.md",
+      "sha256": "b880a9c4e1ce58e21ce942c253e618d194953ff10dfd03eee398fec2a357d692"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_cases.md",
+      "sha256": "6a0832b921cefeb80f22c4dc6ae573d1c17e2a3f6e36b4823c286258345d74d7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_class_override.md",
+      "sha256": "b207fe29501d4572fd2cdd445667bb6c6628405d51f768d2aa9c8bdce7315dc2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_root.md",
+      "sha256": "8b93de917d2480a29cb85c96f5a670bdf5c0bc50f74dbe950c775ea2dd5ed540"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/enum_item.md",
+      "sha256": "a40af39cc6371fc91a69df743c89335958e8b35451151831847ea8b32ea8ce7a"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/footnote.md",
+      "sha256": "c07d56c79f3f35ec6f5cbd6b93cfebe9e53b4b82a96b1880171b34f704a5bb11"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/metadata.md",
+      "sha256": "3899855735dd3ef62829b6d0061aebe05ee3d2edc10b53a2b487be78f495bcd2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/duration.md",
+      "sha256": "9042657ed90acdb58942817a59781543b282f209d7ae0bfcecf344c1455fc52b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/color/adjustments.md",
+      "sha256": "4c4861e257dc9686d077bd59af89856cadd8ef53683f184e8e9c0a0e0c55640e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/line_cap_tests.md",
+      "sha256": "475fe5e2b96f4d6253c0c9c4c5c4b780741b12684614320cae994e34fcfa766c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/font_list.md",
+      "sha256": "010586e1acc55d5039350a7b3a35bf9e73d34d9bc5205a00ed0689cc9562df76"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/sink.md",
+      "sha256": "4dbaf4102421bd4948e7aaef02567c14a6031624e053b7c10b2127eba8cbd6b2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/scope.md",
+      "sha256": "d46a99e9b009b97da1db4fb62d9cc538df1b42701445f994953773707af9d931"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_text.md",
+      "sha256": "ebc099e3a72c4a877ea8a580f191092863daa6e7360c68060cc00dab52d20475"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/ref.md",
+      "sha256": "ba04fd6f9c18d35cbabfc0798b1421b96c210f05cf8c072c485b59cadbee6a4b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/ast/mod.md",
+      "sha256": "27262e2865c433cb5a166a20eae07bb5bf7d592eeac722bc3985449e8764b976"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/label.md",
+      "sha256": "04cf0de1bb44161046dbc522862ae4717110d2434ccd4740fed8accb302138e9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/position.md",
+      "sha256": "531cd64445a23a2eb1978fbd8ccc32c4daff1aebfef295ab5c0f031098ebe512"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/file_id.md",
+      "sha256": "0356fe7763dd7f122e2a77f87d803d70b9d48d5a658e2c4bef3e1b55b4e053f4"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/image_format.md",
+      "sha256": "07ed2c203f4f54973324f8a3e49a77c08d79dd753b42c2ed758be1c05d8a17b5"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/glyph_variants.md",
+      "sha256": "26861991b660bad861865785683e25764b47bca00f04f07473afb555b23a863c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_set.md",
+      "sha256": "0c21632342ddec18cb94603db8198166833cb8d2d69dc79e595359c62f9449a5"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_vec.md",
+      "sha256": "44ad9cc55be2ff7b14ca43f229d1753430bc351c6f9d5c3927232de8358a49ce"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter.md",
+      "sha256": "8c0abad514013a94be8684bbf8372fb14b8421a4ca4730b0e06d4236c86acf68"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/color/mixing.md",
+      "sha256": "9c8cb9740e3ccd905e3d3723821f3d0c675f6848d0259f8078e528df1316311a"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_underline.md",
+      "sha256": "50da279da496ccf662c573bed972ad40221f030ea0f8bd1ff6a45b2fdeed055d"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/figure_caption.md",
+      "sha256": "b4d0a0944a37b05c815659e2274c380812c41dc76aed719a2bbb87fd380fd718"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/html.md",
+      "sha256": "3878e0f2d54e1d46126b5766862b45d4f279b5959e62de29f5ef22683f82ea1c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/sealed_positions.md",
+      "sha256": "ae4f3f19c346419404b0716df41841fa2e1c4a0b57e4324e533318ce2b508d67"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_attach.md",
+      "sha256": "f9a65f770a5949ab174d8f271522a077ded28ec13e405abee27050881bae40ac"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/span.md",
+      "sha256": "e4fff6f845d657707be7ae6c89f6c7f1e167a470ce4feb305766bc41f901751d"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_frac.md",
+      "sha256": "164d3ef41f3704170300aa380d2784071cc4f54025088e3282cc821e89e34046"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/cite.md",
+      "sha256": "de7c28a0a195c75cc452ee3d5242976af9dfaa33d562d6ccbcb714a8bdd530db"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/transform.md",
+      "sha256": "c699bc00e7147f2968d0ed522238605cd203efb4c1ff391029460fe598fe19a9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/source.md",
+      "sha256": "860cc938e2028ff35c4478a8321f6699799d1623d2e51a58a937fd270cb0b2f5"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/emptiness.md",
+      "sha256": "0a1aa3238ef8030502407cac0ad256d1d51d013cd2ddf5fdc44f117442d3b4b7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/rust_hash.md",
+      "sha256": "06ca3e4e96ea6057eee2bc19553cf7f0de2a6119072acec837c05304d5de2492"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/math_class.md",
+      "sha256": "74c98b96de1cfeb3d97bcb488ee8a879c9218a085e2d31d2553707425cad90a7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/operators.md",
+      "sha256": "6e19ab8e4d72e90ab98eaaa6628c3f265caffa22044e3864c1c843fedebc4a8b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/citation_style.md",
+      "sha256": "647175d7bb99e45374bc039d51cf2419b859b510b1fb979afb8ed5fbf0e0c2ab"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/page_run.md",
+      "sha256": "8b3de6b30f3ed4c1844772a0d7501ede632504aed3848f9372cc7f5ca4b55928"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/outline.md",
+      "sha256": "c5d7e599dbe8f17ffaa679a83a5830b668c8f2f97dba2c648cfaac4775f07e85"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/ast/math.md",
+      "sha256": "c72e7bd88a6c8ffa1c7627f3646e1200df9726d467528837fc73a78d6b65dc26"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/citation_form.md",
+      "sha256": "fc872626808453ffa343cd89cad3aa28350ec1e5444ed2a0318c60b9721db840"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/raw.md",
+      "sha256": "5e10c5fd59e4d863449fce3e05fbe284b1ea37dda82b45e84e0355380ff97092"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_delimited.md",
+      "sha256": "e2a255b1be4bc54dfe98416f8dcf9b08723953707f3ed6bcaa2d2ee7ba36319e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_underover.md",
+      "sha256": "c11ab23c5018fbbcaed66044e44c865b5277f7d566864dab8b1e40cd86145ac3"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/frame_paint.md",
+      "sha256": "bc0634bf36d124c5a87585e0247c07be0e8bac344868df7945b06b2ac02427d2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter_state_legacy.md",
+      "sha256": "6d1132fe09f36ba60b0dd4a2f13c7da0e1cfe5e6fef3940ea38fc09a92536b49"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/resolved_label_store.md",
+      "sha256": "312d06d684832b75c028f3e1c7de54105417bd6591019a1ac5e28153edea0d7a"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/ast/markup.md",
+      "sha256": "59fa3c954dd75728ea4dec0db9298b967b2a434482ff63c8a7364ab7bfe87e8d"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/ast/code.md",
+      "sha256": "f4eceac6ede060db947b48236e913e5c9f8e5f5d1912b7d133a8cb96c9342176"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/ast/expr.md",
+      "sha256": "9c267c6d89209e332a1ced8b72bfb38393fbb4e9af993adb7b8a4c955609dea7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/world_types.md",
+      "sha256": "854eae4cc6c6f9e1c8808492a2f4b288a81e8f8dfd03375477557f15a07047a1"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/figure.md",
+      "sha256": "2a8cffd96c603a0f50c6e7284354ab2c97fa52cfbdbd48b3aa8c439f8133e5f1"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/regex.md",
+      "sha256": "25060f01640ba0c7ee24335b5102a5a5c556c40c4d0a66b735ede0cc7d89adb2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter_format.md",
+      "sha256": "5797a04c81fe31c9713f3fbc973f3788e9324ca868defc417175d060011f1f31"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/smartquote.md",
+      "sha256": "e392725a40e2fa027ed46ab90c49a2308c02e965ee9a129b18ea8f161e5266b9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/syntax_kind.md",
+      "sha256": "157b02f2281b597113bb7ddf9487a34fd0964aae05aa5c26cc8e477942addc73"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/block.md",
+      "sha256": "5ff23aea8ee7a496ca647dceecd5555164a621f8554c624c7d3e3eda548a6f7c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/gradient/interpolation.md",
+      "sha256": "7ddd90985bd12ffaebb2d7e41f0b7d33151113beefd87fa67e35989586a3e091"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/outline_entry.md",
+      "sha256": "237793bba29baf2b26ee20ffb6f09b09d2d42be8e9845f9f418b59a9f81605b8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/package_spec.md",
+      "sha256": "ddaf21b486e6f7e55636f7809c7bfe329b8ed8317aa85ea0fa98fcf7405ea72c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/module.md",
+      "sha256": "951aab67443ea0c6492d37057899579f59ada6b845a6a0976bdafa12bf073e3e"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/region.md",
+      "sha256": "6e51a71e754eb546b8c035ac657338bf5e2295f2305ee145338b494a83198ddd"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/plugin_func.md",
+      "sha256": "5403b5ad74ecc78edeb6f0fa2a024a9cd4c08dd6956d5941fb341685aee6be65"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/bidi_context.md",
+      "sha256": "a481adefeaec5864bcb8dcd76d782f26dbbe7859dbac0bc2af47760cb1b83512"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/label_registry.md",
+      "sha256": "629faee40374dc1a313c28bbee59e84951d838a2db04a8222e6982b9ba5bc9b9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_cancel.md",
+      "sha256": "a8a2388fc375a9a5e5abef4b0bfa733d2d2f8eda9bf6703746d77b942cf5ecf2"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/args.md",
+      "sha256": "53f9febd949398376ea4432553dca7dd211c6cf388302691222b914d0cdc03e0"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/mod.md",
+      "sha256": "682816b5d319402243a689dac510754e970ff16688bb23abde0210dbfbf30dc8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/page_structure.md",
+      "sha256": "ea1e85d407b14064a56f846d16d99797c12b61b3523fae8ba956b8f2c1fc3aee"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/bibliography.md",
+      "sha256": "84e0c856f402cb9b6b66cdd553e6a6e97ac21c0d6265f3dd1f259f5062fe8fbe"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/locator.md",
+      "sha256": "6d24e6d2058b466327a5b654fbbf5f8ea4b4f91cc73fdca00bd12fd08469eeec"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/state_update.md",
+      "sha256": "050de37edbbb1fdeb4a86db82713db8a497fc0fc78411824fdf53a943d84fdb1"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/element_kind.md",
+      "sha256": "569a208a4e5a36b5bb81b2dfe7215b1aa9499495b78ec1ec0100c785607afed6"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter_update.md",
+      "sha256": "d3d6e681a828c096cfbfa3fc989cc52a26d3949ea5388e193e0625acf70c09e1"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/tiling.md",
+      "sha256": "0dcd24ba02be6d03542713bed3c6059c5fba8156f75c5932285436125e761119"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/bib_store.md",
+      "sha256": "9500632873f3f44c12ada8716121536058d34dc7d77fbdc13ccb23b24d6dad30"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/table.md",
+      "sha256": "532fde83b903e5bf8e9645f26ca53febe702ca49517ea1b08b243efe733b7044"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/construction/tables.md",
+      "sha256": "9623d3ba7a30ab904ca967ba7b5ab74db3ab452d5a7ddc13fab5403862894487"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/equation.md",
+      "sha256": "466cb153b1f3a1dd75c2139c1d8ce2f2e868a732138442327b4a910a90cb70ed"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/tests/representation.md",
+      "sha256": "c9ad20a7f0783dcea4c5a9107f198785616ea74cc4104cb20dbff18d0ab5bcb7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_limits_override.md",
+      "sha256": "0728025d5c6e02696d37a37c09da7276b285ca1d3ecf54b8a7d307490a0ef60b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/symbol.md",
+      "sha256": "08f0c4a515c76c7cfb6e915b0e8567483e93aabffadccdf85dd00f8fd861e5c9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/elements/math_matrix.md",
+      "sha256": "af5257fcb6a9aaa132d31adf6de6a8690a99ae28e3f2999064b34a74a1f2e5a5"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/color/conversion.md",
+      "sha256": "1b1802558e67ccf690340975dbd3e95a6ccf5bdfb6b96557bc78187312c3f44f"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content.md",
+      "sha256": "ce3fe673387ed051a77538526d669106dbbf11761e5fdd531ab75d523fa8830c"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/decimal.md",
+      "sha256": "dce461c17bc32eb5f1dd94ef591178267430c30ac6c9220e3cc933ece0d3666f"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/construction/layout.md",
+      "sha256": "2c35c2abf7ffca69e35dd930c517fff8d055b524b4ecec1e80a29196b1940ec5"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/tag.md",
+      "sha256": "d2fced80831481f4b8053364fc963ef70fed12ed7a0307e18ca1bab8875651d7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/math_constants.md",
+      "sha256": "b295d1fc20f5f2233f85abfa4d10697ba12fa785e406239f264bdb869f020c2b"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/identity.md",
+      "sha256": "6914036e8d4d2aa5ef8575e88f94f62df85a4f6298c352870473587c58c096a3"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/counter_registry.md",
+      "sha256": "820d260dd9a72963c93695868a1805abf1e24a42a601068da0b03d16108dc7f8"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/state_registry.md",
+      "sha256": "d2feee94b9fa63c00501d1c5a7780d8671cdb8301f8209400d5669bafa374966"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/element_payload.md",
+      "sha256": "67d7a896f9d1e26324956a6a1c6f602a696fb5b1e182e94a81aca045657304e7"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/style.md",
+      "sha256": "a8166ccdb8d5ea03cc3ad7e6eda94faee5ef2969724dbf0e843e35f0a2106618"
+    },
+    {
+      "path": "00_nucleo/prompts/core/entities/content/morphology.md",
+      "sha256": "8ddbfcf15962db7c38145ad7221da46192a7367265a9c811b6f198b0392291d9"
+    }
+  ],
+  "verification": {
+    "non_whitespace_content_unchanged": true,
+    "rust_reseal_repin": false,
+    "all_saved_sha256_verified": true,
+    "hash_labels_and_nucleus_pins": "unchanged against HEAD",
+    "git_diff_check": "passed",
+    "no_semantic_or_nonwhitespace_edits": true
+  }
+}

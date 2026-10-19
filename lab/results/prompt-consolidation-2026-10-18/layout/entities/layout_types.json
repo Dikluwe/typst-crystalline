@@ -1,0 +1,16 @@
+{
+  "file": "00_nucleo/prompts/core/entities/layout_types.md",
+  "status": "complete",
+  "source_review": "Full original read; exact paragraphs already reviewed in original layout/stdlib owners reconciled by equality.",
+  "disposition": [
+    "Preserved coordinate/frame/style/glyph/page/document/public-carrier contracts and all acceptance limits.",
+    "Consolidated superseded scalar margins, deprecated Text metadata, prepared Shape paint and logical-number proposal.",
+    "Verified bounded font/bidi/text/paint/cap/page-label receipts; preserved attach/artifact and table-summary approval provenance gaps.",
+    "Preserved no-face/authorial-SHY/bidi/variable-font/native-paint scope restrictions and full V16 gates."
+  ],
+  "original_sha256": "10506944c540582fc41a12753238cf68b4352937d77900c1487dde2404a1c169",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/layout_types.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

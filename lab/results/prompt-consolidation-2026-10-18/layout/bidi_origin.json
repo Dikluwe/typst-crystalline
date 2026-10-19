@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/bidi_origin.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated original integral certification and all later refusals/limited cell and Source exceptions; preserved public ratification, initial failed-candidate evidence, test requirements and no partial recertification.",
+  "original_sha256": "ae6763061409dd93e077045ee2e20e3ebfe3101be04317e3b8ad42d29f0beafc",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/bidi_origin.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

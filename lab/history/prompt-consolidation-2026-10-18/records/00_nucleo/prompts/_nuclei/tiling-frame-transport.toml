@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "tiling-frame-transport"
+title = "Célula resolvida e referencial de pintura"
+
+[[claims]]
+id = "resolved-cell"
+level = "must"
+statement = "Paint de frame transporta somente célula preparada pelo layout, com tamanho, pitch e placement finitos válidos. Layout executa o corpo uma vez por ocorrência de paint; repetição não clona a célula proporcionalmente à área coberta nem volta a avaliar conteúdo."
+
+[[claims]]
+id = "reference-space"
+level = "must"
+statement = "Parent usa o referencial de pintura do container dono. Page e célula são raízes; Box e Block estabelecem raiz local incluindo inset; Place e transformações comuns herdam. Composição afim completa e sua inversa distinguem self e parent; offset é pivô de rotação, com periodicidade na base rotacionada."
+
+[[claims]]
+id = "roles-and-resources"
+level = "must"
+statement = "Fill e stroke preservam o mesmo paint preparado com seus caminhos, fill rule, espessura, caps, joins, dash e miter. Fontes, imagens, cores e patterns aninhados da célula integram os recursos do target; célula não é conteúdo textual ou anotação de página multiplicado por repetição."
+
+[[claims]]
+id = "no-false-success"
+level = "must-not"
+statement = "Célula não resolvida ou limite de repetições não pode virar silenciosamente cor sólida nem sucesso de produção. Exporter não executa layout. Nenhum dado declarativo de linguagem é reescrito com frame ou dependência de target."

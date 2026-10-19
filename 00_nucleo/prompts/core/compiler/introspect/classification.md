@@ -2,33 +2,42 @@
 Hash do Código: fd5c8362
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/introspect/classification.rs`.
-No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:1747-1896` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `lab/results/construction/diagnostics/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/introspect/classification.rs`.
+At clean-tree state `df72a6c4a701917ab56a7c6169764a92ea775693`, `01_core/src/compiler/introspect.rs:1747-1896` contains the behavior assigned to this unit. Source and state are recorded in `lab/results/construction/diagnostics/atomizacao-introspect-2026-09-30-before.json.gz`. Separation is by behavior, preserving the API and without a performance claim.
 
-## Contrato
+## Contract
 
-Classificar conteúdo sem ocorrência referenciável, inclusive Raw sob wrappers transparentes, para a mensagem de diagnóstico correspondente.
+Classify content without a referenceable occurrence, including Raw under transparent wrappers, for the corresponding diagnostic.
 
-As invariantes de linguagem, a ordem causal e os limites de paridade continuam definidos em `00_nucleo/prompts/core/compiler/introspect.md`; este owner não cria uma segunda interpretação. O código usa chamadas estáticas na camada L1, sem vtable, I/O ou estado global mutável.
+Language invariants, causal order and parity limits remain defined in `00_nucleo/prompts/core/compiler/introspect.md`; this owner must not create a second interpretation. Code uses static L1 calls without vtables, I/O or mutable global state.
 
-## Aceitação
+## Acceptance
 
-Preservar os testes de introspecção e a suíte L1, compilar e passar `crystalline-lint .` com hashes coerentes. Mudanças semânticas futuras exigem medição de linguagem e atualização do L0 antes do código.
-
-
-## Realização com avaliação única
-
-Classificação de referência atravessa carriers internos; Realized conserva classificação da origem referenciável consumida.
+Preserve introspection tests and the L1 suite, build, and pass `crystalline-lint .` with consistent hashes. Future semantic changes require language measurement and an L0 update before code.
 
 
-## D08B3-C2 — responsabilidade ratificada
+## Reference classification through internal transport
 
-Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Single-evaluation reference classification traverses internal carriers;
+Realized retains the classification of its consumed referenceable origin.
 
-A delegação transparente já owned de ShowRecipe.body também aceita Source.body, sem executar origem separada, publicar carrier ou atribuir Location. Preservar classificação/preparo/serialização conforme a operação desta unidade.
+Prior evidence is
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz`,
+with HEAD/working tree/UTC/sources/argv/binaries at historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`. Existing ShowRecipe/Located/Realized
+branches have the corresponding transparent operation; Source must not leak as
+an observable element. Human approval was `confirmo`, 2026-10-07; the final
+approval/execution record is
+`lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`,
+with the nested contract.md retained as the pre-approval candidate.
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+The already-owned transparent delegation through ShowRecipe.body also accepts
+Source.body, without separately executing origin, publishing the carrier or
+assigning Location. Preserve classification/preparation/serialization according
+to this unit's operation. Keep exclusive ownership and static dispatch; no I/O,
+new signature/trait/flag or eval↔layout phase change. C2/C/macro tests/collections,
+builds and lineage remain required before certification.

@@ -1,0 +1,23 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/realize/bare_math.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "0dd72cc3c45f07ca9dfcd3b576dbe4f339f72a41d3204a47b55b98a44c65fd54",
+    "result_sha256": "4b189b89bb033b55d0fe3ed1d5f2ff0fc5ba8c6f7f1ca7a5bd52eee0f53ebbb9",
+    "disposition": "Translated full owner. Ratified math gate inherited from exact existing hub receipt; catalog excludes legacy Underover; allocation gate failure/unmet hypothesis retained; removed context whitelist kept only as superseded historical maintenance with surviving general limits."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/realize/context_occurrences.md",
+    "status": "reviewed-full-text-semantic-headings",
+    "original_sha256": "f80c30af6cf171b2cdc87008517e12cb49013b7e0c938fc8db93a14e686349ec",
+    "result_sha256": "2eeee527f12f6277fd8b6a945c57005c993c62ed28df425d04e78202207d366b",
+    "disposition": "Existing English full text preserved; semantic headings replace execution labels, revision history archived; C020 reason, D08B3 ratification/C2 approval and all partial supersessions untouched."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/realize/mod.md",
+    "status": "reviewed-full-text-semantic-headings",
+    "original_sha256": "838378a35aa45c55d41fc80a62f1b5fd3c8f7ecda5dc92bc8fe9992f4363e96a",
+    "result_sha256": "17ca4dd45b26b74b032a99357092547a490b70dbd8828163beba8fb3f508a7d4",
+    "disposition": "Existing English full text preserved; semantic headings replace execution labels, revision history archived; C020 reason, D08B3 ratification/C2 approval and all partial supersessions untouched."
+  }
+]

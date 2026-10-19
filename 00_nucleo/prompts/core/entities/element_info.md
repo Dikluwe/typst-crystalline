@@ -1,101 +1,46 @@
 # Prompt L0 — `entities/element_info`
 Hash do Código: 0e94a3c4
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/element_info.rs`
-**Criado em**: 2026-04-30 (P161 sub-passo .8)
-**ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/element_info.rs`
+**Governance:** ADR-0033, ADR-0066.
 
----
-
-## Contexto
-
-`ElementInfo` agrupa o `ElementPayload` (dados específicos do elemento por kind) com a label opcional atribuída por sintaxe `<label>`. É a unidade que viaja dentro de `Tag::Start(Location, ElementInfo)` durante a passagem de introspecção.
-
-Separação `ElementPayload` (kind-específico) + `Option<Label>` (geral) reflecte que **qualquer** elemento indexado pode ter uma label, independentemente do kind. Vanilla embute label dentro de cada `*Elem` via vtable; cristalino externaliza para evitar duplicar `Option<Label>` em cada variante de `ElementPayload`.
-
-`Label` já existe em `entities/label.rs` (`pub struct Label(pub String)` derivando `Clone, PartialEq, Eq, Hash`).
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: struct puro.
-- `Clone` derivado para passar por valor para `Tag`.
-- Sem alocação extra além do que `ElementPayload` e `Label` já comportam.
-
----
-
-## Interface pública
+## Contract
 
 ```rust
-use crate::entities::element_payload::ElementPayload;
-use crate::entities::label::Label;
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ElementInfo {
     pub payload: ElementPayload,
-    pub label:   Option<Label>,
+    pub label: Option<Label>,
 }
-
 impl ElementInfo {
-    /// Construtor sem label.
     pub fn new(payload: ElementPayload) -> Self;
-
-    /// Construtor com label.
     pub fn with_label(payload: ElementPayload, label: Label) -> Self;
 }
 ```
 
----
+Keep payload always present and label optional. new stores None;
+with_label stores Some(label). Public fields allow direct matching/literal
+construction. Equality/hash compare both fields; Clone permits transport by
+value inside Tag::Start(Location, ElementInfo). No extra allocation beyond
+payload/label. Pure L1, with no I/O.
 
-## Semântica
+## Boundary rationale and acceptance
 
-- `new(payload)`: constrói `ElementInfo { payload, label: None }`.
-- `with_label(payload, label)`: constrói `ElementInfo { payload, label: Some(label) }`.
-- Os campos são públicos — consumers podem aceder directamente para pattern matching ou construção literal.
+Label is orthogonal to element kind: any indexed element may carry one.
+The separate payload/label struct avoids duplicating Option<Label> across
+payload variants and supports label→Location indexing without matching the
+payload. The historical upstream comparison used per-element labels and
+Content::label(); representation differences are deliberate, not a vtable
+requirement. The old claim that the whole system has no per-feature entities
+is historical rationale, not a ban on the current element architecture.
+Tag transport belongs to its owner; introspection constructs unlabeled or
+labeled values for wrapped content, and registries may index by Location.
+Verify new, with_label, optional-label distinction, both-field equality/hash
+and clone transport. Creation-time "no consumers" and prospective registry
+status remain historical, not current implementation claims.
 
----
+## Historical record
 
-## Invariantes
-
-- `payload` é sempre presente (sem `Option<ElementPayload>` — cada `ElementInfo` é construído porque há um elemento concreto a indexar).
-- `label` é opcional — reflecte fielmente a sintaxe Typst (`<intro>` aparece como sufixo opcional, não obrigatório).
-- `Hash`/`Eq` derivados — duas `ElementInfo` são iguais sse `payload` e `label` forem iguais.
-
----
-
-## Consumers actuais
-
-Nenhum em P161.
-
-## Consumers planeados
-
-- `entities/tag.rs::Tag::Start(Location, ElementInfo)` (P161 sub-passo .9).
-- `rules/introspect.rs` walk em P162 — branches Heading/Figure/Cite construindo `ElementInfo::new(payload)` ou `ElementInfo::with_label(payload, label)` consoante o nó tenha sido envolvido em `Content::Labelled { ... }`.
-- Registry de elementos (M3+) — chave `Location`, valor `ElementInfo`.
-
----
-
-## Sobre paridade
-
-Vanilla não tem `ElementInfo` separado. Cada `*Elem` (HeadingElem, FigureElem, CiteElem) carrega o seu próprio campo `label` via macro `#[elem]`. O equivalente combinado vanilla é o `Content` indexado pelo `Introspector`, com a label acessível via `Content::label()`.
-
-Cristalino externaliza para um struct simples porque:
-1. Sem vtable — não há `*Elem` por feature; há um enum `ElementPayload` estreito.
-2. A separação payload/label expressa que label é ortogonal ao kind.
-3. Permite que registries futuros indexem por label (`HashMap<Label, Location>`) sem precisar de pattern-match no payload.
-
----
-
-## Resultado Esperado
-
-- `01_core/src/entities/element_info.rs` — struct + 2 construtores + tests unitários (new, with_label, igualdade, hash).
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-04-30 | P161 sub-passo .8: agregador payload + label opcional para Introspection M1 | `element_info.rs`, `element_info.md` |
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/element_info.md`. Historical observations are not a new parity certification.

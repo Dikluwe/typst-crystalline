@@ -2,76 +2,104 @@
 Hash do Código: 51e5d5f1
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:a37779d03a4ba0f16ebcc5919477bfdcf783021511a28cf8c9203c67cd64a9e5
+- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
 
-## Medição anterior à decisão
+## Evidence before decision
 
-No HEAD f7195cdf6 (árvore limpa, 2026-09-30), o bloco está em `01_core/src/compiler/eval/mod.rs:252-737`. Esta observação estabelece o limite da extração; não mede desempenho ou nova paridade bilateral.
+At HEAD f7195cdf6 (clean tree, 2026-09-30), compiler/eval/mod.rs:252–737 contains
+this extraction. Inspection establishes the boundary, not performance or new
+bilateral parity.
 
-## Owner e contrato
+## Exclusive contract
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/context_reads.rs`. Captura, observação, replay e validação causal de leituras de contexto; preserva identidade e diagnósticos. Manter contrato público, comportamento por defeito, fase do pipeline, compatibilidade, pureza e despacho estático.
+Own causal context-read capture, observation, replay and validation, preserving
+identity and diagnostics. Preserve public contracts/defaults/phase/compatibility,
+purity and static dispatch. L1 suite/build/crystalline-lint must pass; structural
+separation is not performance evidence.
 
-## Aceitação
+## Ratified bare table.cell selector boundary
 
-A suíte L1, o build e crystalline-lint passam. A separação não constitui prova de ganho de desempenho.
+### Evidence before decision
 
-## D08A — seletor bare de table.cell (PROPOSTO, gate ADR-0127)
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz`
+retains UTC/diffstat/inputs/commands/source and executable hashes. Historical pin:
+`9f2b6e8715237cb086899a42873660fe744622e8`. selector(table.cell) returns cell;
+where() returns cell.where(:), comparison is false, and query/counter reject
+nonlocatable cell. A genuine CodeBlock alias preserves those results. The
+previous document-only alias fixture did not expose its variable to eval and
+was not positive alias evidence; table-aliases-before corrects it.
 
-### Medição anterior à decisão
+Upstream foundations/selector.rs:309–321 distinguishes dict None from Some;
+:421–450 validates locatability separately. Local entities/selector.rs:34–37
+represents only a present Element group; stdlib/foundations/selector.rs:69–77,
+348–354 omits native cell. d08-owner-audit.json retains other boundaries/hashes.
+Form/identity/query rejection are language; the closed carrier is chosen
+mechanics. Source explicitly distinguishes the states; do not infer intent from
+output alone. The inference that the new variant covers selection/locatability
+is refuted by a public absent-group/identity case it cannot represent. This does
+not presume correct Cell realization.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
-Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
-selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
-é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
-por CodeBlock conserva esses resultados. A fixture anterior que definiu alias
-apenas no documento não disponibilizava a variável à expressão eval e não
-prova alias positivo; table-aliases-before corrige a fixture.
+### Ratification, responsibility and incomplete scope
 
-Fonte: lab/typst-original/crates/typst-library/src/foundations/selector.rs:309–321
-distingue dict None de Some; :421–450 valida locatabilidade separadamente.
-No Tekt, entities/selector.rs:34–37 só representa grupo Element presente;
-stdlib/foundations/selector.rs:69–77,348–354 omite a nativa cell; os demais
-limites atuais e hashes estão em d08-owner-audit.json.
+The human confirmed the selector-only manifest
+`f80f85c4ac3ab747d20d98ef3f5758c59727bcf5f5d762082660099aef4dcc9c`;
+receipt `lab/history/construction/records/00_nucleo/materialization/table-cell-selector-aprovacao-2026-10-06.json`
+at 2026-10-06T22:36:30.591466+00:00. Its original ADR-0127 gate is satisfied;
+the archived proposal-only instruction is not a new pending approval.
 
-Classificação: formato, identidade e rejeição de consulta são linguagem;
-o novo carrier fechado é mecânica escolhida para preservar esses observáveis.
-A distinção do vanilla é explícita na fonte; não se infere intenção apenas
-da saída. Inferência: a nova variante basta à fatia de seleção/locatabilidade;
-a hipótese será refutada por um caso público cuja ausência de grupo ou
-identidade não caiba nela. Não se presume correção de realização de células.
+Recognize NativeElement as a native-identity leaf in recursive selector
+classification without a silent wildcard. Preserve observation/replay/snapshots/
+order and causal criteria. A nonlocatable-cell failure publishes no successful
+read, counter or index. Do not reexecute contextual bodies to resolve identity.
 
-### Contrato materializável somente após ratificação
+This selector package covers carrier/construction/repr/equality/composition/
+locatability only. The broader Cell domain needs separately measured direct show,
+body/field projection and explicit/implicit cell preparation, including positions,
+padding/spans/header/footer/lexical scope. Its own measured L0 and public/phase
+gates are not authorized by selector approval. Preserve negative controls and no
+universal parity claim. Atomic promotion, language RED before code, static/safe
+Rust, 1:1/V26 before restricted owner resealing, build/core suite/linter remain
+required. Revalidate bare/where/alias, true/false equality, direct/composed
+query/counter, homonymous function and partial/closure; preserve D05/D07/query.
 
-Reconhecer NativeElement como folha de identidade nativa na classificação recursiva de seletores, sem wildcard silencioso. Conservar observação, replay, snapshots, ordem e os mesmos critérios causais. Uma operação inválida por cell não locatable não publica leitura bem-sucedida, counter ou índice. Não reexecutar corpos contextuais para resolver identidade.
+## Private context-request storage
 
-### Fronteira incompleta e aceitação
+### Evidence before decision
 
-D08A cobre apenas carrier, construção, repr, igualdade, composição e
-locatabilidade. D08 permanece incompleto: D08B completa show direto, projeção
-de body/campos e preparação de células explícitas/implícitas, incluindo
-posições, padding, spans, header/footer e escopo lexical. D08B precisa de
-seus L0s medidos e de gate próprio caso mude contrato ou fase; esta ratificação
-não o autoriza. Não esconder negativos D08B ou declarar paridade universal.
+`lab/results/construction/diagnostics/clippy-enums-2026-10-16/before.json.gz`
+retains complete sources/L0/global hashes/HEAD/uncommitted state/UTC/diffstat;
+callers.txt records workspace uses. probe-details.json/measurements.json retain
+rustc 1.92/x86_64, commands/binary/rlib, isolated candidate sizes/allocations before
+code. The private enum is faithfully mirrored; public types are measured directly
+from rlib. An unsafe observer exists only in the diagnostic executable, never
+productive layers. These are Rust-representation measurements, not language
+equality, upstream intention or global benefit.
 
-Após ratificação: promover este conjunto atomicamente; escrever testes
-linguísticos e verificar RED válido antes do código; materializar com
-despacho estático e Rust seguro; validar 1:1/V26 antes de ressellar somente
-owners deste manifesto; build, suíte core e linter sem erros. Revalidar
-selector cell bare/where/alias, igualdade true/false, query/counter diretos
-e compostos, função homônima, partial/closure; preservar D05, D07 e query.
+### Exclusive responsibility and acceptance
 
+Keep ContextReadRequest crate-private and its existing reexport; export no new
+hub type. Move only entry:Content, prefix:Value, inner:Value and gap:Length into
+OutlineEntryIndentedRead, pub(crate) with private fields and Clone. The variant
+is OutlineEntryIndented(Box<OutlineEntryIndentedRead>). Crate-private
+ContextReadRequest::outline_entry_indented(entry,prefix,inner,gap) moves values
+into one box without extra clones. Preserve other requests, Vec<Arc<ContextRead>>
+ledger, order/lifetimes/stores. Replay unpacks the borrowed payload once and keeps
+the previous execution body; counter/state classification still excludes this
+variant. Add no Eval/Func, execution step, dedup or pointer identity. Box is storage,
+not language equality. The real request's size budget is
+sizeof(Value)+alignof(ContextReadRequest), without frozen ABI bytes. Prior x86_64
+size was 432, isolated candidate 144; measure real ContextRead before/after too.
+The extra allocation is confined to indentation requests, not a global RSS/time
+claim.
 
-## Tamanho dos enums — decisão medida 2026-10-16
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/clippy-enums-2026-10-16/before.json.gz conserva fontes/L0, hashes globais, HEAD, working tree não commitado, UTC e diffstat; callers.txt registra usos no workspace. probe-details.json e measurements.json guardam rustc 1.92/x86_64, comandos/binário/rlib e tamanhos/alocações de candidatos isolados antes de código. O enum privado é espelhado fielmente da fonte; os tipos públicos são medidos diretamente do rlib. O observador unsafe existe somente no executável diagnóstico, nunca na camada produtiva. É medição de representação Rust, não igualdade de linguagem, intenção upstream ou prova de ganho global.
-
-### Responsabilidade exclusiva e aceitação
-
-Conservar ContextReadRequest privado ao crate e seu reexport já existente; não exportar tipo novo no hub. Mover apenas os quatro campos entry Content, prefix Value, inner Value e gap Length para OutlineEntryIndentedRead, tipo pub(crate) no módulo com campos privados, derivando Clone. A variante torna-se OutlineEntryIndented(Box<OutlineEntryIndentedRead>). Constructor pub(crate) ContextReadRequest::outline_entry_indented(entry,prefix,inner,gap) move os mesmos valores para uma única caixa, sem clones adicionais. Os demais requests, ledger Vec<Arc<ContextRead>>, ordem/lifetimes e stores permanecem. No replay, desempacotar o payload emprestado uma vez e manter o corpo de execução anterior; na classificação de counter/state, a variante continua não selecionando essas leituras. Sem Eval/Func novos, novo passo, dedup ou identidade por ponteiro. O Box é somente armazenamento, não parte da igualdade de linguagem. Teste de budget exige que o request real caiba em sizeof(Value)+alignof(ContextReadRequest), sem fixar bytes do ABI; o layout x86_64 medido antes era 432 e a candidata isolada 144. O registro real ContextRead também é medido pelo teste antes/depois. O custo adicional de uma alocação é restrito ao pedido de indentação; não é alegação de ganho global de RSS/tempo.
-
-Fluxo contínuo ADR-0127: esta etapa altera somente representação/constructor privados ao crate e metadados nominais; os contratos externos dos outcomes e entidades permanecem. L0 antes do código, resselo restrito. Gate de tamanho privado RED→GREEN e Clippy large_enum_variant deve confirmar três spans selecionados antes e resolver um com código e dois com expectativas satisfeitas. Não elevar limiar ou silenciar módulo/impl/crate; não estender expectativas a Tag/Transformation ou ao request privado. Preservar fixtures/esperados e testar os controles existentes de outline (incluindo oito casos P1405), contexto/replay, callbacks e pipeline. Validar workspace completo/build/Clippy/expectativas/Rustdoc/fmt/linhagem, sem avisos Tekt novos, sob 12 GiB, swap zero e um job. Tag/Transformation continuam medidos, sem alteração pública autorizada neste pacote.
+ADR-0127 continuous flow changes only crate-private representation/constructor
+and nominal metadata; external outcome/entity contracts remain. L0 first,
+restricted resealing, private size RED→GREEN. Confirm three selected
+large_enum_variant spans, resolve one by code and two by fulfilled expectations.
+Do not raise thresholds, suppress module/impl/crate or extend expectations to
+Tag/Transformation/private request. Preserve fixtures/expectations and existing
+outline controls (eight P1405 cases), context/replay/callback/pipeline controls.
+Validate full workspace/build/Clippy/expectations/Rustdoc/fmt/lineage with no new
+Tekt warning, under 12 GiB/zero swap/one job. Tag/Transformation remain measured
+without a public-change authorization in this package.

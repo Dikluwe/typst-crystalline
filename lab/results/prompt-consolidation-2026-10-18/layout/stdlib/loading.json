@@ -1,0 +1,16 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/loading.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": [
+    "Full original read, including all CSV supersessions and encoder/snapshot proposals.",
+    "Consolidated final CSV validation while preserving narrow earlier deltas, diagnostics, origins, precedence evidence and open debts.",
+    "Retained proposal gates and explicit CSV/path receipts; no implied encoder or snapshot approval.",
+    "Preserved decoder/read/mapping/namespace/purity/import/test contracts."
+  ],
+  "original_sha256": "f2e96d012d4a4bf3a0d5fe1a0c600d55e3da895e6c163df7e51e32c129bc3e82",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/loading.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

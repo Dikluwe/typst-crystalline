@@ -50,21 +50,22 @@ for a body, re-evaluate a body for instrumentation, or expose ledger behavior in
 normal builds. Preserve recursion, style and context semantics in both builds.
 
 
-## Context — identidade das regras locais, 2026-10-18
+## Local contextual rule identity
 
-Medição anterior: green-text1.log e seu recibo em
-lab/results/construction/diagnostics/context-paridade-2026-10-18, HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731,
-working tree do candidato1. O controle local-inside-context regrediu de L para R.
-context_stabilization.rs:257 cria EvalContext fresco; rules/show.rs:455–456
-aloca RuleId começando do mesmo zero da regra herdada. textual.rs:86–103 compõe
-por identidade, portanto o delta local colide com a regra herdada. before.json.gz
-registra L no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. Inferência causal
-refutável pelo controle local e por callbacks/produtos de regras distintas.
+Prior evidence: green-text1.log and its receipt under
+`lab/results/construction/diagnostics/context-paridade-2026-10-18`, HEAD
+`b7e7c83223e5daa67bbdf124c36b5b7f93200731`, candidate1 working tree. The
+local-inside-context control regressed from L to R. context_stabilization.rs:257
+creates a fresh EvalContext; rules/show.rs:455–456 starts RuleId at the inherited
+rule's same zero. textual.rs:86–103 composes by identity, so local delta collides
+with inherited rules. before.json.gz records vanilla L at pin
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. Local controls and distinct-rule
+callbacks/products can refute this causal inference.
 
-Antes de executar o corpo de uma closure Capturer::Context, reservar no
-next_rule_id privado todos os RuleIds do snapshot eval.context.recipe presente
-no Engine causal. Usar max(id.saturating_add(1)), tal como o owner apply já faz
-para receitas; não executar regra nem antecipar corpo, não instalar regras
-globais na avaliação, não alterar assinatura pública. Closures Function e
-snapshot ausente mantêm o comportamento vigente. Fluxo contínuo ADR-0127:
-correção de colisão de identidade interna, dentro da fase existente.
+Before executing a Capturer::Context closure body, reserve every RuleId in the
+causal Engine's present eval.context.recipe snapshot in private next_rule_id.
+Use max(id.saturating_add(1)), as the apply owner already does for recipes.
+Execute no rule, anticipate no body and install no global rule in evaluation;
+change no public signature. Function closures and absent snapshots retain
+existing behavior. This ADR-0127 continuous-flow correction repairs internal
+identity collision inside the existing phase.

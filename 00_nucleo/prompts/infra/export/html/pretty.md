@@ -27,14 +27,21 @@ Compare ordered DOM/escapes and protected text before/after formatting; exercise
 quoted >, void elements, raw/title and phrasing spaces.
 
 
-## Expressões locais verificadas — Clippy 2026-10-16
+## Internal indentation expression
 
-### Medição anterior à decisão
+### Evidence
 
-03_infra/src/export/html/pretty.rs:89 (clippy::manual_repeat_n). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
+`lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz`
+retains sources/L0/HEAD/uncommitted tree/status/diffstat/UTC;
+initial-diagnostics.json retains suggestions/spans at pretty.rs:89
+(clippy::manual_repeat_n). Uses/types were inspected before deciding. This is
+internal Rust representation, no new parity/performance claim.
 
-### Responsabilidade exclusiva e aceitação
+### Contract and acceptance
 
-Usar std::iter::repeat_n(' ', depth * 2) na mesma inserção de indentação. Preservar multiplicação, ordem, bytes e todos os contextos protegidos.
-
-Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependência ou supressão novos. L0 precede código e resselo restrito. Preservar inputs e resultados dos controles existentes, sem relaxar tolerâncias. Gate dos lints selecionados RED→GREEN; executar suíte workspace, build, Clippy all-targets, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe Rust.
+Use std::iter::repeat_n(' ', depth * 2) at the same indentation insertion.
+Preserve multiplication/order/bytes and every protected context. Continuous
+ADR-0127: no public API/default/phase/dependency/suppression change. L0 first,
+scoped resealing, unchanged control inputs/results/tolerances. Require selected-
+lint RED→GREEN, workspace suite/build/all-target Clippy/fmt/Rustdoc/lineage;
+no tests merely mirroring Rust syntax.

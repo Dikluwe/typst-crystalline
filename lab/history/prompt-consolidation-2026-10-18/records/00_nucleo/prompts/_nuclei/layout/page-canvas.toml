@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "page-canvas"
+title = "Geometria compartilhada do canvas de página"
+
+[[claims]]
+id = "trim-origin"
+level = "must"
+statement = "O canvas inclui bleed e preserva a origem trimada deslocada por left e top."
+
+[[claims]]
+id = "canvas-size"
+level = "must"
+statement = "A dimensão do canvas é trim mais os bleeds físicos de cada eixo."
+
+[[claims]]
+id = "decorative-layers"
+level = "must"
+statement = "Layers de canvas são decorativos e não alteram a identidade semântica do body."

@@ -1,94 +1,55 @@
 # Prompt L0 — Engine<'a>
 Hash do Código: 80d7324c
 
-## Módulo
-`01_core/src/entities/engine.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/engine.rs`
+**Governance:** ADR-0036, ADR-0037, ADR-0042, ADR-0043, ADR-0044.
 
-## Propósito
+## Purpose and contract
 
-`Engine<'a>` é o **agregador de estado de eval em L1**. Consolida
-os N parâmetros propagados individualmente pelas funções `eval_*`
-após as 5 aplicações da ADR-0036 (Passos 92, 94, 95, 98, 107).
-
-Materializado no Passo 109 conforme ADR-0044 (inversão controlada
-da ADR-0036: agregar depois de extrair).
-
-## Contrato
-
-### Struct `Engine<'a>`
+Engine aggregates evaluator state after responsibilities have been extracted.
+The archive preserves the original extraction/aggregation sequence; it is
+not an instruction to repeat those construction steps.
 
 ```rust
 pub struct Engine<'a> {
-    // Handles externos (capacidades injetadas como trait objects)
     pub world: &'a dyn World,
     pub font_metrics: &'a dyn FontMetrics,
-
-    // Fluxo de eval (ADR-0036)
     pub route: Tracked<'a, Route<'a>>,
     pub styles: &'a mut StyleChain,
     pub show_rules: &'a mut Arc<[ShowRule]>,
     pub active_guards: &'a mut Vec<RuleId>,
     pub current_file: FileId,
-
-    // Efeitos laterais (ADR-0042, ADR-0043)
     pub sink: &'a mut TrackedMut<'a, Sink>,
-
-    // Stubs futuros documentam divergência face ao vanilla:
-    // pub introspector: Introspector,    // Passo dedicado
-    // pub routines: &'a Routines,         // Passo dedicado
-    // pub traced: Tracked<'a, Traced>,    // Passo dedicado
 }
 ```
 
-### Lifetime
+One lifetime 'a parameterizes the aggregate. route and sink keep individual
+tracking; Engine itself must not be comemo::track. Public fields are deliberate,
+not getters. Group fields by domain: injected world/font_metrics handles;
+route/styles/show_rules/active_guards/current_file flow; sink effects. Field
+order follows domain cohesion rather than upstream's literal order; retain
+upstream-compatible field names. L1 declares capabilities; L3/L4 provide
+concrete implementations.
 
-Paramétrica num único `'a`. Campos tracked (`route`, `sink`)
-conservam tracking individual. `Engine<'a>` em si **não** é
-`#[comemo::track]`.
+## Construction and acceptance
 
-### Campos públicos
+The public evaluator and local scope rebuilds (CodeBlock, ContentBlock,
+strong/emph/heading, closures, module include) individually reborrow fields.
+Use `TrackedMut::reborrow_mut(&mut *engine.sink)` to shorten the sink lifetime;
+propagate outer font_metrics unchanged. Root/test entry points without an
+outer context use &FixedMetrics as the specified heuristic fallback. Verify
+these lifetime/tracking and propagation properties without introducing I/O.
 
-Campos `pub` em vez de getters — L1 não tem razão para encapsular
-um agregador transparente.
+## Deferred ownership reconciliation
 
-## Ordem dos campos
+The original schema lists introspector, routines, and traced only as future
+stubs. Its declared expansion rule requires an applicable ADR when a subsystem
+is introduced and upstream-aligned field names. Their implementation status
+must be reconciled with the relevant current owners; this cleanup does not
+turn stubs into fields, remove newer fields, or authorize a new public API.
 
-Coesa por domínio (ADR-0037):
+## Historical record
 
-1. **Handles externos**: `world`, `font_metrics`. Ambos são
-   capacidades injetadas como trait objects — L1 declara a interface,
-   L3/L4 fornece a implementação concreta.
-2. **Fluxo de eval**: `route`, `styles`, `show_rules`,
-   `active_guards`, `current_file`.
-3. **Efeitos laterais**: `sink`.
-
-Diferente da ordem do `typst-library::engine::Engine` vanilla.
-Prioridade: ADR-0037 sobre paridade literal de ordem. Nomes
-batem com vanilla (paridade nominal).
-
-## Construção
-
-Sítios de construção em L1: `eval()` público em
-`compiler/eval/mod.rs`, além de reconstruções locais em scope changes
-(`Expr::CodeBlock`, `Expr::ContentBlock`,
-`eval_strong`/`eval_emph`/`eval_heading`, `apply_closure`,
-`eval_module_include`, etc.).
-
-Padrão: reborrow individual de cada campo do outer engine +
-`TrackedMut::reborrow_mut(&mut *engine.sink)` para encurtar lifetime.
-O campo `font_metrics` é propagado do outer engine para o local
-(`font_metrics: engine.font_metrics`); em pontos raiz onde não há
-outer engine (harness de teste, eval inicial antes de contexto),
-usa-se `&FixedMetrics` como fallback heurístico.
-
-## Evolução
-
-Campos novos entram com ADR própria quando o subsistema for
-materializado:
-
-- `introspector` — quando Introspection materializar (Passo 110+;
-  ver 108-relatorio).
-- `routines` — quando Routines materializar.
-- `traced` — quando Traced materializar com uso real.
-
-Nome dos campos **deve** bater com o vanilla.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/engine.md`. Historical observations are not a new parity certification.

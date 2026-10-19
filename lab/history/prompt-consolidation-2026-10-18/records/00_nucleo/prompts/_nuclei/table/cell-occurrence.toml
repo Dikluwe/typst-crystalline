@@ -1,0 +1,29 @@
+tekt = 1
+kind = "nucleus"
+id = "table-cell-occurrence"
+title = "Defaults isolados e consumo nominal de regras por ocorrência Cell"
+
+[[claims]]
+id = "prepared-defaults"
+level = "must"
+statement = "Cell crua conserva omissão; Cell isolada preparada conhece defaults intrínsecos sem posição fictícia nem herança de Table; nenhuma preparação torna Cell locatable."
+
+[[claims]]
+id = "rule-consumption"
+level = "must"
+statement = "Aliases do argumento Cell preparado conservam as regras consumidas dessa ocorrência e admitem regras anteriores não consumidas; Cell recém-construída é nova ocorrência sem revogação global herdada."
+
+[[claims]]
+id = "fresh-depth"
+level = "must"
+statement = "Morfologia igual não encerra a nova geração Cell; produtos emitidos seguem o limite causal de show e seu erro com origem, enquanto produtos ocultados não são realizados. A política dos outros elementos permanece com seus owners."
+
+[[claims]]
+id = "visual-once"
+level = "must"
+statement = "Apenas visual completo é publicado, percorrido, indexado e renderizado; body lexical continua fonte de linguagem e não um segundo produto emitido."
+
+[[claims]]
+id = "language-versus-reuse"
+level = "must"
+statement = "Igualdade da linguagem observa propriedades conhecidas e corpo, sem guards, estágio ou visual derivado; prova de reuso conserva todo estado causal."

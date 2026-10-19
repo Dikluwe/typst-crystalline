@@ -1,25 +1,28 @@
 # L0 — core/entities/elements/math_cases_tests
 Hash do Código: 45046410
 
-## Dono produtivo
+**Layer:** L1 test-only
+**Exclusive consumer:** `01_core/src/entities/elements/math_cases_tests.rs`
 
-Este L0 de teste possui exatamente um consumer:
-`01_core/src/entities/elements/math_cases_tests.rs`.
+## Contract and acceptance
 
-## Obrigação
+Construct `MathCases` only through the frozen public boundary. Distinguish
+children and their order, both optional delimiter sides, `reverse`,
+`Rel<Length>`, and every bit of `MathCasesExplicit`. Absence and an explicit
+value equal to the default must not collapse in equality, hash, or `repr`.
 
-A suíte constrói `MathCases` somente pela fronteira pública congelada e
-discrimina children e sua ordem, os dois lados opcionais do delimitador,
-`reverse`, `Rel<Length>` e cada bit de `MathCasesExplicit`. Ausência e
-explicitude igual ao default não podem colapsar em igualdade, hash ou `repr`.
+Clone, `plain_text`, `map_content`, `map_text`, and observable reconstruction
+must preserve every field. `map_content` transforms children in order;
+`map_text` is terminal. A `MathAlignPoint` stays inside its child until the
+layout consumer; it never becomes a row/cell in the public carrier.
 
-Clone, `plain_text`, `map_content`, `map_text` e reconstrução observável devem
-preservar todos os campos. `map_content` transforma children em ordem;
-`map_text` é terminal. Um `MathAlignPoint` permanece dentro do child até o
-consumer de layout, nunca vira row/célula no carrier público.
+## Opacity policy
 
-## Política de opacidade
+Missing binding, zero or multiple attributable carriers, divergent identity,
+ambiguous extraction, or unreadable execution are `Unknown`. They grant neither
+acceptance nor mutation credit.
 
-Binding ausente, zero ou múltiplos carriers atribuíveis, identidade divergente,
-extração ambígua ou execução ilegível são `Unknown`; não concedem aceitação nem
-crédito de mutação.
+## Historical record
+
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/math_cases_tests.md`. Historical observations are not a new parity certification.

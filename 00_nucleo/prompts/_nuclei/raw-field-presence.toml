@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "raw-field-presence"
-title = "Presença lexical dos campos Raw"
-
+title = "Lexical Raw field presence"
 [[claims]]
 id = "known-and-omitted"
 level = "must"
-statement = "Raw conserva text e a presença independente de block e lang. block false explícito e lang none explícito não colapsam com omissão. text é sempre conhecido no modelo vigente."
-
+statement = "Raw retains text and independent block/lang presence. Explicit block false/lang none never collapse into omission. text is always known in current model."
 [[claims]]
 id = "no-render-inference"
 level = "must-not"
-statement = "Métodos de campos e encoders não inferem presença a partir de block false, lang None, estilo herdado ou render. Defaults continuam separados dos campos lexicalmente conhecidos."
-
+statement = "Field methods/encoders infer no presence from block false,lang None,inherited style or render. Defaults remain separate from lexically known fields."
 [[claims]]
 id = "transport"
 level = "must"
-statement = "Clone, Source, mapas de conteúdo e texto, observação conservadora e igualdade de linguagem preservam presença. Nenhum cache reutiliza um Raw com presença diferente como se os campos observáveis fossem os mesmos."
-
+statement = "Clone,Source,content/text maps,conservative observation and language equality preserve presence. No cache reuses different-presence Raw as if observable fields were equal."
 [[claims]]
 id = "public-projection"
 level = "must"
-statement = "A projeção lexical usa ordem text, block, lang; block e lang só são publicados quando conhecidos. Snapshot presente permanece autoritativo. Presença não altera a fase de realização nem legitima novos defaults de render."
+statement = "Lexical projection order is text,block,lang;publish block/lang only when known. Present snapshot remains authoritative. Presence changes no realization phase or render defaults."

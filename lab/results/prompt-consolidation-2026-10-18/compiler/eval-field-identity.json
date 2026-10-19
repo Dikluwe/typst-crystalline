@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/identity.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "84340eb8ee395244cf6307382832b340d5904b8a1eb9ee2bb47d90e6e3978cf4",
+    "result_sha256": "2555900febbc1f33f7f6133a157983db750af69db1d1adc92ad3ceff5a031599",
+    "disposition": "Full identity owner translated: Format projection versus element capability, all nominal direct controls, private module identity with valid/invalid fixture distinction, feature-before-argument gate coordination retained."
+  }
+]

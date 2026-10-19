@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "decimal-rounding"
+title = "Arredondamento decimal de floats finitos"
+
+[[claims]]
+id = "identity"
+level = "must"
+statement = "Para operando f64 finito, precisão >=15 preserva o valor; precisão >=0 também preserva valores de módulo >=2^53, sem produto intermediário que possa transbordar."
+
+[[claims]]
+id = "coarse-zero"
+level = "must"
+statement = "Para operando f64 finito e precisão <-308, o resultado é zero com o sinal do operando."
+
+[[claims]]
+id = "scaling"
+level = "must"
+statement = "Nos demais casos finitos, arredondar half away from zero: precisão positiva escala por multiplicação antes e divisão depois; precisão não positiva escala por divisão antes e multiplicação depois. O fator decimal é calculado pela função pura libm::exp10 pinada pelo projeto."
+
+[[claims]]
+id = "nonfinite-policy"
+level = "must-not"
+statement = "O compartilhamento das regras de operandos finitos não unifica a política de entrada não finita nem de overflow real do resultado; cada prompt proprietário conserva a política específica do seu comportamento."

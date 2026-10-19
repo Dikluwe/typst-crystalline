@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/mod.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "e69be649ee1087678ce0edb5a263782a306a29148c2967630115afd238f2cbef",
+    "result_sha256": "9b7236726df57e4fd6724ab0ffc89c1f4f283e22659f0f3c6a683f8df92c99b1",
+    "disposition": "Full static hub translated: test-only reexport, feature and call-once exports, Sequence callback export and corrected children diagnostic debt retained without algorithm migration."
+  }
+]

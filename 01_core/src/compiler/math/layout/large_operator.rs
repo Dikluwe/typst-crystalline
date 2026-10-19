@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/large_operator.md
-//! @prompt-hash f15b52dd
+//! @prompt-hash 8c8ea104
 //! @layer L1
 //! @updated 2026-09-30
 

@@ -2,7 +2,7 @@
 Hash do Código: 07bc9a8f
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:f29e26ff07053f940cfe4ab5358fc9a6ac8d4d689528e169b5f8567492f52f46
+- 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/content/construction.rs`
@@ -10,7 +10,7 @@ Núcleos Tekt:
 
 ## Contract
 
-Own the residual public `Content` constructors other than sequence normalization. The math, layout, table and reference families are owned respectively by `00_nucleo/prompts/core/entities/content/construction/math.md`, `layout.md`, `tables.md` and `references.md`. They must preserve every signature, default, omission
+Own the residual public `Content` constructors other than sequence normalization. The math, layout, table and reference families are owned respectively by `00_nucleo/prompts/core/entities/content/construction/math.md`, `00_nucleo/prompts/core/entities/content/construction/layout.md`, `00_nucleo/prompts/core/entities/content/construction/tables.md` and `00_nucleo/prompts/core/entities/content/construction/references.md`. They must preserve every signature, default, omission
 state, and payload. Construction remains pure L1 and uses only closed native
 variants plus the existing explicit `Dynamic` extension boundary. No registry,
 property map, I/O, or rendering is allowed.
@@ -20,14 +20,27 @@ property map, I/O, or rendering is allowed.
 All existing constructor, representation, morphology, and parity tests pass;
 callers compile unchanged; the module includes local tests.
 
-## Presença lexical Raw — ratificada em 2026-10-14
+## Ratified Raw lexical presence
 
-### Medição anterior à decisão
+### Evidence before specification
 
-content-serialization-2026-10-14/{before,raw-controls}/results.json.gz registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes/binários e pin 9f2b6e8715237cb086899a42873660fe744622e8. RawElem raw.rs:21–25 perde omissão; native_raw markup.rs:78–136 colapsa ausência/false/none. Campos, igualdade e encoders distinguem esses valores no pin. Trata-se de semântica/morfologia, não mecânica Rust.
+Historical content-serialization-2026-10-14/{before,raw-controls}/results.json.gz
+records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree, UTC,
+sources/binaries and pin `9f2b6e8715237cb086899a42873660fe744622e8`.
+RawElem raw.rs:21–25 lost omission; native_raw markup.rs:78–136 collapsed
+absence/false/none. Fields, equality, and encoders distinguished them at that
+pin. These are semantics/morphology, not Rust mechanics or a fresh current-pin
+measurement.
 
-### Responsabilidade e aceitação
+### Contract and acceptance
 
-Content::raw conserva assinatura; marca block sempre e lang apenas Some. Testar getters e maps sem tocar render.
-
-Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
+Content::raw retains its signature, always marks block present, and marks lang
+only for Some. Test getters and maps without changing rendering.
+Approved manifesto SHA-256
+`b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45`;
+receipt:
+`lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json`.
+This completes only Raw's previously incomplete presence contract and
+supersedes clauses requiring no presence mask. Preserve all other contracts;
+no new phase/default/render behavior. Validate RED→GREEN tests, suite, build,
+and lineage.

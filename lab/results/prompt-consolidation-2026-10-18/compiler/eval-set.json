@@ -1,0 +1,9 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/rules/set.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "23f0a803684195e32ae09fd75a91a8275a05f0d85a1a73034a45e091acda580e",
+    "result_sha256": "5d96b28e1a78b4d6965a370ce76945e36107e1020a48aa7834c78abff7f62b12",
+    "disposition": "Full481-line set owner translated: common condition-before-target and SourceResult errors, native identity/gates, SmartQuote/Cell folds and actual carrier gate, Raw margin refutations preserved as dependent boundaries, Sequence and Heading, initial hanging validation explicitly superseded by measured physical transport with all corpus provenance."
+  }
+]

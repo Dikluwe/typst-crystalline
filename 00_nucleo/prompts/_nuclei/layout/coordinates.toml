@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "layout-coordinates"
-title = "Composição de coordenadas, regiões e rebase"
-
+title = "Coordinate, region and rebase composition"
 [[claims]]
 id = "absolute-region"
 level = "must"
-statement = "Sub-layout identifica a origem real no referencial declarado: absoluto da página ou local de um frame explícito. No referencial local, a transformação até a página acompanha o resultado. Recomposição soma apenas o deslocamento incremental e nunca reaplica a origem completa."
-
+statement = "Sub-layout identifies actual origin in its declared frame: page-absolute or local to an explicit frame. In a local frame the result carries page transform. Recomposing adds only incremental displacement, never the complete origin again."
 [[claims]]
 id = "same-rebase"
 level = "must"
-statement = "FrameItems, segmentos de decoração, posições observáveis e fixups órfãos atravessam a mesma transformação e o mesmo referencial em merges diretos, grupos e emissões diferidas."
-
+statement = "FrameItems, decoration segments, observable positions and orphan fixups undergo the same transform/frame in direct merges, groups and deferred emission."
 [[claims]]
 id = "lifo-region"
 level = "must"
-statement = "Estado de região, cursor e collectors é salvo e restaurado em LIFO; estado local não vaza ao frame pai."
-
+statement = "Region, cursor and collector state save/restore in LIFO; local state never leaks into parent frame."
 [[claims]]
 id = "observable-geometry"
 level = "must"
-statement = "Aceitação compara geometria e morfologia observáveis; estrutura de buffers, paths e passos de rebase é mecânica interna."
+statement = "Acceptance compares observable geometry/morphology; buffer structure, paths and rebase steps are internal mechanics."

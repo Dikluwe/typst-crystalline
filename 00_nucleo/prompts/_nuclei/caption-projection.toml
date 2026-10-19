@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "caption-projection"
-title = "Projeção dos campos conhecidos de FigureCaption"
-
+title = "Projection of known FigureCaption fields"
 [[claims]]
 id = "public-projection-name"
 level = "must"
-statement = "A projeção textual pública de um carrier FigureCaption isolado usa func caption. O nome interno qualificado figure.caption pode permanecer como mecânica; não justifica outro nome na serialização pública."
-
+statement = "Public textual projection of an isolated FigureCaption carrier uses func caption. Internal qualified figure.caption may remain mechanical; it does not justify another name in public serialization."
 [[claims]]
 id = "stored-body"
 level = "must"
-statement = "O getter do carrier FigureCaption considera body conhecido, inclusive Empty, e conserva seu Content armazenado. Projeções sem snapshot publicam esse body recursivamente, sem substituir o conteúdo por plain_text."
-
+statement = "The FigureCaption carrier getter treats body as known, including Empty, and preserves stored Content. Projections without a snapshot publish that body recursively rather than replacing it with plain_text."
 [[claims]]
 id = "known-fields-order"
 level = "must"
-statement = "A projeção dos campos conhecidos de FigureCaption usa ordem position, separator, body; position e separator ausentes no carrier não são publicados por inferência de default. Snapshots presentes continuam autoritativos sob seus contratos próprios."
-
+statement = "Known FigureCaption fields project in position, separator, body order; absent position and separator are not published through default inference. Existing snapshots remain authoritative under their own contracts."
 [[claims]]
 id = "no-standalone-synthesis"
 level = "must-not"
-statement = "A projeção direta de FigureCaption não sintetiza position, separator, kind, supplement, numbering, counter ou location. A projeção legada do objeto Figure tem contrato separado; seu helper de legenda resolvida não é o serializador de um carrier FigureCaption isolado."
+statement = "Direct FigureCaption projection does not synthesize position, separator, kind, supplement, numbering, counter or location. Legacy Figure projection has a separate contract; its resolved-caption helper is not an isolated FigureCaption carrier serializer."

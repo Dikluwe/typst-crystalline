@@ -1,0 +1,31 @@
+Running as unit: run-u1027.service; invocation ID: fdc89325fb0b4719b6c63912a9ee09fd
+2026-10-19T02:45:28.783264+00:00 START python-ci-tests
+2026-10-19T02:45:29.126950+00:00 END python-ci-tests: 0
+2026-10-19T02:45:29.126972+00:00 START layout
+2026-10-19T02:45:31.039001+00:00 END layout: 0
+2026-10-19T02:45:31.039020+00:00 START strict-lineage
+2026-10-19T02:45:35.257644+00:00 END strict-lineage: 0
+2026-10-19T02:45:35.257663+00:00 START reverse-lineage
+2026-10-19T02:45:35.688495+00:00 END reverse-lineage: 0
+2026-10-19T02:45:35.688511+00:00 START build
+2026-10-19T02:46:10.161367+00:00 END build: 0
+2026-10-19T02:46:10.161386+00:00 START tests-domain-infra
+2026-10-19T02:50:28.550020+00:00 END tests-domain-infra: 0
+2026-10-19T02:50:28.550037+00:00 START tests-wiring
+2026-10-19T02:54:41.435515+00:00 END tests-wiring: 0
+2026-10-19T02:54:41.435547+00:00 START doctests
+2026-10-19T02:54:47.996036+00:00 END doctests: 0
+2026-10-19T02:54:47.996054+00:00 START build-all-targets
+2026-10-19T02:56:41.217661+00:00 END build-all-targets: 0
+2026-10-19T02:56:41.217682+00:00 START clippy
+2026-10-19T02:58:21.116050+00:00 END clippy: 0
+2026-10-19T02:58:21.116066+00:00 START fmt
+2026-10-19T02:58:24.611268+00:00 END fmt: 0
+2026-10-19T02:58:24.611286+00:00 START rustdoc
+2026-10-19T02:58:56.246275+00:00 END rustdoc: 0
+Finished with result: success
+Main processes terminated with: code=exited/status=0
+Service runtime: 13min 28.692s
+CPU time consumed: 14min 31.437s
+Memory peak: 256.0K
+Memory swap peak: 0B

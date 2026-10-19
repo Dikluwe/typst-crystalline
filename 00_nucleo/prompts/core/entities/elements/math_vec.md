@@ -2,76 +2,87 @@
 Hash do Código: 880b14e0
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
 
-**Estado:** P1292 MATERIALIZADO.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/math_vec.rs`
 
-**Camada:** L1
-**Alvo planejado:** `01_core/src/entities/elements/math_vec.rs`
-**Regras comuns:** `entities/elements/_comum.md`
-**Vanilla ratificado:** `a51e02804`
+## Evidence before contract
 
-## Medição anterior à decisão
+The historical crystalline eval/math.rs:1030-1062 degraded vec to MathMatrix.
+Upstream a51e02804, math/matrix.rs:18-68, defines a distinct VecElem with
+delimiters, horizontal alignment, relative gap and variadic children.
+2026-08-31 probes confirmed zero children preserve vec(children: ()) identity.
+The archived contract records this slice as implemented; this is not new parity
+certification against the current pin.
 
-O cristalino degrada `vec` a `MathMatrix` em
-`01_core/src/compiler/eval/math.rs:1030-1062`. O vanilla declara `VecElem`
-distinto em `lab/typst-original/crates/typst-library/src/math/matrix.rs:18-68`,
-com delimitador, alinhamento horizontal, gap relativo e filhos variádicos.
-Probes de 2026-08-31 confirmam que zero filhos é válido e conserva identidade
-`vec(children: ())`.
+## Public contract
 
-## Contrato público P1292
+MathVecElem has public children:Vec<Content>, delim:(char,char), align:HAlign,
+gap:Rel<Length>, and explicit:MathVecExplicit. Defaults are ('(',')'), Center,
+and Rel { rel:0, abs:0.2em }. Explicit has one bit per delim/align/gap named
+argument. Bits do not alter layout but participate in morphology/identity so
+explicit defaults survive repr. The absent-delimiter sentinel follows the
+typed matrix/cases convention; none never becomes a glyph. Start and End
+remain distinct payload values.
 
-```rust
-pub struct MathVecElem {
-    pub children: Vec<Content>,
-    pub delim: (char, char),
-    pub align: HAlign,
-    pub gap: Rel<Length>,
-    pub explicit: MathVecExplicit,
-}
-```
+This structural math element is nonlocatable. plain_text concatenates children
+in order; map_content recursively transforms each and preserves delim/align/gap
+and presence; map_text is terminal. Equality/hash include every field under
+canonical scalar rules, including presence. Zero children never normalizes to
+empty Content or matrix. The canonical constructor transports all fields;
+the Rust convenience without named arguments marks all three bits omitted.
 
-Defaults: `delim = ('(', ')')`, `align = HAlign::Center`,
-`gap = Rel { rel: 0, abs: 0.2em }`. `MathVecExplicit` conserva um bit para
-cada named `delim`, `align` e `gap`; os bits não mudam layout, mas participam
-da morfologia/identidade para que um default explicitamente escrito continue
-no `repr`. O sentinel de delimitador ausente segue a
-convenção tipada já usada por matrix/cases; não se converte `none` em glifo.
-`Start` e `End` permanecem valores distintos no payload.
+Gap percentage remains unresolved data. Geometry belongs to the math vec
+layout owner and its region-gap contract; using em as the percentage base is
+forbidden. Casts/errors belong to structural-math and eval-math owners.
 
-Elemento math estrutural não-locatável. `plain_text` concatena os filhos em
-ordem; `map_content` recursa em cada filho e preserva `delim/align/gap`;
-`map_text` é terminal; igualdade/hash incluem todos os campos pela convenção
-canónica para escalares, inclusive presença. Zero filhos não é normalizado
-para conteúdo vazio nem para matrix. O constructor canónico transporta
-`children`, `delim`, `align`, `gap` e presença; uma conveniência Rust sem named
-inicializa os três bits como omitidos.
+## Language acceptance
 
-O percentual de `gap` permanece dado não resolvido. A resolução geométrica é
-obrigação de `compiler/math/layout/vec.md` e é fechada pelo contrato
-`P1292.vec-region-gap` de `compiler/math/layout/_comum.md`; usar `em` como base
-do percentual é proibido.
+Preserve vector identity, child cardinality/order, inferred delimiters,
+alignment and gap. Default repr is vec(children: ()) or
+vec(children: ([a], [b])). Present named arguments precede children in order
+delim/align/gap. Delimiters normalize to pairs and gap to relative length:
+delim:"[" renders delim:("[","]"); gap:1em renders gap:0% + 1em.
+Singleton children retain the comma.
 
-## Aceitação linguística
+## Container reuse without replacement
 
-A entidade preserva identidade vetorial, cardinalidade/ordem dos filhos,
-delimitadores inferidos, alinhamento e gap. Os casts e erros pertencem a
-`compiler/stdlib/structural/math.md` e `compiler/eval/math.md`.
+Evidence before specification:
+`lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz`
+records HEAD, working tree, UTC, complete sources, owners, and release.
+`01_core/src/entities/elements/math_vec.rs:60` preserves traversal but materializes the element even when
+descendants do not change. `01_core/src/entities/content/traversal.rs:111–192`
+unconditionally wraps results from these owners in Some. This is mechanical
+cost; language behavior and element semantic identity remain preserved.
+Refutable inference: propagating explicit absence of change reduces allocations
+and temporary retention. Probes and timing controls may refute that gain.
 
-A forma default é `vec(children: ())` ou
-`vec(children: ([a], [b]))`. Named presentes aparecem antes de `children`, em
-ordem `delim`, `align`, `gap`; delimiter é normalizado como par, `gap` como
-relative length. Assim `delim: "["` aparece `delim: ("[", "]")` e
-`gap: 1em` aparece `gap: 0% + 1em`. Singleton em `children` conserva vírgula.
+Internal refinement under ADR-0127: provide only a crate-private
+map_content_if_changed helper for elements already owned by this consumer.
+Return None only when no actually visited child was replaced; childless
+terminals return None. Transform children once in the existing map_content
+order and stop at the first error. A callback Some, even containing equal
+content, always means change. Preserve every field, value, explicit presence,
+omitted/none/present slot, flag, span, and metadata item. Do not use equality,
+hash, or address as a certificate. Allocate vectors/rows only after the first
+changed child/row; unchanged siblings retain shared content. Public signatures
+and trait methods remain unchanged, with internal adaptation to this proof;
+map_content_pre and map_text retain their previous contracts. This refinement
+does not expand any ratification of historically proposed contracts.
 
-## Reuso de contêineres sem substituição — 2026-10-10
+Specific logic remains with this owner; Content's exhaustive match only
+delegates statically. No vtable, new enum/fields, global state, I/O, or new
+phase. Acceptance requires RED→GREEN for reuse, order, errors, equal-value
+replacement, optional fields/slots, and metadata; core suite, builds and lint;
+text/morphology/render/query qualification against the previous release and
+pinned vanilla; and paired allocation/timing measurements with provenance.
+Do not infer a universal improvement from isolated cases.
 
-Medição anterior à decisão: `lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/math_vec.rs:60` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
+The shared proof of absence of change follows the pinned nucleus claims.
+This prompt and its sole consumer still own the algorithm, transformed fields,
+visit order, and their specific preservation obligations.
 
-Refinamento interno ADR-0127: disponibilizar somente helper crate-private map_content_if_changed nos elementos já owned por este consumer. Retornar None apenas se nenhum filho efetivamente visitado foi substituído; terminais sem filhos retornam None. Transformar filhos na mesma ordem do map_content vigente, uma única vez, e interromper no primeiro erro. Some do callback, inclusive conteúdo igual, sempre é mudança. Preservar todos os campos, valores, presença explícita, slots omitidos/none/presentes, flags, spans e metadados; não usar igualdade/hash/endereço como certificado. Vetores/linhas só alocam após o primeiro filho/linha alterado; os irmãos conservam seu conteúdo compartilhado. Assinaturas públicas e métodos de trait ficam iguais, com adaptação interna à nova prova; map_content_pre e map_text mantêm seu contrato anterior. Nenhuma ratificação de contratos históricos propostos é ampliada por este refinamento.
+## Historical record
 
-A lógica específica permanece neste owner; o match exaustivo em Content apenas delega estaticamente. Sem vtable, enum novo, campos novos, estado global, I/O ou fase nova. Aceitação: RED→GREEN de reuso, ordem, erro, substituição igual, opcionais/slots e metadados; suite core, builds e lint, qualificação de texto/morfologia/render/query contra release anterior e vanilla pinado; alocações e tempos pareados com proveniência. Não alegar ganho universal a partir de casos isolados.
-
-
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/math_vec.md` preserves the construction chronology.

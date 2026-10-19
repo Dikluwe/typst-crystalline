@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated measured enum decision into evidence/contract/acceptance, retained exact diagnostic reason literal, by-value public contract, private scope and all checks/resource limits.",
+  "original_sha256": "7fb2b8796cda0695100183ca14d55efd9fbc9214261f51474ed8e5e640692432",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/par_line_callbacks.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

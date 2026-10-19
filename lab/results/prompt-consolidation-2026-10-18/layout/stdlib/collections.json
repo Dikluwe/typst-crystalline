@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/collections.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Preserved full existing English collection catalog/semantics/Args lineage; translated exhaustive family maps, unused wrappers and lazy call-once owned receiver protocol with exact tests/limits.",
+  "original_sha256": "dd54abc0fd87e8c0442f330e2fb44f14526551c45c1ba2aaad6de123ade5e20d",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/collections.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

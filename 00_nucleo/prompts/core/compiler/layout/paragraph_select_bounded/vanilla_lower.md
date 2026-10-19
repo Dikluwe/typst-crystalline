@@ -5,10 +5,10 @@ Hash do Código: 77cee26e
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_select_bounded/vanilla_lower.rs`
 **Architecture:** ADR-0107/0108/0109/0127/0129/0130.
 
-## Medição anterior à decisão
+## Evidence before specification
 
-`lab/typst-original/crates/typst-layout/src/inline/linebreak.rs:264-344` usa um limite inferior para linhas subcheias após obter limite superior válido. No protótipo conjunto anterior, `lab/results/construction/diagnostics/paragraph-select-podas-vanilla-justice-2026-10-02.md` mediu 1.000 palavras/240pt: 9.695 avaliações e 195,470 µs, contra 120,770 µs da DP exata. A medição é sintética e não atribui intenção ao vanilla.
+`lab/typst-original/crates/typst-layout/src/inline/linebreak.rs:264-344` uses a lower bound for underfull lines after obtaining a valid upper bound. The earlier combined prototype in `lab/results/construction/diagnostics/paragraph-select-podas-vanilla-justice-2026-10-02.md` measured 1,000 words/240pt: 9,695 evaluations and 195.470 µs, versus 120.770 µs for exact DP. This synthetic measurement does not establish vanilla intent or certify the current reference.
 
-## Decisão experimental
+## Experimental contract and acceptance
 
-Este consumer privado e compilado só em testes possui o percurso crescente dos inícios para cada fim. Recebe do módulo pai as medidas prefixadas, custo exato, limite superior Simple, fronteira ativa e vetores da DP. Após a primeira linha subcheia não final, seu custo pode servir de limite inferior para inícios posteriores quando palavras, gaps e tracking têm contribuições finitas não negativas. Descartar um predecessor somente se seu custo acumulado mais esse limite exceder estritamente o limite superior. Preservar atualização da fronteira ativa, empate `<=` a favor do início posterior e fallback do pai. Sem alterar função de custo, seleção produtiva, default, API ou fase. A bancada proprietária do pai compara ranges com a DP exata e mede visitas, podas e tempo.
+This private, test-only consumer owns ascending start traversal for each end. The parent supplies prefix measurements, exact cost, Simple upper bound, active frontier and DP vectors. After the first nonfinal underfull line, its cost may serve as a lower bound for later starts when words, gaps and tracking contribute finite nonnegative values. Discard a predecessor only if its accumulated cost plus that bound strictly exceeds the upper bound. Preserve active-frontier updates, `<=` ties favoring the later start, and the parent's fallback. Do not change the cost function, productive selection, default, API or phase. The parent's benchmark compares ranges against exact DP and measures visits, pruning and time.

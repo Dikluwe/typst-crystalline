@@ -1,44 +1,36 @@
 tekt = 1
 kind = "nucleus"
 id = "paragraph-hanging-indent"
-title = "Recuo francês e origem causal da primeira linha"
-
+title = "Hanging indent and causal first-line origin"
 [[claims]]
 id = "length-and-shape"
 level = "must"
-statement = "hanging-indent conserva Length lexical inclusive zero, negativo e abs+em. Resolver pelo tamanho compartilhado do parágrafo, não pelo primeiro ou último run. A primeira linha mantém a origem normal; continuações recuam na borda inicial da direção e usam largura reduzida pelo mesmo comprimento. Nova região continua o mesmo parágrafo."
-
+statement = "hanging-indent preserves lexical Length including zero, negative and abs+em. Resolve against shared paragraph size, not first/last run. First line retains normal origin; continuations indent on the direction's start edge and reduce width by the same length. A new region continues the same paragraph."
 [[claims]]
 id = "causal-boundary"
 level = "must"
-statement = "A presença da declaração interrompe o parágrafo antes e depois do escopo, inclusive zero, repetição do mesmo valor e corpo vazio. O transporte privado de ocorrência pode diferir entre frames de StyleChain para evitar que diff_styles apague declarações iguais. O valor não é uma opção pública nem substitui o comprimento; não reavaliar argumentos ou callbacks."
-
+statement = "Declaration presence interrupts paragraph before/after scope, including zero, repeated equal value and empty body. Private occurrence transport may differ across StyleChain frames so diff_styles does not erase equal declarations. That value is neither a public option nor a substitute for length; never reevaluate arguments/callbacks."
 [[claims]]
 id = "paragraph-vs-fragment"
 level = "must"
-statement = "Fragmento inline de container não aplica hanging-indent genérico. Par explícito, Parbreak ou estrutura de fluxo que exige parágrafos ativa o contexto de parágrafo. Títulos e corpos simples de raw/lista/quote não herdam o recuo genérico. Subframes isolam o contexto, checkpoint e rollback o conservam."
-
+statement = "Inline container fragments do not apply generic hanging-indent. Explicit Par, Parbreak or flow structure requiring paragraphs activates paragraph context. Headings and simple raw/list/quote bodies do not inherit generic indent. Subframes isolate context; checkpoints/rollback preserve it."
 [[claims]]
 id = "one-horizontal-authority"
 level = "must"
-statement = "Seleção simples, optimized, hifenização, emissão, wrap incremental, justificação e alinhamento consultam a mesma forma de linha. A aplicação ao cursor ocorre uma vez por linha e não muda largura ou line_start_x globais para fingir o recuo. Reabrir admissão horizontal após mudança de região sem reiniciar o contador de linha."
-
+statement = "Simple/optimized selection, hyphenation, emission, incremental wrap, justification and alignment consult one line shape. Apply to cursor once per line without changing global width or line_start_x to simulate indentation. Reopen horizontal admission after region changes without resetting line counter."
 [[claims]]
 id = "bibliography-default"
 level = "must"
-statement = "Somente o plano Hanging aplica o default de 1.5em da bibliografia. Set par ambiente não substitui esse default; show-set realmente casado pode substituir por Length inclusive zero. Columns e Plain conservam a geometria própria, sem receber recuo genérico acidental."
-
+statement = "Only Hanging plan applies bibliography's 1.5em default. Ambient set par does not replace it; an actually matched show-set may override with Length including zero. Columns/Plain retain their own geometry without accidental generic indent."
 [[claims]]
 id = "bibliography-first-line"
 level = "must"
-statement = "Uma entrada Hanging usa inset inicial h e compensação privada de primeira linha -h, preservando corpos estruturados e continuação. Capturar a compensação na primeira unidade material, conservar a forma inicial em avanço antes do commit e em rollback. Não fabricar texto, Location, tags de ocorrência ou HSpace que force fallback greedy."
-
+statement = "A Hanging entry uses initial inset h and private first-line compensation -h, retaining structured bodies/continuation. Capture compensation at first material unit, preserve initial shape in precommit advance and rollback. Fabricate no text, Location, occurrence tags or HSpace forcing greedy fallback."
 [[claims]]
 id = "progress-and-identity"
 level = "must"
-statement = "Valores extremos mantêm progresso e todo o texto lógico, mesmo quando a tinta sai da página e o extrator PDF recorta tokens. Não saturar o recuo ao intervalo da página, apagar palavras ou certificar cópia por pdftotext recortado. BidiSpan permanece exato ou None conforme o núcleo de origem; não inferir identidade por igualdade de strings."
-
+statement = "Extreme values preserve progress and all logical text even when ink leaves page and PDF extraction clips tokens. Never clamp indent to page interval, erase words or certify copy from clipped pdftotext. BidiSpan remains exact or None under origin nucleus, never infer identity from equal strings."
 [[claims]]
 id = "limits"
 level = "must-not"
-statement = "Esta alteração não certifica métricas mistas, toda seleção Unicode/RTL/objetos, reflexões públicas incompletas de Par, múltiplas bibliografias, clusters adjacentes ou a realização R3-T1 ainda não aprovada. Não alterar APIs públicas, ordem de realização, flags ou defaults externos para contornar essas pendências."
+statement = "This change does not certify mixed metrics, all Unicode/RTL/object selection, incomplete public Par reflection, multiple bibliographies, adjacent clusters or still-unapproved R3-T1 realization. Do not change public APIs, realization order, flags or external defaults to bypass these pending items."

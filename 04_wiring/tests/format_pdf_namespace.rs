@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/format_pdf_namespace.md
-//! @prompt-hash 17f05695
+//! @prompt-hash 8cfc974a
 
 #[path = "../../03_infra/tests/support/wiring/format_pdf_namespace.rs"]
 mod harness;

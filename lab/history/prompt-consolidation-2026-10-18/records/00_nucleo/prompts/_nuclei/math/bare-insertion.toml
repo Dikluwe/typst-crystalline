@@ -1,0 +1,34 @@
+tekt = 1
+kind = "nucleus"
+id = "math-bare-insertion"
+title = "Inserção matemática e identidade da equação automática"
+
+[[claims]]
+id = "insertion-boundary"
+level = "must"
+statement = "Mathy inserido fora de contexto matemático torna-se Equation antes de show, identidade e introspecção; o valor original avaliado continua com sua morfologia."
+
+[[claims]]
+id = "math-boundary"
+level = "must-not"
+statement = "A preparação não cria Equation em descendentes já pertencentes ao corpo de Equation ou de um elemento Mathy, nem envolve texto comum ou estilo matemático isolado."
+
+[[claims]]
+id = "lexical-scope"
+level = "must"
+statement = "Equação automática resolve block e propriedades efetivas no escopo de inserção; regras posteriores não retroagem, e regras de produtos conservam o snapshot lexical causal."
+
+[[claims]]
+id = "occurrence"
+level = "must"
+statement = "Cada nova inserção nua recebe identidade de Equation própria; aliases de it já preparado conservam identidade, origens consumidas não são reemitidas e corpos novos voltam a realizar."
+
+[[claims]]
+id = "single-evaluation"
+level = "must-not"
+statement = "Preparação matemática não reavalia fonte ou argumento, não executa constructor para reconhecer variante e não duplica efeitos ou execuções de produtor contextual."
+
+[[claims]]
+id = "label-boundary"
+level = "must-not"
+statement = "Label do elemento Mathy original não é promovido à Equation automática; não se inventa propriedade label nem se fabrica snapshot conhecido."

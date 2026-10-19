@@ -2,8 +2,8 @@
 Hash do Código: 8235ec28
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
-- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
+- 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/decorations.rs`
@@ -13,7 +13,9 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/decorations.rs:21`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
+
+The 12 SVG pairs in `bibliography-hanging-2026-10-18/deco-before.json.gz`, with corrected line/path primitive reading in `deco-inspection.json`, use the same binary/freeze as the initial 9026 suite and pinned bd5ebec oracle. In overline h10, second-line text is at x18 while the stroke is at x8; vanilla starts the stroke at x18. h0 already has y/thickness/tail differences, which this horizontal correction neither hides nor closes. Local source: `decorations.rs:43–45,76–78` uses global cursor/line_start_x; `line_commit.rs:615–619` and `sub_frame.rs:350–354` capture global start. This is language geometry, without an obligation to copy vanilla buffers. The negative preview may be less than the real cursor before any admission; therefore end > preview alone does not prove a segment.
 
 ## Ownership and contract
 
@@ -21,34 +23,12 @@ This prompt owns only the named consumer. State storage and general coordination
 
 Dispatch the body under a temporary decoration collector and restore the outer collector. Preserve wrap segments and the final still-pending segment. Resolve offset and extent against the active font size; defaults are underline `0.10em`, strike `-0.25em`, overline `-0.80em`, thickness `max(0.05em, 0.4pt)`. Explicit stroke color takes precedence over active fill. Emit the existing butt-capped lines with matching segment geometry. Do not create a parallel line-commit or page algorithm.
 
+Capture start_x_initial through the private cursor_start preview. After wraps, the last segment uses the effective left edge from `00_nucleo/prompts/core/compiler/layout/paragraph_indent.md`, not global line_start_x. Do not advance baseline/admission, alter offset/thickness/extent or rerun body; preserve nested collectors and a terminal segment without flush.
+
+Expose only a private read-only applied query in the paragraph-indent owner. Here, when preview differs from the actual initial cursor and no segment has been flushed, the final segment requires an origin actually applied. Do not start a scope/admission to satisfy decoration or create paint/height from an empty body. This private parity correction follows continuous flow under ADR-0127, with no new phase/API.
+
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-### Decorações: medição complementar de origem (2026-10-18)
-
-Os12 pares SVG em bibliography-hanging-2026-10-18/deco-before.json.gz,
-com a leitura corrigida de primitivas line/path em deco-inspection.json,
-usam o mesmo binário/freeze da suíte inicial9026 e o oracle pinado bd5ebec.
-Em overline h10, a segunda linha tem texto em x18 mas traço em x8;
-vanilla começa o traço em x18. h0 já tem diferenças de y/espessura/cauda,
-que não serão encobertas nem fechadas por este reparo horizontal.
-Fonte local: decorations.rs:43–45,76–78 usa cursor/line_start_x globais;
-line_commit.rs:615–619 e sub_frame.rs:350–354 capturam início global.
-Isso é geometria da linguagem, não obrigação de copiar buffers vanilla.
-Refutação: origem duplicada, consumo precoce da compensação, mudança de
-baseline, fim, espessura, texto ou região fora do delta horizontal prescrito.
-Correção privada de paridade ADR0127 em fluxo contínuo, sem fase/API nova.
-
-Responsabilidade deste owner: Capturar start_x_initial pelo preview cursor_start privado. O último segmento após wraps usa a borda esquerda efetiva de paragraph_indent, não line_start_x global. Não antecipar baseline/admissão, alterar offsets/espessura/extent ou reexecutar body; coletores aninhados e final sem flush continuam preservados. A aceitação deste refinamento horizontal cobre LTR; a geometria completa de decorações e RTL permanece a medir, sem alegação universal.
-
-### Preview sem material
-
-O preview negativo pode ser menor que o cursor real antes de qualquer
-admissão; portanto end > preview sozinho não prova um segmento. Acrescentar
-teste RED de decorações vazias após quebra com h negativo, incluindo body
-vazio, metadata e Par vazio. Expor apenas uma consulta privada read-only de
-applied no owner paragraph_indent. No owner decorations, quando o preview
-difere do cursor real inicial e não houve segmento flushado, o segmento
-final exige origem realmente aplicada. Não iniciar escopo/admissão para
-satisfazer a decoração e não criar tinta/altura de um body vazio.
+Refutation cases include duplicated origin, premature compensation consumption, and changes to baseline, end, thickness, text or region outside the prescribed horizontal delta. Add RED tests for empty decoration after a break with negative h, including empty body, metadata and empty Par. This horizontal refinement certifies LTR only; complete decoration geometry and RTL remain unmeasured, without a universal claim.

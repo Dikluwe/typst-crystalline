@@ -8,9 +8,9 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
-- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
-- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
+- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417
 ```
 
 ## Current evidence
@@ -38,63 +38,51 @@ Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do no
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
 
-## Reaproveitamento do índice realizado — 2026-10-05
+## Realized snapshot and export bindings
 
-A inspeção em `03_infra/src/pipeline/html.rs:102` revelou reconstrução do índice inicial já produzido pela realização. Consultar Module::realization_introspector segundo `00_nucleo/prompts/core/entities/module.md`, usando clone independente se disponível e o fallback vigente se ausente. Preservar feature/target, format options, preparação contextual e resolução de posições das ilhas html.frame. Não tratar o snapshot inicial como resultado dos contextos/posições finais. Revalidar HTML e frames por observáveis de linguagem.
+Inspection html.rs:102 found rebuilt initial introspection already produced by
+realization. Use Module::realization_introspector under
+`00_nucleo/prompts/core/entities/module.md`, independent clone when available,
+existing fallback otherwise. Preserve feature/target/options/context preparation/
+intrinsic-frame positions. Initial snapshot is not final context/position result;
+revalidate language observations/frames. Under the ratified Page-snapshot package,
+prepare nonpaginated Page snapshots before discovery and select/revalidate producers
+whose actually observed reads change when only Page views are replaced. No physical
+HTML pages or previously forbidden HTML filtered-counter reads.
 
+identidade-fonte-shaped-2026-10-05/probe.txt supports private resolve_export_fonts
+returning bound original fonts under existing instancer gate. Instancing belongs
+to render/export consumer in same phase, diagnostics/API/page selection unchanged;
+old name did not promise already-instanced bytes.
 
-## Materialização do conjunto ratificado — 2026-10-05
+## Test-module ordering
 
-Preparar snapshots Page não paginados antes da descoberta, e selecionar/revalidar produtores cuja leitura efetivamente observada muda quando só as vistas Page são substituídas. Sem criar páginas físicas HTML, e sem permitir filtered-counter HTML antes proibido.
+clippy-locais-2026-10-16/before.json.gz retains sources/L0/hashes/HEAD/tree/UTC/
+diffstat at html.rs:147, inspected use before selected-lint RED. Move only
+#[cfg(test)] p1465_tests after productive helpers, keeping name/body/attributes/
+imports/all tests, no module/visibility/pipeline change. Internal ADR-0127 no
+public/default/phase/lint suppression; L0 first/scoped seals/exact inventory
+reduction/no new warnings/RED→GREEN/unfulfilled expectations as error/workspace
+suite/build/fmt/Rustdoc/lineage under12GiB/zero swap/job1. No derive/Entry/module
+syntax-mirror tests; actual bbox requirement belongs to its historical scope.
 
+## Ratified Heading supplement before queries
 
-## Preparação de bindings de exportação — 2026-10-05
+lote-a1-callbacks-reflexao-seletores-2026-10-17/{final-freeze, target-controls}.json.gz
+retains HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c/dirty tree/UTC/diffstat/sources/
+argv at pinbd5ebec285505889e8ff1d4f68804ab147a699f3. heading-raw-constructor-func
+passes baseline/vanilla but candidate Styled transport changes func; query sees
+temporary causal wrapper and HTML ignores callback panic. walk.rs:930–945 and
+paged.rs:419–427/html.rs:101–106 use pure pre-query walk. Language values/errors,
+no upstream-mechanics requirement. Owner confirmed review
+`lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md`,
+SHA256`66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c`.
 
-Medição: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/probe.txt`. Consumir helper privado resolve_export_fonts: fontes originais vinculadas, com gate de instanciação existente. Instanciação fica no consumidor exportador, na mesma fase de render/export, preservando diagnósticos/API/seleção de páginas. O nome antigo prometia bytes já instanciados e não descreve este contrato.
-
-
-## Manutenção local e observação de testes — 2026-10-16
-
-### Medição anterior à decisão
-
-`03_infra/src/pipeline/html.rs` nas linhas 147 contém os avisos registrados em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
-
-### Responsabilidade e aceitação
-
-Mover somente o módulo #[cfg(test)] p1465_tests para o fim do consumer, após os helpers produtivos. Manter nome, corpo, atributos, imports e todos os testes; nenhum helper muda de módulo/visibilidade. Ordem de declarações não muda o pipeline.
-
-Fluxo contínuo ADR-0127: sem contrato público, default de produto ou fase novos. L0 precede código e resselo restrito. Nenhuma supressão de lint nova. Conferir redução exata do inventário e ausência de avisos novos, gate Clippy RED→GREEN e unfulfilled_lint_expectations como erro; executar suíte workspace, build, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job. Não criar testes que apenas espelhem derive, Entry ou posicionamento de módulos. O caso de bbox exige observação real conforme especificado; os demais controles existentes mantêm fixtures e expectativas.
-
-
-## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
-final-freeze.json.gz e target-controls.json.gz no diagnóstico
-lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
-UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
-Styled de transporte altera func. Query também vê wrapper causal temporário;
-HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
-pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
-de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
-Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
-SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
-
-### Responsabilidade exclusiva
-
-No snapshot inicial, inclusive vindo de realização, chamar somente a fachada
-L1 Heading via runtime privado com EvalTarget::Html e features efetivas antes
-de prepare_html. Propagar erro e warnings. Não executar layout paginado global
-ou callbacks nos encoders. Preservar ilhas html.frame, positions, gates e pretty.
-
-### Aceitação e limites
-
-H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
-público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
-cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
-callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
-fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
-comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
+In initial snapshot, including realized one, call only public ratified L1 Heading
+facade via private runtime with EvalTarget::Html/effective features before
+prepare_html. Propagate errors/warnings; no whole-document paged layout/encoder
+callback execution. Preserve frame islands/positions/gates/pretty. H1–H8/bilateral
+RED before code; gate authorizes only Heading facade, not separately scoped five
+State helpers/new public fields. Existing Styled/other callback boundaries stay.
+Workspace/doctests/build/Clippy/Rustdoc/fmt/V1-V5-V15-V26/reverse/no V16 growth,
+sequential12GiB/High8GiB/swap0/job1. RAM gain needs measurement, not intent.

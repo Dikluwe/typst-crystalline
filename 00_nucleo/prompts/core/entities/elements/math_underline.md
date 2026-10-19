@@ -2,81 +2,82 @@
 Hash do Código: 4b8e4da4
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
 
-**Estado:** CONTRATOS P1292 E P1441 MATERIALIZADOS
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/math_underline.rs`
 
-**Camada:** L1
-**Alvo planejado:** `01_core/src/entities/elements/math_underline.rs`
-**Regras comuns:** `entities/elements/_comum.md`
-**Vanilla ratificado:** `a51e02804`
+## Evidence before identity contract
 
-## Medição anterior à decisão
+Historical upstream a51e02804, math/underover.rs:4-14, separates body-only math
+underline from text underline with stroke/offset/extent. The 2026-08-31 probe
+found math.underline == underline false. Partial visual equivalence never
+licenses an identity alias. Upstream also separates body-only math Overline
+from both math Underline and textual overline.
 
-O cristalino possui `entities/elements/underline.rs`, mas essa unidade é a
-decoração textual com `stroke`, `offset` e `extent`. O vanilla declara o
-elemento matemático separado e body-only em
-`lab/typst-original/crates/typst-library/src/math/underover.rs:4-14`; o probe
-de linguagem de 2026-08-31 confirma `math.underline == underline` como `false`.
-Logo a equivalência visual parcial não autoriza alias de identidade.
+## Ratified contract
 
-## Contrato público P1292
+MathUnderlineElem has public body:Content and derives Debug/Clone/PartialEq/Hash.
+It is structural, nonlocatable math. plain_text delegates to body; map_content
+recurses and reconstructs MathUnderline; map_text is terminal; equality/hash
+include body and introspection uses nonlocatable defaults.
+Content::math_underline(body) is the public constructor.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct MathUnderlineElem {
-    pub body: Content,
-}
-```
+math.underline requires exactly one positional Content, with canonical string
+to Content cast. Missing body reports `missing argument: body`; an uncastable
+value reports `expected content, found <tipo vanilla>`; a second positional
+reports `unexpected argument`; any named reports `unexpected argument: <nome>`.
+The placeholders retain the historical diagnostic convention. No ignored args.
 
-Elemento math estrutural não-locatável. `plain_text` delega ao body;
-`map_content` recursa no body e reconstrói `MathUnderline`; `map_text` é
-terminal; igualdade/hash incluem body; campos/introspection de elemento usam
-os defaults não-locatáveis. O construtor público é
-`Content::math_underline(body)`. A função `math.underline` aceita exatamente
-um `Content` posicional obrigatório; strings seguem o cast canónico para
-`Content`. Zero posicionais produz `missing argument: body`, tipo
-não-convertível produz `expected content, found <tipo vanilla>`, segundo
-posicional produz `unexpected argument` e qualquer named produz
-`unexpected argument: <nome>`.
+Do not reuse textual Content::Underline, its stroke/offset/extent fields or
+function identity. Geometry belongs to the math underline layout owner and
+the Content variant to its owner. math.underline([x]) retains MathUnderline,
+plain text x, one body and public repr underline(body: [x]); equality with
+the text underline function stays false.
 
-É proibido reutilizar `Content::Underline`, transportar campos textuais
-`stroke/offset/extent` ou expor o nome de função textual. A geometria pertence
-exclusivamente a `compiler/math/layout/underline.md`, e a variante ao owner
-`entities/content.md`.
+The 2026-09-18 ADR-0127 approval adds MathOverlineElem { body:Content } in
+this cohesive owner. plain_text delegates; map_content descends/reconstructs
+MathOverline; map_text preserves the variant; equality/hash include body.
+Never reuse textual Content::Overline or infer identity merely from a visible
+rule above content. The archived contract records both slices as implemented.
 
-## Aceitação linguística
+## Container reuse without replacement
 
-`math.underline([x])` preserva identidade `MathUnderline`, plain text `x` e um
-único body. Sua forma pública é `underline(body: [x])`, e
-`math.underline == underline` permanece `false`. Falta, excesso, tipo inválido
-e named desconhecido coincidem com as mensagens medidas no registro vanilla
-P1292; não se aceita argumento ignorado.
+Evidence before specification:
+`lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz`
+records HEAD, working tree, UTC, complete sources, owners, and release.
+`01_core/src/entities/elements/math_underline.rs:33` preserves traversal but materializes the element even when
+descendants do not change. `01_core/src/entities/content/traversal.rs:111–192`
+unconditionally wraps results from these owners in Some. This is mechanical
+cost; language behavior and element semantic identity remain preserved.
+Refutable inference: propagating explicit absence of change reduces allocations
+and temporary retention. Probes and timing controls may refute that gain.
 
-## P1441 — identidade pública `MathOverlineElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
+Internal refinement under ADR-0127: provide only a crate-private
+map_content_if_changed helper for elements already owned by this consumer.
+Return None only when no actually visited child was replaced; childless
+terminals return None. Transform children once in the existing map_content
+order and stop at the first error. A callback Some, even containing equal
+content, always means change. Preserve every field, value, explicit presence,
+omitted/none/present slot, flag, span, and metadata item. Do not use equality,
+hash, or address as a certificate. Allocate vectors/rows only after the first
+changed child/row; unchanged siblings retain shared content. Public signatures
+and trait methods remain unchanged, with internal adaptation to this proof;
+map_content_pre and map_text retain their previous contracts. This refinement
+does not expand any ratification of historically proposed contracts.
 
-### Medição anterior à decisão
+Specific logic remains with this owner; Content's exhaustive match only
+delegates statically. No vtable, new enum/fields, global state, I/O, or new
+phase. Acceptance requires RED→GREEN for reuse, order, errors, equal-value
+replacement, optional fields/slots, and metadata; core suite, builds and lint;
+text/morphology/render/query qualification against the previous release and
+pinned vanilla; and paired allocation/timing measurements with provenance.
+Do not infer a universal improvement from isolated cases.
 
-O vanilla declara `OverlineElem` matemático body-only, separado tanto de
-`UnderlineElem` matemático quanto da decoração textual `overline` com stroke,
-offset e extent. O cristalino possui as duas famílias adjacentes, mas ainda
-não a identidade math superior.
+The shared proof of absence of change follows the pinned nucleus claims.
+This prompt and its sole consumer still own the algorithm, transformed fields,
+visit order, and their specific preservation obligations.
 
-### Decisão proposta
+## Historical record
 
-No mesmo owner coeso, adicionar `MathOverlineElem { body: Content }`.
-`plain_text` delega ao body; `map_content` desce no body e reconstrói
-`MathOverline`; `map_text` conserva a variante; igualdade/hash incluem body.
-É proibido reutilizar `Content::Overline` textual ou inferir esta identidade
-da presença de uma regra acima.
-
-## Reuso de contêineres sem substituição — 2026-10-10
-
-Medição anterior à decisão: `lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/math_underline.rs:33` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
-
-Refinamento interno ADR-0127: disponibilizar somente helper crate-private map_content_if_changed nos elementos já owned por este consumer. Retornar None apenas se nenhum filho efetivamente visitado foi substituído; terminais sem filhos retornam None. Transformar filhos na mesma ordem do map_content vigente, uma única vez, e interromper no primeiro erro. Some do callback, inclusive conteúdo igual, sempre é mudança. Preservar todos os campos, valores, presença explícita, slots omitidos/none/presentes, flags, spans e metadados; não usar igualdade/hash/endereço como certificado. Vetores/linhas só alocam após o primeiro filho/linha alterado; os irmãos conservam seu conteúdo compartilhado. Assinaturas públicas e métodos de trait ficam iguais, com adaptação interna à nova prova; map_content_pre e map_text mantêm seu contrato anterior. Nenhuma ratificação de contratos históricos propostos é ampliada por este refinamento.
-
-A lógica específica permanece neste owner; o match exaustivo em Content apenas delega estaticamente. Sem vtable, enum novo, campos novos, estado global, I/O ou fase nova. Aceitação: RED→GREEN de reuso, ordem, erro, substituição igual, opcionais/slots e metadados; suite core, builds e lint, qualificação de texto/morfologia/render/query contra release anterior e vanilla pinado; alocações e tempos pareados com proveniência. Não alegar ganho universal a partir de casos isolados.
-
-
-A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/math_underline.md` preserves the original chronology and evidence.

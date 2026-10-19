@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "block-place-region"
-title = "Região geométrica local de Block para Place"
-
+title = "Local Block geometric region for Place"
 [[claims]]
 id = "local-region"
 level = "must"
-statement = "Block instala região privada para Place com origem interna após inset e dimensão declarada menos os dois insets. Altura auto é resolvida pelo fluxo causal do próprio Block; overlay não aumenta a altura. Não usar a página como tamanho final do container."
-
+statement = "Block installs a private Place region with its inner origin after inset and declared dimensions minus both insets. Auto height is resolved by the Block's own causal flow; overlays do not increase height. Do not use the page as the container's final size."
 [[claims]]
 id = "flow-origin"
 level = "must"
-statement = "Place recebe opcionalmente a origem de fluxo já certificada; somente o eixo vertical omitido a usa. Alinhamento explícito usa a região local. O body recebe a largura local e é composto uma vez. Itens, decoração e metadados recebem a mesma translação."
-
+statement = "Place optionally receives the already certified flow origin; only the omitted vertical axis uses it. Explicit alignment uses the local region. The body receives local width and is composed once. Items, decoration and metadata receive the same translation."
 [[claims]]
 id = "scope"
 level = "must"
-statement = "A região privada é guardada e restaurada por Block e checkpoint, isolada em subframes e invalidada na transição física de região. Não muda API pública ou fase. Um Block fragmentado requer regiões por fragmento antes de ser certificado universalmente."
-
+statement = "Block and checkpoints save and restore the private region, isolate it in subframes and invalidate it on physical-region transition. No public API or phase changes. Fragmented Block requires per-fragment regions before universal certification."
 [[claims]]
 id = "clip"
 level = "must"
-statement = "O recorte usa dimensões alocadas do container, incluindo inset, e filhos locais ao Group; não pode usar avanço zero de Place como altura explícita nem aplicar origem duas vezes. Correções diferidas do container são resolvidas antes do encapsulamento; caminhos remanescentes acompanham a estrutura."
+statement = "Clipping uses allocated container dimensions, including inset, and Group-local children; it cannot use Place's zero advance as explicit height or apply the origin twice. Deferred container corrections resolve before encapsulation; remaining paths follow the structure."

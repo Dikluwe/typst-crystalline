@@ -3,8 +3,8 @@ Hash do Código: 869f6371
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
-- 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
+- 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
 ```
 
 ## Ownership and evidence
@@ -39,7 +39,7 @@ causal Label and returning the ordered public field map:
 | depth | The modeled level when HEADING_SET_DEPTH is present; otherwise 1. |
 | offset | 0, without inventing an unmodeled custom offset. |
 | numbering | Exact string only when heading.numbering is Bool(true) and heading.numbering.pattern is Str; otherwise None. |
-| supplement | Text Content from the canonical heading language supplement owner at the causal language. |
+| supplement | Preserve an explicit custom specification during private construction; otherwise Text Content from the canonical heading-language supplement owner at the causal language. Runtime finalization publishes a newly resolved immutable snapshot before query, as specified below. |
 | outlined | The stored boolean. |
 | bookmarked | Explicit boolean, or Auto when absent; not is_bookmarked(). |
 | hanging-indent | Auto for the currently modeled producer. |
@@ -86,131 +86,194 @@ causal language/label, snapshot reuse after style changes, auto-label sequencing
 and numbered/un-numbered TOC projection. Preserve counter/TOC behavior.
 
 A complete snapshot means complete fields of the modeled producer, not universal
-heading parity. Custom supplement/Func/none, numbering Func, custom offset or
-hanging indent, untransported region and all set-rule heading fields are not
-made supported by this helper. Constructor outlined/bookmarked and explicit
+heading parity. The later callback contract below supersedes the historical supplement
+Content/Func/none exclusion only on its specified routes. Numbering Func, custom
+offset or hanging indent, untransported region and all set-rule heading fields
+are not made supported by this helper. Constructor outlined/bookmarked and explicit
 level already exist; do not incorrectly classify those as future features.
 Precedence of constructor numbering:none under an ancestral set and show-set
 language effects across phases require separate evidence/owner decisions.
 No new constructor, callback API, public field or phase is authorized here.
 
 
-## Aridade das fronteiras — `clippy::too_many_arguments`
+## Measured arity boundary and nominal lint exception
 
-### Evidência anterior à decisão
+### Structural evidence before decision
 
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+captured at `2026-10-15T16:39:18.873477+00:00`. Full sources, prior L0,
+signatures/hashes/UTC/status/git diff HEAD --stat are in
 `lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
+Individual classification and owner clauses read before deciding are in
 `lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
+Clippy spans were reconfirmed against inventory sources. This measures Rust
+structure, not fresh parity or a functional defect: C009,
+`01_core/src/compiler/introspect/heading.rs:147`, `walk_heading`, has eight
+arguments against threshold seven.
 
-- `C009`: `01_core/src/compiler/introspect/heading.rs:147`, `walk_heading`, 8 argumentos contados pelo Clippy (limiar 7).
+### Exclusive prescription and scope
 
-### Prescrição exclusiva por função
+The Heading descendant free function under ADR-0109 keeps borrowed accumulators
+and the causal chain, delegating recursion to walk. Its arity follows static
+atomization without moving rendering into entities. Preserve its signature,
+argument order and semantics. The exact machine metadata remains:
+`#[expect(clippy::too_many_arguments, reason="C009: Free function descendente da feature Heading sob ADR-0109: conserva os acumuladores emprestados e a chain causal, delegando a recursão ao walk")]`.
+This Portuguese reason is literal metadata, not untranslated normative prose.
 
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
+The initial audit prescribed an internal maintenance target and did not
+materialize it. Preserve current public signatures and this owner's language
+decisions; the maintenance judgment is supported by the stated evidence, while
+arity alone proves no functional defect. Confirm the warning with workspace/
+all-targets Clippy and no `unfulfilled_lint_expectations` after annotation;
+preserve owner calls and functional controls. Do not raise the global threshold
+or silence other lints.
 
-#### `C009` — `walk_heading`: Exceção pontual justificada
+Only the named function may carry this exact lint expectation. Never apply it
+to a module/impl/crate/global configuration. A residual exception for dead-
+argument corrections depends on that correction. Remove/review the expectation
+if arity falls below threshold; never suppress unfulfilled expectations.
+This specific permission supersedes generic suppression prohibitions only for
+the justified nominal item/lint. All other corrections remain required.
 
-Free function descendente da feature Heading sob ADR-0109: conserva os acumuladores emprestados e a chain causal, delegando a recursão ao walk. A aridade acompanha a atomização estática, sem transferir render para entidades.
+The original audit updated only L0 and its lineage seal; code attributes and
+signature/body changes remained pending materialization. Corrections require
+owner language/integration tests and before/after call controls, without relaxed
+fixtures/tolerances. Preserve layers/phase/defaults/static dispatch and no mutable
+global state. Private signature corrections also migrate callers and their L0
+before code. New public/compatibility requirements need a concrete ADR-0127
+proposal and confirmation; this exception grants neither.
 
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C009: Free function descendente da feature Heading sob ADR-0109: conserva os acumuladores emprestados e a chain causal, delegando a recursão ao walk")], somente nesta função.
+### Materialization evidence and acceptance
 
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
+The validated inventory
+`lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json`
+retains 79 warnings. Source/span/current-reason/signature/hash reconfirmation is
+in `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`,
+with HEAD, uncommitted working tree, UTC and git diff HEAD --stat. Concrete
+functions/data were read before deciding. Arity/type heuristics are Rust
+mechanics, not new parity or measured cognitive benefit.
 
-### Limite da exceção
+The 2026-10-16 materialization covers only C009's justified direct expectation,
+reconfirmed against current spans and individual clauses. Use the nominal
+function attribute, preserving signature/body/calls/cfg/unrelated attributes.
+Correction entries, including conditional C047/C066, remain pending and receive
+no annotation in that batch.
 
-Autorizar somente `#[expect(clippy::too_many_arguments, reason = "...")]` no item
-nominal acima, com o motivo arquitetural indicado. Não aplicar no módulo, impl,
-crate ou configuração global; não elevar o limiar nem abranger outro lint.
-Nos casos com remoção de argumento morto, a exceção residual depende dessa correção.
-Se a função deixar de exceder o limiar, retirar/revisar a expectativa; não silenciar
-`unfulfilled_lint_expectations`. Esta permissão específica supera proibições
-genéricas de supressão em seções anteriores somente para este lint e os itens
-nominais justificados aqui. As demais obrigações de correção permanecem.
+ADR-0127 continuous flow adds lint metadata only: no public contract, executable
+body, cfg/default/phase/dependency/architecture change. Only explicit nominal
+exceptions supersede generic suppression prohibitions. L0 precedes code,
+restricted resealing and proof that removing added attributes plus lineage
+header recovers the prior source after rustfmt normalization. Measure RED first;
+then check all-targets inventory: exactly 46 arities and five test warnings
+satisfied by 49 expectations, no new warning, unfulfilled expectations as errors.
+The 11 arities requiring correction remain visible. Validate build/fmt/strict-
+and reverse-lineage/Tekt without new errors or warnings, existing Counter tests
+and coverage under 12 GiB/zero swap/one job. The earlier full suite is evidence
+for the same executable code; add no tests mirroring lint attributes and require
+no fresh performance comparison for metadata.
 
-### Fronteira de materialização
+## Ratified compact carrier emission
 
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
+### Evidence before decision
 
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/before.json.gz`
+retains UTC/sources/L0/hashes/status/git diff HEAD --stat. Existing owners were
+read before proposing. probe-details.json retains rustc 1.92/argv/rlib/binary/
+probe SHA-256/output; probe-result.json records 12 GiB/zero swap/one job/events.
+This synthetic carrier/register-copy probe is not compile/layout/RSS benchmarking
+or a real workload distribution. Candidates mirror real domain types; inline
+uses productive Tag/ShowRule.
 
-## Exceções nominais materializadas — 2026-10-16
+Tag is 416 bytes, boxed/Arc Start 48. For 4,096 Start/End pairs with heap-free
+Heading, requested bytes/allocations are inline 3,407,872/1, Box 2,031,616/4,097,
+Arc 2,097,152/4,097. Cloning boxed Tag allocates per Start; inspected productive
+fixpoint.rs:86–136 and entrypoints.rs:44–66 use temporary Vec<Tag>/borrowed reads,
+without cloning the vector. Walk:325–356 populates the index by reference before
+moving info to Start. Synthetic clone frequency is not assumed productive.
 
-### Medição anterior à decisão
+Transformation is 328 and ShowRule 376 bytes; Box/Arc<Styles> candidates are 120
+and 168. rules/show.rs:464–470 copies to_vec before every registration;
+apply.rs:108–112,349–352 filters/clones rules. Across 128 registrations of simple
+100% show-set without retained old snapshots, requested bytes/allocations are
+inline 12,276,960/384, Box 8,194,560/8,640, Arc 5,530,624/512. With retained
+snapshots, requested peaks are 3,203,856, 4,141,744 and 1,477,808. A custom-channel
+control copying 4,096 rules requests 4,107 inline, 8,203 Box and 11 Arc
+allocations, including Vec growth. apply/intercept/outline/table_cells borrow
+styles; application still clones a delta when needed.
 
-O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
+Mandatory counterexample: building one simple 100% show-set collection of 4,096
+rules requests 1,540,096 bytes inline, 2,031,616 Box and 2,097,152 Arc. Arc may
+retain excess custom-channel capacity; the rich 128-registration control without
+old snapshots ends with 78,064 live bytes inline and 156,432 Arc. Claim no
+universal gain or ignore atomic/indirection cost. This is ADR-0030/0107 storage
+mechanics, not language parity or measured AI benefit. Real relevant memory/time
+regression refutes the favorable copy-cycle inference; retain those controls.
 
-### Responsabilidade e aceitação
+### Ratification and exclusive responsibility
 
-Materializar somente as expectativas diretas nominais já justificadas neste owner: C009. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
+The human approved manifest
+`282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`;
+`lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/approval-receipt.json`
+records approval. The former ADR-0127 public-payload/compatibility proposal gate
+is satisfied; this contract, including T1–T6 and no release, is in force.
 
-Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
+Migrate only existing Tag::Start(loc, info) emission to
+Tag::Start(loc, Box::new(info)). Preserve info construction/values, index
+population before moving info, loc/End/hash, walk order and effects/counters.
+There is one allocation per Start; do not clone info or move population, change
+deduplication/reservation/snapshot/recursion. Public form belongs to
+`00_nucleo/prompts/core/entities/tag.md`; this owner preserves its own behavior.
 
+### Acceptance and owner boundaries
 
-## Carriers compactos de introspecção/show — proposta 2026-10-16
+Ratified L0 precedes tests and real RED; reseal strictly changed owners. No
+large_enum_variant suppression, threshold/dependency/flag/default/phase change.
 
-### Medição anterior à decisão
+- T1: construction Box<ElementInfo>/Arc<Styles> and relative budgets (Tag at most
+  three Location; Transformation at most Content plus alignment) fail before
+  and pass after without freezing a universal ABI. Those payloads stay owned by
+  their entity prompts.
+- T2: preserve Start/End/Location/payload/label, value equality/structural hashes,
+  independent Box clone and mutation isolation; hashes are not persistence format.
+- T3: existing introspection/convergence/nesting/heading/label/state/counter/query/
+  metadata tests retain expectations/errors.
+- T4: Transformation::Style clone shares Arc; Arc::make_mut on a copy preserves
+  original styles including custom; Func/Content/Str variants remain unchanged.
+  This is a dependent entity boundary, not implementation in convergence.
+- T5: show-set/func, precedence/scope/labels/outline/table.cell/textual/regex
+  controls preserve semantics/morphology/errors with no extra execution.
+- T6: full workspace/build/all-targets Clippy with prior expectations/lints as
+  errors, rustdoc -D warnings with four indexes, fmt/diff/strict/reverse lineage
+  and no Tekt increase, under 12 GiB/zero swap/one job. Record HEAD/working tree/
+  hashes/diffstat/UTC and distinguish requested sizes/bytes from RSS.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16 registra UTC, fontes/L0, hashes, status e git diff HEAD --stat. Os owners atuais foram lidos antes de propor esta alteração. probe-details.json registra rustc 1.92, argv, rlib/binário/sonda com SHA-256 e saída; probe-result.json registra teto de 12 GiB, swap zero, um job e eventos. A sonda é sintética de carriers e do algoritmo de registro/cópia, não benchmark de compilação/layout/RSS nem distribuição de workloads reais. Os candidatos são espelhos com tipos reais de domínio; o caso inline usa Tag e ShowRule produtivos.
+No release. Any signature/field/phase change beyond these ratified payloads
+requires a separate proposal. This owner preserves its existing emission behavior apart from the ratified boxing.
 
-Tag mede 416 bytes; Start boxed e Arc medem 48. Para 4.096 pares Start/End com payload Heading sem heap, inline solicita 3.407.872 bytes numa alocação; Box solicita 2.031.616 em 4.097; Arc solicita 2.097.152 em 4.097. Clone de Tag boxed também aloca por Start; os caminhos produtivos lidos em introspect/fixpoint.rs:86–136 e entrypoints.rs:44–66 usam Vec<Tag> temporário e leituras emprestadas, sem clonar o vetor. Walk :325–356 popula o índice por referência antes de mover info para Start. A decisão não toma o clone sintético como frequência produtiva.
+## Heading callback evidence and responsibility
 
-Transformation mede 328 e ShowRule 376 bytes; candidatos com Box/Arc<Styles> medem 120 e 168. rules/show.rs:464–470 copia to_vec antes de cada registro; apply.rs:108–112,349–352 filtra/clona regras. Em 128 registros 100% show-set simples sem reter snapshots antigos, inline solicita 12.276.960 bytes/384 alocações, Box 8.194.560/8.640, Arc 5.530.624/512. Com snapshots retidos, picos solicitados são 3.203.856, 4.141.744 e 1.477.808. No controle com canal custom, as cópias de 4.096 regras solicitam 4.107 alocações inline, 8.203 Box e 11 Arc (crescimento do Vec incluído). As leituras de estilos são emprestadas em apply/intercept/outline/table_cells; a aplicação ainda clona o delta quando necessário.
+The 2026-10-17 evidence records HEAD
+`b1b486f3d42431f8ea360bc5712637ee1e3d4f6c` and working-tree/UTC/hash provenance
+in `lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz`.
+`before-pdf-probe.json.gz` records `heading-supplement-panic` succeeding in Tekt
+and producing `A1_HEADING` in vanilla
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. Both accept
+`heading-supplement-valid`, but only vanilla uses `Custom` in the reference.
+Upstream `model/heading.rs:249–289` synthesizes supplement per occurrence;
+`model/reference.rs:393–415` applies the function and display.
+`Set.rs:286–320` ignores supplement and clears numbering;
+`snapshot_fields` at `heading.rs:55–68` fixes translation. These are observable
+callbacks/values, not required upstream mechanics.
 
-Contraexemplo obrigatório: construir uma única coleção de 4.096 regras 100% show-set simples pede 1.540.096 bytes inline, 2.031.616 Box e 2.097.152 Arc. Arc pode reter capacidade sobrante do canal custom; no controle rico de 128 registros sem snapshots antigos, o final vivo foi 78.064 bytes inline e 156.432 Arc. Não afirmar ganho universal ou ignorar custo atômico/indireção. É mecânica de armazenamento sob ADR-0030/0107, não paridade de linguagem ou ganho cognitivo por IA medido. A inferência favorável a Arc no ciclo de cópias seria refutada por regressão de memória/tempo em um workload real relevante; manter visíveis estes controles.
+snapshot_fields preserves an explicit custom heading.supplement specification;
+without one it keeps the causally translated default. Func is still a private
+specification under construction, not a published result. Runtime finalization
+replaces the entry with a newly resolved immutable snapshot before query receives
+it. This supersedes the historical supplement Content/Func/none exclusion only
+on these routes. Add no new translation table.
 
-### Responsabilidade exclusiva proposta
-
-Migrar somente a emissão Tag::Start(loc, info) para Tag::Start(loc, Box::new(info)) nos pontos já existentes. Preservar construção e valores de info, população do índice antes do move, loc, End/hash, ordem de walk e efeitos/contadores. O novo allocation é uma por Start; não clonar info, mover a população, alterar deduplicação, reserva, snapshot ou recursão. A forma pública pertence a 00_nucleo/prompts/core/entities/tag.md; este owner mantém exclusivamente seu comportamento existente.
-
-### Gate e aceitação
-
-Proposta não vigente até ratificação humana ADR-0127 §2.1/§2.4: há mudança de payload público e compatibilidade de construção/acesso. Não editar código ou owners ativos por este pacote antes da aprovação. Após ratificação instalar estes L0, testes primeiro e RED real, implementação e resselo estritamente dos owners alterados. Não silenciar large_enum_variant, alterar limiar ou adicionar dependências/flags/defaults/fases.
-
-T1: contratos de construção Box<ElementInfo>/Arc<Styles> e orçamento relativo dos carriers (Tag até três Location; Transformation até Content+alinhamento) devem falhar no estado antigo e passar no novo, sem fixar ABI universal. T2: Start/End/Location/payload/label, igualdade e hashes estruturais por valor, clone independente da Box e mutation isolation preservados; hash não vira formato persistido. T3: testes existentes de introspecção/convergência, nesting, heading/label, state/counter/query/metadata continuam com os mesmos esperados e erros. T4: clone de Transformation::Style compartilha o Arc; Arc::make_mut em cópia preserva estilos do original, incluindo custom, e as variantes Func/Content/Str permanecem. T5: controles existentes de show-set/func, precedência, escopo, labels, outline, table.cell e textual/regex mantêm semântica/morfologia/erros; nenhuma regra executa a mais. T6: workspace completo, build, Clippy all-targets e expectativas/lints já fechados como erro, rustdoc -D warnings com quatro índices, fmt, diff, linhagem estrita/reversa e Tekt sem aumento; 12 GiB, swap zero, um job. Registrar HEAD/working tree/hashes/diffstat/UTC e distinguir tamanhos/bytes solicitados de RSS. Não publicar release. Alguma mudança de assinaturas, campos ou fase além destes payloads exige outra proposta.
-
-## Ratificação humana — 2026-10-16
-
-Proposta aprovada pelo humano, manifesto SHA-256 `282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`. O contrato acima passa a vigente; inclui materialização/testes T1–T6, sem release. Registro em `lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/approval-receipt.json`.
-
-## A1 — callbacks de suplemento de Heading, 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/hash
-registrados em lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
-before-pdf-probe.json.gz: heading-supplement-panic termina em sucesso no Tekt
-e em A1_HEADING no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
-heading-supplement-valid aceita ambos, mas só o vanilla usa Custom na referência.
-Fonte upstream model/heading.rs:249-289 sintetiza supplement por ocorrência e
-model/reference.rs:393-415 aplica a função e display. Set.rs:286-320 ignora
-supplement e limpa numbering; snapshot_fields heading.rs:55-68 fixa tradução.
-Isto é callback/valor observável, não exigência de mecânica upstream.
-
-### Decisão e responsabilidade exclusiva
-
-snapshot_fields conserva a especificação custom heading.supplement quando
-presente; sem especificação conserva o default traduzido causal. Func ainda é
-a especificação privada em construção, não resultado publicado; a finalização
-runtime substitui a entrada por um novo snapshot imutável já resolvido antes
-de entregá-lo a query. Esta seção supera o scope-out histórico de supplement
-Content/Func/none apenas nestas rotas. Nenhuma tabela nova de traduções.
-
-Correção de paridade em fluxo ADR-0127: sem nova API Rust, campo público ou
-transferência de lógica existente entre eval/layout. O pós-walk com Engine já
-é a fronteira de aplicação de callbacks. L0 primeiro, RED e controles bilaterais,
-sem callbacks em encoder/walk/layout e sem alegar paridade de todos os campos.
+This parity correction follows ADR-0127 continuous flow: no new Rust API, public
+field or transfer of existing logic between eval and layout. The existing
+post-walk Engine boundary applies callbacks. L0 first, RED and bilateral controls;
+no callbacks in encoders/walk/layout or claim of parity for every field.

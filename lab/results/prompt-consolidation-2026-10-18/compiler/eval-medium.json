@@ -1,0 +1,241 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bibliography.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "2517367809a9aa025216590fdef73c8473fa4bdf8d46e4992c58a7ee6ccaff1c",
+    "result_sha256": "ccee47b384b2a94376a942ba14bb07d29991293a4b7cf9e1aacc821fe8a9ba50",
+    "disposition": "Full owner read; language translated and accumulated refinement organized by current responsibility. All evidence, ratification, limitations and acceptance retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/state.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "a32c74d79cf4109bfbbeac6a72b0774eebce9221141599c097c69a9b253e8231",
+    "result_sha256": "21f9d4965c32abd791828f3306b86833400a1db1c489ea66e697e11f2d17ec45",
+    "disposition": "Full owner read; language translated and accumulated refinement organized by current responsibility. All evidence, ratification, limitations and acceptance retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "49fd3c4a91df549ccebf98db9723c636555a6ff777587004dc1f50a9ef14a674",
+    "result_sha256": "e4644d0719722694611c7a9d08c48a32d968f61a09be8fba3aa8451c1b33ce3e",
+    "disposition": "Full owner read; language translated and accumulated refinement organized by current responsibility. All evidence, ratification, limitations and acceptance retained.",
+    "followup": "Root canonical-reference repair retained in place; see canonical-reference-repairs.json."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/trace_plugin.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "baf66809ebfb9bbe8186f136f317242177131924fdd6d59083f57b4c8bd14777",
+    "result_sha256": "1a7e69a18b978b402820de3f320e2e9151c1e37047ee730f0fc5602cf2b62108",
+    "disposition": "Full owner read; language translated and accumulated refinement organized by current responsibility. All evidence, ratification, limitations and acceptance retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/callee_error.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "279bef321d67ba5dd369bd9fcc5b96dec798d34c0370b150d50aefcd0da7ae3a",
+    "result_sha256": "91978bf33030280598fe239dc88a2e0edf6bb786776df62f9ffd59cbe6ae8e6e",
+    "disposition": "Full owner read; language translated and accumulated refinement organized by current responsibility. All evidence, ratification, limitations and acceptance retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "a2735d1f3ea4b8d286bce428630b353983fb499299795ba49cc75b81b76f006a",
+    "result_sha256": "a0a350f21a3ecd4ebc3e696175916d0409d411fd70c25dd27c7c0cdac4086db9",
+    "disposition": "Full cardinality/priority refinement translated with all T1\u2013T5 gates; companion decoder evidence retained as integration boundary, not second owned implementation."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/markup.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "cc34f6caf3f4fce0d5a09c58f379cd822fdeb8c6353009c1c7f341f3cb981878",
+    "result_sha256": "f3ce9750e4f6556fa370c91a5c6f301fa913399d580d07a00f2907729351d29e",
+    "disposition": "Full owner translated, historical measurements before current bounded decision; all rejected/accepted/default/morphology controls retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/arguments.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "ad61f31d45cfbe254256b1d2ea32c02ca120da39012046e1ad1481a1656b9dfa",
+    "result_sha256": "8942af93dc7a3c5e3b2b92e95947c414292e9f406d94bd86a41a8f7a30bec616",
+    "disposition": "Full owner translated, historical measurements before current bounded decision; all rejected/accepted/default/morphology controls retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math/delimiters.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "a0cb68b528f482226fc4369ff1c0ec7e7c3a18e72365c6057a2e3a3729e95297",
+    "result_sha256": "6b89e80be8e1da5e1466852944a9e9ad58621fc9b7ffbf0fed678bedf450d5fe",
+    "disposition": "Full owner translated, historical measurements before current bounded decision; all rejected/accepted/default/morphology controls retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bibtex.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "b447b6086105dfdf7ce4e306c2d42b15d469c90e22d95e390b294c6cbfc94a49",
+    "result_sha256": "b447b6086105dfdf7ce4e306c2d42b15d469c90e22d95e390b294c6cbfc94a49",
+    "disposition": "Full existing English contract read; diagnostic literals and unresolved scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/access.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "361f996da387017cd8d7a2c7a3a88468bf6edf2fbed6504ba9e0a225dc85470d",
+    "result_sha256": "361f996da387017cd8d7a2c7a3a88468bf6edf2fbed6504ba9e0a225dc85470d",
+    "disposition": "Full existing English contract read; diagnostic literals and unresolved scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/bindings/binding.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "ca8238effa84e6aa6473b26b4a0e1aab47dd3f3e2622fb3dd336452b040a5651",
+    "result_sha256": "ca8238effa84e6aa6473b26b4a0e1aab47dd3f3e2622fb3dd336452b040a5651",
+    "disposition": "Full existing English contract read; diagnostic literals and unresolved scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/cast.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "a74a2fccc3d1486306a68eeef5f985d94a8314932f3bfaab932e005b9803d729",
+    "result_sha256": "a74a2fccc3d1486306a68eeef5f985d94a8314932f3bfaab932e005b9803d729",
+    "disposition": "Full existing English contract read; diagnostic literals and unresolved scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/control_flow.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "7c034300a6c1b9add4244ce6cc540fad6974bae903d2a4f3fb68071070fddd4d",
+    "result_sha256": "7c034300a6c1b9add4244ce6cc540fad6974bae903d2a4f3fb68071070fddd4d",
+    "disposition": "Full existing English contract read; diagnostic literals and unresolved scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/flow.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "6e5c938de4e18dbcc73aabd05018c25149f80a15413754d0b5c5fcf9d2d9f52e",
+    "result_sha256": "6e5c938de4e18dbcc73aabd05018c25149f80a15413754d0b5c5fcf9d2d9f52e",
+    "disposition": "Full existing English contract read; diagnostic literals and unresolved scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/font_dict.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "c8f28bdd8ea73edfb12f6f7fdaaff4f98aebc5d82ed1c7204e34a0e064b8d34f",
+    "result_sha256": "c8f28bdd8ea73edfb12f6f7fdaaff4f98aebc5d82ed1c7204e34a0e064b8d34f",
+    "disposition": "Full existing English contract read; diagnostic literals and unresolved scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/observation/content.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "f76494ab86c1f4867936d9b101092b3c09afb4ff352bfb675753aa87cd734703",
+    "result_sha256": "7d34a33c0998960ae98873a9d2209df368ca07da39affa0271b3224a84dc2618",
+    "disposition": "Causal observation and ratified source-origin refinements translated; approval candidate distinguished from final approval record; no language-equality substitution."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math_accent_observation_tests.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "ae2d507dc28bcf35112d77412823c5015ed3020dfde979ca0567b9ec135a8354",
+    "result_sha256": "ae2d507dc28bcf35112d77412823c5015ed3020dfde979ca0567b9ec135a8354",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "8b20bf9a7fa71a76fa7ae56694e71438f1bbbb334ade4c447edc5bd23a6fb0d5",
+    "result_sha256": "8b20bf9a7fa71a76fa7ae56694e71438f1bbbb334ade4c447edc5bd23a6fb0d5",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math_frac_evaluation_tests.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "b6187b015201359b5f73bda75773627db1fc8a33f12c7d3273bb2b9afba22c28",
+    "result_sha256": "b6187b015201359b5f73bda75773627db1fc8a33f12c7d3273bb2b9afba22c28",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math_limits_override_observation_tests.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "744c6fab889aaba5c850376a21646318cdc38bd359ccbc54ad0d06b2d0b83ffe",
+    "result_sha256": "744c6fab889aaba5c850376a21646318cdc38bd359ccbc54ad0d06b2d0b83ffe",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "85b506acf010f69eb2a8f92ccc54e88ae10601f7cce9400bbee6c52191f46926",
+    "result_sha256": "85b506acf010f69eb2a8f92ccc54e88ae10601f7cce9400bbee6c52191f46926",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "937d416e170b41c955fab25da6e7d2a4e1f7d7ea30d845e14575e8775cc4cfe3",
+    "result_sha256": "937d416e170b41c955fab25da6e7d2a4e1f7d7ea30d845e14575e8775cc4cfe3",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/observation/geometry.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "29d322384a31045a1265108a94571f720fbbe092c578f3a6b0ea12267e20947f",
+    "result_sha256": "29d322384a31045a1265108a94571f720fbbe092c578f3a6b0ea12267e20947f",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/observation/math.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "5b2eefe85d023d51d58d219458499aa6d6bcafd3c9b6508966ca3428ebcd969b",
+    "result_sha256": "5b2eefe85d023d51d58d219458499aa6d6bcafd3c9b6508966ca3428ebcd969b",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/observation/mod.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "79d30a0ceef3844ff08a00e992d872fae84f9df4ec2e4f3adffcd24b5cfd9eaa",
+    "result_sha256": "79d30a0ceef3844ff08a00e992d872fae84f9df4ec2e4f3adffcd24b5cfd9eaa",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/observation/page.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "ec569c0d7e060b92fe593644ca192361f490db19183c9484ae6b8bd6a03a1009",
+    "result_sha256": "ec569c0d7e060b92fe593644ca192361f490db19183c9484ae6b8bd6a03a1009",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/observation/style.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "167013f3c48320f472f8d2e13a9d633ef7ea2e6a29d4aed3e5b45658c4e4082d",
+    "result_sha256": "167013f3c48320f472f8d2e13a9d633ef7ea2e6a29d4aed3e5b45658c4e4082d",
+    "disposition": "Full existing English source evidence and contract read, field/presence comparisons and Unknown acceptance retained; diagnostic/test identifiers preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/repr/content.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "3f68b0089ae6b31da5704adc58c8b71ebf84f1dbc02dec787ca2255fa6dbf32f",
+    "result_sha256": "a8ae9bac33062ba092ae60ee31a13eb6bbb6d8e42914cb084c1a734991e3c666",
+    "disposition": "Full extraction and measured refinements translated; all repr morphology, pin/approval provenance, limits and lint gates preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/repr/math.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "5730b399e899554bdfaee7fc51c4847cf4e962a8371babb9424b45f5fd88d35b",
+    "result_sha256": "331812f58c21c19883fcce665251cf6270f5ab52d7156277dc666661ea28a711",
+    "disposition": "Full extraction and measured refinements translated; all repr morphology, pin/approval provenance, limits and lint gates preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/repr/value.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "3066ba257d9b0b0d06e6b70d90da4db9bad95ce5f8a5dcce7eedf3c5c88a9d35",
+    "result_sha256": "d77bf4aa88891633d6ebda51996c6c8687b4429dfc431ae3b0b653235588b867",
+    "disposition": "Full extraction and measured refinements translated; all repr morphology, pin/approval provenance, limits and lint gates preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/operators/error_formatting.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "3b89126be5087ffdfc7c025a9ce1ee4a31cea01aba00f2dfe538497611df003f",
+    "result_sha256": "3b89126be5087ffdfc7c025a9ce1ee4a31cea01aba00f2dfe538497611df003f",
+    "disposition": "Full English contract read, canonical type map, diagnostics, operation boundary and negative-fraction Unknown preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/operators/mod.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "542404a340015380b0fa2ea585c37ee0af174d72bfd4f8ee1426b74d2a0a45c1",
+    "result_sha256": "542404a340015380b0fa2ea585c37ee0af174d72bfd4f8ee1426b74d2a0a45c1",
+    "disposition": "Full English contract read, canonical type map, diagnostics, operation boundary and negative-fraction Unknown preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/operators/ordering.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "db2effe298e2611e4fe76c762113f109d513aceda88a2c7c34751bebb1c894fc",
+    "result_sha256": "db2effe298e2611e4fe76c762113f109d513aceda88a2c7c34751bebb1c894fc",
+    "disposition": "Full English contract read, canonical type map, diagnostics, operation boundary and negative-fraction Unknown preserved."
+  }
+]

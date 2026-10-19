@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/paragraph_pagination.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited full unique clauses/exact repeats; consolidated original widow/orphan certificate with later borrowed mixed-face Profile and KnownTop initial/block-branch correction, retaining all group proofs/limits and strict no-loop/no-reselection responsibilities.",
+  "original_sha256": "bd8e1516c1e85dcc86e78adf035db9eb30a8a97a86ace9df3d20253b3b3e5890",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/paragraph_pagination.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

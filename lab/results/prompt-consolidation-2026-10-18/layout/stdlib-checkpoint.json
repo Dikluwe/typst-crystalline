@@ -1,0 +1,12 @@
+{
+  "completed": 48,
+  "remaining": [],
+  "entities_completed": [
+    "00_nucleo/prompts/core/entities/layout_types.md"
+  ],
+  "entities_handed_off": {
+    "00_nucleo/prompts/core/entities/gradient.md": "compiler_english",
+    "00_nucleo/prompts/core/entities/color.md": "boundaries_english",
+    "00_nucleo/prompts/core/entities/value.md": "boundaries_english"
+  }
+}

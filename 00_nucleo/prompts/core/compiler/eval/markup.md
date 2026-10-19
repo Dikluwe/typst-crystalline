@@ -2,7 +2,7 @@
 Hash do Código: ff5e74c4
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
+- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/markup.rs`
@@ -33,6 +33,13 @@ eval_raw preserves extraction of text/lang/block and passes the RawElem to
 intercept_content with current Scopes, EvalContext and Engine. Line synthesis,
 matching and recomposition belong to rules, not this syntax adapter.
 
-## Origem da recursão de heading de markup — 2026-10-06
+## Causal span for recursive markup headings
 
-markup-span-red.json e span-red.log registram rejeição sem origem no Tekt para show heading: it => [= Z], enquanto o pin 9f2b6e871 ancora o erro em = Z. eval_heading em markup.rs:112-113 propaga a intercepção sem transportar heading.span. Ao propagar falhas dessa intercepção, preservar spans conhecidos e atribuir somente aos detached o span real do heading. Não inferir a origem pelo diagnóstico, corpo ou posição aproximada; não mudar os outros adapters nem o matching/limite de recursão.
+markup-span-red.json and span-red.log record Tekt rejection without an origin for
+show heading: it => [= Z], while historical pin 9f2b6e871 anchors the error at = Z.
+At the measured markup.rs:112–113, eval_heading propagates interception without
+heading.span. When propagating those failures preserve known spans and assign
+the real heading span only to detached diagnostics. Never infer origin from the
+message, body or approximate position; do not change other adapters, matching
+or recursion limits. These historical observations retain their original
+provenance and do not establish current-pin parity.

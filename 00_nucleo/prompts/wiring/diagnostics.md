@@ -8,7 +8,7 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
+- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:e9d6623a18ffc35f36051b280d96a75a0e4c1bd1768361a3a50c98587c568aef
 ```
 
 ## Current evidence
@@ -31,8 +31,27 @@ Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
-## Caminhos relativos entre diretórios — 2026-10-06
+## Relative diagnostic paths
 
-Medição anterior à decisão: diagnostic-paths-2026-10-06/before.json conserva HEAD, working tree, UTC, fontes, comandos e binários contra o pin 9f2b6e871. Para cwd work/a e arquivo project/src/main.typ irmão, Tekt exibe caminho absoluto; vanilla exibe ../../project/src/main.typ. diagnostics.rs:62-66 usa strip_prefix, que só cobre descendentes. A fonte pinada typst-cli/src/world.rs:157-168 usa pathdiff::diff_paths; seu lock fixa 0.2.3, checksum df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3.
+### Evidence
 
-Correção interna de paridade ADR-0127: compor o utilitário puro pathdiff =0.2.3 para calcular o nome relativo à cwd disponível, incluindo ancestrais e irmãos. Não implementar outro algoritmo no wiring. Conservar path/input fallback quando cwd ou diferença não estão disponíveis, fontes transientes, dedup, spans, traces, ordem, cor e stderr. Sem filesystem adicional/canonicalização para apresentação, nova API, flag, fase ou mudança de resolução/sandbox dos arquivos. Pacotes e origem perdida de Content constante não são corrigidos inferindo path ou span nesta unidade. Validar fontes principais/importadas, query, eval contextual, entradas absolutas/relativas e descendentes.
+`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/before.json`
+retains HEAD, working tree, UTC, sources, commands and binaries against historical
+pin `9f2b6e871`. With cwd work/a and sibling project/src/main.typ, Tekt displayed
+an absolute path while vanilla displayed ../../project/src/main.typ.
+`diagnostics.rs:62–66` used strip_prefix, which covers only descendants. Pinned
+`typst-cli/src/world.rs:157–168` uses pathdiff::diff_paths; its lock fixes 0.2.3,
+checksum `df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3`.
+These historical measurements do not certify the current parity pin.
+
+### Contract and acceptance
+
+Compose pure `pathdiff =0.2.3` to calculate names relative to the available cwd,
+including ancestors/siblings; do not implement another path algorithm in wiring.
+Retain existing path/input fallback when cwd or the difference is unavailable,
+transient sources, deduplication, spans, traces, order, color and stderr. No extra
+filesystem access or canonicalization for presentation, new API/flag/phase or
+file-resolution/sandbox change is authorized. Do not infer package paths or lost
+constant-Content origins/spans here. Validate main/imported sources, query,
+contextual eval, absolute/relative inputs and descendants. This internal parity
+correction follows continuous ADR-0127 flow.

@@ -1,0 +1,65 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/lib.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "83bef8f720313c9abd4d39463241eff28045af5b5bd39f1a13d12ad3055aa10c",
+    "result_sha256": "5de433ca1032cb585ba1fc7c82334c08f340533da51a68cfcc53a59e73f16400",
+    "disposition": "Initial migration inventory and now-revoked ecow restriction separated from current crate composition; all entity/API obligations remain canonical owner boundaries."
+  },
+  {
+    "path": "00_nucleo/prompts/core/contracts/mod.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "f807563a4145a90a98ca720ddb0e4e9cb2c0ac749b81616ed509b4f0513b7fd7",
+    "result_sha256": "65cd280e2a65851fb0555a2f9b1314b76ab0a4f2e04fa7d97b8441711b93992e",
+    "disposition": "World duplication moved to canonical World owner boundary; Duration partial supersession explicit; tracking experiment remains unresolved rather than certified; orphan exception lifetime preserved."
+  },
+  {
+    "path": "00_nucleo/prompts/core/testing/mod.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "f182259fdc0077e1adc7a1e79ed4bd9fa0aff749ca02b67e2fb3ecf9d64efbd2",
+    "result_sha256": "f00d8809f2390e0280f83cfa0d46c28877ba2e82d0007b96caf49d38a852f1c9",
+    "disposition": "Full direct translation and canonical formula-owner reference; test-only and no-reexport constraints retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/testing/math_oracle.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "7b8a82ce160c82d96d16433b0da932f2cd7b84da7de8cc09ba4618ce65f00d54",
+    "result_sha256": "add4f01dfaef6bb5af080f1c018d221ce913a49a0e740fd006811eed18f8c015",
+    "disposition": "All initial formulas preserved, revoked grid-cell formula explicitly excluded with owner confirmation; later consumer formulas flagged as pending audit, not invented semantics."
+  },
+  {
+    "path": "00_nucleo/prompts/core/contracts/package_downloader.md",
+    "status": "translated-full-review",
+    "original_sha256": "f6bb0da7f7a0fda4a642045b237a6c3c17010cff590cd1b055e8b366a9a3cbef",
+    "result_sha256": "a55f4dc157ce76cab12ebb14796289819a56316aa237ad0e7d726aaae9fea44a",
+    "disposition": "Only mixed-language helper addendum translated; all public interface, errors and cleanup verification remain."
+  },
+  {
+    "path": "00_nucleo/prompts/core/contracts/world.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "e7f035b5be9cec85cd888ddc611970e5138682d8997cbc4d4a630fe26f234d92",
+    "result_sha256": "e7f035b5be9cec85cd888ddc611970e5138682d8997cbc4d4a630fe26f234d92",
+    "disposition": "Full text reviewed; existing English contract and unresolved scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/contracts/plugin_host.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "cf8e7c67a73133c4c25ae0cf31f85f2ddca8850e5af52dbd51d5905b14592470",
+    "result_sha256": "cf8e7c67a73133c4c25ae0cf31f85f2ddca8850e5af52dbd51d5905b14592470",
+    "disposition": "Full text reviewed; existing English contract and unresolved scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/tests/outline_entry_indented.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "594bfb19d4f87ef97397c163266e1153e0f5b0c323702e1d4d758ee8289bb7bc",
+    "result_sha256": "594bfb19d4f87ef97397c163266e1153e0f5b0c323702e1d4d758ee8289bb7bc",
+    "disposition": "Full text reviewed; existing English contract and unresolved scope retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/utils.md",
+    "status": "reviewed-english-no-change",
+    "original_sha256": "0b0b9c6e0ce83739d1004a51df073611e6ea8c635433194789766b5fac244f97",
+    "result_sha256": "0b0b9c6e0ce83739d1004a51df073611e6ea8c635433194789766b5fac244f97",
+    "disposition": "Full text reviewed; existing English contract and unresolved scope retained."
+  }
+]

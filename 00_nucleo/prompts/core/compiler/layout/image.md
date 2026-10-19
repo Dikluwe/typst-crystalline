@@ -2,8 +2,8 @@
 Hash do Código: 7faecd9d
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:9d9d6c265a3840cc5a3b8e121f403bc9e3fe55b1e586ab9014948f0784de5c3e
-- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:ff71dfc6648d6deb4b2b8054e3d58a93777d17837129f0f1b1e7e138ffb6943c
+- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
 
 
 **Layer:** L1
@@ -14,7 +14,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/image.rs:18`, `01_core/src/compiler/layout/image.rs:22`, `01_core/src/compiler/layout/image.rs:25`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Historical pins do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
 
 The equivalent-input pinned SVG probes in
 `lab/results/construction/diagnostics/font-demand-geometry-study/results.json` show that an
@@ -30,6 +30,12 @@ records remaining actual Place catalog access; it does not prove every accessor
 call is a catalog scan. The no-typography descendant controls discriminate the
 unused query from the shared subframe's actual origin acquisition.
 
+The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `lab/results/construction/diagnostics/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
+
+`box-contexto-2026-10-14/probe.json.gz`preserves sources/binaries/HEAD/working tree/UTC: Box, inset2pt, prefix and nesting publish (0,0) despite displaced paint. The direct-context baseline difference is separate; do not copy vanilla merely because it differs. `mod.rs:1131-1148/1180-1200` writes local points to runtime.positions; Box groups its body in another coordinate system; `finish.rs:295-302` seals the map without recomposing those points. Realized writes through or_insert; labels have a parallel map. HTML already carries private markers through the frame at `html_frame.rs:30-199`. Preserve single-pass registration and per-sub-store sealing under ADR-0073/0074 position/hybrid-model sections; do not adopt vanilla global introspection. Inspection of coordinates and its owners found absolute uses in Grid and explicitly local uses in Place/Box; nucleus qualification preserves both and requires page transformation without doubled origin. Earlier snapshot: `posicoes-compostas-2026-10-14/before.json.gz`. Geometry/identity are observables; carrier/index are mechanics.
+
+`block-auto-width-2026-10-14/before/results.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, UTC/diffstat/status/sources/binaries/argv and historical pin 9f2b6e871. The initial extractor sought blue as #0000ff; blue-geometries-corrected.json reads actual #0074d9 from the same SVGs without rerun. For Shape, Empty, Place-only, Grid and Stack, Tekt backing width is 160 versus pin54,14,14,68,68 respectively. `block.rs:222,416,453` uses available width; `line_commit.rs:753` loses cursor on closure; `sub_frame.rs:354` saves terminal cursor only. Pinned `flow/block.rs:145–166,281–290,339–363` distinguishes Auto from expansion. Geometry is language; witness structure is internal mechanics. Place contaminating width, leaking scopes, lost literal advances or changed explicit-container dimensions refute the hypothesis.
+
 ## Ownership and contract
 
 This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/core/compiler/layout/mod.md`; the contract below defines this unit's operations, not ownership of that hub.
@@ -39,12 +45,6 @@ Own the pure image dimension calculator and block-layout adapter. Read intrinsic
 Dimension overrides preserve the current Float/absolute-Length projection. With both axes, retain the target rectangle and fit: stretch uses it directly; cover/contain preserve aspect according to the current wide-image branch. Center the transformed image in the target, clip only cover, and use target height for cursor/fitting. One-axis overrides preserve aspect with no target clip; no overrides use converted intrinsic dimensions.
 
 Close pending text and apply the existing main-flow block spacing/collapse protocol, preserving the source's image spacing constant of 1.2em, matching the canonical default in `00_nucleo/prompts/core/compiler/layout/vanilla_defaults.md`. Keep the distinct post-text baseline anchor versus first/post-block cap-height anchor; subframes bypass this main-flow protocol. Preserve ordinary pre/post overflow requests and emit original bytes, intrinsic dimensions, orientation and alt without synthesis, keeping None distinct from Some(empty). Geometry follows the shared coordinate convention, not the old prose's upward-Y assertion. No renderer or PDF matrix policy is owned here.
-
-## Acceptance and limits
-
-Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
-
-## Initial non-text block correction
 
 When main-flow layout still has its initial baseline pending and no pending line,
 place the first block at the physical region origin without acquiring typography
@@ -56,8 +56,6 @@ that first-block fitting uses its actual geometric extent. Tests in this consume
 must discriminate explicit top edges and prove this path needs no FontMetrics query.
 This internal parity repair does not change public API or pipeline phases.
 
-## Subframe metric demand
-
 Ordinary subframe block positioning must not query cap-height when the result is
 unused. Preserve the current subframe origin and cursor/extent protocol. For a
 shape whose actual extent triggers the existing new-page branch, resolve the
@@ -66,72 +64,16 @@ fallback coordinates. Image subframe positioning/extent does not use cap-height.
 Keep the main-flow typography-dependent paths unchanged. This removes unnecessary
 queries, not the subframe owner's initial catalog demand; no speedup is asserted.
 
-## Correction — 2026-09-28
-
-### Measurement before decision
-
-The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `lab/results/construction/diagnostics/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
-
-### Owner responsibility
-
 A first image with an initial baseline pending and an empty line consumes a geometric origin in the dedicated root Place sublayout as well as in main flow. It must not request typography for that origin. Existing baseline-origin sublayouts still clear the pending flag before dispatch and retain their positions.
 
-## Posições no referencial composto — 2026-10-14
+For fresh-block admission, a pending line with only direct position carriers is equivalent to empty. Preserve meaning of every other item and all dimension/fit/pagination rules.
 
-### Medição anterior à decisão
+Publish causal width of the layout target, or natural dimension without a target, at logical position. Cover overflow does not enlarge causal width.
 
-box-contexto-2026-10-14/probe.json.gz, fontes/binários/HEAD/working tree/UTC
-preservados: Box, inset2pt, prefixo e aninhamento publicam (0,0), mesmo
-quando a tinta se desloca. A diferença da baseline do context direto é
-uma questão separada: não copiar o vanilla apenas por diferir. mod.rs:
-1131-1148/1180-1200 escreve pontos locais em runtime.positions; Box agrupa
-o corpo em outro referencial; finish.rs:295-302 sela o mapa sem recompor
-esses pontos. Realized escreve com or_insert; labels têm mapa paralelo.
-HTML já transporta markers privados pelo frame em html_frame.rs:30-199.
-O registro single-pass e sealing por sub-store são preservados, ADR-0073/
-0074 §§posição/modelo híbrido; não se adota introspecção global vanilla.
-A inspeção do núcleo coordinates e seus owners mostrou usos absolutos
-em grid e explicitamente locais em Place/Box. A qualificação do núcleo
-conserva ambos e exige transformação até a página, sem dupla origem.
-Snapshot anterior: posicoes-compostas-2026-10-14/before.json.gz.
-Geometria/identidade são observáveis; o carrier e seu índice são mecânica.
+## Acceptance and limits
 
-### Contrato deste owner
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-No teste de início de bloco fresco, uma linha contendo apenas carriers posicionais diretos equivale à linha vazia. Conservar o significado de todos os demais itens e todas as regras de dimensão/fit/paginação.
+Composed-position correction follows ADR-0127 with no public API/field/flag/default/phase change. L0 precedes RED→GREEN for coordinates, no fictitious paint/height, identity/order/visual clones/rollback; revalidate HTML, geometry, context/queries and complete suite.
 
-Correção interna ADR-0127: sem API/campo público, flag/default ou mudança
-de fase. L0 primeiro; RED→GREEN de coordenadas, ausência de tinta/altura
-fictícia, identidade, ordem, clones visuais e rollback; revalidar os
-controles HTML, geometria, contexto/queries e suíte completa.
-
-
-## Largura causal de Block Auto — 2026-10-14
-
-### Medição anterior à decisão
-
-block-auto-width-2026-10-14/before/results.json.gz conserva HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
-UTC/diffstat/status/fontes/binários/argv e pin 9f2b6e871. O extrator inicial
-procurou blue como #0000ff; blue-geometries-corrected.json lê a cor real
-#0074d9 dos mesmos SVGs, sem nova execução. Em shape, Empty, Place-only,
-Grid e Stack a largura do backing Tekt é160; pin54,14,14,68,68 respectivamente.
-block.rs:222,416,453 usa largura disponível; line_commit.rs:753 perde cursor
-no fechamento e sub_frame.rs:354 guarda apenas cursor terminal. Fonte pinada
-flow/block.rs:145–166,281–290,339–363 distingue Auto de expansão.
-É geometria da linguagem; estrutura da testemunha é mecânica interna.
-A hipótese é refutada se Place contaminar largura, escopos vazarem, texto
-literal perder avanço ou containers explícitos mudarem de dimensão.
-
-### Responsabilidade exclusiva
-
-Publicar largura do target usado para layout (ou dimensão natural quando não há target), na posição lógica; cover overflow não amplia a largura causal.
-
-### Aceitação e limites
-
-Correção interna/de paridade ADR-0127: nenhum contrato público, default ou
-fase novo; L0 primeiro, RED→GREEN, resselo restrito. A largura é uma parte
-da correção B2b/T1–T3 já em andamento: altura Auto/backing, alinhamento tardio,
-fracionários, fragmentação, outset e PDF Parent continuam com critérios próprios.
-Não declarar render aprovado por testar apenas o carrier. Preservar controles
-bilaterais completos e refutadores, suíte/build/doc/fmt/linhagem/inventários.
+This internal parity correction under ADR-0127 adds no public contract/default/phase. L0 precedes RED→GREEN/restricted resealing. Causal width is only part of the ongoing block-region/width/transport correction: Auto height/backing, late alignment, fractions, fragmentation, outset and PDF Parent retain their own criteria. Testing a carrier alone does not approve render. Preserve full bilateral controls/refuters, suite/build/doc/fmt/lineage/inventories.

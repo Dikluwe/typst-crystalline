@@ -1,39 +1,32 @@
 tekt = 1
 kind = "nucleus"
 id = "content-map-change-proof"
-title = "Prova de ausência de mudança no mapeamento de Content"
-
+title = "Proof of unchanged Content mapping"
 [[claims]]
 id = "absence-proof"
 level = "must"
-statement = "Nos helpers de mapeamento com prova de mudança, None certifica que nenhum descendente efetivamente visitado nem o próprio nó exigiu substituição ou reconstrução. Some transporta materialização ou substituição; sem prova suficiente, a reconstrução conservadora continua permitida."
-
+statement = "In mapping helpers with change proof, None certifies that neither any actually visited descendant nor the node itself required replacement or reconstruction. Some carries materialization or replacement; without sufficient proof conservative reconstruction remains permitted."
 [[claims]]
 id = "explicit-substitution"
 level = "must"
-statement = "Some devolvido pelo callback é sempre substituição explícita, inclusive quando contém valor igual ou compartilha o mesmo armazenamento do argumento. Essa substituição deve propagar-se aos ancestrais visitados."
-
+statement = "Some returned by the callback is always explicit replacement, even when it contains an equal value or shares the argument's storage. This replacement must propagate to visited ancestors."
 [[claims]]
 id = "no-inferred-change"
 level = "must-not"
-statement = "Igualdade de Content, hashes, texto ou endereços não podem decidir se o callback ou um descendente substituiu conteúdo."
-
+statement = "Content equality, hashes, text or addresses cannot decide whether the callback or a descendant replaced content."
 [[claims]]
 id = "causal-walk"
 level = "must"
-statement = "O mapeamento conserva a ordem e as fronteiras de visita já owned, visita cada ocorrência efetiva uma vez, entrega o nó após os filhos ao callback bottom-up, não reprocessa a substituição e interrompe no primeiro erro sem visitar irmãos ou ancestrais posteriores."
-
+statement = "Mapping preserves existing owned visit order and boundaries, visits each effective occurrence once, presents the postchildren node to the bottom-up callback, does not reprocess replacement, and stops on first error without visiting later siblings or ancestors."
 [[claims]]
 id = "owned-preservation"
 level = "must"
-statement = "Reconstruções conservam os campos, metadados, spans, presença e opções que o owner determina não transformar. Ausência de substituição permite conservar o armazenamento compartilhado; não altera observação da linguagem nem suprime efeitos dos callbacks."
-
+statement = "Reconstruction preserves fields, metadata, spans, presence and options that the owner specifies remain unchanged. Absence of replacement permits retaining shared storage; it neither changes language observations nor suppresses callback effects."
 [[claims]]
 id = "lazy-vectors"
 level = "must"
-statement = "Nos mapas de slices e linhas que propagam essa prova, o vetor de saída só é materializado após a primeira mudança comprovada. Prefixo e irmãos não substituídos conservam seus conteúdos compartilhados no resultado."
-
+statement = "In slice and row maps propagating this proof, materialize the output vector only after the first proven change. Unreplaced prefix and siblings retain their shared content in the result."
 [[claims]]
 id = "static-ownership"
 level = "must"
-statement = "O despacho de Content permanece estático e exaustivo no enum fechado. A lógica de cada elemento permanece no consumer de seu prompt proprietário; o protocolo não cria método público de trait, campo, variante, vtable, estado global, I/O ou mudança de fase."
+statement = "Content dispatch remains static and exhaustive over the closed enum. Each element's logic remains in its owning prompt's consumer; this protocol creates no public trait method, field, variant, vtable, global state, I/O or phase change."

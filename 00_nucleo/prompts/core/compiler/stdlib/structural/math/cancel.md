@@ -15,7 +15,7 @@ Own the native `math.cancel(body, length: 100% + 0.3em, inverted: false, cross: 
 
 `length` accepts Relative or Length, converting Length into an absolute relative length. `inverted`, `cross` and `background` require Bool. `angle` accepts Auto, Angle or Func. `stroke` accepts None or a value handled by the existing `extract_stroke` cast. Preserve the current defaults and order of named validation. Set the corresponding `MathCancelExplicit` bit whenever a named argument is present, including one equal to its default. Construct `Content::math_cancel_full` with the argument span and unchanged semantic fields. Do not measure the body, execute an angle callback, perform layout or introduce a second runtime.
 
-The parent `math.rs` owns only the static `math.cancel` module registration and its other mathematical behaviors. The structural hub directly reexports `native_cancel` from this child, preserving the public path and signature. The payload remains owned by `entities/elements/math_cancel.md` and geometry by `compiler/math/layout/cancel.md`. No public signature, default, pipeline phase or compatibility change is authorized.
+The parent `math.rs` owns only the static `math.cancel` module registration and its other mathematical behaviors. The structural hub directly reexports `native_cancel` from this child, preserving the public path and signature. The payload remains owned by `00_nucleo/prompts/core/entities/elements/math_cancel.md` and geometry by `00_nucleo/prompts/core/compiler/math/layout/cancel.md`. No public signature, default, pipeline phase or compatibility change is authorized.
 
 ## Acceptance
 

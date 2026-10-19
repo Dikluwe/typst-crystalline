@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "table-cell-presence"
+title = "Presença lexical dos campos da célula"
+
+[[claims]]
+id = "presence"
+level = "must"
+statement = "Omitted, auto explícito e valor explícito são estados nominais preservados. Fill/stroke none explícito é conhecido, não omitido."
+
+[[claims]]
+id = "preservation"
+level = "must"
+statement = "Clone, transformação de corpo/texto, materialização temporal e observação conservam a presença junto aos valores; não deduzir presença de defaults de render."
+
+[[claims]]
+id = "bounded-phase"
+level = "must-not"
+statement = "Este contrato lexical não resolve posições, padding, estilos herdados ou receitas de células implicitamente geradas em uma fase nova."

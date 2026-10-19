@@ -1,19 +1,16 @@
 tekt = 1
 kind = "nucleus"
 id = "bidi-visual-identity"
-title = "Controles bidi e identidade do glifo visual"
-
+title = "Bidi controls and visual glyph identity"
 [[claims]]
 id = "explicit-bidi-set"
 level = "must"
-statement = "O conjunto de controles bidi desta correção é U+061C, U+200E, U+200F, U+202A–U+202E e U+2066–U+2069; não generalizar a ZWJ, ZWNJ, variation selectors ou outros invisíveis."
-
+statement = "The bidi control set for this correction is U+061C, U+200E, U+200F, U+202A–U+202E and U+2066–U+2069; do not generalize to ZWJ, ZWNJ, variation selectors or other invisible characters."
 [[claims]]
 id = "logical-input"
 level = "must"
-statement = "Preservar texto autoral completo e resolução bidi; retirar placeholders depois do shaping e controles bidi apenas da identidade textual global do glifo visível compartilhado."
-
+statement = "Preserve complete author text and bidi resolution; remove placeholders after shaping and bidi controls only from the shared visible glyph's global text identity."
 [[claims]]
 id = "causal-glyph-identity"
 level = "must-not"
-statement = "Não decidir identidade por avanço zero, GID, posição, aparência ou nome de fonte; espaços, letras, clusters e Unicode suplementar conservam sua identidade."
+statement = "Do not decide identity by zero advance, GID, position, appearance or font name; spaces, letters, clusters and supplementary Unicode retain their identity."

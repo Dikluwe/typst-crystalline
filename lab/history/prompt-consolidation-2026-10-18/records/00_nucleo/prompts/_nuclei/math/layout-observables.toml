@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "math-layout-observables"
+title = "Observáveis geométricos do layout matemático"
+
+[[claims]]
+id = "baseline-space"
+level = "must"
+statement = "Posições matemáticas são observadas no espaço de baseline definido pelo contrato vigente."
+
+[[claims]]
+id = "language-not-mechanics"
+level = "must"
+statement = "Testes comparam morfologia e geometria linguística, não passos internos ou igualdade Rust."
+
+[[claims]]
+id = "font-derived"
+level = "must"
+statement = "Grandezas tipográficas observáveis derivam das métricas e constantes da fonte aplicável."

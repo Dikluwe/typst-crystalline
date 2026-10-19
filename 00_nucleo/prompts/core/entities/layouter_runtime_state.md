@@ -1,84 +1,50 @@
 # L0 — `LayouterRuntimeState` (`entities/layouter_runtime_state.rs`)
 Hash do Código: 808e5a19
 
-## Módulo
-`01_core/src/entities/layouter_runtime_state.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/layouter_runtime_state.rs`
 
-**Histórico relevante**:
-- 2026-05-04 (P190C): criada como parte do M6 — categoria Page tracking. Pattern arquitectural "Layouter-runtime → struct dedicada" 1ª aplicação.
+## Responsibility
 
-## Propósito
+Own state populated during layout, not derived by Content pre-pass or the
+walk/from_tags introspection pipeline. Page semantics belong here rather than
+polluting CounterStateLegacy or mixing them into TagIntrospector. Historical
+page-tracking and outline-freeze decisions remain in the archive.
 
-Struct dedicada para state Layouter-runtime que **não é derivado de Content pre-pass**.
-
-Diferente de `TagIntrospector` (state derivado de walk + from_tags pipeline), este struct é populated **durante o layout** pelo Layouter — campos têm semântica de página (`label_pages`, `known_page_numbers`) que só existem em runtime de render, não em introspecção.
-
-## Campos
+## Data contract
 
 ```rust
 pub struct LayouterRuntimeState {
-    /// Mapeia label para número de página onde foi resolvida.
-    /// Populated por `references.rs` durante layout (write).
     pub label_pages: HashMap<Label, usize>,
-
-    /// Page numbers conhecidos da iteração anterior do fixpoint.
     pub known_page_numbers: HashMap<Label, usize>,
-
-    /// **P190D** — modo read-only do Layouter (DEBT-13).
-    /// Set/unset por `outline.rs` em volta de render TOC entries.
     pub is_readonly: bool,
-
-    /// **P488** — páginas de figuras contadas, em ordem de documento.
-    /// Populated por `figure.rs::layout()` durante a iteração corrente (write).
-    /// Lido por `mod.rs::layout()` em `finish()` → `PagedDocument.extracted_figure_page_numbers`.
     pub figure_page_numbers: Vec<usize>,
-
-    /// **P488** — páginas de tabelas contadas, em ordem de documento.
-    /// Populated por `table.rs::layout()` durante a iteração corrente (write).
     pub table_page_numbers: Vec<usize>,
-
-    /// **P488** — páginas de figuras da iteração anterior do fixpoint.
-    /// Injectado por `mod.rs` no início de cada iteração.
-    /// Lido por `outline.rs::layout_lof()` (read-only).
     pub known_figure_page_numbers: Vec<usize>,
-
-    /// **P488** — páginas de tabelas da iteração anterior do fixpoint.
-    /// Injectado por `mod.rs` no início de cada iteração.
-    /// Lido por `outline.rs::layout_lot()` (read-only).
     pub known_table_page_numbers: Vec<usize>,
 }
 ```
 
-7 fields (após P488). Field `lang: Option<Lang>` deferido — requer walk fn signature change.
+label_pages records labels resolved during the current layout; references
+writes it and finish exposes extracted_label_pages. known_page_numbers carries
+the prior fixpoint iteration for outline reads; the coordinator updates it
+between iterations. is_readonly brackets outline/TOC rendering.
+Current figure/table vectors record counted page numbers in document order,
+written by their respective layout owners; finish exposes the figure vector
+as extracted_figure_page_numbers. The known figure/table vectors are injected
+at iteration start and read only by list-of-figures/list-of-tables layout.
 
-## Pattern arquitectural
+## Acceptance and deferred scope
 
-**"Layouter-runtime → struct dedicada"** estabelecido em P190C.
-Replicado em P190D para outros campos Layouter-runtime
-(`is_readonly`, `lang`).
+Keep the seven declared fields, distinct current/previous state, document
+order, read-only outline usage and finish propagation. The pure RAM carrier
+has no I/O and is available to tests through Default::default().
+The original optional lang field remains deferred pending walk-signature
+work; a later historical description of pattern replication does not itself
+authorize adding it. This owner does not implement the layout/fixpoint
+algorithms that populate or consume its fields.
 
-Razão: state que não cabe em Introspector (não derivado de Content)
-não deve poluir `CounterStateLegacy` ou misturar-se com state
-derivado de walk + from_tags.
+## Historical record
 
-## Consumers
-
-- `compiler/layout/references.rs:30` — escrita: `layouter.runtime.label_pages.insert(label, page)`.
-- `compiler/layout/outline.rs:51` — leitura: `layouter.runtime.known_page_numbers.get(&label)`.
-- `compiler/layout/mod.rs:1139` — leitura `label_pages` no fim de `finish()` para preencher `PagedDocument.extracted_label_pages`.
-- `compiler/layout/mod.rs:1535` — escrita `known_page_numbers` no fixpoint loop entre iterações.
-
-## Cross-references
-
-- **P190A §3 achado crítico** — 4 campos Layouter-runtime identificados
-  como não cabendo em Introspector.
-- **P190B** — pattern "eliminação write paralelo M5" 1ª aplicação
-  (Bibliography); P190C 2ª aplicação introduz padrão Layouter-runtime.
-- **P190D** — replicação do padrão para `is_readonly` + `lang`.
-- **DEBT-12** — page tracking via `known_page_numbers` (Pass 3 final).
-- **DEBT-13** — outline freeze via `is_readonly` (P190D).
-
-## Pureza L1
-
-Struct pura sem I/O. Apenas owns `HashMap`s. Acessível em testes via
-`Default::default()`.
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/layouter_runtime_state.md`. Historical observations are not a new parity certification.

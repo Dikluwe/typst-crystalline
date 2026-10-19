@@ -28,14 +28,22 @@ Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do no
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
 
 
-## Manutenção local e observação de testes — 2026-10-16
+## Private encoder constant maintenance
 
-### Medição anterior à decisão
+### Evidence
 
-`03_infra/src/plugin_host/tests.rs` nas linhas 14 contém os avisos registrados em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
+`lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`
+retains sources/L0/hashes/HEAD/uncommitted tree/UTC/diffstat for tests.rs:14.
+Consumer/use inspection preceded deciding; selected Clippy gate must fail before
+code changes. This is Rust representation/observation, no new upstream intent/parity.
 
-### Responsabilidade e aceitação
+### Contract and acceptance
 
-Retirar somente a constante privada I64 sem referências do encoder de fixtures WASM. Preservar bytes/opcodes das fixtures e todos os testes, inclusive recusas de assinatura; não alegar que I64 não seja suportado pelo produto.
-
-Fluxo contínuo ADR-0127: sem contrato público, default de produto ou fase novos. L0 precede código e resselo restrito. Nenhuma supressão de lint nova. Conferir redução exata do inventário e ausência de avisos novos, gate Clippy RED→GREEN e unfulfilled_lint_expectations como erro; executar suíte workspace, build, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job. Não criar testes que apenas espelhem derive, Entry ou posicionamento de módulos. O caso de bbox exige observação real conforme especificado; os demais controles existentes mantêm fixtures e expectativas.
+Remove only unused private I64 from the WASM fixture encoder. Preserve fixture
+bytes/opcodes and all tests, including signature rejections; this says nothing
+about product I64 support. Continuous ADR-0127 adds no public/default/phase
+contract or lint suppression. L0 first, scoped resealing, exact inventory reduction/
+no new warnings, Clippy RED→GREEN/unfulfilled_lint_expectations as error, workspace
+suite/build/fmt/Rustdoc/lineage under 12 GiB, zero swap, one job. No derive/Entry/
+module-placement mirror tests. The historical bbox requirement still needs real
+observation in its own scope; other controls retain fixtures/expectations.

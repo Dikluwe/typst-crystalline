@@ -1,14 +1,12 @@
 tekt = 1
 kind = "nucleus"
 id = "cell-bidi-scope"
-title = "Capacidade lexical bidi da célula isolada"
-
+title = "Lexical bidi capability of an isolated cell"
 [[claims]]
 id = "bounded-cell"
 level = "must"
-statement = "Certificação bidi de célula exige capacidade privada instalada pelo owner da emissão para uma coluna única e região finita; a travessia integral continua recusando conteúdo opaco, transformações e ambientes antes excluídos. Não generalizar a linhas de várias colunas."
-
+statement = "Cell bidi certification requires a private capability installed by the emission owner for a single column/finite region; whole traversal still rejects previously excluded opaque content, transforms and environments. Do not generalize to multicolumn rows."
 [[claims]]
 id = "lexical-lifetime"
 level = "must"
-statement = "A capacidade é false inicialmente, restaurada ao sair da emissão da célula e suspensa em subframes aninhados; não escapa como campo público, global, cache entre documentos ou mudança de fase."
+statement = "Capability starts false, restores on cell emission exit and suspends in nested subframes; it never escapes as public field, global, cross-document cache or phase change."

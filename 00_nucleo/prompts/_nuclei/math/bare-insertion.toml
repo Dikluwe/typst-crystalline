@@ -1,34 +1,28 @@
 tekt = 1
 kind = "nucleus"
 id = "math-bare-insertion"
-title = "Inserção matemática e identidade da equação automática"
-
+title = "Mathematical insertion and automatic equation identity"
 [[claims]]
 id = "insertion-boundary"
 level = "must"
-statement = "Mathy inserido fora de contexto matemático torna-se Equation antes de show, identidade e introspecção; o valor original avaliado continua com sua morfologia."
-
+statement = "Mathy inserted outside mathematical context becomes Equation before show, identity and introspection; original evaluated value retains its morphology."
 [[claims]]
 id = "math-boundary"
 level = "must-not"
-statement = "A preparação não cria Equation em descendentes já pertencentes ao corpo de Equation ou de um elemento Mathy, nem envolve texto comum ou estilo matemático isolado."
-
+statement = "Preparation creates no Equation inside descendants already in Equation/Mathy body and wraps neither ordinary text nor isolated math styling."
 [[claims]]
 id = "lexical-scope"
 level = "must"
-statement = "Equação automática resolve block e propriedades efetivas no escopo de inserção; regras posteriores não retroagem, e regras de produtos conservam o snapshot lexical causal."
-
+statement = "Automatic Equation resolves block/effective properties in insertion scope; later rules never act retroactively, and product rules retain causal lexical snapshot."
 [[claims]]
 id = "occurrence"
 level = "must"
-statement = "Cada nova inserção nua recebe identidade de Equation própria; aliases de it já preparado conservam identidade, origens consumidas não são reemitidas e corpos novos voltam a realizar."
-
+statement = "Each fresh bare insertion receives its own Equation identity; aliases of prepared it retain identity, consumed origins are not reemitted and new bodies resume realization."
 [[claims]]
 id = "single-evaluation"
 level = "must-not"
-statement = "Preparação matemática não reavalia fonte ou argumento, não executa constructor para reconhecer variante e não duplica efeitos ou execuções de produtor contextual."
-
+statement = "Math preparation never reevaluates source/argument, executes constructor for variant recognition or duplicates effects/context-producer executions."
 [[claims]]
 id = "label-boundary"
 level = "must-not"
-statement = "Label do elemento Mathy original não é promovido à Equation automática; não se inventa propriedade label nem se fabrica snapshot conhecido."
+statement = "Original Mathy label is not promoted to automatic Equation; invent no label property or known snapshot."

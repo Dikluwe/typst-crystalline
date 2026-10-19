@@ -1,24 +1,20 @@
 tekt = 1
 kind = "nucleus"
 id = "text-tracking"
-title = "Fronteiras textuais e precisão do tracking"
-
+title = "Text boundaries and tracking precision"
 [[claims]]
 id = "eligible-boundary"
 level = "must"
-statement = "No caminho incremental LTR de estilo textual uniforme não matemático, cada par entre unidades textuais consecutivas na mesma linha recebe um único tracking; início de linha e objetos interrompem o par. Espaços literais são unidades próprias, não multiplicadores de constantes."
-
+statement = "In incremental LTR uniform nonmath text, each consecutive same-line text-unit pair receives one tracking; line start and objects interrupt pairs. Literal spaces are distinct units, not constant multipliers."
 [[claims]]
 id = "selection-width"
 level = "must"
-statement = "O intervalo anterior à unidade material integra a posição usada para escolher wrap/hifenização e é aplicado somente se a unidade permanece na mesma linha; não deve migrar para o início da próxima linha."
-
+statement = "The interval before a material unit participates in wrap/hyphenation position selection and applies only if unit remains on that line; never move it to next-line start."
 [[claims]]
 id = "fractional-advance"
 level = "must"
-statement = "O resíduo entre tracking exato em pontos e tracking inteiro armazenado na fonte é aplicado somente antes de cluster seguinte diferente; posicionamento do sub-run, reconciliação e PDF usam a mesma extensão derivada, sem Tc adicional, sem alterar glyphs ou contratos públicos."
-
+statement = "Residue between exact point tracking and font-stored integer tracking applies only before a different next cluster; subrun positioning, reconciliation and PDF use the same derived extent without extra Tc or glyph/public contract changes."
 [[claims]]
 id = "limits"
 level = "must-not"
-statement = "Não generalizar a correção de fronteiras uniformes a RTL, math, objetos ou estilos diferentes sem controles; não habilitar a preparação global de tracking nem alegar paridade de seleção para ligaduras e scripts não medidos."
+statement = "Do not generalize uniform-boundary correction to RTL, math, objects or differing styles without controls; do not enable global tracking preparation or claim selection parity for unmeasured ligatures/scripts."

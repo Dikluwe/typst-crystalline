@@ -1,0 +1,117 @@
+{
+  "owners": 11,
+  "claims": 48,
+  "result": "No concrete mistranslations or weakened/lost conditions, negations, unknownness or scope bounds found. No nuclei edits or repinning performed. Original/current exact strings remain in their source artifacts; diagnostic/error literals were not normalized.",
+  "records": [
+    {
+      "path": "00_nucleo/prompts/_nuclei/content/source-origin.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "11fedbd7980d61194d253cb6d7b07fc060db1a1225f01b2a44a735ce943ea717",
+      "result_sha256": "a8664ae2636c8deed70e8d809da6d82d6372f0fa91139da5643c8c1ae8836a7d",
+      "claims_reviewed": 4,
+      "changed": false,
+      "disposition": "Proven first causal origin, constructors/aliases/spreads, full language transparency, conservative cache observation, single occurrence and no fabricated Location/new phase/L1 I/O retained.",
+      "findings": []
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/content/map-content-change.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "96f8917eb9e198a3230e27770a800b4dc13f58fde8fc33390bd2d64f3bb76c93",
+      "result_sha256": "4d4dad0e7eff43eeaedb9002bd80875b7e39180f74a1bb8dabbe2c4ba200a011",
+      "claims_reviewed": 7,
+      "changed": false,
+      "disposition": "None proof includes visited descendants and node; conservative reconstruction remains permitted; Some even equal/shared is substitution; ancestor propagation, error stop/order, lazy vectors and no inferred equality/hash/address proof retained.",
+      "findings": []
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/content/projection-exhaustiveness.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "0ac3b92ea67ceb07e64d4b2990323ecc8ccdfb7ef8269af8e434c199000786b4",
+      "result_sha256": "576aa85f228cb75b3de942217799ab37a5a393fe2213075b689d7432b9002bc9",
+      "claims_reviewed": 4,
+      "changed": false,
+      "disposition": "Nominal closed domain, future-variant decision, may-level shared negative bodies, V19 coverage without suppression, guard refusal/unknown open string fields and measured semantic exception ownership retained.",
+      "findings": []
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/table/cell-realization.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "7bd6479e5c49469142e0ac1749e46cc425ea40590488ea4519b790b60558eb56",
+      "result_sha256": "369ccc62b376debdbabec58515ae1666e27b618980365023f54c95de00d0b380",
+      "claims_reviewed": 6,
+      "changed": false,
+      "disposition": "Surviving Table-before-resolution-before-Cell-before-body phases, hidden effects prohibition, unique occupancy owner/order/Grid separation, known/raw distinction, explicit none, no location/query promotion, layout/HTML separation and complete plans/once accepted insertion retained.",
+      "findings": []
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/table/cell-presence.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "b7f216c220b81c479998f27efaa8ddce4c63ab70e3f00c8e8111a38fdfa28ce0",
+      "result_sha256": "3be3385514d84ec0ac1da32609309078b0f462024ab8fe52f7b4a35426c87667",
+      "claims_reviewed": 3,
+      "changed": false,
+      "disposition": "Omitted/explicit Auto/value states and explicit fill/stroke None, preservation through clone/map/temporal observation, no render inference and bounded lexical phase retained.",
+      "findings": []
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/table/cell-occurrence.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "2b49dc08c35410fdd4169d71163a36e437cde4c5384b9011e85dbeeb9310fd00",
+      "result_sha256": "cf1d937d7bdc2594bbac324a0f4b7a16788f58a36984503b2837d9d85be63923",
+      "claims_reviewed": 5,
+      "changed": false,
+      "disposition": "Raw omission/intrinsic standalone defaults/no fictitious position or Table inheritance, per-occurrence aliases/unconsumed recipes/fresh generation, causal error/show-depth versus morphology, hidden products, complete visual and language/reuse distinction retained.",
+      "findings": []
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "5c72d5ae6cfb3aad65c28124d3ef3bd6a3b91f253e5090915a140ab31822a598",
+      "result_sha256": "b326f105bdb2cb383c02ccaaddb6b52bf44a13c8b41aa982aa1c4c69d57223ef",
+      "claims_reviewed": 4,
+      "changed": false,
+      "disposition": "Lexical source/private effective fields, explicit auto/none precedence, original Table-versus-Cell fold restriction, absent insertion style/one-time validated declarations, preoccupancy defaults/padding spans1/no replacement occupancy, alias/guard/local hidden-content limits retained.",
+      "findings": []
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/realization-order.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "57d5b2c93c05d126a1068f5b4fea16a41ad002607703807dc1d951ae6ff9c970",
+      "result_sha256": "d50704147afca1e824a712c1750c9434f6c4dd9fbff1a1b5a64dc775316077b4",
+      "claims_reviewed": 2,
+      "changed": false,
+      "disposition": "Conditional nonnumeric chronology, raw-ID prohibition when causal order recorded, first tag occurrence, prefix comparisons, alias idempotence and isolated-no-walk-test numeric fallback retained.",
+      "findings": []
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/text-size-affine.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "71818e97e6bb8550730d84ced71dc1bcb2ccf53e87380ef1c3773147e0b591e1",
+      "result_sha256": "cec84b0b3cb923805228a512233d3fa6d2a7ba9924ad406afd96191c2830cdd8",
+      "claims_reviewed": 4,
+      "changed": false,
+      "disposition": "Full declared Length/resolved Pt distinction, no em reintroduction, exact affine equation/order/absence/em0/default11pt, capture without assumed base, Styled/set transport/equality nonproof and original English Heading clause retained.",
+      "findings": []
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/transform-semantics.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "9f80cc4fc09e4a2c47200958a16dcebd693729eb0d91f9b4faf370805f496117",
+      "result_sha256": "0e18e2f53884d6d4e0cb408e5d74239f39dda74c567ca171b7ff16f4ec4ed4c3",
+      "claims_reviewed": 6,
+      "changed": false,
+      "disposition": "Native operation/presence versus generic Matrix, typed late font-region-body resolution, finite layout matrix/paint/export separation, all public observations, logical geometry/reflow/Move, no surrogate/double pivot and strict HTML target boundary retained.",
+      "findings": []
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/math/matrix-morphology.toml",
+      "status": "independent-full-original-and-current-semantic-review",
+      "original_sha256": "11cf19aba4afd82e6827c7285d133afc78ae34fdfa2bfc81c56d45a8380109a6",
+      "result_sha256": "5ff456eb6b99f88f99ffefbb081a6756090666272f2013d442e86d428c21eb36",
+      "claims_reviewed": 3,
+      "changed": false,
+      "disposition": "Ordered rows/cells/empty padding/morphology, explicit-bit knownness with rows always known and gap nonfield, actual mat native static identity/no constructor invocation retained.",
+      "findings": []
+    }
+  ]
+}

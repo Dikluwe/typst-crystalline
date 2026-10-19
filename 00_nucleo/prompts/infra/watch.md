@@ -82,53 +82,72 @@ Capability and snapshot integration owners are `00_nucleo/prompts/infra/tests/ar
 Check loopback binding, explicit/default ports, 200/301/404, asset bytes/MIME, directory output safety, HTML-only served injection, SSE reload and preservation after failure. Use an explicit ephemeral port and independent readiness signals. Timeouts only bound failure; sleeps, repetition and scheduler luck are not readiness proof. No external server or mechanically identical vanilla threading/headers/locking is required.
 
 
-## Manutenção local e observação de testes — 2026-10-16
+## Redundant preview state
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`
+retains sources/L0/hashes/HEAD/tree/UTC/diffstat for watch.rs:170; consumer/use
+inspection precedes selected Clippy RED. Internal Rust representation, no new intent/
+parity. Remove only private redundant BundleHttpServer.live field/initialization.
+Keep new(...,live), worker capture and serve_connection argument unchanged; bool
+has no Drop/resource effects. Acquisition/HTTP/SSE/injection/API/defaults unchanged.
+Continuous ADR-0127: L0 first/scoped seals/no suppression/exact inventory reduction/
+no new warnings/selected RED→GREEN/unfulfilled expectations as error/workspace
+suite/build/fmt/Rustdoc/lineage under12GiB/zero swap/one job. No derive/Entry/
+module-placement mirror tests; real bbox controls elsewhere remain observations.
 
-`03_infra/src/watch.rs` nas linhas 170 contém os avisos registrados em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
+## Percent-decoder decision
 
-### Responsabilidade e aceitação
+### Evidence
 
-Retirar somente o campo privado redundante BundleHttpServer.live e sua inicialização. O parâmetro público new(..., live) e o live capturado pelo worker e passado a serve_connection permanecem idênticos. bool não possui Drop/recursos causais; aquisição/HTTP/SSE/injeção, API e defaults não mudam.
+tekt-ranges-2026-10-16/before.json.gz retains UTC/sources/L0/hashes/manifests/lock/
+toolchain/config/status/diffstat at HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
+dirty tree. Hash-reconfirmed prior six V18: four call_spans.rs:52,161,206,226 and
+two watch.rs:287,288. Read current owner/branches first: Rust decision structure,
+messages/spans/routes must stay, no global-parity claim.
+The isolated probe extracts actual decode_url_path, changes only digit closure;
+probe-details.json records argv/rustc1.92/SHA/UTC/results, probe-result.json records
+12GiB/swap0/job1/events. All256bytes/65, 536pairs compare equal:22ASCII hex bytes/
+484accepted pairs. Complete functions also match pair strings/13 UTF8-query-dot-
+truncated-invalid-NUL-backslash controls. Probe counts are not HTTP/RSS benchmarks
+or moving-main data.
 
-Fluxo contínuo ADR-0127: sem contrato público, default de produto ou fase novos. L0 precede código e resselo restrito. Nenhuma supressão de lint nova. Conferir redução exata do inventário e ausência de avisos novos, gate Clippy RED→GREEN e unfulfilled_lint_expectations como erro; executar suíte workspace, build, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job. Não criar testes que apenas espelhem derive, Entry ou posicionamento de módulos. O caso de bbox exige observação real conforme especificado; os demais controles existentes mantêm fixtures e expectativas.
+### Exact contract and acceptance
 
+Only replace digit table with char::from(value).to_digit(16).map(|digit|digit as u8).
+Keep hi/lo/to_ascii_lowercase/get(index+1/2)?/hi*16+lo/advance/from_utf8/query split/
+normalization/rejections. No wider alphabet/API/double decoding/filesystem/MIME/
+status/headers/injection/SSE/loopback/watch/publication/layer move. Pure std conversion
+preserves measured digits. Internal continuous ADR-0127 no public field/signature/
+trait/default/dependency/phase/compatibility. Functional preservation tests pass
+baseline; real RED is --checks v18 --fail-on warning, GREEN zero V18/exactly six
+Tekt warnings removed/no new rules.
 
-## Decisões por cardinalidade e hexadecimal — V18, 2026-10-16
+Retain joint-batch T1 float zero/one/two/many/bound/spread/named/missing-position
+anchors (named first, unbound empty call even spread, bound empty/spread args.span),
+T2 Attach/Mono/Script arity/type/unknown-name/cramped priority with/without spread,
+unchanged Binom/HTML; T3 all valid percent octets/case/query/dots/root/trailing
+slash and NUL/backslash/invalid-UTF8 rejection; T4 real P1293/HTTP-CLI spans/messages/
+200-301-404/output; T5 build/strict workspace-all-target Clippy/unfulfilled errors/
+fmt/workspace suite/strict Rustdoc/four indexes/diff/strict-reverse lineage under
+12GiB/zero swap/job1. Freeze source/L0 during commands, two-pair-only seals, no
+renames/expect-suppression/linter downgrade/expected relaxation/unmeasured performance
+or AI-readability claim/release.
 
-### Medição anterior à decisão
+## Ratified L3 publication carrier
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em lab/results/construction/diagnostics/tekt-ranges-2026-10-16 conserva UTC, fontes/L0, hashes, Cargo manifests/lock/toolchain/config, status e git diff HEAD --stat. A validação anterior, conferida por hashes antes desta etapa, registrou seis V18: quatro em call_spans.rs:52/161/206/226 e dois em watch.rs:287/288. Os L0 atuais e os ramos foram lidos antes da decisão. É estrutura de decisões Rust; as mensagens/spans/rotas são observáveis a preservar, sem nova medição de paridade global.
+tekt-v12-2026-10-16/before.json.gz retains HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
+dirty tree/UTC/sources/L0/hashes/status/diffstat:19V12, one productive Published at
+main.rs:22 and18test helpers. Html(String)/Bundle(Vec<BundleFile>) produced by
+compile.rs:90,99,363,539,541 and consumed by watch.rs:103,104. Former L4-local
+permission is explicitly superseded; Rust ownership, no new parity/intent.
+Owner approval `Aprovar a proposta` at2026-10-16T22:00:02.716079+00:00 in
+`lab/results/construction/diagnostics/tekt-v12-2026-10-16/approval-receipt.json`,
+manifesto `7862b7aeb7272a8b75822f9180b11a7681689eac20f823bebf3eb980526c36e9`,
+covers Published in L3/four L0/native verification scope/no release. This satisfies
+the former ADR-0127 §2.1/§2.4 before-code gate only for this additive public type.
+Future removal is compatibility break.
 
-A sonda isolada extrai exatamente decode_url_path da fonte e substitui somente sua closure digit no candidato. probe-details.json registra argv/rustc 1.92/SHA-256/UTC/retornos; probe-result.json registra 12 GiB, swap zero, um job e eventos. Compara todos os 256 bytes e 65.536 pares: os 22 bytes hexadecimais ASCII e 484 pares aceitos são iguais. Compara também as duas funções completas nas strings de pares e em 13 controles com saídas exigidas de UTF-8, query, segmentos ponto, truncamento, inválidos, NUL e backslash. Os números são desta sonda, não benchmark de HTTP/RSS. Nenhum dado deriva de main móvel do vanilla.
-
-### Responsabilidade exclusiva
-
-Substituir somente a closure digit manual por char::from(value).to_digit(16).map(|digit| digit as u8). Preservar hi/lo e to_ascii_lowercase, checagens get(index+1/2)?, combinação hi*16+lo, avanço, from_utf8, split de query e toda a normalização/rejeição existente. A conversão std é pura e devolve os mesmos dígitos medidos. Não extrair API, ampliar caractere aceito, ler filesystem, decodificar duas vezes, alterar MIME/status/header, injeção/SSE/loopback, captura de watch ou publicação. A mudança reduz a tabela manual em seu lugar atual; nenhum motivo para mover função entre camadas só para evitar o linter.
-
-### Aceitação e limites
-
-Fluxo contínuo ADR-0127: correção interna de representação de decisão, sem assinatura/campo/trait público, comportamento por defeito, dependência, fase ou compatibilidade externos novos. L0 primeiro, testes funcionais antes da implementação e gate V18 RED real. Os novos testes devem passar no baseline: demonstram preservação, não fabricar uma falha de produto onde só havia aviso estrutural. O RED é o linter --checks v18 --fail-on warning; GREEN exige zero V18 e exatamente seis avisos Tekt a menos, sem avisos novos por regra.
-
-T1: âncoras float para zero/um/dois/mais argumentos, bound/spread, named e falta de posição capturada; named prevalece, unbound vazio ancora call mesmo com spread, bound vazio/spread usa args.span. T2: Attach/Mono/Script preservam prioridade relativa de aridade, tipo, nome desconhecido e cramped, com e sem spread; Binom e HTML não mudam. T3: decoder reconhece todos os octetos percent-encoded ASCII válidos e mantém rejeições (NUL, backslash e UTF-8 inválido), case de hex, query, segmentos ponto, raiz e barra final. T4: controles existentes de diagnóstico real P1293 e rotas HTTP/CLI mantêm spans, mensagens, 200/301/404 e saída. T5: build, Clippy workspace/all-targets -D warnings com unfulfilled_lint_expectations como erro, fmt, suíte workspace, Rustdoc -D warnings com quatro índices, diff --check e linhagens estrita/reversa; 12 GiB, swap zero e um job. Fontes/L0 congelados durante comandos; resselo restrito aos dois pares.
-
-Não renomear módulos para escapar da regra, adicionar expectativas/supressões, rebaixar o linter ou alterar esperados para mascarar divergência. Não alegar melhoria de performance ou leitura por IA não medida. Nenhum release.
-
-
-## Transporte de publicação em L3 — V12, 2026-10-16
-
-### Medição anterior à decisão
-
-O snapshot before.json.gz em lab/results/construction/diagnostics/tekt-v12-2026-10-16 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC, fontes, L0, hashes, status e git diff HEAD --stat. O inventário anterior, conferido por hashes, emite 19 V12: um enum produtivo em 04_wiring/src/main.rs:22 e 18 declarações auxiliares de testes. O enum privado Published tem exatamente Html(String) e Bundle(Vec<BundleFile>); compile.rs:90/99/363/539/541 o produz e watch.rs:103/104 despacha os dois braços. O proprietário atual é wiring.md, que autoriza o carrier privado em L4: esta proposta atualiza explicitamente essa decisão, em vez de contrariá-la sem registro. É propriedade/representação Rust, sem nova alegação de paridade ou intenção upstream.
-
-### Verificação comum
-
-T1: preservar os controles reais de watch HTML e bundle HTTP/reload, sucesso/erro, no-serve/no-reload e último snapshot válido; testes p1485_watch_bundle_http_reload_e_preserva_snapshot_apos_erro e p1485_watch_flags_no_reload_no_serve_e_porta_ocupada em 04_wiring/tests/cli.rs, mais controles HTTP de 03_infra/src/watch.rs. T2: preservar compile de HTML/bundle, árvore completa, assets byte-exatos, stdout, warnings, exit e ausência de publicação em erro nos testes CLI existentes, sem editar esperados. T3: V12 RED real antes e zero produtivo depois; conferir por diff que só houve transferência do enum e ajuste do import, sem inferir modalidade por extensão. Verificar build, Clippy workspace/all-targets -D warnings e -D unfulfilled_lint_expectations, suíte workspace, formato, Rustdoc -D warnings e quatro índices, linhagem V1/V5/V15/V26 e reversa, SARIF e diff --check. Não escrever testes que apenas espelhem a sintaxe da mudança de owner. Execuções pesadas sequenciais sob MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não publicar release.
-
-### Responsabilidade exclusiva
-
-Este owner passa a possuir o carrier de publicação, junto da capacidade de preview HTTP já existente. Acrescentar em 03_infra/src/watch.rs, sem novo módulo/re-export:
+Own here, without new module/reexport:
 
 ```rust
 pub enum Published {
@@ -137,4 +156,15 @@ pub enum Published {
 }
 ```
 
-BundleFile continua sendo o tipo existente de 00_nucleo/prompts/infra/pipeline/bundle.md. Não acrescentar derives, métodos, campos/variantes, I/O na construção, cópia dos payloads, flags ou defaults. Manter ownership por move e drop dos mesmos String/Vec. Todas as APIs existentes de watch/server permanecem. O tipo é novo contrato público Rust: código externo poderá depender dele e removê-lo depois será incompatível; requer aprovação ADR-0127 §2.1/§2.4 antes do código.
+BundleFile remains owned by `00_nucleo/prompts/infra/pipeline/bundle.md`. No new
+derives/methods/fields/variants/constructor I/O/payload copy/flags/defaults. Preserve
+move/drop of String/Vec and all watch/server APIs.
+
+Real watch HTML/bundle HTTP-reload/success-error/no-serve-no-reload/last-snapshot
+and compile full-tree/byte-exact-assets/stdout-warnings-exit/no-publication-on-error
+controls specified in `00_nucleo/prompts/wiring/main.md` remain required, including
+named watch tests and L3 HTTP controls. Real V12 RED→zero productive, transfer+
+import-only diff/no extension inference, no syntax-mirror tests. Build/strict
+workspace-all-target Clippy -Dwarnings/-Dunfulfilled_lint_expectations/workspace
+suite/fmt/strict Rustdoc/four indexes/V1-V5-V15-V26/reverse/SARIF/diff --check;
+heavy sequential12GiB/swap0/job1, no release.

@@ -1,29 +1,24 @@
 tekt = 1
 kind = "nucleus"
 id = "entities-element-boundary"
-title = "Fronteira fechada e extensível de Element"
-
+title = "Closed and extensible Element boundary"
 [[claims]]
 id = "closed-content"
 level = "must"
-statement = "Content permanece enum fechado e possui uma única variante Dynamic como porta para implementações externas de Element."
-
+statement = "Content remains a closed enum with exactly one Dynamic variant as the entry for external Element implementations."
 [[claims]]
 id = "same-element-trait"
 level = "must"
-statement = "Elementos nativos e de utilizador implementam o mesmo trait Element; a ponte DynElement é derivada por blanket e não constitui uma segunda API manual."
-
+statement = "Native and user elements implement the same Element trait; DynElement is blanket-derived, not a second manual API."
 [[claims]]
 id = "static-native"
 level = "must"
-statement = "Elementos nativos conservam despacho estático; somente o conteúdo da variante Dynamic usa despacho object-safe."
-
+statement = "Native elements retain static dispatch; only Dynamic variant content uses object-safe dispatch."
 [[claims]]
 id = "element-behavior"
 level = "must"
-statement = "Cada Element define texto, vazio, transformação de filhos, leitura de campos e identidade de kind coerentes com sua própria morfologia."
-
+statement = "Each Element defines text, emptiness, child transformation, field reading and kind identity consistent with its morphology."
 [[claims]]
 id = "injected-registry"
 level = "must"
-statement = "Descoberta de constructors dinâmicos é injetada e pura em L1, sem registro global mutável."
+statement = "Dynamic constructor discovery is injected and pure in L1, without mutable global registration."

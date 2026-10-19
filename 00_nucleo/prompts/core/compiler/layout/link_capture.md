@@ -1,60 +1,26 @@
-# L0 — Escopos privados de captura de links
+# L0 — Private link capture scopes
 Hash do Código: 6cf52551
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:4e487a99ea1f1e82a67dfaced0958f98392fb26b1a7d292355230d6ffa7f2d0b
+- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/link_capture.rs`
 
-## Captura de links através de fronteiras — 2026-10-14
+## Evidence before specification
 
-### Medição anterior à decisão
+`lab/results/construction/diagnostics/links-paginacao-2026-10-14.md` and receipts under `posicoes-compostas-2026-10-14/automatic-boundary-probes` record source, HEAD/dirty tree/UTC, binaries and vanilla pin. On a 160×40pt page with 10pt margins, ordinary text crosses the break; Link URL, Ref and Ref Page abort with a stale index after buffers are emptied. `references.rs:270` appears in the stack; `link.rs:22-32` uses the same mechanism. `outline.rs:28-50` also saves indices before the body. Clamping an index proves neither prefix/order/fragment/destination preservation nor geometry. Earlier snapshot: `lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz`. Content, destination, regions and bounds are observables; private boundaries are mechanics.
 
-lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
-posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
-HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
-texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
-antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
-link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
-antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
-fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
-Os observáveis são conteúdo, destino, regiões e bounds; limites privados
-são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
+`links-captura-2026-10-14/architecture.sarif` records V2: the new module lacks its own tests, while flow tests live in the Link owner.
 
-### Contrato deste owner
+## Ownership and contract
 
-Possuir registro privado de destinos e escopos lexicais, limites neutros de
-abertura/fechamento em variantes existentes de FrameItem (Semantic Artifact
-Other Inline, prefixo NUL próprio, uma Shape Rect zero sem fill/stroke).
-Reconhecer estritamente esse formato. O registro não cria Location nem
-executa closures. Início/fim de escopo acrescenta limites independentes à
-linha e ao buffer comitado; fechamento de linha segmenta ambos antes de
-transferir conteúdo e reabre continuações após a transferência. Fechamento
-de região segmenta o buffer comitado. Subframes têm pares locais e os
-buffers exteriores mantêm seus próprios pares.
+Own a private destination/lexical-scope registry and neutral open/close boundaries encoded through existing FrameItem variants (Semantic Artifact Other Inline, own NUL prefix, one zero Rect Shape without fill/stroke). Recognize exactly this format. The registry allocates no Location and executes no closure. Scope start/end append independent boundaries to line and committed buffer; line closure segments both before content transfer and reopens continuations afterwards. Region closure segments the committed buffer. Subframes have local pairs, and outer buffers retain their own pairs.
 
-Resolver a árvore depois dos fixups e antes de publicar o documento:
-consumir limites, preservar todos os frames na ordem/região e construir
-FrameItem::Link por fragmento não vazio. Não confundir pertencimento com
-intervalos geométricos nem coletar buffers antigos por seu comprimento.
-Descer por grupos/wrappers; bounds usam o helper do owner de Link no
-referencial de cada vetor. Mesma pertença herdada dentro/fora de um grupo
-não exige links redundantes aninhados do mesmo destino; conservar destinos
-distintos. Segmentos só de metadados não produzem área clicável. Não remover
-posições, identidade textual ou wrappers semânticos do conteúdo.
+Resolve the tree after fixups and before document publication: consume boundaries, preserve every frame's order/region and construct FrameItem::Link for each nonempty fragment. Do not confuse membership with geometric intervals or collect old buffers by length. Descend through groups/wrappers; bounds use the helper owned by `00_nucleo/prompts/core/compiler/layout/link.md` in each vector's coordinate system. Equal inherited membership inside/outside a group needs no redundant nested same-destination links; preserve distinct destinations. Metadata-only segments create no clickable area. Do not remove positions, text identity or semantic wrappers.
 
-Continuar capturas nas mudanças de linha/página/coluna, reter pertença em
-frames diferidos, excluir marginais/nota/float alheios e respeitar rollback.
-A fachada pública e a fase continuam sendo layout. Não silenciar uma
-captura perdida descartando texto nem fabricar um retângulo na última página.
+Continue capture across line/page/column changes, preserve membership in deferred frames, exclude unrelated marginals/note/float and respect rollback. The public facade and phase remain layout. Do not hide capture loss by discarding text or fabricating a rectangle on the last page. This is internal ADR-0127 work without a new API/default/phase.
 
-## Verificação local do resolver
+## Acceptance and limits
 
-O lint registrado em links-captura-2026-10-14/architecture.sarif aponta V2:
-o módulo novo não contém testes próprios; os testes do fluxo estão no
-owner de Link. Cobrir aqui preservação dos vizinhos sem destino, bounds
-do fragmento, ausência de área para escopo vazio e preservação de artefato
-visível cujo alt se parece com o marcador privado. Estes controles não
-substituem os testes de paginação, subframes e rollback do fluxo completo.
+Locally test preservation of unlinked neighbors, fragment bounds, no area for an empty scope and preservation of a visible artifact whose alt resembles the private marker. These controls do not replace full-flow pagination, subframe and rollback tests.

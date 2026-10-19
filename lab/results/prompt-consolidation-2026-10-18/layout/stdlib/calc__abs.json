@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/calc/abs.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated entire abs ownership/extraction and V16 decision; preserved causal diagnostic vocabulary, structural versus functional proof, exact error debt and resources.",
+  "original_sha256": "e29b4343ea28023f6609b555c32d9e7a9ea53b177860386de65241f686ec89ec",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/calc/abs.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

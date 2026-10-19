@@ -1,14 +1,14 @@
 # L0 — compiler/eval/math/call_fallback
 Hash do Código: a489b966
 
-## Ownership e medição
+## Ownership and evidence
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/call_fallback.rs`. A lógica original estava em `01_core/src/compiler/eval/math/expression_call.rs:650-766` no HEAD `4e2a321ce`, árvore limpa, 2026-09-30 23:49:20 UTC. Trata-se de extração interna; a leitura não é prova nova de paridade nem medição de desempenho.
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/eval/math/call_fallback.rs`. The original logic was in `01_core/src/compiler/eval/math/expression_call.rs:650-766` at HEAD `4e2a321ce`, clean tree, 2026-09-30 23:49:20 UTC. This is internal extraction; inspection is neither new parity evidence nor a performance measurement.
 
-## Contrato
+## Contract
 
-Own unknown/global/symbol mathematical call fallback. Preserve lexical/global function lookup, symbol deprecation warning, delimited argument morphology and error priority. Não alterar contratos públicos, fase do pipeline, defaults nem compatibilidade. Preservar despacho estático e pureza L1.
+Own unknown/global/symbol mathematical call fallback. Preserve lexical/global function lookup, symbol deprecation warning, delimited argument morphology and error priority. Preserve public contracts, pipeline phase, defaults, compatibility, static dispatch and L1 purity.
 
-## Aceitação
+## Acceptance
 
-Testes L1, `cargo build` e `crystalline-lint .` passam. Não inferir ganho de desempenho.
+L1 tests, `cargo build` and `crystalline-lint .` must pass. Do not infer performance gains.

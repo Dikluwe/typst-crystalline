@@ -1,0 +1,30 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/repr/measure.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "7bd28167e9f0854702641d769c8481d35cb9d951f276695e62c0664fcb7a8125",
+    "result_sha256": "df5525495aadc9de7f9dd11d8ea94ebcd79423535253ad27a30a10fdb94d22bf",
+    "disposition": "Full formatter and extreme-rounding correction translated; six probes, outside-scope abs overflow, precision/default policy and no-sharing boundary retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/eval/repr/selector.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "8b5092d862fcf3f49d3836b5b61f10ac3c8d1fb5a18fbbb69938cc457ea76e8d",
+    "result_sha256": "c1120f4f2325c1b7c34ed7af0001ad6b1315557d27408bfaedc336c60f058099",
+    "disposition": "Full selector repr translated; actual D08A receipt resolves old proposed heading; NativeElement versus empty Element formatting preserved without changing Func formatter."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/from_tags/counter_updates.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "95fab2f110a28ca02ef130017d3abafd9d4ea309f70ce38c20daa1a9d2dbe3bd",
+    "result_sha256": "f5123b9d2a7de7d8b532fcafbc0973c33e120b6480f47f9d9f038300b8e3968e",
+    "disposition": "Full Page snapshot public facade/action/partition/read normalization contract translated with ratification, full counterexamples and incomplete-evidence controls retained."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/introspect/convergence.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "108743388b6bfea36298213e4eb1aea5a632ecbd9fc8b389a33ca47aa3ebb12e",
+    "result_sha256": "773e6a285ec5d1f5f8bab7e7e8c51c404624c2bfc31be075007cac00c0e25af9",
+    "disposition": "Full compact-carrier probe and ratification translated; all adverse controls and T1\u2013T6 owner boundaries retained; local hash semantics unchanged."
+  }
+]

@@ -1,0 +1,65 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/entities/content/plain_text.md",
+    "status": "bounded-receipt-reference-review",
+    "review_input_sha256": "6d93e0b6f222e0238788e32ec943c45ad7fc9ff3a47e3df71edf361d9db0db2f",
+    "result_sha256": "d997c72d0c425168d6b8477b2c7dff0779215fb395042dc453d12994afd17d32",
+    "disposition": "Retained exact nested Source contract reference and separated final dated C2 ratification evidence; no contract or approval scope changed."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/content/equality.md",
+    "status": "bounded-receipt-reference-review",
+    "review_input_sha256": "28aa0a14578fcc71db2e9e99700e20a3aa808b0b888f2c1ada5ff1ce20827a3e",
+    "result_sha256": "3bf5551c19855d6788438e5e9a7a618cdfdbf4ce92f7b0557f59a8a3fabb4cba",
+    "disposition": "Retained exact nested Source contract reference and separated final dated C2 ratification evidence; no contract or approval scope changed."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/content/emptiness.md",
+    "status": "bounded-receipt-reference-review",
+    "review_input_sha256": "bdf0e21b7da68e14ab3b40c3ee67a798fd0f0f3e773198c42a5c9fd1e0bab504",
+    "result_sha256": "0a1aa3238ef8030502407cac0ad256d1d51d013cd2ddf5fdc44f117442d3b4b7",
+    "disposition": "Retained exact nested Source contract reference and separated final dated C2 ratification evidence; no contract or approval scope changed."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/content/rust_hash.md",
+    "status": "bounded-receipt-reference-review",
+    "review_input_sha256": "4f6dbed37bc87cf37dbe6b8b8be793d0bbe65b7ac3ae6785e60aa8d915912dd7",
+    "result_sha256": "de5abd0f707890983ac1994c75036a3441d8c914ee29f4c442657e56e4f7653b",
+    "disposition": "Retained exact nested Source contract reference and separated final dated C2 ratification evidence; no contract or approval scope changed."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/content/page_structure.md",
+    "status": "bounded-receipt-reference-review",
+    "review_input_sha256": "cc3fb9af63692d136e5ffb24ddd2472bd06db4cb384193407cc81eb8fb31290e",
+    "result_sha256": "ea1e85d407b14064a56f846d16d99797c12b61b3523fae8ba956b8f2c1fc3aee",
+    "disposition": "Retained exact nested Source contract reference and separated final dated C2 ratification evidence; no contract or approval scope changed."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/content.md",
+    "status": "bounded-receipt-reference-review",
+    "review_input_sha256": "fadc562d2b48890e5484130009a6d104ae727501c0ed3af7147e31b3f3758206",
+    "result_sha256": "3f4ad4bcee364304224117eca5e8703f56764365f34ea59bf18775da02a3866a",
+    "disposition": "Retained exact nested Source contract reference and separated final dated C2 ratification evidence; no contract or approval scope changed."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/content/identity.md",
+    "status": "bounded-receipt-reference-review",
+    "review_input_sha256": "8a6c3a26347781af69542892e6ac61d52cc3c32a482dae7aa749ab8bd31d2cc5",
+    "result_sha256": "6914036e8d4d2aa5ef8575e88f94f62df85a4f6298c352870473587c58c096a3",
+    "disposition": "Retained exact nested Source contract reference and separated final dated C2 ratification evidence; no contract or approval scope changed."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/content/morphology.md",
+    "status": "bounded-receipt-reference-review",
+    "review_input_sha256": "5a4f4f4fa280deff0b97dd81571cf227b9ff7bf977f04a563cec4c341911b30c",
+    "result_sha256": "ff0b774ad891d94827a027604410daba12b18e5b4418248fc5300290b345caa8",
+    "disposition": "Retained exact nested Source contract reference and separated final dated C2 ratification evidence; no contract or approval scope changed."
+  },
+  {
+    "path": "00_nucleo/prompts/core/entities/symbol.md",
+    "status": "independent-full-original-and-consolidation-review",
+    "review_input_sha256": "858132e2334b6aa78fef70e8ff02e8cdc1490c6d3c48c7b7193a1f166bff7b2a",
+    "result_sha256": "858132e2334b6aa78fef70e8ff02e8cdc1490c6d3c48c7b7193a1f166bff7b2a",
+    "disposition": "All original/current clauses fully read. Nine repr(symbol(...)) acceptance lines exactly byte-preserved, all eight escaped inline literals retained, 50-byte compact/multiline boundary and grapheme/identity/modifier/error restrictions preserved; no edits needed."
+  }
+]

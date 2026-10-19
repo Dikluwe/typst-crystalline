@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/paragraph_hyphen.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Audited all unique/repeated clauses; consolidated exact candidate graph/range measurement, effective hyphen costs/consecutive/runt/ties/pruning, chosen SHY materialization, conditional optical overhang, Shape origin distinction and numerical/control-flow maintenance. Preserved Unicode/nonadditive tests and all certificate limits.",
+  "original_sha256": "81a0c2c0cfbd737ff327a6fe104a43613b4aeab6b7aea44602a534201198769a",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/paragraph_hyphen.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

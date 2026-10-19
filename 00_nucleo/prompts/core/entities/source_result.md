@@ -1,19 +1,14 @@
 # Prompt L0 — entities/source_result
 Hash do Código: 6f1ac9a2
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/source_result.rs`
-**ADRs relevantes**: ADR-0015 (ecow → String), ADR-0017 (adiamento eval)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/source_result.rs`
 
-## Contexto
+## Contract
 
-`SourceResult<T>` é o tipo de retorno do pipeline do compilador Typst.
-`SourceDiagnostic` representa um erro ou aviso emitido durante a compilação.
-`Tracepoint` representa um ponto no stack trace de um erro.
-
-Estes tipos são domínio puro: Span + mensagem + hints. Sem I/O.
-
-## Interface pública
+SourceResult<T> transports compiler results; SourceDiagnostic represents an
+error or warning; Tracepoint represents an error-stack point. These are pure
+Span/message/hints data with no I/O. Preserve the interface:
 
 ```rust
 pub enum Severity { Error, Warning }
@@ -42,39 +37,25 @@ impl SourceDiagnostic {
 pub type SourceResult<T> = Result<T, Vec<SourceDiagnostic>>;
 ```
 
-## Substituições aplicadas (ADR-0015)
+Use String instead of the historical EcoString, Vec<SourceDiagnostic> instead
+of EcoVec, Vec<String> hints instead of spanned EcoString hints, and
+Vec<Spanned<Tracepoint>> traces instead of EcoVec. Adding spans to hints was
+previously deferred to evaluator migration; it remains pending rather than
+silently authorized by this cleanup.
 
-| Original | Substituição |
-|----------|-------------|
-| `EcoString` | `String` |
-| `EcoVec<SourceDiagnostic>` | `Vec<SourceDiagnostic>` |
-| `EcoVec<Spanned<EcoString>>` (hints) | `Vec<String>` |
-| `EcoVec<Spanned<Tracepoint>>` (trace) | `Vec<Spanned<Tracepoint>>` |
+SourceDiagnostic has structural field equality/hash for transport through the
+internal tracked warning channel. This changes neither messages, severity,
+spans, hints, traces, nor deduplication by (span,message).
 
-Hints simplificados para `Vec<String>` (sem Spanned) — span pode ser
-adicionado quando eval() real migrar.
+## Acceptance
 
-## Critérios de Verificação
+error(Span::detached(), "msg") has Severity::Error;
+error(...).with_hint("h") has hints vec!["h"].
+SourceResult::Err(vec![diag]).is_err() is true, and
+SourceResult::Ok(42u32).unwrap() is 42. Preserve warning construction and the
+existing public field/return types.
 
-```
-Dado SourceDiagnostic::error(Span::detached(), "msg")
-Quando severity for lido
-Então Severity::Error
+## Historical record
 
-Dado SourceDiagnostic::error(Span::detached(), "msg").with_hint("h")
-Quando hints for lido
-Então vec!["h"]
-
-Dado SourceResult::Err(vec![diag])
-Quando is_err() for chamado
-Então true
-
-Dado SourceResult::Ok(42u32)
-Quando unwrap() for chamado
-Então 42
-```
-
-
-## Realização com avaliação única
-
-SourceDiagnostic possui igualdade/hash estruturais de seus campos para transporte no canal tracked interno de warnings; não altera mensagens, severidade, spans, hints, trace nem dedup por (span,message).
+The original specification and its construction chronology are preserved in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/source_result.md`. Historical observations are not a new parity certification.

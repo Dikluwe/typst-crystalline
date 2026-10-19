@@ -2,8 +2,8 @@
 Hash do Código: 15c8bc9c
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
-- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:1d697fae328277525e44cad674cecc537ceb23a1bb3ae11bb68a0a9575411ae4
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/grid_placement.rs`
@@ -13,7 +13,25 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/grid_placement.rs:42`, `01_core/src/compiler/layout/grid_placement.rs:64`, `01_core/src/compiler/layout/grid_placement.rs:262`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
+
+At HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree, `lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` records historical pin `9f2b6e8715237cb086899a42873660fe744622e8`, UTC/diffstat/status/sources/binaries/arguments/results. Oracle SHA-256 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`. Vanilla `lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278` resolves fields,`:1500–1530` rejects ordered conflicts,`:1665–1703` creates empties,`:1945–1988` derives breakable. Tekt `grid_placement.rs:91–112` prioritizes explicit cells and`:262–270` only knows GridCell; `realize/mod.rs:160–200` visits recipes bottom-up; `table.rs:127–152` emits wrappers without attributes. order measures zero cell effects when table is replaced and zero Heading effects when cell hides it; aliases measures LOCAL a, OUTER LOCAL a, NEW a. Language/effects, not Rust mechanics/bytes/equality. Unknown fields/hidden effect/wrong order refute proposed fix; cache/pagination equivalence is not inferred.
+
+placement-refuters-red.json in that diagnostic preserves frozen B2 binary, pinned vanilla and complete sources/argv/cwd/UTC/results. Pinned `grid/resolve.rs:2182–2215` searches free origin without testing spans and advances whole area for full-width colspan;`:2269–2301` rejects full row;`:1500–1530` rejects conflicting spans. This is position/error semantics. Acceptance of conflicts, wrong message/span or post-full-span cursor refutes correction.
+
+`lab/results/construction/diagnostics/table-cell-styles-d08b3c-2026-10-07/before.json.gz` records 58 probes, UTC2026-10-07T15:24:58.038947+00:00 through 15:25:13.727872+00:00, same HEAD/uncommitted tree/diffstat/status/full sources/argv/cwd/environment. Vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, binary `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt `721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3`. isolated/table-set/individual fields/late/local/reuse/spread/negatives refute empty-target warning and absent defaults. padding-span-one/empty-fixed-rows fix padding spans at 1; auto-table-fallback preserves explicit Auto delegation to Table rather than Cell set. show-cell-set-self changes standalone but not positioned known fill. Stroke/alignment fold. refuters-before.json.gz adds header/partial inset/args/condition/Table snapshot; alias-inside-table is valid vanilla but improperly recursive Tekt.
+
+Pinned `typst-library/src/model/table.rs:734–778` declares fields; `layout/grid/resolve.rs:203–278` reads styles before resolving/overwriting position/fill; packed padding defaults at `model/table.rs:785–800` fix spans 1. Tekt `rules/set.rs:23–27` text_str target misses FieldAccess; `table_cells.rs:262–310` uses lexical properties only in placement/inheritance; `grid_placement.rs:80` reads direct x/y/spans; standalone TableCell lacks private effective properties. Fields/order/effects/style/errors are language; private representation is Tekt's choice, not copied Packed/Rust equality. Any negative, lost lexical font, raw-value mutation, repeated effect, lost alias guard or geometry/cache regression refutes.
+
+refuters-before stroke-constructor-fold/align-constructor-fold preserve whole constructor against Cell set. self-set-does-not-change-placement changes observed colspan to 2 after placement with 1, not new occupancy. Vanilla returns colspan 2 for real x0 cell but 1 for padding x1/x2: `layout/grid/resolve.rs:218–244` captures occupancy spans without settling their content fields; `model/table.rs:785–800` settles padding 1. Occupancy/getter are distinct observables.
+
+extra-first.json.gz (full sources/HEAD/state/UTC/binaries) compares two-stroke-sets: red then 2pt produces red 2pt in standalone/positioned vanilla getter. stroke-render-inherits-cell-style folds constructor 2pt with Cell red before Table 3pt fallback, although standalone stroke-constructor-fold exposes only constructor 2pt. Pinned `model/table.rs:765` #[fold] and `resolve.rs:225–237` stroke.resolve(styles) differ from raw getter.
+
+`grid_placement.rs:283` compiler-unused items are recorded with usage/dispatchers before editing in `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, full sources/L0/same HEAD/uncommitted tree/UTC/status/diffstat. `grid_placement.rs:216,217,234,235` selected Clippy spans and source/owner/reference/binary/state provenance are in `lab/results/construction/diagnostics/iteracao-parametros-ci-2026-10-13/before.json.gz`. These are internal mechanics/uses, not new bilateral parity/performance.
+
+## Ratified public gate and scope
+
+The initial resolved-Table proposal required confirmation because it introduced five public fields, two public carriers, one public facade and logical phase before Cell show. The owner ratified that package on 2026-10-07 (`comfirmo`), as recorded at `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md:3`, manifest SHA-256 `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`. That recorded ratification supersedes the stale candidate-only gate for its approved scope; later internal corrections retain the same boundaries. Standalone Cell work was excluded from that approval and separately ratified in `lab/history/construction/records/00_nucleo/materialization/table-cell-isolada-d08b3b-2026-10-07.md:3` (`confirmo`), manifest `3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`. Neither approval certifies the broader incomplete scopes below.
 
 ## Ownership and contract
 
@@ -23,110 +41,24 @@ Own PlacedCell construction and deterministic occupied-slot placement. Require a
 
 The current field extractor recognizes GridCell metadata; non-GridCell content is automatic unit-span content. Do not claim full TableCell-coordinate parity here or infer placements by appearance. No rendering, font measurement, page commit or public-contract expansion is introduced.
 
+The one occupancy engine has closed policies GridExplicitFirst (legacy Grid) and TableDocumentOrder; typed adapters share algorithm without duplication. Table processes input origins in document order and rejects occupied/spanned origins. Fixup fills only real holes and explicitly requested minimum rows; row-major output determines recipe execution. Use checked arithmetic and causal source_span diagnostics, never blind allocation from huge coordinates. Prepared-Table layout consumes plan coordinates without rerunning occupancy or promoting cells into the index. Grid retains its API/policy/rules. This refines the earlier GridCell-only extractor description only for prepared Table's separate adapter.
+
+TableDocumentOrder chooses the first free origin, never skips it because colspan cannot fit or later rowspan conflicts. Validate span afterwards with causal error/hint. X-only searches origins only in that column; a full Y-only row has dedicated error. Full-width colspan advances the area cursor as specified by measured controls. GridExplicitFirst keeps legacy search for a fitting rectangle.
+
+Read only effective Cell x/y/spans through the nominal private helper for TableDocumentOrder, including style/prepared snapshots. Keep occupancy algorithm/order/padding/public types/signatures/Grid policy; no second engine or StyleChain/Func/Engine lookup in placement. Remove unused private extract_cell_fields only; preserve active extraction/realization metadata/spans.
+
+Cross-owner observed-versus-physical boundary: positioned Cell retains external TableCellResolved physical plan. A private standalone carrier may coexist only for observed recipe properties, retaining resolved fields and overriding lexically omitted spans through show-set; getters/canonicalization use that projection, while complete-plan placement still uses TableCellResolved. Source-free padding has lexical spans 1 immune to show-set. Guards/stage stay causal, without public contract/raw-source mutation. These are boundary criteria for `00_nucleo/prompts/core/entities/elements/table_cell.md` and `00_nucleo/prompts/core/compiler/realize/table_cells.md`, not extra ownership here.
+
+Stroke boundary: successive declarations fold specified components into declarative Value::Stroke, never storing carrier/callback in Styles. Standalone constructor stroke remains whole in getter; positioned resolution folds constructor with captured Cell base, then Table. Private TableCellProperties.stroke_inherited:Option<Stroke> carries causal base without baking it into lexical getter. ObservationEq includes base, canonicalization ignores render-derived base; already-resolved Table base is None. Clones/aliases retain prior base; explicit None wins. Whole-constructor precedence applies to standalone getter, not resolved stroke folding. This owner changes no extra public contract/phase/default through that private refinement.
+
+Traverse validated occupied-area slices in row→column order. Normalize spans, checked arithmetic/columns and ensure_rows precede access. Enumerate offsets to reconstruct same absolute first-conflict coordinates/message/hint/causal span. Separate checking from marking so errors leave no partial area; mark true only in rectangle column slice. No silent truncation for invalid bounds, policy/cursor/padding change or new lint suppression.
+
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
+The confirmed public gate requires RED→GREEN, suites/build/lint/restricted preservation and D08A/B2, D05/D06/D07/query collections. Accept actual language/effect/geometry, never bytes or whitespace normalization to close render. Cell standalone defaults and fresh show-cell-reconstruct generation remain separately specified completion work. General Table defaults/fields (table-root-equality), rich style functions/paint/stroke/inset, rich lines/gutters, multipage spans and PDF/UA are not certified. Preserve extra legacy D08B2 casts, syntax/flags/global nonlocatable policy.
 
-### Medição anterior à decisão
+Declarative-default corrections follow continuous-flow ADR-0127 without public/external/default/phase change; private props/helpers remain in an already nonconstructible external carrier and lexical values stay unchanged. L0 first, restricted resealing and RED→GREEN; bilateral error/caret/effect controls with source/binaries/HEAD/UTC and real geometry, debug/release build/suites/lint. Preserve prior tree without commit/reset/global reseal. Certified subset: integers/autos, Color/None/Auto, uniform Stroke/None, alignment, Length/partial Length-or-Auto inset, Bool/Auto and existing typed schemas. Gradient/tiling/functions, per-side strokes, percentage inset/rich constructor casts, multipage groups/spans/PDF-UA, positional set/text and general Table defaults remain incomplete with measurement/L0 before expansion. Fallback warnings do not certify support; do not copy upstream defects.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
-
-### Responsabilidade exclusiva proposta
-
-Possuir o único motor de ocupação e sua política fechada: Grid legada ExplicitFirst, Table DocumentOrder. Dividir adaptadores tipados, sem duplicar algoritmo. Table preenche uma origem a cada item na ordem de entrada e rejeita origem ocupada/spanned; fixup preenche somente holes reais e mínimo de rows explicitamente solicitado. Resultado ordenado row-major define execução de receitas. Usar aritmética checked e diagnóstico causal source_span, nunca alocação cega a partir de coordenadas enormes. Grid mantém API/política/regras próprias. Layout de Table preparada consome coordenadas do plano, sem executar novamente ocupação nem promover cells ao índice.
-
-### Gate, aceitação e divisão explícita
-
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
-
-### Refutadores suplementares de ocupação — 2026-10-07
-
-Medição anterior à decisão: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/placement-refuters-red.json,
-binário B2 congelado e vanilla pinado, fontes/argv/cwd/UTC/resultados completos.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:2182–2215
-procura origem livre sem testar spans, avança toda a área quando colspan é todas
-as colunas; :2269–2301 rejeita row cheio. :1500–1530 rejeita spans conflitantes.
-É semântica de posição/erro. TableDocumentOrder escolhe primeira origem livre:
-não salta origem porque colspan não cabe ou porque rowspan conflita depois.
-Validar span em seguida com erro/hint causal. X-only pesquisa somente a origem
-na coluna; Y-only cheio tem erro dedicado. GridExplicitFirst mantém política
-legada de procurar um retângulo que caiba. Refutação: aceitação desses conflitos,
-mensagem/span errados ou cursor divergente após full-span. Correção interna no
-contrato ratificado, sem campo/assinatura/fase suplementar.
-
-## D08B3-C — defaults declarativos da Cell, fluxo contínuo
-
-### Medição anterior à decisão
-
-lab/results/construction/diagnostics/table-cell-styles-d08b3c-2026-10-07/before.json.gz registra 58 sondas, UTC 2026-10-07T15:24:58.038947+00:00 até 15:25:13.727872+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/status/fontes/argv/cwd/ambiente completos. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set, campos individuais, late/local/reuse/spread e rejeições refutam o warning de target vazio e a ausência dos defaults. padding-span-one/empty-fixed-rows fixam spans 1 em vazios; auto-table-fallback preserva Auto explícito como delegação à Table, não ao set da Cell. show-cell-set-self altera avulsa mas não fill conhecido da Cell posicionada. Stroke/alignment fazem fold. refuters-before.json.gz estende com header, partial inset, args/condição e snapshot em Table; alias-inside-table é válido no vanilla e recursa indevidamente no Tekt.
-
-Fonte: upstream typst-library/src/model/table.rs:734–778 declara campos, e layout/grid/resolve.rs:203–278 lê estilos antes de resolver/sobrescrever posições/fill; defaults de padding TableCell packed em model/table.rs:785–800 pinam spans 1. Tekt rules/set.rs:23–27 usa text_str de target e não reconhece FieldAccess; table_cells.rs:262–310 usa apenas propriedades lexicais no placement/herança; grid_placement.rs:80 lê x/y/spans diretamente; TableCell standalone não possui propriedades efetivas privadas. É língua (campos/ordem/efeitos/estilo/erros); a representação privada abaixo é decisão Tekt, não obrigação de copiar Packed ou igualdade Rust. Hipótese refutável por qualquer negativo destas coletas, perda de fonte lexical, mutação de valor cru, efeito repetido, guard de alias perdido ou regressão de geometria/cache.
-
-### Responsabilidade exclusiva
-
-Ler somente x/y/spans efetivos da Cell pelo helper nominal privado para TableDocumentOrder, incluindo estilos e snapshots preparados. Algoritmo de ocupação, ordenação/padding, tipos/assinaturas públicas e política Grid permanecem. Não criar segundo algoritmo ou consultar StyleChain/Func/Engine no placement.
-
-### Gate, aceitação e limites
-
-Correção interna de paridade/mapeamento, ADR-0127 contínuo: nenhum contrato público, compatibilidade externa, flag/default de produto ou fase nova. Props e helpers são privados em carrier já não-construível externamente; lexicais não mudam. L0 editado primeiro, resselo restrito e RED→GREEN obrigatórios. Coletas bilaterais com erros/caret/efeitos, fonte/binaries/HEAD/UTC, geometria real; build debug/release/suítes e lint sem erros. Preservar árvore anterior sem commit/reset/resselo global. Subconjunto certificado: inteiros/autos, Color/None/Auto, Stroke uniforme/None, alinhamento, Length/inset parcial de Length/Auto, Bool/Auto e schemas já tipados. Gradient/tiling/functions, strokes por lado, inset percentuais e rich casts de constructor, grupos/spans multipágina/PDF-UA, set/text posicional e defaults gerais de Table continuam incompletos, com medição/L0 próprios antes de ampliar. Não certificar por warning fallback nem copiar defeitos upstream.
-
-Precisão medida em refuters-before: stroke-constructor-fold e align-constructor-fold preservam o construtor inteiro contra set da Cell. self-set-does-not-change-placement muda colspan observado para 2 após a ocupação já feita com 1; não é prova de nova ocupação.
-
-### Precisão dos spans observados após show-set (refutador C)
-
-Medição anterior: refuters-before.json.gz / self-set-does-not-change-placement, vanilla devolve colspan 2 na célula real x0 e colspan 1 nos paddings x1/x2. Fonte pinada layout/grid/resolve.rs:218–244 captura spans de ocupação mas não assenta seus campos no conteúdo; model/table.rs:785–800 assenta 1 nos paddings. Logo ocupação e getter posterior são observáveis distintos. Decisão privada: a Cell posicionada conserva TableCellResolved como plano físico; o carrier standalone privado pode coexistir apenas para propriedades observadas da receita, mantendo campos resolvidos e sobrescrevendo spans lexicalmente omitidos pela declaração de show-set. Getters/canonicalização consultam essa projeção; placement do plano completo continua usando TableCellResolved. Padding sem fonte tem spans lexicais 1 para que show-set não os altere. Guards/stage continuam causais, sem novo contrato público nem mutação da fonte original. RED de span getter antes de implementar, GREEN mais geometria/regressões obrigatórios.
-
-### Fold de declarações de Stroke — medição extra C
-
-extra-first.json.gz (fontes/HEAD/estado/UTC/binários completos) compara two-stroke-sets: set stroke:red seguido de 2pt produz 2pt + red no getter avulso e posicionado vanilla. stroke-render-inherits-cell-style resolve o constructor 2pt com paint red da Cell antes do fallback da Table 3pt, embora stroke-constructor-fold avulso exponha somente o constructor 2pt. Fonte pinada model/table.rs:765 declara #[fold]; resolve.rs:225–237 usa stroke.resolve(styles), distinto do getter cru. Decisão: declarações sucessivas foldam componentes specified ao publicar Value::Stroke declarativo; nenhum carrier/callback é guardado em Styles. Constructor stroke permanece inteiro no getter avulso; resolução posicionada folda o constructor com a base capturada Cell e depois Table. Adicionar somente campo privado stroke_inherited: Option<Stroke> em TableCellProperties para transportar essa base causal, sem assá-la no getter lexical. ObservationEq inclui base; canonicalização ignora base derivada de render. Table já resolvida tem base None. Clone/aliases conservam base anterior; None explícito vence. RED→GREEN antes de código; correção privada contínua ADR-0127, nenhum contrato público/fase/default novo. A cláusula de precedência inteira do constructor vale para o getter avulso, não para a resolução fold de stroke, conforme medição.
-
-
-## Caminhos residuais internos — 2026-10-13
-
-### Medição anterior à decisão
-
-`01_core/src/compiler/layout/grid_placement.rs` nas linhas 283 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
-
-### Decisão e aceitação
-
-Eliminar o helper privado extract_cell_fields sem chamadas. Preservar a rota vigente de extração/realização usada no placement, inclusive as cláusulas ratificadas D08B3. A remoção não elimina metadata nem muda spans de células.
-
-Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.
-
-## Iteração e parâmetros internos — 2026-10-13
-
-### Medição anterior à decisão
-
-`01_core/src/compiler/layout/grid_placement.rs` nas linhas 216, 217, 234, 235 contém os avisos selecionados do Clippy. O snapshot anterior à decisão, spans conferidos contra a fonte, owners, referências, binário, UTC, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status e diffstat estão em `lab/results/construction/diagnostics/iteracao-parametros-ci-2026-10-13/before.json.gz`. A inspeção mede mecânica interna e usos; não é nova prova bilateral de paridade ou ganho de desempenho.
-
-### Decisão e aceitação
-
-Percorrer os slices da área validada de occupied, conservando a ordem linha→coluna. A normalização de spans, os checks aritméticos/de colunas e ensure_rows continuam antes do acesso. Enumerar offsets para reconstruir as mesmas coordenadas absolutas do primeiro conflito, mensagem, hint e span causal. A fase de verificação permanece separada da fase de marcação: erro não marca parcialmente a área. Na marcação, preencher true apenas no slice de colunas do retângulo. Não usar truncamento silencioso para compensar limites inválidos nem alterar GridExplicitFirst/TableDocumentOrder, cursor ou padding.
-
-Refatoração interna equivalente em fluxo contínuo ADR-0127, sem contrato público, default ou fase novos. Conservar as expectativas dos testes existentes; não criar testes que apenas espelhem estes loops. Validar suíte core (incluindo conflitos, spans, fixups, marcadores e seleção diferencial), todos os targets, build, documentação, Clippy e linhagem com resselo restrito. Nenhuma supressão adicional de lint é autorizada por este lote.
+Observed-span getter requires RED before implementation, then GREEN with geometry/regressions; stroke fold requires RED→GREEN. Preserve existing language results/test expectations while deleting unused helper. Equivalent iteration maintenance adds no public contract/default/phase; do not add tests merely mirroring loops. Validate core suite including conflicts/spans/fixups/markers/differential selection, all targets/build/docs/Clippy/lineage with restricted resealing. Do not suppress warnings instead of correcting code.

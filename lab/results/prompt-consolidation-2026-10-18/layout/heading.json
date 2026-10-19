@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/layout/heading.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative paragraphs reconciled.",
+  "disposition": "Consolidated heading dead-calculation removal, size bridge, priority-before-magnitude margin refinement and hanging fragment scope, preserving all refuters and partial supersessions.",
+  "original_sha256": "343a34c046d4f2683e1546a10f27974454212dc142f896be8945128899431b39",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/heading.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

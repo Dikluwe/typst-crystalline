@@ -1,0 +1,718 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/mod.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "94037869f2ef1bb9665b8e421e2435931d17eff4074590ec9ba3b863d57df0b0",
+    "result_sha256": "94037869f2ef1bb9665b8e421e2435931d17eff4074590ec9ba3b863d57df0b0",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/emoji.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "8a2ecb6653d6f61fcac465c54ade4b776df5483f2bf7fda1799f6f213b113c45",
+    "result_sha256": "8a2ecb6653d6f61fcac465c54ade4b776df5483f2bf7fda1799f6f213b113c45",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/eval.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "de8d0725a72489b81d1cdadb7daa450f35fb14b187ab1e5ad03bd7600f87622f",
+    "result_sha256": "de8d0725a72489b81d1cdadb7daa450f35fb14b187ab1e5ad03bd7600f87622f",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/datetime.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "3fe139352a8cb73e909476eff7425530981702381ffabf56bb9ca6821f0163d2",
+    "result_sha256": "3fe139352a8cb73e909476eff7425530981702381ffabf56bb9ca6821f0163d2",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/int.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "03f9576ded17ed8ddc2410e04a91197d22c850ee910d7a73acf3960d4bafc3ed",
+    "result_sha256": "03f9576ded17ed8ddc2410e04a91197d22c850ee910d7a73acf3960d4bafc3ed",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/mod.md",
+    "status": "reviewed-english-canonical-reference-repair",
+    "original_sha256": "cb0d7cf4ef12fed470c47195b300ee30d302c53b7320728313bb4f6162e3f8af",
+    "result_sha256": "a5a6c9d0cf1778695aad086a3db0d199132b7e36f48ef81219037d2cfe354742",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/path.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "d716fedc2e0091d83e6017af4c2bf78251cee6d03d2e203727f61188f259b30d",
+    "result_sha256": "d716fedc2e0091d83e6017af4c2bf78251cee6d03d2e203727f61188f259b30d",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/regex_constructor.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "c4074cfd0fb117b61fa84e81c5cef4c4e4fc5f4f7ecfe619935d69da321e310a",
+    "result_sha256": "c4074cfd0fb117b61fa84e81c5cef4c4e4fc5f4f7ecfe619935d69da321e310a",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/repr.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "de36ef1ecab930c1e0878389dbdd2c426e85aa1b92635f9302a96307cf60039f",
+    "result_sha256": "de36ef1ecab930c1e0878389dbdd2c426e85aa1b92635f9302a96307cf60039f",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/str.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "7b647893576d77293cb4051c6fe12faf363160bded5ea3c0cbb079ccaa5020fd",
+    "result_sha256": "7b647893576d77293cb4051c6fe12faf363160bded5ea3c0cbb079ccaa5020fd",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/foundations/ty.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "e05b9f6f1639706909625e5d16b010cfa24db28e57e111c60d03ceecbeb5ce99",
+    "result_sha256": "e05b9f6f1639706909625e5d16b010cfa24db28e57e111c60d03ceecbeb5ce99",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/html/html_constructor_surface_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "62c13b58f1e510ad4b69aca53c0aea7b1a9ae9afd2d3d0937ff270a5d2e69bbb",
+    "result_sha256": "62c13b58f1e510ad4b69aca53c0aea7b1a9ae9afd2d3d0937ff270a5d2e69bbb",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/html/html_frame_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "b467c9f87aad0cd071a8cdcc186bf7402cb404633a12357b4d67eaae0b678c4b",
+    "result_sha256": "b467c9f87aad0cd071a8cdcc186bf7402cb404633a12357b4d67eaae0b678c4b",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/label.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "0ae93840034be169475381b6c4ad7bda0f442292437c9301e3ce5317c30a8946",
+    "result_sha256": "0ae93840034be169475381b6c4ad7bda0f442292437c9301e3ce5317c30a8946",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/panic.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "0b55b3c64ced7242b941ff3950b0b5172190d469d7865f088d2e9bb3d71c65fc",
+    "result_sha256": "0b55b3c64ced7242b941ff3950b0b5172190d469d7865f088d2e9bb3d71c65fc",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/primitives_constructors/decimal.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "2219522906bf816555f7dac19a009a5636a19fce465a770a29ad75710a5b9c1a",
+    "result_sha256": "2219522906bf816555f7dac19a009a5636a19fce465a770a29ad75710a5b9c1a",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/primitives_constructors/duration.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "147888934c6ce178376bf3a13d556f08312114a69a17fa2291ed7b742bf575fa",
+    "result_sha256": "147888934c6ce178376bf3a13d556f08312114a69a17fa2291ed7b742bf575fa",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/primitives_constructors.md",
+    "status": "reviewed-english-canonical-reference-repair",
+    "original_sha256": "274a75a244de582766bae83e70becd8d154451e45731caf980bad34f16d817fe",
+    "result_sha256": "6824d7790f5274ae6c5d428c36e4c970d374a30b0bd50d560e9a181034706281",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/ref.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "2e0a5dcbe1def1b857bd5d60a8271b1881bf28f881bcc4b918cb90b08bee27d6",
+    "result_sha256": "2e0a5dcbe1def1b857bd5d60a8271b1881bf28f881bcc4b918cb90b08bee27d6",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/data.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "2c24abf527bc8ed5370c610932b90c3439f6ac63443fca9dada8c4a0c3d64246",
+    "result_sha256": "2c24abf527bc8ed5370c610932b90c3439f6ac63443fca9dada8c4a0c3d64246",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/diagnostics.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "e0c54552ff6888fa75085883654355990a8c577c340efdc26a70949340b2a44a",
+    "result_sha256": "e0c54552ff6888fa75085883654355990a8c577c340efdc26a70949340b2a44a",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/figure_image.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "265df86f072c2ec6889dae66c8b850ae6fbddfb0194cecfadd8c355ea57fde20",
+    "result_sha256": "265df86f072c2ec6889dae66c8b850ae6fbddfb0194cecfadd8c355ea57fde20",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/formats.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "61489f784883c1f1d592dff030fa3a075e152c063fc550d696aeaa50d265a2ac",
+    "result_sha256": "61489f784883c1f1d592dff030fa3a075e152c063fc550d696aeaa50d265a2ac",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/foundations.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "31d49069ab9ca87f45141365e45ce3f6b9d8b606c38509a661d859a23dd0fac4",
+    "result_sha256": "31d49069ab9ca87f45141365e45ce3f6b9d8b606c38509a661d859a23dd0fac4",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/layout.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "1b396270ea22c53764d11714b848eb6bf54477864c12f157a566c48a4bc3b224",
+    "result_sha256": "1b396270ea22c53764d11714b848eb6bf54477864c12f157a566c48a4bc3b224",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/math.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "42911982b121e246e4ea6e687e8797ea7e44ecdecb039bd150a9494ce1f92cc2",
+    "result_sha256": "42911982b121e246e4ea6e687e8797ea7e44ecdecb039bd150a9494ce1f92cc2",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/modules.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "5fbbe1ed4ee5297a0276d4ad7ff40bc4dc3afee2613c97013c290de3f49a3a8d",
+    "result_sha256": "5fbbe1ed4ee5297a0276d4ad7ff40bc4dc3afee2613c97013c290de3f49a3a8d",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/shapes.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "a5a860a69a49a86a2c89016ede1c66f9d48b713eaa16dd6582f217de80275517",
+    "result_sha256": "a5a860a69a49a86a2c89016ede1c66f9d48b713eaa16dd6582f217de80275517",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/structural.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "ebe9352fb6cbf2f42d50f1ebe75d3275d742a10451f9918ad3389cd3658b7e01",
+    "result_sha256": "ebe9352fb6cbf2f42d50f1ebe75d3275d742a10451f9918ad3389cd3658b7e01",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/table_grid.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "03921fd5065f7e386444aa9b23c4ba679482b31b98102fc7d404d980c9f912de",
+    "result_sha256": "03921fd5065f7e386444aa9b23c4ba679482b31b98102fc7d404d980c9f912de",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "93a963f0e9e13a6351efc7aa7d4cf5b4d3abf233898c331d3ddddf7c47be1ec7",
+    "result_sha256": "93a963f0e9e13a6351efc7aa7d4cf5b4d3abf233898c331d3ddddf7c47be1ec7",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/registry/text.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "d5fc4bc23da5be11099cb8450171d804a95236ca89fc88dfbdbdccf39bc54c65",
+    "result_sha256": "d5fc4bc23da5be11099cb8450171d804a95236ca89fc88dfbdbdccf39bc54c65",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "e79c574582c080a30c54b5f49110eec821753f7af2030a77d4493f8b260f17ab",
+    "result_sha256": "e79c574582c080a30c54b5f49110eec821753f7af2030a77d4493f8b260f17ab",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/divider.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "57ac90b421dbb7fc6e48124e0866f2afa4751a55565d0763dd142e311adcbcd5",
+    "result_sha256": "57ac90b421dbb7fc6e48124e0866f2afa4751a55565d0763dd142e311adcbcd5",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/abs.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "5b0eb30be65b686f36b24b94598c767ee50bfaa2293cbfd5e0e133b04d88977b",
+    "result_sha256": "5b0eb30be65b686f36b24b94598c767ee50bfaa2293cbfd5e0e133b04d88977b",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/annotations.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "9bfbf92b962eb5a7318752804bfdd982e69d8cfb9ce6543151677c9314bfcccc",
+    "result_sha256": "9bfbf92b962eb5a7318752804bfdd982e69d8cfb9ce6543151677c9314bfcccc",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/attach.md",
+    "status": "reviewed-english-canonical-reference-repair",
+    "original_sha256": "c3e5cd2a736c9ca121694bce62ceeb8c0838a5a088900024940fcdd0300890e1",
+    "result_sha256": "82d8f039b7101dd4695bbc6cc9644877801b1d1396735ac00bac5fede6a8aa23",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/binom.md",
+    "status": "reviewed-english-canonical-reference-repair",
+    "original_sha256": "10621bec399e13b8af477ed05a63d2d5d9ea30fd59c8c0e0ba547de4a82f9bd1",
+    "result_sha256": "fa0c8f43ad178f318f075d3a03182ca29bff1c333ccd72ee177529f31228d0c4",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/cancel.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "cf23ef71be331d868e02d481bb0447d447f2f7473a603658e7e7eb137abe122f",
+    "result_sha256": "504eb33d0fa1669855cca787f64167143bb036d64f5853ad9dbdb35afcd5b29e",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest.",
+    "followup": "Root canonical-reference repair retained in place; see canonical-reference-repairs.json."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/cases.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "672161a5cde3f4291dab9b6251a7383115a8f91ad2210f2801beee773709d611",
+    "result_sha256": "672161a5cde3f4291dab9b6251a7383115a8f91ad2210f2801beee773709d611",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/casts.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "791c6d2fd046591de2803ab702f5e90ee0ceb983ec86107ba5cc7eff22f4c97c",
+    "result_sha256": "791c6d2fd046591de2803ab702f5e90ee0ceb983ec86107ba5cc7eff22f4c97c",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/class.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "6361aaab488710444ec52f31c71c6347a0d8616d6414c500d14ba337e02895a1",
+    "result_sha256": "6361aaab488710444ec52f31c71c6347a0d8616d6414c500d14ba337e02895a1",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "f84837e36948a4aab044fecfb6003d45835c08681cc1930716135c7b727dc34a",
+    "result_sha256": "f84837e36948a4aab044fecfb6003d45835c08681cc1930716135c7b727dc34a",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/frac.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "0f76fe69c8584b87713b82818ac6b580e591cb885d0ca3577218ba7bcca8a337",
+    "result_sha256": "f811012d47745dee76ddc7f4b9993020be78680a7629e4ac906f243a588db6c6",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest.",
+    "followup": "Root canonical-reference repair retained in place; see canonical-reference-repairs.json."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_frac_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "8d6fa4fa8e5fa72b00d0be9cd4c8cd0dd6ba0c8b01d308dfa12315e0433033b8",
+    "result_sha256": "8d6fa4fa8e5fa72b00d0be9cd4c8cd0dd6ba0c8b01d308dfa12315e0433033b8",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_limits_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "c3ae4ed57719ed80801fcfbe8c49398c07818168987b6758e7bcafd19a92bcee",
+    "result_sha256": "c3ae4ed57719ed80801fcfbe8c49398c07818168987b6758e7bcafd19a92bcee",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/math_root_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "3230018ff0795ce2f6078803b0cde9f2fb80f67ec257edb283138f329a04f6ee",
+    "result_sha256": "3230018ff0795ce2f6078803b0cde9f2fb80f67ec257edb283138f329a04f6ee",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/mid.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "8e42664c76d7f4cd0f56fc9a568a01d4f4bf1b5df73f2119d3133aff3c73ae24",
+    "result_sha256": "8e42664c76d7f4cd0f56fc9a568a01d4f4bf1b5df73f2119d3133aff3c73ae24",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/norm.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "346607e9164de40c77bc99c01062e036187e2a4e7229ad02f596cc3c80b9c070",
+    "result_sha256": "346607e9164de40c77bc99c01062e036187e2a4e7229ad02f596cc3c80b9c070",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/op.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "d3f9c8a3b792421fd65e91c97a3273a79eb0ad70b18af66767ce0f06d764e363",
+    "result_sha256": "d3f9c8a3b792421fd65e91c97a3273a79eb0ad70b18af66767ce0f06d764e363",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/overline.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "76f5b1ea696cef88e10cbaf0520f8a364d13c5fe9860ed19f7921a245c59967a",
+    "result_sha256": "76f5b1ea696cef88e10cbaf0520f8a364d13c5fe9860ed19f7921a245c59967a",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/primes.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "d05341d43df7249fa2fedede9a7ca9c7b0d9a358de874baf233267edf9e7fc93",
+    "result_sha256": "d05341d43df7249fa2fedede9a7ca9c7b0d9a358de874baf233267edf9e7fc93",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/root.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "316d539102e52f3a87f4a1b4a4d2cf20a6e49d90630cdf53ce948fa3dabc9954",
+    "result_sha256": "316d539102e52f3a87f4a1b4a4d2cf20a6e49d90630cdf53ce948fa3dabc9954",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/round.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "c1a44bcc1a9adabfe16237025ded7dba30c4e93ba6729cc4d7839f6775014040",
+    "result_sha256": "c1a44bcc1a9adabfe16237025ded7dba30c4e93ba6729cc4d7839f6775014040",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/stretch.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "f04cce34036516b0bc034635b86bf42f99ae4dfe7f8dddfc15877529b419802b",
+    "result_sha256": "f04cce34036516b0bc034635b86bf42f99ae4dfe7f8dddfc15877529b419802b",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/underline.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "5d41a7a985a8daa4773f411e42ff62b1b39efcc218ab815a0668d5e1a4b56ab5",
+    "result_sha256": "5d41a7a985a8daa4773f411e42ff62b1b39efcc218ab815a0668d5e1a4b56ab5",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math/underover.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "c355b31daca0cc5bf406f7f72a53846abcb77ae894c24d173735d7aaf2876ac8",
+    "result_sha256": "c355b31daca0cc5bf406f7f72a53846abcb77ae894c24d173735d7aaf2876ac8",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_abs_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "467971a18c0684cdd839ef0a29668e1f2d5b3de0faa09afe319b7895deb79066",
+    "result_sha256": "467971a18c0684cdd839ef0a29668e1f2d5b3de0faa09afe319b7895deb79066",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "b84bd592c31fc30103abe7696a469a1e6396436799bb1e091b64d91376978010",
+    "result_sha256": "b84bd592c31fc30103abe7696a469a1e6396436799bb1e091b64d91376978010",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "e3564a1aa018323f80094f801bd5695a27d14475d40c76151f828c478ec025a3",
+    "result_sha256": "e3564a1aa018323f80094f801bd5695a27d14475d40c76151f828c478ec025a3",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_lr_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "42424ca72e4231474acfa3fdb97c93be6281fa4cfd0a572ecfcf4191ed604e0e",
+    "result_sha256": "42424ca72e4231474acfa3fdb97c93be6281fa4cfd0a572ecfcf4191ed604e0e",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_matrix_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "747093164087f667290095ee612fe2e095a908d763ea5b8fb095cdd7130f237f",
+    "result_sha256": "747093164087f667290095ee612fe2e095a908d763ea5b8fb095cdd7130f237f",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_mid_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "44e36e4356fcf726df6eb11385714554792af7963702db6f42dc5a7b8225d0f6",
+    "result_sha256": "44e36e4356fcf726df6eb11385714554792af7963702db6f42dc5a7b8225d0f6",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_norm_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "af5353410bb113a75079825640523b7c302261232c72d219a334c08a5ae5c8b8",
+    "result_sha256": "af5353410bb113a75079825640523b7c302261232c72d219a334c08a5ae5c8b8",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overbrace_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "7659c4a12756a01e6fad2dfa5a10a4af27480582f478379298a2f42e87cc00ef",
+    "result_sha256": "7659c4a12756a01e6fad2dfa5a10a4af27480582f478379298a2f42e87cc00ef",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overbracket_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "bb316bbb95aabddfe0a2fce4b6e561e2ef5d2bab1e612a7e263f4990eff1cfad",
+    "result_sha256": "bb316bbb95aabddfe0a2fce4b6e561e2ef5d2bab1e612a7e263f4990eff1cfad",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overline_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "014758c7599aced8cb5cc4696f1b32306610fce340e4df7aeb754fd67f3f8e26",
+    "result_sha256": "014758c7599aced8cb5cc4696f1b32306610fce340e4df7aeb754fd67f3f8e26",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overparen_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "b6fca6ad1405ad2af3feae368069d03700c5c4e9f0aa9ccf635cb60e3a0716a1",
+    "result_sha256": "b6fca6ad1405ad2af3feae368069d03700c5c4e9f0aa9ccf635cb60e3a0716a1",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_overshell_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "69652eddb6cc0f869ba2551461f5f41e51c58ab5504bbf6167da97916ac88620",
+    "result_sha256": "69652eddb6cc0f869ba2551461f5f41e51c58ab5504bbf6167da97916ac88620",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_primes_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "bc8c572b4cb2ef8368093fbccedd666e9b02a92f7e42de42c4abd1a0a3db2da2",
+    "result_sha256": "bc8c572b4cb2ef8368093fbccedd666e9b02a92f7e42de42c4abd1a0a3db2da2",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_round_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "166a8f59f7fdc5dba0467488eab0ce94508fd831d4650706d4683139ce5515a1",
+    "result_sha256": "166a8f59f7fdc5dba0467488eab0ce94508fd831d4650706d4683139ce5515a1",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_stretch_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "369c5828968b2bd0c26c2f22119aa875f0df02a2be1585f3cd458faad46498af",
+    "result_sha256": "369c5828968b2bd0c26c2f22119aa875f0df02a2be1585f3cd458faad46498af",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underbrace_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "57fe8386857a9f5d9c8eb8bcb84450a835f7ab90a0d9864a9ae2df0836b652b9",
+    "result_sha256": "57fe8386857a9f5d9c8eb8bcb84450a835f7ab90a0d9864a9ae2df0836b652b9",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underbracket_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "b6bb4eb6bbab804d73069d6c77cfb67c7d449d48d1f5b0c6108457f242801dfb",
+    "result_sha256": "b6bb4eb6bbab804d73069d6c77cfb67c7d449d48d1f5b0c6108457f242801dfb",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_underparen_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "e9f3b865878f3d56e94a52f6b25bab687e8cbe393d78bca592b946aa00b16583",
+    "result_sha256": "e9f3b865878f3d56e94a52f6b25bab687e8cbe393d78bca592b946aa00b16583",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_undershell_tests.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "e4b785f22c314a2ac8dc77a2a5fac4ed2db6d1c663a11f771174828cff3451c3",
+    "result_sha256": "e4b785f22c314a2ac8dc77a2a5fac4ed2db6d1c663a11f771174828cff3451c3",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/quote.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "6fb71bb8f46a3e748d90ead07b270ffd8fa8759a058c931a5791f1c64280a2c1",
+    "result_sha256": "6fb71bb8f46a3e748d90ead07b270ffd8fa8759a058c931a5791f1c64280a2c1",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/table_lines.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "de0883853bd9ccddbcc5750e0e204f5d211bb68a12a12ffe5c5912a8086b84f2",
+    "result_sha256": "de0883853bd9ccddbcc5750e0e204f5d211bb68a12a12ffe5c5912a8086b84f2",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/structural/title.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "5fad95d40ad1754781abd8734f3c194467a8268980044050a9dae04d1865d143",
+    "result_sha256": "5fad95d40ad1754781abd8734f3c194467a8268980044050a9dae04d1865d143",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/sys.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "554b605919fb8885176b5dd47efe398c51f2827a3921baa386b004694a4a5838",
+    "result_sha256": "554b605919fb8885176b5dd47efe398c51f2827a3921baa386b004694a4a5838",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/arguments.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "dfb7356e430448143f69ae263caa9c5a357c76e0646740540f992e9805034d90",
+    "result_sha256": "dfb7356e430448143f69ae263caa9c5a357c76e0646740540f992e9805034d90",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/assertions.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "5ed6bdb48148fd824f3328788e6c728e1151877806b5db16bd674df787a53f0c",
+    "result_sha256": "5ed6bdb48148fd824f3328788e6c728e1151877806b5db16bd674df787a53f0c",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/bibliography.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "a301eb06467cda3b53da15af9a046ee00ce6a73995faf2d11cf26f0ff4f45cc9",
+    "result_sha256": "a301eb06467cda3b53da15af9a046ee00ce6a73995faf2d11cf26f0ff4f45cc9",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/calc.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "f3a19106ef488b7d426ff81a727ef0a59a8598920ef41b42dd4ce713e5109f92",
+    "result_sha256": "f3a19106ef488b7d426ff81a727ef0a59a8598920ef41b42dd4ce713e5109f92",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/color.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "72de6d624727409865aa80d1288490af8ee2983ee48f7fae9fa4ad565d4e5671",
+    "result_sha256": "72de6d624727409865aa80d1288490af8ee2983ee48f7fae9fa4ad565d4e5671",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/contextual.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "a5c0789eaed4b2d667aa14a11fd4c4ca17b58232852a092b6c13ec34ba690909",
+    "result_sha256": "a5c0789eaed4b2d667aa14a11fd4c4ca17b58232852a092b6c13ec34ba690909",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/eval.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "3ec93fa81c81797f4c51b2a43f723fa9f082cd639a251934987377eb8b1043ae",
+    "result_sha256": "3ec93fa81c81797f4c51b2a43f723fa9f082cd639a251934987377eb8b1043ae",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/figure_image.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "0421abd5f64ddba9f6e1c5a35339da6e99920f91224d2bc741790b3afd9f5035",
+    "result_sha256": "0421abd5f64ddba9f6e1c5a35339da6e99920f91224d2bc741790b3afd9f5035",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/footnote.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "347c0312962b96607b80400c58f35f882928ec33ca2f65976b6747faab1dac4d",
+    "result_sha256": "347c0312962b96607b80400c58f35f882928ec33ca2f65976b6747faab1dac4d",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/foundations.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "1e9d96ab0b00b957786e521b0b5fc8051741e28069df9883532f971f856a3499",
+    "result_sha256": "1e9d96ab0b00b957786e521b0b5fc8051741e28069df9883532f971f856a3499",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/gradients.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "358b43f198d82c725291124df5fd8db025ee391dc239eab19823ebca8b3ea035",
+    "result_sha256": "358b43f198d82c725291124df5fd8db025ee391dc239eab19823ebca8b3ea035",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/introspection.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "b281f006ee58cd5e108b78ec013229619b2681018fedd73565985e13c7945d85",
+    "result_sha256": "b281f006ee58cd5e108b78ec013229619b2681018fedd73565985e13c7945d85",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/layout_spacing.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "b20760810703ceb5e7de2d3778212d0ff34e94d3f1e191e7867ea1ce219682e9",
+    "result_sha256": "b20760810703ceb5e7de2d3778212d0ff34e94d3f1e191e7867ea1ce219682e9",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/math.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "a79b6b80d90a3ac650f2d32f0347ca5ba4d7c1f7ad03b1da3b2176b374a6e06a",
+    "result_sha256": "a79b6b80d90a3ac650f2d32f0347ca5ba4d7c1f7ad03b1da3b2176b374a6e06a",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/mod.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "c6b2964f253bde22e31e51a5f0b195642e981c7391fd4721e24caec7864bc6b9",
+    "result_sha256": "c6b2964f253bde22e31e51a5f0b195642e981c7391fd4721e24caec7864bc6b9",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/tests/symbols.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "b2867f0846ab0c1bdc13ba1b7b140f041cb88cbcba0ca7706cffbb6a0e3857f8",
+    "result_sha256": "b2867f0846ab0c1bdc13ba1b7b140f041cb88cbcba0ca7706cffbb6a0e3857f8",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/text/case.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "a30581ba407ac622801989418fe7de5ddd257684e1389250e2f193d156feb87d",
+    "result_sha256": "a30581ba407ac622801989418fe7de5ddd257684e1389250e2f193d156feb87d",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/text/deco.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "38f4347a3e20c8b39602a06c6d7942da12db872ef8b6ce39f7da385e27a41a6c",
+    "result_sha256": "38f4347a3e20c8b39602a06c6d7942da12db872ef8b6ce39f7da385e27a41a6c",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/text/lorem.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "44b1b009ebc2b61f6e4fe01933081c52a65d4930479b853972880904432b5fc7",
+    "result_sha256": "44b1b009ebc2b61f6e4fe01933081c52a65d4930479b853972880904432b5fc7",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/text/mod.md",
+    "status": "reviewed-english-canonical-reference-repair",
+    "original_sha256": "bf4aa0c72e2d49e9c9a986d138aa5dee1f03b0764ccdd8e77ede27fb310e61e8",
+    "result_sha256": "731dfae40e686433a38d4b492ae72292a9d86134abe96605389af266f5d73037",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/text/shift.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "8d785f5214b65c0e254823bb4c29b233b37743751aba305dc04facd37424bd39",
+    "result_sha256": "8d785f5214b65c0e254823bb4c29b233b37743751aba305dc04facd37424bd39",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/stdlib/text/smallcaps.md",
+    "status": "reviewed-english-contract-no-translation",
+    "original_sha256": "512b3f7b660679e00f89789c4ded7fd48551ab89b1c03356f5764ae49e64d227",
+    "result_sha256": "512b3f7b660679e00f89789c4ded7fd48551ab89b1c03356f5764ae49e64d227",
+    "disposition": "Individual behavior, scope, acceptance and evidence clauses reviewed; existing English retained, all hashes/pins/parser labels unchanged. Non-English diagnostics/Unicode data retained as observables. Canonical owner path spelling repaired only where noted by a changed digest."
+  }
+]

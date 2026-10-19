@@ -89,56 +89,56 @@ Mismatch wording delegates to error_formatting. Tests distinguish checked
 overflow, zero precedence, IEEE behavior, repetition, grapheme preservation,
 component compatibility, paint construction and Args metadata conservation.
 
-## D08B3-C — marcas fornecidas de stroke Length + Color
+## Provided Stroke components for Length+Color
 
-Medição anterior à decisão: table-cell-styles-d08b3c-2026-10-07/physical-complete.json.gz / stroke-with-body-recipe contém literal red+2pt, render black 1pt Tekt contra red 2pt vanilla, apesar da correção do consumer de bordas. Coleção identifica HEAD/working tree/fontes/binaries/UTC/argv/PDF/SVG. arithmetic.rs:336–344 usa ..Stroke::default() sem provided bits; realizer fold_stroke pode substituir esses componentes pelo default Table. Fonte pinada foundations/ops.rs produz Stroke::from_pair com os dois componentes Custom; geometry stroke model preserva ausência de outros componentes. É cor/espessura/getter da linguagem, não obrigação de igualdade Rust.
+Cell-style physical-complete.json.gz/stroke-with-body-recipe measures literal
+red+2pt rendered black 1pt in Tekt versus red 2pt vanilla even after borders repair.
+Collection retains HEAD/tree/sources/binaries/UTC/argv/PDF/SVG.
+arithmetic.rs:336–344 uses ..Stroke::default() without provided bits, letting
+fold_stroke replace components by Table default. Pinned foundations/ops.rs uses
+Stroke::from_pair with both Custom; geometry model retains other omissions.
+Color/thickness/getter is language, not Rust equality requirement.
 
-Decisão interna contínua ADR-0127: nos braços existentes Length + Color e Color + Length marcar somente specified.paint e specified.thickness como true. Preservar valores, casts, espessura absoluta, overhang, assinatura, outros braços e componentes não fornecidos. Não ampliar Gradient/Relative ou resolução em neste recorte. Teste RED→GREEN de ambas as ordens antes do fallback Table, vetor físico com cor/espessura corretas e suíte geral; sem API/fase/modo/default ou compatibilidade nova. Rich strokes/relative/em já fora de certificação continuam incompletos.
+Internal continuous ADR-0127: existing Length+Color/Color+Length arms set only
+specified.paint/specified.thickness true. Keep values/casts/absolute thickness/
+overhang/signature/other arms/unspecified components. Expand no Gradient/Relative/
+em resolution here. RED→GREEN both orders before Table fallback, physical correct
+color/thickness vector/full suite. No new API/phase/mode/default/compatibility.
+Rich strokes/relative/em stay incomplete outside certification.
 
-## Adaptação Memória 5 — proposta pendente ADR-0127
+## Ratified compact Value carrier adaptation
 
-Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
-before.json.gz e inventory.json congelam este consumer e cada ocorrência
-file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
-Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
-00_nucleo/prompts/core/entities/value.md; esta unidade apenas o consome e não
-compartilha ownership. Nenhuma implementação/adaptação antes da confirmação
-do manifesto deste pacote.
+Before deciding,
+`lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/before.json.gz`
+and inventory.json freeze this consumer/all Value::Stroke file:line occurrences.
+sizes.json measures external Value model272→144 bytes, no RSS proof. New public
+carrier belongs only to `00_nucleo/prompts/core/entities/value.md`; this unit
+consumes without shared ownership. Earlier implementation gate was satisfied by
+human `confirmo` on2026-10-08, manifest
+`6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237`;
+proposed clauses are current for materialization.
 
-Responsabilidade desta unidade: Os três braços já existentes que constroem Stroke usam a conversão From<Stroke> preservada. Não mudar operações, provided bits, casts ou defaults e não ampliar Gradient/Relative nesta adaptação.
+Three existing Stroke-producing arms use retained From<Stroke> conversion.
+Change no operations/provided bits/casts/defaults or Gradient/Relative scope.
+Keep tests/oracles, pertinent RED→GREEN if new isolation behavior exists,
+owner-only reseal/revalidation. No semantic/default/phase expansion.
 
-Após confirmação: conservar testes/oráculos vigentes, adicionar o RED→GREEN
-pertinente quando houver comportamento de isolamento novo, resselo só do owner
-e revalidação. Esta cláusula não amplia semântica, defaults ou fase.
+## Content concatenation delegation
 
-Ratificação Memória 5: o dono confirmou o manifesto SHA-256
-6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237
-com “confirmo” em 2026-10-08. O gate ADR-0127 deste pacote está satisfeito;
-suas cláusulas propostas passam a vigorar nesta materialização.
+HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c` and working tree/UTC/
+diffstat/sources in state-stack-2026-10-17/before.json.gz.
+morphology-before.json.gz/morphology-measured.json.gz compare loop/+ repr at
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`: Tekt nests Sequence per join;
+vanilla concatenates immediate children. debug-root.log locates stack failure
+while scanning64-update-produced chain. Language form/failure, no copying Rust
+shape or stack increase required.
 
-
-## Concatenação de conteúdo — 2026-10-17
-
-### Medição anterior à decisão
-
-HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/diffstat/fontes
-em before.json.gz de lab/results/construction/diagnostics/state-stack-2026-10-17.
-morphology-before.json.gz/morphology-measured.json.gz comparam repr de loops e +
-com vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3: o Tekt encaixa Sequence
-a cada junção; vanilla concatena os filhos imediatos. debug-root.log localiza
-a falha de pilha na varredura da cadeia produzida por 64 updates. São forma e
-falha de linguagem, sem obrigação de copiar estrutura Rust ou aumentar stack.
-
-### Responsabilidade exclusiva
-
-Os cinco braços Add de Content com Content/Str/Symbol delegam ao helper interno
-concat_content, owned exclusivamente por
-00_nucleo/prompts/core/compiler/eval/operators/join.md, após as coerções atuais.
-Não duplicar essa implementação aqui nem encaminhar todos os tipos join-compatible
-para Add. A matriz de domínios, números, strings/symbols entre si, arrays, Args,
-repetição e erros conserva integralmente o contrato vigente.
-
-Testar concatenação nos dois lados e coerções Str/Symbol para Content, incluindo
-texto vazio, junto com os controles P900. L0 antes do código, RED→GREEN e gates
-workspace/build/Clippy/Rustdoc/linhagem/fmt, sob 12GiB/High8GiB/swap0/jobs1.
-Fluxo contínuo ADR-0127: sem API pública, fase, default ou compatibilidade nova.
+Five Content Add arms with Content/Str/Symbol delegate after current coercions
+to concat_content owned by
+`00_nucleo/prompts/core/compiler/eval/operators/join.md`. Duplicate no body or
+route every join-compatible type to Add. Preserve full domain/numeric/string-
+symbol/array/Args/repetition/error matrix above. Test both operand sides and
+Str/Symbol-to-Content coercions including empty text with existing P900 controls.
+L0 before code, RED→GREEN/workspace/build/Clippy/Rustdoc/lineage/fmt under
+12GiB/High 8 GiB/swap0/jobs1. Internal continuous ADR-0127, no public API/phase/
+default/compatibility change.

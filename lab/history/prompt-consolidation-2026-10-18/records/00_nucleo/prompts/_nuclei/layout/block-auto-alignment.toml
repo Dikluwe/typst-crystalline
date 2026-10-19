@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "block-auto-alignment"
+title = "Alinhamento geométrico na largura final de Block Auto"
+
+[[claims]]
+id = "constraint-versus-allocation"
+level = "must"
+statement = "A largura disponível limita o layout do corpo, mas não é a alocação horizontal final de Block automático. Align geométrico em Block Auto conserva posição intrínseca e adia seu deslocamento horizontal até conhecer a largura causal final com inset. Não executar o corpo duas vezes."
+
+[[claims]]
+id = "scope"
+level = "must"
+statement = "O estado privado de largura Auto pertence ao Block corrente. Subframe isolado não o herda; Block filho substitui/restaura em LIFO; checkpoint conserva e configuração de página limpa. Fixups locais são resolvidos uma vez antes do recorte e da raiz de pintura na mesma região."
+
+[[claims]]
+id = "limits"
+level = "must"
+statement = "Esta etapa não certifica alinhamento por linha textual, matemática centrada, Place horizontal, decorações externas consumidas antes do fechamento nem Block fragmentado. A correção geométrica não permite declarar esses refutadores resolvidos; eles precisam de transporte causal e validação próprios."

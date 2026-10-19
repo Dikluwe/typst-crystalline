@@ -12,7 +12,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/foundations/mod.rs`
 
 Own only module declarations and direct reexports in foundations/mod.rs. Preserve the current visibility/signatures and paths through the stdlib façade. Declare cast, color, datetime, float, int, path, query, regex_constructor, repr, selector, str and ty; keep private/internal method-dispatch linkage as currently exposed.
 
-Each child owns its casts, native behavior, diagnostics and defaults under `00_nucleo/prompts/compiler/stdlib/foundations/`. The datetime constructor remains in cast; datetime fields belong to datetime. Regex construction belongs to `00_nucleo/prompts/core/compiler/stdlib/foundations/regex_constructor.md`, not str or text. Morphological value serialization remains with `00_nucleo/prompts/core/compiler/eval/repr.md`.
+Each child owns its casts, native behavior, diagnostics and defaults under `00_nucleo/prompts/core/compiler/stdlib/foundations/`. The datetime constructor remains in cast; datetime fields belong to datetime. Regex construction belongs to `00_nucleo/prompts/core/compiler/stdlib/foundations/regex_constructor.md`, not str or text. Morphological value serialization remains with `00_nucleo/prompts/core/compiler/eval/repr.md`.
 
 Do not reintroduce a global len function, add constructor logic, calendar/formatting, World reads or new registry entries here. Existing string/array/dictionary len methods remain separate language operations.
 

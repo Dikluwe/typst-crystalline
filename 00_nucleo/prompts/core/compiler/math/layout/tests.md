@@ -2,8 +2,8 @@
 Hash do Código: c3b4f99a
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:b1f5e8d937f80e207e7cb5f1cd7ee03f3a3eebc89af5bfc0e13ebd95c615ecd0
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 
 **Layer:** L1 (tests)
@@ -32,7 +32,7 @@ omitted style, style-chain precedence, slash associativity, both
 deparenthesization bits and the barless binomial. Observe axis, operand order,
 separation and bar/slash presence rather than freezing font names, private
 frames or operation order. Independent feature suites keep their own owners
-under `00_nucleo/prompts/compiler/math/layout/`.
+under `00_nucleo/prompts/core/compiler/math/layout/`.
 
 Acceptance observes morphology and attributable font-derived geometry;
 historical RED/GREEN reports or aggregate test totals are not fresh parity
@@ -59,116 +59,144 @@ ink-derived extents, rather than reverting to the base glyph. Also cover the
 assembly path when the font supplies one. Attribute expected selection to the
 active font's OpenType MATH construction and the pinned vanilla algorithm.
 
-## Verificação de identidade extraível
+## Extractable identity verification
 
-Para `cases`, acentos e spreaders, verificar no L1 que `TextReplacement`
-retém o caráter da linguagem e preserva as peças visuais; sondar extração
-PDF nos exemplos locais após RED→GREEN. Diferenças de espaçamento
-introduzidas apenas pelo extrator, como `.typ/sec_27.typ`, não autorizam
-inserir whitespace na árvore sem causa linguística.
+For cases/accents/spreaders, L1 verifies TextReplacement retains the language
+character and visual pieces; probe PDF extraction in local examples after
+RED→GREEN. Extractor-only spacing such as .typ/sec_27.typ does not authorize
+whitespace in authored trees without a language cause. Two nested combining
+accents require base+inner mark+outer mark with one final envelope.
+For hat(mu), Greek MathText reaches accent as mathematical 𝜇; multicharacter text
+does not become mathematical letters by approximation. PDF probes preserve
+base+mark composition and compare raster against qualified vanilla.
 
-Testar também dois acentos combinantes aninhados: a identidade deve ser
-base+marca interna+marca externa com somente um envelope no resultado final.
+## Ratified bidi carrier adaptation
 
-Em `hat(mu)`, verificar que a folha grega `MathText` entra no acento como
-`𝜇` matemático, enquanto texto de vários caracteres não vira letras
-matemáticas por aproximação. A sonda PDF deve preservar a composição
-base+marca e medir o raster contra o vanilla.
+Before decision, `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json`
+identifies this unit's references/exclusive owners. Manifest 1ae7513e was confirmed;
+adapt uncertified constructors with None and read patterns with `..`, preserving
+language observables. Transformations follow the pinned origin nucleus without
+phase/API expansion.
 
-## Migração do carrier bidi ratificado (2026-10-05)
+## Test quality maintenance
 
-Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+### Evidence before decision
 
-## Saneamento do CI — 2026-10-13
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
+`lab/results/construction/diagnostics/testes-ci-2026-10-13/before.json.gz`
+retains sources/hashes/UTC/status/diffstat. Input inventory
+matematica-ci-2026-10-13/clippy-inventory.json is retained in that batch's
+evidence.json.gz. tests.rs:8238 uses hypot in a size-12 FixedMetrics geometry
+oracle; :9417/:9473/:9506/:9546 drops MathLayouter without Drop. Other findings:
+equality iter().any, uneven hex groups, cal_L and last on a double-ended iterator.
+This measurement precedes decision under ADR-0108.
 
-Estado medido: HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree
-não commitado. Fontes, hashes, UTC, status e diffstat estão em
-`lab/results/construction/diagnostics/testes-ci-2026-10-13/before.json.gz`. O inventário
-Clippy de entrada é `matematica-ci-2026-10-13/clippy-inventory.json`, conservado
-no evidence.json.gz daquela rodada. Medir antes de decidir (ADR-0108).
+### Exclusive responsibility and acceptance
 
-Medição: tests.rs:8238 usa hypot no oráculo de geometria da fixture FixedMetrics
-com tamanho 12; :9417/:9473/:9506/:9546 chamam drop em MathLayouter sem Drop.
-Há buscas iter().any de igualdade, literais hex de agrupamento desigual,
-nomes cal_L e um iterador duplamente terminado consumido até last.
+Keep all inputs/tolerances. For the small finite fixture use Pythagorean
+sqrt(width²+height²); this is no authorization for arbitrary productive geometry.
+Remove explicit drops of borrowers without destructors; compiler borrow checks
+validate ending the borrow before consuming pass. Use contains/next_back/
+starts_with for the diagnosed equivalences; normalize hex grouping without value
+changes and rename cal_L to cal_l. Remove no layout execution, change no callback
+order/count, and retain every test/observable. ADR-0127 internal test repair uses
+Clippy -D warnings as quality RED; rerun cases/lineage without inventing functional
+RED→GREEN for already-passing behavior.
 
-Decisão: manter todas as entradas e tolerâncias. Na fixture finita e pequena,
-calcular a diagonal pelo teorema de Pitágoras com sqrt de width² + height²;
-não usar esse rearranjo como autorização para geometria produtiva arbitrária.
-Remover drops explícitos de borrowers sem destrutor: o compilador valida o
-fim dos empréstimos antes de consumir pass. Usar contains, next_back e
-starts_with nas equivalências diagnosticadas; normalizar grupos hex sem
-mudar valores; renomear cal_L para cal_l. Não remover execução de layout nem
-alterar ordem/quantidade de callbacks. Conservar todos os testes e observáveis.
+## Nominal FrameItem observer complements
 
-Reparo interno de testes, ADR-0127 contínuo. O RED de qualidade é o Clippy
-com -D warnings. Reexecutar os casos e validar linhagem; testes sem falha
-funcional anterior não recebem alegação artificial de RED→GREEN funcional.
+### Evidence before decision
 
+Sites: F043 tests.rs:3361 script_y_offset; F044 :4226 visit; F045 :4240 visit;
+F046 :4963 collect_dot_ys; F047 :6054 p963_y; F048 :6516 p971_x; F049 :6647 visit.
+AST spans/patterns/guards/bodies/complements were checked before code.
+`lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz`
+retains HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+UTC/sources/L0/config/hashes/status/git diff HEAD --stat. classification.json
+records 70 cases/complements in 26 owners from the pinned CI parser. Relevant
+source/L0 were read together; no new architecture/upstream intention follows.
+Rust exhaustiveness is mechanics; preserve language/geometry/effects/diagnostics.
 
-## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
+### Exclusive prescription
 
-### Medição anterior à decisão
+Replace only each `_` with its exact nominal group below using FrameItem in
+scope. Keep fallback bodies, prior arms/guards/transformations/calls/returns/order.
+Guarded or restricted fields do not cover a whole variant: their failing cases
+remain in the complement. The observed guard counts remain part of the site audit.
 
-F043: 01_core/src/compiler/math/layout/tests.rs:3361 (script_y_offset); F044: 01_core/src/compiler/math/layout/tests.rs:4226 (visit); F045: 01_core/src/compiler/math/layout/tests.rs:4240 (visit); F046: 01_core/src/compiler/math/layout/tests.rs:4963 (collect_dot_ys); F047: 01_core/src/compiler/math/layout/tests.rs:6054 (p963_y); F048: 01_core/src/compiler/math/layout/tests.rs:6516 (p971_x); F049: 01_core/src/compiler/math/layout/tests.rs:6647 (visit). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+| Site | Function | Nominal fallback group | Recorded guards |
+| --- | --- | --- | --- |
+| F043 | script_y_offset | `TextReplacement`, `TextSeparator`, `Semantic`, `TextShaped`, `Line`, `Image`, `Shape`, `Group`, `Link` | 0 |
+| F044 | visit | `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link` | 1 |
+| F045 | visit | `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link` | 1 |
+| F046 | collect_dot_ys | `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link` | 1 |
+| F047 | p963_y | `TextReplacement`, `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link` | 2 |
+| F048 | p971_x | `TextReplacement`, `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link` | 3 |
+| F049 | visit | `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link` | 1 |
 
-### Prescrição exclusiva desta unidade
+Preserve callbacks/effects/metadata/clipping/fonts/positions/ink/width under their
+current owners. Do not expand traversals, turn wrappers into leaves or substitute
+text/ActualText for geometry. Test helpers retain fixtures/expected results/
+tolerances/counts/Unknown failures; missing observation is not acceptance.
+Nominal groups share the previous body; keep V19 notes without equating arm
+coverage with every alternative.
 
-- **F043 — `script_y_offset`**: Trocar somente o padrão '_' pelo grupo nominal `TextReplacement`, `TextSeparator`, `Semantic`, `TextShaped`, `Line`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem.
+### Acceptance and limits
 
-- **F044 — `visit`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem. Guards ou campos restritos não cobrem a variante integralmente: manter no fallback os casos que falham na condição anterior. Medição específica: guard.
+ADR-0127 internal flow adds no enum/field/public trait method/signature/default/
+dependency/compatibility/phase. Do not materialize unrelated pending proposals.
+L0 first and restricted bilateral resealing. No suppressions, threshold changes
+or match-to-if-let rewrites to hide V16.
 
-- **F045 — `visit`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem. Guards ou campos restritos não cobrem a variante integralmente: manter no fallback os casos que falham na condição anterior. Medição específica: guard.
+Before code run the new FrameVisitor control and workspace suite on unchanged
+expectations and confirm 70-family-warning RED by AST inspection. Afterwards
+require zero selected-family V16 and no new warning; external V16 stays open.
+For productive-core matches reached by cargo check -p typst-core, a disposable
+copy with sentinel FrameItem measures absent E0004 before/present after. Claim
+coverage only for compiled sites, not inaccessible cfg(test)/L3. Replay checks
+all patterns/guards/bodies, unchanged enum/signatures and real builds/tests;
+no stubbed bodies.
 
-- **F046 — `collect_dot_ys`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem. Guards ou campos restritos não cobrem a variante integralmente: manter no fallback os casos que falham na condição anterior. Medição específica: guard.
+Validate full workspace/build, workspace/all-targets Clippy -D warnings
+-D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes,
+strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/
+configuration during heavy sequential commands under MemoryMax 12 GiB,
+MemorySwapMax0/CARGO_BUILD_JOBS1. Structural sanitation proves neither global
+parity nor RAM/AI-reading benefit.
 
-- **F047 — `p963_y`**: Trocar somente o padrão '_' pelo grupo nominal `TextReplacement`, `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem. Guards ou campos restritos não cobrem a variante integralmente: manter no fallback os casos que falham na condição anterior. Medição específica: guard; guard.
+## Ratified complete text size
 
-- **F048 — `p971_x`**: Trocar somente o padrão '_' pelo grupo nominal `TextReplacement`, `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem. Guards ou campos restritos não cobrem a variante integralmente: manter no fallback os casos que falham na condição anterior. Medição específica: guard; guard; guard.
+### Evidence before decision
 
-- **F049 — `visit`**: Trocar somente o padrão '_' pelo grupo nominal `TextSeparator`, `Semantic`, `Text`, `TextShaped`, `Line`, `Glyph`, `Image`, `Shape`, `Group`, `Link`. Usar o mesmo prefixo Rust em escopo (`FrameItem`). Conservar integralmente o corpo atual do fallback, os braços anteriores, guards, transformações, chamadas, returns e ordem. Guards ou campos restritos não cobrem a variante integralmente: manter no fallback os casos que falham na condição anterior. Medição específica: guard.
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`,
+before-measurement.json.gz, morph-before-measurement.json.gz and audit.json
+preserve HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree,
+UTC, status/diffstat, sources/L0/binaries/argv and historical pin
+`9f2b6e8715237cb086899a42873660fe744622e8`. named-em measures A at 0pt versus
+24pt; affine 3pt versus 27pt; nested over 18pt measures 0pt versus 36pt. All six
+Size/Color/body permutations are accepted by the pin and rejected by Tekt.
+Positional set 18pt is ignored (12 versus 18pt). Pinned text/mod.rs:290,303,
+924–930,1136–1142 and args.rs:178–247 establish typed search, named preference,
+remaining body and composition. style_chain.rs:513–517 and constructor.rs:123
+discard em; collapse at style_chain.rs:394–395,419–422 uses top-wins where size
+needs a fold. Size/scope is observable language; Rust representation is an
+internal choice. Infer no historical intent. Restoration, Raw, heading, math,
+capture/show, duplicates/spans, zero/negative or metric failures can refute it.
+The equality probe refuted comparing declared values: the pin returns true for
+text(size:2em)[A] == text(size:24pt)[A]. Pinned StyledElem::eq at
+content/mod.rs:779–782 compares child. That equality defect requires independent
+correction; a complete size type does not close that axis.
 
-Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
+### Ratification and limits
 
-### Gate e aceitação
+The human approved the complete-size package and its two public contracts in
+manifest `771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba`.
+Require implementation and S1–S16 tests under 12 GiB/zero swap; no release/merge/
+push. Reseal only after implementation and a valid graph. RG1 remains independent.
 
-Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
+### Exclusive test-adapter responsibility
 
-Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
-
-Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
-
-
-## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
-
-### Medição anterior à decisão
-
-`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
-`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
-06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
-fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
-Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
-mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
-mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
-Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
-estabelece busca tipada, preferência nomeada, body restante e composição.
-style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
-style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
-É tamanho/escopo observável da linguagem; a representação Rust é escolha
-interna. Não inferir intenção histórica. Refutar por restauração, Raw,
-heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
-A sonda de igualdade refutou a hipótese de comparar os valores declarados:
-no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
-content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
-própria correção; o tipo completo não é prova de fechamento desse eixo.
-
-### Ratificação
-
-O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
-771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
-Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
-Resselo somente após implementação e grafo válido. RG1 continua independente.
-
-### Responsabilidade exclusiva adicional
-
-Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length absoluto), e expectativas de StyleDelta.size por Option<Length>. Conservar os observáveis linguísticos e os contratos funcionais existentes; não trocar geometria correta por snapshots da representação nova.
+Only fixtures/adapters change Style::Size(Pt) to Size(absolute Length), and
+StyleDelta.size expectations to Option<Length>. Preserve existing language
+observations/functional contracts; never replace correct geometry with snapshots
+of the new representation.

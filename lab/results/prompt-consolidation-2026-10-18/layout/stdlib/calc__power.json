@@ -1,0 +1,11 @@
+{
+  "file": "00_nucleo/prompts/core/compiler/stdlib/calc/power.md",
+  "status": "complete",
+  "source_review": "Full original read; all normative clauses reconciled.",
+  "disposition": "Translated all power/root/extraction and validation-order revision; exact decimal hint, nominal projections, future variant proof and limits retained.",
+  "original_sha256": "1a4ec1af9db72d1e7f6918fd11b5828bd15e12e4feaca539d267c922d2ab2368",
+  "archived_original": "lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/calc/power.md",
+  "rust_changed": false,
+  "resealed": false,
+  "readability_audit": "Reviewed English prose spacing and full canonical owner references; protected literals/metadata unchanged."
+}

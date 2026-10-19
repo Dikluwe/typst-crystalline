@@ -38,85 +38,55 @@ Regeneration must preserve the fixed epoch/stream/tag controls, select affected 
 
 The existing p307b tests compare actual/reference bytes. Maintenance runs may use `cargo test -p typst-infra --lib p307b_ -- --test-threads=1` with the explicit update environment only when regeneration is authorized. No fixture/reference regeneration is part of documentary sanitation.
 
-## Referência CIDFont — manutenção de tracking PDF em 2026-09-29
+## Controlled reference changes: evidence and exact scopes
 
-Medição anterior: tests-before-reference-update.log em
-`lab/results/construction/diagnostics/tracking-pdf-2026-09-28/` registra somente
-p307b_09_cidfont falhando após o estado Tc=0 explícito no caminho shaped
-compacto; 6768 bytes atuais versus 6759 anteriores. A fonte e entrada
-continuam iguais, sem tracking configurado; a mudança de operadores é
-intencional para impedir herança de espaçamento, não uma prova de regressão
-visual ou linguagem. Regerar somente 09-cidfont pelo harness, duas vezes,
-com controles existentes. Validar PDF e conservar pixels/texto anteriores;
-registrar bytes/hash, diferenças de stream e atualizar MANIFEST. Não
-regerar outros casos nem desativar comparação byte a byte. O owner conserva
-seu único harness produtivo e corpus, sem algoritmo de exportação novo.
+These historical maintenance decisions authorize only their stated cases, not
+regeneration during this prose consolidation. Preserve every harness control above
+and verify current references through existing tests. Original receipts remain in
+`lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/infra/pdf_snapshot_tests.md`.
 
-## Referência JPEG — clip efetivo de imagem em 2026-10-08
-
-Medição antes da manutenção: o teste `p307b_08_image_jpeg` passou de
-3557 para 3541 bytes após omitir o clip redundante de uma imagem cujo
-retângulo coincide com o target. O stream preserva a matriz e os bytes do
-JPEG; a rasterização bilateral com o vanilla passou a coincidir nas quatro
-resoluções medidas (36, 72, 144 e 288 dpi). Regenerar somente 08-image-jpeg
-pelo harness Compact/Disabled/epoch fixo, repetir para verificar bytes
-determinísticos, validar o PDF e atualizar o MANIFEST com os hashes. Os
-outros oito snapshots devem permanecer byte a byte idênticos.
-
-## Árvore de destinos nomeados — 2026-10-14
-
-Medição anterior: destinos-pdf-2026-10-14/workspace.log registra apenas
-02-markup-heading e 07-multi-feature falhando no corpus após corrigir a
-árvore de destinos e os operandos GoTo. Os tamanhos passaram de 2709 para
-2754 bytes e de 15032 para 15112 bytes. Leitura independente por MuPDF
-confirma que os destinos antigos não são resolvidos e os novos são.
-O estado completo e a suíte estão no diagnóstico; referências/fontes/owner
-antes da manutenção em destinos-pdf-2026-10-14/snapshots/before.json.gz.
-
-Regenerar somente 02 e 07 pelo harness existente, preservando Compact,
-Disabled e epoch fixo. Repetir geração, verificar determinismo e validar
-PDF com qpdf. Comparar objetos/streams decodificados, texto e renderização
-com as referências anteriores; a mudança intencional é a árvore de nomes,
-não a pintura ou o conteúdo. Conservar os outros sete PDFs byte a byte e
-revalidar os nove testes sem UPDATE. Registrar diferenças e atualizar o
-MANIFEST; não reduzir a comparação binária do harness.
-
-## Referência cônica — posicionamento físico 2026-10-14
-
-Medição anterior: first-validation/workspace.log no diagnóstico
-conic-posicionamento-2026-10-14 registra somente p307b_06_gradient_conic falhando
-no corpus: 5327 bytes anteriores contra 5350 atuais. O controle independente
-red versus conic(red,red) e cinco testes RED→GREEN comprovam a ausência anterior
-de escala/posição física, incluindo páginas e grupos. O fixture é um círculo;
-a mudança de render é intencional, e não mera atualização para esconder falha.
-A suíte foi interrompida com SIGTERM após o resultado infra e não é validação
-completa; a causa não foi inferida. snapshot-before.json.gz conserva corpus,
-fonte/L0, HEAD, UTC, diffstat e hashes antes de qualquer regeneração.
-
-Regenerar somente 06-gradient-conic pelo harness existente, Compact/Disabled/
-epoch fixo. Repetir geração, exigir determinismo, qpdf e rasterização; comparar
-objetos para provar que somente a matriz do padrão e offsets derivados mudaram,
-com a mesma malha e o mesmo stream de pintura. Conservar os outros oito PDFs,
-fontes e asserts; atualizar MANIFEST e repetir corpus sem UPDATE e suíte completa.
-Não certificar com isso centro/cobertura geral/amostragem CMYK ainda pendentes.
-
-## Referência cônica — geometria e amostragem 2026-10-14
-
-Medição anterior: conic-geometria-amostragem-2026-10-14/conic-tests.log
-registra apenas snapshot 06 divergente no conjunto cônico. geometry-final-tests.log
-confirma centro, raio físico, orientação, offsets CMYK, descontinuidades e
-representação do centro. As sondas final-coverage e boundary-check preservam
-HEAD, árvore e binário; cobertura RGB de formas sem rotação foi recuperada.
-No controle rotacionado, MuPDF produz sólido/cônico idênticos; Poppler conserva
-diferenças de borda. Controles de stroke via dicionário não exercitaram o gradiente
-porque o produto ignorou o paint: não são evidência de cobertura do stroke.
-CMYK sólido/gradiente diverge em cor; isso permanece pendente, sem mascaramento.
-
-Regenerar somente 06-gradient-conic pelo harness determinístico existente.
-A nova malha deve representar centro, geometria física e cores do contrato,
-com coordenadas de 16 bits e Decode correspondente. Espera-se alteração do
-Shading e dos comprimentos/offsets derivados, conservando Matrix, stream de
-pintura e demais objetos. Exigir duas gerações idênticas, qpdf, inspeção raster,
-outros oito PDFs e fontes intactos, MANIFEST atualizado, corpus e suíte sem UPDATE.
-Não exigir identidade binária com vanilla nem tratar este fixture isolado como
-certificação de todos os espaços de cor, transparência, stroke ou domínios extremos.
+- CIDFont: tracking-pdf-2026-09-28/tests-before-reference-update.log records only
+  p307b_09_cidfont failing after intentional explicit Tc=0 in shaped Compact,
+  6, 768 versus 6, 759 bytes, same source/font/no tracking. This prevents inherited
+  spacing and alone proves no visual/language regression. Regenerate only
+  09-cidfont twice with existing controls; valid PDF/unchanged previous pixels/text,
+  record bytes/hash/stream differences and MANIFEST. No other cases/binary-check
+  disablement/new exporter algorithm.
+- JPEG: p307b_08_image_jpeg changes 3, 557→3, 541 bytes after redundant clip removal
+  where clip rectangle equals target. Matrix/JPEG bytes remain; bilateral raster
+  matches at 36/72/144/288 DPI. Regenerate only 08-image-jpeg in Compact/Disabled/
+  fixed epoch, repeat deterministic bytes/PDF validation/MANIFEST hashes; other
+  eight snapshots stay byte-identical.
+- Named destinations: destinos-pdf-2026-10-14/workspace.log records only
+  02-markup-heading/07-multi-feature failures after name-tree/GoTo correction,
+  2, 709→2, 754 and 15, 032→15, 112 bytes. Independent MuPDF resolves new destinations,
+  not old. Full state/suite and pre-maintenance refs/fonts/owner retained in
+  snapshots/before.json.gz. Regenerate only 02/07 with same controls, repeat,
+  qpdf, compare decoded objects/streams/text/render to old: only names change,
+  never paint/content. Other seven PDFs byte-identical; all nine tests without
+  UPDATE, recorded differences/MANIFEST, binary comparison intact.
+- Conic physical positioning: conic-posicionamento-2026-10-14/first-validation/
+  workspace.log records only p307b_06_gradient_conic, 5, 327→5, 350 bytes. Independent
+  red versus conic(red,red) and five RED→GREEN controls show missing scale/physical
+  position including page/group; circular fixture's render change is intentional,
+  no failure concealment. Suite SIGTERM after infra is not full validation and
+  cause is not inferred. snapshot-before.json.gz retains corpus/source/L0/HEAD/
+  UTC/diffstat/hashes before regeneration. Only 06 changes, same controls/two
+  deterministic generations/qpdf/raster; object inspection proves only pattern
+  Matrix/derived offsets change, same mesh/paint stream. Other eight PDFs/sources/
+  assertions intact, MANIFEST/full corpus without UPDATE and full suite. This
+  slice alone does not certify center/coverage/CMYK sampling, completed only by
+  separate geometry contract below.
+- Conic geometry/sampling: conic-geometria-amostragem-2026-10-14/conic-tests.log
+  records only 06 divergence in conic tests; geometry-final-tests.log confirms
+  center/physical radius/orientation/CMYK offsets/discontinuities/center
+  representation. final-coverage/boundary-check retain HEAD/tree/binary; RGB
+  unrotated coverage is recovered. Rotated MuPDF solid/conic agree, Poppler retains
+  edge differences. Dictionary-stroke controls did not exercise gradients because
+  paint was ignored, no stroke evidence; solid/gradient CMYK color remains open,
+  no masks. Regenerate only 06 with center/physical geometry/color/16-bit coordinates
+  and matching Decode. Expected change is Shading/derived lengths-offsets, preserving
+  Matrix/paint stream/other objects. Two identical generations/qpdf/raster, eight
+  other PDFs/fonts intact, MANIFEST/corpus/full suite without UPDATE. No vanilla
+  byte identity or certification of all color spaces/transparency/stroke/extreme
+  domains from this one fixture.

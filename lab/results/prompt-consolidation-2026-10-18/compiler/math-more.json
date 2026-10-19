@@ -1,0 +1,37 @@
+[
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/stretch.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "3f08b48032599925e6992d69e77deee07d202eebf867df54c96ba3a42c2336b9",
+    "result_sha256": "9d751e713f939fe4da6e5c407d16fac7d2e0a502959fb785683960230fabf0d2",
+    "disposition": "Full approved stretch boundary retained; exact bounded confirmation checked; Source/nominal refinements translated and composite debt explicitly open."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/cancel.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "b9b7c929b73f3b2b569c6ac2211fd3b29a0381d2a1d90f6fad5f068150a6e4bd",
+    "result_sha256": "a12c1a061b167bed609641e3ed6d9b94bc8fe782490e5404b4259a2f8d5fd645",
+    "disposition": "Full English geometry reviewed; complete test-only wrapper refinement translated, and numeric backend controls retained where applicable."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/delimited.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "fee2b88d27caecf0603959dc83e6dca6e01fd15f66eed90f0c2e3885021f7dba",
+    "result_sha256": "0d9925f7ce10b3e2cfbbd37877cdb1b35c3555bb046077e1353ee70ebcc673ed",
+    "disposition": "Full English geometry reviewed; complete test-only wrapper refinement translated, and numeric backend controls retained where applicable."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/frac.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "16623aedbd9c5e367375d703a9d18662bf2c9f97a01c61159fbef05d9262b7ad",
+    "result_sha256": "67504c95fc4e2f86c27dd5c18db8b1dd5d31b74d99927294153e6cd89d52c727",
+    "disposition": "Full English geometry reviewed; complete test-only wrapper refinement translated, and numeric backend controls retained where applicable."
+  },
+  {
+    "path": "00_nucleo/prompts/core/compiler/math/layout/underline.md",
+    "status": "consolidated-full-review",
+    "original_sha256": "bbf6767afa37defa2d21d876a0058c92b0304261478f06c58008dc84c927b228",
+    "result_sha256": "d055f78535d152e5e2e953857b08bed11b5175e73c1a18b2c9762217aa63f20b",
+    "disposition": "Full mathematical line geometry retained; exact F050 complement and all sentinel/replay/coverage-limit gates translated."
+  }
+]

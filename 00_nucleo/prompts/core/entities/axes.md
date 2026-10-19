@@ -17,23 +17,23 @@ Facade exposure belongs to `00_nucleo/prompts/core/entities/mod.md`. The former
 surface discrepancy in the sanitation diagnostic; absence in code does not
 revoke it. This cleanup neither adds nor removes a reexport.
 
-## Cobertura de Copy e Clone — 2026-10-13
+## Copy and Clone coverage
 
-### Medição anterior à decisão
+### Evidence before specification
 
-`01_core/src/entities/axes.rs:43-49` cobre Copy e chama Clone somente com
-f64, que já é Copy. A assinatura derivada em :17 deve suportar também
-T: Clone sem Copy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working
-tree não commitado; fontes, L0, UTC, status e diffstat ficam em
+At HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, with an uncommitted working
+tree, `01_core/src/entities/axes.rs:43-49` exercises Copy and calls Clone only
+with f64, which is already Copy. The derived signature at line 17 must also
+support T: Clone without Copy. Sources, L0, UTC, status and diffstat are in
 `lab/results/construction/diagnostics/simplificacoes-ci-2026-10-13/before.json.gz`.
-O filtro axes anterior passa; o aviso Clippy expõe a redundância da fixture,
-não um defeito confirmado na implementação de Clone.
+The earlier axes filter passed; Clippy identified a redundant fixture, not a
+confirmed defect in Clone implementation.
 
-### Aceitação
+### Acceptance
 
-Manter o caso Copy de Axes<f64>. No mesmo teste, exercitar Clone com
-Axes<String>, tipo não Copy: preservar ambos os valores e verificar que
-modificar o x da cópia não altera o original nem o y. Não substituir o teste
-de Clone por uma atribuição Copy, não alterar derives, fields, construtor,
-API ou reexportações. Esta é cobertura do contrato genérico já vigente,
-sem decisão nova de paridade ou fase. Revalidar suíte core, build e linhagem.
+Keep the Axes<f64> Copy case. In the same test, exercise Clone with non-Copy
+Axes<String>: preserve both values and verify that changing the copy's x
+changes neither the original nor y. Do not replace Clone coverage with Copy
+assignment or alter derives, fields, constructor, API, or reexports. This tests
+the existing generic contract; it creates no new parity or phase decision.
+Revalidate the core suite, build, and lineage.

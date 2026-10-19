@@ -1,0 +1,39 @@
+tekt = 1
+kind = "nucleus"
+id = "textual-recipe-frontier"
+title = "Escopo lexical, precedência e proteção causal de produtos textuais"
+
+[[claims]]
+id = "inherited-versus-owned"
+level = "must"
+statement = "Distinguir regras herdadas da inserção de regras introduzidas por uma cauda lexical do valor. Herança não congela regra global obsoleta no valor; delta local permanece mais interno na inserção. Compor por identidade RuleId, sem duplicação, preservando ordem lexical. Não inferir escopo por nome, texto do produto, número do ID ou igualdade do corpo."
+
+[[claims]]
+id = "one-text-selector-order"
+level = "must"
+statement = "Literal e regex competem no mesmo grupo elegível: escolher o menor início UTF-8 e, no empate, a regra lexicalmente mais interna/recente não revogada. Não escolher todas as ocorrências de um selector antes de considerar selectors concorrentes; ignorar matches vazios. Preservar prefixo, produto e sufixo em ordem causal."
+
+[[claims]]
+id = "guarded-product"
+level = "must"
+statement = "A revogação textual pertence ao produto da ocorrência selecionada, inclusive alias devolvido; não contamina prefixo, sufixo ou outros siblings. Produtos concluídos delimitam fronteiras de agrupamento: não juntar dois produtos independentes ou produto e sibling para fabricar match novo. Regras elegíveis restantes podem atuar dentro de um produto composto emitido como uma unidade. Preservar a distinção entre alias e construção nova e não repetir callbacks já concluídos."
+
+[[claims]]
+id = "root-before-emitted-children"
+level = "must"
+statement = "Decidir a receita efetiva da raiz antes de realizar filhos que ela pode ocultar; visitar somente o produto efetivamente emitido. Funções textuais avaliam seu código uma vez, capturando receitas de conteúdo para realização causal posterior; não executar callbacks de filhos durante a mera construção do resultado. Guards, regras, styles, arquivo e namespace de contextos devem ser restaurados em sucesso e erro."
+
+[[claims]]
+id = "private-transport"
+level = "must"
+statement = "Usar somente tipos públicos existentes e estado compilation-local privado. Frames internos distinguem base herdada e delta local; ShowRecipe/styles privados transportam a classificação sem campo público novo. Realized.original pode guardar proveniência de receita e guards, com visual emitido separado, sem Location falsa. Não executar metadado, vazar chaves internas em fields/repr, alterar identidade de it ou achatar Sequence escrita pelo autor. Não usar I/O, globals, vtables, PropMap ou unsafe."
+
+[[claims]]
+id = "spaces-and-style"
+level = "must"
+statement = "Normalizar Space/SpaceFromNewline no fluxo emitido antes do matching; Text contendo whitespace continua texto elegível. Distinguir vazio consumido de Empty explícito. Show-set textual aplica Styles reais somente ao match e seu produto, com precedência e guardas causais, sem pintar siblings. Source, estilos, labels e UTF-8 sobrevivem a recortes e recomposição."
+
+[[claims]]
+id = "bounded-work"
+level = "must"
+statement = "Compartilhar snapshots imutáveis por Arc e representar runs por intervalos UTF-8, sem vetor de estado por byte nem cópia integral de regras por caractere. Usar orçamento de profundidade existente e ordem de efeitos observada; nenhum resultado de performance é presumido. Preservar Table→placement→Cell→body, preparação Mathy antes de sua seleção e realização lazy State/Counter."
