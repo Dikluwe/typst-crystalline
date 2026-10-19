@@ -1,0 +1,16 @@
+{
+  "utc": "2026-10-19T23:07:38.873713+00:00",
+  "head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "branch": "codex/tekt-mature-layout",
+  "diff_head_stat": "",
+  "active_source_or_l0_edits": false,
+  "files": {
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/contracts/design.md": "1024b51d36e3996f8e5353012b9eacb4619a93961cc48a9b668de1e977574bd0",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/contracts/l0-amendments.md": "d6c764cbe723f0cd4ff0a063716e85a3aa75d578af60f96675d7749b06a3486f",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/contracts/legacy-call-sites.json": "562798453c0b3c0afe6bc857fc92188abbe8bcb6de6e42be32b4131f73fcffd8",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/contracts/make_inventory.py": "f53e930c39dd1b03cde3b4d42068d05fd68b58f241a729eca34266e96a843212",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/contracts/owner-manifest.json": "e9fb41123316f6727cd918122ecf7f18db7c5b32768d25d57e70a8ccc5989323",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/contracts/semantic-partition.json": "ef0a1e01d7836ae653ab17c8eecd5b9e1bc4cf867fcfef36b90b40ee2ff1ef96"
+  },
+  "status": "proposed diagnostic package; pending independent integration review and human ADR-0127 gate"
+}

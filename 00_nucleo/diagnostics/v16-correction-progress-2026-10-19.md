@@ -361,6 +361,25 @@ Batch F now has 17 repairs and Figure V16-055 pending. Auto/default sizing,
 Circle reflection/selectors/show/set and the other explicitly deferred surfaces
 remain obligations; this is not complete Circle or language parity.
 
+## Figure V16-055: contract proposal awaiting decision
+
+The follow-up at baseline `d4e72102df01f9c248dffac761662d0f3cbf699e` identifies
+typed-kind loss, premature constructor inference, lost Grid child order and
+inconsistent typed counter histories. Three agents audited the carrier,
+counter lifecycle and independent language probes. Their
+[concrete review package](../../lab/results/v16-corrections-2026-10-19/figure-kind/review.md)
+specifies the public fields, occurrence phase, bundle facade, compatibility
+changes, exclusive owners and required acceptance without suppressing V16-055.
+This supersedes the earlier incomplete design candidate as a proposal only.
+
+The unchanged baseline passed 128 existing Figure unit tests, CI tooling tests,
+canonical paths, strict V1/V5/V15/V26 and reverse lineage. The full pinned scan
+still reports 20 V16 errors, 1262 V19 notes and 877 V20 notes. Exact UTC, commands
+and unchanged inputs are in the package's validation receipts. These are baseline
+results, not evidence that the proposed implementation passes. No productive
+source or active L0 was changed in this follow-up. ADR-0127 approval is required
+before the new public contracts and phase are materialized; batch F remains open.
+
 ## Remaining obligations and organizational result
 
 The pending Figure item in F and batch G remain open. The mathematical parser's old grouping comment differs

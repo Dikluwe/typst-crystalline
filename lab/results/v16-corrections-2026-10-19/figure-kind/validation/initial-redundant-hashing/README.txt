@@ -1,0 +1,1 @@
+Initial read-only validation commands completed, but its final freeze loop recomputed all hashes per file. Root terminated only that Python process and reran the checks with one final snapshot. These logs are not the accepted receipt.

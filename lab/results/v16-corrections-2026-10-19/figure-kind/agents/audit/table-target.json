@@ -1,0 +1,84 @@
+{
+  "utc_start": "2026-10-19T23:06:13.175174+00:00",
+  "head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "diff_head_stat": "",
+  "runner_sha256": "8257a1137f96b7bc4e4611df61d6d81c95f402f2a3f467859e0af40e625a1aa9",
+  "provenance_parent_sha256": "6528bdd958f7549b2d2769b5973ddeb0fcd27ba3c3871ac42d62f02c26eb7dff",
+  "cases": [
+    {
+      "name": "table-nonmatching-kind-descendant",
+      "source": "#figure(table([#heading[H]]),kind:heading,caption:[C],supplement:it=>[#metadata(repr(it.func())) <probe>])\n",
+      "source_sha256": "c8b2d213134137feb42344b6cdcf32294d63aaca7628afb0c1424ba050bdf895",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T23:06:13.379053+00:00",
+          "utc_end": "2026-10-19T23:06:13.523383+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/table-nonmatching-kind-descendant.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[\"heading\"]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/table-nonmatching-kind-descendant.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T23:06:13.655660+00:00",
+          "utc_end": "2026-10-19T23:06:14.327185+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/table-nonmatching-kind-descendant.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/table-nonmatching-kind-descendant.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "table-nonmatching-kind-first-order",
+      "source": "#figure(table([#heading[First]], [#heading[Second]]),kind:heading,caption:[C],supplement:it=>[#metadata(repr(it.body)) <probe>])\n",
+      "source_sha256": "89d8ad8f2b014074c04bb30244a200fd09bfa8d45702a4408b2b2ece7d5a4584",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T23:06:14.390449+00:00",
+          "utc_end": "2026-10-19T23:06:14.532577+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/table-nonmatching-kind-first-order.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[\"[First]\"]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/table-nonmatching-kind-first-order.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T23:06:14.670322+00:00",
+          "utc_end": "2026-10-19T23:06:15.342693+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/table-nonmatching-kind-first-order.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/table-nonmatching-kind-first-order.typ` instead\n\n"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T23:06:15.342712+00:00"
+}

@@ -1,0 +1,57 @@
+{
+  "utc": "2026-10-19T23:01:42.254417+00:00",
+  "status": "changes_requested_before_approval_package",
+  "reviewed_files": {
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/contracts/design.md": "874c6d80f67ab6a7b0ccff7bbbf5e014d73505adb9667b442829898f4c1cf355",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/counter/design.md": "4a51268575bf6419ec57b8fd68bbb011e138cd648fea45658b1f29b03a3419ea"
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "blocking-design-choice",
+      "owner": "counter",
+      "issue": "Legacy public string-based figure_number_at_index runtime behavior after removing auxiliary string snapshots is not fixed. Select preserved compatibility state or explicitly approved compatibility change; baseline tests/expected behavior needed."
+    },
+    {
+      "id": "R2",
+      "severity": "blocking-design-choice",
+      "owner": "counter",
+      "issue": "Mixed-bundle target/features transport lacks exact data/API. Key-only demand dedup and key-only snapshots cannot represent distinct target-dependent callback results without a specified evaluation domain. Resolve or explicitly bound target scope."
+    },
+    {
+      "id": "R3",
+      "severity": "blocking-scope-choice",
+      "owner": "counter/contracts",
+      "issue": "Standalone HTML integration versus exclusion remains optional while contracts closure says both targets. Choose one; name actual endpoint/owner/API if integrated, otherwise record baseline preserved debt and remove all-target Figure parity implication."
+    },
+    {
+      "id": "R4",
+      "severity": "contract-precision",
+      "owner": "contracts",
+      "issue": "Supplement Func uses effective styles with no location, and result .display(); not Counter Context::none or strict Content cast. Add explicit clause and acceptance."
+    },
+    {
+      "id": "R5",
+      "severity": "contract-precision",
+      "owner": "contracts",
+      "issue": "New numbering lexical validation/transport needs exact ordering relative to supplement and extra named arguments, plus required vs retained-debt formatting behavior."
+    },
+    {
+      "id": "R6",
+      "severity": "acceptance-completeness",
+      "owner": "contracts",
+      "issue": "Executable rendered caption/reference, alias/homonym, both target or retained-debt, dynamic opacity and structural extension cases must be listed, not only categories."
+    }
+  ],
+  "resolved_boundaries": [
+    "Supplement-dependent selectors are explicitly retained known debt. Existing owning L0 excludes synthesis; measured baseline [] means kind-only preview does not remove already supported matching.",
+    "Automatic counting must include numbered uncaptioned/own-hidden originals while counter demand follows visual consumers/explicit reads.",
+    "No generic callback invocation-count promise; effect/error/context semantics govern acceptance."
+  ],
+  "case_classification": "closure-case-classification.json",
+  "case_counts": {
+    "required_closure": 50,
+    "preserved_known_debt": 2,
+    "negative_control_only": 2
+  }
+}

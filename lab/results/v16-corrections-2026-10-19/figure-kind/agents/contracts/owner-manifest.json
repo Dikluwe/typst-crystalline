@@ -1,0 +1,264 @@
+{
+  "utc": "2026-10-19T23:07:38.659264+00:00",
+  "head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "branch": "codex/tekt-mature-layout",
+  "diff_head_stat": "",
+  "scope": "Kind/carrier/supplement/realization contract; union with independent counter owner manifest required for final integrated package. No global resealing.",
+  "pairs": [
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "owner": "00_nucleo/prompts/core/entities/elements/figure.md",
+      "status": "existing",
+      "source_sha256": "848750fda400acc3ef94f812f9889ec0eeba8eec4fa30b547697eaca7aa28bca",
+      "owner_sha256": "3b7f699668a76ea012f077121645522c99a61a2ff8dcf80bc70f19f1d119918d",
+      "source_prompt_hash": "60034494",
+      "role": "Typed lexical/occurrence kind and supplement; pure Eq/Hash/getter/map/payload contracts."
+    },
+    {
+      "source": "01_core/src/entities/content/construction.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/construction.md",
+      "status": "existing",
+      "source_sha256": "c14b1444987297949bcc733c9cce25702d86e6187b421e2a2cef0714db33aa23",
+      "owner_sha256": "35437de362fe5bcc08f22216d276e809cf7bc9d96b5d4ec1debbf6b42925dc99",
+      "source_prompt_hash": "21ecfaf2",
+      "role": "Keep existing public adapter signature; initialize new fields and existing numbering style transport."
+    },
+    {
+      "source": "01_core/src/entities/content/traversal.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/traversal.md",
+      "status": "existing",
+      "source_sha256": "2e51ef6ef43ca074904effe54cef4dee69a633e2d39e0ce74c8eb71403516554",
+      "owner_sha256": "ced51dba9414f643d6824aebc8a0537b1414a922b17dd0639aa5885d76607e69",
+      "source_prompt_hash": "23fa5355",
+      "role": "Copy every new field in existing Figure reconstruction; do not replace generic visitor policies."
+    },
+    {
+      "source": "01_core/src/entities/element_payload.rs",
+      "owner": "00_nucleo/prompts/core/entities/element_payload.md",
+      "status": "existing",
+      "source_sha256": "1b699ffced7fd5ef6d62f1869e6137e86a76717c04f2a63bcf66bf69ef522450",
+      "owner_sha256": "67d7a896f9d1e26324956a6a1c6f602a696fb5b1e182e94a81aca045657304e7",
+      "source_prompt_hash": "94fc60ad",
+      "role": "Typed Figure kind and resolved supplement payload; migrate fixtures."
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/figure_image.md",
+      "status": "existing",
+      "source_sha256": "83b21239369362f8e0fd87a090eb815c0263b61191cc87ace4f746a4edf2da5e",
+      "owner_sha256": "7a0adf6e21580440065bb70fa5f0f2ae9b8276d5c9f7a331026a9d35b9eb67ba",
+      "source_prompt_hash": "0de4787b",
+      "role": "Stop constructor inference; typed validation/presence/supplement cast/numbering transport; preserve image contract."
+    },
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+      "status": "existing",
+      "source_sha256": "6d18d7083caf7dd636ea774bfd77e2666eb5e6320560f706f894991f353dd1cb",
+      "owner_sha256": "4e616fa8202fc516d552ba12fb0cae2a4d7825dc5c04a193c278f92c15718e55",
+      "source_prompt_hash": "6acf3a4f",
+      "role": "Exhaustive observation of every new Figure field and kind/supplement nominal states."
+    },
+    {
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+      "status": "existing",
+      "source_sha256": "809234af6057c7733d76bac4c26f2fd1f5dcee88ad76206502b2ca0ba7a6ef5c",
+      "owner_sha256": "ddb693acd709299c43843a18abe5ec4f21e65a094f3f5c25fe797a270cf8e77b",
+      "source_prompt_hash": "ea5bd47e",
+      "role": "Known Figure kind/supplement lexical and resolved projection, exact ordered fields, authoritative snapshots."
+    },
+    {
+      "source": "01_core/src/compiler/eval/rules/set.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/set.md",
+      "status": "existing",
+      "source_sha256": "91dfefc092f6e6a3d0672c3e44b9902367e34c434f4e164cff296eccbd811c04",
+      "owner_sha256": "7eccfc9047dec9e55b09ca4f9b5ba6e2d97fe8efac180e4122b83eb880119f41",
+      "source_prompt_hash": "69484fcc",
+      "role": "Transport kind/supplement and numbering values in existing style keys; no repeated evaluation."
+    },
+    {
+      "source": "01_core/src/compiler/eval/rules/apply.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/apply.md",
+      "status": "existing",
+      "source_sha256": "bc1d905b567d57d50c00eabc95ff63dcbf6da27db5e48f5246b8b9cc5ee9c0c1",
+      "owner_sha256": "baa5411ce4ec53dd77b4e7758f6ba74861d7fda487ae631b68a0b9e067effb1b",
+      "source_prompt_hash": "9c4d4384",
+      "role": "Preview selects rules; fold matched show-set then prepare final occurrence before callback/replacement; preserve guard and transaction."
+    },
+    {
+      "source": "01_core/src/compiler/eval/selector_matching.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+      "status": "existing",
+      "source_sha256": "f1892128a99e46b4f5f470b882c376665040242203f62c7cc017dda51348fb95",
+      "owner_sha256": "f4a14a8ba036759f84e873faf550a7b5a3d610691306fed461194904723eed77",
+      "source_prompt_hash": "cbad6239",
+      "role": "Figure kind field comparison uses exact element function identity, never Func name equality; other selectors untouched."
+    },
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+      "status": "existing",
+      "source_sha256": "7d144440b68b575917dcad808e64a81f346d0e6e5dadf4017df5f3bf58f5fa67",
+      "owner_sha256": "e3850222a8d1fdb50b596af41ce45f58eade7e74e2e33aa9d84ae06af83f660c",
+      "source_prompt_hash": "4b95652c",
+      "role": "Figure typed-kind filter equality uses exact identity; retain generic Func equality and separate language/carrier comparison."
+    },
+    {
+      "source": "01_core/src/compiler/realize/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+      "status": "existing",
+      "source_sha256": "b52e91f0671b9392a2f81f2cc21fa32d7ce37b5439e9ed343746dd47ce7a67fd",
+      "owner_sha256": "719ab0775feb90887125ed88f602527a3812aba18a0afaff90e399590d163717",
+      "source_prompt_hash": "713b28fe",
+      "role": "Register private figure and figure_kind units; preserve existing public facade and causal routes."
+    },
+    {
+      "source": "01_core/src/compiler/realize/recipes.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/recipes.md",
+      "status": "existing",
+      "source_sha256": "ea7bcb25105b404050575295bb0446b1eb914849cb0f654e6a46b7094cbaa884",
+      "owner_sha256": "1dfcd4c268aaed763dd94aba73d2ef56a9cc286c7b8811cb90f0dfb2dbdf17a7",
+      "source_prompt_hash": "4df1799c",
+      "role": "Reached Figure kind preview and final preparation including no-rule path; no hidden descendant prewalk."
+    },
+    {
+      "source": "01_core/src/compiler/layout/measurement.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+      "status": "existing",
+      "source_sha256": "2eb4d3e904f8fc630d5454495388752f4435c2d51d8c01b419cd014a2adf0dd0",
+      "owner_sha256": "87aa1aed7a79c2026412d828299b747fa60d9b5f8829bf0ec3d0fd7bb0a39b37",
+      "source_prompt_hash": "519d275c",
+      "role": "Migrate direct Figure test literals without changing measurement behavior."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/materialize_time.md",
+      "status": "existing",
+      "source_sha256": "bb308683e835bc2ceb31b83bc3159e544b4b1954bbc0e9248c5550208dcd95b0",
+      "owner_sha256": "0b0666c90912f7f6ed8ff5057c882f5e2df9bdc8df1c5c6fdab380f064c78d63",
+      "source_prompt_hash": "6195cd5d",
+      "role": "Reconstruct all typed Figure fields directly instead of lossy legacy adapter; preserve temporal body/caption/supplement traversal and origins."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/locatable.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/locatable.md",
+      "status": "existing",
+      "source_sha256": "82029ac438cf81a76a97154d0861479cd7f670e48906c4359f63bf8fa16a12b7",
+      "owner_sha256": "a5822ca1d16afd8a358b5f61fea85b6be97b8a73c0052a98ad41234695be2e87",
+      "source_prompt_hash": "a7c4c28e",
+      "role": "Preserve occurrence tests and migrate legacy fixture kind intent if necessary."
+    },
+    {
+      "source": "01_core/src/entities/elements/grid.rs",
+      "owner": "00_nucleo/prompts/core/entities/elements/grid.md",
+      "status": "existing",
+      "source_sha256": "b597b00c0f6a553d3fdefbd98ea7c7358d16f8ddcf85aabfaddfadb9df5695cd",
+      "owner_sha256": "7ddeeecce709f1fe472a6bd846ec57e785d97facf9a708c43f05017263f4e766",
+      "source_prompt_hash": "64bb5fc5",
+      "role": "Add exact GridChildOrder and source_order; copy metadata through maps while each existing child transforms once; no duplicated source Content."
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/layout/grid.rs",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md",
+      "status": "existing",
+      "source_sha256": "8f5fbe094345d91f067616e4bb72341b5becdf7b62ef093568a2c8fc415d85f2",
+      "owner_sha256": "1e8c1a15978ef96be17357b86671630860c5f91be88666b6e1cfc2b34d9e085f",
+      "source_prompt_hash": "98f972ca",
+      "role": "Capture positional GridChildOrder before extraction; preserve all existing validation, phase, diagnostics and rendering."
+    },
+    {
+      "source": "01_core/src/entities/content/tests/representation.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/tests/representation.md",
+      "status": "existing",
+      "source_sha256": "c033b1250b8884813a6154abc932c438938bd7f399d942f94bc0783ce73cf67a",
+      "owner_sha256": "9686c1711d96f6f81b05b3ad054117ac37ff66d8cfb3fe073392661adab9b5c2",
+      "source_prompt_hash": "4ceb0882",
+      "role": "Migrate Grid source_order fixture and preserve size/representation assertions."
+    },
+    {
+      "source": "01_core/src/entities/content/tests/traversal.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/tests/traversal.md",
+      "status": "existing",
+      "source_sha256": "8964d8a04a4729c789e0b2a12332e5eceaaa76b4b095afeed463a580f219257d",
+      "owner_sha256": "6b92efa75a78e67db07c864399bdb91fd29646d173e4b9f489ef4ff0954748d0",
+      "source_prompt_hash": "78f5f107",
+      "role": "Migrate Grid source_order fixture and verify map count/order contracts."
+    },
+    {
+      "source": "01_core/src/compiler/layout/placement.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/placement.md",
+      "status": "existing",
+      "source_sha256": "0c4daa2b37699557a13d365c235342997fe6f895891600d2379d2941c9a17954",
+      "owner_sha256": "c57e06fa4e4a716c4a2961f6974657fce34f7f3644ad18f734bc379b2c763e9b",
+      "source_prompt_hash": "2e4a6a60",
+      "role": "Copy Grid source_order on transient placement reconstruction; preserve geometry and source ordering."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/convergence.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/convergence.md",
+      "status": "existing",
+      "source_sha256": "5145a789c64739a6122bc2336e1ef015f602dd5b496970eb69ca55ebc2d92fb5",
+      "owner_sha256": "773e6a285ec5d1f5f8bab7e7e8c51c404624c2bfc31be075007cac00c0e25af9",
+      "source_prompt_hash": "db2c14c9",
+      "role": "Migrate typed payload fixture; verify new identity changes convergence."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/extract_payload.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/extract_payload.md",
+      "status": "existing",
+      "source_sha256": "01ce49c37a93e48d765fd2b04d57d3e6e0cdcc32f10ac74faad721c7921a038d",
+      "owner_sha256": "17a6c9118f505dec24d29ec25568d50acd847b01fb0b3b9c8f46cf94c3c916b0",
+      "source_prompt_hash": "02303e53",
+      "role": "Migrate payload fixture expectations; maintain entity delegation."
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect.md",
+      "status": "existing",
+      "source_sha256": "04098adc4885d0c6b6782dcec131953cd31b6f0957d00da3f75bbd3a7407037f",
+      "owner_sha256": "7227e91fab350cda912d8c1f1bd6c1abd4794b87d08f60bf82b12b1eddb74626",
+      "source_prompt_hash": "3f2e7775",
+      "role": "Migrate legacy fixture expectations only as justified by typed payload and corrected count contracts."
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/tests.md",
+      "status": "existing",
+      "source_sha256": "622c881183abed9a486c41b99c29d973e8ebf4bb6ae5cda798e717596cce9e3f",
+      "owner_sha256": "953262660112dd8cc72404439a8709905855210f97f2e90f29af0a908ad93821",
+      "source_prompt_hash": "0340e733",
+      "role": "Regressions for actual caption/reference output and typed/location counter expectations."
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/figure_kind.md",
+      "status": "new-only-after-approval",
+      "role": "Feature-owned closed semantic Content/Value traversal and exact kind identity/target lookup."
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/figure.md",
+      "status": "new-only-after-approval",
+      "role": "Feature-owned pure kind preview and final occurrence kind/supplement preparation."
+    },
+    {
+      "source": "02_shell/src/cli.rs",
+      "owner": "00_nucleo/prompts/shell/cli.md",
+      "status": "existing",
+      "source_sha256": "b6a5e7f36c75949d0e75498a4d98ade92a264cc85831fa95f970d7417814d719",
+      "owner_sha256": "278be884d63f1595fa1af68c1e52364c37b30bcb751cfdbc5269897d4692b36a",
+      "source_prompt_hash": "5d3d710e",
+      "role": "Project typed kind and resolved supplement using L1 getters; no serialization-time name inference or new synthesized defaults. Audit legacy fixture kind intent and retain preexisting unrelated semantic-tree defaults as explicit debt."
+    },
+    {
+      "source": "03_infra/src/export/tests/mod.rs",
+      "owner": "00_nucleo/prompts/infra/export/tests/mod.md",
+      "status": "existing",
+      "source_sha256": "20548d650a86a6040ce8aacd069ba8946a00837abb8c1d7b19610d4930b02661",
+      "owner_sha256": "482d87730de8c0a62510376f6e4dc069d5622f0764d42524f75392ecfc0b1ee2",
+      "source_prompt_hash": "c4584ce9",
+      "role": "Migrate legacy Figure fixture to explicit typed element intent, preserving actual export assertions."
+    }
+  ]
+}

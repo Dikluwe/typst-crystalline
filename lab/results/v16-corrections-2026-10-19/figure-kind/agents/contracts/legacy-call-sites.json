@@ -1,0 +1,499 @@
+{
+  "utc": "2026-10-19T23:07:38.659264+00:00",
+  "head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "source_state": "",
+  "calls": [
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 359,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 384,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 393,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 414,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 421,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 560,
+      "text": "let fig = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 588,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 594,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 600,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 663,
+      "text": "let figure = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 682,
+      "text": "let figure = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 697,
+      "text": "let figure = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 712,
+      "text": "let figure = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 729,
+      "text": "let figure = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 749,
+      "text": "let figure = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 770,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 776,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 782,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 815,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 914,
+      "text": "let figure = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1015,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1051,
+      "text": "let figure_with_h = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1201,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1207,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1213,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1372,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1378,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1384,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1445,
+      "text": "let single_figure = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1461,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1467,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 1555,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2153,
+      "text": "let content = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2179,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2185,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2211,
+      "text": "let content = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2233,
+      "text": "let figura_sem_caption = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2256,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2322,
+      "text": "Content::figure(Content::text(\"img\"), None, None, Some(\"1\".to_string()));",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2323,
+      "text": "let caso2 = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2329,
+      "text": "let caso3 = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2335,
+      "text": "let caso4 = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 2936,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 3164,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 3189,
+      "text": "Content::figure(Content::text(\"F\"), None, None, None),",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "line": 3213,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/eval/selector_matching.rs",
+      "line": 1011,
+      "text": "Content::figure(Content::text(\"Fig\"), None, Some(\"image\".to_string()), None);",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/eval/selector_matching.rs",
+      "line": 1074,
+      "text": "Content::figure(Content::text(\"F\"), None, Some(\"image\".to_string()), None);",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/extract_payload.rs",
+      "line": 221,
+      "text": "let c = Content::figure(Content::Empty, None, Some(\"image\".into()), None);",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/extract_payload.rs",
+      "line": 235,
+      "text": "let c = Content::figure(Content::Empty, None, None, None);",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "line": 321,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/locatable.rs",
+      "line": 280,
+      "text": "let c = Content::figure(Content::Empty, None, None, None);",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/locatable.rs",
+      "line": 337,
+      "text": "Content::figure(Content::Empty, None, None, None),",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "line": 113,
+      "text": "Content::Figure(e) => Content::figure(",
+      "action": "typed reconstruction, preserve all fields"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 4600,
+      "text": "let content = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 4619,
+      "text": "let content = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 4636,
+      "text": "let content = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 4652,
+      "text": "let content = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 4667,
+      "text": "let content = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 4682,
+      "text": "let content = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 4702,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 4708,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 4732,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 16326,
+      "text": "let figure = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 17048,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 17258,
+      "text": "Content::figure(Content::Empty, None, None, None),",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 17290,
+      "text": "Content::figure(Content::Empty, None, None, None),",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 17704,
+      "text": "let content = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 17973,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 20144,
+      "text": "vec![Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 20159,
+      "text": "let c = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 20635,
+      "text": "let tbl = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 20693,
+      "text": "let fig = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 20725,
+      "text": "let fig = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 20776,
+      "text": "let fig = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 20900,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "line": 20926,
+      "text": "Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "line": 226,
+      "text": "Ok(Value::Content(Content::figure(body, caption, kind, None)))",
+      "action": "typed native construction"
+    },
+    {
+      "source": "02_shell/src/cli.rs",
+      "line": 3034,
+      "text": "Content::figure(Content::text(\"one\"), None, None, None),",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "02_shell/src/cli.rs",
+      "line": 3055,
+      "text": "Content::figure(rect, Some(Content::text(\"Cap\")), Some(\"image\".into()), None),",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "02_shell/src/cli.rs",
+      "line": 3138,
+      "text": "let figure = Content::figure(Content::text(\"one\"), None, None, None);",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    },
+    {
+      "source": "03_infra/src/export/tests/mod.rs",
+      "line": 9337,
+      "text": "let fig = Content::figure(",
+      "action": "fixture: classify actual element intent versus custom Name; preserve assertions"
+    }
+  ]
+}

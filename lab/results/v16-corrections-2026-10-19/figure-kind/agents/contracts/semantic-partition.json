@@ -1,0 +1,889 @@
+{
+  "utc": "2026-10-19T23:07:38.659264+00:00",
+  "head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "branch": "codex/tekt-mature-layout",
+  "diff_head_stat": "",
+  "classification": "proposed closed semantic inspection partition; extension/representation residuals explicit, not runtime parity claims",
+  "content_source_sha256": "692abb6fe3082460209ff85a2f65dfe9ae483504acf43d6e29929c173f457a36",
+  "value_source_sha256": "a16dc7f800d27006b5740e798a7555f09e7098bc13c82c4eb20edec8d9c7a2d3",
+  "content": [
+    {
+      "variant": "Image",
+      "policy": "inferable-root",
+      "ordered_fields": "no Content-valued fields after nonmatching root",
+      "reason": "Auto recognizes exact native identity; a nonmatching explicit-kind root has no semantic Content fields."
+    },
+    {
+      "variant": "Raw",
+      "policy": "inferable-root",
+      "ordered_fields": "no Content-valued fields after nonmatching root",
+      "reason": "Auto recognizes exact native identity; a nonmatching explicit-kind root has no semantic Content fields."
+    },
+    {
+      "variant": "Table",
+      "policy": "root-then-fields",
+      "ordered_fields": "ordinary raw children in source order; separated header/footer/caption retained after that synthetic adapter view",
+      "reason": "Auto succeeds immediately at Table; explicit target of another kind continues into declared children, never resolved visual plan. Ordinary-cell target order is required; native constructor extracts and can merge headers, so original mixed header/cell order for non-Table supplement targets is explicit bounded debt. No Table lexical carrier added."
+    },
+    {
+      "variant": "Source",
+      "policy": "transparent",
+      "ordered_fields": "body",
+      "reason": "Source/recipe/location transport is not an additional language element; inspect retained body without executing recipe/callback."
+    },
+    {
+      "variant": "ShowRecipe",
+      "policy": "transparent",
+      "ordered_fields": "body",
+      "reason": "Source/recipe/location transport is not an additional language element; inspect retained body without executing recipe/callback."
+    },
+    {
+      "variant": "Located",
+      "policy": "transparent",
+      "ordered_fields": "body",
+      "reason": "Source/recipe/location transport is not an additional language element; inspect retained body without executing recipe/callback."
+    },
+    {
+      "variant": "Realized",
+      "policy": "semantic-origin",
+      "ordered_fields": "original",
+      "reason": "Inspect original language contribution; do not infer from later show-produced visual content."
+    },
+    {
+      "variant": "Sequence",
+      "policy": "children",
+      "ordered_fields": "children in source order",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathSequence",
+      "policy": "children",
+      "ordered_fields": "children in source order",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Par",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "SmallCaps",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Heading",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Title",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Strong",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Emph",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "ListItem",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "EnumItem",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Link",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Equation",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathStretch",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathDelimited",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathLr",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathMid",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathCancel",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathUnderline",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathOverline",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathClassOverride",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathLimitsOverride",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathStyled",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Label",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Transform",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "GridHeader",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "GridFooter",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "GridCell",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Align",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Place",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Styled",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "PdfArtifact",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Underline",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Strike",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Overline",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Pad",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Hide",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Boxed",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Block",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Footnote",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "TableHeader",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "TableFooter",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Repeat",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Columns",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "HtmlFrame",
+      "policy": "body",
+      "ordered_fields": "body",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "HtmlElem",
+      "policy": "optional-body",
+      "ordered_fields": "body iff HtmlBody::Content; Unset/None do not contribute",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathFrac",
+      "policy": "ordered-fields",
+      "ordered_fields": "num, den",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathAttach",
+      "policy": "ordered-fields",
+      "ordered_fields": "base, present t, present b, present tl, present bl, present tr, present br",
+      "reason": "Only lexically present slots; not synthesized placement or resolved visual slots. Order verified in pinned math/attach.rs:23\u201348."
+    },
+    {
+      "variant": "MathRoot",
+      "policy": "ordered-fields",
+      "ordered_fields": "present index, radicand",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathOverbrace",
+      "policy": "ordered-fields",
+      "ordered_fields": "body, explicit present annotation",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathUnderbrace",
+      "policy": "ordered-fields",
+      "ordered_fields": "body, explicit present annotation",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathUnderbracket",
+      "policy": "ordered-fields",
+      "ordered_fields": "body, explicit present annotation",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathUnderparen",
+      "policy": "ordered-fields",
+      "ordered_fields": "body, explicit present annotation",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathUndershell",
+      "policy": "ordered-fields",
+      "ordered_fields": "body, explicit present annotation",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathOverbracket",
+      "policy": "ordered-fields",
+      "ordered_fields": "body, explicit present annotation",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathOverparen",
+      "policy": "ordered-fields",
+      "ordered_fields": "body, explicit present annotation",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathOvershell",
+      "policy": "ordered-fields",
+      "ordered_fields": "body, explicit present annotation",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathMatrix",
+      "policy": "array-fields",
+      "ordered_fields": "rows in row-major source order",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathCases",
+      "policy": "array-fields",
+      "ordered_fields": "children in source order",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathVec",
+      "policy": "array-fields",
+      "ordered_fields": "children in source order",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathAccent",
+      "policy": "body",
+      "ordered_fields": "base",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "MathUnderover",
+      "policy": "ordered-fields",
+      "ordered_fields": "base, present under, present over",
+      "reason": "Legacy synthetic aggregate has no single upstream element; preserve all represented semantic source slots, not render products."
+    },
+    {
+      "variant": "MathOp",
+      "policy": "body",
+      "ordered_fields": "text",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Figure",
+      "policy": "ordered-fields",
+      "ordered_fields": "body, present caption, resolved supplement Content if resolved_supplement is Some, otherwise lexical FigureSupplement::Content; never both",
+      "reason": "First inferable descendant wins. Do not descend into the function value, kind identity, or private preparation record."
+    },
+    {
+      "variant": "FigureCaption",
+      "policy": "ordered-fields",
+      "ordered_fields": "present separator, body",
+      "reason": "Field declaration order is position (noncontent), separator, body; preserve explicit known fields only."
+    },
+    {
+      "variant": "Ref",
+      "policy": "optional-fields",
+      "ordered_fields": "present supplement",
+      "reason": "Reference/citation supplement is public Content, unlike the static visual visitor policy."
+    },
+    {
+      "variant": "Cite",
+      "policy": "optional-fields",
+      "ordered_fields": "present supplement",
+      "reason": "Reference/citation supplement is public Content, unlike the static visual visitor policy."
+    },
+    {
+      "variant": "Outline",
+      "policy": "optional-fields",
+      "ordered_fields": "explicit title only",
+      "reason": "Generated realized_body/captured recipes are not source language fields."
+    },
+    {
+      "variant": "OutlineEntry",
+      "policy": "ordered-fields",
+      "ordered_fields": "element, present fill",
+      "reason": "Generated prefix/location is not a public stored semantic child."
+    },
+    {
+      "variant": "Grid",
+      "policy": "ordered-fields",
+      "ordered_fields": "source_order descriptors resolve Cell/Header/Footer/HLine/VLine in original positional order; None synthetic legacy order cells,header,footer",
+      "reason": "New approved GridChildOrder transport retains actual source ordering without duplicated Content or repeated map callbacks. Before traversal validate complete in-bounds exactly-once descriptor coverage and Header/Footer presence; malformed Some returns SourceResult error invalid grid source order at Source span, never partial result/fallback. Never use layout placement order as semantic source order."
+    },
+    {
+      "variant": "PageRun",
+      "policy": "ordered-fields",
+      "ordered_fields": "static supplement, static header, static footer, static background, static foreground, body",
+      "reason": "Only explicit Content payloads represented by public page properties. No running callbacks; Order follows pinned layout/page.rs:324,367,404,474,492,501, not rendering order."
+    },
+    {
+      "variant": "Terms",
+      "policy": "array-fields",
+      "ordered_fields": "items in source order",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "TermItem",
+      "policy": "ordered-fields",
+      "ordered_fields": "term, description",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Quote",
+      "policy": "ordered-fields",
+      "ordered_fields": "body, present attribution",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "Document",
+      "policy": "ordered-fields",
+      "ordered_fields": "present title, body",
+      "reason": "Title precedes body in language constructor fields; authors/keywords/metadata are noncontent. Document is a distinct resource; no asset I/O."
+    },
+    {
+      "variant": "Stack",
+      "policy": "array-fields",
+      "ordered_fields": "children in source order",
+      "reason": "Semantic source fields; never invoke callbacks or inspect captured environments."
+    },
+    {
+      "variant": "TableCell",
+      "policy": "body",
+      "ordered_fields": "raw declared body",
+      "reason": "Do not use resolved/standalone visual; fields x/y/etc are noncontent and function-valued style properties remain opaque."
+    },
+    {
+      "variant": "Bibliography",
+      "policy": "optional-fields",
+      "ordered_fields": "explicit title only",
+      "reason": "No CSL rendering, record traversal, or I/O."
+    },
+    {
+      "variant": "FootnoteEntry",
+      "policy": "ordered-fields",
+      "ordered_fields": "note, present separator",
+      "reason": "Order verified in pinned model/footnote.rs:240,264; do not generate note content."
+    },
+    {
+      "variant": "Metadata",
+      "policy": "value-field",
+      "ordered_fields": "value",
+      "reason": "Descend through Content/LocatedContent and recursive Arrays only; Dictionaries are opaque even when nested in Arrays."
+    },
+    {
+      "variant": "StateUpdate",
+      "policy": "opaque-internal",
+      "ordered_fields": "",
+      "reason": "Pinned state.rs:401 marks update internal; audit state-update-fields proves Set(Table) stays opaque even though Rust contains Value. Public key is noncontent. Do not execute Func or inspect Set payload."
+    },
+    {
+      "variant": "State",
+      "policy": "opaque-internal",
+      "ordered_fields": "",
+      "reason": "Synthetic state initial-value marker has no public native Content field schema; preserving opacity is an explicit extension limitation, not proof its stored Value is childless."
+    },
+    {
+      "variant": "ContextBlock",
+      "policy": "opaque-callback",
+      "ordered_fields": "",
+      "reason": "Do not execute callback or descend through closure captures; later produced content is outside naive semantic inference."
+    },
+    {
+      "variant": "StateDisplay",
+      "policy": "opaque-callback",
+      "ordered_fields": "",
+      "reason": "Do not execute callback or descend through closure captures; later produced content is outside naive semantic inference."
+    },
+    {
+      "variant": "CounterDisplayCallback",
+      "policy": "opaque-callback",
+      "ordered_fields": "",
+      "reason": "Do not execute callback or descend through closure captures; later produced content is outside naive semantic inference."
+    },
+    {
+      "variant": "Dynamic",
+      "policy": "opaque-extension",
+      "ordered_fields": "",
+      "reason": "Current Element/DynElement exposes get_field but no enumeration; do not call dyn_map_content. Extension field inference remains explicit debt, not certified parity."
+    },
+    {
+      "variant": "SetPage",
+      "policy": "opaque-style-marker",
+      "ordered_fields": "",
+      "reason": "A progressive style delta is not a public Content semantic element; do not walk style map payloads."
+    },
+    {
+      "variant": "Empty",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Text",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Space",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "SpaceFromNewline",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Parbreak",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "MathIdent",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "MathText",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "MathPrimes",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "MathAlignPoint",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Linebreak",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "CounterDisplay",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "CounterUpdate",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Shape",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Curve",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Flush",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Divider",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Asset",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "SmartQuote",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "PdfAttach",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "HSpace",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "VSpace",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Pagebreak",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "Colbreak",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "GridHLine",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "GridVLine",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "TableHLine",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    },
+    {
+      "variant": "TableVLine",
+      "policy": "no-content-fields",
+      "ordered_fields": "",
+      "reason": "Current public fields are noncontent values or resource/counter actions; no semantic child and no callback execution. Invalid synthetic geometry Value contents are not valid semantic dimensions."
+    }
+  ],
+  "value": [
+    {
+      "variant": "None",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Bool",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Int",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Float",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Str",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Array",
+      "policy": "recurse values in order including nested Arrays"
+    },
+    {
+      "variant": "Dict",
+      "policy": "opaque; no recursion into values, including nested Arrays"
+    },
+    {
+      "variant": "Module",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Datetime",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Func",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Content",
+      "policy": "recurse semantic content"
+    },
+    {
+      "variant": "LocatedContent",
+      "policy": "use authoritative stored fields when available; known-empty stays authoritative; otherwise underlying semantic content"
+    },
+    {
+      "variant": "Auto",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Length",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Relative",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Ratio",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Angle",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Color",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Stroke",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Fraction",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Align",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Location",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Gradient",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Regex",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Tiling",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Bytes",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Decimal",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Duration",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Version",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Selector",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Symbol",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Args",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "State",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Counter",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Label",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Dir",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Path",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "Type",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    },
+    {
+      "variant": "SpotColorant",
+      "policy": "opaque non-Content/non-Array value; no callback or contained runtime-object traversal"
+    }
+  ]
+}

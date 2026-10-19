@@ -1,0 +1,44 @@
+{
+  "utc": "2026-10-19T22:57:29.582624+00:00",
+  "head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "files": [
+    {
+      "path": "lab/typst-original/crates/typst-library/src/model/figure.rs",
+      "sha256": "2ee0172d813ec41038e5c5f17f967b015a072f8a9459cdba62d2900ea35adfc9",
+      "upstream_path": "crates/typst-library/src/model/figure.rs",
+      "equals_pinned_blob": true
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/content/mod.rs",
+      "sha256": "a477eb1013d08d18a39da3c3341d666b37a4a9bab8d14d93e3327aff78674245",
+      "upstream_path": "crates/typst-library/src/foundations/content/mod.rs",
+      "equals_pinned_blob": true
+    },
+    {
+      "path": "lab/typst-original/crates/typst-realize/src/lib.rs",
+      "sha256": "f94f6cc7ca9a02d030a61dbabf600aa660585ef5df505f715ad663c36db4866f",
+      "upstream_path": "crates/typst-realize/src/lib.rs",
+      "equals_pinned_blob": true
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/introspection/counter.rs",
+      "sha256": "cc7d382014d094e72b342bcdd07f3328ddc6cd4c74827166b972c1c338833324",
+      "upstream_path": "crates/typst-library/src/introspection/counter.rs",
+      "equals_pinned_blob": true
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/model/reference.rs",
+      "sha256": "690b70c2b03e62bcff2109be84f1ac7d723884cc56765d3d3d47233835eae96e",
+      "upstream_path": "crates/typst-library/src/model/reference.rs",
+      "equals_pinned_blob": true
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/introspection/state.rs",
+      "sha256": "bcb53189d6a5c9c9c9790e2e1cb333f00cee21cde1233d12aa55f910ceea63c1",
+      "upstream_path": "crates/typst-library/src/introspection/state.rs",
+      "equals_pinned_blob": true
+    }
+  ]
+}

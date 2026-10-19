@@ -1,0 +1,158 @@
+{
+  "utc_start": "2026-10-19T22:59:42.930336+00:00",
+  "head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "diff_head_stat": "",
+  "runner_sha256": "addc559c1761fb1739edb7627f1d530852eff5661841a59f1a4cb97b05aca617",
+  "provenance_parent_sha256": "6528bdd958f7549b2d2769b5973ddeb0fcd27ba3c3871ac42d62f02c26eb7dff",
+  "cases": [
+    {
+      "name": "selector-supplement-default",
+      "source": "#show figure.where(supplement:[Table]):it=>[#metadata(\"matched\") <probe>]\n#figure(table([A]))\n",
+      "source_sha256": "7b633131b2e3749ba11d3010e71f4d41143354297d08eaad5f01fb5f879f54a3",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T22:59:43.022669+00:00",
+          "utc_end": "2026-10-19T22:59:43.029873+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-supplement-default.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[\"matched\"]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-supplement-default.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T22:59:43.165771+00:00",
+          "utc_end": "2026-10-19T22:59:43.742057+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-supplement-default.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-supplement-default.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "selector-supplement-callback",
+      "source": "#show figure.where(supplement:[Custom]):it=>[#metadata(\"matched\") <probe>]\n#figure(table([A]),supplement:it=>[Custom])\n",
+      "source_sha256": "48f0a1217b5fa290d9fbe6f6cfc62a67e06712159f0af76d10b9afe2a9cd5e44",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T22:59:43.799322+00:00",
+          "utc_end": "2026-10-19T22:59:43.806621+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-supplement-callback.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[\"matched\"]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-supplement-callback.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T22:59:43.936432+00:00",
+          "utc_end": "2026-10-19T22:59:44.521663+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-supplement-callback.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-supplement-callback.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "selector-kind-with-supplement-error",
+      "source": "#show figure.where(kind:table):none\n#figure(table([A]),supplement:it=>panic(\"FG1_PREVIEW\"))\n",
+      "source_sha256": "9119d0ae297cfd6a7c9012ce2d8b7a91d840d2e33a0f85100e440d871b453dd5",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T22:59:44.579729+00:00",
+          "utc_end": "2026-10-19T22:59:44.586476+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-kind-with-supplement-error.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: FG1_PREVIEW\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-kind-with-supplement-error.typ:2:34\n  \u2502\n2 \u2502 #figure(table([A]),supplement:it=>panic(\"FG1_PREVIEW\"))\n  \u2502                                   ^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-kind-with-supplement-error.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T22:59:44.715908+00:00",
+          "utc_end": "2026-10-19T22:59:45.302783+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-kind-with-supplement-error.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-kind-with-supplement-error.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "selector-kind-changing-supplement",
+      "source": "#show figure.where(kind:table):set figure(supplement:[Changed])\n#show figure:it=>[#metadata(repr(it.supplement)) <probe>]\n#figure(table([A]),supplement:it=>[Explicit])\n",
+      "source_sha256": "a8dccf7e28be6300bb8c6bb2c3c39646e0adee0b7ee224789277dc1af8776d31",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T22:59:45.361966+00:00",
+          "utc_end": "2026-10-19T22:59:45.369096+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-kind-changing-supplement.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[\"[Explicit]\"]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-kind-changing-supplement.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T22:59:45.499352+00:00",
+          "utc_end": "2026-10-19T22:59:45.513604+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-kind-changing-supplement.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"supplement\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-kind-changing-supplement.typ:2:36\n  \u2502\n2 \u2502 #show figure:it=>[#metadata(repr(it.supplement)) <probe>]\n  \u2502                                     ^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/selector-kind-changing-supplement.typ` instead\n\n"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T22:59:45.513621+00:00"
+}

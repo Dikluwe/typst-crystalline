@@ -1,0 +1,121 @@
+{
+  "utc_start": "2026-10-19T23:03:02.796431+00:00",
+  "head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "diff_head_stat": "",
+  "runner_sha256": "18c45d56c939559c8fd45163cfea1221485e7d2ddec59294ce02217332eadcec",
+  "provenance_parent_sha256": "6528bdd958f7549b2d2769b5973ddeb0fcd27ba3c3871ac42d62f02c26eb7dff",
+  "cases": [
+    {
+      "name": "grid-header-before-body",
+      "source": "#show figure:it=>[#metadata(repr(it.kind)) <probe>]\n#figure(grid(columns:1,grid.header(table([A])),raw(\"x\")))\n",
+      "source_sha256": "61921c3c27546dca53e5010d972bd83c67d6786e978d08e7512b446ec36d77c9",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T23:03:02.889199+00:00",
+          "utc_end": "2026-10-19T23:03:02.895988+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-header-before-body.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[\"table\"]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-header-before-body.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T23:03:03.026386+00:00",
+          "utc_end": "2026-10-19T23:03:03.041528+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-header-before-body.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-header-before-body.typ:1:36\n  \u2502\n1 \u2502 #show figure:it=>[#metadata(repr(it.kind)) <probe>]\n  \u2502                                     ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-header-before-body.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-header-after-body",
+      "source": "#show figure:it=>[#metadata(repr(it.kind)) <probe>]\n#figure(grid(columns:1,raw(\"x\"),grid.header(table([A]))))\n",
+      "source_sha256": "86ab70769848a8946efedf5f17b690cfc6f880eecd6712c5adff00610d0789b6",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T23:03:03.097986+00:00",
+          "utc_end": "2026-10-19T23:03:03.104704+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-header-after-body.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[\"raw\"]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-header-after-body.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T23:03:03.234090+00:00",
+          "utc_end": "2026-10-19T23:03:03.248531+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-header-after-body.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-header-after-body.typ:1:36\n  \u2502\n1 \u2502 #show figure:it=>[#metadata(repr(it.kind)) <probe>]\n  \u2502                                     ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-header-after-body.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-footer-before-body",
+      "source": "#show figure:it=>[#metadata(repr(it.kind)) <probe>]\n#figure(grid(columns:1,grid.footer(table([A])),raw(\"x\")))\n",
+      "source_sha256": "c7a196466b9bcb20941629f1de7bc183e43e0eea5af2a131e3d4dafc8b2bb9c5",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T23:03:03.307649+00:00",
+          "utc_end": "2026-10-19T23:03:03.314684+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-before-body.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[\"table\"]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-before-body.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T23:03:03.446343+00:00",
+          "utc_end": "2026-10-19T23:03:03.461820+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-before-body.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-before-body.typ:1:36\n  \u2502\n1 \u2502 #show figure:it=>[#metadata(repr(it.kind)) <probe>]\n  \u2502                                     ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-before-body.typ` instead\n\n"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T23:03:03.461836+00:00"
+}

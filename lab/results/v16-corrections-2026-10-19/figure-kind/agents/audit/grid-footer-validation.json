@@ -1,0 +1,158 @@
+{
+  "utc_start": "2026-10-19T23:05:34.885586+00:00",
+  "head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "diff_head_stat": "",
+  "runner_sha256": "708cd7b1f66f372f9110c550ee9e312bb087ca1105902e970413a3ff15d7f0b3",
+  "provenance_parent_sha256": "6528bdd958f7549b2d2769b5973ddeb0fcd27ba3c3871ac42d62f02c26eb7dff",
+  "cases": [
+    {
+      "name": "grid-footer-direct",
+      "source": "#grid(columns:1,grid.footer([A]),[B])\n",
+      "source_sha256": "7cd351d422c0d6ca734914154a279146821a96f420c4ac835d4763c167cc8f30",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T23:05:34.990731+00:00",
+          "utc_end": "2026-10-19T23:05:34.998295+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-direct.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: footer must end at the last row\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-direct.typ:1:16\n  \u2502\n1 \u2502 #grid(columns:1,grid.footer([A]),[B])\n  \u2502                 ^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-direct.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T23:05:35.143131+00:00",
+          "utc_end": "2026-10-19T23:05:35.156896+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-direct.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: footer must end at the last row\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-direct.typ:1:5\n  \u2502\n1 \u2502 #grid(columns:1,grid.footer([A]),[B])\n  \u2502      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-direct.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-footer-figure-hidden",
+      "source": "#show figure:none\n#figure(grid(columns:1,grid.footer([A]),[B]))\n",
+      "source_sha256": "eea4433f73e51b8c08ece67bfba76a3f2d8aab4cf97e570eaa87f58bfae30cfe",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T23:05:35.221674+00:00",
+          "utc_end": "2026-10-19T23:05:35.228995+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-figure-hidden.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-figure-hidden.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T23:05:35.378043+00:00",
+          "utc_end": "2026-10-19T23:05:35.400147+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-figure-hidden.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-figure-hidden.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-footer-table-direct",
+      "source": "#grid(columns:1,grid.footer(table([A])),raw(\"x\"))\n",
+      "source_sha256": "cdaa743da774e1e1ad9f6b0d7089d5099a436c74a32ea1c87393826f8aa5863f",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T23:05:35.465311+00:00",
+          "utc_end": "2026-10-19T23:05:35.473100+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-table-direct.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: footer must end at the last row\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-table-direct.typ:1:16\n  \u2502\n1 \u2502 #grid(columns:1,grid.footer(table([A])),raw(\"x\"))\n  \u2502                 ^^^^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-table-direct.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T23:05:35.619109+00:00",
+          "utc_end": "2026-10-19T23:05:35.634601+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-table-direct.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: footer must end at the last row\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-table-direct.typ:1:5\n  \u2502\n1 \u2502 #grid(columns:1,grid.footer(table([A])),raw(\"x\"))\n  \u2502      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-table-direct.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-footer-fields",
+      "source": "#metadata(grid(columns:1,grid.footer([A]),[B]).fields()) <probe>\n",
+      "source_sha256": "91c9f90c9f80bb07ca1e6636344c8e4946b0ef84f217f2bbd49338f392ea0dc2",
+      "runs": {
+        "oracle": {
+          "utc_start": "2026-10-19T23:05:35.700318+00:00",
+          "utc_end": "2026-10-19T23:05:35.707849+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-fields.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"columns\":[\"auto\"],\"children\":[{\"func\":\"footer\",\"children\":[{\"func\":\"cell\",\"body\":{\"func\":\"text\",\"text\":\"A\"}}]},{\"func\":\"cell\",\"body\":{\"func\":\"text\",\"text\":\"B\"}}]}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-fields.typ` instead\n\n"
+        },
+        "product": {
+          "utc_start": "2026-10-19T23:05:35.851594+00:00",
+          "utc_end": "2026-10-19T23:05:35.866826+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-fields.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: footer must end at the last row\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-fields.typ:1:14\n  \u2502\n1 \u2502 #metadata(grid(columns:1,grid.footer([A]),[B]).fields()) <probe>\n  \u2502               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind/agents/audit/probes/grid-footer-fields.typ` instead\n\n"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T23:05:35.866844+00:00"
+}

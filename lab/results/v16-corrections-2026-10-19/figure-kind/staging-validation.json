@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-19T23:10:31.527052+00:00",
+  "baseline_head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "branch": "codex/tekt-mature-layout",
+  "package_sha256": "0c2b16dea5bd5d98488089c198cf99f336b455066fe5f416aad9d3cef4952c31",
+  "exact_scope": true,
+  "index_worktree_manifest_hashes_match": true,
+  "files_before_receipt": 146,
+  "whitespace": {
+    "full_exit": 2,
+    "output": "lab/results/v16-corrections-2026-10-19/figure-kind/validation/figure-tests.log:139: new blank line at EOF.\n",
+    "exception": {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind/validation/figure-tests.log",
+      "sha256": "6658617e25881b79f707533d59a64fb8d8b593f15068736367d4dd30670bd53d",
+      "reason": "Raw measured test output retained byte-for-byte."
+    },
+    "other_files_exit": 0
+  }
+}

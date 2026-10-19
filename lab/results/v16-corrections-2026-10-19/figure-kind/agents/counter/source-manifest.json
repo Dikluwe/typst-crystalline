@@ -1,0 +1,319 @@
+{
+  "utc": "2026-10-19T23:01:19.343637+00:00",
+  "head": "d4e72102df01f9c248dffac761662d0f3cbf699e",
+  "branch": "codex/tekt-mature-layout",
+  "status": "",
+  "diff_head_stat": "",
+  "classification": "static source review plus six bilateral runtime probes; no source/L0 changes by counter agent",
+  "reviewed_pairs": [
+    {
+      "source": "01_core/src/entities/introspector.rs",
+      "source_sha256": "f48687e102c1c965257751ca273fb239d7b5edb25c87344eddac7d73eec5869d",
+      "owner": "00_nucleo/prompts/core/entities/introspector.md",
+      "owner_sha256": "1f6b53d53d061240ddbcc614836409fd492ad575ea1429a881f04929407e437a",
+      "disposition": "required-change",
+      "amendment": "Add crate-private snapshot type/vector, clone/default lifetime; document legacy runtime projection compatibility break; preserve public trait signatures.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/entities/counter_registry.rs",
+      "source_sha256": "e452dbabed4a8bf29cebd23f1799cccdc0163d03af4d70e111a4ae490c32b54f",
+      "owner": "00_nucleo/prompts/core/entities/counter_registry.md",
+      "owner_sha256": "445636432bb5197d31db033fd3aab481d60ca308c773655445bd9cae58a70eaa",
+      "disposition": "regression-boundary",
+      "reason": "Canonical action log/order already sufficient; no result cache or automatic user-string alias added.",
+      "reseal_scope": false
+    },
+    {
+      "source": "01_core/src/entities/element_payload.rs",
+      "source_sha256": "1b699ffced7fd5ef6d62f1869e6137e86a76717c04f2a63bcf66bf69ef522450",
+      "owner": "00_nucleo/prompts/core/entities/element_payload.md",
+      "owner_sha256": "67d7a896f9d1e26324956a6a1c6f602a696fb5b1e182e94a81aca045657304e7",
+      "disposition": "required-change",
+      "amendment": "Change typed Figure kind and redefine is_counted as numbering-present, independent of caption.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "source_sha256": "848750fda400acc3ef94f812f9889ec0eeba8eec4fa30b547697eaca7aa28bca",
+      "owner": "00_nucleo/prompts/core/entities/elements/figure.md",
+      "owner_sha256": "3b7f699668a76ea012f077121645522c99a61a2ff8dcf80bc70f19f1d119918d",
+      "disposition": "required-change",
+      "amendment": "Initialize automatic eligibility independently of caption; integrate separately owned carrier/supplement fields.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/entities/elements/ref.rs",
+      "source_sha256": "a62025d4aa7f41f02fc40020b0149abc2ce1a8d3168289b172ead2935583ceaf",
+      "owner": "00_nucleo/prompts/core/entities/elements/ref.md",
+      "owner_sha256": "ba04fd6f9c18d35cbabfc0798b1421b96c210f05cf8c072c485b59cadbee6a4b",
+      "disposition": "regression-boundary",
+      "reason": "Existing form/name/supplement carrier suffices; numeric target demand belongs to compiler visitor.",
+      "reseal_scope": false
+    },
+    {
+      "source": "01_core/src/entities/sink.rs",
+      "source_sha256": "00b6b480ed37c6ea502ce5a9b2bf4ca5c4a09866108cd5c1b99d24d8053ba661",
+      "owner": "00_nucleo/prompts/core/entities/sink.md",
+      "owner_sha256": "4dbaf4102421bd4948e7aaef02567c14a6031624e053b7c10b2127eba8cbd6b2",
+      "disposition": "regression-boundary",
+      "reason": "Preserve existing per-transaction dedup/publication API; no shared cache/effect flag.",
+      "reseal_scope": false
+    },
+    {
+      "source": "01_core/src/entities/content/traversal.rs",
+      "source_sha256": "2e51ef6ef43ca074904effe54cef4dee69a633e2d39e0ce74c8eb71403516554",
+      "owner": "00_nucleo/prompts/core/entities/content/traversal.md",
+      "owner_sha256": "ced51dba9414f643d6824aebc8a0537b1414a922b17dd0639aa5885d76607e69",
+      "disposition": "regression-boundary",
+      "reason": "Active visual child partition is evidence only; do not change this generic visitor to serve specialized demand context.",
+      "reseal_scope": false
+    },
+    {
+      "source": "01_core/src/entities/content/source.rs",
+      "source_sha256": "cd06bbdaab3253337916286659124c1fb5bb00ce0eca595cb2502936ce93cdb5",
+      "owner": "00_nucleo/prompts/core/entities/content/source.md",
+      "owner_sha256": "24c9f6ee074d083ff6bd299086262792069134d8c055c071bab3aef602a3cad2",
+      "disposition": "regression-boundary",
+      "reason": "Existing source span/carrier behavior remains unchanged; specialized collector transports it.",
+      "reseal_scope": false
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "source_sha256": "04098adc4885d0c6b6782dcec131953cd31b6f0957d00da3f75bbd3a7407037f",
+      "owner": "00_nucleo/prompts/core/compiler/introspect.md",
+      "owner_sha256": "7227e91fab350cda912d8c1f1bd6c1abd4794b87d08f60bf82b12b1eddb74626",
+      "disposition": "required-change",
+      "amendment": "Register private Figure demand/finalizer units; reexport additive bundle-target facade only.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/introspect/populate.rs",
+      "source_sha256": "b1f965205be24b35268ad2d91ae01001942905628c3b413b7cc265bab167a27e",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/populate.md",
+      "owner_sha256": "6afbfcc79c5626d3482090e3ea008d4b519712b065e2a9c3cf1b15d516b60a18",
+      "disposition": "required-change",
+      "amendment": "One numbered Figure action; typed keys for numbered labels; remove automatic user-string alias writes.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/introspect/queries.rs",
+      "source_sha256": "35b8e90374ce3ecb56e45b06d57282ed534af8f536c9be067ec5e0310569939b",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+      "owner_sha256": "c36be9d18d02bae48f2cc660992c93845db38bbe8aaa98e7647a6eb04e67e53f",
+      "disposition": "required-change",
+      "amendment": "Read prepared histories by semantic key and causal ordinal; preserve empty state; retain legacy method implementation.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "source_sha256": "3d3776d02f64151b460d91a2ff01b7592888fc31d75ba965042e0ca6750bf1a1",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/labelled.md",
+      "owner_sha256": "52181daaddda31d2728e90bd3cb5b240d382a0862c1e2cf138bbc47ec2a04900",
+      "disposition": "required-change",
+      "amendment": "Do not freeze incomplete Figure callback-derived numbers during pure walk; preserve typed numeric reference precedence.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/introspect/walk.rs",
+      "source_sha256": "4aee96f487e2c22aa4c0149d6b346e164565d98c232412e3f183d102ca97dd79",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/walk.md",
+      "owner_sha256": "499710498b29d97e67875db8991e7f544969011ec25fc13e30f44177a141b406",
+      "disposition": "required-change",
+      "amendment": "Apply effective numbering gate independent of caption while preserving existing occurrence identity.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/introspect/entrypoints.rs",
+      "source_sha256": "48acdc750721560446ecd2d3035477a9f2ed942532e5557d212407db707b0f59",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/entrypoints.md",
+      "owner_sha256": "0aba9ba24a91e6c49178792fc664cc470532b4e505bcd2ef64d4b990a42324aa",
+      "disposition": "required-change",
+      "amendment": "Add exact targets/features facade, metadata-length validation and all-Paged compatibility wrapper; finalize only Paged implicit demands.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/introspect/fixpoint.rs",
+      "source_sha256": "bd927f97fd1526ea3fa47627d480e0a16c05c0d70ed2209a863d7c129397d04f",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/fixpoint.md",
+      "owner_sha256": "317a74cbf7ba8ec2fbe190d953004e2d1ddb3eff28392fececd91f30d6158d13",
+      "disposition": "required-change",
+      "amendment": "Run finalizer once per complete iteration in an isolated sink and publish only returned-iteration contributions.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/introspect/from_tags.rs",
+      "source_sha256": "4217f2f852ef1b273ce89e23346e0702ba81e5e29a8a2430b97fa1dc71639596",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/from_tags.md",
+      "owner_sha256": "297caa54fd59f8c81df2ad52777312b6fa8582e5fe1f5af46a1333b951a42af7",
+      "disposition": "regression-boundary",
+      "reason": "Existing resolve_filtered_counter reexport is sufficient for the new owner.",
+      "reseal_scope": false
+    },
+    {
+      "source": "01_core/src/compiler/introspect/from_tags/counter_updates.rs",
+      "source_sha256": "d5d181b2e47e4249474329064021895db4dee26f95b6b409875efe9c125674de",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/from_tags/counter_updates.md",
+      "owner_sha256": "516ca4d4f5e6cbe095ad45b77d2207bfc4a435da4234f155e3974ce74cb2f962",
+      "disposition": "regression-boundary",
+      "reason": "Existing complete Context::none fold remains algorithmic authority; no cache/rewrite authorized.",
+      "reseal_scope": false
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/counter/filtered_reads.rs",
+      "source_sha256": "fafe8489b4424fcca2ac3cc7a1dc89095c9d9c7a1ec3e7193cc8484a99cf9bb1",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/counter/filtered_reads.md",
+      "owner_sha256": "eb2acbe128e9df2cd333aafdd88da9ebec7eb0d0a9087bc99514517576564786",
+      "disposition": "regression-boundary",
+      "reason": "Explicit demands retain independent complete fold and observation recording.",
+      "reseal_scope": false
+    },
+    {
+      "source": "01_core/src/compiler/eval/context_reads.rs",
+      "source_sha256": "5589d056fd9fa8a7f40e44de568a2e477e9f184af089b1cff93b3df0a800c830",
+      "owner": "00_nucleo/prompts/core/compiler/eval/context_reads.md",
+      "owner_sha256": "e5302d0b67eec36f506c53563437857b9a387ed33207d4b6e3ccc2bce575d4c3",
+      "disposition": "regression-boundary",
+      "reason": "Validation retains fresh local context/sink and discarded contributions.",
+      "reseal_scope": false
+    },
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "source_sha256": "7d144440b68b575917dcad808e64a81f346d0e6e5dadf4017df5f3bf58f5fa67",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+      "owner_sha256": "e3850222a8d1fdb50b596af41ce45f58eade7e74e2e33aa9d84ae06af83f660c",
+      "disposition": "regression-boundary",
+      "reason": "Reuse existing semantic key equality; no new equivalence or hash proof.",
+      "reseal_scope": false
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "source_sha256": "643698bd6651f997607226a373107797b0b2c9ff3b2254c2ecbcf9d20475adc7",
+      "owner": "00_nucleo/prompts/core/compiler/layout/figure.md",
+      "owner_sha256": "686be4e94d851472c00638523dc8f279dd613d92d62a92f359b0396d0de6b093",
+      "disposition": "required-change",
+      "amendment": "Use prepared current_location/key prefix; fail missing prepared snapshot via layout_errors; legacy progress only for unprepared synthetic data.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/layout/references.rs",
+      "source_sha256": "3585dcfa343276500caedfe51392db1e21e3afd9fe2f43d7b8b9f88c2a669616",
+      "owner": "00_nucleo/prompts/core/compiler/layout/references.md",
+      "owner_sha256": "eb7adaa0f3b24e914142ba235a494bd66d4fe42ba8c4abcb6b776a7d9fdd3f0e",
+      "disposition": "required-change",
+      "amendment": "Use typed target-Location prefix and preserve numeric/bibliography/Page/supplement precedence and numbering eligibility.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/layout/mod.rs",
+      "source_sha256": "e6dcb9ee79571269d653e30059922f8df10ea90f1e695adb3c82f573394a1718",
+      "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+      "owner_sha256": "611d51e002a593584e1132e0e86299436581e9bdd67e4ca3cf467b66211df0b8",
+      "disposition": "required-change",
+      "amendment": "Restrict existing figure_progress contract to synthetic unprepared data; preserve actual location gate.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/layout/checkpoint.rs",
+      "source_sha256": "19afb29c7f78481deebdb92c592cfa43aeeee2a71a4136953c1da7595af7735c",
+      "owner": "00_nucleo/prompts/core/compiler/layout/checkpoint.md",
+      "owner_sha256": "2b1328e0b8c3340d321bbefe6a3de88c365157103b413393b76cf23bd0fabe88",
+      "disposition": "required-change",
+      "amendment": "Retain existing figure_progress rollback for synthetic branch only; amend its ownership contract without new production state.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/layout/measurement.rs",
+      "source_sha256": "2eb4d3e904f8fc630d5454495388752f4435c2d51d8c01b419cd014a2adf0dd0",
+      "owner": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+      "owner_sha256": "87aa1aed7a79c2026412d828299b747fa60d9b5f8829bf0ec3d0fd7bb0a39b37",
+      "disposition": "required-change",
+      "amendment": "Retain rollback tests; test prepared figures do not consume synthetic progress.",
+      "reseal_scope": true
+    },
+    {
+      "source": "01_core/src/compiler/layout/realized.rs",
+      "source_sha256": "09ac051380f90c755c63e1ce5cbc7b2c103504bc0383fc9c801fa344f96e50ea",
+      "owner": "00_nucleo/prompts/core/compiler/layout/realized.md",
+      "owner_sha256": "afd30c7dcb9338ab6b83ee5f4c3af4179c3f8d1d51a604965d2a459b56bb5270",
+      "disposition": "regression-boundary",
+      "reason": "Preserve original/visual location transport; verify with hidden-original controls.",
+      "reseal_scope": false
+    },
+    {
+      "source": "03_infra/src/pipeline/runtime.rs",
+      "source_sha256": "7e5946203b44c51e4774ab5aef78b87a2ef2bb56edaa40bdc8f3407b203d16f5",
+      "owner": "00_nucleo/prompts/infra/pipeline/runtime.md",
+      "owner_sha256": "22a5e62ae83d97821ff8722ba52d1be88775997bc13f54cc18261f8fdde58673",
+      "disposition": "regression-boundary",
+      "reason": "Existing fresh-sink helper and target/features transport suffice.",
+      "reseal_scope": false
+    },
+    {
+      "source": "03_infra/src/pipeline/paged.rs",
+      "source_sha256": "1e35aa9169e4c19e1a124437b759eaff70d8df76208e4cc5625d4f7357a7f637",
+      "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+      "owner_sha256": "73921d2af415bd904fcc9512c3a2c46d1aa60394ba67a95bc25543ee27bcddee",
+      "disposition": "regression-boundary",
+      "reason": "Existing runtime helper supplies transaction and Paged target; no integration edit needed for new child finalizer.",
+      "reseal_scope": false
+    },
+    {
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "source_sha256": "ba2411b8764eda5648dcd07c9f43bc9986d32fb42ffb5d116beb087de7bf8cb1",
+      "owner": "00_nucleo/prompts/infra/pipeline/bundle.md",
+      "owner_sha256": "dee2909c7512d1da97bf9c3370f1b8894e3af991f3abf0e72d9177821f5d30f5",
+      "disposition": "required-change",
+      "amendment": "Private helper accepts actual body targets/features and calls additive L1 facade with fresh sink.",
+      "reseal_scope": true
+    },
+    {
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "source_sha256": "abb5e6e36882a3c3edc68002c44bbc33c5c080622621d00b976004e207281d2a",
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "owner_sha256": "a7aa969c374eec487ad51f42027b121a2d1b3a385c6a8064266bd8e13d60b4d6",
+      "disposition": "required-change",
+      "amendment": "Migrate both bundle calls with existing target/features metadata; preserve candidate/producer warning retention and budget.",
+      "reseal_scope": true
+    },
+    {
+      "source": "03_infra/src/pipeline/html.rs",
+      "source_sha256": "7eed447e451bca0d019878803587b59fabb037822b63c6d45e24b74c2d43bd52",
+      "owner": "00_nucleo/prompts/infra/pipeline/html.md",
+      "owner_sha256": "6cb557c69d5d67f0974f3fccaba55d52ef80734091218a9be88d39ca73d4eac6",
+      "disposition": "regression-boundary",
+      "reason": "Implicit HTML rendering explicitly excluded; retain current behavior and test explicit reads/kind surfaces.",
+      "reseal_scope": false
+    }
+  ],
+  "proposed_new_owners": [
+    {
+      "source": "01_core/src/compiler/introspect/figure_counters.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/figure_counters.md",
+      "disposition": "planned-new",
+      "reseal_scope": true,
+      "amendment": "Create the exact exclusive L0 and productive owner specified in design.md after approval, before implementation."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/figure_demands.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/figure_demands.md",
+      "disposition": "planned-new",
+      "reseal_scope": true,
+      "amendment": "Create the exact exclusive L0 and productive owner specified in design.md after approval, before implementation."
+    }
+  ],
+  "artifact_hashes": {
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/counter/probe.py": "7a05f2b965d0456e100c11dc750ec51c1b6aaee04bc32cb20071cf4852512358",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/counter/uncaptioned-then-caption.typ": "3a2b39a24b823bc4edafc703d987528c9e8dc1f68c67a24312c4257cee556e68",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/counter/uncaptioned-only-explicit-demand.typ": "c38d623f54476d636b6691529af349dcd6cc759a09780f8146effaf10b9fd49a",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/counter/disabled-then-caption.typ": "c62b1da3398ddb59e7db1400c5b6d3deb7c42cc728230849952cf5844f5654cd",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/counter/hidden-then-caption.typ": "d0a8791b3a0f75ae05216e8613d0323730101e113075359ede3ee7df8628f2da",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/counter/manual-interleave.typ": "ec0136dc993c054b35b40120fd442c6d0e1cf9efe974160fcd7adb1b3884b271",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/counter/uncaptioned-reference.typ": "142816285ef28add6ad54b09870e7fe3af55b95cb08017169e2265890a9d713f",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/counter/counter-probes.json": "aa0376b7d7bd8e7ca6827696d53fb2c28790036cdbe286aefe6b90a0d0480f27",
+    "lab/results/v16-corrections-2026-10-19/figure-kind/agents/counter/design.md": "bc9504dde5b5bdf65e6da6e7f0a837d40b3a8ac6d0b765bfaa24ae439a1bae38"
+  },
+  "design_freeze_utc": "2026-10-19T23:05:12.353023+00:00",
+  "design_freeze_diff_head_stat": "",
+  "audit_revision": "Accept present empty history states; final audit clarification, not a new public API."
+}
