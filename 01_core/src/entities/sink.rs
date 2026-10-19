@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/sink.md
-//! @prompt-hash b7f6506a
+//! @prompt-hash 52d7e423
 //! @layer L1
 //! @updated 2026-04-23
 //!

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: b5df0584
+Hash do Código: b11b341d
 
 
 
@@ -228,7 +228,7 @@ limitações físicas widow/orphan e contextos fora do subconjunto certificado.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
+`lab/results/construction/diagnostics/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
 
 ### Decisão vigente
 
@@ -292,7 +292,7 @@ markup-span-red.json mede rejeição de heading de markup sem origem no Tekt e c
 
 ### Evidência anterior à decisão
 
-`00_nucleo/diagnosticos/diagnostic-paths-2026-10-06/identity-next-audit.json`
+`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
 conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
 Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
 separam erro/warning do documento de erro da expressão: o documento perde sua
@@ -315,7 +315,7 @@ origem própria, scopes frescos e profiles de features. Manter controles das
 fachadas string compatíveis. Mock não deve obter expectativa do candidato.
 
 Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
+lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
 Consumer exclusivo preservado; Hash do Código acompanha a materialização.
 
 ## Alcance de warnings vazios — 2026-10-06
@@ -403,9 +403,9 @@ existente. Não exigir nova fase, render baked ou mudança de representação.
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
 UTC/diff/estado/fontes/binários nas coletas canônicas
-00_nucleo/diagnosticos/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
+lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
 Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8; proveniência no relatório
-00_nucleo/diagnosticos/math-bare-medicao-2026-10-06.md.
+lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md.
 
 before: frac, mat, sqrt, lr e op nus têm uma Equation no vanilla e zero no Tekt;
 math.bold([x]) e texto comum têm zero nos dois. nested e nested-equation têm
@@ -463,7 +463,7 @@ seu L0 além dos 43 owners; não afirmar que nenhum arquivo externo mudou.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
+lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
 
 isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
 
@@ -489,7 +489,7 @@ Antes da implementação, testes devem refutar a apresentação Auto como Text e
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-styles-d08b3c-2026-10-07/before.json.gz registra 58 sondas, UTC 2026-10-07T15:24:58.038947+00:00 até 15:25:13.727872+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/status/fontes/argv/cwd/ambiente completos. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set, campos individuais, late/local/reuse/spread e rejeições refutam o warning de target vazio e a ausência dos defaults. padding-span-one/empty-fixed-rows fixam spans 1 em vazios; auto-table-fallback preserva Auto explícito como delegação à Table, não ao set da Cell. show-cell-set-self altera avulsa mas não fill conhecido da Cell posicionada. Stroke/alignment fazem fold. refuters-before.json.gz estende com header, partial inset, args/condição e snapshot em Table; alias-inside-table é válido no vanilla e recursa indevidamente no Tekt.
+lab/results/construction/diagnostics/table-cell-styles-d08b3c-2026-10-07/before.json.gz registra 58 sondas, UTC 2026-10-07T15:24:58.038947+00:00 até 15:25:13.727872+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/status/fontes/argv/cwd/ambiente completos. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set, campos individuais, late/local/reuse/spread e rejeições refutam o warning de target vazio e a ausência dos defaults. padding-span-one/empty-fixed-rows fixam spans 1 em vazios; auto-table-fallback preserva Auto explícito como delegação à Table, não ao set da Cell. show-cell-set-self altera avulsa mas não fill conhecido da Cell posicionada. Stroke/alignment fazem fold. refuters-before.json.gz estende com header, partial inset, args/condição e snapshot em Table; alias-inside-table é válido no vanilla e recursa indevidamente no Tekt.
 
 Fonte: upstream typst-library/src/model/table.rs:734–778 declara campos, e layout/grid/resolve.rs:203–278 lê estilos antes de resolver/sobrescrever posições/fill; defaults de padding TableCell packed em model/table.rs:785–800 pinam spans 1. Tekt rules/set.rs:23–27 usa text_str de target e não reconhece FieldAccess; table_cells.rs:262–310 usa apenas propriedades lexicais no placement/herança; grid_placement.rs:80 lê x/y/spans diretamente; TableCell standalone não possui propriedades efetivas privadas. É língua (campos/ordem/efeitos/estilo/erros); a representação privada abaixo é decisão Tekt, não obrigação de copiar Packed ou igualdade Rust. Hipótese refutável por qualquer negativo destas coletas, perda de fonte lexical, mutação de valor cru, efeito repetido, guard de alias perdido ou regressão de geometria/cache.
 
@@ -527,7 +527,7 @@ additional-debug/prior-local-body mede vanilla FUNCstyled contra critério anter
 
 Estado medido: HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree
 não commitado. Fontes, hashes, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/testes-ci-2026-10-13/before.json.gz`. O inventário
+`lab/results/construction/diagnostics/testes-ci-2026-10-13/before.json.gz`. O inventário
 Clippy de entrada é `matematica-ci-2026-10-13/clippy-inventory.json`, conservado
 no evidence.json.gz daquela rodada. Medir antes de decidir (ADR-0108).
 
@@ -647,7 +647,7 @@ content-serialization-2026-10-14/{before,raw-controls}/results.json.gz registra 
 
 Testes RED→GREEN: campos omitidos/false/true, lang omitido/none/string, aliases, igualdade, at/has/fields, JSON/YAML e markup/apresentação; sem aparar saída.
 
-Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
+Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
 
 
 ## Contrato Default de EvalContext — pacote clippy-default-2026-10-16
@@ -656,14 +656,14 @@ Medição antes da decisão: compiler/eval/mod.rs:397–424 inicializa estados e
 
 Após a confirmação do manifesto, acrescentar neste consumer os controles de uso por bound Default e isolamento entre instâncias: Paged, features vazias, full_error false, recipes habilitadas e orçamento vigente, contadores/locação/fluxo independentes. Um contexto mutado não contamina o próximo Default nem um contexto new. Confirmar RED pela ausência do impl e GREEN após delegação, sem relaxar nenhum teste de linguagem/diagnóstico existente. Não alegar nova paridade upstream nem mudar fixtures existentes. O pacote não autoriza código antes da confirmação.
 
-Ratificação: dono aprovou o manifesto SHA-256 `11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03` em 2026-10-16. Recibo: `00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`. O gate acima está satisfeito exclusivamente para os três impls Default e testes D1–D5 descritos; esta seção está vigente.
+Ratificação: dono aprovou o manifesto SHA-256 `11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03` em 2026-10-16. Recibo: `lab/history/construction/records/00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`. O gate acima está satisfeito exclusivamente para os três impls Default e testes D1–D5 descritos; esta seção está vigente.
 
 
 ## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
 
 ### Medição anterior à decisão
 
-F001: 01_core/src/compiler/eval/tests.rs:7015 (has_line). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F001: 01_core/src/compiler/eval/tests.rs:7015 (has_line). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 
@@ -688,7 +688,7 @@ Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets c
 contém onze braços abertos auditados por AST, sem guards nesses matches.
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 UTC, diff HEAD --stat exato, fontes, configuração, hashes e parser pinado
-estão em `00_nucleo/diagnosticos/tekt-v16-eval-helpers-2026-10-17/before.json.gz`,
+estão em `lab/results/construction/diagnostics/tekt-v16-eval-helpers-2026-10-17/before.json.gz`,
 `contexts.json` e `audit-recipe.json`. A enumeração atual mede 120 variantes
 Content e 39 Value; o snapshot antes do código preserva as definições por hash.
 A suíte anterior passou no mesmo estado executável, confirmado pelos hashes.
@@ -758,7 +758,7 @@ desta seção; investigar cada um antes de prescrever correção. Não publicar 
 
 ### Medição anterior à decisão
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado. UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `00_nucleo/diagnosticos/tekt-v16-eval-math-2026-10-17/before.json.gz`. AST do parser pinado em contexts.json/all-contexts.json/wildcard-inventory.json; definições atuais por hash. A suíte anterior passou no mesmo estado executável, revalidado por hashes antes de decidir. Sem inferir intenção upstream ou benefício cognitivo da IA a partir do lint.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado. UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `lab/results/construction/diagnostics/tekt-v16-eval-math-2026-10-17/before.json.gz`. AST do parser pinado em contexts.json/all-contexts.json/wildcard-inventory.json; definições atuais por hash. A suíte anterior passou no mesmo estado executável, revalidado por hashes antes de decidir. Sem inferir intenção upstream ou benefício cognitivo da IA a partir do lint.
 
 O inventário mede 52 V16 emitidos e 18 fallbacks nominais não emitidos (sete Content e onze MathAttachSlot). Guards em leaf/MathFrac/Quote e o payload Present(MathPrimes) são refinamentos: não representam cobertura incondicional dessas variantes. A propriedade pretendida é revisão diante de enum novo, sem alterar linguagem ou asserção.
 
@@ -964,7 +964,7 @@ de refinamento. Os gates de aceitação e limite de 12 GiB anteriores permanecem
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
 `morph-before-measurement.json.gz` e `audit.json` conservam HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
 fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
@@ -999,7 +999,7 @@ Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length 
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/import-syntax-2026-10-17/legacy-expected-attempt/workspace/workspace.log
+lab/results/construction/diagnostics/import-syntax-2026-10-17/legacy-expected-attempt/workspace/workspace.log
 registra a falha isolada de p1306_named_module_contract_all_profiles em HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado e fontes
 congeladas no validation-result.json daquele diretório. O teste exigia trace
@@ -1034,7 +1034,7 @@ novo source freeze sob MemoryMax12GiB/High10GiB/swap0/jobs1.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
 Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
 no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
 e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
@@ -1064,7 +1064,7 @@ reduzir picos; comparar consumo medido sem inferir ganho do produto.
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17.
 state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
 após +1 exige 2/11; callback não lido não executa; atualização reutilizada
 executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
@@ -1073,7 +1073,7 @@ inicia a sequência; a ordem vem do documento, não do inteiro de Location.
 O método atual trata Func como Set e o pós-passe eager perde essa semântica.
 Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
 A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
-00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
 SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
 
 ### Responsabilidade exclusiva — supersede a fase histórica de State
@@ -1099,7 +1099,7 @@ pesadas sequenciais. Medir consumo sem inferir ganho global só da representaç�
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 final-freeze.json.gz e target-controls.json.gz no diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
 UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
 Styled de transporte altera func. Query também vê wrapper causal temporário;
@@ -1107,7 +1107,7 @@ HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427
 pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
 de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
 Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
 SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
 
 ### Responsabilidade exclusiva
@@ -1131,7 +1131,7 @@ comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/diffstat/fontes
-em before.json.gz de 00_nucleo/diagnosticos/state-stack-2026-10-17.
+em before.json.gz de lab/results/construction/diagnostics/state-stack-2026-10-17.
 morphology-before.json.gz/morphology-measured.json.gz comparam repr de loops e +
 com vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3: o Tekt encaixa Sequence
 a cada junção; vanilla concatena os filhos imediatos. debug-root.log localiza
@@ -1155,7 +1155,7 @@ sem contratos públicos, fase ou defaults novos (ADR-0127 contínuo).
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-00_nucleo/diagnosticos/sequence-reflection-2026-10-17/before.json.gz e
+lab/results/construction/diagnostics/sequence-reflection-2026-10-17/before.json.gz e
 before-sources.json.gz guardam UTC, diffstat, fontes e SHA dos binários. Pin
 vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. No upstream
 lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:724–728,
@@ -1193,7 +1193,7 @@ com MemoryMax12GiB/High8GiB/swap0/jobs1; registrar pico, não inferir ganho.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz
 e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
 bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
 foundations/content/mod.rs:724–728 declara children requerido;
@@ -1240,7 +1240,7 @@ só no ambiente de validação. Resselo após V15/V26 válido e proveniência ex
 ### Medição anterior à decisão
 
 As coletas before/expanded/controls.json.gz e candidate.log em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 fixam HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
@@ -1250,7 +1250,7 @@ ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
 filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
 
 O dono aprovou a revisão
-00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
 46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
 nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
 fronteira antes dos filhos/Table/math; não cobre novo contrato público.
@@ -1297,7 +1297,7 @@ preferência pelo candidato ou de igualdade da mecânica Rust.
 ## R2-S13 — uma avaliação por grupo textual pendente
 
 Medição antes da decisão: r2s-scope.json.gz e text-before.json.gz em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 preservam estado
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 preservam estado
 não commitado em b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, UTC,
 diffstat, binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 As sondas textual-no-repeat/baseline/interpolation/captured produzem
@@ -1328,7 +1328,7 @@ e não legitima alterar a ordem do matcher neste owner.
 ## R2-S — slots internos não são Empty explícito
 
 Medição anterior à decisão: empty-slots-before.json.gz em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 registra fontes,
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 registra fontes,
 binários, UTC, HEAD/working tree/diffstat e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Body simples produz EBODY contra BODY; filhos none/[] produzem EEA contra
 EA; com regra textual A→AA aparecem Es adicionais. markup_stream.rs:
@@ -1349,7 +1349,7 @@ L0 primeiro, RED em módulo antes do código; revalidar PDF e HTML separadamente
 ## R2-S — raiz de pacote textual e EOF causal
 
 Medição anterior à decisão: validation-attempt-2.json.gz, trace-recipes,
-trace-markup2 e trace-textual2 em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17
+trace-markup2 e trace-textual2 em lab/results/construction/diagnostics/sequence-constructor-2026-10-17
 mostram 11 testes verdes e dois REDs. eof-before.json.gz mede as fontes
 exatas sem acrescentar newline: Styled com EOF produz Y nos dois; sem
 EOF produz AB nos dois. A expectativa unitária Y usava a fonte sem EOF,
@@ -1375,7 +1375,7 @@ do código antes da validação final. Sem campo/tipo/API/fase nova.
 ## R2-S13 — texto emitido e receitas escalares redundantes
 
 Medição antes da decisão: validation-attempt-3.json.gz e emission-after.json.gz
-em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17 preservam estado
+em lab/results/construction/diagnostics/sequence-constructor-2026-10-17 preservam estado
 working tree, UTC, fontes/argv/binários/diffstat no pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Sequence emitindo [A] ou text("A") sob A→AA produz AAAA contra AA.
 O controle text("A") sem Sequence já produz AAAA no release de pilha
@@ -1416,7 +1416,7 @@ novo tipo/campo público, fase ou mudança da política dos demais elementos.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/sequence-r3-2026-10-18/before.json.gz e
+lab/results/construction/diagnostics/sequence-r3-2026-10-18/before.json.gz e
 before-sources.json.gz registram UTC, HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
 working tree não commitado/diffstat/status, fontes e SHA dos executáveis.
 Vanilla pin bd5ebec285505889e8ff1d4f68804ab147a699f3, árvore
@@ -1464,7 +1464,7 @@ Source, sem executar callbacks nem mudar o comportamento dos helpers gerais.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/sequence-r3-2026-10-18/{before,markup-after,
+lab/results/construction/diagnostics/sequence-r3-2026-10-18/{before,markup-after,
 textual-before,transport-before,transport-before-sources}.json.gz conserva
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/diffstat/fontes, executáveis e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
@@ -1526,7 +1526,7 @@ incompleto; não autoriza modificar os owners dessas projeções sem L0 próprio
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-indent-2026-10-18/before.json.gz contém
+lab/results/construction/diagnostics/bibliography-indent-2026-10-18/before.json.gz contém
 60 pares de sondas no HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
 working tree não commitado/UTC/status/diff HEAD --stat, fontes/argv/binários,
 texto e caixas. before-sources.json.gz preserva fontes/L0. Oracle pinado
@@ -1579,7 +1579,7 @@ Testes RED funcionais antes da implementação; GREEN de fronteira título/cita�
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
 commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém

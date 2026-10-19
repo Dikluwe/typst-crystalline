@@ -8,7 +8,7 @@ Após a atomização de 2026-09-30, este consumer possui a composição de `make
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/calc.rs:56` (pub fn make_calc_module) -> Value {); `01_core/src/compiler/stdlib/calc.rs:133` (pubcrate) fn calc_abs); `01_core/src/compiler/stdlib/calc.rs:265` (pubcrate) fn calc_pow) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/calc.rs:56` (pub fn make_calc_module) -> Value {); `01_core/src/compiler/stdlib/calc.rs:133` (pubcrate) fn calc_abs); `01_core/src/compiler/stdlib/calc.rs:265` (pubcrate) fn calc_pow) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 
@@ -56,7 +56,7 @@ Preserve the specified language semantics, syntax, morphology, diagnostics, span
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/stdlib/calc.rs` nas linhas 2835 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `00_nucleo/diagnosticos/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+`01_core/src/compiler/stdlib/calc.rs` nas linhas 2835 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
 
 ### Decisão e aceitação
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: be17f4e7
+Hash do Código: ab47e578
 
 **Camada**: L1
 **Ficheiro alvo histórico**: `01_core/src/compiler/stdlib/shapes.rs`. Após a atomização, a fachada conserva testes e reexports; os Prompts L0 individuais em `00_nucleo/prompts/compiler/stdlib/shapes/` possuem pintura, rect/square, ellipse/circle, line, coordenadas, polygon e curve.

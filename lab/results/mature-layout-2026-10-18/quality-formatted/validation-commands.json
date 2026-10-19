@@ -1,0 +1,48 @@
+[
+  {
+    "name": "fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--check",
+      "--all"
+    ],
+    "utc_end": "2026-10-19T00:03:29.706542+00:00",
+    "seconds": 3.5894508009987476,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-f5yawd0h"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "rustdoc",
+    "command": [
+      "cargo",
+      "doc",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--no-deps"
+    ],
+    "utc_end": "2026-10-19T00:04:08.549093+00:00",
+    "seconds": 38.842273086000205,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-f5yawd0h"
+    },
+    "overrides": {
+      "RUSTDOCFLAGS": "-D warnings"
+    }
+  }
+]

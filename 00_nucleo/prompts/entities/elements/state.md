@@ -23,4 +23,4 @@ The trait API/defaults belong to
 `00_nucleo/prompts/entities/elements/_comum.md`. This owner specifies only
 this element consumer; language constructors and layout algorithms remain
 with their respective owners. Historical inline-arm evidence is retained in
-`00_nucleo/diagnosticos/sanitization-entities-contracts-history.md`.
+`lab/results/construction/diagnostics/sanitization-entities-contracts-history.md`.

@@ -1,0 +1,4028 @@
+{
+  "utc": "2026-10-05T23:21:19.579524+00:00",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "diff_stat": " 00_nucleo/prompts/compiler/eval.md                 |  85 +++++-\n .../eval/bindings/field_access/content_methods.md  |  12 +-\n .../prompts/compiler/eval/observation/content.md   |   7 +-\n 00_nucleo/prompts/compiler/eval/repr/content.md    |   7 +-\n 00_nucleo/prompts/compiler/eval/rules.md           |  12 +-\n 00_nucleo/prompts/compiler/eval/rules/apply.md     |  37 ++-\n 00_nucleo/prompts/compiler/eval/rules/outline.md   |  12 +-\n 00_nucleo/prompts/compiler/eval/rules/textual.md   |  22 +-\n .../compiler/eval/rules/textual/matching.md        |  12 +-\n .../prompts/compiler/eval/rules/textual/space.md   |  27 +-\n .../prompts/compiler/eval/selector_matching.md     |   7 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |  42 ++-\n 00_nucleo/prompts/compiler/introspect.md           |   7 +-\n .../prompts/compiler/introspect/classification.md  |   7 +-\n .../prompts/compiler/introspect/entrypoints.md     |  14 +-\n .../prompts/compiler/introspect/extract_payload.md |   7 +-\n 00_nucleo/prompts/compiler/introspect/from_tags.md |   7 +-\n .../introspect/from_tags/counter_updates.md        |  53 +++-\n 00_nucleo/prompts/compiler/introspect/locatable.md |   7 +-\n .../compiler/introspect/materialize_time.md        |   7 +-\n 00_nucleo/prompts/compiler/introspect/queries.md   |  27 +-\n 00_nucleo/prompts/compiler/introspect/walk.md      |  42 ++-\n 00_nucleo/prompts/compiler/layout.md               |  42 ++-\n 00_nucleo/prompts/compiler/layout/checkpoint.md    |  12 +-\n 00_nucleo/prompts/compiler/layout/cursor.md        |  12 +-\n 00_nucleo/prompts/compiler/layout/grid.md          |   7 +-\n .../prompts/compiler/layout/grid/cell_body.md      |   7 +-\n .../prompts/compiler/layout/grid/cell_emission.md  |   7 +-\n 00_nucleo/prompts/compiler/layout/grid/tracks.md   |   7 +-\n 00_nucleo/prompts/compiler/layout/helpers.md       |  12 +-\n 00_nucleo/prompts/compiler/layout/line_commit.md   |  12 +-\n 00_nucleo/prompts/compiler/layout/measurement.md   |  12 +-\n 00_nucleo/prompts/compiler/layout/paragraph.md     |  14 +-\n 00_nucleo/prompts/compiler/layout/sequence.md      |  14 +-\n 00_nucleo/prompts/compiler/layout/sub_frame.md     |  17 +-\n 00_nucleo/prompts/compiler/layout/tests.md         |  14 +-\n 00_nucleo/prompts/compiler/math/layout/spacing.md  |   7 +-\n 00_nucleo/prompts/compiler/mod.md                  |   7 +-\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  18 +-\n .../prompts/compiler/stdlib/counter/display.md     |  39 ++-\n .../compiler/stdlib/counter/filtered_reads.md      |  30 +-\n 00_nucleo/prompts/entities/content.md              |  19 +-\n 00_nucleo/prompts/entities/content/emptiness.md    |   7 +-\n 00_nucleo/prompts/entities/content/equality.md     |   7 +-\n 00_nucleo/prompts/entities/content/fields.md       |   7 +-\n 00_nucleo/prompts/entities/content/identity.md     |  12 +-\n 00_nucleo/prompts/entities/content/morphology.md   |   7 +-\n .../prompts/entities/content/page-structure.md     |   7 +-\n 00_nucleo/prompts/entities/content/plain-text.md   |   7 +-\n 00_nucleo/prompts/entities/content/rust-hash.md    |   7 +-\n 00_nucleo/prompts/entities/content/traversal.md    |  27 +-\n 00_nucleo/prompts/entities/counter_registry.md     |  31 +-\n 00_nucleo/prompts/entities/font_book.md            |  35 ++-\n 00_nucleo/prompts/entities/introspector.md         |  20 +-\n 00_nucleo/prompts/entities/layout_types.md         |  18 ++\n 00_nucleo/prompts/entities/locator.md              |   7 +-\n 00_nucleo/prompts/entities/mod.md                  |  10 +\n 00_nucleo/prompts/entities/module.md               |  39 ++-\n 00_nucleo/prompts/entities/source-result.md        |   7 +-\n 00_nucleo/prompts/entities/state_registry.md       |  27 +-\n 00_nucleo/prompts/infra/export/html/document.md    |   7 +-\n 00_nucleo/prompts/infra/export/html/inline.md      |   7 +-\n 00_nucleo/prompts/infra/layout_bidi.md             |  16 +-\n 00_nucleo/prompts/infra/pipeline.md                |  26 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         |   7 +-\n .../infra/pipeline/context_stabilization.md        |  63 ++++-\n 00_nucleo/prompts/infra/pipeline/html.md           |  12 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |  83 +++++-\n 00_nucleo/prompts/infra/pipeline/tests.md          |  65 ++++-\n 00_nucleo/prompts/infra/query-helpers.md           |  22 +-\n 00_nucleo/prompts/world-types.md                   |   7 +-\n .../eval/bindings/field_access/content_methods.rs  |  31 +-\n 01_core/src/compiler/eval/mod.rs                   |  80 +++---\n 01_core/src/compiler/eval/observation/content.rs   |  23 +-\n 01_core/src/compiler/eval/repr/content.rs          |   7 +-\n 01_core/src/compiler/eval/rules.rs                 |   8 +-\n 01_core/src/compiler/eval/rules/apply.rs           |  42 ++-\n 01_core/src/compiler/eval/rules/outline.rs         |  27 +-\n 01_core/src/compiler/eval/rules/textual.rs         |  64 ++++-\n .../src/compiler/eval/rules/textual/matching.rs    |  13 +-\n 01_core/src/compiler/eval/rules/textual/space.rs   |  17 +-\n 01_core/src/compiler/eval/selector_matching.rs     |  10 +-\n 01_core/src/compiler/eval/tests.rs                 | 194 ++++++++++++-\n 01_core/src/compiler/introspect.rs                 |   6 +-\n 01_core/src/compiler/introspect/classification.rs  |   7 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  17 +-\n 01_core/src/compiler/introspect/extract_payload.rs |   6 +-\n 01_core/src/compiler/introspect/from_tags.rs       |   4 +-\n .../introspect/from_tags/counter_updates.rs        | 227 ++++++++++++++-\n 01_core/src/compiler/introspect/locatable.rs       |   6 +-\n .../src/compiler/introspect/materialize_time.rs    |  13 +-\n 01_core/src/compiler/introspect/queries.rs         |  10 +-\n 01_core/src/compiler/introspect/walk.rs            | 106 ++++++-\n 01_core/src/compiler/layout/checkpoint.rs          |   8 +-\n 01_core/src/compiler/layout/cursor.rs              |  10 +-\n 01_core/src/compiler/layout/grid.rs                |   8 +-\n 01_core/src/compiler/layout/grid/cell_body.rs      |  13 +-\n 01_core/src/compiler/layout/grid/cell_emission.rs  |   6 +-\n 01_core/src/compiler/layout/grid/tracks.rs         |  23 +-\n 01_core/src/compiler/layout/helpers.rs             |  31 +-\n 01_core/src/compiler/layout/line_commit.rs         |  11 +-\n 01_core/src/compiler/layout/measurement.rs         |  33 ++-\n 01_core/src/compiler/layout/mod.rs                 |  69 ++++-\n 01_core/src/compiler/layout/paragraph.rs           | 262 ++++++++++++++++-\n 01_core/src/compiler/layout/sequence.rs            |  14 +-\n 01_core/src/compiler/layout/sub_frame.rs           |  15 +-\n 01_core/src/compiler/layout/tests.rs               | 129 ++++++++-\n 01_core/src/compiler/math/layout/spacing.rs        |   7 +-\n 01_core/src/compiler/mod.rs                        |   5 +-\n 01_core/src/compiler/stdlib/counter.rs             |  11 +-\n 01_core/src/compiler/stdlib/counter/display.rs     |  18 +-\n .../src/compiler/stdlib/counter/filtered_reads.rs  |  11 +-\n 01_core/src/entities/content.rs                    |  33 ++-\n 01_core/src/entities/content/emptiness.rs          |   7 +-\n 01_core/src/entities/content/equality.rs           |  10 +-\n 01_core/src/entities/content/fields.rs             |   7 +-\n 01_core/src/entities/content/identity.rs           |  10 +-\n 01_core/src/entities/content/morphology.rs         |   7 +-\n 01_core/src/entities/content/page_structure.rs     |   7 +-\n 01_core/src/entities/content/plain_text.rs         |   7 +-\n 01_core/src/entities/content/rust_hash.rs          |   7 +-\n 01_core/src/entities/content/traversal.rs          |  39 ++-\n 01_core/src/entities/counter_registry.rs           |  25 +-\n 01_core/src/entities/font_book.rs                  |  32 ++-\n 01_core/src/entities/introspector.rs               |   5 +-\n 01_core/src/entities/locator.rs                    |  13 +-\n 01_core/src/entities/module.rs                     |  49 +++-\n 01_core/src/entities/source_result.rs              |   6 +-\n 01_core/src/entities/state_registry.rs             |  16 +-\n 01_core/src/entities/world_types.rs                |  11 +-\n 03_infra/src/export/html/document.rs               |  17 +-\n 03_infra/src/export/html/inline.rs                 |   7 +-\n 03_infra/src/layout_bidi.rs                        | 115 +++++---\n 03_infra/src/pipeline.rs                           |  20 +-\n 03_infra/src/pipeline/bundle.rs                    |  21 +-\n 03_infra/src/pipeline/context_stabilization.rs     | 314 +++++++++++++--------\n 03_infra/src/pipeline/html.rs                      |   9 +-\n 03_infra/src/pipeline/paged.rs                     | 164 ++++++++---\n 03_infra/src/pipeline/tests.rs                     | 256 ++++++++++++++++-\n 03_infra/src/query_helpers.rs                      |  41 +--\n 140 files changed, 3668 insertions(+), 555 deletions(-)\n",
+  "method": "textual inventory of variant references; includes constructors, patterns, tests and comments; compiler/owner audit remains authoritative",
+  "files": [
+    {
+      "path": "01_core/src/entities/layout_types.rs",
+      "sha256": "57175a259d405497d9ff8691ae7f00c593b54a1888f2ea29bb4174fee0a1f3fa",
+      "owner": "00_nucleo/prompts/entities/layout_types.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 897
+        },
+        {
+          "variant": "TextShaped",
+          "line": 898
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 899
+        },
+        {
+          "variant": "Text",
+          "line": 1418
+        },
+        {
+          "variant": "Text",
+          "line": 1423
+        },
+        {
+          "variant": "Text",
+          "line": 1444
+        },
+        {
+          "variant": "Text",
+          "line": 1460
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1846
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1853
+        },
+        {
+          "variant": "Text",
+          "line": 1921
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 1921
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1922
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/eval/tests.rs",
+      "sha256": "7829f04812e147878ccebf7003425c60fcd5c1a45801cdca881b3c6f67125eae",
+      "owner": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 6528
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/boxed.rs",
+      "sha256": "f2c979e3ade5343f20ba99fbbe27d57cadf55281950b32da847edee76c7d6ea4",
+      "owner": "00_nucleo/prompts/compiler/layout/boxed.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 391
+        },
+        {
+          "variant": "Text",
+          "line": 391
+        },
+        {
+          "variant": "TextShaped",
+          "line": 392
+        },
+        {
+          "variant": "Text",
+          "line": 418
+        },
+        {
+          "variant": "TextShaped",
+          "line": 419
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/cell_tail_commit.rs",
+      "sha256": "5ce6a7e4b36fc12427fffb5e369f27b7093af0375ee4dde50d1bc94aa3b27654",
+      "owner": "00_nucleo/prompts/compiler/layout/cell_tail_commit.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 46
+        },
+        {
+          "variant": "Text",
+          "line": 46
+        },
+        {
+          "variant": "TextShaped",
+          "line": 47
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/columns.rs",
+      "sha256": "067b0c2f4415f8e88c223ecc646882144090265f1d6407747d418325423e77cf",
+      "owner": "00_nucleo/prompts/compiler/columns.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 125
+        },
+        {
+          "variant": "Text",
+          "line": 258
+        },
+        {
+          "variant": "TextShaped",
+          "line": 259
+        },
+        {
+          "variant": "Text",
+          "line": 368
+        },
+        {
+          "variant": "TextShaped",
+          "line": 369
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/cursor.rs",
+      "sha256": "1060308eb9bdbba7d845f295950531b00276f5fe10fe8c99bb9ec73949ca6115",
+      "owner": "00_nucleo/prompts/compiler/layout/cursor.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 43
+        },
+        {
+          "variant": "Text",
+          "line": 43
+        },
+        {
+          "variant": "TextShaped",
+          "line": 44
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 180
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 213
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 400
+        },
+        {
+          "variant": "Text",
+          "line": 407
+        },
+        {
+          "variant": "Text",
+          "line": 413
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 414
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 415
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/enum_item.rs",
+      "sha256": "9bed3ebcc564222b7cc5e2f72858783ff90155685a7f202e8d7af3a9b6c73cb2",
+      "owner": "00_nucleo/prompts/compiler/layout/enum_item.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 81
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/equation.rs",
+      "sha256": "a54ff344f0a7edc988199daa2402aee83bd85b1e21628d911afb85116a979174",
+      "owner": "00_nucleo/prompts/compiler/layout/equation.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 321
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 321
+        },
+        {
+          "variant": "Text",
+          "line": 322
+        },
+        {
+          "variant": "Text",
+          "line": 325
+        },
+        {
+          "variant": "TextShaped",
+          "line": 356
+        },
+        {
+          "variant": "TextShaped",
+          "line": 364
+        },
+        {
+          "variant": "Text",
+          "line": 640
+        },
+        {
+          "variant": "Text",
+          "line": 748
+        },
+        {
+          "variant": "TextShaped",
+          "line": 749
+        },
+        {
+          "variant": "Text",
+          "line": 924
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/footnote_flush.rs",
+      "sha256": "66bd319703f119aa8cb956b1dceda4c921a0ac071c5291d0c8ac2dab68490ad6",
+      "owner": "00_nucleo/prompts/compiler/footnote_overflow_columns.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 77
+        },
+        {
+          "variant": "Text",
+          "line": 78
+        },
+        {
+          "variant": "TextShaped",
+          "line": 79
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 237
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 237
+        },
+        {
+          "variant": "Text",
+          "line": 238
+        },
+        {
+          "variant": "Text",
+          "line": 238
+        },
+        {
+          "variant": "TextShaped",
+          "line": 243
+        },
+        {
+          "variant": "TextShaped",
+          "line": 244
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/helpers.rs",
+      "sha256": "7b8ea9e20c2d6a537dbe1b21f756646c115516e8095fee4d643512bc25ba9f96",
+      "owner": "00_nucleo/prompts/compiler/layout/helpers.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 24
+        },
+        {
+          "variant": "Text",
+          "line": 24
+        },
+        {
+          "variant": "TextShaped",
+          "line": 25
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 56
+        },
+        {
+          "variant": "Text",
+          "line": 59
+        },
+        {
+          "variant": "TextShaped",
+          "line": 66
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 80
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 101
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 117
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 119
+        },
+        {
+          "variant": "Text",
+          "line": 120
+        },
+        {
+          "variant": "TextShaped",
+          "line": 124
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 147
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 147
+        },
+        {
+          "variant": "Text",
+          "line": 148
+        },
+        {
+          "variant": "Text",
+          "line": 149
+        },
+        {
+          "variant": "TextShaped",
+          "line": 151
+        },
+        {
+          "variant": "TextShaped",
+          "line": 152
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 284
+        },
+        {
+          "variant": "Text",
+          "line": 284
+        },
+        {
+          "variant": "TextShaped",
+          "line": 285
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 318
+        },
+        {
+          "variant": "Text",
+          "line": 318
+        },
+        {
+          "variant": "TextShaped",
+          "line": 319
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 449
+        },
+        {
+          "variant": "Text",
+          "line": 449
+        },
+        {
+          "variant": "TextShaped",
+          "line": 450
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 492
+        },
+        {
+          "variant": "Text",
+          "line": 493
+        },
+        {
+          "variant": "TextShaped",
+          "line": 497
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 579
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 594
+        },
+        {
+          "variant": "Text",
+          "line": 634
+        },
+        {
+          "variant": "Text",
+          "line": 648
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/html_frame.rs",
+      "sha256": "3df75bc38eef97ef1b1751be73720807dff4790cf7fb241c49d261f2ebbbe464",
+      "owner": "00_nucleo/prompts/compiler/layout/html_frame.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 73
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 80
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 99
+        },
+        {
+          "variant": "Text",
+          "line": 100
+        },
+        {
+          "variant": "TextShaped",
+          "line": 100
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 477
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/line_commit.rs",
+      "sha256": "3cee5ebe4d4493a28afc012904f0e6ef3a337f510d54c505431abd16bd9d4c5c",
+      "owner": "00_nucleo/prompts/compiler/layout/line_commit.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 30
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 34
+        },
+        {
+          "variant": "Text",
+          "line": 295
+        },
+        {
+          "variant": "TextShaped",
+          "line": 296
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 300
+        },
+        {
+          "variant": "Text",
+          "line": 351
+        },
+        {
+          "variant": "TextShaped",
+          "line": 352
+        },
+        {
+          "variant": "Text",
+          "line": 560
+        },
+        {
+          "variant": "Text",
+          "line": 591
+        },
+        {
+          "variant": "TextShaped",
+          "line": 592
+        },
+        {
+          "variant": "Text",
+          "line": 749
+        },
+        {
+          "variant": "Text",
+          "line": 756
+        },
+        {
+          "variant": "Text",
+          "line": 757
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/linebreak.rs",
+      "sha256": "b103f2f42f723bf13c8ff118dade9ab91a8d934aa5d3ce3598261a211ec26df3",
+      "owner": "00_nucleo/prompts/compiler/layout/linebreak.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 33
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/link.rs",
+      "sha256": "c8cf773c9dc4581634bf8c383e808ed2aa06e01a03df481088812b661b42e0b1",
+      "owner": "00_nucleo/prompts/compiler/layout/link.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 72
+        },
+        {
+          "variant": "Text",
+          "line": 73
+        },
+        {
+          "variant": "TextShaped",
+          "line": 80
+        },
+        {
+          "variant": "Text",
+          "line": 146
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/list_item.rs",
+      "sha256": "5cfe34ebcfba64f78add6965cf5282b4913052e0a2f17fcc79cd0cf196521a4f",
+      "owner": "00_nucleo/prompts/compiler/layout/list_item.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 65
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/metrics.rs",
+      "sha256": "ff20f03f66257be0ab9cf50e06ca8647f760d78b6d0c991ae986c2793fff6268",
+      "owner": "00_nucleo/prompts/compiler/layout/metrics.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 261
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 264
+        },
+        {
+          "variant": "Text",
+          "line": 264
+        },
+        {
+          "variant": "TextShaped",
+          "line": 265
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 278
+        },
+        {
+          "variant": "Text",
+          "line": 279
+        },
+        {
+          "variant": "TextShaped",
+          "line": 282
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/page_commit.rs",
+      "sha256": "b8b77911b8337da1d149763ae4e66ffbcc7ce4b1677fc8dcec2b13dd4d29a8a0",
+      "owner": "00_nucleo/prompts/compiler/layout/page_commit.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 95
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/page_geometry.rs",
+      "sha256": "a9169f1902d39d85d55cc3fe15562d396c505d68a87f861267243ac8bb988f0c",
+      "owner": "00_nucleo/prompts/compiler/layout/page_geometry.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 146
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 188
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/parbreak.rs",
+      "sha256": "0fd6437307362f3484f25708e6e89bb936ef3f316236c5a47e4b3e0ee0071836",
+      "owner": "00_nucleo/prompts/compiler/layout/parbreak.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 32
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/place.rs",
+      "sha256": "5478074fa47454bdd7f75539aef18e292f77dbc00cf6e287469994d2bda40611",
+      "owner": "00_nucleo/prompts/compiler/layout/place.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 270
+        },
+        {
+          "variant": "Text",
+          "line": 271
+        },
+        {
+          "variant": "TextShaped",
+          "line": 272
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 372
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 372
+        },
+        {
+          "variant": "Text",
+          "line": 373
+        },
+        {
+          "variant": "Text",
+          "line": 373
+        },
+        {
+          "variant": "TextShaped",
+          "line": 378
+        },
+        {
+          "variant": "TextShaped",
+          "line": 379
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/slicing.rs",
+      "sha256": "aebdea25da18a71de0d8662c14453c26dbd5dbf836caca282619279347986833",
+      "owner": "00_nucleo/prompts/compiler/layout/slicing.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 63
+        },
+        {
+          "variant": "Text",
+          "line": 63
+        },
+        {
+          "variant": "TextShaped",
+          "line": 64
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 86
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 86
+        },
+        {
+          "variant": "Text",
+          "line": 87
+        },
+        {
+          "variant": "Text",
+          "line": 87
+        },
+        {
+          "variant": "TextShaped",
+          "line": 92
+        },
+        {
+          "variant": "TextShaped",
+          "line": 93
+        },
+        {
+          "variant": "Text",
+          "line": 201
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 243
+        },
+        {
+          "variant": "Text",
+          "line": 243
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 246
+        },
+        {
+          "variant": "Text",
+          "line": 246
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 285
+        },
+        {
+          "variant": "Text",
+          "line": 285
+        },
+        {
+          "variant": "Text",
+          "line": 339
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/space.rs",
+      "sha256": "7ff67911f31381fc7b17274fb3a373b98916bba54344010793a1d55608c3ffcc",
+      "owner": "00_nucleo/prompts/compiler/layout/space.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 29
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 133
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 147
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 157
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/stack.rs",
+      "sha256": "40a708b6995dad0421c73aed075e9d40ed795da1ccd4f890357a6c644a63f5aa",
+      "owner": "00_nucleo/prompts/compiler/layout/stack.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 38
+        },
+        {
+          "variant": "TextShaped",
+          "line": 45
+        },
+        {
+          "variant": "Text",
+          "line": 240
+        },
+        {
+          "variant": "TextShaped",
+          "line": 241
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 260
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/sub_frame.rs",
+      "sha256": "740bfb962af08160f8a86786689fc9abb9e055b79db5e923975a9c00885e4656",
+      "owner": "00_nucleo/prompts/compiler/layout/sub_frame.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 235
+        },
+        {
+          "variant": "TextShaped",
+          "line": 236
+        },
+        {
+          "variant": "Text",
+          "line": 261
+        },
+        {
+          "variant": "TextShaped",
+          "line": 262
+        },
+        {
+          "variant": "Text",
+          "line": 416
+        },
+        {
+          "variant": "TextShaped",
+          "line": 416
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/tests.rs",
+      "sha256": "0af886f4146a5639ea1c7b203f1697690c51f1230633d369891196be35a2562a",
+      "owner": "00_nucleo/prompts/compiler/layout/tests.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 86
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 119
+        },
+        {
+          "variant": "Text",
+          "line": 119
+        },
+        {
+          "variant": "TextShaped",
+          "line": 120
+        },
+        {
+          "variant": "Text",
+          "line": 291
+        },
+        {
+          "variant": "TextShaped",
+          "line": 291
+        },
+        {
+          "variant": "Text",
+          "line": 315
+        },
+        {
+          "variant": "TextShaped",
+          "line": 315
+        },
+        {
+          "variant": "Text",
+          "line": 342
+        },
+        {
+          "variant": "TextShaped",
+          "line": 342
+        },
+        {
+          "variant": "Text",
+          "line": 498
+        },
+        {
+          "variant": "TextShaped",
+          "line": 499
+        },
+        {
+          "variant": "Text",
+          "line": 1086
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1088
+        },
+        {
+          "variant": "Text",
+          "line": 1114
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1116
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 1147
+        },
+        {
+          "variant": "Text",
+          "line": 1147
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 1173
+        },
+        {
+          "variant": "Text",
+          "line": 1173
+        },
+        {
+          "variant": "Text",
+          "line": 1234
+        },
+        {
+          "variant": "Text",
+          "line": 1247
+        },
+        {
+          "variant": "Text",
+          "line": 1263
+        },
+        {
+          "variant": "Text",
+          "line": 1282
+        },
+        {
+          "variant": "Text",
+          "line": 1299
+        },
+        {
+          "variant": "Text",
+          "line": 1323
+        },
+        {
+          "variant": "Text",
+          "line": 1346
+        },
+        {
+          "variant": "Text",
+          "line": 1370
+        },
+        {
+          "variant": "Text",
+          "line": 1399
+        },
+        {
+          "variant": "Text",
+          "line": 1430
+        },
+        {
+          "variant": "Text",
+          "line": 1596
+        },
+        {
+          "variant": "Text",
+          "line": 1616
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 1620
+        },
+        {
+          "variant": "Text",
+          "line": 1620
+        },
+        {
+          "variant": "Text",
+          "line": 1643
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 1647
+        },
+        {
+          "variant": "Text",
+          "line": 1647
+        },
+        {
+          "variant": "Text",
+          "line": 1680
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 1683
+        },
+        {
+          "variant": "Text",
+          "line": 1683
+        },
+        {
+          "variant": "Text",
+          "line": 1699
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 1704
+        },
+        {
+          "variant": "Text",
+          "line": 1704
+        },
+        {
+          "variant": "Text",
+          "line": 1728
+        },
+        {
+          "variant": "Text",
+          "line": 1763
+        },
+        {
+          "variant": "Text",
+          "line": 1838
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 1841
+        },
+        {
+          "variant": "Text",
+          "line": 1841
+        },
+        {
+          "variant": "Text",
+          "line": 1856
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 1861
+        },
+        {
+          "variant": "Text",
+          "line": 1861
+        },
+        {
+          "variant": "Text",
+          "line": 1899
+        },
+        {
+          "variant": "Text",
+          "line": 1933
+        },
+        {
+          "variant": "Text",
+          "line": 1965
+        },
+        {
+          "variant": "Text",
+          "line": 1991
+        },
+        {
+          "variant": "Text",
+          "line": 2022
+        },
+        {
+          "variant": "Text",
+          "line": 2060
+        },
+        {
+          "variant": "Text",
+          "line": 2102
+        },
+        {
+          "variant": "Text",
+          "line": 2127
+        },
+        {
+          "variant": "Text",
+          "line": 2149
+        },
+        {
+          "variant": "Text",
+          "line": 2182
+        },
+        {
+          "variant": "Text",
+          "line": 2216
+        },
+        {
+          "variant": "Text",
+          "line": 2359
+        },
+        {
+          "variant": "Text",
+          "line": 2381
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 2465
+        },
+        {
+          "variant": "Text",
+          "line": 2465
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 2510
+        },
+        {
+          "variant": "Text",
+          "line": 2510
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 2602
+        },
+        {
+          "variant": "Text",
+          "line": 2602
+        },
+        {
+          "variant": "Text",
+          "line": 3204
+        },
+        {
+          "variant": "Text",
+          "line": 3235
+        },
+        {
+          "variant": "Text",
+          "line": 3265
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 3348
+        },
+        {
+          "variant": "Text",
+          "line": 3348
+        },
+        {
+          "variant": "TextShaped",
+          "line": 3348
+        },
+        {
+          "variant": "Text",
+          "line": 3427
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 3531
+        },
+        {
+          "variant": "Text",
+          "line": 3531
+        },
+        {
+          "variant": "TextShaped",
+          "line": 3531
+        },
+        {
+          "variant": "Text",
+          "line": 3597
+        },
+        {
+          "variant": "Text",
+          "line": 3676
+        },
+        {
+          "variant": "Text",
+          "line": 3711
+        },
+        {
+          "variant": "Text",
+          "line": 3753
+        },
+        {
+          "variant": "Text",
+          "line": 3790
+        },
+        {
+          "variant": "Text",
+          "line": 4313
+        },
+        {
+          "variant": "Text",
+          "line": 4315
+        },
+        {
+          "variant": "Text",
+          "line": 4333
+        },
+        {
+          "variant": "Text",
+          "line": 4335
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 4812
+        },
+        {
+          "variant": "Text",
+          "line": 4812
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 4850
+        },
+        {
+          "variant": "Text",
+          "line": 4850
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 4910
+        },
+        {
+          "variant": "Text",
+          "line": 4910
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 5000
+        },
+        {
+          "variant": "Text",
+          "line": 5000
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 5245
+        },
+        {
+          "variant": "Text",
+          "line": 5245
+        },
+        {
+          "variant": "Text",
+          "line": 5376
+        },
+        {
+          "variant": "Text",
+          "line": 5397
+        },
+        {
+          "variant": "Text",
+          "line": 5422
+        },
+        {
+          "variant": "Text",
+          "line": 5449
+        },
+        {
+          "variant": "Text",
+          "line": 5452
+        },
+        {
+          "variant": "Text",
+          "line": 5458
+        },
+        {
+          "variant": "Text",
+          "line": 5461
+        },
+        {
+          "variant": "Text",
+          "line": 5549
+        },
+        {
+          "variant": "Text",
+          "line": 5695
+        },
+        {
+          "variant": "Text",
+          "line": 5793
+        },
+        {
+          "variant": "Text",
+          "line": 5931
+        },
+        {
+          "variant": "Text",
+          "line": 5952
+        },
+        {
+          "variant": "TextShaped",
+          "line": 5953
+        },
+        {
+          "variant": "Text",
+          "line": 6001
+        },
+        {
+          "variant": "TextShaped",
+          "line": 6002
+        },
+        {
+          "variant": "Text",
+          "line": 6027
+        },
+        {
+          "variant": "TextShaped",
+          "line": 6028
+        },
+        {
+          "variant": "Text",
+          "line": 6552
+        },
+        {
+          "variant": "Text",
+          "line": 6562
+        },
+        {
+          "variant": "Text",
+          "line": 6579
+        },
+        {
+          "variant": "Text",
+          "line": 6613
+        },
+        {
+          "variant": "Text",
+          "line": 6639
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 6662
+        },
+        {
+          "variant": "Text",
+          "line": 6662
+        },
+        {
+          "variant": "Text",
+          "line": 6687
+        },
+        {
+          "variant": "Text",
+          "line": 6694
+        },
+        {
+          "variant": "Text",
+          "line": 6738
+        },
+        {
+          "variant": "Text",
+          "line": 6766
+        },
+        {
+          "variant": "Text",
+          "line": 6794
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 6822
+        },
+        {
+          "variant": "Text",
+          "line": 6822
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 6845
+        },
+        {
+          "variant": "Text",
+          "line": 6845
+        },
+        {
+          "variant": "Text",
+          "line": 6867
+        },
+        {
+          "variant": "Text",
+          "line": 6982
+        },
+        {
+          "variant": "Text",
+          "line": 7036
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 7175
+        },
+        {
+          "variant": "Text",
+          "line": 7175
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 7192
+        },
+        {
+          "variant": "Text",
+          "line": 7192
+        },
+        {
+          "variant": "Text",
+          "line": 7216
+        },
+        {
+          "variant": "Text",
+          "line": 7242
+        },
+        {
+          "variant": "Text",
+          "line": 7275
+        },
+        {
+          "variant": "Text",
+          "line": 7302
+        },
+        {
+          "variant": "Text",
+          "line": 7416
+        },
+        {
+          "variant": "Text",
+          "line": 7535
+        },
+        {
+          "variant": "Text",
+          "line": 7584
+        },
+        {
+          "variant": "Text",
+          "line": 7625
+        },
+        {
+          "variant": "Text",
+          "line": 7649
+        },
+        {
+          "variant": "Text",
+          "line": 7678
+        },
+        {
+          "variant": "Text",
+          "line": 7705
+        },
+        {
+          "variant": "TextShaped",
+          "line": 7708
+        },
+        {
+          "variant": "Text",
+          "line": 7752
+        },
+        {
+          "variant": "TextShaped",
+          "line": 7755
+        },
+        {
+          "variant": "Text",
+          "line": 7775
+        },
+        {
+          "variant": "TextShaped",
+          "line": 7778
+        },
+        {
+          "variant": "Text",
+          "line": 7820
+        },
+        {
+          "variant": "TextShaped",
+          "line": 7823
+        },
+        {
+          "variant": "Text",
+          "line": 7849
+        },
+        {
+          "variant": "TextShaped",
+          "line": 7852
+        },
+        {
+          "variant": "Text",
+          "line": 7879
+        },
+        {
+          "variant": "Text",
+          "line": 7910
+        },
+        {
+          "variant": "Text",
+          "line": 7939
+        },
+        {
+          "variant": "Text",
+          "line": 7963
+        },
+        {
+          "variant": "Text",
+          "line": 7980
+        },
+        {
+          "variant": "Text",
+          "line": 7999
+        },
+        {
+          "variant": "Text",
+          "line": 8017
+        },
+        {
+          "variant": "Text",
+          "line": 8035
+        },
+        {
+          "variant": "Text",
+          "line": 8058
+        },
+        {
+          "variant": "Text",
+          "line": 8087
+        },
+        {
+          "variant": "Text",
+          "line": 8109
+        },
+        {
+          "variant": "Text",
+          "line": 8163
+        },
+        {
+          "variant": "Text",
+          "line": 8172
+        },
+        {
+          "variant": "Text",
+          "line": 8212
+        },
+        {
+          "variant": "Text",
+          "line": 8261
+        },
+        {
+          "variant": "Text",
+          "line": 8308
+        },
+        {
+          "variant": "Text",
+          "line": 8335
+        },
+        {
+          "variant": "Text",
+          "line": 8411
+        },
+        {
+          "variant": "Text",
+          "line": 8442
+        },
+        {
+          "variant": "Text",
+          "line": 8481
+        },
+        {
+          "variant": "Text",
+          "line": 8516
+        },
+        {
+          "variant": "Text",
+          "line": 9095
+        },
+        {
+          "variant": "Text",
+          "line": 9669
+        },
+        {
+          "variant": "Text",
+          "line": 9713
+        },
+        {
+          "variant": "Text",
+          "line": 9873
+        },
+        {
+          "variant": "Text",
+          "line": 9912
+        },
+        {
+          "variant": "Text",
+          "line": 9948
+        },
+        {
+          "variant": "Text",
+          "line": 10099
+        },
+        {
+          "variant": "Text",
+          "line": 10412
+        },
+        {
+          "variant": "Text",
+          "line": 11065
+        },
+        {
+          "variant": "Text",
+          "line": 11429
+        },
+        {
+          "variant": "Text",
+          "line": 11510
+        },
+        {
+          "variant": "Text",
+          "line": 11539
+        },
+        {
+          "variant": "Text",
+          "line": 11567
+        },
+        {
+          "variant": "Text",
+          "line": 11611
+        },
+        {
+          "variant": "Text",
+          "line": 11650
+        },
+        {
+          "variant": "Text",
+          "line": 11686
+        },
+        {
+          "variant": "Text",
+          "line": 11770
+        },
+        {
+          "variant": "Text",
+          "line": 11800
+        },
+        {
+          "variant": "Text",
+          "line": 11841
+        },
+        {
+          "variant": "Text",
+          "line": 11894
+        },
+        {
+          "variant": "Text",
+          "line": 11934
+        },
+        {
+          "variant": "Text",
+          "line": 11980
+        },
+        {
+          "variant": "Text",
+          "line": 12151
+        },
+        {
+          "variant": "Text",
+          "line": 12205
+        },
+        {
+          "variant": "Text",
+          "line": 12223
+        },
+        {
+          "variant": "Text",
+          "line": 12469
+        },
+        {
+          "variant": "Text",
+          "line": 12796
+        },
+        {
+          "variant": "TextShaped",
+          "line": 12797
+        },
+        {
+          "variant": "Text",
+          "line": 13063
+        },
+        {
+          "variant": "Text",
+          "line": 13111
+        },
+        {
+          "variant": "Text",
+          "line": 13161
+        },
+        {
+          "variant": "Text",
+          "line": 13209
+        },
+        {
+          "variant": "Text",
+          "line": 13257
+        },
+        {
+          "variant": "Text",
+          "line": 14251
+        },
+        {
+          "variant": "Text",
+          "line": 14295
+        },
+        {
+          "variant": "Text",
+          "line": 14310
+        },
+        {
+          "variant": "Text",
+          "line": 14340
+        },
+        {
+          "variant": "Text",
+          "line": 14366
+        },
+        {
+          "variant": "Text",
+          "line": 14386
+        },
+        {
+          "variant": "Text",
+          "line": 14398
+        },
+        {
+          "variant": "Text",
+          "line": 14424
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 15060
+        },
+        {
+          "variant": "Text",
+          "line": 15060
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 15165
+        },
+        {
+          "variant": "Text",
+          "line": 15165
+        },
+        {
+          "variant": "TextShaped",
+          "line": 15165
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 15185
+        },
+        {
+          "variant": "Text",
+          "line": 15185
+        },
+        {
+          "variant": "TextShaped",
+          "line": 15185
+        },
+        {
+          "variant": "Text",
+          "line": 17958
+        },
+        {
+          "variant": "Text",
+          "line": 18135
+        },
+        {
+          "variant": "Text",
+          "line": 18699
+        },
+        {
+          "variant": "Text",
+          "line": 18720
+        },
+        {
+          "variant": "Text",
+          "line": 18744
+        },
+        {
+          "variant": "Text",
+          "line": 18748
+        },
+        {
+          "variant": "Text",
+          "line": 18776
+        },
+        {
+          "variant": "Text",
+          "line": 18780
+        },
+        {
+          "variant": "Text",
+          "line": 18784
+        },
+        {
+          "variant": "Text",
+          "line": 18819
+        },
+        {
+          "variant": "Text",
+          "line": 18847
+        },
+        {
+          "variant": "Text",
+          "line": 18881
+        },
+        {
+          "variant": "Text",
+          "line": 18912
+        },
+        {
+          "variant": "Text",
+          "line": 18937
+        },
+        {
+          "variant": "Text",
+          "line": 18957
+        },
+        {
+          "variant": "Text",
+          "line": 18981
+        },
+        {
+          "variant": "Text",
+          "line": 19007
+        },
+        {
+          "variant": "Text",
+          "line": 19085
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 19146
+        },
+        {
+          "variant": "Text",
+          "line": 19146
+        },
+        {
+          "variant": "Text",
+          "line": 19210
+        },
+        {
+          "variant": "Text",
+          "line": 19217
+        },
+        {
+          "variant": "Text",
+          "line": 19623
+        },
+        {
+          "variant": "Text",
+          "line": 19684
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 20089
+        },
+        {
+          "variant": "Text",
+          "line": 20089
+        },
+        {
+          "variant": "Text",
+          "line": 20102
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 20138
+        },
+        {
+          "variant": "Text",
+          "line": 20138
+        },
+        {
+          "variant": "Text",
+          "line": 20151
+        },
+        {
+          "variant": "Text",
+          "line": 20229
+        },
+        {
+          "variant": "TextShaped",
+          "line": 20230
+        },
+        {
+          "variant": "Text",
+          "line": 20245
+        },
+        {
+          "variant": "TextShaped",
+          "line": 20246
+        },
+        {
+          "variant": "Text",
+          "line": 20619
+        },
+        {
+          "variant": "Text",
+          "line": 20753
+        },
+        {
+          "variant": "Text",
+          "line": 20899
+        },
+        {
+          "variant": "Text",
+          "line": 20914
+        },
+        {
+          "variant": "Text",
+          "line": 21190
+        },
+        {
+          "variant": "Text",
+          "line": 21337
+        },
+        {
+          "variant": "Text",
+          "line": 21456
+        },
+        {
+          "variant": "Text",
+          "line": 21578
+        },
+        {
+          "variant": "Text",
+          "line": 21845
+        },
+        {
+          "variant": "Text",
+          "line": 21939
+        },
+        {
+          "variant": "Text",
+          "line": 22127
+        },
+        {
+          "variant": "Text",
+          "line": 22165
+        },
+        {
+          "variant": "Text",
+          "line": 22205
+        },
+        {
+          "variant": "Text",
+          "line": 22482
+        },
+        {
+          "variant": "TextShaped",
+          "line": 22483
+        },
+        {
+          "variant": "Text",
+          "line": 22778
+        },
+        {
+          "variant": "TextShaped",
+          "line": 22779
+        },
+        {
+          "variant": "Text",
+          "line": 22895
+        },
+        {
+          "variant": "Text",
+          "line": 23219
+        },
+        {
+          "variant": "Text",
+          "line": 23366
+        },
+        {
+          "variant": "Text",
+          "line": 23372
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/text.rs",
+      "sha256": "b85f6ba920e33868ba69b551f462c245fc5a555c48e621e9ce7943f458412349",
+      "owner": "00_nucleo/prompts/compiler/layout/text.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 35
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/transform.rs",
+      "sha256": "e0d87a11d866dd52b0f814c97d277034b2a3c451de1d7d303086fd2f2bc371bb",
+      "owner": "00_nucleo/prompts/compiler/layout/transform.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 162
+        },
+        {
+          "variant": "Text",
+          "line": 162
+        },
+        {
+          "variant": "TextShaped",
+          "line": 163
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 175
+        },
+        {
+          "variant": "Text",
+          "line": 175
+        },
+        {
+          "variant": "TextShaped",
+          "line": 176
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 188
+        },
+        {
+          "variant": "Text",
+          "line": 188
+        },
+        {
+          "variant": "TextShaped",
+          "line": 189
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 223
+        },
+        {
+          "variant": "Text",
+          "line": 237
+        },
+        {
+          "variant": "TextShaped",
+          "line": 237
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/word_layout.rs",
+      "sha256": "3f7c0bcfb6ff33523556857aecd900c09593c09e1441466926a2988966e4f3e3",
+      "owner": "00_nucleo/prompts/compiler/layout/word_layout.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 125
+        },
+        {
+          "variant": "Text",
+          "line": 285
+        },
+        {
+          "variant": "Text",
+          "line": 300
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/paragraph.rs",
+      "sha256": "3b48ec4f3359add82930fb60ba7d5acea05195ad7bddb3aa83fc20d7203ba439",
+      "owner": "00_nucleo/prompts/compiler/layout/paragraph.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 68
+        },
+        {
+          "variant": "TextShaped",
+          "line": 69
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 72
+        },
+        {
+          "variant": "Text",
+          "line": 207
+        },
+        {
+          "variant": "Text",
+          "line": 380
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/paragraph_emit.rs",
+      "sha256": "01a8c059ef5a48a8e3f0e65eca95def88679b802b9113843f0c823d8789681ce",
+      "owner": "00_nucleo/prompts/compiler/layout/paragraph_emit.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 20
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/text_tracking.rs",
+      "sha256": "a1e6222e6c800cee9bf470617891f73e06848fae27770a6afdba8e1a8d6d535b",
+      "owner": "00_nucleo/prompts/compiler/layout/text_tracking.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 53
+        },
+        {
+          "variant": "TextShaped",
+          "line": 54
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 59
+        },
+        {
+          "variant": "Text",
+          "line": 61
+        },
+        {
+          "variant": "TextShaped",
+          "line": 62
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 93
+        },
+        {
+          "variant": "Text",
+          "line": 98
+        },
+        {
+          "variant": "TextShaped",
+          "line": 99
+        },
+        {
+          "variant": "Text",
+          "line": 105
+        },
+        {
+          "variant": "TextShaped",
+          "line": 106
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 114
+        },
+        {
+          "variant": "Text",
+          "line": 129
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 134
+        },
+        {
+          "variant": "Text",
+          "line": 155
+        },
+        {
+          "variant": "Text",
+          "line": 170
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 175
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/text_baseline.rs",
+      "sha256": "58751ec15770a84d17f3569593d94d21ec6d233e96b85c78fca957d50c5da462",
+      "owner": "00_nucleo/prompts/compiler/layout/text_baseline.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 19
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 31
+        },
+        {
+          "variant": "Text",
+          "line": 73
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 81
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/finish.rs",
+      "sha256": "0e19ccb7631d2b367e8f7e1098f2d20df752d1a1365188c5035e806d49538a9b",
+      "owner": "00_nucleo/prompts/compiler/layout/finish.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 175
+        },
+        {
+          "variant": "Text",
+          "line": 267
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/grid/cell_body.rs",
+      "sha256": "15b4f56b368c5d74a3400971f0c3c3f2e587fb5028e30d46afdbddd884059c79",
+      "owner": "00_nucleo/prompts/compiler/layout/grid/cell_body.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 226
+        },
+        {
+          "variant": "TextShaped",
+          "line": 226
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+      "sha256": "8a93b03e2d5f6d4e10fdd89831cb0f7ca587f10e325d54e8468e75003bb78ac1",
+      "owner": "00_nucleo/prompts/compiler/layout/grid/measurement_cache.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 148
+        },
+        {
+          "variant": "Text",
+          "line": 184
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/p1427_tests.rs",
+      "sha256": "ae63c143ed47074b0f0aacf0a65103936f79eeda1953036a28debde8c4266906",
+      "owner": "00_nucleo/prompts/compiler/math/layout/p1427-tests.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 99
+        },
+        {
+          "variant": "TextShaped",
+          "line": 100
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/p1429_tests.rs",
+      "sha256": "addb620345067f905d848f6678f0b9b3c19589f7e5bbb3a25556c4fe05b29ebb",
+      "owner": "00_nucleo/prompts/compiler/math/layout/p1429-tests.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 89
+        },
+        {
+          "variant": "TextShaped",
+          "line": 90
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/p1425_tests.rs",
+      "sha256": "1ebcdca55c999f2794f317c91598b8bd78dc8446154482b945ba31245c893a77",
+      "owner": "00_nucleo/prompts/compiler/math/layout/p1425-tests.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 37
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/underline.rs",
+      "sha256": "46221674f66d697425273518b08f1a41597b5996e4f15356376fb46bf9cd3fbb",
+      "owner": "00_nucleo/prompts/compiler/math/layout/underline.md",
+      "sites": [
+        {
+          "variant": "TextShaped",
+          "line": 48
+        },
+        {
+          "variant": "Text",
+          "line": 54
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/attach.rs",
+      "sha256": "04691c862dd6fa32d3569663e3703a706b8ca47846f9f1130ce1dc7c40f99181",
+      "owner": "00_nucleo/prompts/compiler/math/layout/attach.md",
+      "sites": [
+        {
+          "variant": "TextShaped",
+          "line": 464
+        },
+        {
+          "variant": "Text",
+          "line": 469
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/mod.rs",
+      "sha256": "bdb763a561cc9961a189dfd26f9110becfeba5517540004cb66453f624b6314d",
+      "owner": "00_nucleo/prompts/compiler/math/layout/_comum.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 298
+        },
+        {
+          "variant": "TextShaped",
+          "line": 299
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 366
+        },
+        {
+          "variant": "Text",
+          "line": 367
+        },
+        {
+          "variant": "TextShaped",
+          "line": 371
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 431
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 432
+        },
+        {
+          "variant": "Text",
+          "line": 439
+        },
+        {
+          "variant": "Text",
+          "line": 439
+        },
+        {
+          "variant": "TextShaped",
+          "line": 447
+        },
+        {
+          "variant": "TextShaped",
+          "line": 448
+        },
+        {
+          "variant": "Text",
+          "line": 1250
+        },
+        {
+          "variant": "Text",
+          "line": 1397
+        },
+        {
+          "variant": "Text",
+          "line": 1413
+        },
+        {
+          "variant": "Text",
+          "line": 1636
+        },
+        {
+          "variant": "Text",
+          "line": 1655
+        },
+        {
+          "variant": "Text",
+          "line": 1678
+        },
+        {
+          "variant": "Text",
+          "line": 1695
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/p1431_tests.rs",
+      "sha256": "4a1e00e066d41f65d22279a7fcd0ea212ab0841255f7d22bb63f1fcde71b1dcf",
+      "owner": "00_nucleo/prompts/compiler/math/layout/p1431-tests.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 124
+        },
+        {
+          "variant": "TextShaped",
+          "line": 125
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/tests.rs",
+      "sha256": "23f987e19fb1cce65d1bc4d9e82a3a86e5fc64125ff3448cc643d24c955a90c1",
+      "owner": "00_nucleo/prompts/compiler/math/layout/tests.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 102
+        },
+        {
+          "variant": "Text",
+          "line": 121
+        },
+        {
+          "variant": "Text",
+          "line": 121
+        },
+        {
+          "variant": "Text",
+          "line": 141
+        },
+        {
+          "variant": "Text",
+          "line": 172
+        },
+        {
+          "variant": "Text",
+          "line": 205
+        },
+        {
+          "variant": "Text",
+          "line": 237
+        },
+        {
+          "variant": "Text",
+          "line": 246
+        },
+        {
+          "variant": "Text",
+          "line": 279
+        },
+        {
+          "variant": "Text",
+          "line": 289
+        },
+        {
+          "variant": "Text",
+          "line": 352
+        },
+        {
+          "variant": "Text",
+          "line": 385
+        },
+        {
+          "variant": "Text",
+          "line": 428
+        },
+        {
+          "variant": "Text",
+          "line": 465
+        },
+        {
+          "variant": "Text",
+          "line": 483
+        },
+        {
+          "variant": "Text",
+          "line": 501
+        },
+        {
+          "variant": "Text",
+          "line": 519
+        },
+        {
+          "variant": "Text",
+          "line": 539
+        },
+        {
+          "variant": "Text",
+          "line": 571
+        },
+        {
+          "variant": "Text",
+          "line": 599
+        },
+        {
+          "variant": "Text",
+          "line": 628
+        },
+        {
+          "variant": "Text",
+          "line": 665
+        },
+        {
+          "variant": "Text",
+          "line": 691
+        },
+        {
+          "variant": "Text",
+          "line": 736
+        },
+        {
+          "variant": "Text",
+          "line": 810
+        },
+        {
+          "variant": "Text",
+          "line": 863
+        },
+        {
+          "variant": "Text",
+          "line": 891
+        },
+        {
+          "variant": "Text",
+          "line": 920
+        },
+        {
+          "variant": "Text",
+          "line": 992
+        },
+        {
+          "variant": "Text",
+          "line": 1022
+        },
+        {
+          "variant": "Text",
+          "line": 1041
+        },
+        {
+          "variant": "Text",
+          "line": 1069
+        },
+        {
+          "variant": "Text",
+          "line": 1082
+        },
+        {
+          "variant": "Text",
+          "line": 1088
+        },
+        {
+          "variant": "Text",
+          "line": 1149
+        },
+        {
+          "variant": "Text",
+          "line": 1255
+        },
+        {
+          "variant": "Text",
+          "line": 1302
+        },
+        {
+          "variant": "Text",
+          "line": 1364
+        },
+        {
+          "variant": "Text",
+          "line": 1474
+        },
+        {
+          "variant": "Text",
+          "line": 1705
+        },
+        {
+          "variant": "Text",
+          "line": 1865
+        },
+        {
+          "variant": "Text",
+          "line": 1991
+        },
+        {
+          "variant": "Text",
+          "line": 2365
+        },
+        {
+          "variant": "Text",
+          "line": 2422
+        },
+        {
+          "variant": "Text",
+          "line": 2634
+        },
+        {
+          "variant": "Text",
+          "line": 2690
+        },
+        {
+          "variant": "Text",
+          "line": 2737
+        },
+        {
+          "variant": "Text",
+          "line": 2912
+        },
+        {
+          "variant": "Text",
+          "line": 2983
+        },
+        {
+          "variant": "Text",
+          "line": 2986
+        },
+        {
+          "variant": "Text",
+          "line": 3362
+        },
+        {
+          "variant": "Text",
+          "line": 3540
+        },
+        {
+          "variant": "Text",
+          "line": 4219
+        },
+        {
+          "variant": "Text",
+          "line": 4787
+        },
+        {
+          "variant": "Text",
+          "line": 4946
+        },
+        {
+          "variant": "Text",
+          "line": 4996
+        },
+        {
+          "variant": "Text",
+          "line": 5029
+        },
+        {
+          "variant": "Text",
+          "line": 5039
+        },
+        {
+          "variant": "Text",
+          "line": 5129
+        },
+        {
+          "variant": "Text",
+          "line": 5144
+        },
+        {
+          "variant": "Text",
+          "line": 5448
+        },
+        {
+          "variant": "Text",
+          "line": 5972
+        },
+        {
+          "variant": "Text",
+          "line": 6029
+        },
+        {
+          "variant": "Text",
+          "line": 6411
+        },
+        {
+          "variant": "Text",
+          "line": 6481
+        },
+        {
+          "variant": "Text",
+          "line": 6619
+        },
+        {
+          "variant": "Text",
+          "line": 6703
+        },
+        {
+          "variant": "Text",
+          "line": 6731
+        },
+        {
+          "variant": "Text",
+          "line": 6879
+        },
+        {
+          "variant": "Text",
+          "line": 7235
+        },
+        {
+          "variant": "Text",
+          "line": 7258
+        },
+        {
+          "variant": "Text",
+          "line": 7292
+        },
+        {
+          "variant": "Text",
+          "line": 7436
+        },
+        {
+          "variant": "Text",
+          "line": 7449
+        },
+        {
+          "variant": "Text",
+          "line": 7550
+        },
+        {
+          "variant": "Text",
+          "line": 7636
+        },
+        {
+          "variant": "Text",
+          "line": 7914
+        },
+        {
+          "variant": "Text",
+          "line": 8092
+        },
+        {
+          "variant": "Text",
+          "line": 8415
+        },
+        {
+          "variant": "Text",
+          "line": 8423
+        },
+        {
+          "variant": "Text",
+          "line": 8444
+        },
+        {
+          "variant": "Text",
+          "line": 8495
+        },
+        {
+          "variant": "Text",
+          "line": 8508
+        },
+        {
+          "variant": "Text",
+          "line": 8606
+        },
+        {
+          "variant": "Text",
+          "line": 8620
+        },
+        {
+          "variant": "Text",
+          "line": 8631
+        },
+        {
+          "variant": "Text",
+          "line": 9137
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/p1430_tests.rs",
+      "sha256": "843cee194611cba229fda5d693dc576e120dbd9af58c182c369b59d63fe7988e",
+      "owner": "00_nucleo/prompts/compiler/math/layout/p1430-tests.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 118
+        },
+        {
+          "variant": "TextShaped",
+          "line": 119
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/large_operator.rs",
+      "sha256": "3da2286f193f85d02a7086ce1bf37d4c10e47087a435fc97de05888d571bdce3",
+      "owner": "00_nucleo/prompts/compiler/math/layout/large_operator.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 92
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/external_bridge.rs",
+      "sha256": "a6144b5c8c89e09238123986f38ba7c7583726e252fb952fc55bc3e0148715f9",
+      "owner": "00_nucleo/prompts/compiler/math/layout/external_bridge.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 219
+        },
+        {
+          "variant": "Text",
+          "line": 220
+        },
+        {
+          "variant": "TextShaped",
+          "line": 221
+        }
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/sequence_composition.rs",
+      "sha256": "be62c1bd3a52c708b2eda6d2023a138d1fcaabfd6fbc05c056412b92c9e77f0e",
+      "owner": "00_nucleo/prompts/compiler/math/layout/sequence_composition.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 141
+        },
+        {
+          "variant": "Text",
+          "line": 142
+        },
+        {
+          "variant": "TextShaped",
+          "line": 145
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/integration_tests.rs",
+      "sha256": "65a807871fe1b4439ce0c09ab3aea633745efd118da818f5fa35024555c140b1",
+      "owner": "00_nucleo/prompts/infra/integration_tests.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 54
+        },
+        {
+          "variant": "Text",
+          "line": 54
+        },
+        {
+          "variant": "TextShaped",
+          "line": 55
+        },
+        {
+          "variant": "Text",
+          "line": 391
+        },
+        {
+          "variant": "Text",
+          "line": 2024
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 2109
+        },
+        {
+          "variant": "Text",
+          "line": 2109
+        },
+        {
+          "variant": "TextShaped",
+          "line": 2110
+        },
+        {
+          "variant": "Text",
+          "line": 3582
+        },
+        {
+          "variant": "Text",
+          "line": 3614
+        },
+        {
+          "variant": "Text",
+          "line": 3653
+        },
+        {
+          "variant": "Text",
+          "line": 3679
+        },
+        {
+          "variant": "Text",
+          "line": 3684
+        },
+        {
+          "variant": "Text",
+          "line": 3685
+        },
+        {
+          "variant": "Text",
+          "line": 3879
+        },
+        {
+          "variant": "TextShaped",
+          "line": 3880
+        },
+        {
+          "variant": "TextShaped",
+          "line": 4796
+        },
+        {
+          "variant": "TextShaped",
+          "line": 4801
+        },
+        {
+          "variant": "TextShaped",
+          "line": 4806
+        },
+        {
+          "variant": "TextShaped",
+          "line": 4899
+        },
+        {
+          "variant": "TextShaped",
+          "line": 4942
+        },
+        {
+          "variant": "TextShaped",
+          "line": 4986
+        },
+        {
+          "variant": "TextShaped",
+          "line": 5002
+        },
+        {
+          "variant": "TextShaped",
+          "line": 5044
+        },
+        {
+          "variant": "TextShaped",
+          "line": 5140
+        },
+        {
+          "variant": "Text",
+          "line": 5248
+        },
+        {
+          "variant": "TextShaped",
+          "line": 5253
+        },
+        {
+          "variant": "TextShaped",
+          "line": 5631
+        },
+        {
+          "variant": "TextShaped",
+          "line": 5676
+        },
+        {
+          "variant": "TextShaped",
+          "line": 5884
+        },
+        {
+          "variant": "Text",
+          "line": 5884
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/layout_bidi.rs",
+      "sha256": "a608aabcb3053da8d0310cb7bb53201cc4bc683901a6ba1bbe5406a9098c2a4a",
+      "owner": "00_nucleo/prompts/infra/layout_bidi.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 96
+        },
+        {
+          "variant": "Text",
+          "line": 96
+        },
+        {
+          "variant": "TextShaped",
+          "line": 97
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 113
+        },
+        {
+          "variant": "Text",
+          "line": 113
+        },
+        {
+          "variant": "TextShaped",
+          "line": 114
+        },
+        {
+          "variant": "Text",
+          "line": 132
+        },
+        {
+          "variant": "Text",
+          "line": 142
+        },
+        {
+          "variant": "Text",
+          "line": 169
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 172
+        },
+        {
+          "variant": "TextShaped",
+          "line": 178
+        },
+        {
+          "variant": "Text",
+          "line": 215
+        },
+        {
+          "variant": "Text",
+          "line": 227
+        },
+        {
+          "variant": "Text",
+          "line": 246
+        },
+        {
+          "variant": "Text",
+          "line": 256
+        },
+        {
+          "variant": "Text",
+          "line": 300
+        },
+        {
+          "variant": "Text",
+          "line": 308
+        },
+        {
+          "variant": "Text",
+          "line": 333
+        },
+        {
+          "variant": "Text",
+          "line": 376
+        },
+        {
+          "variant": "Text",
+          "line": 396
+        },
+        {
+          "variant": "Text",
+          "line": 403
+        },
+        {
+          "variant": "Text",
+          "line": 440
+        },
+        {
+          "variant": "Text",
+          "line": 457
+        },
+        {
+          "variant": "Text",
+          "line": 465
+        },
+        {
+          "variant": "Text",
+          "line": 528
+        },
+        {
+          "variant": "Text",
+          "line": 569
+        },
+        {
+          "variant": "Text",
+          "line": 577
+        },
+        {
+          "variant": "Text",
+          "line": 587
+        },
+        {
+          "variant": "Text",
+          "line": 601
+        },
+        {
+          "variant": "Text",
+          "line": 614
+        },
+        {
+          "variant": "Text",
+          "line": 654
+        },
+        {
+          "variant": "Text",
+          "line": 681
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 704
+        },
+        {
+          "variant": "Text",
+          "line": 704
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 845
+        },
+        {
+          "variant": "Text",
+          "line": 845
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 872
+        },
+        {
+          "variant": "Text",
+          "line": 872
+        },
+        {
+          "variant": "Text",
+          "line": 959
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/fonts.rs",
+      "sha256": "53e4b268c9deb20038c044a69cb6476acf25a5628099d482a525bd4ed2d1d618",
+      "owner": "00_nucleo/prompts/infra/export/fonts.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 60
+        },
+        {
+          "variant": "Text",
+          "line": 61
+        },
+        {
+          "variant": "TextShaped",
+          "line": 68
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 92
+        },
+        {
+          "variant": "Text",
+          "line": 93
+        },
+        {
+          "variant": "TextShaped",
+          "line": 125
+        },
+        {
+          "variant": "TextShaped",
+          "line": 149
+        },
+        {
+          "variant": "TextShaped",
+          "line": 180
+        },
+        {
+          "variant": "TextShaped",
+          "line": 457
+        },
+        {
+          "variant": "Text",
+          "line": 512
+        },
+        {
+          "variant": "Text",
+          "line": 524
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/render.rs",
+      "sha256": "8b5b63244453d2340731b0eeb0171ba7193fea0837a04dac5ff149a0a3ac8da4",
+      "owner": "00_nucleo/prompts/infra/export/render.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 192
+        },
+        {
+          "variant": "Text",
+          "line": 192
+        },
+        {
+          "variant": "TextShaped",
+          "line": 193
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/stream.rs",
+      "sha256": "850a0d4843eb1d9b566778809cff7b50be07a0c850c8f39e72f9a827e22184c8",
+      "owner": "00_nucleo/prompts/infra/export/stream.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 200
+        },
+        {
+          "variant": "Text",
+          "line": 200
+        },
+        {
+          "variant": "TextShaped",
+          "line": 201
+        },
+        {
+          "variant": "Text",
+          "line": 497
+        },
+        {
+          "variant": "Text",
+          "line": 566
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/svg.rs",
+      "sha256": "681275db0b9820636271c74f5cafa71b17241ab650e0cd4da546a9ce6c678a7e",
+      "owner": "00_nucleo/prompts/infra/export/svg.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 243
+        },
+        {
+          "variant": "Text",
+          "line": 244
+        },
+        {
+          "variant": "TextShaped",
+          "line": 249
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/pipeline/resources.rs",
+      "sha256": "f53f3f30934d5a1ed9fe13248323104a381fd84b472c2c4a052a58aa379dcc05",
+      "owner": "00_nucleo/prompts/infra/pipeline/resources.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 140
+        },
+        {
+          "variant": "Text",
+          "line": 140
+        },
+        {
+          "variant": "TextShaped",
+          "line": 140
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 218
+        },
+        {
+          "variant": "Text",
+          "line": 218
+        },
+        {
+          "variant": "TextShaped",
+          "line": 218
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/pipeline/tests.rs",
+      "sha256": "10563959fdae5ac40790002d6babc4b961764d32935dc2f51c69be4fe5993d7f",
+      "owner": "00_nucleo/prompts/infra/pipeline/tests.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 394
+        },
+        {
+          "variant": "Text",
+          "line": 394
+        },
+        {
+          "variant": "TextShaped",
+          "line": 395
+        },
+        {
+          "variant": "Text",
+          "line": 449
+        },
+        {
+          "variant": "TextShaped",
+          "line": 450
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 458
+        },
+        {
+          "variant": "Text",
+          "line": 599
+        },
+        {
+          "variant": "TextShaped",
+          "line": 602
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 620
+        },
+        {
+          "variant": "Text",
+          "line": 620
+        },
+        {
+          "variant": "TextShaped",
+          "line": 621
+        },
+        {
+          "variant": "Text",
+          "line": 737
+        },
+        {
+          "variant": "TextShaped",
+          "line": 737
+        },
+        {
+          "variant": "Text",
+          "line": 751
+        },
+        {
+          "variant": "TextShaped",
+          "line": 752
+        },
+        {
+          "variant": "Text",
+          "line": 1041
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1041
+        },
+        {
+          "variant": "Text",
+          "line": 1141
+        },
+        {
+          "variant": "Text",
+          "line": 2663
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/shaper/cache.rs",
+      "sha256": "19971a2c963183c0f83f3d404f07b4fe646c13d0fc544d2e75886000754ae6db",
+      "owner": "00_nucleo/prompts/infra/shaper/cache.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 157
+        },
+        {
+          "variant": "TextShaped",
+          "line": 184
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/shaper/reconciliation.rs",
+      "sha256": "87ca608bea653569fb07b35d5485f4e41e48df6da1bb8f6ce2a9ed67caf49739",
+      "owner": "00_nucleo/prompts/infra/shaper/reconciliation.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 45
+        },
+        {
+          "variant": "Text",
+          "line": 45
+        },
+        {
+          "variant": "TextShaped",
+          "line": 46
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 59
+        },
+        {
+          "variant": "Text",
+          "line": 59
+        },
+        {
+          "variant": "TextShaped",
+          "line": 60
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 86
+        },
+        {
+          "variant": "Text",
+          "line": 86
+        },
+        {
+          "variant": "TextShaped",
+          "line": 87
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 132
+        },
+        {
+          "variant": "TextShaped",
+          "line": 133
+        },
+        {
+          "variant": "Text",
+          "line": 140
+        },
+        {
+          "variant": "TextShaped",
+          "line": 198
+        },
+        {
+          "variant": "TextShaped",
+          "line": 208
+        },
+        {
+          "variant": "Text",
+          "line": 209
+        },
+        {
+          "variant": "TextShaped",
+          "line": 240
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 242
+        },
+        {
+          "variant": "Text",
+          "line": 242
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/shaper/shaping.rs",
+      "sha256": "a49804ade2bb536e36ce25c26d9313329ada2af22f40ca9ac7595fd8a0cea511",
+      "owner": "00_nucleo/prompts/infra/shaper/shaping.md",
+      "sites": [
+        {
+          "variant": "TextShaped",
+          "line": 356
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/shaper/tests.rs",
+      "sha256": "baf2297637154f4b5532432c2bd2902263c7137ca78e0c5bf08f0eb41c6adc57",
+      "owner": "00_nucleo/prompts/infra/shaper/tests.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 168
+        },
+        {
+          "variant": "Text",
+          "line": 176
+        },
+        {
+          "variant": "Text",
+          "line": 228
+        },
+        {
+          "variant": "Text",
+          "line": 237
+        },
+        {
+          "variant": "Text",
+          "line": 282
+        },
+        {
+          "variant": "Text",
+          "line": 291
+        },
+        {
+          "variant": "Text",
+          "line": 303
+        },
+        {
+          "variant": "Text",
+          "line": 351
+        },
+        {
+          "variant": "Text",
+          "line": 362
+        },
+        {
+          "variant": "TextShaped",
+          "line": 425
+        },
+        {
+          "variant": "Text",
+          "line": 458
+        },
+        {
+          "variant": "Text",
+          "line": 522
+        },
+        {
+          "variant": "TextShaped",
+          "line": 531
+        },
+        {
+          "variant": "Text",
+          "line": 570
+        },
+        {
+          "variant": "Text",
+          "line": 618
+        },
+        {
+          "variant": "TextShaped",
+          "line": 627
+        },
+        {
+          "variant": "TextShaped",
+          "line": 680
+        },
+        {
+          "variant": "TextShaped",
+          "line": 709
+        },
+        {
+          "variant": "TextShaped",
+          "line": 801
+        },
+        {
+          "variant": "TextShaped",
+          "line": 807
+        },
+        {
+          "variant": "TextShaped",
+          "line": 844
+        },
+        {
+          "variant": "TextShaped",
+          "line": 852
+        },
+        {
+          "variant": "TextShaped",
+          "line": 876
+        },
+        {
+          "variant": "TextShaped",
+          "line": 922
+        },
+        {
+          "variant": "TextShaped",
+          "line": 922
+        },
+        {
+          "variant": "TextShaped",
+          "line": 942
+        },
+        {
+          "variant": "TextShaped",
+          "line": 959
+        },
+        {
+          "variant": "TextShaped",
+          "line": 967
+        },
+        {
+          "variant": "TextShaped",
+          "line": 988
+        },
+        {
+          "variant": "TextShaped",
+          "line": 996
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1015
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1033
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1051
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1054
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1063
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1072
+        },
+        {
+          "variant": "Text",
+          "line": 1117
+        },
+        {
+          "variant": "Text",
+          "line": 1122
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1132
+        },
+        {
+          "variant": "Text",
+          "line": 1322
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1332
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1453
+        },
+        {
+          "variant": "Text",
+          "line": 1541
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1551
+        },
+        {
+          "variant": "Text",
+          "line": 1588
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1595
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1596
+        },
+        {
+          "variant": "Text",
+          "line": 1604
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1612
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1613
+        },
+        {
+          "variant": "Text",
+          "line": 1631
+        },
+        {
+          "variant": "Text",
+          "line": 1634
+        },
+        {
+          "variant": "TextShaped",
+          "line": 1643
+        },
+        {
+          "variant": "Text",
+          "line": 1661
+        },
+        {
+          "variant": "Text",
+          "line": 1664
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/shaper/traversal.rs",
+      "sha256": "c0d440243fdd2475d30b0fbaded4b5bb4fd66a2775adee80afaee7707d7367a5",
+      "owner": "00_nucleo/prompts/infra/shaper/traversal.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 76
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 112
+        },
+        {
+          "variant": "Text",
+          "line": 113
+        },
+        {
+          "variant": "TextShaped",
+          "line": 114
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/shaper/text_identity.rs",
+      "sha256": "6eddb9bc71effcac5c138706bdd9011c58f8d2753dc91a60e2505f77d9ac29e8",
+      "owner": "00_nucleo/prompts/infra/shaper/text_identity.md",
+      "sites": [
+        {
+          "variant": "TextShaped",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/gradients/mod.rs",
+      "sha256": "0523a970165f51b088a0ddb51f0ca6398b11279754fbddce916bbd45f69d5510",
+      "owner": "00_nucleo/prompts/infra/export/gradients/mod.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 307
+        },
+        {
+          "variant": "Text",
+          "line": 307
+        },
+        {
+          "variant": "TextShaped",
+          "line": 308
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 409
+        },
+        {
+          "variant": "Text",
+          "line": 409
+        },
+        {
+          "variant": "TextShaped",
+          "line": 410
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/tests/mod.rs",
+      "sha256": "858bc9ebc3fa56ede33a763ef38aabeb4ef82de47c943a9daf1757f1443a4693",
+      "owner": "00_nucleo/prompts/infra/export/tests/mod.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 184
+        },
+        {
+          "variant": "Text",
+          "line": 268
+        },
+        {
+          "variant": "Text",
+          "line": 504
+        },
+        {
+          "variant": "Text",
+          "line": 656
+        },
+        {
+          "variant": "Text",
+          "line": 673
+        },
+        {
+          "variant": "Text",
+          "line": 700
+        },
+        {
+          "variant": "Text",
+          "line": 8027
+        },
+        {
+          "variant": "Text",
+          "line": 8094
+        },
+        {
+          "variant": "Text",
+          "line": 8144
+        },
+        {
+          "variant": "Text",
+          "line": 8272
+        },
+        {
+          "variant": "Text",
+          "line": 8442
+        },
+        {
+          "variant": "TextShaped",
+          "line": 9585
+        },
+        {
+          "variant": "TextShaped",
+          "line": 9723
+        },
+        {
+          "variant": "TextShaped",
+          "line": 9892
+        },
+        {
+          "variant": "TextShaped",
+          "line": 9902
+        },
+        {
+          "variant": "Text",
+          "line": 10002
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/tests/p1481_pdfua_structure_tests.rs",
+      "sha256": "191aaaf121ef8ad3078091938fcbcd25c3f960c7f47b19f379e0be272604c5cd",
+      "owner": "00_nucleo/prompts/infra/export/tests/p1481_pdfua_structure_tests.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 67
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/builder/fonts.rs",
+      "sha256": "c2c488d605f934da9eb97444ae331c1a017609a8809c20ca08839c73f65b6276",
+      "owner": "00_nucleo/prompts/infra/export/builder/fonts.md",
+      "sites": [
+        {
+          "variant": "TextShaped",
+          "line": 73
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 81
+        },
+        {
+          "variant": "Text",
+          "line": 85
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/builder/metadata.rs",
+      "sha256": "1e85544e9b0c281dd5f047a28a52926777f2d048fd570e2d229e25b243546342",
+      "owner": "00_nucleo/prompts/infra/export/builder/metadata.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 712
+        },
+        {
+          "variant": "Text",
+          "line": 712
+        },
+        {
+          "variant": "TextShaped",
+          "line": 713
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/builder/resources.rs",
+      "sha256": "690635b7e95b4f40e0c88b1f9990c7d1d0f2de67e096d03188a3c29e15e20ce6",
+      "owner": "00_nucleo/prompts/infra/export/builder/resources.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 126
+        },
+        {
+          "variant": "Text",
+          "line": 126
+        },
+        {
+          "variant": "TextShaped",
+          "line": 133
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/stream/draw.rs",
+      "sha256": "c406d963d49cefe432724356a4a3b8417aaecc8d10de7890f0261db6030e483b",
+      "owner": "00_nucleo/prompts/infra/export/stream/draw.md",
+      "sites": [
+        {
+          "variant": "TextSeparator",
+          "line": 102
+        },
+        {
+          "variant": "Text",
+          "line": 102
+        },
+        {
+          "variant": "TextShaped",
+          "line": 103
+        },
+        {
+          "variant": "Text",
+          "line": 158
+        },
+        {
+          "variant": "TextShaped",
+          "line": 164
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 170
+        },
+        {
+          "variant": "TextShaped",
+          "line": 175
+        },
+        {
+          "variant": "Text",
+          "line": 201
+        },
+        {
+          "variant": "Text",
+          "line": 632
+        },
+        {
+          "variant": "TextShaped",
+          "line": 640
+        },
+        {
+          "variant": "TextSeparator",
+          "line": 648
+        },
+        {
+          "variant": "TextShaped",
+          "line": 840
+        },
+        {
+          "variant": "Text",
+          "line": 866
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/stream/text.rs",
+      "sha256": "8c9ef1e56c720e4bf65d35583dba8dfb0be75bbadaf50235a8d805ca73dfcced",
+      "owner": "00_nucleo/prompts/infra/export/stream/text.md",
+      "sites": [
+        {
+          "variant": "TextShaped",
+          "line": 905
+        },
+        {
+          "variant": "TextShaped",
+          "line": 960
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/stream/text_replacement.rs",
+      "sha256": "24f8626fe3255eface807baae06270833aef03253dda7da18e8529786886badb",
+      "owner": "00_nucleo/prompts/infra/export/stream/text_replacement.md",
+      "sites": [
+        {
+          "variant": "Text",
+          "line": 51
+        },
+        {
+          "variant": "Text",
+          "line": 52
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/svg/tests.rs",
+      "sha256": "b1430feb5f9a5aca6e9488a5da7a07d661edd93576371791ca8b9a9741a08683",
+      "owner": "00_nucleo/prompts/infra/export/svg/tests.md",
+      "sites": [
+        {
+          "variant": "TextShaped",
+          "line": 829
+        }
+      ]
+    },
+    {
+      "path": "03_infra/src/export/stream/text/runs.rs",
+      "sha256": "fed53a7c007e2b43c85c0141f5f27ac13142b3a060e55d513ca0312b7a27a5c3",
+      "owner": "00_nucleo/prompts/infra/export/stream/text/runs.md",
+      "sites": [
+        {
+          "variant": "TextShaped",
+          "line": 23
+        },
+        {
+          "variant": "TextShaped",
+          "line": 26
+        },
+        {
+          "variant": "TextShaped",
+          "line": 65
+        },
+        {
+          "variant": "TextShaped",
+          "line": 73
+        },
+        {
+          "variant": "TextShaped",
+          "line": 82
+        },
+        {
+          "variant": "TextShaped",
+          "line": 102
+        },
+        {
+          "variant": "TextShaped",
+          "line": 175
+        }
+      ]
+    }
+  ]
+}

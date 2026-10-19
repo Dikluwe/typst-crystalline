@@ -16,7 +16,7 @@ These are current local source anchors, not a new upstream parity measurement.
 
 ## Measurement before the acquisition decision
 
-Historical `00_nucleo/diagnosticos/catalogo-seletivo-2026-10-05.md` records38.10→29.00ms metadata acquisition and94.33→88.04ms with old coverage; these are not current CLI gains. Audit `00_nucleo/diagnosticos/catalogo-seletivo-preparacao-2026-10-07/audit.json` records HEAD/dirty/UTC/assets,1,140 faces/max20 records/max259,927 projected bytes, unchanged historical assets and unchanged metadata extractor body; priority2 coverage differs and stays current. `03_infra/src/fontdb.rs:42–113` previously mandates with_face_data. fontdb0.23.0 lib.rs:721–727,900–920 distinguishes File reopening from SharedFile retained bytes. Metadata/source order and coverage observable in language must stay equivalent; I/O/buffer mechanics may differ. Infer a possible benefit; wrong metadata/coverage/selection/order/render or lack of repeatable benefit refutes it. Never infer upstream intent or add historical percentage improvements.
+Historical `lab/results/construction/diagnostics/catalogo-seletivo-2026-10-05.md` records38.10→29.00ms metadata acquisition and94.33→88.04ms with old coverage; these are not current CLI gains. Audit `lab/results/construction/diagnostics/catalogo-seletivo-preparacao-2026-10-07/audit.json` records HEAD/dirty/UTC/assets,1,140 faces/max20 records/max259,927 projected bytes, unchanged historical assets and unchanged metadata extractor body; priority2 coverage differs and stays current. `03_infra/src/fontdb.rs:42–113` previously mandates with_face_data. fontdb0.23.0 lib.rs:721–727,900–920 distinguishes File reopening from SharedFile retained bytes. Metadata/source order and coverage observable in language must stay equivalent; I/O/buffer mechanics may differ. Infer a possible benefit; wrong metadata/coverage/selection/order/render or lack of repeatable benefit refutes it. Never infer upstream intent or add historical percentage improvements.
 
 ## Decision after ratification
 
@@ -50,9 +50,9 @@ Ratificação: dono confirmou com `confirmo` o pacote catalogo-seletivo-2026-10-
 
 ## Medição anterior à decisão de retenção ratificada
 
-00_nucleo/diagnosticos/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
+lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
 edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-00_nucleo/diagnosticos/watch-validacao-2026-10-07/measurement.json mede validação por
+lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
 descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
 remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
 não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
@@ -62,7 +62,7 @@ regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do re
 
 ### Decisão ratificada sob ADR-0127 §2.1/§2.2
 
-Dono ratificou com Confirmo o pacote 00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: 00_nucleo/diagnosticos/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
+Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
 
 ## Preparação de descoberta, sem retenção neste owner
 
@@ -81,7 +81,7 @@ metadata/coverage/selective. Owners de fonts e seu child coverage permanecem int
 
 ### Medição anterior à decisão
 
-`03_infra/src/fontdb.rs` nas linhas 13 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`03_infra/src/fontdb.rs` nas linhas 13 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
 
 ### Decisão e aceitação
 

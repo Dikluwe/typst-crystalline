@@ -5,7 +5,7 @@ Camada L3. Consumer produtivo exclusivo: `03_infra/src/fonts/coverage.rs`. Pacot
 
 ## Medição anterior à decisão
 
-`00_nucleo/diagnosticos/cmap-intervalos-2026-10-05/{measurement-direct,measurement,execution}.json.gz` conserva programa/receita, fontes, binários, HEAD/dirty tree, UTC, argv e amostras. O experimento reduziu extração/união isoladas de53.19 para10.85ms; sete testes sintéticos passaram. Nas1112 faces instaladas daquele estado, havia1520598 intervalos/3582 subtabelas nativas e nenhum fallback. Não são contagens atuais nem ganho da CLI. `00_nucleo/diagnosticos/coverage-ranges-preparacao-2026-10-07/audit.json` confirma o consumer puro byte-idêntico à medição e o extrator antigo L3 byte-idêntico ao mesmo HEAD limpo. O resto da árvore e o release atual diferem; precisam de nova medição após implementação.
+`lab/results/construction/diagnostics/cmap-intervalos-2026-10-05/{measurement-direct,measurement,execution}.json.gz` conserva programa/receita, fontes, binários, HEAD/dirty tree, UTC, argv e amostras. O experimento reduziu extração/união isoladas de53.19 para10.85ms; sete testes sintéticos passaram. Nas1112 faces instaladas daquele estado, havia1520598 intervalos/3582 subtabelas nativas e nenhum fallback. Não são contagens atuais nem ganho da CLI. `lab/results/construction/diagnostics/coverage-ranges-preparacao-2026-10-07/audit.json` confirma o consumer puro byte-idêntico à medição e o extrator antigo L3 byte-idêntico ao mesmo HEAD limpo. O resto da árvore e o release atual diferem; precisam de nova medição após implementação.
 
 Fontes primárias lidas: ttf-parser0.25.1, `src/tables/cmap/format4.rs:103–115`, `format12.rs:68–75`, `format13.rs:41–48`; callbacks enumeram limites declarados, sem filtrar glyph0. `cmap/mod.rs:196–219,251–260` usa get tipado, offsets relativos à cmap e encerra o iterador no primeiro registro não parseável. Format4 parse usa segCountX2/2 e exige seus arrays completos; o campo length não autoriza aqui uma validação incompatível adicional. Vanilla pin9f2b6e8715237cb086899a42873660fe744622e8, `text/font/info.rs:119–134`, enumera e une pontos; não tem o mecanismo direto que será implementado.
 
@@ -41,7 +41,7 @@ Ratificação: dono confirmou o pacote coverage-ranges-2026-10-07 com `confirmo`
 
 ### Medição antes da decisão
 
-`03_infra/src/fonts/coverage.rs:76–105` extrai cada subtabela Unicode mesmo quando mais de um encoding record aponta ao mesmo offset bruto/formato da mesma cmap. `00_nucleo/diagnosticos/cmap-payload-reuse-2026-10-10/prototype-probe.json.gz` conserva fontes/copias integrais, hashes, HEAD/dirty tree, UTC, fontes/assets, argv, receita e amostras de um protótipo diagnóstico:1.140 faces,1.111 com payloads nativos duplicados,1.819 registros nativos repetidos;1.533.618→767.936 intervalos. Cobertura de cada face igual ao caminho recebido e ao callback legado. Mediana isolada por corpus17,7808196→11,81227295ms (três rodadas, oito pares, dez corpora por amostra); não é ganho da CLI nem promessa de RSS. Fontes não mudaram entre auditorias.
+`03_infra/src/fonts/coverage.rs:76–105` extrai cada subtabela Unicode mesmo quando mais de um encoding record aponta ao mesmo offset bruto/formato da mesma cmap. `lab/results/construction/diagnostics/cmap-payload-reuse-2026-10-10/prototype-probe.json.gz` conserva fontes/copias integrais, hashes, HEAD/dirty tree, UTC, fontes/assets, argv, receita e amostras de um protótipo diagnóstico:1.140 faces,1.111 com payloads nativos duplicados,1.819 registros nativos repetidos;1.533.618→767.936 intervalos. Cobertura de cada face igual ao caminho recebido e ao callback legado. Mediana isolada por corpus17,7808196→11,81227295ms (três rodadas, oito pares, dez corpora por amostra); não é ganho da CLI nem promessa de RSS. Fontes não mudaram entre auditorias.
 
 ### Decisão e limites
 
@@ -59,7 +59,7 @@ Testes antes do código: aliases Unicode consecutivos e separados por outro form
 
 ### Medição anterior à decisão
 
-`03_infra/src/fonts/coverage.rs` nas linhas 155 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`03_infra/src/fonts/coverage.rs` nas linhas 155 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
 
 ### Decisão e aceitação
 
@@ -72,7 +72,7 @@ Manutenção interna sem mudança de assinatura pública, default, fase, fórmul
 
 ### Medição anterior à decisão
 
-03_infra/src/fonts/coverage.rs:216 (clippy::manual_is_multiple_of). O snapshot `00_nucleo/diagnosticos/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
+03_infra/src/fonts/coverage.rs:216 (clippy::manual_is_multiple_of). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -85,7 +85,7 @@ Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependênc
 
 ### Medição anterior à decisão
 
-O inventário validado em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `00_nucleo/diagnosticos/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
+O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
 
 ### Responsabilidade e aceitação
 

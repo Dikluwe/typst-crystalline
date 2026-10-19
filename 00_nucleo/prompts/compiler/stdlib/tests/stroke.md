@@ -17,7 +17,7 @@ lineage checks must remain valid; no unrelated consumer is authorized by this pr
 
 ## Adaptação Memória 5 — proposta pendente ADR-0127
 
-Medição antes da decisão: 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/
+Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
 before.json.gz e inventory.json congelam este consumer e cada ocorrência
 file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
 Value, sem prova de RSS. O novo carrier público é definido exclusivamente por

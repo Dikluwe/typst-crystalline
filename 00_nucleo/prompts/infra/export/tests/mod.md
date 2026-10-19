@@ -39,12 +39,12 @@ and snapshot harnesses remain separate evidence.
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -60,7 +60,7 @@ Medição anterior à decisão: `03_infra/src/export/tests/mod.rs:9622-9626` exi
 
 ### Medição anterior à decisão
 
-`03_infra/src/export/tests/mod.rs` nas linhas 649, 695, 2077, 3186, 3237, 3289, 3807, 5091, 6548, 6549, 6550, 6551, 6621, 6622, 6756, 7123, 7195, 7313, 7424, 7494, 7495, 7637, 7638, 7639, 7843, 7870, 8021, 8022, 8023, 8024, 8025 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`03_infra/src/export/tests/mod.rs` nas linhas 649, 695, 2077, 3186, 3237, 3289, 3807, 5091, 6548, 6549, 6550, 6551, 6621, 6622, 6756, 7123, 7195, 7313, 7424, 7494, 7495, 7637, 7638, 7639, 7843, 7870, 8021, 8022, 8023, 8024, 8025 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
 
 ### Decisão e aceitação
 
@@ -82,7 +82,7 @@ comentários ainda aceitam texto descartado. O teste P281 em `:8125` já
 verifica tanto `(hello) Tj` quanto `cm`; os casos CIDFont, multifont,
 glyph, linha e grupo aninhado seguem na mesma suíte.
 Estado anterior, trechos completos e posições estão em
-`00_nucleo/diagnosticos/testes-observaveis-ci-2026-10-13/before.json.gz`
+`lab/results/construction/diagnostics/testes-observaveis-ci-2026-10-13/before.json.gz`
 (HEAD, working tree não commitado, status, diffstat e UTC).
 
 ### Decisão e aceitação
@@ -106,7 +106,7 @@ Manutenção interna de testes, sem mudança produtiva ou de contrato público
 
 ### Medição anterior à decisão
 
-`03_infra/src/export/tests/mod.rs` nas linhas [3911] usa métodos apontados pelo Clippy. `clippy.toml` exige alternativas sem dependência da matemática da plataforma; libm =0.2.11 já está pinado no core/Cargo.lock. Os fontes da biblioteca, consumer, owner, manifest/lock, spans, HEAD, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/gradientes-numericos-ci-2026-10-13/before.json.gz`.
+`03_infra/src/export/tests/mod.rs` nas linhas [3911] usa métodos apontados pelo Clippy. `clippy.toml` exige alternativas sem dependência da matemática da plataforma; libm =0.2.11 já está pinado no core/Cargo.lock. Os fontes da biblioteca, consumer, owner, manifest/lock, spans, HEAD, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/gradientes-numericos-ci-2026-10-13/before.json.gz`.
 
 `before-renders.json` registra 24 fontes renderizadas em PDF/SVG por Tekt e pelo vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, com hashes dos binários e comandos. `before-comparison.json` mede o canvas inteiro sem máscaras ajustadas pelo erro. Existem divergências anteriores; o corpus não é prova de paridade integral. A primeira tentativa de fixture usava hsv fora do namespace color, foi rejeitada pelo parser antes de qualquer mudança produtiva e está preservada em initial-fixture-error.log; cases.json contém as entradas válidas.
 
@@ -206,10 +206,10 @@ legitima 70/150 como posicionamento físico correto por fixá-los como snapshots
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -237,7 +237,7 @@ e já autorizados. Não alegar paridade de tiling ou produção a partir do buil
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -246,7 +246,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -273,7 +273,7 @@ não é certificação de produção. T4 e publicação continuam fora deste pac
 
 ### Medição anterior à decisão
 
-`03_infra/src/export/tests/mod.rs` nas linhas 8205, 8550 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `00_nucleo/diagnosticos/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
+`03_infra/src/export/tests/mod.rs` nas linhas 8205, 8550 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
 
 ### Responsabilidade e aceitação
 
@@ -286,7 +286,7 @@ Usar `..Tipo::default()` para os campos restantes e retirar `mut` apenas onde de
 
 ### Medição anterior à decisão
 
-`03_infra/src/export/tests/mod.rs` nas linhas 6083 contém os avisos registrados em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
+`03_infra/src/export/tests/mod.rs` nas linhas 6083 contém os avisos registrados em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
 
 ### Responsabilidade e aceitação
 
@@ -297,7 +297,7 @@ Fluxo contínuo ADR-0127: sem contrato público, default de produto ou fase novo
 
 ### Exaustividade do observador bbox — correção após o primeiro gate
 
-Medição antes da decisão: o primeiro gate completo desta etapa, em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/first-validation/validation-architecture.log`, identificou V16 em export/tests/mod.rs:6092 no novo emitted_bbox, `_ => None`. Clippy já havia medido 79 avisos; o gate barrou fechamento por aumentar V16 de 327 para 328. O enum FrameItem vigente em entities/layout_types.rs:373–547 foi conferido antes da correção.
+Medição antes da decisão: o primeiro gate completo desta etapa, em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/first-validation/validation-architecture.log`, identificou V16 em export/tests/mod.rs:6092 no novo emitted_bbox, `_ => None`. Clippy já havia medido 79 avisos; o gate barrou fechamento por aumentar V16 de 327 para 328. O enum FrameItem vigente em entities/layout_types.rs:373–547 foi conferido antes da correção.
 
 O helper deve enumerar todas as variantes explicitamente: Shape observa seu bbox; Group/Link/Semantic/TextReplacement percorrem os filhos; TextSeparator/Text/TextShaped/Line/Glyph/Image devolvem None porque não possuem parent_bbox_at_emit nem filhos. Não usar wildcard para variantes futuras: o compilador deve exigir uma decisão quando o enum crescer. Preservar a fixture Block/Shape, os asserts de bbox/PDF e todas as outras correções desta etapa. L0 primeiro, resselo apenas deste owner/consumer, revalidar o gate Clippy e toda a suíte/linhagem sem elevar baseline ou suprimir V16.
 
@@ -306,7 +306,7 @@ O helper deve enumerar todas as variantes explicitamente: Shape observa seu bbox
 
 ### Medição anterior à decisão
 
-A primeira compilação all-targets em `00_nucleo/diagnosticos/clippy-aridade-interna-2026-10-16/first-validation/validation-clippy.log` encontrou cinco E0599 neste consumer (linhas 8166, 8229, 8309, 9753 e 9947), apesar do build produtivo aprovado. O arquivo e este L0 conferem com os hashes globais do snapshot inicial; conteúdos antes da edição e extensão de escopo estão preservados no diagnóstico. Os chamadores e cada expressão foram lidos antes desta decisão.
+A primeira compilação all-targets em `lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/first-validation/validation-clippy.log` encontrou cinco E0599 neste consumer (linhas 8166, 8229, 8309, 9753 e 9947), apesar do build produtivo aprovado. O arquivo e este L0 conferem com os hashes globais do snapshot inicial; conteúdos antes da edição e extensão de escopo estão preservados no diagnóstico. Os chamadores e cada expressão foram lidos antes desta decisão.
 
 ### Responsabilidade e aceitação
 

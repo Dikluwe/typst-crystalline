@@ -18,7 +18,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/placement.rs:21`, `01_core/src/compiler/layout/placement.rs:277`, `01_core/src/compiler/layout/placement.rs:539`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -38,7 +38,7 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 
 ### Measurement before decision
 
-The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/p1431_line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `00_nucleo/diagnosticos/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
+The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/p1431_line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `lab/results/construction/diagnostics/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
 
 ### Owner responsibility
 
@@ -50,7 +50,7 @@ The unchanged p1292 pending-line witness fails when geometric origin also applie
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/block-align-2026-10-06/baseline-verification.json.gz` registra 14 controles completos, fontes, comandos, caixas e binários no HEAD/working tree/UTC de before.json. RTL Block automático põe ABC em x20 no Tekt contra x152.949220 no vanilla; Block(width:100pt) coincide em x100. #set dir:ltr no body não altera a âncora externa do Block automático no vanilla. Align(left/right) mistura bordas por direção do run e desloca Y por 8.35742pt. `placement.rs:35-46,176-177` renderiza no subframe com baseline pronta e subtrai ascender na recomposição; `cursor.rs:154-162` só aplica direção RTL; `block.rs:175-185` posiciona container externo apenas quando largura é explícita. Fonte vanilla pinada `flow/collect.rs:193` resolve Align por linhas e `flow/block.rs:145-166,285` distingue regiões expandidas de auto-size. Paridade de posições/forma, não cópia da mecânica (ADR-0107).
+`lab/results/construction/diagnostics/block-align-2026-10-06/baseline-verification.json.gz` registra 14 controles completos, fontes, comandos, caixas e binários no HEAD/working tree/UTC de before.json. RTL Block automático põe ABC em x20 no Tekt contra x152.949220 no vanilla; Block(width:100pt) coincide em x100. #set dir:ltr no body não altera a âncora externa do Block automático no vanilla. Align(left/right) mistura bordas por direção do run e desloca Y por 8.35742pt. `placement.rs:35-46,176-177` renderiza no subframe com baseline pronta e subtrai ascender na recomposição; `cursor.rs:154-162` só aplica direção RTL; `block.rs:175-185` posiciona container externo apenas quando largura é explícita. Fonte vanilla pinada `flow/collect.rs:193` resolve Align por linhas e `flow/block.rs:145-166,285` distingue regiões expandidas de auto-size. Paridade de posições/forma, não cópia da mecânica (ADR-0107).
 
 ### Responsabilidade exclusiva
 
@@ -67,7 +67,7 @@ Refutadores adicionais: a suíte L1 acusa dois controles P898 (Bottom/Horizon so
 
 ### Medição anterior à decisão
 
-A matriz exploratória `00_nucleo/diagnosticos/bordas-cantos-2026-10-06/verification.json.gz`
+A matriz exploratória `lab/results/construction/diagnostics/bordas-cantos-2026-10-06/verification.json.gz`
 conserva os 12 controles, comandos, fontes, HEAD/working tree/UTC e binários:
 Align(left) põe o texto inicial em y16,642578pt no Tekt contra y24,999978pt
 no vanilla pinado 9f2b6e871. Uma coluna RTL ainda começa em x140pt contra
@@ -101,7 +101,7 @@ existente também governa esse frame, não sucesso presumido.
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/layout/placement.rs` nas linhas 722, 766 contém os avisos selecionados do Clippy. O snapshot anterior à decisão, spans conferidos contra a fonte, owners, referências, binário, UTC, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status e diffstat estão em `00_nucleo/diagnosticos/iteracao-parametros-ci-2026-10-13/before.json.gz`. A inspeção mede mecânica interna e usos; não é nova prova bilateral de paridade ou ganho de desempenho.
+`01_core/src/compiler/layout/placement.rs` nas linhas 722, 766 contém os avisos selecionados do Clippy. O snapshot anterior à decisão, spans conferidos contra a fonte, owners, referências, binário, UTC, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status e diffstat estão em `lab/results/construction/diagnostics/iteracao-parametros-ci-2026-10-13/before.json.gz`. A inspeção mede mecânica interna e usos; não é nova prova bilateral de paridade ou ganho de desempenho.
 
 ### Decisão e aceitação
 
@@ -140,7 +140,7 @@ Os registros baseline-expanded/candidate-expanded mostram Place dentro de Align/
 
 ### Medição antes da decisão
 
-`00_nucleo/diagnosticos/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
+`lab/results/construction/diagnostics/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
 
 ### Responsabilidade exclusiva
 
@@ -155,7 +155,7 @@ B1 completa a âncora após produtores certificados (linha, forma, Block, Align,
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/place-fluxo-2026-10-14/block-regions-before/results.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore suja, diffstat, UTC, fontes e binários. Em 24 pares contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, só 2 bboxes coincidem: inset3/top Tekt(20,15), vanilla(20,18); bottom/right Tekt(71,37), vanilla(62,44); clip apaga o marcador Tekt. block.rs:90 ignora inset.right; :220 instala largura como body, :275 usa avanço zero de Place como altura de clip, :290 agrupa filhos absolutos sem rebase. placement.rs:505 usa página/subframe sem região Block. Fonte pinada typst-layout/src/flow/block.rs:66-89 e :223-234 força tamanho interno, cresce inset e só então recorta; :278-280 desconta inset da região. Geometria é observável de linguagem; buffers Rust são mecânica. A hipótese de região local é refutada por aninhamento, texto, auto, clipping ou vazamento aos irmãos.
+`lab/results/construction/diagnostics/place-fluxo-2026-10-14/block-regions-before/results.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore suja, diffstat, UTC, fontes e binários. Em 24 pares contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, só 2 bboxes coincidem: inset3/top Tekt(20,15), vanilla(20,18); bottom/right Tekt(71,37), vanilla(62,44); clip apaga o marcador Tekt. block.rs:90 ignora inset.right; :220 instala largura como body, :275 usa avanço zero de Place como altura de clip, :290 agrupa filhos absolutos sem rebase. placement.rs:505 usa página/subframe sem região Block. Fonte pinada typst-layout/src/flow/block.rs:66-89 e :223-234 força tamanho interno, cresce inset e só então recorta; :278-280 desconta inset da região. Geometria é observável de linguagem; buffers Rust são mecânica. A hipótese de região local é refutada por aninhamento, texto, auto, clipping ou vazamento aos irmãos.
 
 ### Responsabilidade exclusiva
 
@@ -218,7 +218,7 @@ bilaterais completos e refutadores, suíte/build/doc/fmt/linhagem/inventários.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/block-auto-alignment-2026-10-14/before/results.json.gz`
+`lab/results/construction/diagnostics/block-auto-alignment-2026-10-14/before/results.json.gz`
 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
 UTC/diffstat/status/fontes e SHA dos binários. right/center/link com clip
 perdem todo o retângulo vermelho no Tekt (zero pixels), contra 3840 no pin
@@ -247,7 +247,7 @@ altura Auto ou fragmentação. São pendências de B2b/T3, sem crédito de parid
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/align-flow-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/align-flow-before/results.json.gz`
 conserva HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
 commitado, UTC/diffstat/status/hashes/fontes/binários e PDF de40 documentos
 contra pin9f2b6e871. Block200 seguido de Align(short) gera página230pt

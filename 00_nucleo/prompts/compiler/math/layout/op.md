@@ -10,7 +10,7 @@ Hash do Código: 7b8881f3
 `01_core/src/compiler/math/layout/op.rs:21` locates `pub(super) fn layout_op(&self, text: &Content, style: &TextStyle) -> MathBox`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Text operator layout
 

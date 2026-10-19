@@ -26,7 +26,7 @@ Pinned Tekt dependencies (canonical linter metadata):
 - `03_infra/src/pipeline/paged.rs:188` — `compile_to_paged_document_full_error_and_features_with_introspector`.
 - `03_infra/src/pipeline/paged.rs:686` — `bind_logical_page_numbers`.
 - `03_infra/src/pipeline/paged.rs:712` — `realize_page_numberings`.
-- `03_infra/src/pipeline/paged.rs:318`, `:390`, `:521` — the ordinary page-numbering cycle performs two grid layouts with a fresh `FallbackFontMetrics` each time. The local GDB probe in `00_nucleo/diagnosticos/grid-cache-real-2026-10-03.md` measured 962 shaping-cache misses for distinct text versus 5 for repeated text; `C000` misses used the same size/font key in separate cache instances. This is evidence of repeated internal work, not a new vanilla language-parity requirement. The proposed cache lifetime is refuted if a fresh cache is necessary for changed World or if text/geometry/diagnostics change.
+- `03_infra/src/pipeline/paged.rs:318`, `:390`, `:521` — the ordinary page-numbering cycle performs two grid layouts with a fresh `FallbackFontMetrics` each time. The local GDB probe in `lab/results/construction/diagnostics/grid-cache-real-2026-10-03.md` measured 962 shaping-cache misses for distinct text versus 5 for repeated text; `C000` misses used the same size/font key in separate cache instances. This is evidence of repeated internal work, not a new vanilla language-parity requirement. The proposed cache lifetime is refuted if a fresh cache is necessary for changed World or if text/geometry/diagnostics change.
 
 These are local source anchors, not a new upstream parity measurement.
 Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pipeline/paged.rs`.
@@ -40,7 +40,7 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pi
 - Coordinate independent math and `par.line` stores outside L1 layout. Pending requests are realized with their captured style/span and Engine, then replayed under the existing finite eight-attempt budget. Math angle requests receive the default Angle and must return Angle; line numbering receives exactly one integer and uses canonical `value_to_content`.
 - New transcripts or partially consumed stores invalidate the candidate. Errors, invalid casts or exhausted callback budgets prevent export. Rebuild stores for every external relayout; never cache them across compilations or merge their budget with introspection fixpoints.
 - Within one ordinary paged compilation and the same World, reuse the `FallbackFontMetrics` cache allocation across page-numbering relayout candidates by cloning its cache-sharing handle. Keep each candidate, callback transcript/store, and introspector fresh as before. Do not retain metric caches across compilations or change the selected context-stabilization path. Cache reuse must preserve language-visible text, geometry and diagnostics; it is an internal optimization, not a semantic equality rule for `Content`.
-- The final line-position reconciliation of that ordinary compilation may borrow the same metrics handle after the numbering loop. The GDB cache probe in `00_nucleo/diagnosticos/grid-cache-real-2026-10-03.md` observed a separate third cache instance for the same `C000` width key in reconciliation (`03_infra/src/shaper/reconciliation.rs:234`). This predicts redundant internal shaping; the hypothesis is refuted by changed output or no decrease in misses/time. Retain the existing fresh-metrics reconciliation for a selected contextual result and for other callers. No cache survives the compilation.
+- The final line-position reconciliation of that ordinary compilation may borrow the same metrics handle after the numbering loop. The GDB cache probe in `lab/results/construction/diagnostics/grid-cache-real-2026-10-03.md` observed a separate third cache instance for the same `C000` width key in reconciliation (`03_infra/src/shaper/reconciliation.rs:234`). This predicts redundant internal shaping; the hypothesis is refuted by changed output or no decrease in misses/time. Retain the existing fresh-metrics reconciliation for a selected contextual result and for other callers. No cache survives the compilation.
 - The pre-shaping bidi pass currently receives fresh metrics at `03_infra/src/pipeline/paged.rs:477`, while `03_infra/src/layout_bidi.rs:128-173` asks `FontMetrics::text_width` on RTL words. In the same ordinary compilation and World, it may borrow the layout metrics handle as reconciliation does, avoiding widths already measured in layout. A selected contextual result still receives fresh metrics. This is an internal cache-lifetime experiment: preserve bidi order, text, geometry and diagnostics, and retain the change only if a real RTL A/B shows a repeatable benefit.
 - Realize visible page numbering with `[current,total]`; realize the unary reference view `[current]` only for actual resolved page-reference targets. Preserve raw numbering objects separately from realized content and propagate callback diagnostics.
 - The page-numbering cycle is bounded to five passes and checks page counts, logical snapshots, raw objects and realized content, not page count alone. Reconstruct from original input; never accumulate markers, callbacks or warnings.
@@ -69,7 +69,7 @@ O helper de outlines pode ter visibilidade pub(super) para a suíte descendente 
 
 ## Reuso do candidato inicial independente de páginas — 2026-10-05
 
-Evidência anterior à decisão: `03_infra/src/pipeline/paged.rs:364–453` constrói PageStore e repete runtime/expansão/realização/layout mesmo sem dependência de páginas. O diagnóstico `00_nucleo/diagnosticos/grid-pagination-cost-2026-10-05.md` mediu duas chamadas para tabelas simples e cerca de 15 ms de CPU na segunda chamada das 320 células no snapshot histórico indicado, sem alegar ganho causal. O baseline atual é preservado em `00_nucleo/diagnosticos/layout-inicial-2026-10-05/before-state.json.gz`; fonte e binário estão identificados.
+Evidência anterior à decisão: `03_infra/src/pipeline/paged.rs:364–453` constrói PageStore e repete runtime/expansão/realização/layout mesmo sem dependência de páginas. O diagnóstico `lab/results/construction/diagnostics/grid-pagination-cost-2026-10-05.md` mediu duas chamadas para tabelas simples e cerca de 15 ms de CPU na segunda chamada das 320 células no snapshot histórico indicado, sem alegar ganho causal. O baseline atual é preservado em `lab/results/construction/diagnostics/layout-inicial-2026-10-05/before-state.json.gz`; fonte e binário estão identificados.
 
 O coordenador pode reutilizar o primeiro candidato completo dentro da mesma fase quando uma prova estrutural positiva cobre tanto o conteúdo contextual original como o conteúdo final realizado e todas as páginas finais têm numbering ausente. Nunca decidir por igualdade visual, uma página só ou leitura do texto-fonte. Preservar a construção de PageStore, warnings e injeção de posições/páginas antes de encerrar o ciclo; binding final, format options, bidi, shaping e reconciliação seguem vigentes. Não interferir com prepared.settled ou bundles.
 
@@ -82,7 +82,7 @@ Refinamento medido: a sentinela multipágina revelou em Styled os customs page.m
 
 ## Snapshot realizado de Page — ratificado em 2026-10-05
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
+Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
 
 Decisão proposta: aplicar o Núcleo page-counter-snapshot. Esta unidade substitui o scope-out histórico de final apenas após ratificação. Contrato público e realização page-aware de updates exigem gate ADR-0127; não materializar ou ressellar antes da confirmação. Preservar as assinaturas existentes, ciclos e budget; não adivinhar página/total antes do snapshot conhecido.
 
@@ -97,11 +97,11 @@ No caminho legado paginado, realizar snapshot Page depois de posições candidat
 
 A igualdade das novas vistas Page é necessária à convergência quando existem blocos contextuais. Um documento sem blocos contextuais mantém o critério anterior de contagem de páginas; a publicação da vista não exige uma passagem adicional sem consumidor.
 
-Ratificação: o humano confirmou o conjunto do manifesto `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
+Ratificação: o humano confirmou o conjunto do manifesto `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
 
 ## Métricas compartilhadas na sessão contextual — 2026-10-05
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado preservado em `00_nucleo/diagnosticos/contexto-cache-fontes-2026-10-05/before-state.json.gz`, binário baseline 5bc45f4ec0972c6c46450c0cab3479e2ae2ef41c286c424201c1b7fc07823eb1. Sonda GDB `count-baseline.json.gz`: selected_distinct fez 2243 consultas, 965 cálculos de shaping após miss e duas entradas no wrapper; selected_repeated teve 8 misses; controle ordinário 321 misses. `context_stabilization.rs:548` chama o wrapper sem métricas; `paged.rs:656–661` cria FallbackFontMetrics quando o handle é ausente. `font_metrics.rs:71–96` cria caches Arc por instância e Clone compartilha-os, conforme seu L0 proprietário. Há assimetria com o caminho ordinário já compartilhado. O relatório `grid-cache-share-ab-2026-10-03.md:17–23` delimitou explicitamente o compartilhamento ao caminho comum, mantendo os wrappers contextuais e de bundle com métricas novas. Esta etapa amplia aquele escopo depois da medição; não classificar esse limite documentado como decisão por inércia. A origem mais antiga do wrapper fresco permanece não auditada.
+Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado preservado em `lab/results/construction/diagnostics/contexto-cache-fontes-2026-10-05/before-state.json.gz`, binário baseline 5bc45f4ec0972c6c46450c0cab3479e2ae2ef41c286c424201c1b7fc07823eb1. Sonda GDB `count-baseline.json.gz`: selected_distinct fez 2243 consultas, 965 cálculos de shaping após miss e duas entradas no wrapper; selected_repeated teve 8 misses; controle ordinário 321 misses. `context_stabilization.rs:548` chama o wrapper sem métricas; `paged.rs:656–661` cria FallbackFontMetrics quando o handle é ausente. `font_metrics.rs:71–96` cria caches Arc por instância e Clone compartilha-os, conforme seu L0 proprietário. Há assimetria com o caminho ordinário já compartilhado. O relatório `grid-cache-share-ab-2026-10-03.md:17–23` delimitou explicitamente o compartilhamento ao caminho comum, mantendo os wrappers contextuais e de bundle com métricas novas. Esta etapa amplia aquele escopo depois da medição; não classificar esse limite documentado como decisão por inércia. A origem mais antiga do wrapper fresco permanece não auditada.
 
 Decisão interna, fluxo contínuo ADR-0127: a sessão contextual paginada selecionada pode fornecer o seu handle metrics já existente ao wrapper de layout. Cada tentativa conserva conteúdo, introspector, regiões, callbacks, transcripts, sinks e budget próprios. Somente resultados de métricas por texto/tamanho/estilo/fontes no mesmo World são compartilhados. O handle morre com a sessão; nenhuma retenção entre compilação/edições, nenhum cache de Content, frames ou execução contextual. Bundles/HTML, reconciliação final selecionada e demais callers preservam seus recursos atuais. Não copiar algoritmo/chaves de fonte em pipeline. Não alterar contrato público, modo ou fase. Manter a mudança somente com redução demonstrada de trabalho, medições A/B e controles de linguagem/geometria/diagnósticos sem regressão.
 
@@ -113,7 +113,7 @@ Depois de a sessão usar o helper com métricas explícitas, `rg -n "layout_with
 
 ## Transporte interno de métricas até a reconciliação contextual — 2026-10-05
 
-Medição anterior à decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado e binário baseline 17201a15e36b06bb3a9ac8adba0a98c61b3dc925c4ce1f118a39d26bce26cf05, preservados em `00_nucleo/diagnosticos/contexto-cache-reconciliacao-2026-10-05/before-state.json.gz`. A sonda count-baseline.json.gz isolou a entrada em fix_line_positions_with_metrics: selected_distinct fez 321 consultas/321 cálculos nessa etapa (643 cálculos totais), enquanto ordinary_control fez 320 consultas/zero cálculos. `context_stabilization.rs:14–17,660–663` entrega Content, introspector e documento, descartando o handle da Session; `paged.rs:337–345,563–572` mantém None no caminho selecionado e chama reconciliação com métricas frescas. O owner `infra/shaper/reconciliation.md` já permite helper interno emprestando métricas do mesmo World/compilação; equações e ABI pública não mudam.
+Medição anterior à decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado e binário baseline 17201a15e36b06bb3a9ac8adba0a98c61b3dc925c4ce1f118a39d26bce26cf05, preservados em `lab/results/construction/diagnostics/contexto-cache-reconciliacao-2026-10-05/before-state.json.gz`. A sonda count-baseline.json.gz isolou a entrada em fix_line_positions_with_metrics: selected_distinct fez 321 consultas/321 cálculos nessa etapa (643 cálculos totais), enquanto ordinary_control fez 320 consultas/zero cálculos. `context_stabilization.rs:14–17,660–663` entrega Content, introspector e documento, descartando o handle da Session; `paged.rs:337–345,563–572` mantém None no caminho selecionado e chama reconciliação com métricas frescas. O owner `infra/shaper/reconciliation.md` já permite helper interno emprestando métricas do mesmo World/compilação; equações e ABI pública não mudam.
 
 Decisão interna, fluxo contínuo ADR-0127: transferir um clone do handle existente juntamente com o candidato completo aceito da sessão paginada. Prepared e prepare são internos ao módulo pipeline; seu lifetime explicita os empréstimos existentes de World/Source. Nenhuma API pública ou campo de entidade L1 muda. Preservar o contrato de aceitação, erros, contribuição, sinks e budget (inclusive o resultado final aceito sob não convergência provada); somente o braço que já produz settled transporta métricas. Resultados sem settled, HTML e bundles não transportam handle.
 
@@ -121,13 +121,13 @@ O coordenador paginado usa o handle selecionado somente em fix_line_positions_wi
 
 ## Métricas retidas no bidi contextual selecionado — 2026-10-05
 
-Medição anterior à decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binário c35dc34f0f24466b0b7339fcb856d5fc59c6f8701308f54963a4a1704f7746b8 preservados em `00_nucleo/diagnosticos/contexto-cache-bidi-2026-10-05/before-state.json.gz`. A sonda count-initial.json.gz delimita bidi entre reorder_bidi_document e shape_document: selected_rtl_distinct realizou 2057 consultas e 299 cálculos; ordinary_rtl, 2057 consultas e 137 cálculos. Em `paged.rs:565–568`, o caminho selecionado cria métricas frescas embora seu handle esteja disponível; `layout_bidi.rs:23–29,128–173` já recebe FontMetrics e mede palavras. A inferência é que parte dessas larguras existe no cache de layout; ausência de redução de cálculos ou alteração de output refuta a hipótese. Cache é mecânica, não requisito da língua (ADR-0107).
+Medição anterior à decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binário c35dc34f0f24466b0b7339fcb856d5fc59c6f8701308f54963a4a1704f7746b8 preservados em `lab/results/construction/diagnostics/contexto-cache-bidi-2026-10-05/before-state.json.gz`. A sonda count-initial.json.gz delimita bidi entre reorder_bidi_document e shape_document: selected_rtl_distinct realizou 2057 consultas e 299 cálculos; ordinary_rtl, 2057 consultas e 137 cálculos. Em `paged.rs:565–568`, o caminho selecionado cria métricas frescas embora seu handle esteja disponível; `layout_bidi.rs:23–29,128–173` já recebe FontMetrics e mede palavras. A inferência é que parte dessas larguras existe no cache de layout; ausência de redução de cálculos ou alteração de output refuta a hipótese. Cache é mecânica, não requisito da língua (ADR-0107).
 
 Decisão interna, fluxo contínuo ADR-0127: estender o empréstimo do handle selecionado à chamada existente de bidi, antes do shaping. Esta seção substitui a restrição temporária da etapa anterior que isolou reconciliação. Não modificar algoritmo de bidi, assinaturas, fases, regiões, callbacks, conteúdo ou introspecção. Respeitar compilation-metric-cache: mesmo World, mesma compilação; sem retenção entre edições. Sentinela cfg(test) deve falhar no braço fresco selecionado antes da mudança; A/B deve comprovar trabalho evitado e avaliar tempo sem atribuir todas as diferenças da CLI ao bidi. Preservar texto, posições, raster e diagnósticos; não exigir igualdade de bytes PDF.
 
 ## Contexto integral bidi ratificado — 2026-10-05
 
-Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
+Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
 
 Para spans certificados, usar registry proprietário local de strings auxiliares e mapas por input Arc, depois views BidiInfo emprestadas normais; não usar unsafe/self-reference. Embeddings virtuais LRE/RLE/PDF só quando dir do segmento difere da base; espaços reais e Linebreak não justificado LF (justify=true fora do certificado). Não retirar controles autorais. Resolver uma vez por input em cada registry; o pipeline paginado compartilha registry/views entre reorder e shape. Wrappers públicos existentes podem construir registry local.
 
@@ -140,7 +140,7 @@ Shape consulta os runs do input completo para span original e não auto-detecta 
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -176,13 +176,13 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 workspace-seventh/independent_table refuta Source como unknown impuro: prova positiva de independência paginada delega somente ao body; source span não é geometria. Body desconhecido continua fail-closed, sem relaxar comparação observacional ou tornar efeitos independentes.
 
 ### Receita local de Cell sem dependência de páginas — 2026-10-09
 
-Medição antes da decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/layout-call-counts.json.gz` conserva release SHA-256 `4d63c08cb3a01aed112ac4612a6e6413894284ff579626c4c277b818e1ba18be`, HEAD/árvore não commitada/status/diffstat/UTC/fontes/comandos e script GDB. Em 1.600 células, `local-set` executa duas resoluções completas de colunas/linhas e 3.200 subframes; `no-fill` executa uma e 1.600. A mesma relação vale em 100 células. `grid-invocation-traces-deep.json.gz` mostra ambas as resoluções locais sob o coordenador paginado comum. `paged.rs:30-44` rejeita toda chave custom de Cell e `eval.table.local.recipe`; `paged.rs:434-468` então reexecuta expansão, realização e layout após construir PageStore. A inferência de que esta recusa explica o excesso local será refutada se a classificação ampliada não reduzir o número de layouts ou o tempo pareado. A receita captura corpo, regras, cadeia de estilos e guards em `entities/content.rs:202-211`; não inferir independência apenas da cor visível.
+Medição antes da decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/layout-call-counts.json.gz` conserva release SHA-256 `4d63c08cb3a01aed112ac4612a6e6413894284ff579626c4c277b818e1ba18be`, HEAD/árvore não commitada/status/diffstat/UTC/fontes/comandos e script GDB. Em 1.600 células, `local-set` executa duas resoluções completas de colunas/linhas e 3.200 subframes; `no-fill` executa uma e 1.600. A mesma relação vale em 100 células. `grid-invocation-traces-deep.json.gz` mostra ambas as resoluções locais sob o coordenador paginado comum. `paged.rs:30-44` rejeita toda chave custom de Cell e `eval.table.local.recipe`; `paged.rs:434-468` então reexecuta expansão, realização e layout após construir PageStore. A inferência de que esta recusa explica o excesso local será refutada se a classificação ampliada não reduzir o número de layouts ou o tempo pareado. A receita captura corpo, regras, cadeia de estilos e guards em `entities/content.rs:202-211`; não inferir independência apenas da cor visível.
 
 Decisão interna de mecânica, fluxo contínuo ADR-0127: admitir na prova `Styled` apenas `cell.fill` com valor escalar físico (`Color` ou `None`), `eval.table.local` igual a Bool(true) e `eval.table.local.recipe` contendo ShowRecipe de corpo que também passa na prova, sem regras locais nem guards, com estilos capturados cujo delta colapsado contém somente propriedades já certificadas pela prova escalar e `cell.fill` físico. O wrapper ainda precisa ter body independente. A receita permanece dado lexical e não passa a ser layoutável diretamente. Qualquer outra propriedade `cell.*`, outra receita, regra local, guarda, função, contexto, marker, contador, numbering ou chave desconhecida conserva o ciclo completo. A prova não usa igualdade visual/Rust para decidir. PageStore, warnings, posições e binding finais permanecem calculados como antes; apenas reutilizar o candidato completo já produzido quando a prova positiva passa em conteúdo contextual e realizado, sem mover fases, API ou default.
 
@@ -192,7 +192,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ## Descoberta emprestada de blocos após outline — 2026-10-09
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/stacks-deep.json.gz`
+Medição anterior à decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/stacks-deep.json.gz`
 guarda binário, HEAD/working tree, fontes, interpositor, comandos e UTC; uma
 em cada 64 alocações é amostrada. Sob `expand_realized_outline_contexts`,
 `TableElem::map_content` aparece em 902 amostras de `local-set-1600` e 300
@@ -222,7 +222,7 @@ pareada de tempo. Fluxo contínuo ADR-0127.
 
 ## Referências de página sem destinos — otimização interna 2026-10-09
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/page-ref-empty-red-gate.json.gz`, coletado em working tree não commitado no HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, conserva UTC, estado/diffstat, comando, fontes, fixtures, interpositor e release SHA-256 `14d023d36fb765eb041f24f440eaad3bc5d67183325b611e4fd98502bd26815e`. O gate predefinido de até 539.000 pedidos glibc para `local-set-1600` falhou com 541.535; `no-fill-1600` fez 410.264. O perfil `cpu-style-current.json.gz` contém 62 e 36 amostras, respectivamente, sob `page_reference_pages`; `03_infra/src/pipeline/paged.rs:987-1004` percorre e reconstrói Content para consultar destinos, mas `extracted_label_pages` vazio torna toda consulta negativa. Atribuição de custo exclusivo ainda é inferência, refutável por gate GREEN sem redução e por tempo pareado sem ganho.
+Medição anterior à decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/page-ref-empty-red-gate.json.gz`, coletado em working tree não commitado no HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, conserva UTC, estado/diffstat, comando, fontes, fixtures, interpositor e release SHA-256 `14d023d36fb765eb041f24f440eaad3bc5d67183325b611e4fd98502bd26815e`. O gate predefinido de até 539.000 pedidos glibc para `local-set-1600` falhou com 541.535; `no-fill-1600` fez 410.264. O perfil `cpu-style-current.json.gz` contém 62 e 36 amostras, respectivamente, sob `page_reference_pages`; `03_infra/src/pipeline/paged.rs:987-1004` percorre e reconstrói Content para consultar destinos, mas `extracted_label_pages` vazio torna toda consulta negativa. Atribuição de custo exclusivo ainda é inferência, refutável por gate GREEN sem redução e por tempo pareado sem ganho.
 
 Quando `doc.extracted_label_pages` estiver vazio, `page_reference_pages` devolve o conjunto vazio antes da travessia. Com destinos presentes, conservar a travessia, os forms Page, resolução por Label e o conjunto de páginas sem alteração. A função continua privada de L3; nenhum contrato público, fase, default ou semântica de referência muda. Exigir gate de alocações RED→GREEN, teste de referência Page com/sem destino e forma Normal, equivalência de saídas e tempo pareado; retirar a otimização se piorar o tempo de forma repetida.
 
@@ -232,7 +232,7 @@ Quando `doc.extracted_label_pages` estiver vazio, `page_reference_pages` devolve
 ### Medição anterior à decisão
 
 `03_infra/src/pipeline/paged.rs` nas linhas [340] apresenta os avisos selecionados.
-`00_nucleo/diagnosticos/ci-helpers-testes-2026-10-14/before.json.gz`
+`lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/before.json.gz`
 conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
 references-before.json.gz registra chamadas, imports, módulos e referências;
 o estado da suíte/inventário anterior foi verificado por hashes. A lista de
@@ -257,7 +257,7 @@ testes que apenas espelhem cfg ou remoção de bindings. Resselo restrito ao own
 ### Medição anterior à decisão
 
 03_infra/src/pipeline/paged.rs:373 (C097).
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
@@ -285,7 +285,7 @@ restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
 
 ### Medição anterior à decisão
 
-03_infra/src/pipeline/paged.rs:807 (clippy::map_clone). O snapshot `00_nucleo/diagnosticos/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
+03_infra/src/pipeline/paged.rs:807 (clippy::map_clone). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -300,7 +300,7 @@ Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependênc
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 final-freeze.json.gz e target-controls.json.gz no diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
 UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
 Styled de transporte altera func. Query também vê wrapper causal temporário;
@@ -308,7 +308,7 @@ HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427
 pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
 de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
 Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
 SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
 
 ### Responsabilidade exclusiva

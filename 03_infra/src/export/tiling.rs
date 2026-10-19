@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tiling.md
-//! @prompt-hash 1167db72
+//! @prompt-hash 527eb233
 //! @layer L3
 
 use typst_core::entities::frame_paint::TilingFrame;

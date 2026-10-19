@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash c4dcc255
+//! @prompt-hash 3c9dd909
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -825,7 +825,7 @@ pub(super) struct DeferredFloat {
     /// documento, já fora do `layout_content(body)` do consumer) — nesse
     /// caso o segmento é descartado silenciosamente, mesma disciplina de
     /// fallback do resto do mecanismo P284/P286. Limitação registada, não
-    /// silenciosa — ver `00_nucleo/diagnosticos/paridade-producao-p772x.md`.
+    /// silenciosa — ver `lab/results/construction/diagnostics/paridade-producao-p772x.md`.
     pub deco_segments: Vec<DecoSegment>,
     /// **P908** — entradas órfãs de `pending_align_centering` devolvidas
     /// pelo `layout_sub_frame` do body deste float (`Content::Align`/

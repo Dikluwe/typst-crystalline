@@ -55,7 +55,7 @@ literals in the consumer are observables, not prose to translate.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/html-feature-identity-2026-10-17/before.json.gz registra
+lab/results/construction/diagnostics/html-feature-identity-2026-10-17/before.json.gz registra
 UTC, status, diff HEAD --stat, fontes e L0 completos e hashes; todos os 2123
 hashes da etapa anterior foram conferidos antes de reutilizar sua matriz.
 before-probe.json.gz conserva argv, fixtures, outputs e SHA-256 dos binários.
@@ -127,7 +127,7 @@ regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/import-syntax-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/import-syntax-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0 e hashes; 2125 hashes do fechamento anterior
 foram conferidos. before-probe.json.gz guarda as sondas bilaterais com fixtures,
 argv, saídas e binários; before-context-probe mede oito perfis e bundle real.

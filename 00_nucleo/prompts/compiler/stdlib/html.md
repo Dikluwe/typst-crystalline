@@ -982,7 +982,7 @@ avisos novos.
 Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado. A duplicação cfg(test) ocorre em `01_core/src/compiler/stdlib/html/p1423_tests.rs:5` / pai :25; `01_core/src/compiler/stdlib/html/p1424_tests.rs:5` / pai :29.
 Fontes, L0, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/cfg-test-ci-2026-10-13/before.json.gz` e
+`lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/before.json.gz` e
 `refinement-before.json.gz`. O Clippy pinado reproduz os atributos duplicados.
 A tentativa de retirar a condição interna mantém os testes Rust, mas o linter
 arquitetural pinado não propaga a condição do pai e acusa V2 nos helpers.
@@ -1001,7 +1001,7 @@ mesma lista de testes, suíte core, build sem cfg(test), Clippy e arquitetura.
 ### Medição anterior à decisão
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
 conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
 baseline-reuse.json prova igualdade de fontes/configuração/binário com a
 matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz

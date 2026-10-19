@@ -40,7 +40,7 @@ Testes co-localizados antes do código: Entry crua, Source/Located em ambas as o
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
 anterior foram verificados exatamente antes do baseline. before-probe.json.gz
 e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.

@@ -1,0 +1,1872 @@
+[
+  {
+    "case": "01-ascii",
+    "source_sha256": "2eb1549581c570de9194e15623154870885ab6b94f10c824456ce1c620a3a374",
+    "expected_text": "Hello world.",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/01-ascii.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/01-ascii-tekt.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "dc6bebbb988e71d7260ad4dfff1ae8312b15d631bdd789c991c003ba8e50749f",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Hello",
+            "xMin": 20.0,
+            "xMax": 49.112,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "world.",
+            "xMin": 52.232,
+            "xMax": 87.572,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "Hello world.",
+        "expected_text_matches": true,
+        "lines": 1
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/01-ascii.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/01-ascii-vanilla.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "383620e3c68c91a660ce83fd95a4815ce6036c19c9dc41e3ad2e25cb8b078b05",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Hello",
+            "xMin": 20.0,
+            "xMax": 49.112,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "world.",
+            "xMin": 52.232,
+            "xMax": 87.572,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "Hello world.",
+        "expected_text_matches": true,
+        "lines": 1
+      }
+    }
+  },
+  {
+    "case": "02-unicode",
+    "source_sha256": "f118556da1cf5af1f59e4eeb26bf8c1b6a63c22f70a2cff4a30fc32cc785a376",
+    "expected_text": "Olá mundo! Ação, coração e café.",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/02-unicode.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/02-unicode-tekt.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "09a1c977c54ab5a016aa8a3fff457e0f8f9be4fbbff3b60a147ef696d8fcb87e",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Olá",
+            "xMin": 20.0,
+            "xMax": 39.2,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "mundo!",
+            "xMin": 42.32,
+            "xMax": 86.24,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "Ação,",
+            "xMin": 89.36,
+            "xMax": 119.996,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "coração",
+            "xMin": 123.116,
+            "xMax": 167.336,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "e",
+            "xMin": 170.456,
+            "xMax": 177.224,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "café.",
+            "xMin": 180.344,
+            "xMax": 206.948,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "Olá mundo! Ação, coração e café.",
+        "expected_text_matches": true,
+        "lines": 1
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/02-unicode.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/02-unicode-vanilla.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "6fbd6ad93eaadb6553f9da74716ea205454a7b9628435f4c78ca1ecf23e79219",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Olá",
+            "xMin": 20.0,
+            "xMax": 39.2,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "mundo!",
+            "xMin": 42.32,
+            "xMax": 86.24,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "Ação,",
+            "xMin": 89.36,
+            "xMax": 119.996,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "coração",
+            "xMin": 123.116,
+            "xMax": 167.336,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "e",
+            "xMin": 170.456,
+            "xMax": 177.224,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "café.",
+            "xMin": 180.344,
+            "xMax": 206.948,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "Olá mundo! Ação, coração e café.",
+        "expected_text_matches": true,
+        "lines": 1
+      }
+    }
+  },
+  {
+    "case": "03-newline",
+    "source_sha256": "4ed8b2f9f129102ecd0af85d6cf1f27f1cc5e6b432197d987027e6c442ab2e96",
+    "expected_text": "Olá mundo",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/03-newline.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/03-newline-tekt.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "fc72e0ddc7e8dc7c7d1e1f754effc75219eb985c7c204246b895b04d057b1cba",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Olá",
+            "xMin": 20.0,
+            "xMax": 39.2,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "mundo",
+            "xMin": 42.32,
+            "xMax": 83.012,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "Olá mundo",
+        "expected_text_matches": true,
+        "lines": 1
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/03-newline.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/03-newline-vanilla.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "480d7ac24dc87011f7c61fb5928e23e19320f829009fc6fff0845151eccf92ed",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Olá",
+            "xMin": 20.0,
+            "xMax": 39.2,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "mundo",
+            "xMin": 42.32,
+            "xMax": 83.012,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "Olá mundo",
+        "expected_text_matches": true,
+        "lines": 1
+      }
+    }
+  },
+  {
+    "case": "04-paragraph",
+    "source_sha256": "890c919a09097d0f75c9d781a11d1b5b71f44959a0566bad1ace49ff3987295f",
+    "expected_text": "Primeiro parágrafo. Segundo parágrafo.",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/04-paragraph.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/04-paragraph-tekt.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "890b68c10d7f4228f819fa47a3960f9c6a3687f66592c882540d361db5501e23",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Primeiro",
+            "xMin": 20.0,
+            "xMax": 68.372,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "parágrafo.",
+            "xMin": 71.492,
+            "xMax": 130.484,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "Segundo",
+            "xMin": 20.0,
+            "xMax": 70.208,
+            "yMin": 38.708,
+            "yMax": 55.052
+          },
+          {
+            "text": "parágrafo.",
+            "xMin": 73.328,
+            "xMax": 132.32,
+            "yMin": 38.708,
+            "yMax": 55.052
+          }
+        ],
+        "extracted_text": "Primeiro parágrafo. Segundo parágrafo.",
+        "expected_text_matches": true,
+        "lines": 2
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/04-paragraph.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/04-paragraph-vanilla.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "aa250a8adce1c0a9f29413d68ab37e96e76400bd555c265d541abf1e2f6f40b1",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Primeiro",
+            "xMin": 20.0,
+            "xMax": 68.372,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "parágrafo.",
+            "xMin": 71.492,
+            "xMax": 130.484,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "Segundo",
+            "xMin": 20.0,
+            "xMax": 70.208,
+            "yMin": 38.708,
+            "yMax": 55.052
+          },
+          {
+            "text": "parágrafo.",
+            "xMin": 73.328,
+            "xMax": 132.32,
+            "yMin": 38.708,
+            "yMax": 55.052
+          }
+        ],
+        "extracted_text": "Primeiro parágrafo. Segundo parágrafo.",
+        "expected_text_matches": true,
+        "lines": 2
+      }
+    }
+  },
+  {
+    "case": "05-inline",
+    "source_sha256": "ff75952960c7101a32d794d8bb6a52929558bdf5b6241ed5841473ba17eb1a67",
+    "expected_text": "abc e Olá mundo!",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/05-inline.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/05-inline-tekt.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "2ca49f45d26a60d3ca19a6440991751126bb1bb7daa6346443bba6999235f8e8",
+        "pages": 1,
+        "words": [
+          {
+            "text": "abc",
+            "xMin": 20.0,
+            "xMax": 39.872,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "e",
+            "xMin": 42.992,
+            "xMax": 49.76,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "Olá",
+            "xMin": 52.88,
+            "xMax": 72.08,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "mundo!",
+            "xMin": 75.2,
+            "xMax": 119.12,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "abc e Olá mundo!",
+        "expected_text_matches": true,
+        "lines": 1
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/05-inline.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/05-inline-vanilla.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "44aff580b2132f36d6188fa598e8ca9167908313d2b6cf9650cc1deeb28a1bc8",
+        "pages": 1,
+        "words": [
+          {
+            "text": "abc",
+            "xMin": 20.0,
+            "xMax": 39.872,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "e",
+            "xMin": 42.992,
+            "xMax": 49.76,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "Olá",
+            "xMin": 52.88,
+            "xMax": 72.08,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "mundo!",
+            "xMin": 75.2,
+            "xMax": 119.12,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "abc e Olá mundo!",
+        "expected_text_matches": true,
+        "lines": 1
+      }
+    }
+  },
+  {
+    "case": "06-pdf-literal",
+    "source_sha256": "237794d045f9db609446feb8b070f5d303cb340ec0da4fcc4409a5f00b451eda",
+    "expected_text": "Parênteses (a) e barra \\.",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/06-pdf-literal.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/06-pdf-literal-tekt.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "e7029f0d86b1415e6d5db5a30cd56e8bac8ca0a5ff7ccf4580594c337889b150",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Parênteses",
+            "xMin": 20.0,
+            "xMax": 82.256,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "(a)",
+            "xMin": 85.376,
+            "xMax": 99.308,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "e",
+            "xMin": 102.428,
+            "xMax": 109.196,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "barra",
+            "xMin": 112.316,
+            "xMax": 142.832,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "\\.",
+            "xMin": 145.952,
+            "xMax": 153.632,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "Parênteses (a) e barra \\.",
+        "expected_text_matches": true,
+        "lines": 1
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/06-pdf-literal.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/06-pdf-literal-vanilla.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "6be642dd00ed15e00c6e3a59abd9046b8a2268bb6793b45dfa745c2a41d0f762",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Parênteses",
+            "xMin": 20.0,
+            "xMax": 82.256,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "(a)",
+            "xMin": 85.376,
+            "xMax": 99.308,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "e",
+            "xMin": 102.428,
+            "xMax": 109.196,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "barra",
+            "xMin": 112.316,
+            "xMax": 142.832,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "\\.",
+            "xMin": 145.952,
+            "xMax": 153.632,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "Parênteses (a) e barra \\.",
+        "expected_text_matches": true,
+        "lines": 1
+      }
+    }
+  },
+  {
+    "case": "07-spaces",
+    "source_sha256": "7bd8c4194d1362946dc2ea2993b2a1b9789e6404696c5af7b96f6518c5823e7c",
+    "expected_text": "A B C",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/07-spaces.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/07-spaces-tekt.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "f4999efc6f7222a6341e2eca33a5213ccecd8b5c588181240ff8dfea2728f91c",
+        "pages": 1,
+        "words": [
+          {
+            "text": "ABC",
+            "xMin": 20.0,
+            "xMax": 49.292,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "ABC",
+        "expected_text_matches": false,
+        "lines": 1
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/07-spaces.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/07-spaces-vanilla.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "295a8fbae7da2e2cbbcfed59c565eefd22f0ae258125a0fd21b66d824c4f593c",
+        "pages": 1,
+        "words": [
+          {
+            "text": "A",
+            "xMin": 20.0,
+            "xMax": 27.668,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "B",
+            "xMin": 30.788,
+            "xMax": 38.588,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "C",
+            "xMin": 41.708,
+            "xMax": 49.292,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "A B C",
+        "expected_text_matches": true,
+        "lines": 1
+      }
+    }
+  },
+  {
+    "case": "08-wrap",
+    "source_sha256": "85ab135e12acab2f097873c59b95abd973c90afd024bb86f2ecba27e4dfdab46",
+    "expected_text": "Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas.",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/08-wrap.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/08-wrap-tekt.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "dc7031d4cfe348ea32c9a83fe66c867ddfb76063c4af88a53ff61d3a122cd810",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Palavra",
+            "xMin": 20.0,
+            "xMax": 61.364,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "curta",
+            "xMin": 64.484,
+            "xMax": 93.68,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "e",
+            "xMin": 96.8,
+            "xMax": 103.568,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "palavras",
+            "xMin": 106.688,
+            "xMax": 153.92,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 157.04,
+            "xMax": 213.176,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "Palavra",
+            "xMin": 216.296,
+            "xMax": 257.66,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "curta",
+            "xMin": 20.0,
+            "xMax": 49.196,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "e",
+            "xMin": 52.316,
+            "xMax": 59.084,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "palavras",
+            "xMin": 62.204,
+            "xMax": 109.436,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 112.556,
+            "xMax": 168.692,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "Palavra",
+            "xMin": 171.812,
+            "xMax": 213.176,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "curta",
+            "xMin": 216.296,
+            "xMax": 245.492,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "e",
+            "xMin": 248.612,
+            "xMax": 255.38,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "palavras",
+            "xMin": 20.0,
+            "xMax": 67.232,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 70.352,
+            "xMax": 126.488,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "Palavra",
+            "xMin": 129.608,
+            "xMax": 170.972,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "curta",
+            "xMin": 174.092,
+            "xMax": 203.288,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "e",
+            "xMin": 206.408,
+            "xMax": 213.176,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "palavras",
+            "xMin": 216.296,
+            "xMax": 263.528,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 20.0,
+            "xMax": 76.136,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "Palavra",
+            "xMin": 79.256,
+            "xMax": 120.62,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "curta",
+            "xMin": 123.74,
+            "xMax": 152.936,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "e",
+            "xMin": 156.056,
+            "xMax": 162.824,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "palavras",
+            "xMin": 165.944,
+            "xMax": 213.176,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 216.296,
+            "xMax": 272.432,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "Palavra",
+            "xMin": 20.0,
+            "xMax": 61.364,
+            "yMin": 81.212,
+            "yMax": 97.556
+          },
+          {
+            "text": "curta",
+            "xMin": 64.484,
+            "xMax": 93.68,
+            "yMin": 81.212,
+            "yMax": 97.556
+          },
+          {
+            "text": "e",
+            "xMin": 96.8,
+            "xMax": 103.568,
+            "yMin": 81.212,
+            "yMax": 97.556
+          },
+          {
+            "text": "palavras",
+            "xMin": 106.688,
+            "xMax": 153.92,
+            "yMin": 81.212,
+            "yMax": 97.556
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 157.04,
+            "xMax": 213.176,
+            "yMin": 81.212,
+            "yMax": 97.556
+          },
+          {
+            "text": "Palavra",
+            "xMin": 216.296,
+            "xMax": 257.66,
+            "yMin": 81.212,
+            "yMax": 97.556
+          },
+          {
+            "text": "curta",
+            "xMin": 20.0,
+            "xMax": 49.196,
+            "yMin": 97.58,
+            "yMax": 113.924
+          },
+          {
+            "text": "e",
+            "xMin": 52.316,
+            "xMax": 59.084,
+            "yMin": 97.58,
+            "yMax": 113.924
+          },
+          {
+            "text": "palavras",
+            "xMin": 62.204,
+            "xMax": 109.436,
+            "yMin": 97.58,
+            "yMax": 113.924
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 112.556,
+            "xMax": 168.692,
+            "yMin": 97.58,
+            "yMax": 113.924
+          },
+          {
+            "text": "Palavra",
+            "xMin": 171.812,
+            "xMax": 213.176,
+            "yMin": 97.58,
+            "yMax": 113.924
+          },
+          {
+            "text": "curta",
+            "xMin": 216.296,
+            "xMax": 245.492,
+            "yMin": 97.58,
+            "yMax": 113.924
+          },
+          {
+            "text": "e",
+            "xMin": 248.612,
+            "xMax": 255.38,
+            "yMin": 97.58,
+            "yMax": 113.924
+          },
+          {
+            "text": "palavras",
+            "xMin": 20.0,
+            "xMax": 67.232,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 70.352,
+            "xMax": 126.488,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "Palavra",
+            "xMin": 129.608,
+            "xMax": 170.972,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "curta",
+            "xMin": 174.092,
+            "xMax": 203.288,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "e",
+            "xMin": 206.408,
+            "xMax": 213.176,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "palavras",
+            "xMin": 216.296,
+            "xMax": 263.528,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 20.0,
+            "xMax": 76.136,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "Palavra",
+            "xMin": 79.256,
+            "xMax": 120.62,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "curta",
+            "xMin": 123.74,
+            "xMax": 152.936,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "e",
+            "xMin": 156.056,
+            "xMax": 162.824,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "palavras",
+            "xMin": 165.944,
+            "xMax": 213.176,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 216.296,
+            "xMax": 272.432,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "Palavra",
+            "xMin": 20.0,
+            "xMax": 61.364,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "curta",
+            "xMin": 64.484,
+            "xMax": 93.68,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "e",
+            "xMin": 96.8,
+            "xMax": 103.568,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "palavras",
+            "xMin": 106.688,
+            "xMax": 153.92,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 157.04,
+            "xMax": 213.176,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "Palavra",
+            "xMin": 216.296,
+            "xMax": 257.66,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "curta",
+            "xMin": 20.0,
+            "xMax": 49.196,
+            "yMin": 163.052,
+            "yMax": 179.396
+          },
+          {
+            "text": "e",
+            "xMin": 52.316,
+            "xMax": 59.084,
+            "yMin": 163.052,
+            "yMax": 179.396
+          },
+          {
+            "text": "palavras",
+            "xMin": 62.204,
+            "xMax": 109.436,
+            "yMin": 163.052,
+            "yMax": 179.396
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 112.556,
+            "xMax": 168.692,
+            "yMin": 163.052,
+            "yMax": 179.396
+          },
+          {
+            "text": "Palavra",
+            "xMin": 171.812,
+            "xMax": 213.176,
+            "yMin": 163.052,
+            "yMax": 179.396
+          },
+          {
+            "text": "curta",
+            "xMin": 216.296,
+            "xMax": 245.492,
+            "yMin": 163.052,
+            "yMax": 179.396
+          },
+          {
+            "text": "e",
+            "xMin": 248.612,
+            "xMax": 255.38,
+            "yMin": 163.052,
+            "yMax": 179.396
+          },
+          {
+            "text": "palavras",
+            "xMin": 20.0,
+            "xMax": 67.232,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 70.352,
+            "xMax": 126.488,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "Palavra",
+            "xMin": 129.608,
+            "xMax": 170.972,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "curta",
+            "xMin": 174.092,
+            "xMax": 203.288,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "e",
+            "xMin": 206.408,
+            "xMax": 213.176,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "palavras",
+            "xMin": 216.296,
+            "xMax": 263.528,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 20.0,
+            "xMax": 76.136,
+            "yMin": 195.788,
+            "yMax": 212.132
+          }
+        ],
+        "extracted_text": "Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas.",
+        "expected_text_matches": true,
+        "lines": 12
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/08-wrap.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/08-wrap-vanilla.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "640d9514d793c050a08b3fd0df26e7222cf33376dec25d0eb9933680c28fd43d",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Palavra",
+            "xMin": 20.0,
+            "xMax": 61.364,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "curta",
+            "xMin": 64.484,
+            "xMax": 93.68,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "e",
+            "xMin": 96.8,
+            "xMax": 103.568,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "palavras",
+            "xMin": 106.688,
+            "xMax": 153.920001,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 157.040001,
+            "xMax": 213.176001,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "Palavra",
+            "xMin": 216.296001,
+            "xMax": 257.660001,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "curta",
+            "xMin": 20.0,
+            "xMax": 49.196,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "e",
+            "xMin": 52.316,
+            "xMax": 59.084,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "palavras",
+            "xMin": 62.204,
+            "xMax": 109.436,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 112.556,
+            "xMax": 168.692,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "Palavra",
+            "xMin": 171.812,
+            "xMax": 213.176001,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "curta",
+            "xMin": 216.296001,
+            "xMax": 245.492001,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "e",
+            "xMin": 248.612001,
+            "xMax": 255.380001,
+            "yMin": 32.108,
+            "yMax": 48.452
+          },
+          {
+            "text": "palavras",
+            "xMin": 20.0,
+            "xMax": 67.232,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 70.352,
+            "xMax": 126.488,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "Palavra",
+            "xMin": 129.608,
+            "xMax": 170.972001,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "curta",
+            "xMin": 174.092001,
+            "xMax": 203.288001,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "e",
+            "xMin": 206.408001,
+            "xMax": 213.176001,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "palavras",
+            "xMin": 216.296001,
+            "xMax": 263.528001,
+            "yMin": 48.476,
+            "yMax": 64.82
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 20.0,
+            "xMax": 76.136,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "Palavra",
+            "xMin": 79.256,
+            "xMax": 120.62,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "curta",
+            "xMin": 123.74,
+            "xMax": 152.936,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "e",
+            "xMin": 156.056,
+            "xMax": 162.824,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "palavras",
+            "xMin": 165.944,
+            "xMax": 213.176001,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 216.296001,
+            "xMax": 272.432001,
+            "yMin": 64.844,
+            "yMax": 81.188
+          },
+          {
+            "text": "Palavra",
+            "xMin": 20.0,
+            "xMax": 61.364,
+            "yMin": 81.21201,
+            "yMax": 97.55601
+          },
+          {
+            "text": "curta",
+            "xMin": 64.484,
+            "xMax": 93.68,
+            "yMin": 81.21201,
+            "yMax": 97.55601
+          },
+          {
+            "text": "e",
+            "xMin": 96.8,
+            "xMax": 103.568,
+            "yMin": 81.21201,
+            "yMax": 97.55601
+          },
+          {
+            "text": "palavras",
+            "xMin": 106.688,
+            "xMax": 153.920001,
+            "yMin": 81.21201,
+            "yMax": 97.55601
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 157.040001,
+            "xMax": 213.176001,
+            "yMin": 81.21201,
+            "yMax": 97.55601
+          },
+          {
+            "text": "Palavra",
+            "xMin": 216.296001,
+            "xMax": 257.660001,
+            "yMin": 81.21201,
+            "yMax": 97.55601
+          },
+          {
+            "text": "curta",
+            "xMin": 20.0,
+            "xMax": 49.196,
+            "yMin": 97.57999,
+            "yMax": 113.92399
+          },
+          {
+            "text": "e",
+            "xMin": 52.316,
+            "xMax": 59.084,
+            "yMin": 97.57999,
+            "yMax": 113.92399
+          },
+          {
+            "text": "palavras",
+            "xMin": 62.204,
+            "xMax": 109.436,
+            "yMin": 97.57999,
+            "yMax": 113.92399
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 112.556,
+            "xMax": 168.692,
+            "yMin": 97.57999,
+            "yMax": 113.92399
+          },
+          {
+            "text": "Palavra",
+            "xMin": 171.812,
+            "xMax": 213.176001,
+            "yMin": 97.57999,
+            "yMax": 113.92399
+          },
+          {
+            "text": "curta",
+            "xMin": 216.296001,
+            "xMax": 245.492001,
+            "yMin": 97.57999,
+            "yMax": 113.92399
+          },
+          {
+            "text": "e",
+            "xMin": 248.612001,
+            "xMax": 255.380001,
+            "yMin": 97.57999,
+            "yMax": 113.92399
+          },
+          {
+            "text": "palavras",
+            "xMin": 20.0,
+            "xMax": 67.232,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 70.352,
+            "xMax": 126.488,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "Palavra",
+            "xMin": 129.608,
+            "xMax": 170.972001,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "curta",
+            "xMin": 174.092001,
+            "xMax": 203.288001,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "e",
+            "xMin": 206.408001,
+            "xMax": 213.176001,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "palavras",
+            "xMin": 216.296001,
+            "xMax": 263.528001,
+            "yMin": 113.948,
+            "yMax": 130.292
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 20.0,
+            "xMax": 76.136,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "Palavra",
+            "xMin": 79.256,
+            "xMax": 120.62,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "curta",
+            "xMin": 123.74,
+            "xMax": 152.936,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "e",
+            "xMin": 156.056,
+            "xMax": 162.824,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "palavras",
+            "xMin": 165.944,
+            "xMax": 213.176001,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 216.296001,
+            "xMax": 272.432001,
+            "yMin": 130.316,
+            "yMax": 146.66
+          },
+          {
+            "text": "Palavra",
+            "xMin": 20.0,
+            "xMax": 61.364,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "curta",
+            "xMin": 64.484,
+            "xMax": 93.68,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "e",
+            "xMin": 96.8,
+            "xMax": 103.568,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "palavras",
+            "xMin": 106.688,
+            "xMax": 153.920001,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 157.040001,
+            "xMax": 213.176001,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "Palavra",
+            "xMin": 216.296001,
+            "xMax": 257.660001,
+            "yMin": 146.684,
+            "yMax": 163.028
+          },
+          {
+            "text": "curta",
+            "xMin": 20.0,
+            "xMax": 49.196,
+            "yMin": 163.052005,
+            "yMax": 179.396005
+          },
+          {
+            "text": "e",
+            "xMin": 52.316,
+            "xMax": 59.084,
+            "yMin": 163.052005,
+            "yMax": 179.396005
+          },
+          {
+            "text": "palavras",
+            "xMin": 62.204,
+            "xMax": 109.436,
+            "yMin": 163.052005,
+            "yMax": 179.396005
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 112.556,
+            "xMax": 168.692,
+            "yMin": 163.052005,
+            "yMax": 179.396005
+          },
+          {
+            "text": "Palavra",
+            "xMin": 171.812,
+            "xMax": 213.176001,
+            "yMin": 163.052005,
+            "yMax": 179.396005
+          },
+          {
+            "text": "curta",
+            "xMin": 216.296001,
+            "xMax": 245.492001,
+            "yMin": 163.052005,
+            "yMax": 179.396005
+          },
+          {
+            "text": "e",
+            "xMin": 248.612001,
+            "xMax": 255.380001,
+            "yMin": 163.052005,
+            "yMax": 179.396005
+          },
+          {
+            "text": "palavras",
+            "xMin": 20.0,
+            "xMax": 67.232,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 70.352,
+            "xMax": 126.488,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "Palavra",
+            "xMin": 129.608,
+            "xMax": 170.972001,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "curta",
+            "xMin": 174.092001,
+            "xMax": 203.288001,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "e",
+            "xMin": 206.408001,
+            "xMax": 213.176001,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "palavras",
+            "xMin": 216.296001,
+            "xMax": 263.528001,
+            "yMin": 179.42,
+            "yMax": 195.764
+          },
+          {
+            "text": "repetidas.",
+            "xMin": 20.0,
+            "xMax": 76.136,
+            "yMin": 195.788,
+            "yMax": 212.132
+          }
+        ],
+        "extracted_text": "Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas. Palavra curta e palavras repetidas.",
+        "expected_text_matches": true,
+        "lines": 12
+      }
+    }
+  },
+  {
+    "case": "09-long-word",
+    "source_sha256": "f3a5e46a0b2b8edd99df91aa411ddd3e4c308fea3a489b33026f0cab18db638b",
+    "expected_text": "Supercalifragilisticexpialidocious",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/09-long-word.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/09-long-word-tekt.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "df127594f3ef2778fce6c133b6f4ddf24e80a046a0fd7877de2cc1dc367f51a4",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Supercalifragilisticexpialidocious",
+            "xMin": 20.0,
+            "xMax": 202.928,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "Supercalifragilisticexpialidocious",
+        "expected_text_matches": true,
+        "lines": 1
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/09-long-word.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/09-long-word-vanilla.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "bac9b23fa56557279b14b177d41632c80ba0ae50b88f1f8fda881cbefb02400d",
+        "pages": 1,
+        "words": [
+          {
+            "text": "Supercalifragilisticexpialidocious",
+            "xMin": 20.0,
+            "xMax": 202.928,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "Supercalifragilisticexpialidocious",
+        "expected_text_matches": true,
+        "lines": 1
+      }
+    }
+  },
+  {
+    "case": "10-wide-narrow",
+    "source_sha256": "4ebc86b6b52d032394560bd143ef7bfc9aa74c22cbb6db5d4a5749f61f081bda",
+    "expected_text": "iiiiiiii WWWWWWWW iiiiiiii WWWWWWWW",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/10-wide-narrow.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/10-wide-narrow-tekt.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "ee7b0a80856cde8642522b62d8589d63732f191443d2da67d72529a75cfe5bc5",
+        "pages": 1,
+        "words": [
+          {
+            "text": "iiiiiiii",
+            "xMin": 20.0,
+            "xMax": 44.768,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "WWWWWWWW",
+            "xMin": 47.888,
+            "xMax": 137.168,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "iiiiiiii",
+            "xMin": 140.288,
+            "xMax": 165.056,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "WWWWWWWW",
+            "xMin": 168.176,
+            "xMax": 257.456,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "iiiiiiii WWWWWWWW iiiiiiii WWWWWWWW",
+        "expected_text_matches": true,
+        "lines": 1
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/10-wide-narrow.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/10-wide-narrow-vanilla.pdf"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "pdftotext_exit_code": 0,
+        "pdf_sha256": "1a26065cde196c8dfee05f1a1ac9560ab7692e1838f5c0bfc3d284153080c027",
+        "pages": 1,
+        "words": [
+          {
+            "text": "iiiiiiii",
+            "xMin": 20.0,
+            "xMax": 44.768,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "WWWWWWWW",
+            "xMin": 47.888,
+            "xMax": 137.168,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "iiiiiiii",
+            "xMin": 140.288,
+            "xMax": 165.056,
+            "yMin": 15.74,
+            "yMax": 32.084
+          },
+          {
+            "text": "WWWWWWWW",
+            "xMin": 168.176,
+            "xMax": 257.456,
+            "yMin": 15.74,
+            "yMax": 32.084
+          }
+        ],
+        "extracted_text": "iiiiiiii WWWWWWWW iiiiiiii WWWWWWWW",
+        "expected_text_matches": true,
+        "lines": 1
+      }
+    }
+  }
+]

@@ -11,7 +11,7 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/incremental-prioridade6-2026-10-08/before.json.gz,
+lab/results/construction/diagnostics/incremental-prioridade6-2026-10-08/before.json.gz,
 measurement.json.gz, control-measurement.json.gz e count.json registram árvore,
 HEAD, UTC, comandos e releases. Source::new reconstrói CST; World novo constrói
 Source main/import a cada edição. O import mínimo já absorve recursos no eval_ms;
@@ -46,7 +46,7 @@ build/suítes pertinentes e lint zero erros; não fechar incrementalidade comple
 
 ### Medição anterior à decisão
 
-`03_infra/src/world/source_session.rs:24` declara pub fn new() -> Self sem argumentos. O inventário em `00_nucleo/diagnosticos/field-reassign-2026-10-15/clippy-inventory.json` registra new_without_default; fonte/L0/hashes atuais são preservados no pacote clippy-default-2026-10-16. SourceSession::new cria Mutex<Vec<Entry>> vazio por instância, sem parsing ou I/O. Default delega a Self::new(); os limites 8 entradas, 1 MiB total e 512 KiB por entrada, validação e isolamento dos Worlds permanecem inalterados. Isto é contrato Rust de construção, sem nova medição de paridade da linguagem.
+`03_infra/src/world/source_session.rs:24` declara pub fn new() -> Self sem argumentos. O inventário em `lab/results/construction/diagnostics/field-reassign-2026-10-15/clippy-inventory.json` registra new_without_default; fonte/L0/hashes atuais são preservados no pacote clippy-default-2026-10-16. SourceSession::new cria Mutex<Vec<Entry>> vazio por instância, sem parsing ou I/O. Default delega a Self::new(); os limites 8 entradas, 1 MiB total e 512 KiB por entrada, validação e isolamento dos Worlds permanecem inalterados. Isto é contrato Rust de construção, sem nova medição de paridade da linguagem.
 
 ### Contrato proposto
 
@@ -56,4 +56,4 @@ Adicionar somente `impl std::default::Default for SourceSession` com `fn default
 
 Nenhuma materialização antes da confirmação humana do manifesto deste pacote (ADR-0127 §2.1/§2.4). Os impls são acréscimos públicos: sua remoção futura quebraria consumidores do novo contrato. Após ratificação, a cláusula só supersede proibições genéricas de nova API para estes três impls expressos; os demais contratos permanecem. Testes de uso por bound Default devem falhar por ausência de implementação antes do código e passar após delegação. Verificar valores/isolamento de contextos e sessões novas, preguiça de recursos e conservação dos controles existentes; suíte workspace, Clippy all-targets, build, Rustdoc, formato e linhagem com resselo restrito. Não alterar valores/defaults nem suprimir new_without_default.
 
-Ratificação: dono aprovou o manifesto SHA-256 `11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03` em 2026-10-16. Recibo: `00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`. O gate acima está satisfeito exclusivamente para os três impls Default e testes D1–D5 descritos; esta seção está vigente.
+Ratificação: dono aprovou o manifesto SHA-256 `11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03` em 2026-10-16. Recibo: `lab/history/construction/records/00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`. O gate acima está satisfeito exclusivamente para os três impls Default e testes D1–D5 descritos; esta seção está vigente.

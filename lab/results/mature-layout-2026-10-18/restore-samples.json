@@ -1,0 +1,39 @@
+{
+  "checkpoint": "8ec827fd975bf14cd849bebb9ede245e49033337",
+  "utc_verified_at": "2026-10-18T23:30:54Z",
+  "samples": [
+    {
+      "category": "materialization",
+      "original_path": "00_nucleo/materialization/adr-0062-create-relatorio.md",
+      "source_destination": "lab/history/construction/records/00_nucleo/materialization/adr-0062-create-relatorio.md",
+      "restore_path": "lab/scratch/restore-check/00_nucleo/materialization/adr-0062-create-relatorio.md",
+      "expected_size": 12824,
+      "actual_size": 12824,
+      "expected_sha256": "fdd2c79cf483aacddc18c5f07a838d863359ea6e733157fc17176327f24c6b09",
+      "actual_sha256": "fdd2c79cf483aacddc18c5f07a838d863359ea6e733157fc17176327f24c6b09",
+      "verified": true
+    },
+    {
+      "category": "diagnostics",
+      "original_path": "00_nucleo/diagnosticos/.gitignore",
+      "source_destination": "lab/results/construction/diagnostics/.gitignore",
+      "restore_path": "lab/scratch/restore-check/00_nucleo/diagnosticos/.gitignore",
+      "expected_size": 341,
+      "actual_size": 341,
+      "expected_sha256": "02c6ea95f309014014029e1e606cdf0f4198146f7a089e79c1d4925146c99db9",
+      "actual_sha256": "02c6ea95f309014014029e1e606cdf0f4198146f7a089e79c1d4925146c99db9",
+      "verified": true
+    },
+    {
+      "category": "typ",
+      "original_path": ".typ/sec_04.typ",
+      "source_destination": "lab/history/construction/records/root-typ/sec_04.typ",
+      "restore_path": "lab/scratch/restore-check/.typ/sec_04.typ",
+      "expected_size": 602,
+      "actual_size": 602,
+      "expected_sha256": "bb18aa86a321bb883353d0fd8b440a5d42f6e5a132358f99a010e95c107ed7eb",
+      "actual_sha256": "bb18aa86a321bb883353d0fd8b440a5d42f6e5a132358f99a010e95c107ed7eb",
+      "verified": true
+    }
+  ]
+}

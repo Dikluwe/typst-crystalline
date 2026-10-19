@@ -14,7 +14,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/references.rs:77`, `01_core/src/compiler/layout/references.rs:283`, `01_core/src/compiler/layout/references.rs:30`, `01_core/src/compiler/layout/references.rs:54`, `01_core/src/compiler/layout/references.rs:249`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -65,7 +65,7 @@ controles HTML, geometria, contexto/queries e suíte completa.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/links-paginacao-2026-10-14.md e os recibos
+lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
 posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
 HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
 texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
@@ -73,7 +73,7 @@ antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
 link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
 antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
 fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-00_nucleo/diagnosticos/links-captura-2026-10-14/before.json.gz.
+lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
 Os observáveis são conteúdo, destino, regiões e bounds; limites privados
 são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
 

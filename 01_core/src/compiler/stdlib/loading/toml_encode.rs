@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/loading/toml_encode.md
-//! @prompt-hash 60fda64a
+//! @prompt-hash 845d74da
 //! @layer L1
 //! @updated 2026-09-30
 

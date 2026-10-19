@@ -28,7 +28,7 @@ Vazio visual de carriers internos delega ao body/visual; origem consumida não t
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Source é transparente nesta projeção, delegando ao body; não expõe span como identidade de língua nem executa receitas. Segmentação conserva origem por segmento quando aplicável.
 
@@ -40,7 +40,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/tekt-v16-content-views-2026-10-17/before.json.gz registra
+lab/results/construction/diagnostics/tekt-v16-content-views-2026-10-17/before.json.gz registra
 UTC/status/diff HEAD --stat, fontes/L0 e 2129 hashes conferidos. contexts-before.json
 mapeia os seis V16 por AST/linhas; projection-plan.json guarda o domínio real
 Content (120 variantes) e os complementos por função. before-probe-result.json

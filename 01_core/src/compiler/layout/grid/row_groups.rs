@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/grid/row_groups.md
-//! @prompt-hash c8a83d9a
+//! @prompt-hash d1aa5762
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -21,7 +21,7 @@ pub(super) fn combine_cells(
     // com `Content::Empty` até múltiplo de `num_cols` — headers/footers
     // ocupam linhas inteiras (paridade vanilla, `resolve.rs` §"row
     // group"). **Scope-out explícito** (não silencioso — ver
-    // 00_nucleo/diagnosticos/paridade-producao-p772i.md): renderiza uma
+    // lab/results/construction/diagnostics/paridade-producao-p772i.md): renderiza uma
     // única vez, não repete em quebras de página (equivalente vanilla de
     // `Header`/`Footer`/`Repeatable<T>` com `range`/`level` não
     // implementado).

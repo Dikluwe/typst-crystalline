@@ -42,7 +42,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 ### Medição anterior à decisão
 
 `03_infra/src/pipeline/resources.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -85,7 +85,7 @@ determinístico.
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -101,7 +101,7 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -113,7 +113,7 @@ Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/font-keys-prioridade7-2026-10-08/before.json.gz registra
+lab/results/construction/diagnostics/font-keys-prioridade7-2026-10-08/before.json.gz registra
 HEAD/árvore/UTC e release d7692649. resources.rs:127-134 cria FontList/axes
 clonados antes de seen.contains em cada Text/TextShaped/TextSeparator. FontList
 contém Vec<FontFamily>; FontVariations contém Vec de eixos, não Arc. O custo de
@@ -148,7 +148,7 @@ reversível, sem contrato novo: fluxo contínuo ADR-0127.
 
 ### Medição anterior à decisão
 
-`03_infra/src/pipeline/resources.rs` nas linhas 136 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`03_infra/src/pipeline/resources.rs` nas linhas 136 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
 
 ### Decisão e aceitação
 
@@ -161,7 +161,7 @@ Manutenção interna sem mudança de assinatura pública, default, fase, fórmul
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -170,7 +170,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -198,7 +198,7 @@ não é certificação de produção. T4 e publicação continuam fora deste pac
 ### Medição anterior à decisão
 
 `03_infra/src/pipeline/resources.rs:213` clona FontVariant, cujo contrato implementa Copy.
-`00_nucleo/diagnosticos/avisos-clippy-tekt-2026-10-15/before.json.gz`
+`lab/results/construction/diagnostics/avisos-clippy-tekt-2026-10-15/before.json.gz`
 conserva fontes, owners, HEAD, working tree não commitado, UTC e diffstat;
 selected-red.json identifica os diagnósticos do compilador antes da edição.
 São expressões Rust equivalentes, sem nova medição de paridade upstream.
@@ -217,7 +217,7 @@ build, Clippy all-targets, formato, documentação e linhagem com resselo restri
 
 ### Medição anterior à decisão
 
-`03_infra/src/pipeline/resources.rs` nas linhas 397 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `00_nucleo/diagnosticos/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
+`03_infra/src/pipeline/resources.rs` nas linhas 397 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
 
 ### Responsabilidade e aceitação
 

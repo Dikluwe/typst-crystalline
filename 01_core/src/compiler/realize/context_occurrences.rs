@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/context_occurrences.md
-//! @prompt-hash 25bb0293
+//! @prompt-hash fcc9f12a
 //! @layer L1
 //! @updated 2026-10-18
 

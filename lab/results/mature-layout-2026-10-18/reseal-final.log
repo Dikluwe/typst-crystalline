@@ -1,0 +1,9 @@
+Applied ./01_core/src/compiler/realize/context_occurrences.rs prompt=00_nucleo/prompts/compiler/realize/context_occurrences.md hash-a=fcc9f12a hash-b=f6383034
+Applied ./01_core/src/compiler/realize/mod.rs prompt=00_nucleo/prompts/compiler/realize/mod.md hash-a=19ed65ef hash-b=a8c5c82f
+Applied ./01_core/src/entities/elements/math_limits_override.rs prompt=00_nucleo/prompts/entities/elements/math_limits_override.md hash-a=27c77727 hash-b=0455882a
+Applied ./01_core/src/entities/elements/math_op.rs prompt=00_nucleo/prompts/entities/elements/math_op.md hash-a=45d2963d hash-b=12c38d5e
+Applied ./01_core/src/entities/font_list.rs prompt=00_nucleo/prompts/entities/font-list.md hash-a=9e45a0c6 hash-b=6cb4fb14
+Applied ./01_core/src/entities/package_spec.rs prompt=00_nucleo/prompts/entities/package-spec.md hash-a=8d0cebe2 hash-b=765e500c
+Applied ./03_infra/src/integration_tests.rs prompt=00_nucleo/prompts/infra/integration_tests.md hash-a=d5b4fd14 hash-b=d3c17558
+
+Re-running analysis... ✅ 0 drift warnings remaining

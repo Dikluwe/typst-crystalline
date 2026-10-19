@@ -7,7 +7,7 @@ Hash do Código: 2f7b6a39
 
 ## Measurement before decision
 
-At the uncommitted working tree captured in `00_nucleo/diagnosticos/atomizacao-stdlib-math-vector-2026-09-30-before.json.gz`, `01_core/src/compiler/stdlib/structural/math.rs:724-893` owns the vector options, delimiter conversion, named casts, content constructor and native function. The local `p1292_c_vec_tests` at `:2401-2422` checks pure ratio conversion. The `math_vec` test filter passed 3 tests before movement. This shows a coherent behavior boundary, not a speedup or fresh bilateral vanilla result.
+At the uncommitted working tree captured in `lab/results/construction/diagnostics/atomizacao-stdlib-math-vector-2026-09-30-before.json.gz`, `01_core/src/compiler/stdlib/structural/math.rs:724-893` owns the vector options, delimiter conversion, named casts, content constructor and native function. The local `p1292_c_vec_tests` at `:2401-2422` checks pure ratio conversion. The `math_vec` test filter passed 3 tests before movement. This shows a coherent behavior boundary, not a speedup or fresh bilateral vanilla result.
 
 ## Contract
 
@@ -25,7 +25,7 @@ The local ratio test and existing math/vector tests remain green. `cargo build` 
 
 ### Medição anterior à decisão
 
-M3 em 01_core/src/compiler/stdlib/structural/math/vector.rs:47. O inventário desta árvore não commitada (HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`) e os L0 vigentes foram lidos antes da prescrição. before.json.gz em `00_nucleo/diagnosticos/tekt-v16-math-value-2026-10-16/` conserva UTC, status, git diff HEAD --stat e hashes integrais. Value possui 39 variantes; os braços fallback medidos são internos e hoje uniformes. São avisos estruturais de evolução Rust, não prova de falha funcional ou de melhor leitura por IA. Não inferir intenção upstream.
+M3 em 01_core/src/compiler/stdlib/structural/math/vector.rs:47. O inventário desta árvore não commitada (HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`) e os L0 vigentes foram lidos antes da prescrição. before.json.gz em `lab/results/construction/diagnostics/tekt-v16-math-value-2026-10-16/` conserva UTC, status, git diff HEAD --stat e hashes integrais. Value possui 39 variantes; os braços fallback medidos são internos e hoje uniformes. São avisos estruturais de evolução Rust, não prova de falha funcional ou de melhor leitura por IA. Não inferir intenção upstream.
 
 ### Decisão do owner e aceitação
 

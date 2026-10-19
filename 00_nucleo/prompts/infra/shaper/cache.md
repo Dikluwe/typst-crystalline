@@ -17,16 +17,16 @@ Núcleos Tekt:
 - `03_infra/src/shaper/cache.rs:61` — `FaceCache`.
 
 These are local source anchors, not a new upstream parity measurement.
-`00_nucleo/diagnosticos/reuse-key-followup/results.json` supplies discriminating
+`lab/results/construction/diagnostics/reuse-key-followup/results.json` supplies discriminating
 public shaping controls: adjacent wght coordinates in Ubuntu Sans and Cantarell
 produce different fresh advances but alias under four-decimal axis formatting.
 Mixed runs then reuse the first result in either order. This local correction
 addresses that demonstrated alias; it makes no new vanilla parity claim.
-`00_nucleo/diagnosticos/shaper-prompt-audit/results.json` additionally demonstrates tracking aliases caused by decimal rounding and by changing size with an absolute tracking length.
+`lab/results/construction/diagnostics/shaper-prompt-audit/results.json` additionally demonstrates tracking aliases caused by decimal rounding and by changing size with an absolute tracking length.
 Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/cache.rs`.
 
 The language-demand controls in
-`00_nucleo/diagnosticos/infra-performance-followup/language-control.json` and
+`lab/results/construction/diagnostics/infra-performance-followup/language-control.json` and
 buffer setup at `03_infra/src/shaper/shaping.rs:85` / `:249` identify a missing
 semantic input. Once buffers honor language, cached runs must distinguish it;
 otherwise same-face/text runs can reuse another language's glyphs and advances.
@@ -56,7 +56,7 @@ Medição anterior à decisão: compiler RED (`context-red.log`, receipt da impl
 
 ## Fonte do resultado memoizado — 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/second-benchmark.json` mostra que a regressão maior foi removida; `shaper/shaping.rs` ainda chama World::font novamente ao construir cada carrier, incluindo hits. A fonte já foi carregada para produzir CachedRun. Fonte pública de TextShaped foi ratificada pelo humano (f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409).
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/second-benchmark.json` mostra que a regressão maior foi removida; `shaper/shaping.rs` ainda chama World::font novamente ao construir cada carrier, incluindo hits. A fonte já foi carregada para produzir CachedRun. Fonte pública de TextShaped foi ratificada pelo humano (f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409).
 
 CachedRun privado conserva clone da Font efetivamente carregada junto dos glyphs/width. O produtor usa essa mesma fonte no carrier de miss e hit, sem consultar World novamente na saída. Keys, escopo/invalidação por documento e FaceCache anteriores ficam preservados; não adicionar unsafe nem ampliar a API pública. Ratificação se aplica ao campo público do carrier; esta alteração é interna em fluxo contínuo. Testes de fallback/hit, FonteSome, controles e revalidação de CLI.
 
@@ -66,7 +66,7 @@ CachedRun privado conserva clone da Font efetivamente carregada junto dos glyphs
 Medição anterior à decisão: font_selection.rs:16-91 reconstrói a cadeia
 primária/classe/MATH/comum a cada chamada; cache.rs:64-87 já retém faces por
 slot, mas não a resolução das famílias. resolution-calls-before.json.gz em
-00_nucleo/diagnosticos/shaper-primary-reuse-2026-10-10 registra 1.602 chamadas
+lab/results/construction/diagnostics/shaper-primary-reuse-2026-10-10 registra 1.602 chamadas
 de primary_candidates e 9.612 de resolve_candidates, entre 9.619 buscas
 select_pattern por fixture local-set/no-fill-1600. HEAD, árvore não
 commitada, UTC, binário 5e66c09d e argv estão no receipt. Contagens GDB não
@@ -86,7 +86,7 @@ map de faces ou compartilhamento entre instâncias/Worlds distintos.
 
 ### Medição anterior à decisão
 
-`03_infra/src/shaper/cache.rs` nas linhas 88 contém os avisos registrados em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
+`03_infra/src/shaper/cache.rs` nas linhas 88 contém os avisos registrados em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
 
 ### Responsabilidade e aceitação
 

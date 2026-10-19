@@ -1,0 +1,4 @@
+emitted "مرحبا" italic=true semantic_emph=true gids=[5256, 5260, 5277, 5288, 5341]
+export selects slot 1 FontVariant { style: Italic, weight: FontWeight(400), stretch: FontStretch(1000) }
+face 0 FontVariant { style: Normal, weight: FontWeight(400), stretch: FontStretch(1000) } covers_arabic=true gids=[5256, 5260, 5277, 5288, 5341]
+face 1 FontVariant { style: Italic, weight: FontWeight(400), stretch: FontStretch(1000) } covers_arabic=false gids=[0, 0, 0, 0, 0]

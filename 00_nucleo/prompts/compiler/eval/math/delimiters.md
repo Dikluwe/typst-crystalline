@@ -3,7 +3,7 @@ Hash do Código: 5b1abb80
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/delimiters.rs`. No HEAD `e754ab364a221dbe344852178e84bd42b02c463e` e árvore limpa, `01_core/src/compiler/eval/math.rs:1555-1671` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-eval-math-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/delimiters.rs`. No HEAD `e754ab364a221dbe344852178e84bd42b02c463e` e árvore limpa, `01_core/src/compiler/eval/math.rs:1555-1671` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-eval-math-2026-09-30-before.json.gz`.
 
 ## Contrato
 
@@ -17,7 +17,7 @@ A suíte L1 e os testes de math passam; `crystalline-lint .` valida ownership e 
 
 ### Medição anterior à decisão
 
-M1 em 01_core/src/compiler/eval/math/delimiters.rs:19, M2 em 01_core/src/compiler/eval/math/delimiters.rs:28. O inventário desta árvore não commitada (HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`) e os L0 vigentes foram lidos antes da prescrição. before.json.gz em `00_nucleo/diagnosticos/tekt-v16-math-value-2026-10-16/` conserva UTC, status, git diff HEAD --stat e hashes integrais. Value possui 39 variantes; os braços fallback medidos são internos e hoje uniformes. São avisos estruturais de evolução Rust, não prova de falha funcional ou de melhor leitura por IA. Não inferir intenção upstream.
+M1 em 01_core/src/compiler/eval/math/delimiters.rs:19, M2 em 01_core/src/compiler/eval/math/delimiters.rs:28. O inventário desta árvore não commitada (HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`) e os L0 vigentes foram lidos antes da prescrição. before.json.gz em `lab/results/construction/diagnostics/tekt-v16-math-value-2026-10-16/` conserva UTC, status, git diff HEAD --stat e hashes integrais. Value possui 39 variantes; os braços fallback medidos são internos e hoje uniformes. São avisos estruturais de evolução Rust, não prova de falha funcional ou de melhor leitura por IA. Não inferir intenção upstream.
 
 ### Decisão do owner e aceitação
 

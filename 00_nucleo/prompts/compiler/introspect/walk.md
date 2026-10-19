@@ -11,7 +11,7 @@ Núcleos Tekt:
 ## Ownership e medição
 
 Camada L1. Consumer produtivo único: `01_core/src/compiler/introspect/walk.rs`.
-No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:1897-2485` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `00_nucleo/diagnosticos/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
+No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:1897-2485` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `lab/results/construction/diagnostics/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
 
 ## Contrato
 
@@ -65,7 +65,7 @@ A reserva de Location é serviço interno puro reutilizado pelo layout para aloc
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -100,7 +100,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ### Refutação e decisão interna antes de código — 2026-10-07
 
-Medições em 00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/{after-fourth,refuters-fourth}.json.gz, nested-reuse-red.log e effect-order-red.json: fontes/binários/HEAD/estado/UTC/resultados.
+Medições em lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-fourth,refuters-fourth}.json.gz, nested-reuse-red.log e effect-order-red.json: fontes/binários/HEAD/estado/UTC/resultados.
 after-fourth/resolved-rowspan e rowspan-fixed observam índice b,a,c, apesar de plano de origens a,b,c. effect-order-red.json mede que panic de a (SPAN) acontece primeiro em ambos: execução das receitas continua row-major, índice de metadados segue fim da área de rowspan (end-row,col). Vanilla grid/layouter.rs:1755–1787 emite rowspans diferidos. Somente a vista indexada preparada ordena por (y+rowspan-1,x); plano e HTML conservam row-major. refuters-fourth/reused-prepared-table mede metadados perdidos: walk.rs:88–104 ignora Located Table quando original já ocupou a Location. Original de Table consumida deve ser registrado raso, preservando payload/counter, sem percorrer caption/children ocultados. Aliases da Table emitida com a Location já registrada ainda visitam o visual preparado; guard de Location dos filhos impede duplicar contribuição. Não expandir essa política para outros elementos; Cell segue não-locatable.
 Supersede apenas a projeção/guarda aqui medida, sem contrato público ou fase adicional. Refutação: diferença nos testes/recoletas, efeitos repetidos, fonte ocultada visível ou regressão de cache/geometry.
 
@@ -108,7 +108,7 @@ Supersede apenas a projeção/guarda aqui medida, sem contrato público ou fase 
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
+lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
 
 isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
 
@@ -127,7 +127,7 @@ Este recorte completa defaults intrínsecos da Cell isolada e distingue alias de
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Walk Source visita body uma vez sob a mesma cadeia/label, sem tag própria. Reserva de Locations também atravessa body uma vez.
 
@@ -135,7 +135,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ## Reserva de Locations por leitura emprestada — 2026-10-09
 
-Medição antes da decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/stacks-deep.json.gz`
+Medição antes da decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/stacks-deep.json.gz`
 registra binário, HEAD/working tree, comando, fontes, UTC e pilhas de uma em
 cada 64 alocações. No caso `local-set-1600`, 450 amostras de
 `TableElem::map_content` aparecem sob `reserve_locations` durante layout,
@@ -167,9 +167,9 @@ pareada de tempo. Fluxo contínuo ADR-0127.
 A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
 hashes, UTC, status e `git diff HEAD --stat` estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
 A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
 Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
 É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
 
@@ -226,7 +226,7 @@ exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
 
 ### Medição anterior à decisão
 
-O inventário validado em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `00_nucleo/diagnosticos/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
+O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
 
 ### Responsabilidade e aceitação
 
@@ -239,7 +239,7 @@ Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não mu
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em 00_nucleo/diagnosticos/clippy-enums-publicos-2026-10-16 registra UTC, fontes/L0, hashes, status e git diff HEAD --stat. Os owners atuais foram lidos antes de propor esta alteração. probe-details.json registra rustc 1.92, argv, rlib/binário/sonda com SHA-256 e saída; probe-result.json registra teto de 12 GiB, swap zero, um job e eventos. A sonda é sintética de carriers e do algoritmo de registro/cópia, não benchmark de compilação/layout/RSS nem distribuição de workloads reais. Os candidatos são espelhos com tipos reais de domínio; o caso inline usa Tag e ShowRule produtivos.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16 registra UTC, fontes/L0, hashes, status e git diff HEAD --stat. Os owners atuais foram lidos antes de propor esta alteração. probe-details.json registra rustc 1.92, argv, rlib/binário/sonda com SHA-256 e saída; probe-result.json registra teto de 12 GiB, swap zero, um job e eventos. A sonda é sintética de carriers e do algoritmo de registro/cópia, não benchmark de compilação/layout/RSS nem distribuição de workloads reais. Os candidatos são espelhos com tipos reais de domínio; o caso inline usa Tag e ShowRule produtivos.
 
 Tag mede 416 bytes; Start boxed e Arc medem 48. Para 4.096 pares Start/End com payload Heading sem heap, inline solicita 3.407.872 bytes numa alocação; Box solicita 2.031.616 em 4.097; Arc solicita 2.097.152 em 4.097. Clone de Tag boxed também aloca por Start; os caminhos produtivos lidos em introspect/fixpoint.rs:86–136 e entrypoints.rs:44–66 usam Vec<Tag> temporário e leituras emprestadas, sem clonar o vetor. Walk :325–356 popula o índice por referência antes de mover info para Start. A decisão não toma o clone sintético como frequência produtiva.
 
@@ -259,14 +259,14 @@ T1: contratos de construção Box<ElementInfo>/Arc<Styles> e orçamento relativo
 
 ## Ratificação humana — 2026-10-16
 
-Proposta aprovada pelo humano, manifesto SHA-256 `282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`. O contrato acima passa a vigente; inclui materialização/testes T1–T6, sem release. Registro em `00_nucleo/diagnosticos/clippy-enums-publicos-2026-10-16/approval-receipt.json`.
+Proposta aprovada pelo humano, manifesto SHA-256 `282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`. O contrato acima passa a vigente; inclui materialização/testes T1–T6, sem release. Registro em `lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/approval-receipt.json`.
 
 
 ## Alinhamento OutlineEntry e walk exaustivo — 2026-10-16
 
 ### Medição anterior à decisão
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, lista exata git diff HEAD --stat, fontes/hashes e binários em `00_nucleo/diagnosticos/tekt-v16-introspect-walk-2026-10-16/before.json.gz`. Medições CLI anteriores em measurement-before.json e measurement-fields-before.json: no pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8, entry direta aparece uma vez, sintetizada uma vez e mista duas vezes; no Tekt, a direta some da query (0 contra 1), mista perde a direta (1 contra 2), e body() direto falha cannot outline heading. Fonte: entities/elements/outline_entry.rs:61 body só aceita Heading bruto; :99 fornece NativeElement; introspect/extract_payload.rs:148 descarta OutlineEntry; walk.rs:805 trata entry terminal; outline_entries.rs:38–61 sintetiza entries após walk. Generic map_content visita element/fill (traversal.rs:221); realized.rs:139–281 usa essa travessia para certificar origens, motivo para testar um heading referenciado Located sem confundi-lo com descendente renderizado. O upstream pinado declara OutlineEntry Locatable em outline.rs:472–481. Isto mede semântica/morfologia e erros observáveis da linguagem, não impõe igualdade Rust/bytes/PDF ou mecânica vanilla. A hipótese de correção é refutada por query/fields/body errados, headings fantasmas, duplicação ou regressão em síntese/ordem/labels.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, lista exata git diff HEAD --stat, fontes/hashes e binários em `lab/results/construction/diagnostics/tekt-v16-introspect-walk-2026-10-16/before.json.gz`. Medições CLI anteriores em measurement-before.json e measurement-fields-before.json: no pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8, entry direta aparece uma vez, sintetizada uma vez e mista duas vezes; no Tekt, a direta some da query (0 contra 1), mista perde a direta (1 contra 2), e body() direto falha cannot outline heading. Fonte: entities/elements/outline_entry.rs:61 body só aceita Heading bruto; :99 fornece NativeElement; introspect/extract_payload.rs:148 descarta OutlineEntry; walk.rs:805 trata entry terminal; outline_entries.rs:38–61 sintetiza entries após walk. Generic map_content visita element/fill (traversal.rs:221); realized.rs:139–281 usa essa travessia para certificar origens, motivo para testar um heading referenciado Located sem confundi-lo com descendente renderizado. O upstream pinado declara OutlineEntry Locatable em outline.rs:472–481. Isto mede semântica/morfologia e erros observáveis da linguagem, não impõe igualdade Rust/bytes/PDF ou mecânica vanilla. A hipótese de correção é refutada por query/fields/body errados, headings fantasmas, duplicação ou regressão em síntese/ordem/labels.
 
 ### Responsabilidade exclusiva vigente
 
@@ -305,7 +305,7 @@ Testes funcionais antes da mudança: índice bare da entry própria e aliases; o
 
 ### Medição anterior à decisão
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado. UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `00_nucleo/diagnosticos/tekt-v16-eval-math-2026-10-17/before.json.gz`. AST do parser pinado em contexts.json/all-contexts.json/wildcard-inventory.json; definições atuais por hash. A suíte anterior passou no mesmo estado executável, revalidado por hashes antes de decidir. Sem inferir intenção upstream ou benefício cognitivo da IA a partir do lint.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado. UTC, fontes/L0/hashes/configuração, status e git diff HEAD --stat exato em `lab/results/construction/diagnostics/tekt-v16-eval-math-2026-10-17/before.json.gz`. AST do parser pinado em contexts.json/all-contexts.json/wildcard-inventory.json; definições atuais por hash. A suíte anterior passou no mesmo estado executável, revalidado por hashes antes de decidir. Sem inferir intenção upstream ou benefício cognitivo da IA a partir do lint.
 
 source-table-before.json registra a sonda externa ligada à lib real pela API
 pública introspect: Realized(Table(Heading hidden), Text replacement) retorna
@@ -386,7 +386,7 @@ ignorados. Preservar build/fmt/Clippy/Rustdoc/linhagem/reversa/SARIF e 12 GiB.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/hash
-registrados em 00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+registrados em lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
 before-pdf-probe.json.gz: heading-supplement-panic termina em sucesso no Tekt
 e em A1_HEADING no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-supplement-valid aceita ambos, mas só o vanilla usa Custom na referência.
@@ -417,7 +417,7 @@ sem callbacks em encoder/walk/layout e sem alegar paridade de todos os campos.
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 final-freeze.json.gz e target-controls.json.gz no diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
 UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
 Styled de transporte altera func. Query também vê wrapper causal temporário;
@@ -425,7 +425,7 @@ HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427
 pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
 de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
 Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
 SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
 
 ### Responsabilidade exclusiva

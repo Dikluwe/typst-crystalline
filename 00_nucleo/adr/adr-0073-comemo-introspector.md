@@ -1,0 +1,597 @@
+# ⚖️ ADR-0073: Adopção de `#[comemo::track]` no trait `Introspector` (M8)
+
+**Status:** ACCEPTED
+**Status history:** **ACEITE (completo retroactivo + paridade trait
+estendida M9c, P212 2026-05-12)**.
+**Validado**: 2026-05-07 (P204H — 8/9 condições
+CUMPRIDAS; condição 9 PARCIAL por `P204F.div-1`);
+2026-05-08 (P206E — condição 9 fechada via matriz
+P206 com excepções documentadas); **2026-05-12 (P212 —
+paridade trait estendida com 6 novos métodos M9c per
+ADR-0076 ACEITE)**.
+**Data**: 2026-05-06 (PROPOSTO); 2026-05-07 (ACEITE
+estruturalmente fechado P204H); 2026-05-08 (ACEITE
+completo retroactivo P206E); **2026-05-12 (paridade
+trait estendida M9c P212)**.
+**Sub-passo**: P204A (PROPOSTO); P204H (ACEITE
+estrutural); P206E (transição retroactiva cond 9
+fechada — ver bloco "Fecho retroactivo cond 9 — P206E"
+abaixo); **P212 (fecho retroactivo M9c — ver bloco
+"Fecho retroactivo M9c — P212" abaixo)**.
+**Diagnóstico prévio**:
+- `lab/results/construction/diagnostics/typst-passo-204A-auditoria-comemo.md` (P204A).
+- `lab/results/construction/diagnostics/typst-passo-204A-diagnostico.md` (P204A).
+
+---
+
+## Fecho retroactivo M9c — P212 2026-05-12
+
+**Data**: 2026-05-12.
+**Auditor**: P212 (encerramento marco M9c per ADR-0076 §Plano
+de validação cond #7).
+
+ADR-0073 originalmente especificou cond paridade trait
+literal vanilla com 20 métodos (estado M8). Marco M9c (per
+ADR-0076 ACEITE 2026-05-12) estendeu paridade trait com **6
+novos métodos** materializados ao longo da série P207:
+
+| Método novo | Sub-passo | Bloco M9c |
+|-------------|-----------|-----------|
+| `query_labelled() -> Vec<(Label, Location)>` | P207B | I — Trait extensions baixo-custo |
+| `label_count(&Label) -> usize` | P207C | II item 7 — Distinção 0/1/N labels |
+| `pages(loc) -> Option<NonZeroUsize>` | P207D | II item 10 — Page-aware |
+| `page(loc) -> Option<NonZeroUsize>` | P207D | II item 9 — Page-aware |
+| `page_numbering(loc) -> Option<&EcoString>` | P207D | II item 12 — Page-aware |
+| `page_supplement(loc) -> Option<&Content>` | P207D | II item 13 — Page-aware |
+
+**Trait `Introspector` cristalino passa de 20 para 26 métodos**.
+Paridade vanilla literal aproxima-se mais:
+
+- 20 métodos M8 (paridade base — fechada em P204H).
+- +5 métodos vanilla equivalentes em M9c (query_labelled,
+  label_count, pages, page, page_numbering, page_supplement).
+- Divergência intencional restante (per `P205A.div-1`):
+  vanilla `position` (renamed `position_of` em cristalino;
+  já contava); vanilla `query_count_before` (Q4=β deferred);
+  vanilla `Selector::Where` (Q2=γ deferred); vanilla
+  `Selector::Before/After/Within` (fora roadmap M9c).
+
+`page_numbering` cristalino diverge tipo (`Option<&EcoString>`
+vs vanilla `Option<&Numbering>` enum) — documentado em ADR-0024
++ ADR-0076 §P207D. Divergência arquitectónica legítima.
+
+### Sub-stores L1 novos M9c
+
+- **`PageStore`** (P207D) — paralelo a `SealedPositions`
+  (P205B/C). Wrapper `total_pages`/`numberings`/`supplements`.
+  Pre-injecção: queries page-aware retornam `None` gracfully.
+- **`Regex` wrapper** (P209D) — encapsula `regex::Regex` 1.x
+  per ADR-0077 ACEITE. Hash/Eq/PartialEq/Clone manuais via
+  pattern string. Consumer único: `Selector::Regex(Regex)`.
+
+### Regra empírica P207B §5 confirmada
+
+Cada trait method novo propaga obrigatóriamente a
+`CountingIntrospector` em `03_infra/src/measurements.rs`:
+- `INTROSPECTOR_METHODS` array: 20 → 26 entries.
+- `CALL_COUNTERS`: 20 → 26 slots.
+- `impl Introspector for CountingIntrospector`: +6 métodos.
+- Sentinel `p204g_introspector_call_counts_existe`: assertion
+  ajustada 20 → 26.
+
+Pattern formalizado em P207B §5 e mantido em P207C + P207D.
+**Não acionada** em P208/P209/P210 (stdlib funcs + variants
+enum ≠ trait methods).
+
+### Etiqueta fixada (P212)
+
+**ACEITE com paridade trait estendida M9c**.
+
+ADR-0073 mantém cond paridade trait satisfeita literalmente
+(M8 + extensão M9c documentada). Sem revogação de cláusulas
+prévias.
+
+### Cross-references P212
+
+- ADR-0076 ACEITE 2026-05-12 (marco M9c encerrado).
+- ADR-0077 ACEITE 2026-05-12 (regex L1 — Selector::Regex).
+- `lab/history/construction/records/00_nucleo/materialization/typst-passo-212-relatorio.md`
+  (encerramento marco M9c).
+- Sub-passos M9c: P207A-E (relatórios em `materialization/`),
+  P208A-D, P209A-E, P210A-C, P211A.
+
+---
+
+## Fecho retroactivo cond 9 — P206E 2026-05-08
+
+**Data**: 2026-05-08.
+**Auditor**: P206E (per spec C2 + C9).
+
+Cond 9 do plano de validação ADR-0073 foi PARCIAL em
+P204H 2026-05-07 ("Saída cristalino sanity-check vs
+vanilla nos 5-7 ficheiros corpus paridade — sem
+regressões observable" / `P204F.div-1` — DEBT-53/54
+pre-existing).
+
+P206E auditou cond 9 face à matriz consolidada produzida
+em P206D (via série P206A-D vanilla integration):
+
+### Análise empírica de cond 9 (per P206E C2)
+
+Matriz P206D cobre os 6 ficheiros introspection P204F
+(visual category). Resultados empíricos:
+
+| Ficheiro P204F | Selector(s) testados | Resultado |
+|----------------|-----------------------|-----------|
+| `counter-heading.typ` | heading, figure, metadata | ✅ Match cristalino vs vanilla |
+| `figure-ref.typ` | heading, figure, metadata | ✅ Match (figure count=3 ambos) |
+| `query-metadata.typ` | metadata | ✅ Count match (3 metadata ambos); shape diff cosmético tolerado |
+| `equation-ref.typ` | heading, figure, metadata | ✅ Match em selectors validados; equation namespace divergence (vanilla rejeita `equation` standalone — fora-de-escopo cond 9 literal) |
+| `outline-toc.typ` | heading | ⚠️ Excepção: heading count diff (cristalino emite auto-toc P200B; vanilla counts only outline body); design intencional cristalino — não regressão M8 |
+| `cite-bibliography.typ` | (todos) | ⚠️ Excepção: cristalino eval falha (bibliography stdlib parcial pre-P206; gap conhecido pre-cond 9); não regressão introduzida por M8 |
+
+**Resultado**: 4/6 ficheiros P204F com matches limpos; 2/6 com excepções documentadas (ambas pre-existentes ou
+design intencional, não regressões M8).
+
+### Etiqueta fixada (P206E C2)
+
+**CUMPRIDA com excepções**.
+
+Justificação literal:
+
+- "Sem regressões observable" satisfeito — nenhuma
+  divergência é regressão introduzida por M8
+  (`#[comemo::track]` em Introspector). As 2 excepções
+  são:
+  1. **`outline-toc` heading count**: design intencional
+     cristalino P200B (auto-toc emissions visíveis em
+     query). Pre-existente; não M8.
+  2. **`cite-bibliography` eval fail**: bibliography
+     stdlib cristalino parcial (P181 series não-completa);
+     pre-P206; não M8.
+- "5-7 ficheiros corpus paridade" cobertos: 6/6
+  introspection ficheiros P204F + 17 outros visual/markup
+  per matriz P206D extension.
+
+### Forma de transição (P206E C3 = Caminho B)
+
+ADR-0073 transitou de "ACEITE estruturalmente fechado"
+(P204H) para **"ACEITE completo retroactivo, P206E
+2026-05-08"** — fórmula intermediária honesta face às
+excepções documentadas. Distingue explicitamente que
+cond 9 fechou em série diferente (P206) com excepções.
+
+Caminho A ("completo final" análogo a P205E) rejeitado:
+implicaria cond 9 cumprida estritamente sem excepções —
+desonesto face às 2 documentadas.
+
+Caminho C ("estruturalmente fechado" preservado)
+rejeitado: cond 9 progrediu materialmente via P206
+matriz; preservar PARCIAL seria sub-estimar progresso.
+
+### DEBTs colaterais
+
+P206E também fechou:
+- **DEBT-53** → ENCERRADO (vanilla integration
+  materializada).
+- **DEBT-54** → ENCERRADO (workspace setup
+  obsoleto via vanilla CLI pre-built).
+
+### Preservação histórica
+
+P204H consolidado **não é reescrito** — anotação
+cirúrgica adicionada no final per pattern P201/P202
+("modificação retroactiva quebraria preservação"). Bloco
+"Validação P204A–H" preservado intacto; cond 9 PARCIAL
+documentada como estado em 2026-05-07 que evoluiu para
+"completo retroactivo" em 2026-05-08.
+
+### Cross-references P206E
+
+- ADR-0075 (ACEITE final P206E 2026-05-08) — vanilla
+  integration que viabilizou fecho cond 9.
+- `lab/history/construction/records/00_nucleo/materialization/typst-passo-206-relatorio-consolidado.md`.
+- `lab/results/construction/diagnostics/typst-passo-206E-inventario.md`.
+- `lab/parity/reports/latest.md` (matriz P206D).
+- `lab/parity/SKIPS.md` (manifest divergências).
+
+---
+
+## Contexto
+
+M5+M6+M7+M9 estruturalmente fechados em P200B (M5
+universal), P190I (M6), P192B (M7), P182F (M9 11/11).
+
+Pré-condição arquitectónica para M8 cumprida em P203
+consolidado §13:
+- Zero lacunas residuais formalmente catalogadas.
+- Baseline empírico reconciliado (snapshot 2026-05-05).
+- 1824 tests workspace; 0 violations.
+- 70 ADRs (-1 slot 0063).
+
+ADR-0066 (ACEITE com nota "intermediário até M8") declarou
+que hash-based convergence é decisão **intermédia**;
+paridade arquitectural com vanilla typst exige adopção de
+`comemo::Track` para:
+- Memoização cross-iteration de queries de introspection.
+- Tracking granular de dependências.
+- Performance comparável a vanilla.
+
+P204A auditou empíricamente (16 cláusulas A1–A16) o estado
+pré-M8 e confirmou:
+- comemo 0.4.0 declarado em workspace; já usado em
+  World/Engine/eval (3 `#[comemo::track]` em
+  `world_types.rs`).
+- comemo 0.4.0 suporta `#[track]` em traits não-genéricos
+  (per `comemo-macros-0.4.0/src/track.rs:30-43`).
+- Trait `Introspector` cristalino: 20 métodos, todos
+  `&self` read-only; restrições compatíveis.
+- Vanilla `Introspector` usa exactamente
+  `#[comemo::track] pub trait Introspector: Send + Sync`
+  (per `lab/typst-original/.../introspector.rs:28`) —
+  paridade literal disponível.
+- Loops fixpoint cristalinos ortogonais a comemo
+  (mecanismos de convergência paralelos, não conflituosos).
+
+---
+
+## Decisão
+
+Cristalino adopta **`#[comemo::track]` directamente no
+trait `Introspector`**, com paridade literal ao padrão
+vanilla.
+
+### Mecanismo
+
+```text
++ #[comemo::track]
+  pub trait Introspector: Send + Sync {
+      // 20 métodos existentes (assinaturas inalteradas).
+  }
+```
+
+### Consumers (Layouter)
+
+```text
+- pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer>
++ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer>
+```
+
+```text
+- pub(super) introspector: TagIntrospector,
++ pub(super) introspector: comemo::Tracked<'a, dyn Introspector + 'a>,
+```
+
+API pública mantém retrocompatibilidade via wrapper (constrói
+`Tracked` internamente).
+
+### Position concrete
+
+Sub-passo M8 (P204D) materializa Position:
+
+```text
++ pub struct Position {
++     pub page: NonZeroUsize,
++     pub point: Point,
++ }
+```
+
+Substitui stub `position_of() -> Option<()>` por
+`position_of() -> Option<Position>`. Layouter feedback
+single-pass popula `runtime.positions: HashMap<Location,
+Position>` durante layout (per A14 categoria A — `runtime`
+field é eligível).
+
+### Política de invalidação
+
+Tracking-based intra-compilation (gere automaticamente).
+`crystalline_evict(n)` wrapper sobre `comemo::evict(n)`
+exposed em L4 wiring para watch mode futuro (paridade
+vanilla `comemo::evict(10)` em CLI).
+
+### Loops fixpoint
+
+**Mantidos** sem alteração. Hash-based convergence cristalina
+(MAX=5 nos 2 loops) e vanilla MAX_ITERS=5 são paralelos
+arquitecturais; comemo adiciona granularidade dentro de
+cada iteração.
+
+---
+
+## Alternativas consideradas
+
+### Alternativa B — Padrão B3 (ADR-0005): trait plain + TrackedIntrospector separado
+
+**Rejeitada**. Acrescenta indirecção sem benefício.
+Padrão B3 é útil quando trait tem métodos não-trackable;
+não é o caso (todos `&self`).
+
+### Alternativa C — Funções livres memoizadas
+
+**Rejeitada**. Quebra OOP-ish API e diverge do vanilla.
+
+### Alternativa D — Sub-trait dedicada para subset trackable
+
+**Rejeitada**. Só faz sentido se houver `&mut self` em
+métodos de introspecção; A2 confirmou que não.
+
+### Alternativa E — Adiar M8 indefinidamente
+
+**Rejeitada**. ADR-0066 (ACEITE com nota "intermediário
+até M8") explicitamente compromete-se a M8. Pré-condição
+arquitectónica cumprida. Adiar é inflacionar dívida
+técnica.
+
+---
+
+## Consequências
+
+### Positivas
+
+- **Paridade vanilla literal** — mesmo padrão `#[comemo::track]
+  pub trait Introspector: Send + Sync`.
+- **Granularidade de invalidação** per-method (per-key
+  effectiva via constraint tracking).
+- **Memoização cross-iteration** — queries repetidas em
+  fixpoint loops re-usam cache.
+- **Position concrete** — fecha pendência ADR-0066 +
+  paridade observable.
+- **Fundação para optimizações futuras** — re-walks
+  parciais possíveis (não em M8 base; pós-M8).
+
+### Negativas
+
+- **Layouter ganha lifetime parameter** — propagação
+  cross-modular; ~10 call sites.
+- **Complexidade de tipos** ligeira — `Tracked<'a, dyn
+  Introspector + 'a>` substitui `&dyn Introspector`.
+- **Restrições comemo** aplicáveis: trait não-genérico
+  (já satisfeito), métodos não-genéricos (já satisfeito),
+  args `ToOwned` (todos satisfazem), returns `Hash`
+  (todos satisfazem).
+- **Tests precisam adaptação mínima** para construir
+  `Tracked` em ambiente de teste.
+
+### Neutras
+
+- **Loops fixpoint cristalinos preservados** —
+  ortogonais a comemo. Hash-based convergence mantida.
+- **Sub-stores `TagIntrospector` não tracked
+  separadamente** — granularidade per-method via trait
+  track é suficiente; vanilla também não trackeia
+  sub-stores.
+- **`evict()` exposed mas não automatizado** — paridade
+  vanilla (apenas CLI watch usa).
+
+---
+
+## Plano de validação
+
+ADR-0073 transita de `PROPOSTO` para `ACEITE` quando todas
+estas condições forem verdadeiras (verificadas em P204H):
+
+1. **P204B materializado**: `#[comemo::track]` aplicado ao
+   trait `Introspector`. Compila sem erros. `Send + Sync`
+   bounds verificados.
+2. **P204C materializado**: Layouter ganha lifetime
+   parameter; field `introspector` é
+   `Tracked<'a, dyn Introspector + 'a>`. Consumers
+   migrados (10 sites Layouter).
+3. **P204D materializado**: tipo `Position` em L1; `runtime.positions`
+   populated; `position_of` retorna `Option<Position>`.
+4. **P204E materializado**: `crystalline_evict(n)` wrapper
+   em L4.
+5. **P204F materializado**: 5-7 ficheiros corpus paridade
+   novos cobrindo introspection features.
+6. **P204G materializado**: measurements internos com
+   logging hits/misses.
+7. **Tests workspace verdes**: estimativa 1824 → 1830-1840
+   (∆+6 a +16 tests novos para corpus + Position +
+   unit tests de tracking).
+8. **Crystalline-lint 0 violations**.
+9. **Saída cristalino sanity-check** vs vanilla nos 5-7
+   ficheiros corpus paridade — sem regressões observable.
+
+ADR transita para `REJEITADO` se durante materialização
+for descoberto:
+- comemo 0.4.0 incompatível com `Introspector` por motivo
+  não antecipado em A10.
+- Tests catastróficos por mudança de assinatura
+  Layouter (>10% regressão).
+- Performance regressão >2× (improvável; comemo é
+  optimização).
+
+Se ADR for rejeitada, ADR-0066 permanece (decisão
+intermédia hash-based mantém-se); explorar alternativas
+B/C/D em ADR sucessor.
+
+---
+
+## Plano de materialização
+
+7 sub-passos (P204B–H):
+
+### P204B — `#[comemo::track]` em trait Introspector
+
+Magnitude S-M.
+
+- Adicionar `#[comemo::track]` ao trait
+  `Introspector`.
+- Adicionar `: Send + Sync` bound.
+- Verificar `TagIntrospector` impl satisfaz bounds
+  (provavelmente já).
+- Tests workspace verdes.
+
+### P204C — Layouter consumers via `Tracked`
+
+Magnitude M.
+
+- Layouter ganha `'a` lifetime parameter.
+- Field `introspector: Tracked<'a, dyn Introspector +
+  'a>`.
+- Migração ~10 call sites em Layouter consumers.
+- Wrapper API público mantém retrocompatibilidade.
+- Tests adaptados (construir Tracked em fixtures).
+
+### P204D — Position concrete
+
+Magnitude S-M.
+
+- Tipo `Position { page: NonZeroUsize, point: Point }` em
+  `01_core/src/entities/position.rs`.
+- `runtime.positions: HashMap<Location, Position>` em
+  LayouterRuntimeState.
+- Layouter popula durante layout (single-pass).
+- Trait método `position_of -> Option<Position>` (substitui
+  stub).
+- 2-3 tests E2E.
+
+### P204E — `crystalline_evict()` wrapper — ✅ MATERIALIZADO 2026-05-06
+
+Magnitude S (real: ~30 min).
+
+- ✅ Wrapper L4 em `04_wiring/src/eviction.rs`.
+- ✅ Função passthrough: `pub fn crystalline_evict(max_age:
+  usize) { comemo::evict(max_age); }`.
+- ✅ `comemo` adicionado a `04_wiring/Cargo.toml`.
+- ✅ L0 prompt em `00_nucleo/prompts/wiring/eviction.md`
+  (hash 7ac7b48b).
+- ✅ 2 sentinels (`p204e_crystalline_evict_existe`,
+  `p204e_crystalline_evict_aceita_max_age_parametro`).
+- Tests workspace: 1836 → 1838 (+2).
+- Sem CLI integration (futuro pós-M8).
+
+### P204F — Corpus paridade reduzido — ✅ MATERIALIZADO 2026-05-06
+
+Magnitude M (real: ~70 min).
+
+- ✅ 5 core + 1 opcional ficheiros `.typ` adicionados a
+  `lab/parity/corpus/visual/`:
+  - `outline-toc.typ`.
+  - `counter-heading.typ`.
+  - `figure-ref.typ`.
+  - `equation-ref.typ`.
+  - `cite-bibliography.typ` (+ `refs.yaml` asset).
+  - `query-metadata.typ` (opcional).
+- ✅ Cada ficheiro com `.toml` de expectativa
+  cristalino-only.
+- ✅ 6 smoke tests cristalino em
+  `03_infra/src/integration_tests.rs`
+  (`p204f_corpus_*_compila`).
+- ⚠️ **`P204F.div-1`**: vanilla integration deferred per
+  pre-existing DEBT-53/54 (lab/parity harness vanilla
+  não funcional; spec assumiu observable harness; realidade
+  é cristalino-only baseline). `here-locate.typ` (2º
+  opcional) skipped — `here()`/`locate()` não estão
+  registadas em stdlib cristalino.
+- Tests workspace: 1838 → 1844 (+6).
+
+### P204G — Measurements internos — ✅ MATERIALIZADO 2026-05-07
+
+Magnitude S.
+
+- Logging hits/misses do cache comemo (feature
+  `testing` se aplicável).
+- Measurements de regressão em corpus existente.
+- Sem comparação vanilla absoluta.
+
+**Materialização**: módulo `typst_infra::measurements` (L3)
+expõe `cache_stats`, `introspector_call_counts`, `reset`,
+`record_evict` e wrapper newtype `CountingIntrospector<I>`.
+`crystalline_evict` (L4) chama `record_evict` antes de
+`comemo::evict`. `main.rs` dispara dump opt-in quando
+`CRYSTALLINE_MEASUREMENTS=1`. C2 = B (counter próprio
+`AtomicUsize` global; `comemo::testing` rejeitado por
+desproporção — per-call, não cumulativo). C3 = a (wrapper
+newtype). 1852 tests verdes (+8 measurements). 0
+violations. Ver `00_nucleo/prompts/infra/measurements.md`.
+
+### P204H — Consolidado série + ADR ACEITE — ✅ MATERIALIZADO 2026-05-07
+
+Magnitude S documental.
+
+- Relatório consolidado P204.
+- Transitar ADR-0073 PROPOSTO → ACEITE.
+- Anotar ADR-0066 secção "validação empírica" com
+  registo de que M8 fechou.
+
+**Materialização**: relatório consolidado em
+`lab/history/construction/records/00_nucleo/materialization/typst-passo-204-relatorio-consolidado.md`
+(11 secções, padrão P200/P203). ADR-0073 ACEITE
+("estruturalmente fechado"); ADR-0066 SUPERSEDED-BY
+0073. Blueprint anotado com M8 estruturalmente fechado.
+8/9 condições CUMPRIDAS; condição 9 PARCIAL por
+`P204F.div-1` (DEBT-53/54 pre-existing). Forma de fecho:
+"estruturalmente fechado" (análogo a M7 P192B). Caminho
+de resolução: A (aceitar parcialmente). Tests 1852
+verdes; 0 violations. Ver
+`lab/results/construction/diagnostics/typst-passo-204H-inventario.md`
+para auditoria detalhada.
+
+---
+
+## Validação P204A–H
+
+**Data de fecho**: 2026-05-07.
+**Forma**: estruturalmente fechado (análogo a M7 P192B).
+**Caminho de resolução**: A (aceitar parcialmente).
+
+| # | Condição | Estado |
+|---|----------|--------|
+| 1 | P204B materializado (`#[comemo::track]` aplicado) | ✅ CUMPRIDA |
+| 2 | P204C materializado (Layouter Tracked + lifetime) | ✅ CUMPRIDA |
+| 3 | P204D materializado (Position concrete) | ✅ CUMPRIDA |
+| 4 | P204E materializado (`crystalline_evict`) | ✅ CUMPRIDA |
+| 5 | P204F materializado (corpus paridade) | ✅ CUMPRIDA |
+| 6 | P204G materializado (measurements internos) | ✅ CUMPRIDA |
+| 7 | Tests workspace verdes (estim. 1830-1840) | ✅ CUMPRIDA (1852, +28 vs baseline) |
+| 8 | Crystalline-lint 0 violations | ✅ CUMPRIDA |
+| 9 | Sanity-check cristalino vs vanilla observable | ⚠️ PARCIAL (`P204F.div-1`) |
+
+**Excepção registada (condição 9)**: lab/parity harness
+vanilla não funcional desde antes de M8 (DEBT-53/54
+pre-existing P151/P152). P204F.div-1 documenta o
+encontro empírico e a decisão de prosseguir
+cristalino-only baseline. Fecho da paridade vanilla é
+trabalho separado (sub-passo dedicado pós-M8 sugerido
+em P204G §6); não bloqueia a validação arquitectural
+da adopção de `#[comemo::track]`.
+
+---
+
+## Cross-references
+
+- ADR-0066 (Introspection runtime adiada — ACEITE com
+  nota "intermediário até M8"). Após M8 fechar:
+  superseded pela materialização (não revogada).
+- ADR-0067 (Attribute grammar scoping — PROPOSTO). M8
+  ortogonal; ADR-0067 permanece PROPOSTO.
+- ADR-0072 (M7 fixpoint runtime estruturalmente fechado).
+  Mantido. Loops fixpoint preservados em M8.
+- ADR-0005 (PackageSpec/World — padrão B3 de tracking).
+  Padrão B3 considerado (Alternativa B); rejeitado por
+  desnecessidade.
+- P192B consolidado (M7 fechado; M8 reconhecido como
+  próximo passo natural).
+- P200B (M5 universal completo).
+- P190I (M6 fechado; F1 fechado).
+- P203 consolidado (lacunas zeradas; baseline reconciliado).
+
+---
+
+## Pattern emergente
+
+ADR-0073 aplica padrão consolidado pela série P204:
+
+1. **Auditoria empírica de profundidade máxima** (16
+   cláusulas A1-A16 cobrindo 5 blocos arquitecturais).
+2. **Decisões fixadas com base em empírico**, não
+   herdadas (per P203 §9.1 "mesmo `*B+` começam com
+   inventário empírico").
+3. **Paridade vanilla literal** quando viável (padrão
+   A em C2; preferida sobre indirecções B/C/D).
+4. **Magnitude calibrada por soma de componentes** —
+   M8 é L cross-modular = M+M+S-M+S+S+M+S+S documental.
+
+Pattern reaproveitável para futuras adopções de
+infraestrutura cross-modular.

@@ -13,7 +13,7 @@ Núcleos Tekt:
 
 ### Evidence before decision
 
-The current cursor measures and chooses word/chunk breaks at `cursor.rs:195–271`, emits highlighted text at `cursor.rs:149–193`, and transitions regions at `cursor.rs:314–417`. Metrics defines default width at `metrics.rs:249–262`; LineCommit requests post-line progress at `line_commit.rs:696–703`. The 63 controlled source-to-PDF observations and isolated pre-export measurements are archived in `00_nucleo/diagnosticos/auditoria-quebra-paginacao-2026-09-28/`. They expose behavior limitations but this operation separates ownership while preserving those exact decisions. Initial code, L0 and provenance for this operation are archived in `00_nucleo/diagnosticos/separacao-texto-linhas-regioes-2026-09-28/`.
+The current cursor measures and chooses word/chunk breaks at `cursor.rs:195–271`, emits highlighted text at `cursor.rs:149–193`, and transitions regions at `cursor.rs:314–417`. Metrics defines default width at `metrics.rs:249–262`; LineCommit requests post-line progress at `line_commit.rs:696–703`. The 63 controlled source-to-PDF observations and isolated pre-export measurements are archived in `lab/results/construction/diagnostics/auditoria-quebra-paginacao-2026-09-28/`. They expose behavior limitations but this operation separates ownership while preserving those exact decisions. Initial code, L0 and provenance for this operation are archived in `lab/results/construction/diagnostics/separacao-texto-linhas-regioes-2026-09-28/`.
 
 ### Internal ownership decision
 
@@ -40,7 +40,7 @@ O seletor privado word recebe também o boolean resolvido. Depois do predicado a
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -57,7 +57,7 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 ### Evidência anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/margin-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/margin-before/results.json.gz`
 registra estado exato, comandos, binários e imagens bilaterais. plain-box e
 first-overlong com margem de 70pt mantêm palavras fora da caixa no Tekt; no pin
 as palavras seguintes quebram. As imagens foram inspecionadas. Em
@@ -87,9 +87,9 @@ Receber o limiar numérico do chamador; não acessar Layouter nem inferir margem
 A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
 hashes, UTC, status e `git diff HEAD --stat` estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
 A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
 Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
 É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
 
@@ -137,7 +137,7 @@ exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
 
 ### Medição anterior à decisão
 
-O inventário validado em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `00_nucleo/diagnosticos/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
+O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
 
 ### Responsabilidade e aceitação
 

@@ -12,7 +12,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/bib_csl.rs:39`, `01_core/src/compiler/layout/bib_csl.rs:47`, `01_core/src/compiler/layout/bib_csl.rs:58`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -28,7 +28,7 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-structure-2026-10-18/before.json.gz registra
+lab/results/construction/diagnostics/bibliography-structure-2026-10-18/before.json.gz registra
 12 pares, fontes/argv/UTC/HEAD/status/diff HEAD --stat, textos/caixas/binários;
 before-sources.json.gz conserva as fontes e L0s anteriores. HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada, Tekt SHA-256

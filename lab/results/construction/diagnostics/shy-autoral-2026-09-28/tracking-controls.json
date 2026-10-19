@@ -1,0 +1,420 @@
+{
+  "before-controls": [
+    {
+      "case": "plain-verbose",
+      "source_sha256": "859ebbd610e95cd88d8c298a969c947a3bb2b1db366d583a94b8bcbf363a40f6",
+      "words": [
+        {
+          "text": "representation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 96.7,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.22,
+            "yMin": 3.74,
+            "xMax": 119.592,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "vanilla_words": [
+        {
+          "text": "representation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.048,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.568,
+            "yMin": 3.74,
+            "xMax": 119.532001,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "max_coordinate_delta_pt": 2.652000000000001,
+      "lexical_text": [
+        "representation",
+        "end"
+      ],
+      "vanilla_lexical_text": [
+        "representation",
+        "end"
+      ]
+    },
+    {
+      "case": "plain-compact",
+      "source_sha256": "859ebbd610e95cd88d8c298a969c947a3bb2b1db366d583a94b8bcbf363a40f6",
+      "words": [
+        {
+          "text": "representation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.1,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.22,
+            "yMin": 3.74,
+            "xMax": 119.192,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "vanilla_words": [
+        {
+          "text": "representation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.048,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.568,
+            "yMin": 3.74,
+            "xMax": 119.532001,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "max_coordinate_delta_pt": 0.347999999999999,
+      "lexical_text": [
+        "representation",
+        "end"
+      ],
+      "vanilla_lexical_text": [
+        "representation",
+        "end"
+      ]
+    },
+    {
+      "case": "shy-verbose",
+      "source_sha256": "d22898d9c12dbb708695fa85256310c9b94166c14bc6edc1d32319d5deb58a68",
+      "words": [
+        {
+          "text": "repre­s",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 46.52,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "entation­end­",
+          "box": {
+            "xMin": 46.924,
+            "yMin": 3.74,
+            "xMax": 122.516,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "vanilla_words": [
+        {
+          "text": "repre­sentation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.048001,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.568001,
+            "yMin": 3.74,
+            "xMax": 119.532001,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "max_coordinate_delta_pt": 50.644000999999996,
+      "lexical_text": [
+        "repre­s",
+        "entation­end­"
+      ],
+      "vanilla_lexical_text": [
+        "repre­sentation",
+        "end"
+      ]
+    },
+    {
+      "case": "shy-compact",
+      "source_sha256": "d22898d9c12dbb708695fa85256310c9b94166c14bc6edc1d32319d5deb58a68",
+      "words": [
+        {
+          "text": "repre­sentation­end­",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 122.52,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "vanilla_words": [
+        {
+          "text": "repre­sentation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.048001,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.568001,
+            "yMin": 3.74,
+            "xMax": 119.532001,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "max_coordinate_delta_pt": 28.471998999999997,
+      "lexical_text": [
+        "repre­sentation­end­"
+      ],
+      "vanilla_lexical_text": [
+        "repre­sentation",
+        "end"
+      ]
+    }
+  ],
+  "after-controls": [
+    {
+      "case": "plain-verbose",
+      "source_sha256": "859ebbd610e95cd88d8c298a969c947a3bb2b1db366d583a94b8bcbf363a40f6",
+      "words": [
+        {
+          "text": "representation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 96.7,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.22,
+            "yMin": 3.74,
+            "xMax": 119.592,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "vanilla_words": [
+        {
+          "text": "representation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.048,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.568,
+            "yMin": 3.74,
+            "xMax": 119.532001,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "max_coordinate_delta_pt": 2.652000000000001,
+      "lexical_text": [
+        "representation",
+        "end"
+      ],
+      "vanilla_lexical_text": [
+        "representation",
+        "end"
+      ]
+    },
+    {
+      "case": "plain-compact",
+      "source_sha256": "859ebbd610e95cd88d8c298a969c947a3bb2b1db366d583a94b8bcbf363a40f6",
+      "words": [
+        {
+          "text": "representation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.1,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.22,
+            "yMin": 3.74,
+            "xMax": 119.192,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "vanilla_words": [
+        {
+          "text": "representation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.048,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.568,
+            "yMin": 3.74,
+            "xMax": 119.532001,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "max_coordinate_delta_pt": 0.347999999999999,
+      "lexical_text": [
+        "representation",
+        "end"
+      ],
+      "vanilla_lexical_text": [
+        "representation",
+        "end"
+      ]
+    },
+    {
+      "case": "shy-verbose",
+      "source_sha256": "d22898d9c12dbb708695fa85256310c9b94166c14bc6edc1d32319d5deb58a68",
+      "words": [
+        {
+          "text": "repre­sentation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 96.7,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.22,
+            "yMin": 3.74,
+            "xMax": 119.592,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "vanilla_words": [
+        {
+          "text": "repre­sentation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.048001,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.568001,
+            "yMin": 3.74,
+            "xMax": 119.532001,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "max_coordinate_delta_pt": 2.6519990000000035,
+      "lexical_text": [
+        "repre­sentation",
+        "end"
+      ],
+      "vanilla_lexical_text": [
+        "repre­sentation",
+        "end"
+      ]
+    },
+    {
+      "case": "shy-compact",
+      "source_sha256": "d22898d9c12dbb708695fa85256310c9b94166c14bc6edc1d32319d5deb58a68",
+      "words": [
+        {
+          "text": "repre­sentation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.1,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.22,
+            "yMin": 3.74,
+            "xMax": 119.192,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "vanilla_words": [
+        {
+          "text": "repre­sentation",
+          "box": {
+            "xMin": 8.0,
+            "yMin": 3.74,
+            "xMax": 94.048001,
+            "yMax": 20.084
+          }
+        },
+        {
+          "text": "end",
+          "box": {
+            "xMin": 97.568001,
+            "yMin": 3.74,
+            "xMax": 119.532001,
+            "yMax": 20.084
+          }
+        }
+      ],
+      "max_coordinate_delta_pt": 0.34800099999999645,
+      "lexical_text": [
+        "repre­sentation",
+        "end"
+      ],
+      "vanilla_lexical_text": [
+        "repre­sentation",
+        "end"
+      ]
+    }
+  ]
+}

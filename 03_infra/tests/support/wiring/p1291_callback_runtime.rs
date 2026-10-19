@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/test-support/wiring/p1291_callback_runtime.md
-//! @prompt-hash 1fc04da6
+//! @prompt-hash 0b23ce45
 //! @layer L3
 //! @updated 2026-10-16
 //! Infraestrutura de teste; compilada apenas pelo harness L4.

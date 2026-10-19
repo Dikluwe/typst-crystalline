@@ -9,7 +9,7 @@ Exclusive consumer: `01_core/src/compiler/parse/mod.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/parse/mod.rs:25` (pub fn parsetext: &str) -> SyntaxNode {); `01_core/src/compiler/parse/mod.rs:33` (pub fn parse_codetext: &str) -> SyntaxNode {); `01_core/src/compiler/parse/mod.rs:41` (pub fn parse_mathtext: &str) -> SyntaxNode {) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/parse/mod.rs:25` (pub fn parsetext: &str) -> SyntaxNode {); `01_core/src/compiler/parse/mod.rs:33` (pub fn parse_codetext: &str) -> SyntaxNode {); `01_core/src/compiler/parse/mod.rs:41` (pub fn parse_mathtext: &str) -> SyntaxNode {) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 

@@ -67,7 +67,7 @@ while including `{name}`
 
 Resolve positions through Source's span-to-line/column API, not fabricated offsets or regex rewriting.
 
-Snippets come from the trace span itself. The existing multiline requirement describes the first line followed, when applicable, by `…` and the last non-whitespace character. The consumer currently checks only the actual final character of the last line and suppresses the suffix if that character is whitespace. That discrepancy requires a decision; this owner must not silently authorize trimming or drop the existing obligation. See `00_nucleo/diagnosticos/sanitization-shell-history.md`.
+Snippets come from the trace span itself. The existing multiline requirement describes the first line followed, when applicable, by `…` and the last non-whitespace character. The consumer currently checks only the actual final character of the last line and suppresses the suffix if that character is whitespace. That discrepancy requires a decision; this owner must not silently authorize trimming or drop the existing obligation. See `lab/results/construction/diagnostics/sanitization-shell-history.md`.
 
 Trace lines end with newline; when a snippet was appended, retain the additional trailing blank line.
 

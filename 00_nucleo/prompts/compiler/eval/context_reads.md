@@ -22,7 +22,7 @@ A suíte L1, o build e crystalline-lint passam. A separação não constitui pro
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
 UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
+lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
 Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
 selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
 é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
@@ -68,7 +68,7 @@ e compostos, função homônima, partial/closure; preservar D05, D07 e query.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/clippy-enums-2026-10-16/before.json.gz conserva fontes/L0, hashes globais, HEAD, working tree não commitado, UTC e diffstat; callers.txt registra usos no workspace. probe-details.json e measurements.json guardam rustc 1.92/x86_64, comandos/binário/rlib e tamanhos/alocações de candidatos isolados antes de código. O enum privado é espelhado fielmente da fonte; os tipos públicos são medidos diretamente do rlib. O observador unsafe existe somente no executável diagnóstico, nunca na camada produtiva. É medição de representação Rust, não igualdade de linguagem, intenção upstream ou prova de ganho global.
+lab/results/construction/diagnostics/clippy-enums-2026-10-16/before.json.gz conserva fontes/L0, hashes globais, HEAD, working tree não commitado, UTC e diffstat; callers.txt registra usos no workspace. probe-details.json e measurements.json guardam rustc 1.92/x86_64, comandos/binário/rlib e tamanhos/alocações de candidatos isolados antes de código. O enum privado é espelhado fielmente da fonte; os tipos públicos são medidos diretamente do rlib. O observador unsafe existe somente no executável diagnóstico, nunca na camada produtiva. É medição de representação Rust, não igualdade de linguagem, intenção upstream ou prova de ganho global.
 
 ### Responsabilidade exclusiva e aceitação
 

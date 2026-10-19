@@ -6,7 +6,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/round.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:360-516 e 1002-1051` contém o comportamento correspondente. SHA-256, horário e estado estão em `00_nucleo/diagnosticos/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/round.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:360-516 e 1002-1051` contém o comportamento correspondente. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
 
 ## Contrato
 
@@ -16,7 +16,7 @@ Antes desta decisão, no HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`
 com working tree não commitado, `01_core/src/compiler/stdlib/calc/round.rs:67-69` truncava `digits` de i64
 para i32 e `01_core/src/compiler/stdlib/calc/round.rs:117-119` multiplicava por uma potência decimal mesmo
 com precisão negativa. Os snapshots integrais, UTC, diffstat e hashes dos
-binários estão em `00_nucleo/diagnosticos/arredondamento-ci-2026-10-13/`.
+binários estão em `lab/results/construction/diagnostics/arredondamento-ci-2026-10-13/`.
 O oráculo pinado `9f2b6e8715237cb086899a42873660fe744622e8` satura a precisão
 por tipo (`lab/typst-original/crates/typst-library/src/foundations/calc.rs:923-949`)
 e evita overflow intermediário (`lab/typst-original/crates/typst-utils/src/round.rs:26-60`).
@@ -58,7 +58,7 @@ com uma cópia da própria fórmula como teste.
 
 `01_core/src/compiler/stdlib/calc/round.rs:104-124` já implementa as
 regras finitas protegidas; a medição anterior à extração declarativa está em
-`00_nucleo/diagnosticos/representacao-medidas-ci-2026-10-13/before.json.gz`.
+`lab/results/construction/diagnostics/representacao-medidas-ci-2026-10-13/before.json.gz`.
 O diagnóstico de `repr` demonstra a mesma obrigação de preservar finitos
 na representação. Compartilhar apenas essas invariantes em núcleo ADR-0129;
 a política `guard_float`, conversões por tipo e o corpo Rust de calc não

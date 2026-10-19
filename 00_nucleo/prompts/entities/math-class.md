@@ -3,7 +3,7 @@ Hash do Código: 1a48b92f
 
 **Camada**: L1
 **Ficheiro**: `01_core/src/entities/math_class.rs`
-**ADR**: `00_nucleo/adr/typst-adr-0009-math-class.md`
+**ADR**: `00_nucleo/adr/adr-0009-default-math-class.md`
 
 ---
 

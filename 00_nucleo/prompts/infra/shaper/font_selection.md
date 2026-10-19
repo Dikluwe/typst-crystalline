@@ -22,7 +22,7 @@ Núcleos Tekt:
 - `03_infra/src/shaper/font_selection.rs:439` — `is_p1404_format_control`.
 
 These are local source anchors, not a new upstream parity measurement.
-`00_nucleo/diagnosticos/shaper-prompt-audit/results.json` demonstrates sparse scoring against the wrong slots and a same-face Latin/Greek run merged across its script boundary.
+`lab/results/construction/diagnostics/shaper-prompt-audit/results.json` demonstrates sparse scoring against the wrong slots and a same-face Latin/Greek run merged across its script boundary.
 Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/font_selection.rs`.
 
 ## Owned contract
@@ -51,7 +51,7 @@ Após as famílias declaradas legíveis, oferecer a cadeia comum na ordem do cat
 ## Controles bidi e cobertura (2026-10-06)
 
 Medição anterior à decisão: first-raster.json em
-`00_nucleo/diagnosticos/controles-bidi-pdf-2026-10-06/` registra notdef sobre
+`lab/results/construction/diagnostics/controles-bidi-pdf-2026-10-06/` registra notdef sobre
 A em control-ltr-lri; second-verification.json.gz registra troca de face e
 2.7662pt de divergência em control-ltr-pdi. `font_selection.rs:452-454`
 reconhece somente três controles; `:396-416` consulta cobertura para os
@@ -66,7 +66,7 @@ U+2060 e política dos demais caracteres. Sem API/fase/unsafe novo.
 Medição anterior à decisão: font_selection.rs:16-91 reconstrói a cadeia
 primária/classe/MATH/comum a cada chamada; cache.rs:64-87 já retém faces por
 slot, mas não a resolução das famílias. resolution-calls-before.json.gz em
-00_nucleo/diagnosticos/shaper-primary-reuse-2026-10-10 registra 1.602 chamadas
+lab/results/construction/diagnostics/shaper-primary-reuse-2026-10-10 registra 1.602 chamadas
 de primary_candidates e 9.612 de resolve_candidates, entre 9.619 buscas
 select_pattern por fixture local-set/no-fill-1600. HEAD, árvore não
 commitada, UTC, binário 5e66c09d e argv estão no receipt. Contagens GDB não
@@ -91,7 +91,7 @@ frescos. Mudança interna em fluxo contínuo ADR-0127; API/default/fase iguais.
 ### Medição anterior à decisão
 
 `03_infra/src/shaper/font_selection.rs` nas linhas [66, 131, 302, 350] contém as expressões apontadas pelo inventário
-Clippy. `00_nucleo/diagnosticos/ci-simplificacoes-2026-10-14/before.json.gz`
+Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
 conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
 red.log registra os lints selecionados como erros antes de alterar código.
 Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.
@@ -114,7 +114,7 @@ de suíte completa, build, all-targets, rustdoc, fmt, linhagem e inventário tot
 ### Medição anterior à decisão
 
 `03_infra/src/shaper/font_selection.rs:129` empresta novamente variant, já recebido por referência; `:660` aloca um Vec de casos fixos utilizado somente como sequência no teste.
-`00_nucleo/diagnosticos/avisos-clippy-tekt-2026-10-15/before.json.gz`
+`lab/results/construction/diagnostics/avisos-clippy-tekt-2026-10-15/before.json.gz`
 conserva fontes, owners, HEAD, working tree não commitado, UTC e diffstat;
 selected-red.json identifica os diagnósticos do compilador antes da edição.
 São expressões Rust equivalentes, sem nova medição de paridade upstream.

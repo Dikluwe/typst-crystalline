@@ -1,0 +1,9 @@
+    Checking typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Checking typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Checking typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+ Documenting typst-wiring v0.1.0 (/repos/Antigravity/typst-crystalline/04_wiring)
+ Documenting typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+ Documenting typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+ Documenting typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `dev` profile [unoptimized] target(s) in 38.80s
+   Generated /repos/Antigravity/typst-crystalline/lab/target/product/doc/typst_core/index.html and 3 other files

@@ -472,7 +472,7 @@ extensão, macro, impl não local ou helper genérico para contornar ownership.
 ### Medição anterior à decisão
 
 01_core/src/entities/func.rs:317 (C024).
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
@@ -500,7 +500,7 @@ restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
 
 ### Medição anterior à decisão
 
-01_core/src/entities/func.rs:398. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `00_nucleo/diagnosticos/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
+01_core/src/entities/func.rs:398. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `lab/results/construction/diagnostics/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
 
 ### Responsabilidade exclusiva
 
@@ -520,7 +520,7 @@ Resselo restrito, direto e reverso, sem reparo global da working tree. Revalidar
 ### Medição anterior à decisão
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
 conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
 baseline-reuse.json prova igualdade de fontes/configuração/binário com a
 matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
@@ -597,7 +597,7 @@ antigos por cópia nem publicar.
 
 Medição anterior à decisão: candidate-1/state.json.gz e
 differential-review.json em
-00_nucleo/diagnosticos/native-format-catalogue-2026-10-17 registram oito
+lab/results/construction/diagnostics/native-format-catalogue-2026-10-17 registram oito
 notas V19 novas e quatro atualizadas. Estas últimas apenas incluem Format
 no padrão e elevam a contagem; não são violações removidas. O primeiro
 comparador exigia mensagem idêntica e por isso recusou a atualização.

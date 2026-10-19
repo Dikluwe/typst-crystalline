@@ -1,8 +1,11 @@
 [alias]
 testit = "test --workspace --locked"
 
+[build]
+target-dir = "lab/target/product"
+
 [env]
-# P487: evaluador recursivo em debug mode usa ~100KB/frame × 80 frames = 8MB.
-# 32MB evita crash nos testes de profundidade (Route::MAX_CALL_DEPTH = 80,
-# MAX_SHOW_RULE_DEPTH = 64). Não afecta produção (só test threads).
+# P487: the recursive evaluator in debug mode uses ~100 KB/frame × 80 frames = 8 MB.
+# 32 MB prevents crashes in depth tests (Route::MAX_CALL_DEPTH = 80,
+# MAX_SHOW_RULE_DEPTH = 64). This does not affect production (test threads only).
 RUST_MIN_STACK = "33554432"

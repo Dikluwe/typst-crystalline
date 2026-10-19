@@ -6,7 +6,7 @@ Exclusive consumer: `01_core/src/compiler/eval/rules/set/page.rs`
 
 ## Medição antes da decisão
 
-O dispatcher em `01_core/src/compiler/eval/rules/set.rs` no estado após a extração P1499 mantém o braço page como bloco contíguo. O baseline L1 em `00_nucleo/diagnosticos/atomizacao-eval-rules-2026-09-30-before.json.gz` e a suíte após P1499 passaram com 6401 testes e 2 ignorados. Isto é medição estrutural, não benchmark nem nova medição bilateral com o vanilla.
+O dispatcher em `01_core/src/compiler/eval/rules/set.rs` no estado após a extração P1499 mantém o braço page como bloco contíguo. O baseline L1 em `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` e a suíte após P1499 passaram com 6401 testes e 2 ignorados. Isto é medição estrutural, não benchmark nem nova medição bilateral com o vanilla.
 
 ## Contrato de linguagem
 

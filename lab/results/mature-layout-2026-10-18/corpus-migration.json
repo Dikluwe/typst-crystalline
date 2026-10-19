@@ -1,0 +1,125 @@
+{
+  "utc": "2026-10-18T23:37:14.072989+00:00",
+  "rows": [
+    {
+      "old": "00_nucleo/corpus-docs/math/00-index.typ",
+      "new": "lab/corpus/docs/math/00-index.typ",
+      "sha256": "59e1bdeb0740cc535eb6e4d1833cd64ac8c068ac540d940813bee9f3d687ccd9",
+      "size": 3622
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/accent.typ",
+      "new": "lab/corpus/docs/math/accent.typ",
+      "sha256": "e3bfefb4bfa5ea9fbc5b8da1d012c07bc9c6d5a9847bc637cd2b19660fab908f",
+      "size": 2227
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/attach.typ",
+      "new": "lab/corpus/docs/math/attach.typ",
+      "sha256": "b835357f54732bab95d45279016db2ee0974f10647fbc688b3ef5179194084a9",
+      "size": 1347
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/binom.typ",
+      "new": "lab/corpus/docs/math/binom.typ",
+      "sha256": "35ec34f1ed9d6d2c5adf0c9478d322174500e03abdfc5a0cd2c7191c74b1a3ae",
+      "size": 727
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/cancel.typ",
+      "new": "lab/corpus/docs/math/cancel.typ",
+      "sha256": "3fed8408e2fe2639bf71e9a6404d3c12c8a6497f73e67d472382c198165b8623",
+      "size": 2351
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/cases.typ",
+      "new": "lab/corpus/docs/math/cases.typ",
+      "sha256": "ebb5645777b858990492161a4a3e76c7438fe8ae4e3b5e94d6fa62e8c2d9f961",
+      "size": 1345
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/class.typ",
+      "new": "lab/corpus/docs/math/class.typ",
+      "sha256": "3639e8dc2e55cec4a2dd6e2c7ae935760efb60625a7d9947e2ba7c6a43fcb3a6",
+      "size": 1910
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/equation.typ",
+      "new": "lab/corpus/docs/math/equation.typ",
+      "sha256": "96b202d4ee2b510a75ab342ce509deba551187842ef44dc0e1d2aafed4bfe4b7",
+      "size": 2452
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/frac.typ",
+      "new": "lab/corpus/docs/math/frac.typ",
+      "sha256": "c81e37f3e0de498fca31775cf060f4a13623ae850fb2115ab1490de48fcc81d3",
+      "size": 2950
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/lr.typ",
+      "new": "lab/corpus/docs/math/lr.typ",
+      "sha256": "029d2b425a46e24077c42ecca389bbe052733ce1148c5a9f9d41f8ed53bd820a",
+      "size": 2215
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/mat.typ",
+      "new": "lab/corpus/docs/math/mat.typ",
+      "sha256": "22c4f30c52b7ec97eb1de46d61c7fd7cc734358a0af9e498ccfa977aeb070ac8",
+      "size": 3056
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/op.typ",
+      "new": "lab/corpus/docs/math/op.typ",
+      "sha256": "7b9bb515a77482eb7cd3e6413071f4186cf5becbe0a2c7b34ab981dfcac41aff",
+      "size": 1385
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/primes.typ",
+      "new": "lab/corpus/docs/math/primes.typ",
+      "sha256": "ee48f792a53ea555c912c8140727ca2a16bfaa68cca9c113dee10623967d680b",
+      "size": 922
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/roots.typ",
+      "new": "lab/corpus/docs/math/roots.typ",
+      "sha256": "e6dbd5ffa201ae460e166d72ea5d3fa0fe190a1f19eb9390b996917d98de89c7",
+      "size": 1297
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/sizes.typ",
+      "new": "lab/corpus/docs/math/sizes.typ",
+      "sha256": "35d9578ca326726aab75e7a83d9f4495e3e54ef9bd383969c8b3407fd45b433d",
+      "size": 2369
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/stretch.typ",
+      "new": "lab/corpus/docs/math/stretch.typ",
+      "sha256": "5dd9a7d3b501cebc5111c4319d139001ca0181a599cfc78677618a8ed49b6b1e",
+      "size": 1578
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/styles.typ",
+      "new": "lab/corpus/docs/math/styles.typ",
+      "sha256": "5014074044dd2b4f278d95760246a3595e2cb0224b16c142ca1f6a29e951fb83",
+      "size": 1294
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/underover.typ",
+      "new": "lab/corpus/docs/math/underover.typ",
+      "sha256": "f0ab7171f004c0e696a72b0cf1d205e4f461489afeeac05ca60f07d4e372318e",
+      "size": 2869
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/variants.typ",
+      "new": "lab/corpus/docs/math/variants.typ",
+      "sha256": "3d531bb9d1addca627f590523082e7116d2418ac066ed04807632f63b57afa53",
+      "size": 2264
+    },
+    {
+      "old": "00_nucleo/corpus-docs/math/vec.typ",
+      "new": "lab/corpus/docs/math/vec.typ",
+      "sha256": "68ab4a55bf2ae83f9adf475b0b3be0eca50fe9e02e63bbe73716a4d1fe6f1135",
+      "size": 1430
+    }
+  ]
+}

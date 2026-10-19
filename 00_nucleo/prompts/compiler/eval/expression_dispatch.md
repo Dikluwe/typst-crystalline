@@ -56,7 +56,7 @@ realiza o produto contextual usando esse snapshot causal, sem regra retroativa.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -91,7 +91,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ### Medição e correção suplementar interna — 2026-10-07
 
-Proveniência: diagnosticos/table-cell-realizacao-d08b3-2026-10-07/geometry-fifth.json e local-bool-red.log, binário 59da863f, fonte/HEAD/estado/UTC/argv/glifos/testes.
+Proveniência: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/geometry-fifth.json e local-bool-red.log, binário 59da863f, fonte/HEAD/estado/UTC/argv/glifos/testes.
 local-bool-red.log mede FUNCcell em vez de FUNCsequence; geometry-fifth.json mede LOCAL/a quebrados. Em CodeBlock join efetivo, Cell crua precisa realizar regra local antes de compor outro body; empacotar receita diferida preservava Cell como body da Cell externa. Join Content com apply_show_rules=true delega imediatamente à fachada causal de Table/Cell; passagem original com apply_show_rules=false permanece sem preparo. O corpo continua valor lexical no let fora de join. Defaults de Cell isolada seguem D08B3-B; preservar it nominal, alias tardio, escopo e flags/restauração.
 Não certificar antes da recoleta RED→GREEN e suites; nenhum campo/método público, flag ou mudança de fase suplementar.
 
@@ -100,7 +100,7 @@ Não certificar antes da recoleta RED→GREEN e suites; nenhum campo/método pú
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz` registra oito sondas completas: fontes, comandos, UTC, HEAD, working tree/diffstat, hashes e binários. Pin 9f2b6e8715237cb086899a42873660fe744622e8. Executável Tekt congelado do C validado; `source-verification.json` confirma hashes produtivos/L0 iguais ao snapshot tested-final do C. O target da raiz não estava disponível nesta retomada; não foi fingido um rebuild.
+`lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` registra oito sondas completas: fontes, comandos, UTC, HEAD, working tree/diffstat, hashes e binários. Pin 9f2b6e8715237cb086899a42873660fe744622e8. Executável Tekt congelado do C validado; `source-verification.json` confirma hashes produtivos/L0 iguais ao snapshot tested-final do C. O target da raiz não estava disponível nesta retomada; não foi fingido um rebuild.
 
 bare/alias/spread-conflict: mensagens e hints iguais, caret/trace divergentes. No alias o vanilla usa a definição [a] (linha 1), não a chamada (linha 3). No spread usa [a], não o spread inteiro. local-body publica sequence com metadata+Cell preparada no Tekt, styled contendo Cell crua no vanilla; cores/efeitos coincidem no fixture. plain-func coincide cell; set-func/show-func/set-show-func medem cell/sequence contra styled. A primeira rodada `before` tinha str(function), foi invalidada para decidir morfologia; somente baseline usa repr(function).
 
@@ -131,7 +131,7 @@ additional-debug2 refuta o snapshot local guardado em eval.context.recipe: consu
 
 ## C2-R1 — correção interna de paridade
 
-Medição anterior à decisão: 00_nucleo/diagnosticos/performance-c2-2026-10-07/table-local-regression.json, três samples/r*-table-local/samples.json com fontes/argv/UTC/estado/hash do release ac889581 e vanilla pin9f2b6e871. Tamanho cresce10%, segunda coluna x60.880→38.999 com sobreposição. RED semântico em 00_nucleo/diagnosticos/table-local-c2r1-2026-10-07/red.log: tamanho10pt e separação Auto falham, tamanho local explícito11pt já passa.
+Medição anterior à decisão: lab/results/construction/diagnostics/performance-c2-2026-10-07/table-local-regression.json, três samples/r*-table-local/samples.json com fontes/argv/UTC/estado/hash do release ac889581 e vanilla pin9f2b6e871. Tamanho cresce10%, segunda coluna x60.880→38.999 com sobreposição. RED semântico em lab/results/construction/diagnostics/table-local-c2r1-2026-10-07/red.log: tamanho10pt e separação Auto falham, tamanho local explícito11pt já passa.
 
 Fonte upstream typst-eval/src/code.rs:32–43 aplica somente styles da declaração set à cauda. Tekt expression_dispatch.rs:132 colapsa raiz/defaults e não só declarações locais; style_chain.rs:304–315 contém size11/boldfalse/italicfalse na raiz. tracks.rs:328 reconhece somente Cell com resolved, deixando a Cell standalone Complete na projeção; measurement.rs não mede TableCell. É semântica/estilo/posição observável, não obrigação de reproduzir árvore ou algoritmo upstream. A causa conjunta é inferência refutável por fonte/tamanho/posição ainda divergentes após isolar estilos locais e medir o visual completo.
 
@@ -145,7 +145,7 @@ Responsabilidade: para captura local Table/Cell de CodeBlock, calcular delta de 
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/codeblock-set-2026-10-14/before/results.json.gz conserva
+lab/results/construction/diagnostics/codeblock-set-2026-10-14/before/results.json.gz conserva
 UTC, status/diffstat, fontes/owners, comandos, binários e saídas integrais,
 contra pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8.
 false-int/str/empty retornam valores crus; active-content perde Styled;
@@ -238,7 +238,7 @@ para Bool/Auto, false/true e set aninhado, seguido da recoleta bilateral.
 ## R2-S — captura lexical de Sequence emitida por CodeBlock
 
 Medição anterior: r2s-measurement.json.gz no diagnóstico
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17, pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17, pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
 registra local-rule AB contra LOCAL. Esta unidade em :198–245 só transporta
 regras locais quando table_cells_needed; a restauração do Engine perde o
 show Sequence de uma soma emitida pelo bloco. Contrato R2-S aprovado pelo
@@ -255,7 +255,7 @@ antes do código; GREEN local e regressões completas sob 12 GiB/swap0/jobs1.
 ## R2-S — origem somente quando a captura é necessária
 
 Medição antes da decisão: validation-attempt-4.json.gz, complete-workspace.log
-e conditional-origin-before-sources.json.gz em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17
+e conditional-origin-before-sources.json.gz em lab/results/construction/diagnostics/sequence-constructor-2026-10-17
 conservam HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, estado não
 commitado/UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 A suíte de core passou 7228 testes, falhou 24 e ignorou 5. Os dois
@@ -291,7 +291,7 @@ modo padrão ou fase adicional é criada.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
 commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém

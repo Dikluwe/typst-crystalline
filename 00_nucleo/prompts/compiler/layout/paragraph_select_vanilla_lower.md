@@ -7,7 +7,7 @@ Hash do Código: d98bbc00
 
 ## Medição anterior à decisão
 
-`lab/typst-original/crates/typst-layout/src/inline/linebreak.rs:264-344` usa um limite inferior para linhas subcheias após obter limite superior válido. No protótipo conjunto anterior, `00_nucleo/diagnosticos/paragraph-select-podas-vanilla-justice-2026-10-02.md` mediu 1.000 palavras/240pt: 9.695 avaliações e 195,470 µs, contra 120,770 µs da DP exata. A medição é sintética e não atribui intenção ao vanilla.
+`lab/typst-original/crates/typst-layout/src/inline/linebreak.rs:264-344` usa um limite inferior para linhas subcheias após obter limite superior válido. No protótipo conjunto anterior, `lab/results/construction/diagnostics/paragraph-select-podas-vanilla-justice-2026-10-02.md` mediu 1.000 palavras/240pt: 9.695 avaliações e 195,470 µs, contra 120,770 µs da DP exata. A medição é sintética e não atribui intenção ao vanilla.
 
 ## Decisão experimental
 

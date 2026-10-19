@@ -16,8 +16,11 @@ tests/fuzz/coverage
 tarpaulin-report.html
 
 # Rust
-/target
 /dist/
+lab/target/
+lab/scratch/
+lab/results/
+lab/dist/
 **/target/
 /target-original/
 **/*.rs.bk
@@ -28,7 +31,7 @@ tarpaulin-report.html
 
 # Node
 node_modules
-tools/test-helper/dist
+lab/tools/test-helper/dist
 package-lock.json
 
 # Nix
@@ -41,8 +44,8 @@ lab/krilla-reference/
 /lab/parity/matrix/fixtures/p1240/
 
 # Temporary files and outputs
-# Passos de sonda criam scratch dirs por número (temp_p581, temp_p763h, ...) —
-# um glob evita ter de adicionar uma linha nova a cada passo.
+# Probe tasks create numbered scratch directories (temp_p581, temp_p763h, ...);
+# one glob avoids adding a new ignore line for each task.
 /temp_p*/
 /test_output.txt
 /perf.data

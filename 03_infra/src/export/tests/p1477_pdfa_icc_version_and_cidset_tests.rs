@@ -9,7 +9,7 @@
 //!
 //! Testes RED (Agente B, contrato "RED sem ver a implementação") contra o
 //! baseline pré-P1477 (`8b6f41db0`, confirmação humana registada, código
-//! ainda não escrito). Ver `00_nucleo/materialization/typst-passo-1477.md`
+//! ainda não escrito). Ver `lab/history/construction/records/00_nucleo/materialization/typst-passo-1477.md`
 //! (medição completa) e `infra/export/images.md`/`infra/export/builder.md`
 //! §P1477 (contrato). Réplica deliberada do padrão de infraestrutura de
 //! `p1475_pdfa_conformance_core_tests`/`p1476_pdfa_attachments_af_tests`

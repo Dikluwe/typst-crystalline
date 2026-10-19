@@ -103,7 +103,7 @@ tem `impl Hash` manual; `Option<String>` deriva).
 ## Reflexão da legenda presente — 2026-10-17
 
 Medição antes da decisão: caption-before.json e more-cast-after.json em
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 fixam UTC, fontes,
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 fixam UTC, fontes,
 binários e o pin 9f2b6e8715237cb086899a42873660fe744622e8. A construção
 conserva a caption, mas content/fields.rs:73 projeta só body de Figure;
 FigureElem mantém o getter default None. O pin retorna FigureCaption para

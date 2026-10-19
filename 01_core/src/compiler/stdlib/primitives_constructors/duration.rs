@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/primitives-constructors/duration.md
-//! @prompt-hash 7c3b612e
+//! @prompt-hash 9238bcb1
 //! @layer L1
 //! @updated 2026-08-23
 

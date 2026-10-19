@@ -14,7 +14,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/grid.rs:125`, `01_core/src/compiler/layout/grid.rs:154`, `01_core/src/compiler/layout/grid.rs:536`, `01_core/src/compiler/layout/grid.rs:30`, `01_core/src/compiler/layout/grid.rs:31`, `01_core/src/compiler/layout/grid.rs:32`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -31,14 +31,14 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 
 ## Produto medido consumível — 2026-10-05
 
-Evidência em tracks.rs:175 e cell_body.rs:155 e diagnóstico `00_nucleo/diagnosticos/reuso-sem-transformacao-2026-10-05.md` precede a decisão. Coordenar o produto local devolvido por tracks e encaminhá-lo à emissão; registrar novo child measurement_cache. Não armazenar cache no Layouter nem mover placement antes de medição. Delegar invariantes de cache ao owner canônico `00_nucleo/prompts/compiler/layout/grid/measurement_cache.md`. Mudança privada de mecânica, na mesma fase e fluxo contínuo ADR-0127.
+Evidência em tracks.rs:175 e cell_body.rs:155 e diagnóstico `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05.md` precede a decisão. Coordenar o produto local devolvido por tracks e encaminhá-lo à emissão; registrar novo child measurement_cache. Não armazenar cache no Layouter nem mover placement antes de medição. Delegar invariantes de cache ao owner canônico `00_nucleo/prompts/compiler/layout/grid/measurement_cache.md`. Mudança privada de mecânica, na mesma fase e fluxo contínuo ADR-0127.
 
 ## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
 
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -97,7 +97,7 @@ mais controles de tracks fixas/fracionárias e estado exato.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -106,7 +106,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -136,9 +136,9 @@ não é certificação de produção. T4 e publicação continuam fora deste pac
 A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
 hashes, UTC, status e `git diff HEAD --stat` estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
 A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
 Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
 É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
 
@@ -175,7 +175,7 @@ exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
 
 ### Medição anterior à decisão
 
-Fontes e L0 vigentes conferidos antes do código; snapshot 00_nucleo/diagnosticos/clippy-aridade-final-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, status, diffstat e hashes globais. callers.txt registra busca no workspace, incluindo fixtures; as chamadas homônimas do math::MathLayouter são outro motor e permanecem intactas. Inventário anterior tem 22 avisos, cinco destas aridades. Trata-se de estrutura privada Rust, sem nova afirmação de paridade ou intenção upstream.
+Fontes e L0 vigentes conferidos antes do código; snapshot lab/results/construction/diagnostics/clippy-aridade-final-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, status, diffstat e hashes globais. callers.txt registra busca no workspace, incluindo fixtures; as chamadas homônimas do math::MathLayouter são outro motor e permanecem intactas. Inventário anterior tem 22 avisos, cinco destas aridades. Trata-se de estrutura privada Rust, sem nova afirmação de paridade ou intenção upstream.
 
 ### Responsabilidade exclusiva e aceitação
 

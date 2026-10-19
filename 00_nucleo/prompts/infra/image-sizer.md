@@ -16,7 +16,7 @@ These are current local source anchors, not a new upstream parity measurement.
 
 Own metadata inspection of already supplied image bytes. Preserve the existing ImageSizer trait implementation and Clone/Copy adapter; do not read paths, load World resources, decode pixels, rotate/re-encode bytes or expose external image-library types to L1. `imagesize::blob_size` yields dimensions as `Option<(u32,u32)>`; invalid/unsupported bytes return `None`.
 
-For PNG DPI, prefer EXIF then pHYs; for JPEG, prefer EXIF then JFIF; other formats return `None`. pHYs uses 0.0254 for pixels/metre and the existing 2.54 conversion for unit 2. JFIF supports unit 1 with positive horizontal density. JPEG segment lengths must include the two length bytes: values below two or beyond the remaining buffer return None without slicing an inverted range, in both DPI and orientation scans. TIFF XResolution supports Rational/SRational with nonzero positive denominator; preserve current parser bounds and conversion. Do not assert a uniform positivity filter: zero PNG/EXIF density can currently be `Some(0.0)`, unlike zero JFIF density. This discrepancy from the old upstream citation remains pending in `00_nucleo/diagnosticos/sanitization-infra-wiring-history.md`.
+For PNG DPI, prefer EXIF then pHYs; for JPEG, prefer EXIF then JFIF; other formats return `None`. pHYs uses 0.0254 for pixels/metre and the existing 2.54 conversion for unit 2. JFIF supports unit 1 with positive horizontal density. JPEG segment lengths must include the two length bytes: values below two or beyond the remaining buffer return None without slicing an inverted range, in both DPI and orientation scans. TIFF XResolution supports Rational/SRational with nonzero positive denominator; preserve current parser bounds and conversion. Do not assert a uniform positivity filter: zero PNG/EXIF density can currently be `Some(0.0)`, unlike zero JFIF density. This discrepancy from the old upstream citation remains pending in `lab/results/construction/diagnostics/sanitization-infra-wiring-history.md`.
 
 Parse TIFF II/MM byte order, marker 42 and IFD0 from the existing PNG/JPEG EXIF containers. Orientation is tag 0x0112, count one, using the accepted BYTE/SHORT/LONG inline forms. Return only values 1 through 8; malformed/absent/unsupported values return `None`. Preserve bounds checking and no new EXIF dependency.
 
@@ -32,7 +32,7 @@ Existing byte fixtures control dimensions, density precedence and legal/invalid 
 ### Medição anterior à decisão
 
 03_infra/src/image_sizer.rs:268 (C093); 03_infra/src/image_sizer.rs:340 (C094).
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos

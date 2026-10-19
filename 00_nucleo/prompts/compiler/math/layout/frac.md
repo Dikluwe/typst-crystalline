@@ -10,7 +10,7 @@ Hash do Código: 24f23dfa
 `01_core/src/compiler/math/layout/frac.rs:20` locates `pub(super) fn layout_frac_horizontal(`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Fraction geometry
 
@@ -57,7 +57,7 @@ of upstream geometry parity.
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/math/layout/frac.rs` nas linhas 101 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `00_nucleo/diagnosticos/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+`01_core/src/compiler/math/layout/frac.rs` nas linhas 101 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
 
 ### Decisão e aceitação
 

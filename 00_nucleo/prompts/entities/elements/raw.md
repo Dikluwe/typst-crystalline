@@ -67,7 +67,7 @@ de L1.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/content-serialization-2026-10-14/
+lab/results/construction/diagnostics/content-serialization-2026-10-14/
 {before,raw-controls}/results.json.gz conserva fonte/estado/UTC, pin vanilla
 9f2b6e8715237cb086899a42873660fe744622e8, argv e SHA-256 dos binários.
 RawElem em entities/elements/raw.rs:21–25 tem text/lang/block, sem presença.
@@ -79,7 +79,7 @@ não a obrigação de usar o storage, Packed ou igualdade Rust do upstream.
 
 ### Contrato público ratificado
 
-Aprovação registrada em 00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Adicionar somente o campo público set_fields:u8 a RawElem,
+Aprovação registrada em lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Adicionar somente o campo público set_fields:u8 a RawElem,
 mantendo text:EcoString, lang:Option<EcoString> e block:bool. Declarar no
 mesmo owner pub const RAW_SET_BLOCK:u8=1 e RAW_SET_LANG:u8=2. Bits restantes
 são reservados e os construtores do repositório os deixam em zero.

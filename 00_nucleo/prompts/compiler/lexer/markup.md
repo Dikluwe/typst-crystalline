@@ -13,7 +13,7 @@ Núcleos Tekt:
 `01_core/src/compiler/lexer/markup.rs:23` locates `pub(super) fn markup(&mut self, start: usize, c: char) -> SyntaxKind`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Markup grammar
 

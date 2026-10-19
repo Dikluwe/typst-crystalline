@@ -81,7 +81,7 @@ paragraph boundaries, links and tag-disabled omission.
 ### Medição anterior à decisão
 
 `03_infra/src/export/builder/metadata.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -98,7 +98,7 @@ observáveis, incluindo os controles de adjacência e os invariantes pinados.
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -116,7 +116,7 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 ### Medição anterior à decisão
 
-T310: 03_infra/src/export/builder/metadata.rs:808; T312: 03_infra/src/export/builder/metadata.rs:835. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T310: 03_infra/src/export/builder/metadata.rs:808; T312: 03_infra/src/export/builder/metadata.rs:835. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -129,7 +129,7 @@ Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default
 
 ### Medição anterior à decisão
 
-F053: 03_infra/src/export/builder/metadata.rs:744 (ua1_leaf_node); F054: 03_infra/src/export/builder/metadata.rs:854 (collect_top). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F053: 03_infra/src/export/builder/metadata.rs:744 (ua1_leaf_node); F054: 03_infra/src/export/builder/metadata.rs:854 (collect_top). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 

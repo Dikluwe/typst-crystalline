@@ -21,7 +21,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/cursor.rs:27`, `01_core/src/compiler/layout/cursor.rs:33`, `01_core/src/compiler/layout/cursor.rs:41`, `01_core/src/compiler/layout/cursor.rs:94`, `01_core/src/compiler/layout/cursor.rs:195`, `01_core/src/compiler/layout/cursor.rs:314`, `01_core/src/compiler/layout/cursor.rs:429`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -48,7 +48,7 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 ### Medição anterior à decisão
 
 `01_core/src/compiler/layout/cursor.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -66,7 +66,7 @@ O cálculo interno baseline_y é compartilhado por descendentes de layout para p
 
 ### Evidence before decision
 
-The current cursor measures and chooses word/chunk breaks at `cursor.rs:195–271`, emits highlighted text at `cursor.rs:149–193`, and transitions regions at `cursor.rs:314–417`. Metrics defines default width at `metrics.rs:249–262`; LineCommit requests post-line progress at `line_commit.rs:696–703`. The 63 controlled source-to-PDF observations and isolated pre-export measurements are archived in `00_nucleo/diagnosticos/auditoria-quebra-paginacao-2026-09-28/`. They expose behavior limitations but this operation separates ownership while preserving those exact decisions. Initial code, L0 and provenance for this operation are archived in `00_nucleo/diagnosticos/separacao-texto-linhas-regioes-2026-09-28/`.
+The current cursor measures and chooses word/chunk breaks at `cursor.rs:195–271`, emits highlighted text at `cursor.rs:149–193`, and transitions regions at `cursor.rs:314–417`. Metrics defines default width at `metrics.rs:249–262`; LineCommit requests post-line progress at `line_commit.rs:696–703`. The 63 controlled source-to-PDF observations and isolated pre-export measurements are archived in `lab/results/construction/diagnostics/auditoria-quebra-paginacao-2026-09-28/`. They expose behavior limitations but this operation separates ownership while preserving those exact decisions. Initial code, L0 and provenance for this operation are archived in `lab/results/construction/diagnostics/separacao-texto-linhas-regioes-2026-09-28/`.
 
 ### Internal ownership decision
 
@@ -76,7 +76,7 @@ Retain cursor origin/baseline and inline bookkeeping, RTL positioning, float-mar
 
 ### Evidence before decision
 
-The 30 bilateral controls in `00_nucleo/diagnosticos/estudo-correcao-falhas-texto-2026-09-28/` measure terminal pages 2/1, explicit terminal pagebreak 3/2, and continuation 3/2 (Tekt/vanilla). The isolated pre-export control emits Four/additional on page 2 with baseline 101.84pt and page height 100pt. The causal sources are line_commit.rs:657-696 (hypothetical next baseline), region_progress.rs:113-128 (post-line transition), cursor.rs:80-135 and parbreak.rs:41-80 (paragraph baseline/spacing). Current source and L0 hashes precede edits in `00_nucleo/diagnosticos/correcao-demanda-regional-2026-09-28/initial.json` and `before/`. This is internal parity correction under ADR-0127, not a public contract/default/pipeline change.
+The 30 bilateral controls in `lab/results/construction/diagnostics/estudo-correcao-falhas-texto-2026-09-28/` measure terminal pages 2/1, explicit terminal pagebreak 3/2, and continuation 3/2 (Tekt/vanilla). The isolated pre-export control emits Four/additional on page 2 with baseline 101.84pt and page height 100pt. The causal sources are line_commit.rs:657-696 (hypothetical next baseline), region_progress.rs:113-128 (post-line transition), cursor.rs:80-135 and parbreak.rs:41-80 (paragraph baseline/spacing). Current source and L0 hashes precede edits in `lab/results/construction/diagnostics/correcao-demanda-regional-2026-09-28/initial.json` and `before/`. This is internal parity correction under ADR-0127, not a public contract/default/pipeline change.
 
 ### Decision and acceptance
 
@@ -87,7 +87,7 @@ After the existing initial/block-chain baseline paths, admit an ordinary next te
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -104,7 +104,7 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/correcao-tracking-rtl-2026-09-29/after-pdf/results.json` e `summary.json` medem 66 fontes/198 PDFs com fonte, pin e estado em `provenance.json`; `wrap-initial.json` registra o estado exato antes desta segunda correção. Em latin-wrap ±0.2/0.333/1.2pt, a primeira/segunda linha do Tekt deslocam-se relativamente ao vanilla por exatamente um intervalo ±t, enquanto a última coincide. O texto e as linhas escolhidas coincidem. `line_commit.rs:241-248` conhece se há continuação, mas `:477` chama `cursor.rs:150` sem essa informação; `cursor.rs:164-177` ancora pela direita real. A inferência de um intervalo terminal pendente é refutada se controles de wrap/hifenização mostrarem outro deslocamento. Esta medição não prova uma regra universal para bidi misto ou espaços iniciais.
+`lab/results/construction/diagnostics/correcao-tracking-rtl-2026-09-29/after-pdf/results.json` e `summary.json` medem 66 fontes/198 PDFs com fonte, pin e estado em `provenance.json`; `wrap-initial.json` registra o estado exato antes desta segunda correção. Em latin-wrap ±0.2/0.333/1.2pt, a primeira/segunda linha do Tekt deslocam-se relativamente ao vanilla por exatamente um intervalo ±t, enquanto a última coincide. O texto e as linhas escolhidas coincidem. `line_commit.rs:241-248` conhece se há continuação, mas `:477` chama `cursor.rs:150` sem essa informação; `cursor.rs:164-177` ancora pela direita real. A inferência de um intervalo terminal pendente é refutada se controles de wrap/hifenização mostrarem outro deslocamento. Esta medição não prova uma regra universal para bidi misto ou espaços iniciais.
 
 ### Contrato interno
 
@@ -116,7 +116,7 @@ Mudança interna ADR-0127 em fluxo contínuo, sem assinatura pública, default o
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/correcao-auto-proximas-2026-09-29/final-rtl/results.json` mede 66 fontes/198 PDFs contra vanilla pinado, com fonte, binário e árvore em `final-rtl/provenance.json`. Nas seis variantes de `#text("  abc") def ghi` com `dir:rtl`, a tinta do Tekt fica à direita do vanilla por 6.24pt no tracking zero, 6.44pt em +0.2 e 5.04pt em −1.2, a largura do par de separadores incluindo o intervalo interno. As origens dos dois espaços ficam antes de `a` no Tekt e após `i` no vanilla; glyphs restantes preservam ordem e texto extraído. `cursor.rs:154-195` alinha pelo limite direito da tinta e translada todos os items igualmente; `helpers.rs:95-107` exclui TextSeparator desse limite. A hipótese refutável é que a linha visual RTL deve reservar à direita o prefixo Literal transportado, sem alterar o tracking interno ou a posição de outros espaços. Isto é linguagem/PDF, não igualdade de bytes nem inferência da intenção histórica.
+`lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/final-rtl/results.json` mede 66 fontes/198 PDFs contra vanilla pinado, com fonte, binário e árvore em `final-rtl/provenance.json`. Nas seis variantes de `#text("  abc") def ghi` com `dir:rtl`, a tinta do Tekt fica à direita do vanilla por 6.24pt no tracking zero, 6.44pt em +0.2 e 5.04pt em −1.2, a largura do par de separadores incluindo o intervalo interno. As origens dos dois espaços ficam antes de `a` no Tekt e após `i` no vanilla; glyphs restantes preservam ordem e texto extraído. `cursor.rs:154-195` alinha pelo limite direito da tinta e translada todos os items igualmente; `helpers.rs:95-107` exclui TextSeparator desse limite. A hipótese refutável é que a linha visual RTL deve reservar à direita o prefixo Literal transportado, sem alterar o tracking interno ou a posição de outros espaços. Isto é linguagem/PDF, não igualdade de bytes nem inferência da intenção histórica.
 
 ### Contrato interno
 
@@ -124,7 +124,7 @@ No alinhamento RTL de linha com prefixo de TextSeparator Literal direto antes do
 
 ## Direção de parágrafo distinta de direção de run — 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/direcao-alinhamento-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes, binários e treze sondas. rtl_lines põe ABC em x=20 no Tekt e x=152.949220 no vanilla pinado; rtl_inline_only e rtl_scope coincidem à esquerda. ltr_lines põe árabe em x=174.567870 no Tekt contra x=20 no vanilla. Em `cursor.rs:156–162` e `line_commit.rs:210–216`, a âncora depende do primeiro item da linha. Vanilla `flow/collect.rs:129–136` obtém trunk_from_pairs e `inline/mod.rs:189,232` resolve direção/alinhamento compartilhados antes das linhas. Semântica observável: direção dos trechos e âncora de todas as linhas do parágrafo. Estratégia de state/preflight é mecânica interna, não cópia do vanilla. Inferência: preservar direção compartilhada evita perder a âncora em linhas só com override; refutada por controles integralmente estilizados/parbreak/wrap.
+Medição anterior à decisão: `lab/results/construction/diagnostics/direcao-alinhamento-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes, binários e treze sondas. rtl_lines põe ABC em x=20 no Tekt e x=152.949220 no vanilla pinado; rtl_inline_only e rtl_scope coincidem à esquerda. ltr_lines põe árabe em x=174.567870 no Tekt contra x=20 no vanilla. Em `cursor.rs:156–162` e `line_commit.rs:210–216`, a âncora depende do primeiro item da linha. Vanilla `flow/collect.rs:129–136` obtém trunk_from_pairs e `inline/mod.rs:189,232` resolve direção/alinhamento compartilhados antes das linhas. Semântica observável: direção dos trechos e âncora de todas as linhas do parágrafo. Estratégia de state/preflight é mecânica interna, não cópia do vanilla. Inferência: preservar direção compartilhada evita perder a âncora em linhas só com override; refutada por controles integralmente estilizados/parbreak/wrap.
 
 Correção interna/de paridade ADR-0127, fluxo contínuo L0 primeiro e RED→GREEN. Apenas campos privados de Layouter e helpers descendentes, nenhuma entidade ou assinatura pública/fase/default novo. Esta rodada certifica conteúdo textual estrutural (Text, Empty, Space/SpaceFromNewline, Linebreak, Sequence, Styled e Strong/Emph); unidades desconhecidas conservam fallback anterior. Não prometer ordem bidi mista, align explícito, HTML ou todas as formas de parágrafo. As equações existentes de largura/tracking permanecem.
 
@@ -134,13 +134,13 @@ Aceitação: RED→GREEN em parágrafo RTL com linha LTR e inverso, escopo integ
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Block/Align — correção interna 2026-10-06
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/block-align-2026-10-06/baseline-verification.json.gz` registra 14 controles completos, fontes, comandos, caixas e binários no HEAD/working tree/UTC de before.json. RTL Block automático põe ABC em x20 no Tekt contra x152.949220 no vanilla; Block(width:100pt) coincide em x100. #set dir:ltr no body não altera a âncora externa do Block automático no vanilla. Align(left/right) mistura bordas por direção do run e desloca Y por 8.35742pt. `placement.rs:35-46,176-177` renderiza no subframe com baseline pronta e subtrai ascender na recomposição; `cursor.rs:154-162` só aplica direção RTL; `block.rs:175-185` posiciona container externo apenas quando largura é explícita. Fonte vanilla pinada `flow/collect.rs:193` resolve Align por linhas e `flow/block.rs:145-166,285` distingue regiões expandidas de auto-size. Paridade de posições/forma, não cópia da mecânica (ADR-0107).
+`lab/results/construction/diagnostics/block-align-2026-10-06/baseline-verification.json.gz` registra 14 controles completos, fontes, comandos, caixas e binários no HEAD/working tree/UTC de before.json. RTL Block automático põe ABC em x20 no Tekt contra x152.949220 no vanilla; Block(width:100pt) coincide em x100. #set dir:ltr no body não altera a âncora externa do Block automático no vanilla. Align(left/right) mistura bordas por direção do run e desloca Y por 8.35742pt. `placement.rs:35-46,176-177` renderiza no subframe com baseline pronta e subtrai ascender na recomposição; `cursor.rs:154-162` só aplica direção RTL; `block.rs:175-185` posiciona container externo apenas quando largura é explícita. Fonte vanilla pinada `flow/collect.rs:193` resolve Align por linhas e `flow/block.rs:145-166,285` distingue regiões expandidas de auto-size. Paridade de posições/forma, não cópia da mecânica (ADR-0107).
 
 ### Responsabilidade exclusiva
 
@@ -214,7 +214,7 @@ externo por overflow com is_sub_frame ativo. sub_frame.rs:109-121,317-340
 salva buffers/cursor, mas não uma página já comitada por esses descendentes.
 Essa hipótese será testada diretamente antes de modificar as condições.
 Fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC estão
-em `00_nucleo/diagnosticos/subframe-isolamento-2026-10-13/before.json.gz`.
+em `lab/results/construction/diagnostics/subframe-isolamento-2026-10-13/before.json.gz`.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -258,7 +258,7 @@ Não substituir esperados de regressão para conservar o defeito.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/block-par-spacing-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/block-par-spacing-before/results.json.gz`
 registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
 UTC, diffstat, hashes de fontes/binários e pin vanilla 9f2b6e871. Com fonte10,
 top10 e bottom0, PRE seguido de Block20 produz página62 no Tekt contra50/55/70
@@ -297,7 +297,7 @@ fim por tinta. A origem inicial geométrica já pendente continua no primeiro ra
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
 registra HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
 UTC/status/diffstat e hashes de fontes/binários contra vanilla pinado9f2b6e871.
 Os lotes block-par-spacing-after e block-par-extra-after anteriores já
@@ -335,7 +335,7 @@ casos sem certificado. Revalidar top-edge/bottom-edge e região seguinte.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
 status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
 extra-before.json.gz contém26; boundary-before.json.gz contém10 e

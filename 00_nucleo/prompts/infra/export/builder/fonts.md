@@ -63,7 +63,7 @@ glyph morphology, not equivalence to an external object-allocation algorithm.
 ### Medição anterior à decisão
 
 `03_infra/src/export/builder/fonts.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -79,7 +79,7 @@ observáveis, incluindo os controles de adjacência e os invariantes pinados.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/results.json`, `provenance.json` e `initial.json` medem 30 fontes/60 PDFs, font-path, comandos, UTC, HEAD, working tree e binários contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Só espaços literais (`#text("   ")`) com tracking 0/±0.2 produzem no Tekt `/MediaBox [0 0 0 0]` (Poppler apresenta 612×792), enquanto o vanilla mede respectivamente 9.36/9.76/8.96×8.568pt. Separadores literais finais após texto perdem a sua largura em páginas auto; os iniciais seguidos de texto já coincidem. Escopo com tamanho 18pt termina em 14.44×12.852pt vanilla para +0.2pt. Texto vazio e markup sem tinta revelam outra falta de baseline/mínimo; newline final tem divergência vertical própria e não é fechado por esta fatia.
+`lab/results/construction/diagnostics/correcao-auto-espacos-2026-09-29/before/results.json`, `provenance.json` e `initial.json` medem 30 fontes/60 PDFs, font-path, comandos, UTC, HEAD, working tree e binários contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Só espaços literais (`#text("   ")`) com tracking 0/±0.2 produzem no Tekt `/MediaBox [0 0 0 0]` (Poppler apresenta 612×792), enquanto o vanilla mede respectivamente 9.36/9.76/8.96×8.568pt. Separadores literais finais após texto perdem a sua largura em páginas auto; os iniciais seguidos de texto já coincidem. Escopo com tamanho 18pt termina em 14.44×12.852pt vanilla para +0.2pt. Texto vazio e markup sem tinta revelam outra falta de baseline/mínimo; newline final tem divergência vertical própria e não é fechado por esta fatia.
 
 Causa fonte: `space.rs:22-35` não transporta Literal inicial sem tracking; `page_geometry.rs:104-135` usa `helpers::line_content_right` que filtra todos os TextSeparator, por necessidade correta do alinhamento RTL, e a altura de linha só com carrier não recebe topo tipográfico; `builder.rs:291` e `builder/fonts.rs:633,1167` escrevem MediaBox zero. Vanilla `crates/typst-pdf/src/convert.rs:108-118` impõe mínimo físico de 3×3 na saída PDF. Isso justifica projeção auto separada do alinhamento RTL e mínimo compartilhado entre os três caminhos exportadores. Não inferir intenção histórica do escopo antigo.
 
@@ -92,7 +92,7 @@ Correção interna de paridade em fluxo contínuo ADR-0127, sem campo público, 
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -111,7 +111,7 @@ Usar cache privado por tabela de recursos/exportação para positivos validados:
 
 ### Medição anterior à decisão
 
-`03_infra/src/export/builder/fonts.rs:933-974` submete os bytes originais ao subsetter antes de chamar o instancer. `03_infra/src/export/subset.rs:56` usa a API subset sem coordenadas. `03_infra/src/font_variant.rs:209-213` devolve bytes sem alteração quando fvar já não existe; esse Some era tratado como sucesso de instanciação. A sonda de fonte isolada e catálogo completo em `00_nucleo/diagnosticos/eixos-variaveis-export-2026-10-05/probe*.txt` preserva wght=250/900 e mede Hello em 2310/2557 unidades de 1000. O PDF anterior embute hmtx default, sem fvar, com H=697 em ambas as fontes; o controle independente fontTools mede H=689/734. Proveniência anterior em before.json. O vanilla pinado entrega bytes originais e coordenadas conjuntamente à biblioteca PDF (`lab/typst-original/crates/typst-pdf/src/text.rs:79-94`), sem exigir cópia da sua mecânica.
+`03_infra/src/export/builder/fonts.rs:933-974` submete os bytes originais ao subsetter antes de chamar o instancer. `03_infra/src/export/subset.rs:56` usa a API subset sem coordenadas. `03_infra/src/font_variant.rs:209-213` devolve bytes sem alteração quando fvar já não existe; esse Some era tratado como sucesso de instanciação. A sonda de fonte isolada e catálogo completo em `lab/results/construction/diagnostics/eixos-variaveis-export-2026-10-05/probe*.txt` preserva wght=250/900 e mede Hello em 2310/2557 unidades de 1000. O PDF anterior embute hmtx default, sem fvar, com H=697 em ambas as fontes; o controle independente fontTools mede H=689/734. Proveniência anterior em before.json. O vanilla pinado entrega bytes originais e coordenadas conjuntamente à biblioteca PDF (`lab/typst-original/crates/typst-pdf/src/text.rs:79-94`), sem exigir cópia da sua mecânica.
 
 ### Decisão e contrato interno
 
@@ -126,7 +126,7 @@ O pedido privado de subset multifont inclui coordenadas mesmo quando a lista est
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -135,7 +135,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -163,7 +163,7 @@ não é certificação de produção. T4 e publicação continuam fora deste pac
 ### Medição anterior à decisão
 
 03_infra/src/export/builder/fonts.rs:63 (C040); 03_infra/src/export/builder/fonts.rs:67 (C041); 03_infra/src/export/builder/fonts.rs:846 (C043).
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
@@ -191,7 +191,7 @@ restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
 
 ### Medição anterior à decisão
 
-03_infra/src/export/builder/fonts.rs:289 (clippy::single_match). O snapshot `00_nucleo/diagnosticos/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
+03_infra/src/export/builder/fonts.rs:289 (clippy::single_match). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -204,7 +204,7 @@ Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependênc
 
 ### Medição anterior à decisão
 
-As fontes, chamadores, cláusulas vigentes, spans e inventário de 28 avisos foram conferidos antes da decisão. `00_nucleo/diagnosticos/clippy-aridade-interna-2026-10-16/before.json.gz` guarda fontes/L0 completos, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A auditoria anterior classifica estes casos como correção; não são exceções diretas. O RED deve observar as aridades atuais antes de alterações; controles funcionais existentes serão corridos antes/depois. É refatoração de representação privada, sem nova paridade ou ganho de performance medido.
+As fontes, chamadores, cláusulas vigentes, spans e inventário de 28 avisos foram conferidos antes da decisão. `lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/before.json.gz` guarda fontes/L0 completos, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A auditoria anterior classifica estes casos como correção; não são exceções diretas. O RED deve observar as aridades atuais antes de alterações; controles funcionais existentes serão corridos antes/depois. É refatoração de representação privada, sem nova paridade ou ganho de performance medido.
 
 ### Responsabilidade exclusiva e aceitação
 

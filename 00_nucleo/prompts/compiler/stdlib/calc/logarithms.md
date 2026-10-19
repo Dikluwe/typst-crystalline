@@ -3,7 +3,7 @@ Hash do Código: 95104d8e
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/logarithms.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:848-995` contém o comportamento correspondente. SHA-256, horário e estado estão em `00_nucleo/diagnosticos/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/logarithms.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:848-995` contém o comportamento correspondente. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
 
 ## Contrato
 
@@ -19,7 +19,7 @@ Preservar a suíte L1 e os testes de calc, compilar e passar `crystalline-lint .
 
 Estado: HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
 commitado. Fontes, SHA-256, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/matematica-ci-2026-10-13/before.json.gz`; sondas de
+`lab/results/construction/diagnostics/matematica-ci-2026-10-13/before.json.gz`; sondas de
 linguagem e identidade dos binários estão no recibo `evidence.json.gz` desse
 mesmo diagnóstico (entrada `before-probes.json`). O oráculo é o pin
 `9f2b6e8715237cb086899a42873660fe744622e8`, SHA-256 ratificado

@@ -23,7 +23,7 @@ Exclusive consumer: `01_core/src/compiler/eval/rules/set.rs`
 
 ## Medição antes da decisão
 
-A working tree não commitada capturada em `00_nucleo/diagnosticos/atomizacao-eval-rules-2026-09-30-before.json.gz` contém as rotinas desta família em `01_core/src/compiler/eval/rules.rs`. A suíte L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem prova bilateral nova contra o vanilla. As medidas históricas e ressalvas do pin continuam em `00_nucleo/prompts/compiler/eval/rules.md`.
+A working tree não commitada capturada em `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` contém as rotinas desta família em `01_core/src/compiler/eval/rules.rs`. A suíte L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem prova bilateral nova contra o vanilla. As medidas históricas e ressalvas do pin continuam em `00_nucleo/prompts/compiler/eval/rules.md`.
 
 ## Contrato de linguagem
 
@@ -157,7 +157,7 @@ Dados sem texto não dependem de fontes por esse reparo.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-styles-d08b3c-2026-10-07/before.json.gz registra 58 sondas, UTC 2026-10-07T15:24:58.038947+00:00 até 15:25:13.727872+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/status/fontes/argv/cwd/ambiente completos. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set, campos individuais, late/local/reuse/spread e rejeições refutam o warning de target vazio e a ausência dos defaults. padding-span-one/empty-fixed-rows fixam spans 1 em vazios; auto-table-fallback preserva Auto explícito como delegação à Table, não ao set da Cell. show-cell-set-self altera avulsa mas não fill conhecido da Cell posicionada. Stroke/alignment fazem fold. refuters-before.json.gz estende com header, partial inset, args/condição e snapshot em Table; alias-inside-table é válido no vanilla e recursa indevidamente no Tekt.
+lab/results/construction/diagnostics/table-cell-styles-d08b3c-2026-10-07/before.json.gz registra 58 sondas, UTC 2026-10-07T15:24:58.038947+00:00 até 15:25:13.727872+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/status/fontes/argv/cwd/ambiente completos. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set, campos individuais, late/local/reuse/spread e rejeições refutam o warning de target vazio e a ausência dos defaults. padding-span-one/empty-fixed-rows fixam spans 1 em vazios; auto-table-fallback preserva Auto explícito como delegação à Table, não ao set da Cell. show-cell-set-self altera avulsa mas não fill conhecido da Cell posicionada. Stroke/alignment fazem fold. refuters-before.json.gz estende com header, partial inset, args/condição e snapshot em Table; alias-inside-table é válido no vanilla e recursa indevidamente no Tekt.
 
 Fonte: upstream typst-library/src/model/table.rs:734–778 declara campos, e layout/grid/resolve.rs:203–278 lê estilos antes de resolver/sobrescrever posições/fill; defaults de padding TableCell packed em model/table.rs:785–800 pinam spans 1. Tekt rules/set.rs:23–27 usa text_str de target e não reconhece FieldAccess; table_cells.rs:262–310 usa apenas propriedades lexicais no placement/herança; grid_placement.rs:80 lê x/y/spans diretamente; TableCell standalone não possui propriedades efetivas privadas. É língua (campos/ordem/efeitos/estilo/erros); a representação privada abaixo é decisão Tekt, não obrigação de copiar Packed ou igualdade Rust. Hipótese refutável por qualquer negativo destas coletas, perda de fonte lexical, mutação de valor cru, efeito repetido, guard de alias perdido ou regressão de geometria/cache.
 
@@ -181,7 +181,7 @@ extra-first.json.gz (fontes/HEAD/estado/UTC/binários completos) compara two-str
 
 ## Adaptação Memória 5 — proposta pendente ADR-0127
 
-Medição antes da decisão: 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/
+Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
 before.json.gz e inventory.json congelam este consumer e cada ocorrência
 file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
 Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
@@ -205,7 +205,7 @@ suas cláusulas propostas passam a vigorar nesta materialização.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/set-condicoes-2026-10-14/{before,extra-before}/results.json.gz
+lab/results/construction/diagnostics/set-condicoes-2026-10-14/{before,extra-before}/results.json.gz
 registra UTC, fontes, owners, status/diffstat, comandos e hashes dos binários,
 contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8.
 set text/page/par/block if false executa panic de argumentos. Condição com
@@ -298,7 +298,7 @@ regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/hash
-registrados em 00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+registrados em lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
 before-pdf-probe.json.gz: heading-supplement-panic termina em sucesso no Tekt
 e em A1_HEADING no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-supplement-valid aceita ambos, mas só o vanilla usa Custom na referência.
@@ -325,7 +325,7 @@ sem callbacks em encoder/walk/layout e sem alegar paridade de todos os campos.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz
 e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
 bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
 foundations/content/mod.rs:724–728 declara children requerido;
@@ -370,7 +370,7 @@ só no ambiente de validação. Resselo após V15/V26 válido e proveniência ex
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-indent-2026-10-18/before.json.gz contém
+lab/results/construction/diagnostics/bibliography-indent-2026-10-18/before.json.gz contém
 60 pares de sondas no HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
 working tree não commitado/UTC/status/diff HEAD --stat, fontes/argv/binários,
 texto e caixas. before-sources.json.gz preserva fontes/L0. Oracle pinado
@@ -423,7 +423,7 @@ Testes RED funcionais antes da implementação; GREEN de fronteira título/cita�
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
 status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
 extra-before.json.gz contém26; boundary-before.json.gz contém10 e

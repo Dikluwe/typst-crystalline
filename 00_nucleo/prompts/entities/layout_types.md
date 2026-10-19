@@ -11,7 +11,7 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 registra UTC, working tree não commitada sobre
 `17f13b1df79b87ea065ee62e78164b18e477da3d`, lista exata de alterações,
 hashes das fontes e dos binários. SHA-256 do Tekt medido:
@@ -110,7 +110,7 @@ controles abertos até medição/decisão próprias; não declarar paridade comp
 
 ### Medição anterior à decisão
 
-As sondas de `00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/`
+As sondas de `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/`
 usaram o working tree sobre `17f13b1df79b87ea065ee62e78164b18e477da3d`,
 binário reconstruído e vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`.
 `A B C` e `#text("A B C")` extraem `ABC` no PDF Tekt e `A B C` no vanilla;
@@ -877,7 +877,7 @@ materializados somente após o gate. Geometria e ordem de páginas não mudam.
 ### Medição anterior à decisão
 
 Na working tree não commitada sobre `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`
-(proveniência, fixtures e extração: `00_nucleo/diagnosticos/typst-p1486-page-labels.md`),
+(proveniência, fixtures e extração: `lab/results/construction/diagnostics/typst-p1486-page-labels.md`),
 o vanilla pinado rotula a seleção física 1+3 com `1, 3` sob padrão `"1"`
 e com `10, 12` após `counter(page).update(10)`. O cristalino atual rotula
 ambas como `1, 2`. Em `layout_types.rs:853-865`, `Page` preserva o
@@ -1044,7 +1044,7 @@ trait, fase eval/layout ou dispatch dinâmico.
 ### Medição anterior à decisão
 
 `01_core/src/entities/layout_types.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -1061,7 +1061,7 @@ observáveis, incluindo os controles de adjacência e os invariantes pinados.
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -1078,7 +1078,7 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/shy-autoral-2026-09-28/initial.json` e
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/initial.json` e
 `before/resultados.json` registram estado, binários, comandos e trinta sondas
 bilaterais. Em largura 300pt, repre<U+00AD>sentation extrai dois SHY no Tekt
 e um no vanilla pinado. O controle spaces extrai seis versus um.
@@ -1108,7 +1108,7 @@ explícita de quebra SHY e o fallback sem fonte permanecem fora desta correção
 
 ### Medição anterior à decisão
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree integral, UTC, fontes e binários; treze entradas CLI com vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. rtl_auto_mixed põe ABC em x=124.020510 no Tekt contra152.949220 no vanilla; ltr_numeric põe árabe à esquerda e inverte 123/456, contra números à esquerda no vanilla. `layout_bidi.rs:73–82` usa primeiro caractere forte da linha e `:227–240` usa qualquer style.dir RTL como nível padrão; `shaper/bidi.rs:34` resolve cada string novamente com base automática. O contexto privado de paragraph.rs não chega a esses consumers. Vanilla `inline/mod.rs:189,232` resolve direção compartilhada; `inline/collect.rs:156–178` conserva embedding explícito por TextElem com direção diferente da base. `probe.json.gz` registra receita, rustc, hashes da biblioteca unicode-bidi 0.3.18 e sonda independente: dentro de ABC 123 456 789 مرحبا, linha 456 789 é um run LTR; a mesma string isolada com a mesma base RTL tem runs 789, espaço, 456. Isso refuta o transporte somente de Dir e a resolução por linha/palavra isolada. Não é prova de geometria de um candidato produtivo. Semântica/sintaxe/morfologia são obrigações; biblioteca, ranges, Arc e estratégia de cache são mecânica interna (ADR-0107).
+Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree integral, UTC, fontes e binários; treze entradas CLI com vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. rtl_auto_mixed põe ABC em x=124.020510 no Tekt contra152.949220 no vanilla; ltr_numeric põe árabe à esquerda e inverte 123/456, contra números à esquerda no vanilla. `layout_bidi.rs:73–82` usa primeiro caractere forte da linha e `:227–240` usa qualquer style.dir RTL como nível padrão; `shaper/bidi.rs:34` resolve cada string novamente com base automática. O contexto privado de paragraph.rs não chega a esses consumers. Vanilla `inline/mod.rs:189,232` resolve direção compartilhada; `inline/collect.rs:156–178` conserva embedding explícito por TextElem com direção diferente da base. `probe.json.gz` registra receita, rustc, hashes da biblioteca unicode-bidi 0.3.18 e sonda independente: dentro de ABC 123 456 789 مرحبا, linha 456 789 é um run LTR; a mesma string isolada com a mesma base RTL tem runs 789, espaço, 456. Isso refuta o transporte somente de Dir e a resolução por linha/palavra isolada. Não é prova de geometria de um candidato produtivo. Semântica/sintaxe/morfologia são obrigações; biblioteca, ranges, Arc e estratégia de cache são mecânica interna (ADR-0107).
 
 ### Contrato público ratificado
 
@@ -1122,14 +1122,14 @@ A entidade nova e sua validação pertencem exclusivamente a `00_nucleo/prompts/
 
 Todos os clones, translações, envelopes, visitors e diagnósticos conservam a opção sem extrair texto/controles dela. O shaper transporta o span quando substitui Text por TextShaped; splits fazem subspans validados. Não duplicar a lógica/validação da entidade neste módulo. Plain-text e PDF continuam extraindo o texto da folha e a origem existente do separador, nunca a entrada auxiliar de bidi. Nenhum código consumidor é autorizado por este bloco enquanto o pacote L0 não for confirmado.
 
-Ratificação recebida: “confirmo”, manifesto 1ae7513eb3af426754909954aef165c97257a9f62d3911fbb111e2002fac4043, evidência em `00_nucleo/materialization/bidi-contexto-aprovacao-2026-10-05.json`. Versões congeladas estão no receipt before.json.gz da implementação; alterações de Hash do Código não substituem a prova da aprovação.
+Ratificação recebida: “confirmo”, manifesto 1ae7513eb3af426754909954aef165c97257a9f62d3911fbb111e2002fac4043, evidência em `lab/history/construction/records/00_nucleo/materialization/bidi-contexto-aprovacao-2026-10-05.json`. Versões congeladas estão no receipt before.json.gz da implementação; alterações de Hash do Código não substituem a prova da aprovação.
 
 
 ## Face real de TextShaped — contrato ratificado ADR-0127
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/initial.json.gz`
+`lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/initial.json.gz`
 conserva HEAD, working tree completa não commitada, UTC, fontes, binários e
 owners antes desta proposta. `probe.rs`, `probe-build.txt` e `probe.txt`
 reproduzem um catálogo controlado com DejaVu Sans regular e Oblique.
@@ -1145,10 +1145,10 @@ a mesma entrada diretamente nessa face produz cinco GIDs zero e não cobre م.
 `bilateral.json` conserva três controles fonte→PDF em cada compilador,
 contra vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, sem inferir
 correção visual apenas da extração. O raster previamente registrado em
-`00_nucleo/diagnosticos/bidi-contexto-implementacao-2026-10-05/raster.json`
+`lab/results/construction/diagnostics/bidi-contexto-implementacao-2026-10-05/raster.json`
 confirma tinta incompatível no Emph árabe.
 
-O relatório `00_nucleo/diagnosticos/paridade-producao-p534.md:79-80`
+O relatório `lab/results/construction/diagnostics/paridade-producao-p534.md:79-80`
 descreve explicitamente transportar a família para embutir a face correta.
 Isto prova a aproximação histórica documentada, não uma decisão consciente
 de aceitar corrupção de GIDs. Identidade da face é mecânica de integridade
@@ -1230,7 +1230,7 @@ o inventário de candidatos não constitui ownership compartilhado.
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -1242,7 +1242,7 @@ Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity
 
 Medição anterior à decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado; fontes, UTC, status, diffstat e hashes em
-`00_nucleo/diagnosticos/pre-shaping-ci-2026-10-13/before.json.gz`.
+`lab/results/construction/diagnostics/pre-shaping-ci-2026-10-13/before.json.gz`.
 O inventário Clippy anterior desta árvore, cfg-test-ci-2026-10-13,
 contém 89 diagnósticos deprecated no core, todos da variante Text e seus
 campos. layout_types.rs:393-407 mantém a marcação P483; text.rs:37 emite
@@ -1274,7 +1274,7 @@ com e sem fontes, build, Clippy, ownership/núcleos e selos.
 
 ### Medição anterior à decisão
 
-`01_core/src/entities/layout_types.rs` nas linhas 1096, 1097, 1113, 1114 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `00_nucleo/diagnosticos/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+`01_core/src/entities/layout_types.rs` nas linhas 1096, 1097, 1113, 1114 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
 
 ### Decisão e aceitação
 
@@ -1288,10 +1288,10 @@ Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, defaul
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -1319,7 +1319,7 @@ e já autorizados. Não alegar paridade de tiling ou produção a partir do buil
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -1328,7 +1328,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -1355,7 +1355,7 @@ não é certificação de produção. T4 e publicação continuam fora deste pac
 
 ### Medição anterior à decisão
 
-F051: 01_core/src/entities/layout_types.rs:1392 (visit_item). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F051: 01_core/src/entities/layout_types.rs:1392 (visit_item). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 

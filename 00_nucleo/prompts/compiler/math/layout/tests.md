@@ -1,5 +1,5 @@
 # L0 — math/layout/tests
-Hash do Código: b28985ca
+Hash do Código: b86f79e7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c
@@ -14,7 +14,7 @@ Núcleos Tekt:
 `01_core/src/compiler/math/layout/tests.rs:16` locates `fn default_style() -> TextStyle`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Test-only ownership
 
@@ -77,13 +77,13 @@ base+marca e medir o raster contra o vanilla.
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Saneamento do CI — 2026-10-13
 
 Estado medido: HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree
 não commitado. Fontes, hashes, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/testes-ci-2026-10-13/before.json.gz`. O inventário
+`lab/results/construction/diagnostics/testes-ci-2026-10-13/before.json.gz`. O inventário
 Clippy de entrada é `matematica-ci-2026-10-13/clippy-inventory.json`, conservado
 no evidence.json.gz daquela rodada. Medir antes de decidir (ADR-0108).
 
@@ -110,7 +110,7 @@ funcional anterior não recebem alegação artificial de RED→GREEN funcional.
 
 ### Medição anterior à decisão
 
-F043: 01_core/src/compiler/math/layout/tests.rs:3361 (script_y_offset); F044: 01_core/src/compiler/math/layout/tests.rs:4226 (visit); F045: 01_core/src/compiler/math/layout/tests.rs:4240 (visit); F046: 01_core/src/compiler/math/layout/tests.rs:4963 (collect_dot_ys); F047: 01_core/src/compiler/math/layout/tests.rs:6054 (p963_y); F048: 01_core/src/compiler/math/layout/tests.rs:6516 (p971_x); F049: 01_core/src/compiler/math/layout/tests.rs:6647 (visit). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F043: 01_core/src/compiler/math/layout/tests.rs:3361 (script_y_offset); F044: 01_core/src/compiler/math/layout/tests.rs:4226 (visit); F045: 01_core/src/compiler/math/layout/tests.rs:4240 (visit); F046: 01_core/src/compiler/math/layout/tests.rs:4963 (collect_dot_ys); F047: 01_core/src/compiler/math/layout/tests.rs:6054 (p963_y); F048: 01_core/src/compiler/math/layout/tests.rs:6516 (p971_x); F049: 01_core/src/compiler/math/layout/tests.rs:6647 (visit). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 
@@ -143,7 +143,7 @@ Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets c
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
 `morph-before-measurement.json.gz` e `audit.json` conservam HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
 fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.

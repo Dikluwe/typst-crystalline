@@ -16,7 +16,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/measurement.rs:27`, `01_core/src/compiler/layout/measurement.rs:64`, `01_core/src/compiler/layout/measurement.rs:354`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -34,7 +34,7 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 
 ### Medição anterior à decisão
 
-O controle bilateral pinado em `00_nucleo/diagnosticos/grid-vanilla-phase-2026-10-03.md` mediu quatro colunas Auto com desvios acumulados de 0, 2,5, 5,0 e 7,5 pt nos inícios das células. Com colunas fixas, os 320 inícios coincidiram em x dentro de 0,001 pt. A sonda de linguagem mediu 2,5 pt para o espaço sob Libertinus Serif 10pt nos dois motores. Em `01_core/src/compiler/layout/measurement.rs:70-96`, a largura de `Content::Text` soma um espaço após cada palavra, inclusive a última; `01_core/src/compiler/layout/grid/tracks.rs:79` usa essa largura em Auto. A fonte vanilla pinada mede o frame da célula em `lab/typst-original/crates/typst-layout/src/grid/layouter.rs:967-1100`. A atribuição causal ainda exige ablação e controle RED→GREEN; a observação não prova equivalência para células complexas.
+O controle bilateral pinado em `lab/results/construction/diagnostics/grid-vanilla-phase-2026-10-03.md` mediu quatro colunas Auto com desvios acumulados de 0, 2,5, 5,0 e 7,5 pt nos inícios das células. Com colunas fixas, os 320 inícios coincidiram em x dentro de 0,001 pt. A sonda de linguagem mediu 2,5 pt para o espaço sob Libertinus Serif 10pt nos dois motores. Em `01_core/src/compiler/layout/measurement.rs:70-96`, a largura de `Content::Text` soma um espaço após cada palavra, inclusive a última; `01_core/src/compiler/layout/grid/tracks.rs:79` usa essa largura em Auto. A fonte vanilla pinada mede o frame da célula em `lab/typst-original/crates/typst-layout/src/grid/layouter.rs:967-1100`. A atribuição causal ainda exige ablação e controle RED→GREEN; a observação não prova equivalência para células complexas.
 
 ### Decisão e aceitação
 
@@ -44,7 +44,7 @@ Na medição restrita de texto, contar o espaço entre palavras consecutivas, se
 
 ### Medição anterior à decisão
 
-A comparação pareada registra fontes e binários em `00_nucleo/diagnosticos/dupla-avaliacao-auditoria-2026-10-05/bench-paired-measurement-red.json.gz`. O controle `show_grid320` mostrou largura e raster divergentes em `geometry-measurement-red.json.gz`: a emissão preserva os textos, mas o dispatcher restrito em `01_core/src/compiler/layout/measurement.rs:69` não trata os transportes de realização e cai no fallback sem extensão. O controle sem show não divergiu. Esta observação mede uma regressão interna do ensaio; não infere intenção do vanilla.
+A comparação pareada registra fontes e binários em `lab/results/construction/diagnostics/dupla-avaliacao-auditoria-2026-10-05/bench-paired-measurement-red.json.gz`. O controle `show_grid320` mostrou largura e raster divergentes em `geometry-measurement-red.json.gz`: a emissão preserva os textos, mas o dispatcher restrito em `01_core/src/compiler/layout/measurement.rs:69` não trata os transportes de realização e cai no fallback sem extensão. O controle sem show não divergiu. Esta observação mede uma regressão interna do ensaio; não infere intenção do vanilla.
 
 ### Decisão e aceitação
 
@@ -54,7 +54,7 @@ A medição restrita deve projetar `Realized` no conteúdo visual e `Located`/`S
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/block-tabela-fluxo-2026-10-06/before.json` conserva
+`lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/before.json` conserva
 estado/HEAD/stat/status/fontes L0 e código/binários. O lote predecessor em
 espaco-terminal-2026-10-06/verification.json.gz mede seis tabelas: ABC/123 e
 árabe ficam em duas linhas no Tekt, uma no vanilla pinado 9f2b6e871.
@@ -94,7 +94,7 @@ wrap; uma Sequence inline não equivale a um Stack vertical.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 A delegação transparente já owned de ShowRecipe.body também aceita Source.body, sem executar origem separada, publicar carrier ou atribuir Location. Preservar classificação/preparo/serialização conforme a operação desta unidade.
 

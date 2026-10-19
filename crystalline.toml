@@ -15,7 +15,7 @@ L4  = "04_wiring"
 # Excluídos — ignorados intencionalmente, não disparam V8
 [excluded]
 # Evidência histórica não é consumer produtivo (ADRs 0129/0130).
-diagnostics = "diagnosticos" # o walker compara nomes de diretório
+diagnostics = "diagnostics" # o walker compara nomes de diretório
 build   = "target"
 vcs     = ".git"
 cargo   = ".cargo"
@@ -189,32 +189,7 @@ types = ["Mmap"]
 
 
 [orphan_exceptions]
-# Prompt comum partilhado por vários ficheiros stdlib; não tem um "dono" único
-"00_nucleo/prompts/compiler/stdlib/_comum.md" = "prompt comum partilhado por múltiplos ficheiros stdlib; não tem dono único"
-# Prompts auxiliares e detalhados implementados nos arquivos principais do eval
-"00_nucleo/prompts/compiler/eval/table.md" = "especificação de set table numbering integrada em rules.rs"
-"00_nucleo/prompts/compiler/show-regex.md" = "especificação de show regex integrada em rules.rs"
-"00_nucleo/prompts/compiler/style/font-dict.md" = "especificação de set font dict integrada em rules.rs"
-# ADRs não materializam código directamente
-"00_nucleo/adr/adr-0001-estrategia-migracao.md" = "ADR — não materializa código"
-# Template editorial — não materializa código directamente
-"00_nucleo/prompts/template-prompts.md" = "template de prompt — contrato editorial, não materializa directamente"
-# World e TrackedWorld — implementação concreta (SystemWorld) em L3 no Passo 5
-"01_core/src/contracts/world.rs" = "implementação concreta (SystemWorld) em L3, Passo 5"
-"01_core/contracts/world.rs" = "implementação concreta (SystemWorld) em L3, Passo 5"
-# Prompts de Passo 3 que ainda não têm materialização em L3
-"00_nucleo/prompts/package-spec-dto.md" = "materializa em L3, Passo 3 (typst-infra não existe ainda)"
-"00_nucleo/prompts/shell.md" = "materializa em L2, passo futuro"
-"00_nucleo/prompts/infra.md" = "materializa em L3, passo futuro"
-"00_nucleo/prompts/infra/pipeline.md" = "prompt de infra implementado em 03_infra/src/pipeline.rs (L3)"
-"00_nucleo/prompts/wiring.md" = "materializa em L4, passo futuro"
-# P767 — L0 para correção do modelo de fluxo de Content::Shape; implementação em P767a
-"00_nucleo/prompts/compiler/layout/shape_block_behaviour.md" = "P767 L0 — implementação em P767a"
-# Passo 1032 — regex movido de text/regex.rs para foundations/str.rs; este L0 é redirecionamento histórico
-"00_nucleo/prompts/compiler/stdlib/text/regex.md" = "Passo 1032: nó movido para foundations/str.md; redirecionamento histórico"
-"00_nucleo/prompts/auditar-fatiamento.md" = "prompt de processo de auditoria de fatiamento"
-"00_nucleo/prompts/auditar-spec.md" = "prompt de processo de auditoria de especificação"
-"00_nucleo/prompts/infra/package_version_resolution.md" = "especificação de resolução de versões de pacotes em L3 (passo futuro)"
+# No ownerless documents remain in active L0. Process templates live in lab/tools/workflows.
 
 [wildcard_exceptions]
 "01_core/src/compiler/eval/bindings/field_access.rs:568" = "eval de nó/método retorna neutro para variantes sem despacho específico"

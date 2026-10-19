@@ -36,7 +36,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 
 ### Evidência anterior à decisão
 
-`00_nucleo/diagnosticos/diagnostic-paths-2026-10-06/identity-next-audit.json`
+`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
 conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
 Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
 separam erro/warning do documento de erro da expressão: o documento perde sua
@@ -82,14 +82,14 @@ esgotamento: detectar a condição, soltar guards e só então emitir o panic.
 Dependências físicas e memoização de erros/sucessos mantêm o contrato anterior.
 
 Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
+lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
 Consumer exclusivo preservado; Hash do Código acompanha a materialização.
 
 ## Reuso sintático de watch — lote A
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/incremental-prioridade6-2026-10-08/before.json.gz,
+lab/results/construction/diagnostics/incremental-prioridade6-2026-10-08/before.json.gz,
 measurement.json.gz, control-measurement.json.gz e count.json registram árvore,
 HEAD, UTC, comandos e releases. Source::new reconstrói CST; World novo constrói
 Source main/import a cada edição. O import mínimo já absorve recursos no eval_ms;

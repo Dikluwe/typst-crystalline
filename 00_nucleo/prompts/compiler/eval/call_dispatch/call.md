@@ -6,7 +6,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/call.rs`. No HEAD `d5c563dfab39f789e8e2f72c9a9364f5a761e3ca` e árvore limpa, `01_core/src/compiler/eval/call_dispatch.rs:1305-2125` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-call-dispatch-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/call.rs`. No HEAD `d5c563dfab39f789e8e2f72c9a9364f5a761e3ca` e árvore limpa, `01_core/src/compiler/eval/call_dispatch.rs:1305-2125` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-call-dispatch-2026-09-30-before.json.gz`.
 
 ## Contrato
 
@@ -22,7 +22,7 @@ Preservar a suíte L1, os testes de call_dispatch e `crystalline-lint .` com own
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
 anterior foram verificados exatamente antes do baseline. before-probe.json.gz
 e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.

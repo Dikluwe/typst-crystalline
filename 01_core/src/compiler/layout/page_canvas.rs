@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/page_canvas.md
-//! @prompt-hash 706b872f
+//! @prompt-hash e456e9c3
 //! @layer L1
 //!
 //! Composição isolada dos layers decorativos da página (ADR-0109 forma B).

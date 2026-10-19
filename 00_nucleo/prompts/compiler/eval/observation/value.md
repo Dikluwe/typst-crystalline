@@ -57,7 +57,7 @@ validar junto com o conjunto D08A; ressellar exclusivamente este owner adicional
 ### Medição anterior à decisão
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
 conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
 baseline-reuse.json prova igualdade de fontes/configuração/binário com a
 matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
@@ -118,7 +118,7 @@ antigos por cópia nem publicar.
 
 Medição anterior à decisão: candidate-1/state.json.gz e
 differential-review.json em
-00_nucleo/diagnosticos/native-format-catalogue-2026-10-17 registram oito
+lab/results/construction/diagnostics/native-format-catalogue-2026-10-17 registram oito
 notas V19 novas e quatro atualizadas. Estas últimas apenas incluem Format
 no padrão e elevam a contagem; não são violações removidas. O primeiro
 comparador exigia mensagem idêntica e por isso recusou a atualização.

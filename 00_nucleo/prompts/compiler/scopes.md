@@ -10,7 +10,7 @@ Hash do Código: 86a24557
 `01_core/src/compiler/scopes.rs:19` locates `pub struct Scopes<'a>`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Scope stack and capture
 
@@ -57,7 +57,7 @@ requiring the upstream Binding representation.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/snapshot-scopes-prioridade7-2026-10-08/before.json.gz`
+`lab/results/construction/diagnostics/snapshot-scopes-prioridade7-2026-10-08/before.json.gz`
 guarda HEAD/árvore/UTC/textos e release 17e72149. scopes.rs:84–103 reinsere por
 nome todos os bindings do prefixo e dos overlays. closures.rs:196 e
 expression_dispatch.rs:505 capturam na definição, não em cada chamada.

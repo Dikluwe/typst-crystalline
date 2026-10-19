@@ -230,13 +230,13 @@ T1: usos genéricos Display+ToString e collect::<Styles> devem falhar antes por 
 
 ## Ratificação humana — 2026-10-16
 
-Proposta aprovada pelo humano nesta sessão, manifesto SHA-256 `d3fba43d799461d294ad562c37649ba9c2e4da2a45d7b7099953624ced28e7e8`. O contrato acima passa a vigente; a aprovação inclui materialização e testes T1–T5, sem release. Registro em `00_nucleo/diagnosticos/clippy-enums-2026-10-16/approval-receipt.json`.
+Proposta aprovada pelo humano nesta sessão, manifesto SHA-256 `d3fba43d799461d294ad562c37649ba9c2e4da2a45d7b7099953624ced28e7e8`. O contrato acima passa a vigente; a aprovação inclui materialização e testes T1–T5, sem release. Registro em `lab/results/construction/diagnostics/clippy-enums-2026-10-16/approval-receipt.json`.
 
 ## Adaptador inerente — previsão corrigida após medição 2026-10-16
 
 ### Medição anterior à decisão
 
-A primeira validação deste lote, após ratificação e implementação, terminou no gate do inventário Clippy: first-validation/validation-clippy.log em 00_nucleo/diagnosticos/clippy-enums-2026-10-16 contém should_implement_trait em Styles::from_iter mesmo com FromIterator<Style> implementado. Os quatro testes approved_traits passaram, incluindo collect::<Styles> vazio e a dobra ordenada de Weight. traits-green-result.json registra comando, UTC, cgroup e retorno; first-validation/validation-details.json preserva hashes, HEAD, working tree e diffstat. Portanto a previsão anterior de que apenas implementar o trait eliminaria este aviso foi refutada na ferramenta instalada (Clippy/Rust 1.92). Não é ausência do trait nem evidência de ambiguidade na linguagem Typst.
+A primeira validação deste lote, após ratificação e implementação, terminou no gate do inventário Clippy: first-validation/validation-clippy.log em lab/results/construction/diagnostics/clippy-enums-2026-10-16 contém should_implement_trait em Styles::from_iter mesmo com FromIterator<Style> implementado. Os quatro testes approved_traits passaram, incluindo collect::<Styles> vazio e a dobra ordenada de Weight. traits-green-result.json registra comando, UTC, cgroup e retorno; first-validation/validation-details.json preserva hashes, HEAD, working tree e diffstat. Portanto a previsão anterior de que apenas implementar o trait eliminaria este aviso foi refutada na ferramenta instalada (Clippy/Rust 1.92). Não é ausência do trait nem evidência de ambiguidade na linguagem Typst.
 
 ### Decisão e aceitação
 
@@ -248,7 +248,7 @@ Manter o adaptador inerente e sua assinatura exatamente como ratificados. Corrig
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
 `morph-before-measurement.json.gz` e `audit.json` conservam HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
 fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.

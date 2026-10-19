@@ -7,7 +7,7 @@ Hash do Código: f7114b9f
 
 ## Measurement before decision
 
-The uncommitted working tree captured in `00_nucleo/diagnosticos/atomizacao-stdlib-math-root-2026-09-30-before.json.gz` places `sqrt_content` at `math.rs:46-48` and both native `math.sqrt`/`math.root` constructors at `math.rs:216-289`. The structural hub reexports `sqrt_content` via the parent for eval math mode; the parent registers both native bindings. The P1426 filter passed 12 tests before movement. This is a structural and regression baseline, not new bilateral vanilla evidence or a timing measurement. Historical language evidence remains in parent L0 P1140.3-A and P1426.
+The uncommitted working tree captured in `lab/results/construction/diagnostics/atomizacao-stdlib-math-root-2026-09-30-before.json.gz` places `sqrt_content` at `math.rs:46-48` and both native `math.sqrt`/`math.root` constructors at `math.rs:216-289`. The structural hub reexports `sqrt_content` via the parent for eval math mode; the parent registers both native bindings. The P1426 filter passed 12 tests before movement. This is a structural and regression baseline, not new bilateral vanilla evidence or a timing measurement. Historical language evidence remains in parent L0 P1140.3-A and P1426.
 
 ## Language contract
 

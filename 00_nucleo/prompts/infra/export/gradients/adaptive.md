@@ -63,7 +63,7 @@ Luma/CMYK or an unvalidated pair. PDF count selection remains independent.
 
 ### Medição anterior à decisão
 
-`03_infra/src/export/gradients/adaptive.rs` nas linhas [390] usa métodos apontados pelo Clippy. `clippy.toml` exige alternativas sem dependência da matemática da plataforma; libm =0.2.11 já está pinado no core/Cargo.lock. Os fontes da biblioteca, consumer, owner, manifest/lock, spans, HEAD, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/gradientes-numericos-ci-2026-10-13/before.json.gz`.
+`03_infra/src/export/gradients/adaptive.rs` nas linhas [390] usa métodos apontados pelo Clippy. `clippy.toml` exige alternativas sem dependência da matemática da plataforma; libm =0.2.11 já está pinado no core/Cargo.lock. Os fontes da biblioteca, consumer, owner, manifest/lock, spans, HEAD, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/gradientes-numericos-ci-2026-10-13/before.json.gz`.
 
 `before-renders.json` registra 24 fontes renderizadas em PDF/SVG por Tekt e pelo vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, com hashes dos binários e comandos. `before-comparison.json` mede o canvas inteiro sem máscaras ajustadas pelo erro. Existem divergências anteriores; o corpus não é prova de paridade integral. A primeira tentativa de fixture usava hsv fora do namespace color, foi rejeitada pelo parser antes de qualquer mudança produtiva e está preservada em initial-fixture-error.log; cases.json contém as entradas válidas.
 
@@ -81,7 +81,7 @@ Validar as fórmulas com a suíte existente, exportação dos mesmos 24 document
 ### Medição anterior à decisão
 
 `03_infra/src/export/gradients/adaptive.rs` nas linhas [159] contém as expressões apontadas pelo inventário
-Clippy. `00_nucleo/diagnosticos/ci-simplificacoes-2026-10-14/before.json.gz`
+Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
 conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
 red.log registra os lints selecionados como erros antes de alterar código.
 Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.

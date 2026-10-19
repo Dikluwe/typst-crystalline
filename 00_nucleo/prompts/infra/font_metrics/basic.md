@@ -33,7 +33,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 
 ### Medição anterior à decisão
 
-`03_infra/src/font_metrics/basic.rs` nas linhas 505, 513, 520 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `00_nucleo/diagnosticos/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
+`03_infra/src/font_metrics/basic.rs` nas linhas 505, 513, 520 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
 
 ### Responsabilidade e aceitação
 

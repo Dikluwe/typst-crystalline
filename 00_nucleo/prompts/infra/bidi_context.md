@@ -9,7 +9,7 @@ Núcleos Tekt:
 
 ## Medição anterior à decisão
 
-`00_nucleo/diagnosticos/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver linha e shaping isolados; `initial.json.gz` guarda proveniência e thirteen casos bilaterais. `lab/typst-original/crates/typst-layout/src/inline/collect.rs:156–178` conserva embedding explícito de direção oposta. API L1 ratificada pelo manifesto 1ae7513e; nenhuma ampliação de World/FontMetrics.
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver linha e shaping isolados; `initial.json.gz` guarda proveniência e thirteen casos bilaterais. `lab/typst-original/crates/typst-layout/src/inline/collect.rs:156–178` conserva embedding explícito de direção oposta. API L1 ratificada pelo manifesto 1ae7513e; nenhuma ampliação de World/FontMetrics.
 
 ## Decisão
 

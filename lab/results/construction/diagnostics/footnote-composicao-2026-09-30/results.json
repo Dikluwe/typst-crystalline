@@ -1,0 +1,63 @@
+{
+  "captured_at_utc": "2026-09-30T03:10:33.489952+00:00",
+  "head": "17f13b1df79b87ea065ee62e78164b18e477da3d",
+  "working_tree": "não commitado; consultar git-diff-HEAD-stat.txt e git-status-porcelain-v1.z",
+  "target_vanilla_pin": "9f2b6e8715237cb086899a42873660fe744622e8",
+  "binaries": {
+    "vanilla": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea"
+    },
+    "tekt": {
+      "path": "target/release/typst",
+      "sha256": "2b366c2b7349c196c38bca83e00293ff0e11bb7979a5537b7ab5116ee6bee971"
+    }
+  },
+  "probes": {
+    "fit": {
+      "sha256": "1045e969c881e03e8e41381df637d084dd28a2c9d0815eafb24e40e5836e34ba",
+      "outputs": {
+        "vanilla": {
+          "pdf_sha256": "ac11f3a0514f6546b1a0419065b8b643ddd617cbeec890e75544fd2054e0769a",
+          "pages": 1,
+          "pdftotext_layout": "Alpha1 omega.\n\n\n\n\n 1short note\n\f"
+        },
+        "tekt": {
+          "pdf_sha256": "1dc85e413e2f721ab7c8ec516cca9094e5dba4f6e7a15aa557ab805e658752ff",
+          "pages": 1,
+          "pdftotext_layout": "Alpha1 omega.\n\n\n\n\n[1] short note\n\f"
+        }
+      }
+    },
+    "defer": {
+      "sha256": "9cfa6ee5d93dbb837575fbcbd7b244ffeeb082ea826ffa42449d54db76316b5c",
+      "outputs": {
+        "vanilla": {
+          "pdf_sha256": "7c0190c2d5f463a42c0ecd843afd738c238003d9b5237cfe1017043b9746e81f",
+          "pages": 2,
+          "pdftotext_layout": "\fAlpha1 omega.\n\n\n\n\n  1deferred note with several words in this\ncompact page\n\f"
+        },
+        "tekt": {
+          "pdf_sha256": "8c6f75fdf6f5c8b6d674a01f13b5faeb4fa36b319f7d86140b1072a5f94fb649",
+          "pages": 2,
+          "pdftotext_layout": "Alpha1 omega.\n\f[1] deferred note with several\nwords in this compact page\n\f"
+        }
+      }
+    },
+    "oversize": {
+      "sha256": "9e8c21c3091a1de4185bdcf3bdf9d6a6b145710af7763017ba4212627e8d7972",
+      "outputs": {
+        "vanilla": {
+          "pdf_sha256": "672cd60804fb3b04510052e1527d52a29f5e094aad7dcc167ea61b629ec70bc6",
+          "pages": 2,
+          "pdftotext_layout": "Alpha1 omega.\n\n  1Note line 1.\nNote line 2.\nNote line 3.\nNote line 4.\nNote line 5.\nNote line 6.\nNote line 7.\nNote line 8.\nNote line 9.\nNote line 10.\nNote line 11.\nNote line 12.\nNote line 13.\nNote line 14.\n\fNote line 15.\nNote line 16.\nNote line 17.\nNote line 18.\nNote line 19.\nNote line 20.\nNote line 21.\n\f"
+        },
+        "tekt": {
+          "pdf_sha256": "579556de3eb5e1b23c5c39db67aafc0f5e782190e8e775a47e8afb7e4118eb45",
+          "pages": 1,
+          "pdftotext_layout": "Alpha1 omega.\n[1] Note line 1.\nNote line 2.\nNote line 3.\nNote line 4.\nNote line 5.\nNote line 6.\nNote line 7.\nNote line 8.\nNote line 9.\nNote line 10.\nNote line 11.\n\f"
+        }
+      }
+    }
+  }
+}

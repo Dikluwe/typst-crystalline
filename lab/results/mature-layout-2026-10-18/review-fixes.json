@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-18T23:37:14.073530+00:00",
+  "changed": [
+    "00_nucleo/diagnostics/retired-nonowners-2026-10-18.md",
+    "00_nucleo/prompts/compiler/realize/context_occurrences.md",
+    "00_nucleo/prompts/compiler/realize/mod.md",
+    "00_nucleo/prompts/entities/elements/math_limits_override.md",
+    "00_nucleo/prompts/entities/elements/math_op.md",
+    "00_nucleo/prompts/entities/font-list.md",
+    "00_nucleo/prompts/entities/package-spec.md",
+    "03_infra/fixtures/p307b/MANIFEST.md",
+    "lab/tools/perf/bench.sh"
+  ],
+  "scope": "References, whitespace, corpus relocation, and accurate proposal status; no product behavior/API changes."
+}

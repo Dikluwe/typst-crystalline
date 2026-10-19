@@ -22,7 +22,7 @@ Núcleos Tekt:
 
 ## Medição antes da decisão
 
-A working tree não commitada capturada em `00_nucleo/diagnosticos/atomizacao-eval-rules-2026-09-30-before.json.gz` contém as rotinas desta família em `01_core/src/compiler/eval/rules.rs`. A suíte L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem prova bilateral nova contra o vanilla. As medidas históricas e ressalvas do pin continuam em `00_nucleo/prompts/compiler/eval/rules.md`.
+A working tree não commitada capturada em `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` contém as rotinas desta família em `01_core/src/compiler/eval/rules.rs`. A suíte L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem prova bilateral nova contra o vanilla. As medidas históricas e ressalvas do pin continuam em `00_nucleo/prompts/compiler/eval/rules.md`.
 
 ## Contrato de linguagem
 
@@ -48,7 +48,7 @@ original não é reemitido apenas para manter query.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/show-recursao-auditoria-2026-10-06/measurement.json.gz`
+`lab/results/construction/diagnostics/show-recursao-auditoria-2026-10-06/measurement.json.gz`
 registra oito controles, fonte/L0, comandos, HEAD/working tree/UTC e binários
 contra o vanilla pinado 9f2b6e871. Quatro controles finitos coincidem na
 aceitação. fresh_same_body, fresh_z, alias_plus_generated e text_and_generated
@@ -110,9 +110,9 @@ core-third.log refuta usar a intercepção geral para inserções: P790 literal 
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
 UTC/diff/estado/fontes/binários nas coletas canônicas
-00_nucleo/diagnosticos/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
+lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
 Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8; proveniência no relatório
-00_nucleo/diagnosticos/math-bare-medicao-2026-10-06.md.
+lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md.
 
 before: frac, mat, sqrt, lr e op nus têm uma Equation no vanilla e zero no Tekt;
 math.bold([x]) e texto comum têm zero nos dois. nested e nested-equation têm
@@ -160,7 +160,7 @@ sem ratificar paridade universal, D07, math label ou outros débitos.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -337,7 +337,7 @@ Dados sem texto não dependem de fontes por esse reparo.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
+lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
 
 isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
 
@@ -368,7 +368,7 @@ Decisão contínua ADR-0127: helper privado puro TableCellProperties::chain_styl
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
 `morph-before-measurement.json.gz` e `audit.json` conservam HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
 fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
@@ -442,7 +442,7 @@ Heading original e visual efetivo, sem certificar substituições completas.
 ### Medição anterior à decisão
 
 As coletas before/expanded/controls.json.gz e candidate.log em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 fixam HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
@@ -452,7 +452,7 @@ ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
 filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
 
 O dono aprovou a revisão
-00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
 46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
 nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
 fronteira antes dos filhos/Table/math; não cobre novo contrato público.
@@ -478,7 +478,7 @@ swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
 status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
 extra-before.json.gz contém26; boundary-before.json.gz contém10 e
@@ -539,7 +539,7 @@ e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicaçã
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
 commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém

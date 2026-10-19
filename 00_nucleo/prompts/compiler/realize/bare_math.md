@@ -14,9 +14,9 @@ Núcleos Tekt:
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
 UTC/diff/estado/fontes/binários nas coletas canônicas
-00_nucleo/diagnosticos/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
+lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
 Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8; proveniência no relatório
-00_nucleo/diagnosticos/math-bare-medicao-2026-10-06.md.
+lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md.
 
 before: frac, mat, sqrt, lr e op nus têm uma Equation no vanilla e zero no Tekt;
 math.bold([x]) e texto comum têm zero nos dois. nested e nested-equation têm
@@ -109,7 +109,7 @@ wrappers de class/limits correspondem a ClassElem/LimitsElem/ScriptsElem.
 
 ### Medição antes da decisão
 
-`00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/phases-after-reuse.json.gz` mede o release SHA-256 `5b4b34340a5f637d9e99c0ad3ee9e209c14b22c18c8890b23d344ea0a2778ecf`, HEAD/working tree não commitado/status/diffstat/UTC/fixtures/CPU em três execuções por caso. Em 1.600 células, a avaliação de `local-set` é 150,42 ms contra 118,99 ms de `no-fill`; layout 90,54 contra 68,47 ms. `stacks-after-reuse.json.gz` amostra uma em cada 64 solicitações glibc: Content::styled e with_source_span surgem nas reconstruções por map_content, incluindo `bare_math::prepare`. `bare-math-red-gate.json.gz` registra 635.978 pedidos locais contra limite pré-código 600.000, falha RED, com binário/fonte/comando/UTC/estado. `bare_math.rs:45-84` sempre chama map_content_pre e reconstrói Styled/TableCell mesmo quando toda a subárvore é texto simples. A inferência de benefício será refutada por gate, tempo pareado ou saída diferente.
+`lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/phases-after-reuse.json.gz` mede o release SHA-256 `5b4b34340a5f637d9e99c0ad3ee9e209c14b22c18c8890b23d344ea0a2778ecf`, HEAD/working tree não commitado/status/diffstat/UTC/fixtures/CPU em três execuções por caso. Em 1.600 células, a avaliação de `local-set` é 150,42 ms contra 118,99 ms de `no-fill`; layout 90,54 contra 68,47 ms. `stacks-after-reuse.json.gz` amostra uma em cada 64 solicitações glibc: Content::styled e with_source_span surgem nas reconstruções por map_content, incluindo `bare_math::prepare`. `bare-math-red-gate.json.gz` registra 635.978 pedidos locais contra limite pré-código 600.000, falha RED, com binário/fonte/comando/UTC/estado. `bare_math.rs:45-84` sempre chama map_content_pre e reconstrói Styled/TableCell mesmo quando toda a subárvore é texto simples. A inferência de benefício será refutada por gate, tempo pareado ou saída diferente.
 
 ### Decisão interna
 
@@ -130,7 +130,7 @@ Como o critério primário desta busca é reduzir o excesso de tempo com equival
 
 ### Medição anterior à decisão
 
-01_core/src/compiler/realize/bare_math.rs:168 (captures_equation_rule, emitted-v16). O enum em 01_core/src/entities/show.rs:63-96 contém Text, NodeKind, NativeElement, DynKind, Regex, Where, And, Or e Label. Fonte/linhas e funções atuais foram confrontadas com os avisos SARIF da revisão pinada e com o inventário AST anterior, verificando presença literal dos matches na árvore atual. Proveniência: 00_nucleo/diagnosticos/tekt-v16-show-selectors-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, hashes/fontes, status e git diff HEAD --stat; classification.json distingue avisos emitidos de predicado latente. Classificação: padrões/exaustividade são mecânica; seleção, texto, efeitos e erro de linguagem permanecem conforme os contratos vigentes. Não há nova medição de paridade ou inferência de ganho de leitura/performance.
+01_core/src/compiler/realize/bare_math.rs:168 (captures_equation_rule, emitted-v16). O enum em 01_core/src/entities/show.rs:63-96 contém Text, NodeKind, NativeElement, DynKind, Regex, Where, And, Or e Label. Fonte/linhas e funções atuais foram confrontadas com os avisos SARIF da revisão pinada e com o inventário AST anterior, verificando presença literal dos matches na árvore atual. Proveniência: lab/results/construction/diagnostics/tekt-v16-show-selectors-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, hashes/fontes, status e git diff HEAD --stat; classification.json distingue avisos emitidos de predicado latente. Classificação: padrões/exaustividade são mecânica; seleção, texto, efeitos e erro de linguagem permanecem conforme os contratos vigentes. Não há nova medição de paridade ou inferência de ganho de leitura/performance.
 
 ### Decisão interna
 
@@ -152,7 +152,7 @@ mathy; :78–95 prepara uma raiz Mathy envolvendo-a em Equation, e o mesmo
 helper depois desce por containers. O coordenador ratificado em
 00_nucleo/prompts/compiler/realize/recipes.md não pode duplicar esse catálogo
 nem preparar descendentes antes de decidir o show do pai. Os REDs T38/T50
-em 00_nucleo/diagnosticos/r3-t1-materializacao-2026-10-18/acceptance-red.log
+em lab/results/construction/diagnostics/r3-t1-materializacao-2026-10-18/acceptance-red.log
 confirmam o defeito causal de filhos ocultáveis; não são prova de Mathy.
 A aprovação R3-T1 cobre a ordem raiz→filhos, preservando Mathy antes da
 seleção da sua própria inserção. before-sources.json.gz desse lote conserva
@@ -174,7 +174,7 @@ contexto e produto emitido no corpus amplo de R3-T1 antes de fechar o lote.
 
 ## Context — retirada do filtro restritivo, 2026-10-18
 
-Medição anterior: before.json.gz em 00_nucleo/diagnosticos/context-paridade-2026-10-18,
+Medição anterior: before.json.gz em lab/results/construction/diagnostics/context-paridade-2026-10-18,
 HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3,
 com fontes, UTC, argv e identidades. Global/local textual retorna A/A contra R/L.
 O único caller produtivo de captures_equation_rule era capture_context_recipe no hub.

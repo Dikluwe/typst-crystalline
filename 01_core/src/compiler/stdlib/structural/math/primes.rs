@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math/primes.md
-//! @prompt-hash 5317fb3d
+//! @prompt-hash 4e351bfc
 //! @layer L1
 //! @updated 2026-09-30
 //!

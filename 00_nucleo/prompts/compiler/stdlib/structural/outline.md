@@ -367,9 +367,9 @@ e não participam da regra `#set outline` deste passo.
 A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
 hashes, UTC, status e `git diff HEAD --stat` estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
 A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
 Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
 É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
 
@@ -406,7 +406,7 @@ exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
 
 ### Medição anterior à decisão
 
-Fontes e L0 vigentes conferidos antes do código; snapshot 00_nucleo/diagnosticos/clippy-aridade-final-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, status, diffstat e hashes globais. callers.txt registra busca no workspace, incluindo fixtures; as chamadas homônimas do math::MathLayouter são outro motor e permanecem intactas. Inventário anterior tem 22 avisos, cinco destas aridades. Trata-se de estrutura privada Rust, sem nova afirmação de paridade ou intenção upstream.
+Fontes e L0 vigentes conferidos antes do código; snapshot lab/results/construction/diagnostics/clippy-aridade-final-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, status, diffstat e hashes globais. callers.txt registra busca no workspace, incluindo fixtures; as chamadas homônimas do math::MathLayouter são outro motor e permanecem intactas. Inventário anterior tem 22 avisos, cinco destas aridades. Trata-se de estrutura privada Rust, sem nova afirmação de paridade ou intenção upstream.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -419,7 +419,7 @@ Este adendo materializa somente o escopo nominal e supersede seu estado pendente
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/clippy-enums-2026-10-16/before.json.gz conserva fontes/L0, hashes globais, HEAD, working tree não commitado, UTC e diffstat; callers.txt registra usos no workspace. probe-details.json e measurements.json guardam rustc 1.92/x86_64, comandos/binário/rlib e tamanhos/alocações de candidatos isolados antes de código. O enum privado é espelhado fielmente da fonte; os tipos públicos são medidos diretamente do rlib. O observador unsafe existe somente no executável diagnóstico, nunca na camada produtiva. É medição de representação Rust, não igualdade de linguagem, intenção upstream ou prova de ganho global.
+lab/results/construction/diagnostics/clippy-enums-2026-10-16/before.json.gz conserva fontes/L0, hashes globais, HEAD, working tree não commitado, UTC e diffstat; callers.txt registra usos no workspace. probe-details.json e measurements.json guardam rustc 1.92/x86_64, comandos/binário/rlib e tamanhos/alocações de candidatos isolados antes de código. O enum privado é espelhado fielmente da fonte; os tipos públicos são medidos diretamente do rlib. O observador unsafe existe somente no executável diagnóstico, nunca na camada produtiva. É medição de representação Rust, não igualdade de linguagem, intenção upstream ou prova de ganho global.
 
 ### Responsabilidade exclusiva e aceitação
 

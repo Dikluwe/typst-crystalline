@@ -58,7 +58,7 @@ alter the ordinary Glyph emission API.
 ### Medição anterior à decisão
 
 `03_infra/src/export/stream.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -77,7 +77,7 @@ Em UA1, TextSeparator recebe o mesmo tratamento de folha textual Span e MCID coo
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -92,12 +92,12 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -114,12 +114,12 @@ Usar cache privado por tabela de recursos/exportação para positivos validados:
 
 ### Refinamento de escopo após compilação — 2026-10-13
 
-Após remover o import sem uso do facade export, check-initial-failed.log aponta o reexport privado draw_item_local desta unidade (linha 43). A pesquisa da fonte encontra somente o alias e menções em comentários neste owner; draw preserva sua definição e chamadas próprias. Remover somente esse reexport pub(super), conservando os demais reexports exigidos por descendentes, PageContext, FontScenario e algoritmos. O snapshot anterior está em additional-before.json.gz, no mesmo diretório do diagnóstico. Correção interna sem API pública/default/fase novos. Evidência e estado: `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/`. Revalidar todos os targets e preservar nomes/assertions da suíte.
+Após remover o import sem uso do facade export, check-initial-failed.log aponta o reexport privado draw_item_local desta unidade (linha 43). A pesquisa da fonte encontra somente o alias e menções em comentários neste owner; draw preserva sua definição e chamadas próprias. Remover somente esse reexport pub(super), conservando os demais reexports exigidos por descendentes, PageContext, FontScenario e algoritmos. O snapshot anterior está em additional-before.json.gz, no mesmo diretório do diagnóstico. Correção interna sem API pública/default/fase novos. Evidência e estado: `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/`. Revalidar todos os targets e preservar nomes/assertions da suíte.
 
 ## Import de chave após posicionamento cônico — 2026-10-14
 
 Medição anterior à decisão: green.log em
-00_nucleo/diagnosticos/conic-posicionamento-2026-10-14/ aponta import
+lab/results/construction/diagnostics/conic-posicionamento-2026-10-14/ aponta import
 sem uso de dedup_key_for em stream.rs:11. O helper shape agora consulta
 explicitamente a chave por ocorrência no facade gradients; nenhuma outra
 referência neste owner usa esse alias. facade-before.json.gz conserva o
@@ -133,10 +133,10 @@ compilar e revalidar a suíte e a linhagem sem supressão de diagnóstico.
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -164,7 +164,7 @@ e já autorizados. Não alegar paridade de tiling ou produção a partir do buil
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -173,7 +173,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -207,7 +207,7 @@ Decisão interna em fluxo contínuo (ADR-0127): Posicionar build_cell_stream ant
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-overlap-2026-10-14/before.json.gz` preserva fontes, owners, HEAD, UTC e working tree. `tiling-nativo-2026-10-14/final-renders` e `remaining-analysis.md` registram cell8×8/pitch4×4 alpha50%: PDF vermelho opaco; SVG só uma contribuição; PNG quatro contribuições (255,15,15). `pdf_tiling.rs:184` emite BBox=size, `svg/paints.rs:148` usa overflow visible; `stream/shape.rs:155` e `stream/text.rs:275` descartam alpha. São defeitos observáveis de composição; o vanilla também corta overlap e não serve de requisito para esse defeito. Hipótese refutável: compor explicitamente um período preserva controles sem overlap e quatro contribuições coincidem com fonte-over analítica.
+`lab/results/construction/diagnostics/tiling-overlap-2026-10-14/before.json.gz` preserva fontes, owners, HEAD, UTC e working tree. `tiling-nativo-2026-10-14/final-renders` e `remaining-analysis.md` registram cell8×8/pitch4×4 alpha50%: PDF vermelho opaco; SVG só uma contribuição; PNG quatro contribuições (255,15,15). `pdf_tiling.rs:184` emite BBox=size, `svg/paints.rs:148` usa overflow visible; `stream/shape.rs:155` e `stream/text.rs:275` descartam alpha. São defeitos observáveis de composição; o vanilla também corta overlap e não serve de requisito para esse defeito. Hipótese refutável: compor explicitamente um período preserva controles sem overlap e quatro contribuições coincidem com fonte-over analítica.
 
 ### Responsabilidade desta unidade
 
@@ -225,9 +225,9 @@ Correção interna ADR-0127 dentro do T1–T3 já aprovado, sem nova API/fase/fl
 A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
 hashes, UTC, status e `git diff HEAD --stat` estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
 A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
 Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
 É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
 
@@ -274,7 +274,7 @@ exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
 ### Medição anterior à decisão
 
 03_infra/src/export/stream.rs:76 (C061); 03_infra/src/export/stream.rs:260 (C063).
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
@@ -302,7 +302,7 @@ restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
 
 ### Medição anterior à decisão
 
-As fontes, chamadores, cláusulas vigentes, spans e inventário de 28 avisos foram conferidos antes da decisão. `00_nucleo/diagnosticos/clippy-aridade-interna-2026-10-16/before.json.gz` guarda fontes/L0 completos, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A auditoria anterior classifica estes casos como correção; não são exceções diretas. O RED deve observar as aridades atuais antes de alterações; controles funcionais existentes serão corridos antes/depois. É refatoração de representação privada, sem nova paridade ou ganho de performance medido.
+As fontes, chamadores, cláusulas vigentes, spans e inventário de 28 avisos foram conferidos antes da decisão. `lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/before.json.gz` guarda fontes/L0 completos, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A auditoria anterior classifica estes casos como correção; não são exceções diretas. O RED deve observar as aridades atuais antes de alterações; controles funcionais existentes serão corridos antes/depois. É refatoração de representação privada, sem nova paridade ou ganho de performance medido.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -315,7 +315,7 @@ Fluxo contínuo ADR-0127: nenhuma API externamente pública, default do produto,
 
 ### Medição anterior à decisão
 
-T325: 03_infra/src/export/stream.rs:219. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T325: 03_infra/src/export/stream.rs:219. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -328,7 +328,7 @@ Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default
 
 ### Medição anterior à decisão
 
-F056: 03_infra/src/export/stream.rs:229 (collect). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F056: 03_infra/src/export/stream.rs:229 (collect). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 

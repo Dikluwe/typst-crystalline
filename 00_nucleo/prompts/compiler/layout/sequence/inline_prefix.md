@@ -21,7 +21,7 @@ O despacho permanece estático. Testes L1, build e crystalline-lint devem passar
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 workspace-second refuta Source como novo fragmento tipográfico: certificado de prefixo inspeciona body transparente de Source, inclusive sob Styled/Strong/Emph, preservando medidas/leading/estilos/limites de largura.
 
@@ -32,7 +32,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
 registra HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
 UTC/status/diffstat e hashes de fontes/binários contra vanilla pinado9f2b6e871.
 Os lotes block-par-spacing-after e block-par-extra-after anteriores já
@@ -70,7 +70,7 @@ na nova rota e não repita sua boundary. Sem entidade pública nova.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
 registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
 commitado, status/stat/UTC, fontes e binários contra o pin vanilla
 9f2b6e8715237cb086899a42873660fe744622e8. Multiword21 gera duas páginas
@@ -106,7 +106,7 @@ Adicionar bool multiline privado ao InlinePrefixRuntime; false nos certificados 
 
 No HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
 commitado, complete5/complete-alias-layout.log em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17/ registra UTC,
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17/ registra UTC,
 estado exato e o controle com/sem show sequence identidade. Prefixo *Lead*
 antes de Block1fr em columns passa de uma para duas páginas no Tekt;
 o mesmo alias conserva uma página no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
@@ -156,7 +156,7 @@ PDF carriers-pdf confirma delta zero nos seis pares de prefixo/compilador.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/sequence-r3-2026-10-18/markup-geometry-before.json.gz,
+lab/results/construction/diagnostics/sequence-r3-2026-10-18/markup-geometry-before.json.gz,
 markup-geometry-before-resources.json e prefix-before-sources.json.gz registram
 UTC, HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c/working tree/diffstat,
 fontes, argv e hashes de binários contra bd5ebec285505889e8ff1d4f68804ab147a699f3.

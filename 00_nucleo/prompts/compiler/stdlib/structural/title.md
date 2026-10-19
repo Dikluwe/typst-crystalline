@@ -6,7 +6,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/structural/title.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/structural/title.rs:27` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/structural/title.rs:27` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 

@@ -17,7 +17,7 @@ Testes L1, build e crystalline-lint passam. Sem inferência de ganho de desempen
 
 ### Medição anterior à decisão
 
-`01_core/src/entities/color/mixing.rs` nas linhas 14 contém os avisos selecionados do Clippy. O snapshot anterior à decisão, spans conferidos contra a fonte, owners, referências, binário, UTC, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status e diffstat estão em `00_nucleo/diagnosticos/iteracao-parametros-ci-2026-10-13/before.json.gz`. A inspeção mede mecânica interna e usos; não é nova prova bilateral de paridade ou ganho de desempenho.
+`01_core/src/entities/color/mixing.rs` nas linhas 14 contém os avisos selecionados do Clippy. O snapshot anterior à decisão, spans conferidos contra a fonte, owners, referências, binário, UTC, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status e diffstat estão em `lab/results/construction/diagnostics/iteracao-parametros-ci-2026-10-13/before.json.gz`. A inspeção mede mecânica interna e usos; não é nova prova bilateral de paridade ou ganho de desempenho.
 
 ### Decisão e aceitação
 
@@ -30,7 +30,7 @@ Refatoração interna equivalente em fluxo contínuo ADR-0127, sem contrato púb
 
 ### Medição anterior à decisão
 
-01_core/src/entities/color/mixing.rs:71; 01_core/src/entities/color/mixing.rs:116. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `00_nucleo/diagnosticos/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
+01_core/src/entities/color/mixing.rs:71; 01_core/src/entities/color/mixing.rs:116. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `lab/results/construction/diagnostics/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
 
 ### Responsabilidade exclusiva
 

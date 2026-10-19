@@ -11,7 +11,7 @@ Layer: L3. Exclusive consumer: `03_infra/src/export/stream/text_replacement.rs`.
 
 ## Medição anterior à decisão
 
-O lote `00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/`
+O lote `lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/`
 registra pin vanilla, estado, UTC, fonte, binários e comandos. Trinta quebras
 automáticas em oito controles têm identidade U+002D versus U+00AD, mas caixas
 coincidentes. `export/fonts.rs:146-154` extrai clusters por GID; identidade
@@ -38,7 +38,7 @@ extração fonte→PDF e geometria são aceitação funcional, não bytes comple
 O primeiro build SHA-256 8b223826b2a6ec44bf95a82235e5caaae57777eba27be27200e084e3ce389241
 (`after/`, `after-extra/`) conserva SHY no compacto, mas no verboso a extração
 coloca os substitutes em x=0/y=400. O experimento controlado de 18 streams em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/envelope-probe/`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/envelope-probe/`
 refuta a abrangência inicial: fechar EMC antes de Q conserva caixas; fechar após
 Q perde a posição no Poppler. Abrir antes/depois de cm/Tm não muda essa conclusão.
 Não fechar por contagem de codepoints, nem reescrever streams procurando Q.
@@ -63,7 +63,7 @@ literal, scopes balanceados e raster preservado.
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Referencial de pintura — transporte aprovado T1b — 2026-10-14
 
@@ -71,10 +71,10 @@ Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-conte
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste

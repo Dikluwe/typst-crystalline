@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient/conic.md
-//! @prompt-hash 3ce7c884
+//! @prompt-hash 60a41ade
 //! @layer L1
 //! @updated 2026-09-30
 

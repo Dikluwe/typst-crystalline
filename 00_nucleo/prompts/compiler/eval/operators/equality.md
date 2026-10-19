@@ -72,7 +72,7 @@ the content IR to achieve language equality.
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
 UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
+lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
 Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
 selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
 é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
@@ -117,7 +117,7 @@ e compostos, função homônima, partial/closure; preservar D05, D07 e query.
 
 Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado; fontes/L0, UTC, status, diffstat e hashes dos
-binários em `00_nucleo/diagnosticos/limites-cor-2026-10-13/equality-before.json.gz`.
+binários em `lab/results/construction/diagnostics/limites-cor-2026-10-13/equality-before.json.gz`.
 O oráculo pinado 9f2b6e8715237cb086899a42873660fe744622e8 compara
 rgb(50%,0%,0%) e rgb("#800000") como iguais, incluindo arrays, dictionaries,
 in/not in e alpha. O cristalino diverge ao preservar corretamente os f32.
@@ -148,7 +148,7 @@ Este recorte não certifica Luma, spot ou todos os consumers de igualdade.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/text-styled-equality-2026-10-17/before-corrected-measurement.json.gz
+lab/results/construction/diagnostics/text-styled-equality-2026-10-17/before-corrected-measurement.json.gz
 registra24 pares/48 invocações,17 divergências, HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado, UTC/status/diffstat e hashes das fontes/binários.
 Pin9f2b6e8715237cb086899a42873660fe744622e8: foundations/content/mod.rs:779–782

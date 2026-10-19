@@ -180,7 +180,7 @@ fn extract_entry_length(
 
 /// P1473 (Agente B) — contrato RED de `footnote.entry` (escopo reduzido:
 /// construção sem realização). Fonte:
-/// `00_nucleo/materialization/typst-passo-1473.md` +
+/// `lab/history/construction/records/00_nucleo/materialization/typst-passo-1473.md` +
 /// `00_nucleo/prompts/compiler/stdlib/structural/footnote.md` §P1473 +
 /// `00_nucleo/prompts/entities/elements/footnote_entry.md`. Escrito sem ver
 /// a implementação (isolamento Agente A/B).

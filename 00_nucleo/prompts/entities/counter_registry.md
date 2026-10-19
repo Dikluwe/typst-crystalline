@@ -142,7 +142,7 @@ Vanilla não tem `CounterRegistry` separado — counters são parte do estado fi
 
 Forma rica (hierarquia, função counters via `Func`) fica para M9+ paralelamente à introdução de `CounterKey` enum vanilla.
 
-Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3 para classificação de `Counter`/`CounterKey`/`CounterUpdate` vanilla.
+Ver `lab/results/construction/diagnostics/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3 para classificação de `Counter`/`CounterKey`/`CounterUpdate` vanilla.
 
 ---
 
@@ -270,7 +270,7 @@ iter/filter/last sobre o Vec de histórico. O predicado consulta somente
 com fallback numérico para locais não observados. HEAD
 `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado;
 fontes, L0, núcleo pinado, horário UTC, status e diffstat em
-`00_nucleo/diagnosticos/predicados-fixtures-ci-2026-10-13/before.json.gz`.
+`lab/results/construction/diagnostics/predicados-fixtures-ci-2026-10-13/before.json.gz`.
 
 Preservar exatamente a última entrada elegível na ordem do Vec e o resultado
 None quando não houver uma. A pesquisa pode partir do fim e terminar na

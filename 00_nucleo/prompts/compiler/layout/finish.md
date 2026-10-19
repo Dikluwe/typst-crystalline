@@ -20,7 +20,7 @@ A suíte L1, o build e crystalline-lint passam. A separação não constitui pro
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Posições no referencial composto — 2026-10-14
 
@@ -55,7 +55,7 @@ controles HTML, geometria, contexto/queries e suíte completa.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/links-paginacao-2026-10-14.md e os recibos
+lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
 posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
 HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
 texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
@@ -63,7 +63,7 @@ antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
 link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
 antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
 fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-00_nucleo/diagnosticos/links-captura-2026-10-14/before.json.gz.
+lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
 Os observáveis são conteúdo, destino, regiões e bounds; limites privados
 são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
 

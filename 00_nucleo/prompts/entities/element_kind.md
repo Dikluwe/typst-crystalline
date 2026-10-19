@@ -150,7 +150,7 @@ Vanilla não tem `ElementKind` enum. Tem `Element` (struct + vtable), `Selector:
 2. Coerência com `Content` (enum vs vtable).
 3. Selectores futuros (M5+) podem usar `ElementKind` como filtro discreto, evitando o type-erasure vanilla.
 
-Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3: `Locatable`/`Tagged`/`Unqueriable` traits vanilla são scope-out porque cristalino não usa marker-traits-per-element.
+Ver `lab/results/construction/diagnostics/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3: `Locatable`/`Tagged`/`Unqueriable` traits vanilla são scope-out porque cristalino não usa marker-traits-per-element.
 
 ---
 

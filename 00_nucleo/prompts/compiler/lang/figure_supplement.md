@@ -13,7 +13,7 @@ Núcleos Tekt:
 `01_core/src/compiler/lang/figure_supplement.rs:84` locates `pub fn figure_supplement_for_lang(kind: &str, lang: Option<&Lang>) -> String`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Contract
 

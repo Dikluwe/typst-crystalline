@@ -9,7 +9,7 @@ Exclusive consumer: `01_core/src/compiler/parse/patterns.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/parse/patterns.rs:22` (pubsuper) fn expr_with_parenp: &mut Parser, atomic: bool) {); `01_core/src/compiler/parse/patterns.rs:90` (fn parenthesized_or_array_or_dictp: &mut Parser) -> SyntaxKind {); `01_core/src/compiler/parse/patterns.rs:148` (pubsuper) struct GroupState {) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/parse/patterns.rs:22` (pubsuper) fn expr_with_parenp: &mut Parser, atomic: bool) {); `01_core/src/compiler/parse/patterns.rs:90` (fn parenthesized_or_array_or_dictp: &mut Parser) -> SyntaxKind {); `01_core/src/compiler/parse/patterns.rs:148` (pubsuper) struct GroupState {) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 

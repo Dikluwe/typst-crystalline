@@ -17,9 +17,11 @@ Canonical filenames use this form:
 
     adr-NNNN-short-english-title.md
 
-During the staged migration, existing typst-adr-* paths remain valid until a
-reviewed source-to-destination map is applied together with an incoming-reference
-audit. Do not create new Portuguese filenames.
+The numbered records now use canonical English filenames. Their old-path map is
+being applied across the repository as part of the mature-layout migration;
+complete that incoming-reference update before considering path migration
+closed. Do not create new Portuguese filenames. Stable identity remains the
+ADR number, including the distinct ADR-0026 revision record.
 
 The following files are not numbered decisions:
 
@@ -28,8 +30,8 @@ The following files are not numbered decisions:
 - template-adr.md: the required structure for new decisions.
 
 The former Portuguese reference, which mixed a current index with cumulative
-materialization history, is preserved unchanged as historical evidence in
-00_nucleo/diagnosticos/adr-reference-legacy-portuguese.md.
+construction history, is preserved unchanged at
+`lab/results/construction/diagnostics/adr-reference-legacy-portuguese.md`.
 
 ## Canonical status vocabulary
 
@@ -75,11 +77,13 @@ When two decisions conflict, the more specific current decision governs unless
 a higher-priority constitutional ADR explicitly forbids it. A revoked or
 superseded ADR never governs current work.
 
-The complete cleanup classification, consolidation candidates, and archival
-map are maintained in
-00_nucleo/diagnosticos/adr-cleanup-classification.md. Numbered identifiers are
-not reassigned: reordering the index communicates importance without breaking
-stable historical citations.
+The cleanup classification, consolidation candidates, and archival map are
+preserved at
+`lab/results/construction/diagnostics/adr-cleanup-classification.md`; archived
+record redirects are at
+`lab/results/construction/diagnostics/adr-archive/redirects.tsv`. Numbered
+identifiers are not reassigned: reordering the index communicates authority
+without breaking stable historical citations.
 
 ## Canonical L0 references
 
@@ -105,10 +109,10 @@ New ADRs use template-adr.md and contain, at minimum:
 7. verification evidence and references.
 
 Historical annotations must not be appended indefinitely to the normative
-decision. Materialization logs belong in 00_nucleo/materialization/; repository
-state, measurements, and retrospective inventories belong in
-00_nucleo/diagnosticos/. Existing cumulative ADRs are translated faithfully
-first and may be split only by a separately reviewed cleanup map.
+decision. Current evidence summaries belong in `00_nucleo/diagnostics/`;
+construction records and detailed measurements remain in the preserved history
+and evidence bundles. Existing cumulative ADRs are translated faithfully first
+and may be split only by a separately reviewed cleanup map.
 
 ## Language and literal-preservation rules
 
@@ -126,12 +130,15 @@ an English alias. This exception is syntax compatibility, not normative prose.
 
 ## Migration state
 
-The English migration is staged. ADR-0130 is the reviewed pilot. The remaining
-numbered ADRs still require clause-by-clause translation review and canonical
-filename migration. Primary statuses are normalized independently of that
-prose migration; historical wording is not thereby declared translated. A translated document must not claim that the full corpus
-is complete unless all numbered records and their incoming references have been
-validated.
+The English migration is staged. ADR-0130 is the reviewed pilot; ADR-0018,
+ADR-0029, ADR-0030, ADR-0032, ADR-0107, ADR-0108, ADR-0109, ADR-0115,
+ADR-0119, ADR-0121, ADR-0125, ADR-0127, and ADR-0129 have also received English
+prose revisions. Other ADR bodies remain untranslated or await clause-by-clause
+review. Canonical English filenames are in place, while the repository-wide
+incoming-reference audit remains part of the active migration. Primary statuses
+are normalized independently of prose translation; historical wording is not
+thereby declared translated. Do not claim that the full corpus is translated
+until every numbered record and its incoming references have been validated.
 
 Missing numeric identifiers are not errors. ADR-0056 and ADR-0063 are currently
 unused. ADR-0026 has two historical records under the same numeric identity; the
@@ -151,7 +158,7 @@ For each migration batch:
 4. run git diff --check and the repository's documentation/architecture checks;
 5. record the exact commit or uncommitted file set used for validation.
 
-The migration coordinator is
-00_nucleo/materialization/tekt-english-reference-migration.md; the reviewed
-pilot evidence is
-00_nucleo/diagnosticos/tekt-english-reference-pilot.md.
+The migration coordinator and pilot evidence are preserved under
+`lab/history/construction/records/00_nucleo/materialization/` and
+`lab/results/construction/diagnostics/`, respectively. Current progress and
+active evidence entry points belong in `00_nucleo/diagnostics/`.

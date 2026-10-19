@@ -177,7 +177,7 @@ native_par retorna Content::par(body), ou Styled(styles, Par(body)) quando possu
 
 ### Medição anterior à decisão
 
-O lote bilateral `00_nucleo/diagnosticos/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` mede 32 entradas, com estado exato em initial.json e before/, contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Em 140pt/margem 8pt, simple escolhe delta epsilon zeta eta, optimized escolhe delta epsilon zeta e junta eta à linha seguinte; Tekt ignora a estratégia. Em 240pt justificado, optimized admite eta na primeira linha reduzindo os espaços. Fonte: eval/rules.rs:3070-3100 e stdlib/structural/par.rs:131-150 validam e descartam linebreaks; text.rs:41 e word_layout.rs:29 escolhem incrementalmente; vanilla inline/mod.rs:194-196 resolve auto pela justificação, linebreak.rs:raw_ratio/raw_cost aplica redução até 1/3 e custos cúbicos/quadráticos; model/par.rs:Limits::SPACING_DEFAULT fixa 2/3..1.5. Estilos adjacentes, literal leading/trailing e conteúdo opaco estão medidos separadamente. Observação não prova intenção histórica; inferência refutável: os scope-outs L0 explícitos de preparação/optimized legitimaram o adiamento, pois ainda vedam a implementação global apesar do transporte aceito.
+O lote bilateral `lab/results/construction/diagnostics/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` mede 32 entradas, com estado exato em initial.json e before/, contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Em 140pt/margem 8pt, simple escolhe delta epsilon zeta eta, optimized escolhe delta epsilon zeta e junta eta à linha seguinte; Tekt ignora a estratégia. Em 240pt justificado, optimized admite eta na primeira linha reduzindo os espaços. Fonte: eval/rules.rs:3070-3100 e stdlib/structural/par.rs:131-150 validam e descartam linebreaks; text.rs:41 e word_layout.rs:29 escolhem incrementalmente; vanilla inline/mod.rs:194-196 resolve auto pela justificação, linebreak.rs:raw_ratio/raw_cost aplica redução até 1/3 e custos cúbicos/quadráticos; model/par.rs:Limits::SPACING_DEFAULT fixa 2/3..1.5. Estilos adjacentes, literal leading/trailing e conteúdo opaco estão medidos separadamente. Observação não prova intenção histórica; inferência refutável: os scope-outs L0 explícitos de preparação/optimized legitimaram o adiamento, pois ainda vedam a implementação global apesar do transporte aceito.
 
 ### Decisão e escopo
 
@@ -192,7 +192,7 @@ Transportar linebreaks válido em styles.push_custom("par.linebreaks", value.clo
 
 No HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
 `01_core/src/compiler/stdlib/structural/par.rs:153-157` aceita e ignora spacing.
-`00_nucleo/diagnosticos/tekt-v16-paragraph-2026-10-17/extended-before.json.gz`
+`lab/results/construction/diagnostics/tekt-v16-paragraph-2026-10-17/extended-before.json.gz`
 conserva fonte/L0 e hashes globais/status/diffstat/UTC; supplement-before-
 measurement.json.gz mede BEFORE/par(spacing:30pt)[]/AFTER: AFTER em45.917213pt
 no Tekt contra77.117188pt no pin. Em terminal, altura39.5172 versus55.117188.
@@ -232,7 +232,7 @@ limites de justificação ou paridade universal de Par por esta correção.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-indent-2026-10-18/before.json.gz contém
+lab/results/construction/diagnostics/bibliography-indent-2026-10-18/before.json.gz contém
 60 pares de sondas no HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
 working tree não commitado/UTC/status/diff HEAD --stat, fontes/argv/binários,
 texto e caixas. before-sources.json.gz preserva fontes/L0. Oracle pinado
@@ -285,7 +285,7 @@ Testes RED funcionais antes da implementação; GREEN de fronteira título/cita�
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
 status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
 extra-before.json.gz contém26; boundary-before.json.gz contém10 e

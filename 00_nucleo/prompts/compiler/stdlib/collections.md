@@ -9,7 +9,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/collections.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/collections.rs:37` (pubcrate) struct CollectionCallSpans {); `01_core/src/compiler/stdlib/collections.rs:66` (pubcrate) fn try_dispatch_collection_method); `01_core/src/compiler/stdlib/collections.rs:180` (fn try_dispatch_bytes_method) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/collections.rs:37` (pubcrate) struct CollectionCallSpans {); `01_core/src/compiler/stdlib/collections.rs:66` (pubcrate) fn try_dispatch_collection_method); `01_core/src/compiler/stdlib/collections.rs:180` (fn try_dispatch_bytes_method) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 
@@ -45,7 +45,7 @@ Preserve the specified language semantics, syntax, morphology, diagnostics, span
 
 ## Atomização comportamental P1497
 
-**Medição:** a working tree não commitada identificada em `00_nucleo/diagnosticos/atomizacao-stdlib-collections-2026-09-30-before.json.gz` contém 3542 linhas neste consumer; a suíte do L1 passou com 6401 testes e 2 ignorados. Esta medição não é benchmark nem nova comparação com o vanilla.
+**Medição:** a working tree não commitada identificada em `lab/results/construction/diagnostics/atomizacao-stdlib-collections-2026-09-30-before.json.gz` contém 3542 linhas neste consumer; a suíte do L1 passou com 6401 testes e 2 ignorados. Esta medição não é benchmark nem nova comparação com o vanilla.
 
 **Decisão:** manter neste owner o despacho exaustivo, a tabela estática de membros, os adaptadores de chamada estática e os metadados sintácticos de chamada. Os algoritmos são delegados aos owners exclusivos `collections/{validation,bytes,array_access,array_aggregate,array_predicate,array_sequence,dictionary,str_access,str_search,str_transform,arguments}.md`. As cláusulas de comportamento acima são o mapa de superfície; cada owner filho especifica sua família. A separação é de código e L0, sem alteração intencional da linguagem.
 
@@ -54,7 +54,7 @@ Preserve the specified language semantics, syntax, morphology, diagnostics, span
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/stdlib/collections.rs` nas linhas 519, 553 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `00_nucleo/diagnosticos/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+`01_core/src/compiler/stdlib/collections.rs` nas linhas 519, 553 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
 
 ### Decisão e aceitação
 
@@ -64,7 +64,7 @@ Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, de
 
 ### Medição anterior à decisão — catálogo V16, 2026-10-17
 
-00_nucleo/diagnosticos/tekt-v16-catalogos-2026-10-17/before.json.gz e
+lab/results/construction/diagnostics/tekt-v16-catalogos-2026-10-17/before.json.gz e
 before-measurement.json.gz fixam HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado, UTC/status/diffstat, fontes/L0/config e binários.
 O inventário contém118 campos,115 exercitados pelo CLI e três Location por
@@ -129,7 +129,7 @@ Sem commit/push, merge ou release.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
 anterior foram verificados exatamente antes do baseline. before-probe.json.gz
 e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.

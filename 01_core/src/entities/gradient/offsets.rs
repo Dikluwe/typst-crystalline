@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient/offsets.md
-//! @prompt-hash 3f810933
+//! @prompt-hash 32fb2b46
 //! @layer L1
 //! @updated 2026-09-30
 

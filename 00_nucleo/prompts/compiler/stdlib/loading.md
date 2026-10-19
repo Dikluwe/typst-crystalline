@@ -1092,7 +1092,7 @@ fica autorizado pela simples redação deste L0.
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/loading.rs:42-43,477-480,1529 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `00_nucleo/diagnosticos/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/loading.rs:42-43,477-480,1529 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `lab/results/construction/diagnostics/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
 
 ### Decisão e aceitação
 

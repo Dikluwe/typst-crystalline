@@ -64,7 +64,7 @@ morphology are observables; subset sizes and exact GID assignment are not parity
 ### Medição anterior à decisão
 
 `03_infra/src/export/fonts.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -80,7 +80,7 @@ observáveis, incluindo os controles de adjacência e os invariantes pinados.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/shy-autoral-2026-09-28/initial.json` e
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/initial.json` e
 `before/resultados.json` registram estado, binários, comandos e trinta sondas
 bilaterais. Em largura 300pt, repre<U+00AD>sentation extrai dois SHY no Tekt
 e um no vanilla pinado. O controle spaces extrai seis versus um.
@@ -112,12 +112,12 @@ global, conservando a letra. Não apagar outros controles Unicode além do conju
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -129,13 +129,13 @@ Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/controles-bidi-pdf-2026-10-06/before.json` registra
+`lab/results/construction/diagnostics/controles-bidi-pdf-2026-10-06/before.json` registra
 HEAD, working tree, fontes de código/L0 e binário anterior. As sondas
 `bidi-contexto-rtl_literal_embedding-cmap-before.json` e
 `bidi-contexto-rtl_forced_mark-cmap-before.json` mostram CID 0001 associado
 respectivamente a U+202C e U+200F: espaços posteriores extraem controles e
 fundem palavras. A extração bilateral com fontes e comandos está no lote
-`00_nucleo/diagnosticos/block-align-2026-10-06/verification.json.gz`.
+`lab/results/construction/diagnostics/block-align-2026-10-06/verification.json.gz`.
 `lab/typst-original/crates/typst-layout/src/inline/shaping.rs:992-997`, pin
 9f2b6e8715237cb086899a42873660fe744622e8, remove placeholders Default_Ignorable
 após shaping. `03_infra/src/export/fonts.rs:307-328` mantém controles na
@@ -164,7 +164,7 @@ reservar GID compartilhado. Preservar espaços, letras, UTF-16 e marcas.
 ### Medição anterior à decisão
 
 `03_infra/src/export/fonts.rs` nas linhas [511] contém as expressões apontadas pelo inventário
-Clippy. `00_nucleo/diagnosticos/ci-simplificacoes-2026-10-14/before.json.gz`
+Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
 conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
 red.log registra os lints selecionados como erros antes de alterar código.
 Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.
@@ -187,10 +187,10 @@ de suíte completa, build, all-targets, rustdoc, fmt, linhagem e inventário tot
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -218,7 +218,7 @@ e já autorizados. Não alegar paridade de tiling ou produção a partir do buil
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -227,7 +227,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 

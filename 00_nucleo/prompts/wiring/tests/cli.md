@@ -56,7 +56,7 @@ measurement.json.gz amplia a coleta e refuta atribuir a expressão de eval ao no
 
 ### Evidência anterior à decisão
 
-`00_nucleo/diagnosticos/diagnostic-paths-2026-10-06/identity-next-audit.json`
+`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
 conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
 Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
 separam erro/warning do documento de erro da expressão: o documento perde sua
@@ -81,7 +81,7 @@ O caret curto do warning empty-stars é débito independente e não deve ser
 reclassificado como resolvido por esta correção de identidade.
 
 Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
+lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
 Consumer exclusivo preservado; Hash do Código acompanha a materialização.
 
 ## Caret de empty markup — 2026-10-06
@@ -97,7 +97,7 @@ ordem de warnings em compile/query.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/compile-stdin-2026-10-06/before.json.gz` conserva
+`lab/results/construction/diagnostics/compile-stdin-2026-10-06/before.json.gz` conserva
 HEAD/árvore/UTC, fontes, comandos e SHA-256 dos binários. Com arquivo físico
 `-` contendo #unknown_physical e stdin independente, compile - abre esse
 arquivo no Tekt; o pin 9f2b6e8715237cb086899a42873660fe744622e8 usa stdin.
@@ -160,7 +160,7 @@ nomes no controle bilateral, inclusive o trace sob raiz explícita.
 
 ### Medição antes da decisão
 
-`00_nucleo/diagnosticos/plano-debitos-2026-10-06/before.json.gz` conserva
+`lab/results/construction/diagnostics/plano-debitos-2026-10-06/before.json.gz` conserva
 HEAD/working tree/UTC, fontes, comandos e hashes dos binários. Compile/c -
 sem output aceita e escreve -.pdf no Tekt; o pin exige OUTPUT e sai 2.
 `lab/typst-original/crates/typst-cli/src/args.rs:351-355` declara
@@ -190,7 +190,7 @@ stderr bruto na coleta, sem declarar identidade integral desse envelope.
 
 ### Evidência antes da decisão
 
-`00_nucleo/diagnosticos/plano-debitos-2026-10-06/math-before.json.gz`
+`lab/results/construction/diagnostics/plano-debitos-2026-10-06/math-before.json.gz`
 conserva pin/HEAD/árvore/UTC/fontes/comandos/SHA. Equação explícita é locatable,
 mas query(math.equation), alias e selector(math.equation) são rejeitados.
 `01_core/src/compiler/stdlib/foundations/selector.rs:269-283` reconhece apenas
@@ -243,7 +243,7 @@ escapes e ausência de I/O. Não exigir aceitação de cell na query: o oracle
 rejeita cell não locatable; show/selector são eixos separados.
 
 Gate confirmado pelo humano em 2026-10-06 (resposta confirmo), com candidatos
-e hashes preservados em 00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
+e hashes preservados em lab/history/construction/records/00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
 
 Controle HTML: errors precedem aviso experimental, que precede aviso de strong vazio;
 em sucesso manter experimental antes do aviso de strong vazio (before.json.gz).
@@ -373,7 +373,7 @@ Não usar PDF bytes como paridade ou mudar Fonte/SOURCE_DATE_EPOCH por conveniê
 
 ### Medição anterior à decisão
 
-O snapshot before.json.gz de 00_nucleo/diagnosticos/tekt-v12-2026-10-16 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC, fontes/L0/configuração/lock, hashes, status e git diff HEAD --stat. Os 2077 hashes coincidem com o checkpoint final da etapa FrameItem: a suíte anterior passou com 8622 testes, zero falhas e sete ignorados nesse mesmo estado. gate-baseline-result.json confirma RED dos 19 V12 antes de qualquer mudança de L0 ou código. items.json contém os itens AST completos e classification.json registra a separação por unidade. Cláusulas pertinentes dos owners foram lidas junto dos helpers; não há nova alegação de paridade ou intenção upstream.
+O snapshot before.json.gz de lab/results/construction/diagnostics/tekt-v12-2026-10-16 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC, fontes/L0/configuração/lock, hashes, status e git diff HEAD --stat. Os 2077 hashes coincidem com o checkpoint final da etapa FrameItem: a suíte anterior passou com 8622 testes, zero falhas e sete ignorados nesse mesmo estado. gate-baseline-result.json confirma RED dos 19 V12 antes de qualquer mudança de L0 ou código. items.json contém os itens AST completos e classification.json registra a separação por unidade. Cláusulas pertinentes dos owners foram lidas junto dos helpers; não há nova alegação de paridade ou intenção upstream.
 
 O linter identifica enum e impl inerente de topo em L4, inclusive suporte de teste. A separação aqui é de responsabilidade: cenários, fixtures de linguagem e asserções de produto ficam em L4; helpers independentes de subprocesso/filesystem/observação passam a uma unidade de suporte L3. Não mover a suíte completa, encaixar declarações em módulo L4 para explorar a leitura rasa do parser, excluir testes do lint, converter impl em funções só para escapar da regra ou alterar severidade.
 

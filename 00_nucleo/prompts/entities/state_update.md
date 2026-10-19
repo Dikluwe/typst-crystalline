@@ -117,7 +117,7 @@ Vanilla aceita função em `state("key").update(fn)`. Cristalino P171 adia para 
 
 ### Medição anterior à decisão
 
-01_core/src/entities/state_update.rs:58. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `00_nucleo/diagnosticos/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
+01_core/src/entities/state_update.rs:58. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `lab/results/construction/diagnostics/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
 
 ### Responsabilidade exclusiva
 
@@ -137,7 +137,7 @@ Resselo restrito, direto e reverso, sem reparo global da working tree. Revalidar
 ## A1-S2 — documentação do contrato vigente
 
 Medição anterior: state-counterproof.json.gz/state-extended.json.gz do diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17, HEAD
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17, HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree/UTC/diffstat ali registrados,
 pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Set/Func já são públicos; a cláusula
 stub de P172 é histórica e não descreve o runtime materializado. A1-S2 aprovado

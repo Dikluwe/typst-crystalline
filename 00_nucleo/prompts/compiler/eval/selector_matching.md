@@ -124,7 +124,7 @@ não generalizar Styled para outros tipos ou alterar snapshots Some autoritativo
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
 UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
+lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
 Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
 selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
 é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
@@ -168,7 +168,7 @@ e compostos, função homônima, partial/closure; preservar D05, D07 e query.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 A delegação transparente já owned de ShowRecipe.body também aceita Source.body, sem executar origem separada, publicar carrier ou atribuir Location. Preservar classificação/preparo/serialização conforme a operação desta unidade.
 
@@ -178,7 +178,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/eval/selector_matching.rs:21-23 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `00_nucleo/diagnosticos/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/eval/selector_matching.rs:21-23 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `lab/results/construction/diagnostics/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
 
 ### Decisão e aceitação
 
@@ -192,7 +192,7 @@ Correção de composição interna, sem mudança de assinatura pública, default
 
 O corpus transformacoes-2026-10-14/results.json.gz e controles suplementares
 registra identidade/presença perdida no carrier matrix/body. Fonte e owner
-pré-migração estão em materialization/transformacoes-tipadas-2026-10-14/base-files.json.gz
+pré-migração estão em lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14/base-files.json.gz
 com hashes e linhas em consumers.json. A aprovação do manifesto
 960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d autoriza
 a nova representação e resolução no layout. Semântica/morfologia são linguagem;
@@ -209,7 +209,7 @@ Testar RED→GREEN e revalidar os caminhos dependentes; o build não fecha X1–
 
 ### Medição anterior à decisão
 
-01_core/src/compiler/eval/selector_matching.rs:213 (native_element_base, emitted-v16). O enum em 01_core/src/entities/show.rs:63-96 contém Text, NodeKind, NativeElement, DynKind, Regex, Where, And, Or e Label. Fonte/linhas e funções atuais foram confrontadas com os avisos SARIF da revisão pinada e com o inventário AST anterior, verificando presença literal dos matches na árvore atual. Proveniência: 00_nucleo/diagnosticos/tekt-v16-show-selectors-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, hashes/fontes, status e git diff HEAD --stat; classification.json distingue avisos emitidos de predicado latente. Classificação: padrões/exaustividade são mecânica; seleção, texto, efeitos e erro de linguagem permanecem conforme os contratos vigentes. Não há nova medição de paridade ou inferência de ganho de leitura/performance.
+01_core/src/compiler/eval/selector_matching.rs:213 (native_element_base, emitted-v16). O enum em 01_core/src/entities/show.rs:63-96 contém Text, NodeKind, NativeElement, DynKind, Regex, Where, And, Or e Label. Fonte/linhas e funções atuais foram confrontadas com os avisos SARIF da revisão pinada e com o inventário AST anterior, verificando presença literal dos matches na árvore atual. Proveniência: lab/results/construction/diagnostics/tekt-v16-show-selectors-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, hashes/fontes, status e git diff HEAD --stat; classification.json distingue avisos emitidos de predicado latente. Classificação: padrões/exaustividade são mecânica; seleção, texto, efeitos e erro de linguagem permanecem conforme os contratos vigentes. Não há nova medição de paridade ou inferência de ganho de leitura/performance.
 
 ### Decisão interna
 
@@ -226,7 +226,7 @@ Fluxo contínuo ADR-0127: nenhuma assinatura/campo/trait público, default de pr
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz
 e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
 bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
 foundations/content/mod.rs:724–728 declara children requerido;
@@ -274,7 +274,7 @@ só no ambiente de validação. Resselo após V15/V26 válido e proveniência ex
 ### Medição anterior à decisão
 
 As coletas before/expanded/controls.json.gz e candidate.log em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 fixam HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
@@ -284,7 +284,7 @@ ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
 filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
 
 O dono aprovou a revisão
-00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
 46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
 nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
 fronteira antes dos filhos/Table/math; não cobre novo contrato público.

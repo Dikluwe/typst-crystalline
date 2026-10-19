@@ -50,14 +50,14 @@ Preparar snapshots Page não paginados antes da descoberta, e selecionar/revalid
 
 ## Preparação de bindings de exportação — 2026-10-05
 
-Medição: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/probe.txt`. Consumir helper privado resolve_export_fonts: fontes originais vinculadas, com gate de instanciação existente. Instanciação fica no consumidor exportador, na mesma fase de render/export, preservando diagnósticos/API/seleção de páginas. O nome antigo prometia bytes já instanciados e não descreve este contrato.
+Medição: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/probe.txt`. Consumir helper privado resolve_export_fonts: fontes originais vinculadas, com gate de instanciação existente. Instanciação fica no consumidor exportador, na mesma fase de render/export, preservando diagnósticos/API/seleção de páginas. O nome antigo prometia bytes já instanciados e não descreve este contrato.
 
 
 ## Manutenção local e observação de testes — 2026-10-16
 
 ### Medição anterior à decisão
 
-`03_infra/src/pipeline/html.rs` nas linhas 147 contém os avisos registrados em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
+`03_infra/src/pipeline/html.rs` nas linhas 147 contém os avisos registrados em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
 
 ### Responsabilidade e aceitação
 
@@ -72,7 +72,7 @@ Fluxo contínuo ADR-0127: sem contrato público, default de produto ou fase novo
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 final-freeze.json.gz e target-controls.json.gz no diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
 UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
 Styled de transporte altera func. Query também vê wrapper causal temporário;
@@ -80,7 +80,7 @@ HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427
 pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
 de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
 Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
 SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
 
 ### Responsabilidade exclusiva

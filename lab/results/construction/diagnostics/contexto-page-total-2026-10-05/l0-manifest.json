@@ -1,0 +1,11 @@
+{
+  "00_nucleo/prompts/_nuclei/page-counter-snapshot.toml": "c9b3ac11d951bbded7db3dd913b978a0df92be9f0900d5bf79fab221f0c6bcb3",
+  "00_nucleo/prompts/compiler/introspect/from_tags/counter_updates.md": "676132b09a787cdf4b222c8297972cffd59f8c2322936646ad7a0b59d0389930",
+  "00_nucleo/prompts/compiler/stdlib/counter.md": "8208cce1cc9e57ebd9f0e52947bf4aee40c52ef98882f2503e133b528b4a85f6",
+  "00_nucleo/prompts/compiler/stdlib/counter/display.md": "5b1bd78b63fc43bb61c80b3c60198b97bc8fa6d651cb4ed475ded8990135f739",
+  "00_nucleo/prompts/compiler/stdlib/counter/filtered_reads.md": "33983ce59ca232a9e24613453adae8b16c384ac2b5ace6d973373646aca17c2e",
+  "00_nucleo/prompts/entities/introspector.md": "d7eaa643ebde11a5c085950134fa9e42544d299cd6062d516cca7bcd3e7648b8",
+  "00_nucleo/prompts/infra/pipeline/context_stabilization.md": "23f4265c2fd1bd7f631e0ddbc0135377c97ed5014b229c931ac090b295a6b6d5",
+  "00_nucleo/prompts/infra/pipeline/paged.md": "4cb5a3117e4d424770da9366070a2c1ef9e150dbc05f739d524427209454fd8d",
+  "00_nucleo/prompts/infra/pipeline/tests.md": "61d623889fb02902979b691dd17afd0eff5a5031319343c4f03aa628c8281fc5"
+}

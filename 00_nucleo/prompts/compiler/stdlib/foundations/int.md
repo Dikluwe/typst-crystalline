@@ -8,7 +8,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/foundations/int.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/foundations/int.rs:16` (type NativeResult = SourceResult<Value>;); `01_core/src/compiler/stdlib/foundations/int.rs:18` (pub fn int_type_fieldfield: &str) -> Option<Value> {); `01_core/src/compiler/stdlib/foundations/int.rs:35` (pubcrate) fn is_int_instance_methodname: &str) -> bool {) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/foundations/int.rs:16` (type NativeResult = SourceResult<Value>;); `01_core/src/compiler/stdlib/foundations/int.rs:18` (pub fn int_type_fieldfield: &str) -> Option<Value> {); `01_core/src/compiler/stdlib/foundations/int.rs:35` (pubcrate) fn is_int_instance_methodname: &str) -> bool {) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 

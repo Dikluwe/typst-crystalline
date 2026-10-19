@@ -8,7 +8,7 @@
 //!
 //! Núcleo PDF/A-2/3/4: trailer `/ID` universal, `pdf:PDFVersion` dinâmico,
 //! XMP `pdfaid`, `/OutputIntent` e supressão de `/Info` em A4. Ver
-//! `00_nucleo/materialization/typst-passo-1475.md` §5 e
+//! `lab/history/construction/records/00_nucleo/materialization/typst-passo-1475.md` §5 e
 //! `00_nucleo/prompts/infra/export/builder.md` §P1475 (contrato completo,
 //! `file:line` medidos contra o vanilla ratificado).
 //!

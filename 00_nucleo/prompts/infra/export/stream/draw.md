@@ -74,7 +74,7 @@ controle sem crop, teste positivo de cover com crop e regressões de EXIF.
 ### Medição anterior à decisão
 
 `03_infra/src/export/stream/draw.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -93,7 +93,7 @@ Em UA1, TextSeparator recebe o mesmo tratamento de folha textual Span e MCID coo
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -125,7 +125,7 @@ ActualText no stream. Sem heurística de GID ou varredura posterior do stream.
 O primeiro build SHA-256 8b223826b2a6ec44bf95a82235e5caaae57777eba27be27200e084e3ce389241
 (`after/`, `after-extra/`) conserva SHY no compacto, mas no verboso a extração
 coloca os substitutes em x=0/y=400. O experimento controlado de 18 streams em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/envelope-probe/`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/envelope-probe/`
 refuta a abrangência inicial: fechar EMC antes de Q conserva caixas; fechar após
 Q perde a posição no Poppler. Abrir antes/depois de cm/Tm não muda essa conclusão.
 Não fechar por contagem de codepoints, nem reescrever streams procurando Q.
@@ -150,12 +150,12 @@ literal, scopes balanceados e raster preservado.
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -167,7 +167,7 @@ Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/espaco-terminal-2026-10-06/before.json` conserva
+`lab/results/construction/diagnostics/espaco-terminal-2026-10-06/before.json` conserva
 working tree, HEAD, código/L0 e binários. O caso literal-terminal-space no
 lote bidi-identidade-ocorrencia tem glifos posicionados corretamente, mas
 caixa extraída de 123 termina em 121.49581pt versus 125.000002pt no oracle.
@@ -208,9 +208,9 @@ acima já exige aplicá-los uma vez. O teste histórico
 `03_infra/src/export/tests/mod.rs:8306` verifica só presença de texto,
 sem medir sua posição. Código e L0 anteriores, HEAD, working tree não
 commitado, status, diffstat, UTC e binário estão em
-`00_nucleo/diagnosticos/grupos-aninhados-2026-10-13/before.json.gz`.
+`lab/results/construction/diagnostics/grupos-aninhados-2026-10-13/before.json.gz`.
 A investigação nasceu do controle independente de cor única
-`00_nucleo/diagnosticos/conic-cobertura-2026-10-13/probe.json.gz`;
+`lab/results/construction/diagnostics/conic-cobertura-2026-10-13/probe.json.gz`;
 o defeito de posicionamento de Pattern é distinto e não se fecha aqui.
 
 ### Decisão interna e aceitação
@@ -252,7 +252,7 @@ o aviso nem alterar tipos produtivos.
 ### Medição anterior à decisão
 
 `03_infra/src/export/stream/draw.rs` nas linhas [324, 325, 983, 984] apresenta os avisos selecionados.
-`00_nucleo/diagnosticos/ci-helpers-testes-2026-10-14/before.json.gz`
+`lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/before.json.gz`
 conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
 references-before.json.gz registra chamadas, imports, módulos e referências;
 o estado da suíte/inventário anterior foi verificado por hashes. A lista de
@@ -282,7 +282,7 @@ compõe grupos, mas Pattern é relativo ao espaço inicial do stream.
 `stream/page.rs:45-49` acrescenta bleed antes dos itens. O corpus constante
 red versus conic(red,red), em before/probe.json.gz, reproduz a perda de
 cobertura na árvore atual. Fonte, L0, HEAD, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/conic-posicionamento-2026-10-14/placement-before.json.gz`.
+`lab/results/construction/diagnostics/conic-posicionamento-2026-10-14/placement-before.json.gz`.
 Os dois lados do teste são Tekt: o defeito independe de imitar o vanilla.
 
 ### Responsabilidade e aceitação
@@ -311,10 +311,10 @@ campo ou construtor de PageContext muda. O dispatcher passa seu contexto.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/block-regiao-2026-10-14/open-pdf/results.json.gz`
+`lab/results/construction/diagnostics/block-regiao-2026-10-14/open-pdf/results.json.gz`
 mede um backing azul extra em Block(outset:4pt) sem fill/stroke, somente no
 PDF Tekt. A inspeção visual da amostra confirma a pintura indevida. O corpus
-`00_nucleo/diagnosticos/pdf-caminho-vazio-2026-10-14/before-full/results.json.gz`
+`lab/results/construction/diagnostics/pdf-caminho-vazio-2026-10-14/before-full/results.json.gz`
 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree sujo,
 status, diffstat, UTC, fontes, comandos e hashes de binários. Rect/Ellipse/
 RoundedRect invisíveis seguidos de marcador azul põem tinta desde (20,20) no
@@ -359,10 +359,10 @@ continuam com seus owners e suas evidências; não são fechados por esta corre�
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -404,7 +404,7 @@ os controles que coincidem, inclusive a divergência vanilla PDF de quarter.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -413,7 +413,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -439,7 +439,7 @@ não é certificação de produção. T4 e publicação continuam fora deste pac
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-overlap-2026-10-14/before.json.gz` preserva fontes, owners, HEAD, UTC e working tree. `tiling-nativo-2026-10-14/final-renders` e `remaining-analysis.md` registram cell8×8/pitch4×4 alpha50%: PDF vermelho opaco; SVG só uma contribuição; PNG quatro contribuições (255,15,15). `pdf_tiling.rs:184` emite BBox=size, `svg/paints.rs:148` usa overflow visible; `stream/shape.rs:155` e `stream/text.rs:275` descartam alpha. São defeitos observáveis de composição; o vanilla também corta overlap e não serve de requisito para esse defeito. Hipótese refutável: compor explicitamente um período preserva controles sem overlap e quatro contribuições coincidem com fonte-over analítica.
+`lab/results/construction/diagnostics/tiling-overlap-2026-10-14/before.json.gz` preserva fontes, owners, HEAD, UTC e working tree. `tiling-nativo-2026-10-14/final-renders` e `remaining-analysis.md` registram cell8×8/pitch4×4 alpha50%: PDF vermelho opaco; SVG só uma contribuição; PNG quatro contribuições (255,15,15). `pdf_tiling.rs:184` emite BBox=size, `svg/paints.rs:148` usa overflow visible; `stream/shape.rs:155` e `stream/text.rs:275` descartam alpha. São defeitos observáveis de composição; o vanilla também corta overlap e não serve de requisito para esse defeito. Hipótese refutável: compor explicitamente um período preserva controles sem overlap e quatro contribuições coincidem com fonte-over analítica.
 
 ### Responsabilidade desta unidade
 
@@ -455,7 +455,7 @@ Correção interna ADR-0127 dentro do T1–T3 já aprovado, sem nova API/fase/fl
 ### Medição anterior à decisão
 
 `03_infra/src/export/stream/draw.rs:647,1205` empresta novamente opening, já ligado por referência no ramo Some.
-`00_nucleo/diagnosticos/avisos-clippy-tekt-2026-10-15/before.json.gz`
+`lab/results/construction/diagnostics/avisos-clippy-tekt-2026-10-15/before.json.gz`
 conserva fontes, owners, HEAD, working tree não commitado, UTC e diffstat;
 selected-red.json identifica os diagnósticos do compilador antes da edição.
 São expressões Rust equivalentes, sem nova medição de paridade upstream.
@@ -474,7 +474,7 @@ build, Clippy all-targets, formato, documentação e linhagem com resselo restri
 
 ### Medição anterior à decisão
 
-F057: 03_infra/src/export/stream/draw.rs:114 (ua1_leaf_opening). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F057: 03_infra/src/export/stream/draw.rs:114 (ua1_leaf_opening). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 

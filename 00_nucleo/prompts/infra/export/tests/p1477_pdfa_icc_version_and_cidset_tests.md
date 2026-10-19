@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/p1477_pdfa_icc_version_and_cidset_tests
-Hash do Código: 8bbfec25
+Hash do Código: a720a2e8
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/tests/p1477_pdfa_icc_version_and_cidset_tests.rs`

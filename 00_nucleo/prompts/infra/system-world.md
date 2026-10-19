@@ -48,7 +48,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 
 ### Evidência anterior à decisão
 
-`00_nucleo/diagnosticos/diagnostic-paths-2026-10-06/identity-next-audit.json`
+`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
 conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
 Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
 separam erro/warning do documento de erro da expressão: o documento perde sua
@@ -84,15 +84,15 @@ A operação de alocação/publicação pertence ao owner cache; não adiciona e
 global. for_stdin não habilita compile stdin nem muda CLI flags ou defaults.
 
 Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
+lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
 Consumer exclusivo preservado; Hash do Código acompanha a materialização.
 
 
 ## Medição anterior à decisão de retenção ratificada
 
-00_nucleo/diagnosticos/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
+lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
 edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-00_nucleo/diagnosticos/watch-validacao-2026-10-07/measurement.json mede validação por
+lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
 descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
 remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
 não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
@@ -102,7 +102,7 @@ regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do re
 
 ### Decisão ratificada sob ADR-0127 §2.1/§2.2
 
-Dono ratificou com Confirmo o pacote 00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: 00_nucleo/diagnosticos/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
+Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
 
 ## Extensão exclusiva do estado e export
 
@@ -119,7 +119,7 @@ mudança de identidades. O builder novo pertence somente ao owner fonts.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/incremental-prioridade6-2026-10-08/before.json.gz,
+lab/results/construction/diagnostics/incremental-prioridade6-2026-10-08/before.json.gz,
 measurement.json.gz, control-measurement.json.gz e count.json registram árvore,
 HEAD, UTC, comandos e releases. Source::new reconstrói CST; World novo constrói
 Source main/import a cada edição. O import mínimo já absorve recursos no eval_ms;

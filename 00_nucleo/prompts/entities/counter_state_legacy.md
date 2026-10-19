@@ -101,7 +101,7 @@ Resumo:
 
 Vanilla decompõe esta funcionalidade por 13 ficheiros em `introspection/` (Counter, State, Introspector, Locator, Tag, etc.). Cristalino mantém um único agregador legacy enquanto os tipos de paridade são introduzidos progressivamente nos Passos P161+ (Location, Locator, Tag, ElementInfo, ElementPayload). Quando o motor de introspecção fixpoint estiver completo (M9 do desenho), `CounterStateLegacy` pode ser totalmente substituído ou retido como vista achatada do estado moderno.
 
-Ver auditoria `00_nucleo/diagnosticos/auditoria-isolamento-vs-vanilla.md` (2026-04-29) para a classificação literal de `CounterState` (agora legacy) como concentrador de 12 razões orthogonais.
+Ver auditoria `lab/results/construction/diagnostics/auditoria-isolamento-vs-vanilla.md` (2026-04-29) para a classificação literal de `CounterState` (agora legacy) como concentrador de 12 razões orthogonais.
 
 ---
 

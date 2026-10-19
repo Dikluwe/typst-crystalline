@@ -416,7 +416,7 @@ contrato público de Counter nem aprovação de dívidas históricas deste L0.
 
 No HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08` com working tree
 P1485.2 não commitada (estado exato registrado em
-`00_nucleo/diagnosticos/typst-p1485-integracao-gate2.md` e no diff final),
+`lab/results/construction/diagnostics/typst-p1485-integracao-gate2.md` e no diff final),
 `compiler/stdlib/counter.rs:632-661,881-900` lê `CounterRegistry` para
 `get`/`at`, inclusive `CounterKey::Page`. A composição L3 já injeta
 `SealedPositions` e `PageStore` do layout de cada documento, mas a
@@ -522,13 +522,13 @@ A fachada conserva constructor, dispatch nativo e API pública. A política de l
 
 ## Snapshot realizado de Page — ratificado em 2026-10-05
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
+Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
 
 Decisão proposta: aplicar o Núcleo page-counter-snapshot. Esta unidade substitui o scope-out histórico de final apenas após ratificação. Contrato público e realização page-aware de updates exigem gate ADR-0127; não materializar ou ressellar antes da confirmação. Preservar as assinaturas existentes, ciclos e budget; não adivinhar página/total antes do snapshot conhecido.
 
 Leitores Page usam snapshot realizado por Location quando presente. Current get/at/display consulta page_counter_values, final/both consulta page_counter_final_values da Location contextual pertinente; antes disso, conservar fallback causal existente, sem misturar entrada parcial e total de outra geração. Replay de CounterAt/CounterFinal/CounterTotal segue a mesma resolução, incluindo erros e estado vazio. Outras chaves não são modificadas. A vista lógica antiga do PageStore não corrige snapshots inexistentes por inferência do último PDF.
 
-Ratificação: o humano confirmou o conjunto do manifesto `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
+Ratificação: o humano confirmou o conjunto do manifesto `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
 
 ## D08A — seletor bare de table.cell (PROPOSTO, gate ADR-0127)
 
@@ -536,7 +536,7 @@ Ratificação: o humano confirmou o conjunto do manifesto `00_nucleo/diagnostico
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
 UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
+lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
 Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
 selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
 é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
@@ -582,7 +582,7 @@ e compostos, função homônima, partial/closure; preservar D05, D07 e query.
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/stdlib/counter.rs` nas linhas 484 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `00_nucleo/diagnosticos/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+`01_core/src/compiler/stdlib/counter.rs` nas linhas 484 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
 
 ### Decisão e aceitação
 
@@ -595,7 +595,7 @@ Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, de
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
 Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
 no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
 e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md

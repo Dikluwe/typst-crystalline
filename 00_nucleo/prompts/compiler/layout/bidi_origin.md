@@ -12,7 +12,7 @@ Núcleos Tekt:
 
 ## Medição anterior à decisão
 
-`00_nucleo/diagnosticos/bidi-contexto-2026-10-05/probe.json.gz` registra a refutação de resolução por fragmento com base igual. `paragraph.rs:15–51` já certifica direção integral; `text.rs:66` divide palavras e `space.rs:31` emite separadores. `initial.json.gz` guarda fonte, estado e binários. O contrato público foi ratificado em `bidi-contexto-aprovacao-2026-10-05.json`.
+`lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` registra a refutação de resolução por fragmento com base igual. `paragraph.rs:15–51` já certifica direção integral; `text.rs:66` divide palavras e `space.rs:31` emite separadores. `initial.json.gz` guarda fonte, estado e binários. O contrato público foi ratificado em `bidi-contexto-aprovacao-2026-10-05.json`.
 
 ## Decisão e escopo
 
@@ -29,7 +29,7 @@ Recusa integral não permite recertificar um filho parcial: guard privado de esc
 
 ## Envelopes de identidade no pipeline completo
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-implementacao-2026-10-05/verification.json.gz` preserva o primeiro candidato; RTL mixed/LTR numeric ainda coincidem com baseline errado. `pipeline-context.log` registra RED pelo pipeline completo: todas as folhas sem span; `realize/mod.rs:38–44` insere Located em ocorrências. Avaliação direta não exercitava esse envelope. Correção interna: Located é transparente somente para certificação da sua body textual integral, sem ignorar corpos opacos nem alterar registro de Location. Direção lexical e coleta devem atravessar o mesmo envelope. O teste do pipeline exige spans em todas as folhas textuais e ordem RTL com primeiro trecho latino; preservar artefatos do primeiro candidato.
+Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-implementacao-2026-10-05/verification.json.gz` preserva o primeiro candidato; RTL mixed/LTR numeric ainda coincidem com baseline errado. `pipeline-context.log` registra RED pelo pipeline completo: todas as folhas sem span; `realize/mod.rs:38–44` insere Located em ocorrências. Avaliação direta não exercitava esse envelope. Correção interna: Located é transparente somente para certificação da sua body textual integral, sem ignorar corpos opacos nem alterar registro de Location. Direção lexical e coleta devem atravessar o mesmo envelope. O teste do pipeline exige spans em todas as folhas textuais e ordem RTL com primeiro trecho latino; preservar artefatos do primeiro candidato.
 
 Linebreak justify=true está fora do certificado nesta rodada: o carrier unitário ratificado não transporta essa distinção. A fonte vanilla collect.rs:191–194 exige LF no caso padrão; a medição numeric-explicit está no receipt da implementação.
 
@@ -42,7 +42,7 @@ Medição da fronteira de Styled: style_scope.rs:42–69 trata pdf.marker.tag=la
 ### Medição anterior à decisão
 
 focused-candidate-verification.json.gz e candidate-source.json.gz em
-`00_nucleo/diagnosticos/block-tabela-fluxo-2026-10-06/` preservam candidato
+`lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/` preservam candidato
 com largura/âncora corretas mas ordem ABC/123/árabe incorreta em RTL.
 bidi_origin.rs:111-117 recusa todas as células/subframes; o input integral
 não chega à reordenação L3. cell_body.rs:223-235 classifica Text e TextShaped
@@ -59,7 +59,7 @@ Permitir a região de célula somente com cell_bidi_allowed e regions.cell exist
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Certificação bidi atravessa Source sem alterar texto lógico, direção, ranges completos, chain ou ordem. wrapper de origem não causa Unsupported.
 

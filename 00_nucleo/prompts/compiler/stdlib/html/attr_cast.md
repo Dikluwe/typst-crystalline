@@ -3,7 +3,7 @@ Hash do Código: 8006cc9f
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/html/attr_cast.rs`. No HEAD `7a813038b9af2eca0eac7c9a0f808ae8f6509d5b` e árvore limpa, `01_core/src/compiler/stdlib/html.rs:1490-1692` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-html-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/html/attr_cast.rs`. No HEAD `7a813038b9af2eca0eac7c9a0f808ae8f6509d5b` e árvore limpa, `01_core/src/compiler/stdlib/html.rs:1490-1692` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-html-2026-09-30-before.json.gz`.
 
 ## Contrato
 

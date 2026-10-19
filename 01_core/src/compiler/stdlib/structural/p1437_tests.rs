@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/p1437-tests.md
-//! @prompt-hash 27b6ab3b
+//! @prompt-hash 14a9d99b
 //! @layer L1
 #![cfg(test)]
 

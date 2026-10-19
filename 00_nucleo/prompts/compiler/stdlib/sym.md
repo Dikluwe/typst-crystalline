@@ -212,7 +212,7 @@ público no futuro exige novo L0 e confirmação ADR-0127.
 ### Medição anterior à decisão
 
 01_core/src/compiler/stdlib/sym.rs:528 (C022).
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos

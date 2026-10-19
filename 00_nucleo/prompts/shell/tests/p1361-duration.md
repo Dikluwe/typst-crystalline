@@ -24,4 +24,4 @@ Distinguish ns/µs/ms/s boundaries, the five-minute truncation transition and th
 
 Run each named test with an exact-name filter, one build job and a bounded runner timeout. A run executing no matching test, timing out or failing from resource exhaustion earns no acceptance credit. Runtime limits are failure bounds, never input or evidence for timing behavior.
 
-Require direct literal observations and deterministic repeat/reverse controls. Do not claim independent pre-implementation attestation from this test's existence: its lineage-order limitation is retained in `00_nucleo/diagnosticos/sanitization-shell-history.md`.
+Require direct literal observations and deterministic repeat/reverse controls. Do not claim independent pre-implementation attestation from this test's existence: its lineage-order limitation is retained in `lab/results/construction/diagnostics/sanitization-shell-history.md`.

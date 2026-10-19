@@ -10,7 +10,7 @@ Hash do Código: 5fe060aa
 `01_core/src/compiler/math/layout/assembly.rs:26` locates `fn resolve_assembly_repeat<'p>(`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Glyph assembly geometry
 

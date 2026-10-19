@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash efef6164
+//! @prompt-hash dfade425
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -5465,7 +5465,7 @@ mod regressions {
     // ── P817 — paridade `calc` (achado #4 de P810) ──────────────────────────
     //
     // Sub-achados medidos nos dois binários (temp/p817/, relatório
-    // `00_nucleo/diagnosticos/typst-passo-817-relatorio.md`):
+    // `lab/results/construction/diagnostics/typst-passo-817-relatorio.md`):
     // (a) asin/acos/atan/atan2 → `angle`; (b) quo floored; (c) pow expoente
     // inteiro negativo → float; (d) decimal em abs/pow/floor/ceil/trunc/
     // fract/round + erro dedicado decimal×float; (e) log10/deg/rad são
@@ -5713,7 +5713,7 @@ mod regressions {
     // ── P818 — paridade `ops` (achado #5 de P810) ───────────────────────────
     //
     // Sub-achados medidos nos dois binários (temp/p818/, relatório
-    // `00_nucleo/diagnosticos/typst-passo-818-relatorio.md`):
+    // `lab/results/construction/diagnostics/typst-passo-818-relatorio.md`):
     // (a) ordenação str; (b) ordenação lexicográfica de array; (c) ordenação
     // bool; (d) divisões Relative/Relative e Ratio/Ratio; (e) repetição
     // `Str * Int`; (f) igualdade `Length == Relative` com rel zero;
@@ -20417,7 +20417,7 @@ mod regressions {
     // aqui cobrem o que é local a L1: a intercepção reconhece `measure`/
     // `std.measure` pela identidade da função nativa e aplica o gate. A
     // medição real, dentro de `context`, é validada por reprodução manual
-    // (`00_nucleo/diagnosticos/paridade-producao-p712.md`).
+    // (`lab/results/construction/diagnostics/paridade-producao-p712.md`).
 
     #[test]
     fn p712_measure_fora_de_context_erra_com_gate() {
@@ -21167,7 +21167,7 @@ mod regressions {
 
     // ── P702 — `.with(...)` (aplicação parcial de argumentos) ────────────────
     // Reproduções idênticas às medidas contra o vanilla em
-    // `00_nucleo/diagnosticos/paridade-producao-p702.md`.
+    // `lab/results/construction/diagnostics/paridade-producao-p702.md`.
 
     #[test]
     fn p702_with_nativa_com_namespace_named_pre_ligado() {

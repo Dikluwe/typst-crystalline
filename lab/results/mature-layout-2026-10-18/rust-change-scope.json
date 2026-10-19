@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-18T23:40:04.364324+00:00",
+  "checkpoint": "8ec827fd975bf14cd849bebb9ede245e49033337",
+  "method": "Diff all modified L1-L4 Rust files; allow only full-line comments/headers and the exact fixture-path substitution in integration_tests.rs. Blank-line edits ignored.",
+  "modified_rust_files": 748,
+  "fixture_path_diff_lines": 24,
+  "unexpected": []
+}

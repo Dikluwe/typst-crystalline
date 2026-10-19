@@ -208,7 +208,7 @@ Aplicar `wrap_page_columns` (ou invocar via eval) e verificar que as notas A e B
 - `cargo test --workspace` limpo.
 - `crystalline-lint .` limpo.
 - Header de linhagem `@prompt` / `@prompt-hash` actualizado nos ficheiros tocados.
-- Relatório em `00_nucleo/diagnosticos/paridade-producao-p537b.md`.
+- Relatório em `lab/results/construction/diagnostics/paridade-producao-p537b.md`.
 
 ---
 

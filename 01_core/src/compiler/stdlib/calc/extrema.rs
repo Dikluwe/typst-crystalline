@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/calc/extrema.md
-//! @prompt-hash c18d7c18
+//! @prompt-hash 104a6815
 //! @layer L1
 //! @updated 2026-09-30
 

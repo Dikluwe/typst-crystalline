@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_stretch.md
-//! @prompt-hash 56f21269
+//! @prompt-hash 8060d88a
 //! @layer L1
 
 use std::sync::Arc;

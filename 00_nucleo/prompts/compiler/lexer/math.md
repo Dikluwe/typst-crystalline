@@ -13,7 +13,7 @@ Núcleos Tekt:
 `01_core/src/compiler/lexer/math.rs:20` locates `fn starts_multigrapheme_math_identifier(c: char, scanner: &Scanner<'_>) -> bool`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Math grammar
 

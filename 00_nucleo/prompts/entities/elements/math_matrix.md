@@ -82,7 +82,7 @@ pontos `&`.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-00_nucleo/diagnosticos/matrix-morfologia-2026-10-06/before.json.gz guarda
+lab/results/construction/diagnostics/matrix-morfologia-2026-10-06/before.json.gz guarda
 UTC/diff/fontes/binários e casos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Mat raw/query sai como {func:math.matrix} sem rows; getter/métodos perdem campos
 e func-equality retorna false. Fonte upstream math/matrix.rs:91–221 declara
@@ -113,7 +113,7 @@ supersede a descrição genérica anterior de augment sempre como Dict.
 
 ## Adaptação Memória 5 — proposta pendente ADR-0127
 
-Medição antes da decisão: 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/
+Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
 before.json.gz e inventory.json congelam este consumer e cada ocorrência
 file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
 Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
@@ -134,7 +134,7 @@ suas cláusulas propostas passam a vigorar nesta materialização.
 
 ## Reuso de contêineres sem substituição — 2026-10-10
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/math_matrix.rs:162` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
+Medição anterior à decisão: `lab/results/construction/diagnostics/content-container-reuse-2026-10-10/before.json.gz` captura HEAD/working tree/UTC/fontes completas/owners/release. `01_core/src/entities/elements/math_matrix.rs:162` conserva a travessia vigente e materializa o elemento mesmo quando os descendentes não mudam. `01_core/src/entities/content/traversal.rs:111–192` embala os resultados destes owners em Some incondicionalmente. Isso é custo mecânico; a linguagem e a identidade semântica dos elementos são preservadas. Inferência refutável: propagar a ausência explícita de mudança reduz alocações e retenção temporária; as sondas e os controles de tempo podem refutar o ganho.
 
 Refinamento interno ADR-0127: disponibilizar somente helper crate-private map_content_if_changed nos elementos já owned por este consumer. Retornar None apenas se nenhum filho efetivamente visitado foi substituído; terminais sem filhos retornam None. Transformar filhos na mesma ordem do map_content vigente, uma única vez, e interromper no primeiro erro. Some do callback, inclusive conteúdo igual, sempre é mudança. Preservar todos os campos, valores, presença explícita, slots omitidos/none/presentes, flags, spans e metadados; não usar igualdade/hash/endereço como certificado. Vetores/linhas só alocam após o primeiro filho/linha alterado; os irmãos conservam seu conteúdo compartilhado. Assinaturas públicas e métodos de trait ficam iguais, com adaptação interna à nova prova; map_content_pre e map_text mantêm seu contrato anterior. Nenhuma ratificação de contratos históricos propostos é ampliada por este refinamento.
 
@@ -148,7 +148,7 @@ A prova compartilhada de ausência de mudança obedece às claims desse núcleo.
 
 ### Medição anterior à decisão
 
-T285: 01_core/src/entities/elements/math_matrix.rs:127. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T285: 01_core/src/entities/elements/math_matrix.rs:127. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 

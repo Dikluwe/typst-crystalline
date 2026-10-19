@@ -85,7 +85,7 @@ não pode codificar a classe por string, style visual ou posição inferida.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-2026-10-07/before.json.gz
+lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz
 registra UTC, diff HEAD --stat, hashes de fontes/binários, argv/cwd e resultados
 contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8.
 Vanilla model/table.rs:734–778 declara body e propriedades; Tekt
@@ -111,7 +111,7 @@ Option None não prova omissão nem none explícito: não certificar esses casos
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-realizacao-2026-10-07/before.json.gz e
+lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz e
 presence-refuters.json conservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree, diffstat, UTC, binários e argumentos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Upstream model/table.rs:734–778 possui campos Smart/Option; o Tekt
@@ -166,7 +166,7 @@ com sua morfologia original. RED→GREEN e nova medição bilateral obrigatório
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -231,7 +231,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
+lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
 
 isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
 
@@ -266,7 +266,7 @@ Este recorte completa defaults intrínsecos da Cell isolada e distingue alias de
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-styles-d08b3c-2026-10-07/before.json.gz registra 58 sondas, UTC 2026-10-07T15:24:58.038947+00:00 até 15:25:13.727872+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/status/fontes/argv/cwd/ambiente completos. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set, campos individuais, late/local/reuse/spread e rejeições refutam o warning de target vazio e a ausência dos defaults. padding-span-one/empty-fixed-rows fixam spans 1 em vazios; auto-table-fallback preserva Auto explícito como delegação à Table, não ao set da Cell. show-cell-set-self altera avulsa mas não fill conhecido da Cell posicionada. Stroke/alignment fazem fold. refuters-before.json.gz estende com header, partial inset, args/condição e snapshot em Table; alias-inside-table é válido no vanilla e recursa indevidamente no Tekt.
+lab/results/construction/diagnostics/table-cell-styles-d08b3c-2026-10-07/before.json.gz registra 58 sondas, UTC 2026-10-07T15:24:58.038947+00:00 até 15:25:13.727872+00:00, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/status/fontes/argv/cwd/ambiente completos. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3. isolated/table-set, campos individuais, late/local/reuse/spread e rejeições refutam o warning de target vazio e a ausência dos defaults. padding-span-one/empty-fixed-rows fixam spans 1 em vazios; auto-table-fallback preserva Auto explícito como delegação à Table, não ao set da Cell. show-cell-set-self altera avulsa mas não fill conhecido da Cell posicionada. Stroke/alignment fazem fold. refuters-before.json.gz estende com header, partial inset, args/condição e snapshot em Table; alias-inside-table é válido no vanilla e recursa indevidamente no Tekt.
 
 Fonte: upstream typst-library/src/model/table.rs:734–778 declara campos, e layout/grid/resolve.rs:203–278 lê estilos antes de resolver/sobrescrever posições/fill; defaults de padding TableCell packed em model/table.rs:785–800 pinam spans 1. Tekt rules/set.rs:23–27 usa text_str de target e não reconhece FieldAccess; table_cells.rs:262–310 usa apenas propriedades lexicais no placement/herança; grid_placement.rs:80 lê x/y/spans diretamente; TableCell standalone não possui propriedades efetivas privadas. É língua (campos/ordem/efeitos/estilo/erros); a representação privada abaixo é decisão Tekt, não obrigação de copiar Packed ou igualdade Rust. Hipótese refutável por qualquer negativo destas coletas, perda de fonte lexical, mutação de valor cru, efeito repetido, guard de alias perdido ou regressão de geometria/cache.
 
@@ -301,7 +301,7 @@ Decisão contínua interna ADR-0127: TableCell posicionada usa fill/stroke/break
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Medição regressions/presence empty-body: Source(Empty) deixou de projetar body como sequence vazia. Getter body conserva a canonicalização existente de Empty através de Source.body, sem alterar presença/casts/preparo ou campos públicos. Source não vira func empty onde body já era sequence na linguagem.
 
@@ -309,7 +309,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ## Adaptação Memória 5 — proposta pendente ADR-0127
 
-Medição antes da decisão: 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/
+Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
 before.json.gz e inventory.json congelam este consumer e cada ocorrência
 file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
 Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
@@ -330,7 +330,7 @@ suas cláusulas propostas passam a vigorar nesta materialização.
 
 ## Reconstrução somente após mudança — 2026-10-10
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/change-aware-red-gate.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado/status/diffstat, UTC, script/fixtures/interpositor/CPU/comandos e release SHA-256 `29745a9e80ca43160b34f4807949f00e803070392653df0fc5e214b2f42ac33a`: 483.823 pedidos glibc em local-set-1600, acima do gate pré-fixado de 470.000. `entities/content/traversal.rs:25-55,235-264` reconstrói sequências/carriers/estilos/Table/Cell mesmo se todos os callbacks retornam None; `entities/elements/table.rs:85-118` e `entities/elements/table_cell.rs:308-344` clonam metadados e contribuições visuais. O vanilla pinado visita referências e materializa apenas após mudança (`lab/typst-original/crates/typst-realize/src/lib.rs:242-291,353-410`). Isso é uma hipótese de custo, sem exigir sua vtable ou igualdade Rust (ADR-0107/0026/0109).
+Medição anterior à decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/change-aware-red-gate.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado/status/diffstat, UTC, script/fixtures/interpositor/CPU/comandos e release SHA-256 `29745a9e80ca43160b34f4807949f00e803070392653df0fc5e214b2f42ac33a`: 483.823 pedidos glibc em local-set-1600, acima do gate pré-fixado de 470.000. `entities/content/traversal.rs:25-55,235-264` reconstrói sequências/carriers/estilos/Table/Cell mesmo se todos os callbacks retornam None; `entities/elements/table.rs:85-118` e `entities/elements/table_cell.rs:308-344` clonam metadados e contribuições visuais. O vanilla pinado visita referências e materializa apenas após mudança (`lab/typst-original/crates/typst-realize/src/lib.rs:242-291,353-410`). Isso é uma hipótese de custo, sem exigir sua vtable ou igualdade Rust (ADR-0107/0026/0109).
 
 Decisão interna (ADR-0127): helper crate-private retorna None quando a contribuição visual fica inalterada. Prioridade de descida: standalone.visual, depois resolved.visual, senão body raw; nunca visitar a origem escondida junto com visual. Na mudança, clonar Cell e o plano aplicável preservando presence, stage, guards, props, origem e campos não-content; sem mudança, permitir ao owner `00_nucleo/prompts/entities/content/traversal.md` reutilizar o Arc original. O método público existente de Element conserva assinatura e usa a mesma implementação; não acrescentar método de trait, executar Engine ou preparar Cell em entidade. Testes de raw/resolved/standalone e gates pareados acima são obrigatórios.
 

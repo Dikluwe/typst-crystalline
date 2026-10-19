@@ -100,8 +100,8 @@ sem CSS/table de display nova e sem mudar preformatted raw/title.
 
 `03_infra/src/export/html/whitespace.rs:31` only recognizes a direct Sequence;
 `:173` classifies direct HtmlElem neighbors. The pin-verified bilateral fixtures
-in `diagnosticos/auditoria-producao-tekt-2026-10-13/html-probes.json.gz` and the
-current RED `diagnosticos/correcoes-producao-2026-10-13/html-cli-red.log` expose
+in `lab/results/construction/diagnostics/auditoria-producao-tekt-2026-10-13/html-probes.json.gz` and the
+current RED `lab/results/construction/diagnostics/correcoes-producao-2026-10-13/html-cli-red.log` expose
 spaces retained at br/block/ruby boundaries after Source carriers were introduced.
 
 For this owner's whitespace operation, transparently traverse Source.body,
@@ -120,7 +120,7 @@ interior text, br/block/ruby boundaries and the protected-space case.
 
 ### Medição anterior à decisão
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado. Fontes/L0/configuração, hashes, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-v16-whitespace-2026-10-17/before.json.gz`. AST/spans em contexts.json; 11 V16 emitidos e um forwarding de identidade latente em classified_content. measurement-before.log mede cinco diferenças entre sete pares Source. measurement-family-before.log e source-family-before-analysis.json medem 28 pares, 20 diferentes: os cinco casos de quebra à esquerda/direita e grupo atravessando Empty falham igualmente sob Source, Located, Realized.visual e Styled. Parbreak e Text continuam fronteiras/apoios iguais. É medição do algoritmo real dentro do crate em workspace descartável, não uma cópia adaptada de helpers privados nem prova global de paridade. A primeira sonda externa falhou por E0624, foi preservada e não conta como RED funcional.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado. Fontes/L0/configuração, hashes, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-v16-whitespace-2026-10-17/before.json.gz`. AST/spans em contexts.json; 11 V16 emitidos e um forwarding de identidade latente em classified_content. measurement-before.log mede cinco diferenças entre sete pares Source. measurement-family-before.log e source-family-before-analysis.json medem 28 pares, 20 diferentes: os cinco casos de quebra à esquerda/direita e grupo atravessando Empty falham igualmente sob Source, Located, Realized.visual e Styled. Parbreak e Text continuam fronteiras/apoios iguais. É medição do algoritmo real dentro do crate em workspace descartável, não uma cópia adaptada de helpers privados nem prova global de paridade. A primeira sonda externa falhou por E0624, foi preservada e não conta como RED funcional.
 
 ### Prescrição exclusiva
 

@@ -20,7 +20,7 @@ A suíte L1, o build e crystalline-lint passam. A separação não constitui pro
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 workspace-fifth refuta ocultação de colbreak sob Source: segmentar body transparente antes de Styled/Sequence, descobrir direção/visibilidade pelo mesmo body, preservar regiões irmãs e segmentos vazios. Não fabricar colbreak nem alterar posição/ordem/cota fracionária.
 
@@ -30,7 +30,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/links-paginacao-2026-10-14.md e os recibos
+lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
 posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
 HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
 texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
@@ -38,7 +38,7 @@ antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
 link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
 antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
 fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-00_nucleo/diagnosticos/links-captura-2026-10-14/before.json.gz.
+lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
 Os observáveis são conteúdo, destino, regiões e bounds; limites privados
 são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
 

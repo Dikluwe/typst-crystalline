@@ -10,7 +10,7 @@ Hash do Código: d1204991
 `01_core/src/compiler/math/layout/cases.rs:23` locates `pub(super) fn layout_cases(`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Cases carrier and rows
 
@@ -51,7 +51,7 @@ política comum de seleção/estiramento nem a geometria da grade.
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/math/layout/cases.rs` nas linhas 23 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `00_nucleo/diagnosticos/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+`01_core/src/compiler/math/layout/cases.rs` nas linhas 23 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
 
 ### Decisão e aceitação
 

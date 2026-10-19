@@ -1,0 +1,81 @@
+{
+  "utc": "2026-09-30T11:12:24.745052+00:00",
+  "head": "17f13b1df79b87ea065ee62e78164b18e477da3d",
+  "binary_sha256": "1667c3557def8660fe1d5d0eb418f142d2e01216559c6e69538038dee85ad500",
+  "sources": {
+    "single": {
+      "path": "/tmp/tekt-pdf-standard-bundle-20260930/single.typ",
+      "sha256": "66a045b452102c59d840ec097d59d9467e13a3f34f6494e539ffd32c1bb35f18"
+    },
+    "bundle": {
+      "path": "/tmp/tekt-pdf-standard-bundle-20260930/bundle.typ",
+      "sha256": "931fb88d5bdd5ea565684fca61a129022ef6c8e5416eb66c29d42fd06e69ac55"
+    }
+  },
+  "runs": {
+    "single-False": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/tmp/tekt-pdf-standard-bundle-20260930/single.typ",
+        "/tmp/tekt-pdf-standard-bundle-20260930/single-default.pdf",
+        "--format",
+        "pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "pdf_exists": true,
+      "pdf_sha256": "a56ea3e96b099b0a46c96028660fdba5f1cd656eb93f72da6c9a3487deb789b6"
+    },
+    "single-True": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/tmp/tekt-pdf-standard-bundle-20260930/single.typ",
+        "/tmp/tekt-pdf-standard-bundle-20260930/single-ua.pdf",
+        "--format",
+        "pdf",
+        "--pdf-standard",
+        "ua-1"
+      ],
+      "exit": 1,
+      "stderr": "error: PDF/UA-1 error: missing document title\n = hint: set the title with `set document(title: [...])`\n\n",
+      "pdf_exists": false,
+      "pdf_sha256": null
+    },
+    "bundle-False": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/tmp/tekt-pdf-standard-bundle-20260930/bundle.typ",
+        "/tmp/tekt-pdf-standard-bundle-20260930/bundle-default-out",
+        "--format",
+        "bundle",
+        "--features",
+        "bundle"
+      ],
+      "exit": 0,
+      "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+      "pdf_exists": true,
+      "pdf_sha256": "11f81f587c525aef5f6bea455d64cbfe48f5950f48a2b109683c07e76d0cc24f"
+    },
+    "bundle-True": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/tmp/tekt-pdf-standard-bundle-20260930/bundle.typ",
+        "/tmp/tekt-pdf-standard-bundle-20260930/bundle-ua-out",
+        "--format",
+        "bundle",
+        "--features",
+        "bundle",
+        "--pdf-standard",
+        "ua-1"
+      ],
+      "exit": 0,
+      "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+      "pdf_exists": true,
+      "pdf_sha256": "12a3a31e1eb881652a2a3440b53b547812f94f9552bb6317a1a6a1e6b1667da0"
+    }
+  }
+}

@@ -3,7 +3,7 @@ Hash do Código: 3d5ff77c
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/erf.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:1484-1549` contém o comportamento correspondente. SHA-256, horário e estado estão em `00_nucleo/diagnosticos/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/erf.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:1484-1549` contém o comportamento correspondente. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
 
 ## Contrato
 

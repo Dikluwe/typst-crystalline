@@ -10,7 +10,7 @@ Hash do Código: c2394720
 `01_core/src/compiler/math/layout/stretchy.rs:21` locates `fn apply_delim_short_fall(target_du: f64, upem: f64) -> f64`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Font-derived variant selection
 

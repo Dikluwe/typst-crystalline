@@ -227,7 +227,7 @@ iter/filter/last sobre o Vec de histórico. O predicado consulta somente
 com fallback numérico para locais não observados. HEAD
 `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado;
 fontes, L0, núcleo pinado, horário UTC, status e diffstat em
-`00_nucleo/diagnosticos/predicados-fixtures-ci-2026-10-13/before.json.gz`.
+`lab/results/construction/diagnostics/predicados-fixtures-ci-2026-10-13/before.json.gz`.
 
 Preservar exatamente a última entrada elegível na ordem do Vec e o resultado
 None quando não houver uma. A pesquisa pode partir do fim e terminar na
@@ -261,7 +261,7 @@ Testes funcionais antes da mudança: índice bare da entry própria e aliases; o
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17.
 state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
 após +1 exige 2/11; callback não lido não executa; atualização reutilizada
 executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
@@ -270,7 +270,7 @@ inicia a sequência; a ordem vem do documento, não do inteiro de Location.
 O método atual trata Func como Set e o pós-passe eager perde essa semântica.
 Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
 A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
-00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
 SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
 
 ### Responsabilidade exclusiva — supersede a fase histórica de State

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math/accent.md
-//! @prompt-hash f05e8794
+//! @prompt-hash 1974ba84
 //! @layer L1
 //! @updated 2026-09-30
 //!

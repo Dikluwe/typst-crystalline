@@ -13,7 +13,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/tiling.rs:15`, `01_core/src/compiler/layout/tiling.rs:124`, `01_core/src/compiler/layout/tiling.rs:144`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -30,7 +30,7 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/layout/tiling.rs` nas linhas 74 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `00_nucleo/diagnosticos/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+`01_core/src/compiler/layout/tiling.rs` nas linhas 74 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
 
 ### Decisão e aceitação
 
@@ -43,7 +43,7 @@ Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, defaul
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-cobertura-2026-10-14/before/results.json.gz`
+`lab/results/construction/diagnostics/tiling-cobertura-2026-10-14/before/results.json.gz`
 conserva fontes/owners, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado com diffstat, binários e UTC. No canvas inteiro
 Poppler 144 dpi: empty pinta 3840 pixels Tekt/0 vanilla; empty-dense
@@ -93,7 +93,7 @@ Sem campo/assinatura pública nova, default ou mudança de fase (ADR-0127).
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-transformacao-2026-10-14/before/results.json.gz`
+`lab/results/construction/diagnostics/tiling-transformacao-2026-10-14/before/results.json.gz`
 conserva fontes/owners, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado, diffstat, UTC e binários. Referência pinada
 9f2b6e8715237cb086899a42873660fe744622e8. Para angle90 e offset(3pt,5pt),
@@ -136,10 +136,10 @@ RED→GREEN e resselo restrito. Nenhuma mudança pública ou nova fase.
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -167,7 +167,7 @@ e já autorizados. Não alegar paridade de tiling ou produção a partir do buil
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-preparacao-2026-10-14/before.json.gz` conserva
+`lab/results/construction/diagnostics/tiling-preparacao-2026-10-14/before.json.gz` conserva
 HEAD, UTC, working tree, diffstat e bytes/hashes das fontes e owners.
 Neste consumer:35–81 o layout do body, validação de célula e resolução de
 placement estão misturados com a cobertura do alvo; :124–145 limita a grade
@@ -252,7 +252,7 @@ implícita do TilingFrame será consumida por T2 após conhecer a dimensão fina
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -261,7 +261,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 

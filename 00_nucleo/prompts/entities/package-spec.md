@@ -46,9 +46,13 @@ que define exatamente o que é um identificador válido no Typst.
 > `error: package specification is missing version` na **mesma coluna (8)**. Mensagem de
 > erro é caso em que a mecânica **é** o observável (ADR-0108) — e aqui coincide à letra.
 
-**ADR-0005**: `serde` nunca entra em L1. Serialização de `PackageSpec` para
-JSON/TOML acontece em L3 via DTO padrão
-(`03_infra/dto/package_spec_dto.rs`).
+**ADR-0005**: `serde` must never enter L1. Any future JSON/TOML serialization
+through a DTO belongs in L3. The historical proposal named
+`03_infra/dto/package_spec_dto.rs`, but that consumer does not exist; this L1
+owner does not authorize its implementation. The complete proposal and its
+unresolved conversion/API obligations are preserved in
+`lab/history/construction/retired-l0/package-spec-dto.md`, with disposition in
+`00_nucleo/diagnostics/retired-nonowners-2026-10-18.md`.
 
 Origem: `lab/typst-original/crates/typst-syntax/src/package.rs`
 

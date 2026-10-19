@@ -208,7 +208,7 @@ Em HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, sem diff produtivo,
 `01_core/src/entities/show.rs:23-86` possui `NodeKind`, mas não uma base
 para toda função nativa de elemento; `Text(String)` significa padrão literal,
 não a função `text`. `selector_matching.rs:43-65` rejeita identidades que
-não consegue converter. As fixtures `diagnosticos/p1339-full-show-fixture-*`
+não consegue converter. As fixtures `lab/results/construction/diagnostics/p1339-full-show-fixture-*`
 comprovam no vanilla ratificado aplicação de filtros de strong/emph/text;
 registros `p1339-full-show-final-*.json` registram proveniência e a limitação
 CLI nos perfis cristalinos não-default, sem convertê-la em prova de matching.
@@ -248,7 +248,7 @@ nativo medido que precise de outra informação para identificar o nó.
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em 00_nucleo/diagnosticos/clippy-enums-publicos-2026-10-16 registra UTC, fontes/L0, hashes, status e git diff HEAD --stat. Os owners atuais foram lidos antes de propor esta alteração. probe-details.json registra rustc 1.92, argv, rlib/binário/sonda com SHA-256 e saída; probe-result.json registra teto de 12 GiB, swap zero, um job e eventos. A sonda é sintética de carriers e do algoritmo de registro/cópia, não benchmark de compilação/layout/RSS nem distribuição de workloads reais. Os candidatos são espelhos com tipos reais de domínio; o caso inline usa Tag e ShowRule produtivos.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16 registra UTC, fontes/L0, hashes, status e git diff HEAD --stat. Os owners atuais foram lidos antes de propor esta alteração. probe-details.json registra rustc 1.92, argv, rlib/binário/sonda com SHA-256 e saída; probe-result.json registra teto de 12 GiB, swap zero, um job e eventos. A sonda é sintética de carriers e do algoritmo de registro/cópia, não benchmark de compilação/layout/RSS nem distribuição de workloads reais. Os candidatos são espelhos com tipos reais de domínio; o caso inline usa Tag e ShowRule produtivos.
 
 Tag mede 416 bytes; Start boxed e Arc medem 48. Para 4.096 pares Start/End com payload Heading sem heap, inline solicita 3.407.872 bytes numa alocação; Box solicita 2.031.616 em 4.097; Arc solicita 2.097.152 em 4.097. Clone de Tag boxed também aloca por Start; os caminhos produtivos lidos em introspect/fixpoint.rs:86–136 e entrypoints.rs:44–66 usam Vec<Tag> temporário e leituras emprestadas, sem clonar o vetor. Walk :325–356 popula o índice por referência antes de mover info para Start. A decisão não toma o clone sintético como frequência produtiva.
 
@@ -268,11 +268,11 @@ T1: contratos de construção Box<ElementInfo>/Arc<Styles> e orçamento relativo
 
 ## Ratificação humana — 2026-10-16
 
-Proposta aprovada pelo humano, manifesto SHA-256 `282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`. O contrato acima passa a vigente; inclui materialização/testes T1–T6, sem release. Registro em `00_nucleo/diagnosticos/clippy-enums-publicos-2026-10-16/approval-receipt.json`.
+Proposta aprovada pelo humano, manifesto SHA-256 `282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`. O contrato acima passa a vigente; inclui materialização/testes T1–T6, sem release. Registro em `lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/approval-receipt.json`.
 
 ## R3-T1 — consumidores de selectors textuais ratificados
 
-Medição anterior: review.md e acceptance.json em materialization/textual-realization-2026-10-18,
+Medição anterior: review.md e acceptance.json em lab/history/construction/records/00_nucleo/materialization/textual-realization-2026-10-18,
 manifesto aprovado 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302;
 style-before.json.gz e unit-candidate3.log no diagnóstico de materialização
 preservam o RED da rejeição e o GREEN das cores, com proveniência completa.

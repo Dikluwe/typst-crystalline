@@ -1,0 +1,678 @@
+{
+  "utc": "2026-10-18T23:49:50.762788+00:00",
+  "method": "Existing files cited by canonical lab/history or lab/results paths in backticks in active 00_nucleo Markdown; not a general audit of historical or dynamic references",
+  "previously_untracked_files": [
+    {
+      "path": "lab/results/construction/diagnostics/adr-archive/redirects.tsv",
+      "size": 2574,
+      "referenced_by": [
+        "00_nucleo/adr/ORDER.md",
+        "00_nucleo/adr/README.md"
+      ],
+      "sha256": "d7498c9cb9de4514b0860a9de0b4db13a325c61a6830aa51a628a7486d478ca1"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/auditoria-composicao-construcao-2026-09-29/probe.json",
+      "size": 1863,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/pipeline/bundle.md",
+        "00_nucleo/prompts/infra/pipeline/pdf.md",
+        "00_nucleo/prompts/infra/pipeline/tests.md"
+      ],
+      "sha256": "8650e9ff231ff434d6ffea417b473001b5801c84ee337c2820ad7b035ca8124b"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json",
+      "size": 92802,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/columns.md",
+        "00_nucleo/prompts/compiler/footnote_overflow_columns.md",
+        "00_nucleo/prompts/compiler/layout/cursor.md",
+        "00_nucleo/prompts/compiler/layout/enum_item.md",
+        "00_nucleo/prompts/compiler/layout/equation.md",
+        "00_nucleo/prompts/compiler/layout/finish.md",
+        "00_nucleo/prompts/compiler/layout/helpers.md",
+        "00_nucleo/prompts/compiler/layout/line_commit.md",
+        "00_nucleo/prompts/compiler/layout/linebreak.md",
+        "00_nucleo/prompts/compiler/layout/link.md",
+        "00_nucleo/prompts/compiler/layout/list_item.md",
+        "00_nucleo/prompts/compiler/layout/page_commit.md",
+        "00_nucleo/prompts/compiler/layout/paragraph.md",
+        "00_nucleo/prompts/compiler/layout/paragraph_emit.md",
+        "00_nucleo/prompts/compiler/layout/parbreak.md",
+        "00_nucleo/prompts/compiler/layout/place.md",
+        "00_nucleo/prompts/compiler/layout/slicing.md",
+        "00_nucleo/prompts/compiler/layout/space.md",
+        "00_nucleo/prompts/compiler/layout/stack.md",
+        "00_nucleo/prompts/compiler/layout/tests.md",
+        "00_nucleo/prompts/compiler/layout/text.md",
+        "00_nucleo/prompts/compiler/layout/text_tracking.md",
+        "00_nucleo/prompts/compiler/layout/word_layout.md",
+        "00_nucleo/prompts/compiler/math/layout/_comum.md",
+        "00_nucleo/prompts/compiler/math/layout/external_bridge.md",
+        "00_nucleo/prompts/compiler/math/layout/tests.md",
+        "00_nucleo/prompts/infra/export/fonts.md",
+        "00_nucleo/prompts/infra/export/render.md",
+        "00_nucleo/prompts/infra/export/stream.md",
+        "00_nucleo/prompts/infra/export/stream/draw.md",
+        "00_nucleo/prompts/infra/export/stream/text.md",
+        "00_nucleo/prompts/infra/export/stream/text_replacement.md",
+        "00_nucleo/prompts/infra/export/svg.md",
+        "00_nucleo/prompts/infra/export/svg/tests.md",
+        "00_nucleo/prompts/infra/export/tests/mod.md",
+        "00_nucleo/prompts/infra/export/tests/p1481_pdfua_structure_tests.md",
+        "00_nucleo/prompts/infra/integration_tests.md",
+        "00_nucleo/prompts/infra/layout_bidi.md",
+        "00_nucleo/prompts/infra/pipeline/tests.md",
+        "00_nucleo/prompts/infra/shaper/shaping.md",
+        "00_nucleo/prompts/infra/shaper/tests.md",
+        "00_nucleo/prompts/infra/shaper/traversal.md"
+      ],
+      "sha256": "cb84e21248f47958869840e9a6d0c66364b811ccf0e7b4b5909fa98df2124fea"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/bidi-contexto-implementacao-2026-10-05/raster.json",
+      "size": 7692,
+      "referenced_by": [
+        "00_nucleo/prompts/entities/layout_types.md"
+      ],
+      "sha256": "fd5a303da4336c76136963cfee1b3275fab0533047696abf624db70988f039fa"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/bidi-identidade-ocorrencia-2026-10-06/before.json",
+      "size": 158238,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/shaper/tests.md",
+        "00_nucleo/prompts/infra/shaper/text_identity.md",
+        "00_nucleo/prompts/infra/shaper/traversal.md"
+      ],
+      "sha256": "2318e4356eb0e436a4e110c01273bf207b8bd267ef10833aae52ee22d5ed24bc"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/before.json",
+      "size": 335653,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/block.md",
+        "00_nucleo/prompts/compiler/layout/grid/tracks.md",
+        "00_nucleo/prompts/compiler/layout/measurement.md"
+      ],
+      "sha256": "721cb72b866221ba74b0b0bf14f01e88499829fff7643875518beddd252ba2b6"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/catalogo-seletivo-preparacao-2026-10-07/audit.json",
+      "size": 513661,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/fontdb.md",
+        "00_nucleo/prompts/infra/fontdb/selective.md"
+      ],
+      "sha256": "2e06583d74ec3c0888f7807f258ccc31e3947269c40e717bd1096d5cf53f9a77"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/first-validation/validation-clippy.log",
+      "size": 422359,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/tests/mod.md"
+      ],
+      "sha256": "c530256b370ade067ea811b74b6c729e613dd8e063ce50794aa0b1f7ce482fc1"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/clippy-enums-2026-10-16/approval-receipt.json",
+      "size": 333,
+      "referenced_by": [
+        "00_nucleo/prompts/entities/decimal.md",
+        "00_nucleo/prompts/entities/duration.md",
+        "00_nucleo/prompts/entities/style.md",
+        "00_nucleo/prompts/entities/version.md"
+      ],
+      "sha256": "e17da8115f28988f753373af5bafec294de0f855b12f4f6d71466eba6f510343"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/clippy-enums-publicos-2026-10-16/approval-receipt.json",
+      "size": 350,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/eval/rules/show.md",
+        "00_nucleo/prompts/compiler/introspect/convergence.md",
+        "00_nucleo/prompts/compiler/introspect/from_tags.md",
+        "00_nucleo/prompts/compiler/introspect/heading.md",
+        "00_nucleo/prompts/compiler/introspect/labelled.md",
+        "00_nucleo/prompts/compiler/introspect/walk.md",
+        "00_nucleo/prompts/entities/show.md",
+        "00_nucleo/prompts/entities/tag.md"
+      ],
+      "sha256": "67917c53f25624fbf8988b0a9a076b88b58c116a55d2a12c39fe89f72cf04e41"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json",
+      "size": 177285,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/eval.md",
+        "00_nucleo/prompts/compiler/introspect/heading.md",
+        "00_nucleo/prompts/compiler/introspect/walk.md",
+        "00_nucleo/prompts/compiler/layout.md",
+        "00_nucleo/prompts/compiler/layout/break_selection.md",
+        "00_nucleo/prompts/compiler/layout/convergence.md",
+        "00_nucleo/prompts/compiler/layout/page_geometry.md",
+        "00_nucleo/prompts/compiler/layout/paragraph_select.md",
+        "00_nucleo/prompts/compiler/math/layout/matrix.md",
+        "00_nucleo/prompts/compiler/realize/mod.md",
+        "00_nucleo/prompts/compiler/stdlib/tests/support.md",
+        "00_nucleo/prompts/entities/content/construction/layout.md",
+        "00_nucleo/prompts/entities/counter.md",
+        "00_nucleo/prompts/infra/export/mod.md",
+        "00_nucleo/prompts/infra/export/render.md",
+        "00_nucleo/prompts/infra/export/stream/text.md",
+        "00_nucleo/prompts/infra/export/svg/geometry.md",
+        "00_nucleo/prompts/infra/export/svg/images.md",
+        "00_nucleo/prompts/infra/fonts/coverage.md",
+        "00_nucleo/prompts/infra/pipeline/bundle.md",
+        "00_nucleo/prompts/infra/pipeline/pdf.md",
+        "00_nucleo/prompts/infra/shaper/shaping.md"
+      ],
+      "sha256": "1b570695de13e2c547b4ff62dd212d7cfbd5186041de77ba18ea8167f6f6f6e8"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/clippy-locais-2026-10-16/first-validation/validation-architecture.log",
+      "size": 1317187,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/tests/mod.md"
+      ],
+      "sha256": "e86818d2051fa5734c6dff77e84e13abf7e0579642f21e017d8dc13fc5a2047e"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json",
+      "size": 1123,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/introspect/from_tags/counter_updates.md",
+        "00_nucleo/prompts/compiler/stdlib/counter.md",
+        "00_nucleo/prompts/compiler/stdlib/counter/display.md",
+        "00_nucleo/prompts/compiler/stdlib/counter/filtered_reads.md",
+        "00_nucleo/prompts/entities/introspector.md",
+        "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+        "00_nucleo/prompts/infra/pipeline/paged.md",
+        "00_nucleo/prompts/infra/pipeline/tests.md"
+      ],
+      "sha256": "1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/controles-bidi-pdf-2026-10-06/before.json",
+      "size": 221771,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/fonts.md",
+        "00_nucleo/prompts/infra/shaper/shaping.md",
+        "00_nucleo/prompts/infra/shaper/text_identity.md"
+      ],
+      "sha256": "705cd08456a751fa1aec563d922a21bf88a345486cecb30823f33a743e2d318f"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-auto-espacos-2026-09-29/before/results.json",
+      "size": 65390,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/page_geometry.md",
+        "00_nucleo/prompts/compiler/layout/space.md",
+        "00_nucleo/prompts/infra/export/builder.md",
+        "00_nucleo/prompts/infra/export/builder/fonts.md"
+      ],
+      "sha256": "74cc4a84f5d0757d4f3a7aa1583a15115c5559e29f86d010eabecb50002fc9ff"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/after-legacy33/results.json",
+      "size": 66929,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/line_commit.md",
+        "00_nucleo/prompts/compiler/layout/page_geometry.md"
+      ],
+      "sha256": "8b3c7faac29e5789599931ca6ed0df0378a83592b0ab0df263dbd21d6c8a366b"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/after/results.json",
+      "size": 12375,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/parbreak.md",
+        "00_nucleo/prompts/compiler/layout/text_baseline.md"
+      ],
+      "sha256": "e731eee7d3518b1e01d5e88ef06d46e46270b8ec95dd337ab3f2b7f80ae8ad24"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/before/results.json",
+      "size": 12365,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout.md",
+        "00_nucleo/prompts/compiler/layout/html_frame.md",
+        "00_nucleo/prompts/compiler/layout/line_commit.md",
+        "00_nucleo/prompts/compiler/layout/parbreak.md",
+        "00_nucleo/prompts/compiler/layout/text.md"
+      ],
+      "sha256": "cd39c911b8be35a1d3c6bd247fbcf3eb9b5f9a569713e92b9cbf7b6a6075582c"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/core-tests.log",
+      "size": 796805,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/paragraph.md"
+      ],
+      "sha256": "93703fcda9b3b32fc49556f3855203e763f5dbc705bcafc8e14e636a95c0a453"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/final-rtl/results.json",
+      "size": 521779,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/cursor.md"
+      ],
+      "sha256": "48b3e037d89c688aaacaa3c466f3fe272e704c32d052274dcb99adfb58fc1cde"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/green-paragraph.log",
+      "size": 247219,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/paragraph.md"
+      ],
+      "sha256": "ca57913b7df2e1da4ee45fa0a50476d6082df8e597a9cea88f76984fced242fd"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-bundle-pdf-validacoes-2026-09-30/green.log",
+      "size": 61861,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/pipeline/bundle.md"
+      ],
+      "sha256": "852546252464eb343cf40b3da7a7ce871b89d44ed6e4b0278d6ddfce79790b57"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-composicao-paragrafos-2026-09-28/empty-details/results.json",
+      "size": 56730,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout.md",
+        "00_nucleo/prompts/compiler/layout/paragraph.md",
+        "00_nucleo/prompts/compiler/layout/style_scope.md"
+      ],
+      "sha256": "6abfb2a3571c08c0a54cd919c5118da52949d4e129b502ea4304390ae1318083"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-demanda-regional-2026-09-28/initial.json",
+      "size": 1126100,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout.md",
+        "00_nucleo/prompts/compiler/layout/cursor.md",
+        "00_nucleo/prompts/compiler/layout/line_commit.md",
+        "00_nucleo/prompts/compiler/layout/region_progress.md",
+        "00_nucleo/prompts/compiler/layout/tests.md"
+      ],
+      "sha256": "e636e33639e1df1f3b70453f833710845be3733f95127341459cf61e729705aa"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-falhas-2026-09-28/core-full.log",
+      "size": 771987,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/tests.md"
+      ],
+      "sha256": "5bf1fc7406df4f55c32604a2091b1117641bf9e74dd15d972097f49ab17b20d1"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json",
+      "size": 391121,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/eval/rules.md",
+        "00_nucleo/prompts/compiler/layout.md",
+        "00_nucleo/prompts/compiler/layout/paragraph.md",
+        "00_nucleo/prompts/compiler/layout/paragraph_emit.md",
+        "00_nucleo/prompts/compiler/layout/paragraph_plan.md",
+        "00_nucleo/prompts/compiler/layout/paragraph_prepare.md",
+        "00_nucleo/prompts/compiler/layout/paragraph_select.md",
+        "00_nucleo/prompts/compiler/layout/sequence.md",
+        "00_nucleo/prompts/compiler/layout/text.md",
+        "00_nucleo/prompts/compiler/stdlib/structural/par.md"
+      ],
+      "sha256": "cf8b0145a9281358186dcef02937fd83a8517744ba209ba1cb8276a45d03672d"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-tracking-2026-09-29/green-core.log",
+      "size": 240093,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/tests.md"
+      ],
+      "sha256": "df031801085b871a5ce0d735b8039c6d00674fd922ce7221e0ed9f2bcd2d30a2"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-tracking-2026-09-29/initial.json",
+      "size": 4151619,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/stream/text.md",
+        "00_nucleo/prompts/infra/export/stream/text/runs.md",
+        "00_nucleo/prompts/infra/shaper.md",
+        "00_nucleo/prompts/infra/shaper/reconciliation.md",
+        "00_nucleo/prompts/infra/shaper/shaping.md"
+      ],
+      "sha256": "ac25fe3f774ab29ac363a4d5480efdbd88e36a02f80fd6c20ee8ea08c8cf618c"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-tracking-escopos-2026-09-29/before-pdf/results.json",
+      "size": 236023,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/columns.md",
+        "00_nucleo/prompts/compiler/layout.md",
+        "00_nucleo/prompts/compiler/layout/boxed.md",
+        "00_nucleo/prompts/compiler/layout/hide.md",
+        "00_nucleo/prompts/compiler/layout/space.md",
+        "00_nucleo/prompts/compiler/layout/style_scope.md",
+        "00_nucleo/prompts/compiler/layout/sub_frame.md",
+        "00_nucleo/prompts/compiler/layout/text_tracking.md",
+        "00_nucleo/prompts/compiler/layout/word_layout.md"
+      ],
+      "sha256": "2df2fd319c274899f404903457b39f2d4b9e0770b20f70362a0812b4ba157776"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-tracking-rtl-2026-09-29/after-pdf/results.json",
+      "size": 521054,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/cursor.md",
+        "00_nucleo/prompts/compiler/layout/line_commit.md",
+        "00_nucleo/prompts/compiler/layout/text_tracking.md"
+      ],
+      "sha256": "5b441f98e30b410b630f99e50d9eaa977d14cc4112cca0f695f287e40550c3cb"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcao-tracking-rtl-2026-09-29/before-pdf/results.json",
+      "size": 517332,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/space.md",
+        "00_nucleo/prompts/compiler/layout/text_tracking.md",
+        "00_nucleo/prompts/compiler/layout/word_layout.md"
+      ],
+      "sha256": "ec9190ce150cdbf7faed6303f31bbf60e17ca546ae948dae89c7e19349b148eb"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcoes-producao-2026-10-13/clippy-final.jsonl",
+      "size": 6130714,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/tests.md"
+      ],
+      "sha256": "70118ceef2795458d10b09113d4269a1642009577ef097933892c07c39e95786"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcoes-producao-2026-10-13/html-cli-red.log",
+      "size": 59450,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/html/whitespace.md"
+      ],
+      "sha256": "f38de30af524bc52c6341589798f1dcb8a3674023f2904007824440705b3dac8"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/correcoes-producao-2026-10-13/math-bilateral.json",
+      "size": 7488,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/block.md",
+        "00_nucleo/prompts/wiring/tests/p1292_contract.md"
+      ],
+      "sha256": "46e9e92d3c5243d3d58c988410b84b9d370835be7103fd83b8331d678dfe861b"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/coverage-ranges-preparacao-2026-10-07/audit.json",
+      "size": 838,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/fonts/coverage.md"
+      ],
+      "sha256": "715432fbd1a5a2ed6f52f64a8c0b5055c5591fc3db47ac6b4bd6f70d53dd2c8d"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json",
+      "size": 92537,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/eval.md",
+        "00_nucleo/prompts/compiler/eval/tests.md",
+        "00_nucleo/prompts/infra/pipeline.md",
+        "00_nucleo/prompts/infra/pipeline/tests.md",
+        "00_nucleo/prompts/infra/system-world.md",
+        "00_nucleo/prompts/infra/system-world/cache.md",
+        "00_nucleo/prompts/infra/system-world/tests.md",
+        "00_nucleo/prompts/wiring/eval.md",
+        "00_nucleo/prompts/wiring/tests/cli.md"
+      ],
+      "sha256": "cad9b3aafb90b7ed83363239e2397a477a2e38b4b831764c8a5b59f61458ac83"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/eixos-variaveis-export-2026-10-05/native.txt",
+      "size": 52,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/font_subset.md"
+      ],
+      "sha256": "f787284f7258a93817c16ef67b3bddb02aff03f0811ff0a9d5c4a73254d5faea"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/espaco-terminal-2026-10-06/before.json",
+      "size": 108321,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/stream/draw.md",
+        "00_nucleo/prompts/infra/export/stream/separator.md"
+      ],
+      "sha256": "f4a505f311879d73890fb88840f2b43eb41eecfa7167c4a8405cadbaeac10a6d"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/resultados.json",
+      "size": 54472,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/stream/separator.md"
+      ],
+      "sha256": "f1846885a76768b122a74acce56313e576419bd1fef2859238c86929db59bd36"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/field-reassign-2026-10-15/clippy-inventory.json",
+      "size": 224961,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/eval.md",
+        "00_nucleo/prompts/infra/system-world/font_session.md",
+        "00_nucleo/prompts/infra/system-world/source_session.md"
+      ],
+      "sha256": "54dc9c18836e88c3941d5fa2bcdc99a1e37b5af513ebf30b9f047038fdb7c8f3"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/footnote-composicao-2026-09-30/results.json",
+      "size": 2838,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/footnote.md"
+      ],
+      "sha256": "6cf9748daa398d600b2b4403267f4078af84ea5861736c8efd1ddbdb0757d2f4"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/probe.txt",
+      "size": 469,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/font_binding.md",
+        "00_nucleo/prompts/infra/export/svg/groups.md",
+        "00_nucleo/prompts/infra/export/svg/navigation.md",
+        "00_nucleo/prompts/infra/pipeline.md",
+        "00_nucleo/prompts/infra/pipeline/html.md",
+        "00_nucleo/prompts/infra/pipeline/raster.md",
+        "00_nucleo/prompts/infra/pipeline/svg.md"
+      ],
+      "sha256": "31f8adbff5b819418cdd985157a6370146eb133ba2279e928d073d6d79ad884c"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/second-benchmark.json",
+      "size": 58224,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/shaper/cache.md"
+      ],
+      "sha256": "6941ddc88f7bc8ae37ad544b4038ac89754562591a65076140de0a7cab7524aa"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json",
+      "size": 3325448,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/footnote_overflow_columns.md",
+        "00_nucleo/prompts/compiler/layout/boxed.md",
+        "00_nucleo/prompts/compiler/layout/break_selection.md",
+        "00_nucleo/prompts/compiler/layout/cell_tail_commit.md",
+        "00_nucleo/prompts/compiler/layout/cursor.md",
+        "00_nucleo/prompts/compiler/layout/equation.md",
+        "00_nucleo/prompts/compiler/layout/helpers.md",
+        "00_nucleo/prompts/compiler/layout/html_frame.md",
+        "00_nucleo/prompts/compiler/layout/line_commit.md",
+        "00_nucleo/prompts/compiler/layout/link.md",
+        "00_nucleo/prompts/compiler/layout/metrics.md",
+        "00_nucleo/prompts/compiler/layout/paragraph.md",
+        "00_nucleo/prompts/compiler/layout/paragraph_emit.md",
+        "00_nucleo/prompts/compiler/layout/paragraph_hyphen.md",
+        "00_nucleo/prompts/compiler/layout/paragraph_prepare.md",
+        "00_nucleo/prompts/compiler/layout/place.md",
+        "00_nucleo/prompts/compiler/layout/slicing.md",
+        "00_nucleo/prompts/compiler/layout/stack.md",
+        "00_nucleo/prompts/compiler/layout/transform.md",
+        "00_nucleo/prompts/compiler/math/layout/_comum.md",
+        "00_nucleo/prompts/entities/layout_types.md",
+        "00_nucleo/prompts/infra/export/builder/metadata.md",
+        "00_nucleo/prompts/infra/export/gradients/mod.md",
+        "00_nucleo/prompts/infra/export/render.md",
+        "00_nucleo/prompts/infra/export/stream.md",
+        "00_nucleo/prompts/infra/export/stream/draw.md",
+        "00_nucleo/prompts/infra/export/svg.md",
+        "00_nucleo/prompts/infra/layout_bidi.md",
+        "00_nucleo/prompts/infra/pipeline/pdf.md",
+        "00_nucleo/prompts/infra/pipeline/resources.md",
+        "00_nucleo/prompts/infra/pipeline/svg.md",
+        "00_nucleo/prompts/infra/shaper/reconciliation.md",
+        "00_nucleo/prompts/infra/shaper/traversal.md"
+      ],
+      "sha256": "191aa64ae467e23b4e5f5f956f334896d7e0f79ec5222d00baef8b3f205d1b38"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/paragrafo-tracking-global-2026-09-29/focused-before/results.json",
+      "size": 54959,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/paragraph_prepare.md"
+      ],
+      "sha256": "9f9f9621a4502d71e5b80702c5ca52e00fe9e1463b2dd396c665b9fc6fcff899"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/paragrafo-tracking-hifenizacao-2026-09-30/after-third/results.json",
+      "size": 242359,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/paragraph_prepare.md"
+      ],
+      "sha256": "fb49a9cc198e6051888461a27986c7e6cc6f12b8b9d83b6c6f794d87c2d459b3"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/paragrafo-tracking-hifenizacao-2026-09-30/before/results.json",
+      "size": 233119,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/paragraph_plan.md"
+      ],
+      "sha256": "e5df2bdc7a231cd4937f618aa46dca9538faa96ecb53988f35b969185d481a17"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/pdf-standard-bundle-2026-09-30/results.json",
+      "size": 2906,
+      "referenced_by": [
+        "00_nucleo/prompts/shell/cli.md",
+        "00_nucleo/prompts/wiring/compile.md"
+      ],
+      "sha256": "d026a83b26bfac4701abbe01f29d4b288f44b1b54051a7104e49d0fd67d07616"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/separacao-tracking-2026-09-29/initial.json",
+      "size": 4462856,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout.md",
+        "00_nucleo/prompts/compiler/layout/space.md",
+        "00_nucleo/prompts/compiler/layout/text_baseline.md",
+        "00_nucleo/prompts/compiler/layout/text_measure.md",
+        "00_nucleo/prompts/compiler/layout/text_tracking.md",
+        "00_nucleo/prompts/compiler/layout/word_layout.md",
+        "00_nucleo/prompts/infra/shaper/tracking.md"
+      ],
+      "sha256": "87dff0d34954d383bf2ddd6ca5e93145f1b507ed4ad7c69e7fab6808086abdd7"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/shy-autoral-2026-09-28/initial.json",
+      "size": 3582003,
+      "referenced_by": [
+        "00_nucleo/prompts/entities/layout_types.md",
+        "00_nucleo/prompts/infra/export/fonts.md",
+        "00_nucleo/prompts/infra/shaper.md",
+        "00_nucleo/prompts/infra/shaper/tests.md",
+        "00_nucleo/prompts/infra/shaper/text_identity.md",
+        "00_nucleo/prompts/infra/shaper/traversal.md"
+      ],
+      "sha256": "b6cd1c2382b53fb805d12288933ce0ee7c7a7337995136a038ac7c04d50fecf1"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/shy-autoral-2026-09-28/tracking-controls.json",
+      "size": 9213,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/stream/text.md",
+        "00_nucleo/prompts/infra/export/stream/text/runs.md"
+      ],
+      "sha256": "8331682ef375995a5ca299505acead2291a149ac5e3e8fc8b42c728d703deb39"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json",
+      "size": 478920,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/eval.md",
+        "00_nucleo/prompts/compiler/introspect/heading.md",
+        "00_nucleo/prompts/compiler/introspect/walk.md",
+        "00_nucleo/prompts/compiler/layout.md",
+        "00_nucleo/prompts/compiler/layout/break_selection.md",
+        "00_nucleo/prompts/compiler/layout/convergence.md",
+        "00_nucleo/prompts/compiler/layout/grid.md",
+        "00_nucleo/prompts/compiler/layout/page_geometry.md",
+        "00_nucleo/prompts/compiler/layout/paragraph_select.md",
+        "00_nucleo/prompts/compiler/math/layout/matrix.md",
+        "00_nucleo/prompts/compiler/realize/mod.md",
+        "00_nucleo/prompts/compiler/stdlib/structural/outline.md",
+        "00_nucleo/prompts/compiler/stdlib/tests/support.md",
+        "00_nucleo/prompts/entities/content/construction/layout.md",
+        "00_nucleo/prompts/infra/export/gradients/mod.md",
+        "00_nucleo/prompts/infra/export/mod.md",
+        "00_nucleo/prompts/infra/export/render.md",
+        "00_nucleo/prompts/infra/export/stream.md",
+        "00_nucleo/prompts/infra/export/stream/text.md",
+        "00_nucleo/prompts/infra/export/svg.md",
+        "00_nucleo/prompts/infra/export/svg/geometry.md",
+        "00_nucleo/prompts/infra/export/svg/glyphs.md",
+        "00_nucleo/prompts/infra/export/svg/groups.md",
+        "00_nucleo/prompts/infra/export/svg/images.md",
+        "00_nucleo/prompts/infra/export/svg/navigation.md",
+        "00_nucleo/prompts/infra/pipeline/bundle.md",
+        "00_nucleo/prompts/infra/pipeline/pdf.md",
+        "00_nucleo/prompts/infra/shaper/shaping.md"
+      ],
+      "sha256": "742c110c52ca652cc01b0dd32d662e28af4dc275d5f2d40eb33fc7d0233eaf8a"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/tracking-pdf-2026-09-28/initial.json",
+      "size": 3920450,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/stream/text.md",
+        "00_nucleo/prompts/infra/export/stream/text/runs.md"
+      ],
+      "sha256": "ab443353051ae5717c6dac295784cee03edd96ea08e14a26c1b43c15e45fe226"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/tracking-residual-2026-09-29/initial.json",
+      "size": 4130286,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/export/stream/text.md",
+        "00_nucleo/prompts/infra/export/stream/text/runs.md",
+        "00_nucleo/prompts/infra/shaper.md",
+        "00_nucleo/prompts/infra/shaper/reconciliation.md",
+        "00_nucleo/prompts/infra/shaper/shaping.md"
+      ],
+      "sha256": "1aaef9089e5a6cd817eef70cff5f3f0d2d0a2722d295f52e356114fac14e08de"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/tracking-residual-2026-09-29/results.json",
+      "size": 358792,
+      "referenced_by": [
+        "00_nucleo/prompts/compiler/layout/tests.md"
+      ],
+      "sha256": "3c2070154f66a41b03d58315a27831d4d91c39b154dcbd6d8553171229720e98"
+    },
+    {
+      "path": "lab/results/construction/diagnostics/watch-incremental-item5-2026-10-08/measurements.json",
+      "size": 367896,
+      "referenced_by": [
+        "00_nucleo/prompts/infra/fontdb/generation.md"
+      ],
+      "sha256": "af049f103ca93e57371feb956f4b1dae414e655b2683a94bbc69c1405399396c"
+    }
+  ]
+}

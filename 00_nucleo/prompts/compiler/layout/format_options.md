@@ -12,7 +12,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/format_options.rs:215`, `01_core/src/compiler/layout/format_options.rs:249`, `01_core/src/compiler/layout/format_options.rs:19`, `01_core/src/compiler/layout/format_options.rs:20`, `01_core/src/compiler/layout/format_options.rs:21`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -31,7 +31,7 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 workspace-seventh/bundle refuta Source como container de formato: coleta de opções documentais de raiz atravessa apenas body sem aumentar profundidade/container, conservando validação de estilos/campos e rejeição real de opções aninhadas.
 
@@ -42,7 +42,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ### Medição anterior à decisão
 
-01_core/src/compiler/layout/format_options.rs:34 (typst_type_name, emitted-v16). O enum atual em 01_core/src/entities/value.rs:59–195 tem 39 variantes materializadas; o catálogo e forma de payload estão no inventário desta etapa, não na tabela histórica de variantes futuras. before.json.gz em 00_nucleo/diagnosticos/tekt-v16-value-projections-2026-10-16 conserva HEAD, working tree não commitado, UTC, status/diff HEAD --stat, hashes e os textos originais dos owners/consumers. contexts.json foi extraído do AST atual conferido com o SARIF pinado; classification.json distingue nove V16 emitidos e oito projeções latentes. Forma Rust/exaustividade é mecânica; nomes, conversões, empréstimos e observáveis de linguagem mantêm o contrato vigente. Não há nova medição de paridade ou desempenho.
+01_core/src/compiler/layout/format_options.rs:34 (typst_type_name, emitted-v16). O enum atual em 01_core/src/entities/value.rs:59–195 tem 39 variantes materializadas; o catálogo e forma de payload estão no inventário desta etapa, não na tabela histórica de variantes futuras. before.json.gz em lab/results/construction/diagnostics/tekt-v16-value-projections-2026-10-16 conserva HEAD, working tree não commitado, UTC, status/diff HEAD --stat, hashes e os textos originais dos owners/consumers. contexts.json foi extraído do AST atual conferido com o SARIF pinado; classification.json distingue nove V16 emitidos e oito projeções latentes. Forma Rust/exaustividade é mecânica; nomes, conversões, empréstimos e observáveis de linguagem mantêm o contrato vigente. Não há nova medição de paridade ou desempenho.
 
 ### Decisão interna
 

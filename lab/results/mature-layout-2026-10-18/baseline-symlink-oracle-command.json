@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-19T00:04:25.204747+00:00",
+  "command": [
+    "/repos/Antigravity/typst-crystalline/lab/target/linter/debug/crystalline-lint",
+    ".",
+    "--format",
+    "sarif"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/lineage-baseline",
+  "exit": 1,
+  "checkpoint": "8ec827fd975bf14cd849bebb9ede245e49033337",
+  "overlay": "Symlink lab/typst-original to the unchanged local pinned oracle source; productive checkpoint files unchanged."
+}

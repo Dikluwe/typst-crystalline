@@ -1,0 +1,6 @@
+   Compiling typst-benches v0.1.0 (/repos/Antigravity/typst-crystalline/lab/benches)
+    Checking typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Checking typst-wiring v0.1.0 (/repos/Antigravity/typst-crystalline/04_wiring)
+    Checking typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+    Checking typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `dev` profile [unoptimized] target(s) in 56.30s

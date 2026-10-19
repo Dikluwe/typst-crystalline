@@ -84,7 +84,7 @@ GREEN.
 ## Completar projeção da caption existente — 2026-10-17
 
 Medição anterior à decisão: caption-shape-before.json e caption-after.json em
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
 binários, HEAD/working tree de validation-result.json e pin
 9f2b6e8715237cb086899a42873660fe744622e8. Projeção de caption já produz o
 carrier, mas sua CLI imprime só func:figure.caption; body/getters/fields estão

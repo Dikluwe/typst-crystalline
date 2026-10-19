@@ -6,7 +6,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/assert.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/assert.rs:23` (pub fn native_assert); `01_core/src/compiler/stdlib/assert.rs:91` (fn values_equala: &Value, b: &Value) -> bool {); `01_core/src/compiler/stdlib/assert.rs:106` (fn assert_eq_ne_args<'a>) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/assert.rs:23` (pub fn native_assert); `01_core/src/compiler/stdlib/assert.rs:91` (fn values_equala: &Value, b: &Value) -> bool {); `01_core/src/compiler/stdlib/assert.rs:106` (fn assert_eq_ne_args<'a>) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 

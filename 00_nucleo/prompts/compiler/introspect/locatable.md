@@ -46,7 +46,7 @@ Location allocation rather than a second independent occurrence count.
 Do not claim universal verified coverage: OutlineEntry is currently true here
 but returns None from the extractor and has a post-walk synthesized query path.
 Its direct-input/traversal alignment is unresolved; see
-`00_nucleo/diagnosticos/sanitization-introspection-columns-history.md`.
+`lab/results/construction/diagnostics/sanitization-introspection-columns-history.md`.
 Dynamic alignment also depends on its existing kind/payload boundary.
 
 Cover native true branches and representative false wrappers/leaves, own
@@ -62,7 +62,7 @@ Located é locatable sse body é; Realized e ShowRecipe são carriers sem payloa
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Source não é nova ocorrência locatable; classificar somente seu body, em paridade com extract_payload.
 
@@ -73,7 +73,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ### Medição antes da decisão
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status, git diff HEAD --stat e fontes/hashes integrais em `00_nucleo/diagnosticos/tekt-v16-introspect-origins-2026-10-16/before.json.gz`. Value tem 39 variantes e Content 120. eval/mod.rs:956 conserva fallback None latente T027; layout/realized.rs:14–45 usa predicado implícito e binding other para T158/T160; :77–130 usa cadeias if-let com false implícito. extract_payload.rs:18–98 despacha sem normalizar Source; locatable.rs:21 classifica Source pelo body. O núcleo content/source-origin.toml exige transparência e ocorrência única. Inferência a refutar por teste RED antes da implementação: Source(Heading) retorna None pela extração atual, e Located(Source(Heading)) perde a prova de preparação. map_content em entities/content/traversal.rs:79 já trata Source transparentemente. Não se infere intenção upstream nem nova paridade vanilla destes fatos; não mudar a pendência OutlineEntry sem investigação própria.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status, git diff HEAD --stat e fontes/hashes integrais em `lab/results/construction/diagnostics/tekt-v16-introspect-origins-2026-10-16/before.json.gz`. Value tem 39 variantes e Content 120. eval/mod.rs:956 conserva fallback None latente T027; layout/realized.rs:14–45 usa predicado implícito e binding other para T158/T160; :77–130 usa cadeias if-let com false implícito. extract_payload.rs:18–98 despacha sem normalizar Source; locatable.rs:21 classifica Source pelo body. O núcleo content/source-origin.toml exige transparência e ocorrência única. Inferência a refutar por teste RED antes da implementação: Source(Heading) retorna None pela extração atual, e Located(Source(Heading)) perde a prova de preparação. map_content em entities/content/traversal.rs:79 já trata Source transparentemente. Não se infere intenção upstream nem nova paridade vanilla destes fatos; não mudar a pendência OutlineEntry sem investigação própria.
 
 ### Decisão exclusiva e aceitação
 
@@ -88,7 +88,7 @@ Escrever testes co-localizados dos casos Source produtores/não produtores, Loca
 
 ### Medição anterior à decisão
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, lista exata git diff HEAD --stat, fontes/hashes e binários em `00_nucleo/diagnosticos/tekt-v16-introspect-walk-2026-10-16/before.json.gz`. Medições CLI anteriores em measurement-before.json e measurement-fields-before.json: no pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8, entry direta aparece uma vez, sintetizada uma vez e mista duas vezes; no Tekt, a direta some da query (0 contra 1), mista perde a direta (1 contra 2), e body() direto falha cannot outline heading. Fonte: entities/elements/outline_entry.rs:61 body só aceita Heading bruto; :99 fornece NativeElement; introspect/extract_payload.rs:148 descarta OutlineEntry; walk.rs:805 trata entry terminal; outline_entries.rs:38–61 sintetiza entries após walk. Generic map_content visita element/fill (traversal.rs:221); realized.rs:139–281 usa essa travessia para certificar origens, motivo para testar um heading referenciado Located sem confundi-lo com descendente renderizado. O upstream pinado declara OutlineEntry Locatable em outline.rs:472–481. Isto mede semântica/morfologia e erros observáveis da linguagem, não impõe igualdade Rust/bytes/PDF ou mecânica vanilla. A hipótese de correção é refutada por query/fields/body errados, headings fantasmas, duplicação ou regressão em síntese/ordem/labels.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, lista exata git diff HEAD --stat, fontes/hashes e binários em `lab/results/construction/diagnostics/tekt-v16-introspect-walk-2026-10-16/before.json.gz`. Medições CLI anteriores em measurement-before.json e measurement-fields-before.json: no pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8, entry direta aparece uma vez, sintetizada uma vez e mista duas vezes; no Tekt, a direta some da query (0 contra 1), mista perde a direta (1 contra 2), e body() direto falha cannot outline heading. Fonte: entities/elements/outline_entry.rs:61 body só aceita Heading bruto; :99 fornece NativeElement; introspect/extract_payload.rs:148 descarta OutlineEntry; walk.rs:805 trata entry terminal; outline_entries.rs:38–61 sintetiza entries após walk. Generic map_content visita element/fill (traversal.rs:221); realized.rs:139–281 usa essa travessia para certificar origens, motivo para testar um heading referenciado Located sem confundi-lo com descendente renderizado. O upstream pinado declara OutlineEntry Locatable em outline.rs:472–481. Isto mede semântica/morfologia e erros observáveis da linguagem, não impõe igualdade Rust/bytes/PDF ou mecânica vanilla. A hipótese de correção é refutada por query/fields/body errados, headings fantasmas, duplicação ou regressão em síntese/ordem/labels.
 
 ### Responsabilidade exclusiva vigente
 

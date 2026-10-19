@@ -41,7 +41,7 @@ The existing p307b tests compare actual/reference bytes. Maintenance runs may us
 ## Referência CIDFont — manutenção de tracking PDF em 2026-09-29
 
 Medição anterior: tests-before-reference-update.log em
-`00_nucleo/diagnosticos/tracking-pdf-2026-09-28/` registra somente
+`lab/results/construction/diagnostics/tracking-pdf-2026-09-28/` registra somente
 p307b_09_cidfont falhando após o estado Tc=0 explícito no caminho shaped
 compacto; 6768 bytes atuais versus 6759 anteriores. A fonte e entrada
 continuam iguais, sem tracking configurado; a mudança de operadores é

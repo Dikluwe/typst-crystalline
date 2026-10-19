@@ -1,0 +1,143 @@
+{
+  "utc": "2026-10-19T00:04:41.021117+00:00",
+  "state": "uncommitted working tree",
+  "checkpoint": "8ec827fd975bf14cd849bebb9ede245e49033337",
+  "successful_checks": {
+    "python-ci-tests": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "lab/tools/ci"
+      ],
+      "log": "final-python.log",
+      "exit": 0,
+      "passed": 28,
+      "log_sha256": "703bbd5ebc3cdd65f52adf0afd5d7f57029d532c06888231b31216c6978c7ef3"
+    },
+    "layout": {
+      "receipt": "validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-18T23:45:14.232565+00:00"
+    },
+    "strict-lineage": {
+      "receipt": "validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-18T23:45:18.311975+00:00"
+    },
+    "reverse-lineage": {
+      "receipt": "validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-18T23:45:18.735882+00:00"
+    },
+    "build": {
+      "receipt": "validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-18T23:47:01.266204+00:00"
+    },
+    "tests-domain-infra": {
+      "receipt": "validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-18T23:51:08.001955+00:00"
+    },
+    "tests-wiring": {
+      "receipt": "validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-18T23:55:07.202580+00:00"
+    },
+    "doctests": {
+      "receipt": "validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-18T23:55:14.066021+00:00"
+    },
+    "build-all-targets": {
+      "receipt": "quality-final/validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-19T00:01:37.410494+00:00"
+    },
+    "clippy": {
+      "receipt": "quality-final/validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-19T00:02:33.828863+00:00"
+    },
+    "fmt": {
+      "receipt": "quality-formatted/validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-19T00:03:29.706542+00:00"
+    },
+    "rustdoc": {
+      "receipt": "quality-formatted/validation-commands.json",
+      "exit": 0,
+      "utc_end": "2026-10-19T00:04:08.549093+00:00"
+    }
+  },
+  "test_summary": {
+    "tests-domain-infra": {
+      "passed": 8904,
+      "failed": 0,
+      "ignored": 7,
+      "test_targets": 14
+    },
+    "tests-wiring": {
+      "passed": 224,
+      "failed": 0,
+      "ignored": 0,
+      "test_targets": 15
+    },
+    "doctests": {
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0,
+      "test_targets": 3
+    },
+    "utc": "2026-10-18T23:56:01.906904+00:00"
+  },
+  "source_freezes": {
+    ".": {
+      "utc": "2026-10-18T23:56:01.960981+00:00",
+      "changed_inputs": [],
+      "input_count": 2130,
+      "completed_jobs": 9,
+      "expected_jobs": 11
+    },
+    "quality-final": {
+      "utc": "2026-10-19T00:02:37.688139+00:00",
+      "changed_inputs": [],
+      "input_count": 2130,
+      "completed_jobs": 3,
+      "expected_jobs": 4
+    },
+    "quality-formatted": {
+      "utc": "2026-10-19T00:04:08.739721+00:00",
+      "changed_inputs": [],
+      "input_count": 2130,
+      "completed_jobs": 2,
+      "expected_jobs": 2
+    }
+  },
+  "changes_between_runs": [
+    {
+      "before": ".",
+      "after": "quality-final",
+      "changed_inputs": [
+        "lab/benches/README.md",
+        "lab/benches/pdf_builder_bench.rs"
+      ]
+    },
+    {
+      "before": "quality-final",
+      "after": "quality-formatted",
+      "changed_inputs": [
+        "lab/benches/pdf_builder_bench.rs"
+      ]
+    }
+  ],
+  "interpretation": "All product sources and L0 inputs remained unchanged after the successful functional suite. Later changes were confined to the benchmark README and fixture include path, then rustfmt of that expression. Earlier failed runs remain in their original receipts. This is local Linux validation, not remote CI, Docker, cross-platform, parity certification, or a performance result.",
+  "known_limitations": [
+    "105 preexisting V16 errors remain; full lint is not clean.",
+    "English conversion is partial and reviewed by unit.",
+    "Seven Rust tests remain ignored."
+  ]
+}

@@ -37,7 +37,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 
 ### Evidência anterior à decisão
 
-`00_nucleo/diagnosticos/diagnostic-paths-2026-10-06/identity-next-audit.json`
+`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
 conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
 Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
 separam erro/warning do documento de erro da expressão: o documento perde sua
@@ -66,7 +66,7 @@ Manter ordem de mensagens, hints/traces, códigos de saída e formato/pretty.
 Não modificar query/compile/stdin, flags ou fases neste pacote.
 
 Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
+lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
 Consumer exclusivo preservado; Hash do Código acompanha a materialização.
 
 A composição de stdin fornece a cwd absoluta adquirida por std::env::current_dir

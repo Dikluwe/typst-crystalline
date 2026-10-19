@@ -1,0 +1,44 @@
+{
+  "utc": "2026-09-30T02:43:07.196645+00:00",
+  "head": "17f13b1df79b87ea065ee62e78164b18e477da3d",
+  "working_tree": "não commitada",
+  "binary_sha256": "f10c23135e444dc94c446e8d3522b8f34ed1d4c7c89a90718e33c24ed15932de",
+  "inputs_sha256": {
+    "single.typ": "9933b32231b7e623aa9033c16d9a288b55ba9b5e69e8407cf32d70720aab4d60",
+    "bundle.typ": "13b335b0441e05ad44d2b9aa6dc239cd2ffeb05d9b6821dcc9f1676146cdf032"
+  },
+  "runs": {
+    "single": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/auditoria-composicao-construcao-2026-09-29/single.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/auditoria-composicao-construcao-2026-09-29/single.pdf",
+        "--format",
+        "pdf"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: PDF/UA-1 error: missing document title\n = hint: set the title with `set document(title: [...])`\n\n"
+    },
+    "bundle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/auditoria-composicao-construcao-2026-09-29/bundle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/auditoria-composicao-construcao-2026-09-29/bundle-out",
+        "--format",
+        "bundle",
+        "--features",
+        "bundle"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+      "pdf_sha256": "e08d26461fbc081dde66e429702c27b3582964117006be15d6ca1674b0b31015",
+      "pdf_bytes": 5295,
+      "xmp_pdfua1": true,
+      "xmp_title": false
+    }
+  }
+}

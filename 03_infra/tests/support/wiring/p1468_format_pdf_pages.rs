@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/test-support/wiring/p1468_format_pdf_pages.md
-//! @prompt-hash 175bb9f8
+//! @prompt-hash cc09e548
 //! @layer L3
 //! @updated 2026-10-16
 //! Infraestrutura de teste; compilada apenas pelo harness L4.

@@ -12,7 +12,7 @@ Núcleos Tekt:
 
 ## Evidência anterior à decisão
 
-A inspeção de `01_core/src/compiler/layout/text_measure.rs:85`, `word_layout.rs:89` e `space.rs:162` encontrou respectivamente fronteira textual, admissão de baseline e teste de integração de espaços iniciais em owners de outras responsabilidades. O estado exato, fontes e prompts anteriores estão em `00_nucleo/diagnosticos/separacao-tracking-2026-09-29/initial.json` e `before/`. A correção já medida encontra-se em `00_nucleo/diagnosticos/correcao-tracking-2026-09-29.md`; esta separação conserva seus resultados e limites. Posições, texto e estilos são observáveis da língua; localização das funções é mecânica. A inspeção não demonstra intenção histórica nem nova paridade bilateral.
+A inspeção de `01_core/src/compiler/layout/text_measure.rs:85`, `word_layout.rs:89` e `space.rs:162` encontrou respectivamente fronteira textual, admissão de baseline e teste de integração de espaços iniciais em owners de outras responsabilidades. O estado exato, fontes e prompts anteriores estão em `lab/results/construction/diagnostics/separacao-tracking-2026-09-29/initial.json` e `before/`. A correção já medida encontra-se em `lab/results/construction/diagnostics/correcao-tracking-2026-09-29.md`; esta separação conserva seus resultados e limites. Posições, texto e estilos são observáveis da língua; localização das funções é mecânica. A inspeção não demonstra intenção histórica nem nova paridade bilateral.
 
 ## Contrato vigente
 
@@ -26,13 +26,13 @@ Preservar os testes causais existentes e o texto, posições, estilos, páginas 
 
 ## Fecho de linha literal — medição e contrato (2026-09-29)
 
-`00_nucleo/diagnosticos/correcao-auto-proximas-2026-09-29/after/results.json` mostra dois parágrafos de espaços a 12pt em 30.206pt Tekt versus 31.536pt vanilla; a sonda por tamanhos 10–18pt em `size-probe.log` mostra crescimento de 1.914pt/pt no Tekt contra 2.628pt/pt vanilla. `text_baseline.rs:14-16` admite pelo `layouter.style`, que volta ao tamanho exterior ao sair de `text.rs`, mesmo quando cada TextSeparator Literal guarda o estilo efetivo. Criar helper privado que admite a baseline de uma linha somente Literal usando o estilo do carrier de maior tamanho, restaurando o estilo exterior depois; reutilizar `admit` e não criar estado/global. O conteúdo misto continua no caminho de Word/Chunk.
+`lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/after/results.json` mostra dois parágrafos de espaços a 12pt em 30.206pt Tekt versus 31.536pt vanilla; a sonda por tamanhos 10–18pt em `size-probe.log` mostra crescimento de 1.914pt/pt no Tekt contra 2.628pt/pt vanilla. `text_baseline.rs:14-16` admite pelo `layouter.style`, que volta ao tamanho exterior ao sair de `text.rs`, mesmo quando cada TextSeparator Literal guarda o estilo efetivo. Criar helper privado que admite a baseline de uma linha somente Literal usando o estilo do carrier de maior tamanho, restaurando o estilo exterior depois; reutilizar `admit` e não criar estado/global. O conteúdo misto continua no caminho de Word/Chunk.
 
 ## Recuo francês — aplicação física (2026-10-18)
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
 status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
 extra-before.json.gz contém26; boundary-before.json.gz contém10 e

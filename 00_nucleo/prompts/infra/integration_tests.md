@@ -1,5 +1,5 @@
 # L0 — Infrastructure end-to-end test harness
-Hash do Código: 15f5874c
+Hash do Código: d3c17558
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
@@ -16,7 +16,7 @@ Núcleos Tekt:
 ## Current evidence
 
 - `03_infra/src/integration_tests.rs` — the test-only module and compile/eval/frame helpers.
-- `03_infra/src/integration_tests.rs:5203` — inverted-bracket witness from `.typ/sec_22.typ`.
+- `03_infra/src/integration_tests.rs:5203` — inverted-bracket witness from `lab/corpus/legacy-sections/sec_22.typ`.
 - `03_infra/src/integration_tests.rs` — bundle feature-gate and active-target cases.
 
 These are current local source anchors, not a new upstream parity measurement.
@@ -31,7 +31,7 @@ Geometric helpers accumulate ancestor affine transforms: Group translation, matr
 
 For the pinned no-text placement witnesses, check an empty page's requested PDF MediaBox, preserved cover-image clip and placed-text baseline against the independently observed vanilla geometry. Run the real World and production pipeline for font-demand controls. A no-font declaration with an isolated shape or image must not request the font book; a placed nontext body must meet the same condition without suppressing explicit font-family validation or text shaping. These assertions belong to this test harness; the productive owners remain responsible for their mechanisms. Record RED failures without weakening expectations to match current output.
 
-Use public color values (`red`, `blue`, `black`) in shape/rotation fixtures, not strings that trigger cast errors. `.typ/sec_22.typ` contains normal and inverted bracket pairs; observe base character, glyph identity and advance and require equivalent vertical variants when positional role changes. That witness protects `00_nucleo/prompts/compiler/math/layout/delimited.md` without requiring a particular MathDelimited representation.
+Use public color values (`red`, `blue`, `black`) in shape/rotation fixtures, not strings that trigger cast errors. `lab/corpus/legacy-sections/sec_22.typ` contains normal and inverted bracket pairs; observe base character, glyph identity and advance and require equivalent vertical variants when positional role changes. That witness protects `00_nucleo/prompts/compiler/math/layout/delimited.md` without requiring a particular MathDelimited representation.
 
 Bundle tests distinguish feature absence, out-of-target calls and the active target. Absent bundle feature must fail during eval with its exact gated diagnostic/hints, before layout/export. Active tests cover byte/UTF-8 assets, nested/normalized paths, duplicate asset/document paths, empty bundles, mixed PDF/SVG/PNG/HTML document entries, explicit/unknown formats, HTML without its feature and loose top-level content. Asset names/payloads are exact observables; document acceptance uses language/format structure. Do not accept an empty placeholder asset as data or leave outputs outside isolated temporary directories.
 
@@ -44,7 +44,7 @@ Retain existing integration cases and their owner boundaries; this prompt does n
 ### Medição anterior à decisão
 
 `03_infra/src/integration_tests.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -190,7 +190,7 @@ limitações físicas widow/orphan e contextos fora do subconjunto certificado.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
+`lab/results/construction/diagnostics/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
 
 ### Decisão vigente
 
@@ -205,7 +205,7 @@ Aceitação: RED→GREEN com mesmas palavras distribuídas 2+2 versus 3+1, prote
 ## Identidade textual — controles do contrato aprovado
 
 Medição anterior: initial.json, before/resultados.json e red.log em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/` registram
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/` registram
 texto/caixas e a perda de SHY. O dono confirmou o contrato
 `00_nucleo/prompts/entities/layout_types.md`. A compilação de fixtures exaustivas
 exige tratar a variante nova. Projeções visuais descem nos filhos; extractors
@@ -216,7 +216,7 @@ prova que text substituto não altera glyphs/avanços nem contamina o cache.
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Inserção matemática automática — proposta sujeita ao gate ADR-0127
 
@@ -224,9 +224,9 @@ Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-conte
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
 UTC/diff/estado/fontes/binários nas coletas canônicas
-00_nucleo/diagnosticos/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
+lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
 Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8; proveniência no relatório
-00_nucleo/diagnosticos/math-bare-medicao-2026-10-06.md.
+lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md.
 
 before: frac, mat, sqrt, lr e op nus têm uma Equation no vanilla e zero no Tekt;
 math.bold([x]) e texto comum têm zero nos dois. nested e nested-equation têm
@@ -271,7 +271,7 @@ sem ratificar paridade universal, D07, math label ou outros débitos.
 
 ### Medição anterior à decisão
 
-`03_infra/src/integration_tests.rs` nas linhas 32 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`03_infra/src/integration_tests.rs` nas linhas 32 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
 
 ### Decisão e aceitação
 
@@ -285,7 +285,7 @@ Manutenção interna sem mudança de assinatura pública, default, fase, fórmul
 
 `03_infra/src/integration_tests.rs:226,237,3570` exemplifica chamadas `let state = introspect(content)` cujo resultado não é lido. `01_core/src/compiler/introspect.rs:135` delega ao mesmo introspect_with_introspector chamado internamente por `01_core/src/compiler/layout/mod.rs:1703` em layout(content). Os spans do compilador no snapshot identificam exatamente as 63 ocorrências redundantes; as outras chamadas com resultado usado permanecem.
 
-Fontes, owners, diagnósticos, HEAD, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/fixtures-ativos-ci-2026-10-13/before.json.gz`. O registro real da suíte antes da edição confirma ausência do teste matemático. Estas evidências não constituem nova comparação com upstream.
+Fontes, owners, diagnósticos, HEAD, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/fixtures-ativos-ci-2026-10-13/before.json.gz`. O registro real da suíte antes da edição confirma ausência do teste matemático. Estas evidências não constituem nova comparação com upstream.
 
 ### Decisão e aceitação
 
@@ -303,7 +303,7 @@ A busca direta no estado intermediário encontrou `let _state = introspect(conte
 ### Medição anterior à decisão
 
 `03_infra/src/integration_tests.rs` nas linhas [1503, 1532, 1554, 1558] contém as expressões apontadas pelo inventário
-Clippy. `00_nucleo/diagnosticos/ci-simplificacoes-2026-10-14/before.json.gz`
+Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
 conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
 red.log registra os lints selecionados como erros antes de alterar código.
 Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.
@@ -325,7 +325,7 @@ de suíte completa, build, all-targets, rustdoc, fmt, linhagem e inventário tot
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -334,7 +334,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -361,7 +361,7 @@ não é certificação de produção. T4 e publicação continuam fora deste pac
 
 ### Medição anterior à decisão
 
-03_infra/src/integration_tests.rs:43 (clippy::needless_lifetimes); 03_infra/src/integration_tests.rs:1270 (clippy::collapsible_else_if); 03_infra/src/integration_tests.rs:4803 (clippy::redundant_guards); 03_infra/src/integration_tests.rs:4808 (clippy::redundant_guards); 03_infra/src/integration_tests.rs:5832 (clippy::useless_vec); 03_infra/src/integration_tests.rs:5977 (clippy::useless_vec). O snapshot `00_nucleo/diagnosticos/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
+03_infra/src/integration_tests.rs:43 (clippy::needless_lifetimes); 03_infra/src/integration_tests.rs:1270 (clippy::collapsible_else_if); 03_infra/src/integration_tests.rs:4803 (clippy::redundant_guards); 03_infra/src/integration_tests.rs:4808 (clippy::redundant_guards); 03_infra/src/integration_tests.rs:5832 (clippy::useless_vec); 03_infra/src/integration_tests.rs:5977 (clippy::useless_vec). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -380,7 +380,7 @@ Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependênc
 
 ### Medição anterior à decisão
 
-F058: 03_infra/src/integration_tests.rs:88 (walk); F059: 03_infra/src/integration_tests.rs:3884 (texto_do_doc); F060: 03_infra/src/integration_tests.rs:4824 (p1132b_stack_heading_e_stack_seguinte_paridade_sec43); F061: 03_infra/src/integration_tests.rs:5263 (p1132o_sec18_fracao_aninhada_suprime_spacing_em_script); F062: 03_infra/src/integration_tests.rs:5410 (items_de); F063: 03_infra/src/integration_tests.rs:5490 (items_de); F064: 03_infra/src/integration_tests.rs:5541 (p975_pipeline_preserva_ic_no_posicionamento). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F058: 03_infra/src/integration_tests.rs:88 (walk); F059: 03_infra/src/integration_tests.rs:3884 (texto_do_doc); F060: 03_infra/src/integration_tests.rs:4824 (p1132b_stack_heading_e_stack_seguinte_paridade_sec43); F061: 03_infra/src/integration_tests.rs:5263 (p1132o_sec18_fracao_aninhada_suprime_spacing_em_script); F062: 03_infra/src/integration_tests.rs:5410 (items_de); F063: 03_infra/src/integration_tests.rs:5490 (items_de); F064: 03_infra/src/integration_tests.rs:5541 (p975_pipeline_preserva_ic_no_posicionamento). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 
@@ -435,3 +435,16 @@ um erro geométrico maior que esse bound deve continuar falhando. A tolerância
 de paridade de 0.001pt não se aplica aqui e não é relaxada por este adendo.
 Correção privada de observação ADR-0127/ADR-0107, com o RED preservado,
 L0 antes do código, resselo e revalidação ampla no freeze refinado.
+
+## Fixture relocation — 2026-10-18
+
+The first post-migration test compilation failed at the twelve literal
+`include_str!` sites in this consumer because the root `.typ` directory had
+been retired. The exact failure and frozen source state are retained in
+`lab/results/mature-layout-2026-10-18/attempt-1/`.
+
+Use `lab/corpus/legacy-sections/sec_*.typ` as the active location for these ten
+versioned Typst inputs. Their bytes must match the retained construction
+fixtures; update only the include paths. Preserve every existing test input,
+assertion, count, tolerance, and diagnostic. This test-only relocation neither
+imports laboratory Rust code into the product nor authorizes behavior changes.

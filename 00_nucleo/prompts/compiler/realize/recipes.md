@@ -11,7 +11,7 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
 commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
@@ -110,7 +110,7 @@ Revalidar aliases/locais/fresh, query, Table e contextos, sem relaxar testes.
 ### Medição anterior à decisão
 
 HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fonte produtiva limpa;
-00_nucleo/diagnosticos/context-paridade-2026-10-18/before.json.gz contém
+lab/results/construction/diagnostics/context-paridade-2026-10-18/before.json.gz contém
 UTC, argv, diffstat e SHA dos executáveis. Build novo em baseline-build-resources.json;
 freeze completo em before-sources.json.gz. Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Sondas global/local devolvem A/A no Tekt contra R/L; criação antes da regra,

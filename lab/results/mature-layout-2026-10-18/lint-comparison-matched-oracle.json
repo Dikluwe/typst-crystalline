@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-19T00:05:38.577098+00:00",
+  "checkpoint": "8ec827fd975bf14cd849bebb9ede245e49033337",
+  "linter_commit": "12797073972e375d9ab078cf6750c8b30b71e2b9",
+  "comparison": "rule, severity, repository-relative path, message; line numbers ignored for comment-only moves",
+  "oracle_environment": "Five cited vanilla source files copied byte-identically into the checkpoint copy. See baseline-matched-oracle-command.json.",
+  "before_counts": {
+    "V16": 105,
+    "V19": 1140,
+    "V20": 879
+  },
+  "after_counts": {
+    "V16": 105,
+    "V19": 1140,
+    "V20": 879
+  },
+  "new_findings": [],
+  "resolved_findings": []
+}

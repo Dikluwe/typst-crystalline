@@ -19,7 +19,7 @@ This prompt owns only the pure parser in its exclusive consumer. It accepts a UT
 
 Supported entry types are `article`, `book`, `inproceedings`, `misc`, `phdthesis` and `techreport`, normalized without case sensitivity. Keys end at whitespace, comma or closing brace. Field names are normalized to lowercase; repeated names retain the last value. `title`, `author` and `year` are required. `year` must parse as `u32`. Recognized optional fields are `doi`, `url`, `journal`, `booktitle`, `volume` and `pages`; `booktitle` supplies `journal` only when `journal` is absent.
 
-Values use balanced braces, quoted strings or decimal digits. Braced values preserve inner braces and literal LaTeX macros. The implemented quoted-string scan ends at the next quote. Escaped-quote and negative-number support has unresolved implementation gaps recorded in `00_nucleo/diagnosticos/sanitization-infra-wiring-history.md`; this sanitation does not change the parser or silently certify those claims.
+Values use balanced braces, quoted strings or decimal digits. Braced values preserve inner braces and literal LaTeX macros. The implemented quoted-string scan ends at the next quote. Escaped-quote and negative-number support has unresolved implementation gaps recorded in `lab/results/construction/diagnostics/sanitization-infra-wiring-history.md`; this sanitation does not change the parser or silently certify those claims.
 
 Authors split on lowercase ` and `. A comma separates surname from given name; canonical output trims each part and joins authors with ` and `. Percent comments and whitespace are skipped; other text outside an entry is a syntax error. Unsupported types, macros such as `@string`/`@preamble`/`@comment`, concatenation and arbitrary LaTeX expansion are not added.
 

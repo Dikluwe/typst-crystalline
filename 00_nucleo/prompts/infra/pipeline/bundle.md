@@ -58,7 +58,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/auditoria-composicao-construcao-2026-09-29/probe.json` mostra um PDF/UA-1 sem título rejeitado como PDF isolado e aceito dentro do bundle, que publica `one.pdf` com `pdfuaid:part=1` e sem título. A fonte `03_infra/src/pipeline/bundle.rs:463-513` resolve standards e chama diretamente o exporter; `03_infra/src/pipeline/pdf.rs:404-426` executa primeiro as validações PDF-only. A hipótese de omissão seria refutada se a rota bundle chamasse os mesmos gates antes da exportação; não chama.
+`lab/results/construction/diagnostics/auditoria-composicao-construcao-2026-09-29/probe.json` mostra um PDF/UA-1 sem título rejeitado como PDF isolado e aceito dentro do bundle, que publica `one.pdf` com `pdfuaid:part=1` e sem título. A fonte `03_infra/src/pipeline/bundle.rs:463-513` resolve standards e chama diretamente o exporter; `03_infra/src/pipeline/pdf.rs:404-426` executa primeiro as validações PDF-only. A hipótese de omissão seria refutada se a rota bundle chamasse os mesmos gates antes da exportação; não chama.
 
 ### Contrato deste owner
 
@@ -70,7 +70,7 @@ O mesmo body PDF/UA-1 inválido por título falha no bundle e no PDF isolado com
 
 ### Transporte dos metadados por documento — medição complementar
 
-O primeiro GREEN do teste integrado falhou no controle com título: `03_infra/src/pipeline/bundle.rs:156-194` descarta `title/author/keywords` do `Content::Document`, e `render_bundle_document` não atribui `document.document_info`; o PDF isolado atribui `module.document_info()` em `03_infra/src/pipeline/paged.rs:463`. O construtor já valida e preserva `title: Content`, `author` e `keywords` em `01_core/src/compiler/stdlib/structural/document.rs:25-102` e no respectivo L0. A sonda `00_nucleo/diagnosticos/correcao-bundle-pdf-validacoes-2026-09-30/green.log` refuta a hipótese de que bastava delegar a validação: o bundle rejeita também o controle com título enquanto os metadados não forem transportados.
+O primeiro GREEN do teste integrado falhou no controle com título: `03_infra/src/pipeline/bundle.rs:156-194` descarta `title/author/keywords` do `Content::Document`, e `render_bundle_document` não atribui `document.document_info`; o PDF isolado atribui `module.document_info()` em `03_infra/src/pipeline/paged.rs:463`. O construtor já valida e preserva `title: Content`, `author` e `keywords` em `01_core/src/compiler/stdlib/structural/document.rs:25-102` e no respectivo L0. A sonda `lab/results/construction/diagnostics/correcao-bundle-pdf-validacoes-2026-09-30/green.log` refuta a hipótese de que bastava delegar a validação: o bundle rejeita também o controle com título enquanto os metadados não forem transportados.
 
 Projetar os metadados de cada `Content::Document` no `DocumentInfo` do seu próprio `PagedDocument` antes da validação/exportação. `title: Some(Content)` produz `Some` do seu texto plano, inclusive quando o conteúdo é vazio; ausência produz `None`. `author` e `keywords` preservam a ordem e são unidos por `, ` como os arrays de `set document` do percurso isolado. A data permanece no carrier existente, sem novo campo em `DocumentInfo` nesta correção. Não propagar o último título de um documento a outro e não inferir título pelo nome do arquivo. O `#set document` de escopo global não substitui os metadados explícitos por entrada nesta fatia.
 
@@ -82,7 +82,7 @@ Coleta de entradas de bundle atravessa carriers internos visualmente, sem duplic
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -93,7 +93,7 @@ Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 A delegação transparente já owned de ShowRecipe.body também aceita Source.body, sem executar origem separada, publicar carrier ou atribuir Location. Preservar classificação/preparo/serialização conforme a operação desta unidade.
 
@@ -106,7 +106,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 `03_infra/src/pipeline/bundle.rs:308` projects headings but does not descend
 through Source/Located/Realized/ShowRecipe at this operation. Global-introspection
-bundle fixtures in `diagnosticos/auditoria-producao-tekt-2026-10-13/html-probes.json.gz`
+bundle fixtures in `lab/results/construction/diagnostics/auditoria-producao-tekt-2026-10-13/html-probes.json.gz`
 are accepted by the verified vanilla and rejected by Tekt's HTML exporter.
 
 During the final HTML semantic projection, traverse Source.body, ShowRecipe.body,
@@ -127,9 +127,9 @@ default is introduced (ADR-0127 internal parity correction).
 A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
 hashes, UTC, status e `git diff HEAD --stat` estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
 A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
 Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
 É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
 
@@ -178,7 +178,7 @@ exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
 ### Medição anterior à decisão
 
 03_infra/src/pipeline/bundle.rs:160–176.
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
@@ -206,7 +206,7 @@ restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
 
 ### Medição anterior à decisão
 
-03_infra/src/pipeline/bundle.rs:287 (clippy::replace_box). O snapshot `00_nucleo/diagnosticos/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
+03_infra/src/pipeline/bundle.rs:287 (clippy::replace_box). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -219,7 +219,7 @@ Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependênc
 
 ### Medição anterior à decisão
 
-O inventário validado em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `00_nucleo/diagnosticos/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
+O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
 
 ### Responsabilidade e aceitação
 

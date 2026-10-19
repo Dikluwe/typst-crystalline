@@ -46,7 +46,7 @@ Acrescentar a cadeia comum ordenada e deduplicada depois das famílias declarada
 
 ### Medição anterior à decisão
 
-`diagnosticos/content-cost-profile-2026-10-10/{resolution-calls,cpu-style-current,checked-phases}.json.gz` guarda HEAD/working tree/UTC, scripts, fontes, comandos e release `9ae0a3d9285b8d0b4bae0da1db058483e7f5543003fabff46bb7d93b17e474f2`. As tabelas de 1.600 células chamam select_pattern 48.019 vezes, resolve_primary 6.401 vezes e text_edges/vertical_metrics 3.200/3.201 vezes; a seleção aparece em 25–29% das amostras inclusivas de CPU. `font_metrics/resolution.rs:27–85` depende de FontList, variante efetiva e legibilidade da face para formar a cadeia base; não aplica tamanho nem variações. `:105–124` acrescenta MATH separadamente; `font_metrics.rs:49–86` já compartilha caches locais entre clones. Inferência refutável: reusar a última resolução pode amortizar scans sem retenção crescente; invalidar se identidades/cadeia não forem preservadas ou custo de lock/retenção anular o ganho.
+`lab/results/construction/diagnostics/content-cost-profile-2026-10-10/{resolution-calls,cpu-style-current,checked-phases}.json.gz` guarda HEAD/working tree/UTC, scripts, fontes, comandos e release `9ae0a3d9285b8d0b4bae0da1db058483e7f5543003fabff46bb7d93b17e474f2`. As tabelas de 1.600 células chamam select_pattern 48.019 vezes, resolve_primary 6.401 vezes e text_edges/vertical_metrics 3.200/3.201 vezes; a seleção aparece em 25–29% das amostras inclusivas de CPU. `font_metrics/resolution.rs:27–85` depende de FontList, variante efetiva e legibilidade da face para formar a cadeia base; não aplica tamanho nem variações. `:105–124` acrescenta MATH separadamente; `font_metrics.rs:49–86` já compartilha caches locais entre clones. Inferência refutável: reusar a última resolução pode amortizar scans sem retenção crescente; invalidar se identidades/cadeia não forem preservadas ou custo de lock/retenção anular o ganho.
 
 ### Responsabilidade exclusiva
 
@@ -62,7 +62,7 @@ Mudança interna ADR-0127 em fluxo contínuo. Teste RED de consultas repetidas n
 ### Medição anterior à decisão
 
 `03_infra/src/font_metrics/resolution.rs` nas linhas [66, 85, 107, 154, 220] contém as expressões apontadas pelo inventário
-Clippy. `00_nucleo/diagnosticos/ci-simplificacoes-2026-10-14/before.json.gz`
+Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
 conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
 red.log registra os lints selecionados como erros antes de alterar código.
 Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.
@@ -84,7 +84,7 @@ de suíte completa, build, all-targets, rustdoc, fmt, linhagem e inventário tot
 
 ### Medição anterior à decisão
 
-`03_infra/src/font_metrics/resolution.rs` nas linhas 302, 426, 555, 598 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `00_nucleo/diagnosticos/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
+`03_infra/src/font_metrics/resolution.rs` nas linhas 302, 426, 555, 598 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
 
 ### Responsabilidade e aceitação
 

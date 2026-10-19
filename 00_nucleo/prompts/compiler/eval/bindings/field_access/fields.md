@@ -15,7 +15,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/bindings/field_access/fields.rs`. No HEAD `ba5a4c7d305ed1444660d9eb80862f51b417efb6` e árvore limpa, `01_core/src/compiler/eval/bindings/field_access.rs:557-1051` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-field-access-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/bindings/field_access/fields.rs`. No HEAD `ba5a4c7d305ed1444660d9eb80862f51b417efb6` e árvore limpa, `01_core/src/compiler/eval/bindings/field_access.rs:557-1051` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-field-access-2026-09-30-before.json.gz`.
 
 ## Contrato
 
@@ -43,7 +43,7 @@ fase são preservadas; fluxo contínuo ADR-0127. Teste RED antes da correção.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-00_nucleo/diagnosticos/matrix-morfologia-2026-10-06/before.json.gz guarda
+lab/results/construction/diagnostics/matrix-morfologia-2026-10-06/before.json.gz guarda
 UTC/diff/fontes/binários e casos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Mat raw/query sai como {func:math.matrix} sem rows; getter/métodos perdem campos
 e func-equality retorna false. Fonte upstream math/matrix.rs:91–221 declara
@@ -68,7 +68,7 @@ mat selectors, render, Styled geral ou outros elementos não medidos.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-2026-10-07/before.json.gz
+lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz
 registra UTC, diff HEAD --stat, hashes de fontes/binários, argv/cwd e resultados
 contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8.
 Vanilla model/table.rs:734–778 declara body e propriedades; Tekt
@@ -94,7 +94,7 @@ Option None não prova omissão nem none explícito: não certificar esses casos
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-realizacao-2026-10-07/before.json.gz e
+lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz e
 presence-refuters.json conservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree, diffstat, UTC, binários e argumentos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Upstream model/table.rs:734–778 possui campos Smart/Option; o Tekt
@@ -117,7 +117,7 @@ RED→GREEN para body/presença/métodos/JSON, clone/map/observação e rejeiç�
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -153,7 +153,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 A delegação transparente já owned de ShowRecipe.body também aceita Source.body, sem executar origem separada, publicar carrier ou atribuir Location. Preservar classificação/preparo/serialização conforme a operação desta unidade.
 
@@ -165,7 +165,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 O corpus transformacoes-2026-10-14/results.json.gz e controles suplementares
 registra identidade/presença perdida no carrier matrix/body. Fonte e owner
-pré-migração estão em materialization/transformacoes-tipadas-2026-10-14/base-files.json.gz
+pré-migração estão em lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14/base-files.json.gz
 com hashes e linhas em consumers.json. A aprovação do manifesto
 960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d autoriza
 a nova representação e resolução no layout. Semântica/morfologia são linguagem;
@@ -194,7 +194,7 @@ Validar corpus e testes causais; não confundir construção com layout ou relea
 
 ### Medição anterior à decisão
 
-T006: 01_core/src/compiler/eval/bindings/field_access/fields.rs:234; T007: 01_core/src/compiler/eval/bindings/field_access/fields.rs:267. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T006: 01_core/src/compiler/eval/bindings/field_access/fields.rs:234; T007: 01_core/src/compiler/eval/bindings/field_access/fields.rs:267. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -208,7 +208,7 @@ Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/html-feature-identity-2026-10-17/before.json.gz registra
+lab/results/construction/diagnostics/html-feature-identity-2026-10-17/before.json.gz registra
 UTC, status, diff HEAD --stat, fontes e L0 completos e hashes; todos os 2123
 hashes da etapa anterior foram conferidos antes de reutilizar sua matriz.
 before-probe.json.gz conserva argv, fixtures, outputs e SHA-256 dos binários.
@@ -280,7 +280,7 @@ regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
 anterior foram verificados exatamente antes do baseline. before-probe.json.gz
 e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.
@@ -362,7 +362,7 @@ alternativas e o novo teste ancora Type::Array por Source::span_byte_range.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
 Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
 no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
 e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
@@ -391,7 +391,7 @@ reduzir picos; comparar consumo medido sem inferir ganho do produto.
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 final-freeze.json.gz e target-controls.json.gz no diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
 UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
 Styled de transporte altera func. Query também vê wrapper causal temporário;
@@ -399,7 +399,7 @@ HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427
 pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
 de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
 Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
 SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
 
 ### Responsabilidade exclusiva

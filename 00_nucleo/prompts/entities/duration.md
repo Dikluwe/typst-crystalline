@@ -43,7 +43,7 @@ public signatures/defaults without introducing a new datetime or clock policy.
 
 ### Medição anterior à decisão
 
-Sonda isolada inclui o consumer vigente sem editá-lo e compila com rustc 1.92 em debug e -O. duration-before-probe.json em 00_nucleo/diagnosticos/clippy-traits-formatacao-2026-10-16 registra i128::MIN: panic por overflow em debug e --55s em release; MIN+1/MAX, zero e -1s são controles. before.json.gz conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e diffstat; probe-result.json registra teto/RAM e comandos. duration.rs:103 usa self.nanos.abs(), cuja magnitude positiva não cabe em i128 para MIN. É defeito na formatação de um valor já representável por from_nanos e pelo campo público, não proposta de saturação ou de novo domínio público. O valor esperado de MIN vem da decomposição inteira exata de 2^127 em dias/horas/minutos/segundos/nanos, não de f64 ou do comportamento defeituoso em release.
+Sonda isolada inclui o consumer vigente sem editá-lo e compila com rustc 1.92 em debug e -O. duration-before-probe.json em lab/results/construction/diagnostics/clippy-traits-formatacao-2026-10-16 registra i128::MIN: panic por overflow em debug e --55s em release; MIN+1/MAX, zero e -1s são controles. before.json.gz conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e diffstat; probe-result.json registra teto/RAM e comandos. duration.rs:103 usa self.nanos.abs(), cuja magnitude positiva não cabe em i128 para MIN. É defeito na formatação de um valor já representável por from_nanos e pelo campo público, não proposta de saturação ou de novo domínio público. O valor esperado de MIN vem da decomposição inteira exata de 2^127 em dias/horas/minutos/segundos/nanos, não de f64 ou do comportamento defeituoso em release.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -70,4 +70,4 @@ T1: usos genéricos Display+ToString e collect::<Styles> devem falhar antes por 
 
 ## Ratificação humana — 2026-10-16
 
-Proposta aprovada pelo humano nesta sessão, manifesto SHA-256 `d3fba43d799461d294ad562c37649ba9c2e4da2a45d7b7099953624ced28e7e8`. O contrato acima passa a vigente; a aprovação inclui materialização e testes T1–T5, sem release. Registro em `00_nucleo/diagnosticos/clippy-enums-2026-10-16/approval-receipt.json`.
+Proposta aprovada pelo humano nesta sessão, manifesto SHA-256 `d3fba43d799461d294ad562c37649ba9c2e4da2a45d7b7099953624ced28e7e8`. O contrato acima passa a vigente; a aprovação inclui materialização e testes T1–T5, sem release. Registro em `lab/results/construction/diagnostics/clippy-enums-2026-10-16/approval-receipt.json`.

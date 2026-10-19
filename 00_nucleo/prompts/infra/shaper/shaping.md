@@ -27,7 +27,7 @@ Pinned Tekt dependencies (canonical linter metadata):
 These are local source anchors, not a new upstream parity measurement.
 Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/shaping.rs`.
 
-`00_nucleo/diagnosticos/infra-performance-followup/language-control.json` shows
+`lab/results/construction/diagnostics/infra-performance-followup/language-control.json` shows
 that explicit ja/zh/ko settings do not affect Tekt glyph selection while a same-face
 rustybuzz control does. Both local buffer sites omit language configuration.
 Pinned vanilla configures language at
@@ -57,7 +57,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/shy-autoral-2026-09-28/first-round/after/`
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/first-round/after/`
 refuta a primeira materialização: trailing e ligature conservam os codepoints
 mas ampliam a caixa de ActualText em 3.12pt e perdem o espaço na extração comum.
 O caso tracking também inclui um intervalo derivado do placeholder invisível.
@@ -86,7 +86,7 @@ Texto exclusivamente invisível e seleção de quebras continuam fora do escopo.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tracking-residual-2026-09-29/initial.json`, `results.json`, `summary.json` e `causal-checks.json` registram 36 entradas/108 PDFs contra vanilla pinado, fontes, UTC, HEAD e working tree completa. A palavra isolada acumula +0.052pt com tracking 0.2pt, mas fronteiras perdem um intervalo na adjacência, dois com um espaço e quatro com três espaços literais. ±1.2pt elimina a quantização sem eliminar as fronteiras. O código shaper/shaping.rs:225-232,319-326 arredonda em i32; text.rs:49-83 divide palavras; space.rs:15-33 aplica somente avanço nominal. O estado anterior à materialização está em `00_nucleo/diagnosticos/correcao-tracking-2026-09-29/initial.json`.
+`lab/results/construction/diagnostics/tracking-residual-2026-09-29/initial.json`, `results.json`, `summary.json` e `causal-checks.json` registram 36 entradas/108 PDFs contra vanilla pinado, fontes, UTC, HEAD e working tree completa. A palavra isolada acumula +0.052pt com tracking 0.2pt, mas fronteiras perdem um intervalo na adjacência, dois com um espaço e quatro com três espaços literais. ±1.2pt elimina a quantização sem eliminar as fronteiras. O código shaper/shaping.rs:225-232,319-326 arredonda em i32; text.rs:49-83 divide palavras; space.rs:15-33 aplica somente avanço nominal. O estado anterior à materialização está em `lab/results/construction/diagnostics/correcao-tracking-2026-09-29/initial.json`.
 
 ### Decisão interna e responsabilidade
 
@@ -98,11 +98,11 @@ Aceitação: testes RED→GREEN de fronteiras/seleção e interpretação indepe
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Contexto integral bidi ratificado — 2026-10-05
 
-Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
+Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
 
 Para spans certificados, usar registry proprietário local de strings auxiliares e mapas por input Arc, depois views BidiInfo emprestadas normais; não usar unsafe/self-reference. Embeddings virtuais LRE/RLE/PDF só quando dir do segmento difere da base; espaços reais e Linebreak não justificado LF (justify=true fora do certificado). Não retirar controles autorais. Resolver uma vez por input em cada registry; o pipeline paginado compartilha registry/views entre reorder e shape. Wrappers públicos existentes podem construir registry local.
 
@@ -113,7 +113,7 @@ Shape consulta os runs do input completo para span original e não auto-detecta 
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -128,13 +128,13 @@ Conservar a Font carregada no CachedRun e retorná-la com os glyphs: miss carreg
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/controles-bidi-pdf-2026-10-06/before.json` registra
+`lab/results/construction/diagnostics/controles-bidi-pdf-2026-10-06/before.json` registra
 HEAD, working tree, fontes de código/L0 e binário anterior. As sondas
 `bidi-contexto-rtl_literal_embedding-cmap-before.json` e
 `bidi-contexto-rtl_forced_mark-cmap-before.json` mostram CID 0001 associado
 respectivamente a U+202C e U+200F: espaços posteriores extraem controles e
 fundem palavras. A extração bilateral com fontes e comandos está no lote
-`00_nucleo/diagnosticos/block-align-2026-10-06/verification.json.gz`.
+`lab/results/construction/diagnostics/block-align-2026-10-06/verification.json.gz`.
 `lab/typst-original/crates/typst-layout/src/inline/shaping.rs:992-997`, pin
 9f2b6e8715237cb086899a42873660fe744622e8, remove placeholders Default_Ignorable
 após shaping. `03_infra/src/export/fonts.rs:307-328` mantém controles na
@@ -158,7 +158,7 @@ Este owner delega a configuração ao owner text_identity nos dois pontos de buf
 ### Resultado vazio válido versus falha
 
 A primeira extração após remover placeholders, preservada em
-`00_nucleo/diagnosticos/controles-bidi-pdf-2026-10-06/first-verification.json.gz`,
+`lab/results/construction/diagnostics/controles-bidi-pdf-2026-10-06/first-verification.json.gz`,
 mostra RLM residual no CID 000D. `shaping.rs:389-393` devolve None quando
 items está vazio, e `traversal.rs:98-109` conserva o Text como fallback.
 Para entrada não vazia composta exclusivamente do conjunto bidi, ao fim do
@@ -178,7 +178,7 @@ sem contexto resolvido ou para outros textos, conservar fallback anterior.
 ### Medição anterior à decisão
 
 `03_infra/src/shaper/shaping.rs` nas linhas [113] apresenta os avisos selecionados.
-`00_nucleo/diagnosticos/ci-helpers-testes-2026-10-14/before.json.gz`
+`lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/before.json.gz`
 conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
 references-before.json.gz registra chamadas, imports, módulos e referências;
 o estado da suíte/inventário anterior foi verificado por hashes. A lista de
@@ -205,9 +205,9 @@ testes que apenas espelhem cfg ou remoção de bindings. Resselo restrito ao own
 A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
 hashes, UTC, status e `git diff HEAD --stat` estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
 A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
 Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
 É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
 
@@ -255,7 +255,7 @@ exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
 
 ### Medição anterior à decisão
 
-O inventário validado em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `00_nucleo/diagnosticos/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
+O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
 
 ### Responsabilidade e aceitação
 
@@ -269,9 +269,9 @@ Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não mu
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/tekt-v16-ssty-2026-10-17/before.json.gz conserva UTC,
+lab/results/construction/diagnostics/tekt-v16-ssty-2026-10-17/before.json.gz conserva UTC,
 status, git diff HEAD --stat, fontes/L0 e 2128 hashes conferidos do fechamento
-anterior. O SARIF em 00_nucleo/diagnosticos/import-syntax-2026-10-17/validation-architecture.log
+anterior. O SARIF em lab/results/construction/diagnostics/import-syntax-2026-10-17/validation-architecture.log
 registra 117 V16, incluindo font_metrics/math.rs:337 e shaper/shaping.rs:28.
 MathSize em 01_core/src/entities/layout_types.rs:147 possui Display, Text,
 Script e ScriptScript. math.rs:330–338 e shaping.rs:21–30 retornam Some(1/2)

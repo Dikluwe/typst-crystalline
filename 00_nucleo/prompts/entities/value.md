@@ -456,7 +456,7 @@ públicos; não implementar nem ressellar antes da confirmação do dono.
 
 No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
 cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+os probes públicos em `lab/results/construction/diagnostics/superficie-linguagem-p1140*`
 medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
 `tiling` e `version`. Os construtores atuais foram novamente executados após
 a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
@@ -608,7 +608,7 @@ podem serializar pela repr canônica, não por `Debug` nem hex.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado
-congelado em 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/before.json.gz.
+congelado em lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/before.json.gz.
 A sonda isolada layout-probe.rs.txt, command/UTC/deps/executable hashes em sizes.json,
 mede Value/Binding=272 bytes (align16), Stroke=264 (align8), Paint/Tiling=200,
 Located carrier=128 e Content=120. Fontes: entities/value.rs:111 transporta
@@ -667,7 +667,7 @@ suas cláusulas propostas passam a vigorar nesta materialização.
 
 ### Medição anterior à decisão
 
-01_core/src/entities/value.rs:449 (is_none, latent-projection); 01_core/src/entities/value.rs:465 (truthy, emitted-v16); 01_core/src/entities/value.rs:470 (cast_bool, latent-projection); 01_core/src/entities/value.rs:478 (cast_int, latent-projection); 01_core/src/entities/value.rs:490 (cast_float, emitted-v16); 01_core/src/entities/value.rs:495 (cast_str, latent-projection); 01_core/src/entities/value.rs:503 (cast_array, latent-projection); 01_core/src/entities/value.rs:511 (cast_dict, latent-projection); 01_core/src/entities/value.rs:519 (cast_align, latent-projection); 01_core/src/entities/value.rs:527 (cast_bytes, latent-projection); 01_core/src/entities/value.rs:544 (cast_decimal, emitted-v16); 01_core/src/entities/value.rs:565 (cast_duration, emitted-v16); 01_core/src/entities/value.rs:576 (cast_version, emitted-v16); 01_core/src/entities/value.rs:587 (cast_regex, emitted-v16). O enum atual em 01_core/src/entities/value.rs:59–195 tem 39 variantes materializadas; o catálogo e forma de payload estão no inventário desta etapa, não na tabela histórica de variantes futuras. before.json.gz em 00_nucleo/diagnosticos/tekt-v16-value-projections-2026-10-16 conserva HEAD, working tree não commitado, UTC, status/diff HEAD --stat, hashes e os textos originais dos owners/consumers. contexts.json foi extraído do AST atual conferido com o SARIF pinado; classification.json distingue nove V16 emitidos e oito projeções latentes. Forma Rust/exaustividade é mecânica; nomes, conversões, empréstimos e observáveis de linguagem mantêm o contrato vigente. Não há nova medição de paridade ou desempenho.
+01_core/src/entities/value.rs:449 (is_none, latent-projection); 01_core/src/entities/value.rs:465 (truthy, emitted-v16); 01_core/src/entities/value.rs:470 (cast_bool, latent-projection); 01_core/src/entities/value.rs:478 (cast_int, latent-projection); 01_core/src/entities/value.rs:490 (cast_float, emitted-v16); 01_core/src/entities/value.rs:495 (cast_str, latent-projection); 01_core/src/entities/value.rs:503 (cast_array, latent-projection); 01_core/src/entities/value.rs:511 (cast_dict, latent-projection); 01_core/src/entities/value.rs:519 (cast_align, latent-projection); 01_core/src/entities/value.rs:527 (cast_bytes, latent-projection); 01_core/src/entities/value.rs:544 (cast_decimal, emitted-v16); 01_core/src/entities/value.rs:565 (cast_duration, emitted-v16); 01_core/src/entities/value.rs:576 (cast_version, emitted-v16); 01_core/src/entities/value.rs:587 (cast_regex, emitted-v16). O enum atual em 01_core/src/entities/value.rs:59–195 tem 39 variantes materializadas; o catálogo e forma de payload estão no inventário desta etapa, não na tabela histórica de variantes futuras. before.json.gz em lab/results/construction/diagnostics/tekt-v16-value-projections-2026-10-16 conserva HEAD, working tree não commitado, UTC, status/diff HEAD --stat, hashes e os textos originais dos owners/consumers. contexts.json foi extraído do AST atual conferido com o SARIF pinado; classification.json distingue nove V16 emitidos e oito projeções latentes. Forma Rust/exaustividade é mecânica; nomes, conversões, empréstimos e observáveis de linguagem mantêm o contrato vigente. Não há nova medição de paridade ou desempenho.
 
 ### Decisão interna
 
@@ -686,7 +686,7 @@ Fluxo contínuo ADR-0127: nenhuma assinatura/trait/campo público, nova variante
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 final-freeze.json.gz e target-controls.json.gz no diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
 UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
 Styled de transporte altera func. Query também vê wrapper causal temporário;
@@ -694,7 +694,7 @@ HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427
 pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
 de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
 Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
 SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
 
 ### Responsabilidade exclusiva

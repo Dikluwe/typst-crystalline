@@ -100,7 +100,7 @@ Vanilla `Locator<'a>` em `lab/typst-original/crates/typst-library/src/introspect
 
 Cristalino P161 não usa comemo neste tipo, não tem measurement mode, não precisa de splitting. A forma minimalista é suficiente para single-pass walk sem cross-memoization. Quando M2/M3 introduzirem fixpoint multi-iteração, este `Locator` será refinado ou substituído conforme o desenho.
 
-Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3 para classificação de `SplitLocator` e `LocatorLink` como "detalhes de impl vanilla" não aplicáveis directamente.
+Ver `lab/results/construction/diagnostics/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3 para classificação de `SplitLocator` e `LocatorLink` como "detalhes de impl vanilla" não aplicáveis directamente.
 
 ---
 
@@ -127,7 +127,7 @@ sucessivas aos headings de dois documentos, mas cada
 `Layouter::new` recomeça em zero (`compiler/layout/mod.rs:1108`).
 A sonda bilateral P1485.2 extrai `1. Alpha`/`2. Beta` dos PDFs
 vanilla e `1. Alpha`/`1. Beta` dos PDFs cristalinos. O número e
-a provenance completos constam em `materialization/typst-passo-1485.md`.
+a provenance completos constam em `lab/history/construction/records/00_nucleo/materialization/typst-passo-1485.md`.
 
 Classificação ADR-0107: a numeração extraída é semântica da linguagem;
 o contador e o formato de `LocatorSeed` são mecânica interna, sem
@@ -165,7 +165,7 @@ observe(Location), interno ao crate, conserva disjunção entre ocorrências exp
 
 ### Medição anterior à decisão
 
-Locator.next aparece no inventário Clippy de 13 avisos. A assinatura e o corpo vigentes foram lidos antes desta decisão; snapshot 00_nucleo/diagnosticos/clippy-traits-formatacao-2026-10-16/before.json.gz conserva fontes/L0 completos, hashes globais, HEAD, working tree não commitado, UTC e diffstat. O contrato de retorno difere do trait sugerido. É comparação de interfaces Rust, sem nova medição de paridade ou benefício de leitura por IA.
+Locator.next aparece no inventário Clippy de 13 avisos. A assinatura e o corpo vigentes foram lidos antes desta decisão; snapshot lab/results/construction/diagnostics/clippy-traits-formatacao-2026-10-16/before.json.gz conserva fontes/L0 completos, hashes globais, HEAD, working tree não commitado, UTC e diffstat. O contrato de retorno difere do trait sugerido. É comparação de interfaces Rust, sem nova medição de paridade ou benefício de leitura por IA.
 
 ### Responsabilidade exclusiva e aceitação
 

@@ -4,7 +4,7 @@ Hash do Código: f1784ff8
 ## Ownership e medição
 
 Camada L1. Consumer produtivo único: `01_core/src/compiler/introspect/populate.rs`.
-No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:1376-1692` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `00_nucleo/diagnosticos/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
+No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:1376-1692` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `lab/results/construction/diagnostics/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
 
 ## Contrato
 
@@ -22,7 +22,7 @@ Preservar os testes de introspecção e a suíte L1, compilar e passar `crystall
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/tekt-v16-introspect-carriers-2026-10-17/before.json.gz
+lab/results/construction/diagnostics/tekt-v16-introspect-carriers-2026-10-17/before.json.gz
 preserva UTC/status/diff HEAD --stat, fontes/L0 e 2130 hashes conferidos do
 fechamento anterior. contexts-before.json identifica os três V16 vigentes.
 before-citation-probe.json conserva argv, rlib/programa com SHA-256, source
@@ -83,7 +83,7 @@ bibliografia ou referências universais.
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17.
 state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
 após +1 exige 2/11; callback não lido não executa; atualização reutilizada
 executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
@@ -92,7 +92,7 @@ inicia a sequência; a ordem vem do documento, não do inteiro de Location.
 O método atual trata Func como Set e o pós-passe eager perde essa semântica.
 Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
 A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
-00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
 SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
 
 ### Responsabilidade exclusiva — supersede a fase histórica de State

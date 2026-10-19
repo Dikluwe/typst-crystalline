@@ -6,7 +6,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/numbering.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/numbering.rs:22`, `01_core/src/compiler/stdlib/numbering.rs:55`, `01_core/src/compiler/stdlib/numbering.rs:134` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/numbering.rs:22`, `01_core/src/compiler/stdlib/numbering.rs:55`, `01_core/src/compiler/stdlib/numbering.rs:134` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 
@@ -27,7 +27,7 @@ Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaul
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/stdlib/numbering.rs` nas linhas 168 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `00_nucleo/diagnosticos/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+`01_core/src/compiler/stdlib/numbering.rs` nas linhas 168 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
 
 ### Decisão e aceitação
 

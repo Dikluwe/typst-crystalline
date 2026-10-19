@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/calc/hyperbolic.md
-//! @prompt-hash a0ddb3c5
+//! @prompt-hash 4f432ab5
 //! @layer L1
 //! @updated 2026-09-30
 

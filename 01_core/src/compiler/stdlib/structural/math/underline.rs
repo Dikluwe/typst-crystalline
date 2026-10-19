@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math/underline.md
-//! @prompt-hash 8b46965c
+//! @prompt-hash 77d237e2
 //! @layer L1
 //! @updated 2026-09-30
 //!

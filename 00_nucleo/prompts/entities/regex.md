@@ -155,7 +155,7 @@ impl Default for Regex   { /* pattern vazia */ }
 
 No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
 cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+os probes públicos em `lab/results/construction/diagnostics/superficie-linguagem-p1140*`
 medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
 `tiling` e `version`. Os construtores atuais foram novamente executados após
 a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao

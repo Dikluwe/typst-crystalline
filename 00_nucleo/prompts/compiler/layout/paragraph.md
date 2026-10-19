@@ -32,7 +32,7 @@ Unidade dona da realização paginada de Content::Par. Fornecer is_paragraph par
 
 ### Medição adicional: parágrafos vazios e altura automática
 
-`00_nucleo/diagnosticos/correcao-composicao-paragrafos-2026-09-28/empty-details/results.json` registra pin, binários, HEAD, working tree e hora. O vanilla distingue corpo vazio de Text(""): sozinho mede altura 16pt contra 24.568pt, com margens 8pt; antes de AFTER, Text vazio acrescenta o top-edge 8.568pt à posição de par[]; após BEFORE a altura automática é 38.968pt para vazio e 47.536pt para Text vazio. O teste composition_empty_styled_terminal_auto_height_keeps_explicit_spacing falhou no estado após a primeira implementação (styled-empty-red.log): fechar antes do estilo perdeu a evidência causal anterior.
+`lab/results/construction/diagnostics/correcao-composicao-paragrafos-2026-09-28/empty-details/results.json` registra pin, binários, HEAD, working tree e hora. O vanilla distingue corpo vazio de Text(""): sozinho mede altura 16pt contra 24.568pt, com margens 8pt; antes de AFTER, Text vazio acrescenta o top-edge 8.568pt à posição de par[]; após BEFORE a altura automática é 38.968pt para vazio e 47.536pt para Text vazio. O teste composition_empty_styled_terminal_auto_height_keeps_explicit_spacing falhou no estado após a primeira implementação (styled-empty-red.log): fechar antes do estilo perdeu a evidência causal anterior.
 
 Decisão interna: o fechamento anterior a Styled/Par preserva terminal_paragraph_line quando houve material. Body vazio mantém spacing entre fluxos; Text vazio, atravessando Styled/Sequence, também reserva seu top-edge, sem tinta. Acumular em campo privado empty_paragraph_weak_spacing os espaçamentos iniciais enquanto initial_baseline_pending; no término inteiramente vazio, sem bloco material, remover apenas esse spacing fraco, preservando o top-edge virtual. Incluir o campo no checkpoint/rollback. Não reduzir spacing depois de material nem de vazios consecutivos entre fluxos. Nenhuma interface pública muda.
 
@@ -40,7 +40,7 @@ Decisão interna: o fechamento anterior a Styled/Par preserva terminal_paragraph
 
 ### Medição anterior à decisão
 
-O lote bilateral `00_nucleo/diagnosticos/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` mede 32 entradas, com estado exato em initial.json e before/, contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Em 140pt/margem 8pt, simple escolhe delta epsilon zeta eta, optimized escolhe delta epsilon zeta e junta eta à linha seguinte; Tekt ignora a estratégia. Em 240pt justificado, optimized admite eta na primeira linha reduzindo os espaços. Fonte: eval/rules.rs:3070-3100 e stdlib/structural/par.rs:131-150 validam e descartam linebreaks; text.rs:41 e word_layout.rs:29 escolhem incrementalmente; vanilla inline/mod.rs:194-196 resolve auto pela justificação, linebreak.rs:raw_ratio/raw_cost aplica redução até 1/3 e custos cúbicos/quadráticos; model/par.rs:Limits::SPACING_DEFAULT fixa 2/3..1.5. Estilos adjacentes, literal leading/trailing e conteúdo opaco estão medidos separadamente. Observação não prova intenção histórica; inferência refutável: os scope-outs L0 explícitos de preparação/optimized legitimaram o adiamento, pois ainda vedam a implementação global apesar do transporte aceito.
+O lote bilateral `lab/results/construction/diagnostics/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` mede 32 entradas, com estado exato em initial.json e before/, contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Em 140pt/margem 8pt, simple escolhe delta epsilon zeta eta, optimized escolhe delta epsilon zeta e junta eta à linha seguinte; Tekt ignora a estratégia. Em 240pt justificado, optimized admite eta na primeira linha reduzindo os espaços. Fonte: eval/rules.rs:3070-3100 e stdlib/structural/par.rs:131-150 validam e descartam linebreaks; text.rs:41 e word_layout.rs:29 escolhem incrementalmente; vanilla inline/mod.rs:194-196 resolve auto pela justificação, linebreak.rs:raw_ratio/raw_cost aplica redução até 1/3 e custos cúbicos/quadráticos; model/par.rs:Limits::SPACING_DEFAULT fixa 2/3..1.5. Estilos adjacentes, literal leading/trailing e conteúdo opaco estão medidos separadamente. Observação não prova intenção histórica; inferência refutável: os scope-outs L0 explícitos de preparação/optimized legitimaram o adiamento, pois ainda vedam a implementação global apesar do transporte aceito.
 
 ### Decisão e escopo
 
@@ -63,7 +63,7 @@ Medição: break_selection.rs:18 exige cursor além da origem para cortar; befor
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -78,15 +78,15 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 ## Text vazio dentro de Par — medição e contrato (2026-09-29)
 
-A suíte `00_nucleo/diagnosticos/correcao-auto-proximas-2026-09-29/core-tests.log` identificou três testes existentes de Par vazio com altura duplicada após `text.rs` preservar Text vazio como unidade de linha. `paragraph.rs:28-34,52-73` já classifica body vazio e calcula seu `virtual_top` tipográfico para Par; `:47-50` ainda renderiza o mesmo Text vazio, repetindo a causa. O corpus bilateral `before/results.json` distingue `#text("")` isolado de `#text("")` dentro de Par. Para body classificado vazio, conservar o caminho virtual de Par sem emitir de novo o body; conteúdo não vazio continua pelo planeador/fallback. Isto preserva altura de parágrafos vazios com spacing explícito e sem spacing, e não muda o contrato de Text fora de Par. Correção interna ADR-0127, teste RED→GREEN e resselo do owner.
+A suíte `lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/core-tests.log` identificou três testes existentes de Par vazio com altura duplicada após `text.rs` preservar Text vazio como unidade de linha. `paragraph.rs:28-34,52-73` já classifica body vazio e calcula seu `virtual_top` tipográfico para Par; `:47-50` ainda renderiza o mesmo Text vazio, repetindo a causa. O corpus bilateral `before/results.json` distingue `#text("")` isolado de `#text("")` dentro de Par. Para body classificado vazio, conservar o caminho virtual de Par sem emitir de novo o body; conteúdo não vazio continua pelo planeador/fallback. Isto preserva altura de parágrafos vazios com spacing explícito e sem spacing, e não muda o contrato de Text fora de Par. Correção interna ADR-0127, teste RED→GREEN e resselo do owner.
 
 ### Refinamento: espaçamento explícito após linha causal
 
-`00_nucleo/diagnosticos/correcao-auto-proximas-2026-09-29/green-paragraph.log` preserva o RED de dois testes existentes: `Content::text("A")` seguido de `Content::par(Content::Empty)` deve fechar em 22.8pt, mas o fundo da linha confirmado por Parbreak faz `page_geometry.rs` ignorar o cursor do Par vazio. Quando já há fundo causal confirmado, o Par vazio explícito confirma também seu avanço de spacing/virtual top como novo fundo, sem criar tinta. Se não há fundo causal, manter o cancelamento de weak spacing de um documento apenas vazio.
+`lab/results/construction/diagnostics/correcao-auto-proximas-2026-09-29/green-paragraph.log` preserva o RED de dois testes existentes: `Content::text("A")` seguido de `Content::par(Content::Empty)` deve fechar em 22.8pt, mas o fundo da linha confirmado por Parbreak faz `page_geometry.rs` ignorar o cursor do Par vazio. Quando já há fundo causal confirmado, o Par vazio explícito confirma também seu avanço de spacing/virtual top como novo fundo, sem criar tinta. Se não há fundo causal, manter o cancelamento de weak spacing de um documento apenas vazio.
 
 ## Direção de parágrafo distinta de direção de run — 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/direcao-alinhamento-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes, binários e treze sondas. rtl_lines põe ABC em x=20 no Tekt e x=152.949220 no vanilla pinado; rtl_inline_only e rtl_scope coincidem à esquerda. ltr_lines põe árabe em x=174.567870 no Tekt contra x=20 no vanilla. Em `cursor.rs:156–162` e `line_commit.rs:210–216`, a âncora depende do primeiro item da linha. Vanilla `flow/collect.rs:129–136` obtém trunk_from_pairs e `inline/mod.rs:189,232` resolve direção/alinhamento compartilhados antes das linhas. Semântica observável: direção dos trechos e âncora de todas as linhas do parágrafo. Estratégia de state/preflight é mecânica interna, não cópia do vanilla. Inferência: preservar direção compartilhada evita perder a âncora em linhas só com override; refutada por controles integralmente estilizados/parbreak/wrap.
+Medição anterior à decisão: `lab/results/construction/diagnostics/direcao-alinhamento-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes, binários e treze sondas. rtl_lines põe ABC em x=20 no Tekt e x=152.949220 no vanilla pinado; rtl_inline_only e rtl_scope coincidem à esquerda. ltr_lines põe árabe em x=174.567870 no Tekt contra x=20 no vanilla. Em `cursor.rs:156–162` e `line_commit.rs:210–216`, a âncora depende do primeiro item da linha. Vanilla `flow/collect.rs:129–136` obtém trunk_from_pairs e `inline/mod.rs:189,232` resolve direção/alinhamento compartilhados antes das linhas. Semântica observável: direção dos trechos e âncora de todas as linhas do parágrafo. Estratégia de state/preflight é mecânica interna, não cópia do vanilla. Inferência: preservar direção compartilhada evita perder a âncora em linhas só com override; refutada por controles integralmente estilizados/parbreak/wrap.
 
 Correção interna/de paridade ADR-0127, fluxo contínuo L0 primeiro e RED→GREEN. Apenas campos privados de Layouter e helpers descendentes, nenhuma entidade ou assinatura pública/fase/default novo. Esta rodada certifica conteúdo textual estrutural (Text, Empty, Space/SpaceFromNewline, Linebreak, Sequence, Styled e Strong/Emph); unidades desconhecidas conservam fallback anterior. Não prometer ordem bidi mista, align explícito, HTML ou todas as formas de parágrafo. As equações existentes de largura/tracking permanecem.
 
@@ -98,11 +98,11 @@ Refinamento por sonda causal: tree-state.json.gz registra fonte real `#set text(
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Transporte lógico textual — contrato ratificado em 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
+Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
 
 Esta unidade participa do transporte por Cursor privado, input Arc e spans exatos. Preparar antes de emitir o parágrafo textual inteiro, base lexical já certificada; conservar offsets por ordem de visita, não matching de strings. Sequence/Par criam escopo, nested Sequence herda; checkpoint conserva cursor e span corrente; subframe isola e restaura. Text fornece subspans para palavras e espaços literais; Space consome seu segmento mesmo quando fraco; Linebreak consome fronteira. Word emite span somente se texto exato não foi transformado.
 
@@ -112,12 +112,12 @@ Guard privado bidi_scope_active distingue ausência de cursor certificado de aus
 
 ## Envelopes de identidade no pipeline completo
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-implementacao-2026-10-05/verification.json.gz` preserva o primeiro candidato; RTL mixed/LTR numeric ainda coincidem com baseline errado. `pipeline-context.log` registra RED pelo pipeline completo: todas as folhas sem span; `realize/mod.rs:38–44` insere Located em ocorrências. Avaliação direta não exercitava esse envelope. Correção interna: Located é transparente somente para certificação da sua body textual integral, sem ignorar corpos opacos nem alterar registro de Location. Direção lexical e coleta devem atravessar o mesmo envelope. O teste do pipeline exige spans em todas as folhas textuais e ordem RTL com primeiro trecho latino; preservar artefatos do primeiro candidato.
+Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-implementacao-2026-10-05/verification.json.gz` preserva o primeiro candidato; RTL mixed/LTR numeric ainda coincidem com baseline errado. `pipeline-context.log` registra RED pelo pipeline completo: todas as folhas sem span; `realize/mod.rs:38–44` insere Located em ocorrências. Avaliação direta não exercitava esse envelope. Correção interna: Located é transparente somente para certificação da sua body textual integral, sem ignorar corpos opacos nem alterar registro de Location. Direção lexical e coleta devem atravessar o mesmo envelope. O teste do pipeline exige spans em todas as folhas textuais e ordem RTL com primeiro trecho latino; preservar artefatos do primeiro candidato.
 
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Certificação do contexto de parágrafo e direção compartilhada atravessam Source sem mudar âncora/direção nem criar fragmento independente; refutadores workspace-second exigem mesmos limites bidi e leading.
 
@@ -128,7 +128,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
 registra HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
 UTC/status/diffstat e hashes de fontes/binários contra vanilla pinado9f2b6e871.
 Os lotes block-par-spacing-after e block-par-extra-after anteriores já
@@ -239,7 +239,7 @@ correção interna sem mudança do conjunto atualmente aceito pelo certificado.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
 registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
 commitado, status/stat/UTC, fontes e binários contra o pin vanilla
 9f2b6e8715237cb086899a42873660fe744622e8. Multiword21 gera duas páginas
@@ -275,7 +275,7 @@ O prefixo multiline novo exige também a certificação positiva de paragraph_pr
 
 ### Medição anterior à decisão
 
-F008: 01_core/src/compiler/layout/paragraph.rs:686 (texts). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F008: 01_core/src/compiler/layout/paragraph.rs:686 (texts). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 
@@ -304,7 +304,7 @@ para fechar a linha anterior antes do estilo; `paragraph.rs:385-422` decide
 avanço vazio/virtual top pelos outros dois predicados. O eval anexa Source a
 ContentBlock em `01_core/src/compiler/eval/expression_dispatch.rs:49-55`.
 
-`00_nucleo/diagnosticos/tekt-v16-paragraph-2026-10-17/before.json.gz` e
+`lab/results/construction/diagnostics/tekt-v16-paragraph-2026-10-17/before.json.gz` e
 `before-measurement.json.gz` conservam UTC, HEAD/status/diffstat, hashes de
 fontes/L0/configurações/binários/fonte tipográfica e 18 casos bilaterais (36
 execuções) contra `9f2b6e8715237cb086899a42873660fe744622e8`. Com DejaVu Sans
@@ -500,7 +500,7 @@ aceitos sem efeito nem geometria universal de wrappers opacos.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/par-box-fronteira-2026-10-17/before.json.gz`,
+`lab/results/construction/diagnostics/par-box-fronteira-2026-10-17/before.json.gz`,
 `before-measurement.json.gz`, `before-analysis.json`,
 `supplement-before-measurement.json.gz` e `finite-before-measurement.json.gz`
 guardam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
@@ -552,7 +552,7 @@ como default e continua visível no inventário, sem silenciamento.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
 `morph-before-measurement.json.gz` e `audit.json` conservam HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
 fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
@@ -589,7 +589,7 @@ Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length 
 
 No HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
 commitado, complete5/complete-alias-layout.log em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17/ registra UTC,
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17/ registra UTC,
 estado exato e o controle com/sem show sequence identidade. Prefixo *Lead*
 antes de Block1fr em columns passa de uma para duas páginas no Tekt;
 o mesmo alias conserva uma página no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
@@ -625,7 +625,7 @@ lexical, conservando seus critérios e estilos. Não alterar ParagraphBody.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
 status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
 extra-before.json.gz contém26; boundary-before.json.gz contém10 e

@@ -35,7 +35,7 @@ show_rule_termination behavior.
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/eval/bindings/mod.rs:28; 01_core/src/compiler/stdlib/tests/introspection.rs:163 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `00_nucleo/diagnosticos/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/eval/bindings/mod.rs:28; 01_core/src/compiler/stdlib/tests/introspection.rs:163 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `lab/results/construction/diagnostics/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
 
 ### Decisão e aceitação
 
@@ -73,7 +73,7 @@ regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
 anterior foram verificados exatamente antes do baseline. before-probe.json.gz
 e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.
@@ -131,7 +131,7 @@ objetivo global fechado por esta etapa.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz
 e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
 bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
 foundations/content/mod.rs:724–728 declara children requerido;

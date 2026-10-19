@@ -25,7 +25,7 @@ The current consumer defines color/output enums at `02_shell/src/cli.rs:199`, co
 
 L2 owns syntax, argument translation, presentation choices and memory-only serialization. It reads argument/environment/TTY configuration but does not inspect filesystem paths, discover fonts, compile, lay out or export. L4 consumes typed `RunIntent` values rather than clap's private `Args`. Raw tri-state/optional overrides must remain distinguishable so their productive owner can combine CLI and document options.
 
-CLI acceptance, diagnostics and serialized public value morphology are observables. Internal enums, arithmetic, generators and pipeline mechanics need not match vanilla. An observed parser quirk is not, by itself, evidence of intentional language design. Unresolved normative/consumer disagreements are retained in `00_nucleo/diagnosticos/sanitization-shell-history.md`; this translation authorizes no change of behavior.
+CLI acceptance, diagnostics and serialized public value morphology are observables. Internal enums, arithmetic, generators and pipeline mechanics need not match vanilla. An observed parser quirk is not, by itself, evidence of intentional language design. Unresolved normative/consumer disagreements are retained in `lab/results/construction/diagnostics/sanitization-shell-history.md`; this translation authorizes no change of behavior.
 
 ## Commands, compatibility, help and identity
 
@@ -217,7 +217,7 @@ compila sem a flag em PDF isolado e em `document("one.pdf")` dentro do bundle.
 Com `--pdf-standard=ua-1`, o PDF isolado falha com
 `PDF/UA-1 error: missing document title`, mas o bundle publica `one.pdf`.
 A sonda com timestamp, SHA-256 do binário/entradas e comandos está em
-`00_nucleo/diagnosticos/pdf-standard-bundle-2026-09-30/results.json`.
+`lab/results/construction/diagnostics/pdf-standard-bundle-2026-09-30/results.json`.
 `04_wiring/src/compile.rs:155-219` só constrói o override em `OutputFormat::Pdf`,
 enquanto `04_wiring/src/compile.rs:305-325` já o transporta para
 `BundleCompileOptions` e `03_infra/src/pipeline/bundle.rs` já o resolve por
@@ -249,7 +249,7 @@ anterior sobre override ausente e ressellar L0/consumer antes de RED→GREEN.
 
 ### Medição antes da decisão
 
-`00_nucleo/diagnosticos/plano-debitos-2026-10-06/before.json.gz` conserva
+`lab/results/construction/diagnostics/plano-debitos-2026-10-06/before.json.gz` conserva
 HEAD/working tree/UTC, fontes, comandos e hashes dos binários. Compile/c -
 sem output aceita e escreve -.pdf no Tekt; o pin exige OUTPUT e sai 2.
 `lab/typst-original/crates/typst-cli/src/args.rs:351-355` declara
@@ -318,7 +318,7 @@ ambiente. Esta coleta certifica Unix; conformance MSYS/Windows não foi medida.
 O repr de Value::Str é obtido pela fachada pura repr_value_for_serialization.
 
 Gate confirmado pelo humano em 2026-10-06 (resposta confirmo), com candidatos
-e hashes preservados em 00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
+e hashes preservados em lab/history/construction/records/00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
 
 ## Reparos independentes do gate de aspas — 2026-10-06
 
@@ -392,7 +392,7 @@ medida em eval-markup-disabled, sem certificar igualdade global desse caso.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-00_nucleo/diagnosticos/matrix-morfologia-2026-10-06/before.json.gz guarda
+lab/results/construction/diagnostics/matrix-morfologia-2026-10-06/before.json.gz guarda
 UTC/diff/fontes/binários e casos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Mat raw/query sai como {func:math.matrix} sem rows; getter/métodos perdem campos
 e func-equality retorna false. Fonte upstream math/matrix.rs:91–221 declara
@@ -416,7 +416,7 @@ mat selectors, render, Styled geral ou outros elementos não medidos.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-realizacao-2026-10-07/before.json.gz e
+lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz e
 presence-refuters.json conservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree, diffstat, UTC, binários e argumentos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Upstream model/table.rs:734–778 possui campos Smart/Option; o Tekt
@@ -439,7 +439,7 @@ RED→GREEN para body/presença/métodos/JSON, clone/map/observação e rejeiç�
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -474,14 +474,14 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ### Refinamento interno medido — 2026-10-07
 
-Medição anterior à decisão: 00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
+Medição anterior à decisão: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
 after-second/resolved mostra body func:text sem text; CLI content_to_semantic:1153–1182 não desembrulha ShowRecipe, enquanto entities/content/fields.rs:21 já delega campos. JSON/YAML projetam corpos sem wrappers mecânicos ShowRecipe/Located/Realized; transparência não executa receita nem modifica corpo lexical.
 A aceitação é bilateral, efeitos uma vez e geometria; não normalizar whitespace nem alterar contratos ratificados.
 
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Serialização semântica Source publica somente body, sem carrier/span ou execução.
 
@@ -489,7 +489,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ## Adaptação Memória 5 — proposta pendente ADR-0127
 
-Medição antes da decisão: 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/
+Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
 before.json.gz e inventory.json congelam este consumer e cada ocorrência
 file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
 Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
@@ -514,7 +514,7 @@ suas cláusulas propostas passam a vigorar nesta materialização.
 
 `02_shell/src/cli.rs:1858-1891` compara booleanos de resolve_colored_with com true/false em 14 asserções.
 
-Fontes, owners, diagnósticos, HEAD, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/fixtures-ativos-ci-2026-10-13/before.json.gz`. O registro real da suíte antes da edição confirma ausência do teste matemático. Estas evidências não constituem nova comparação com upstream.
+Fontes, owners, diagnósticos, HEAD, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/fixtures-ativos-ci-2026-10-13/before.json.gz`. O registro real da suíte antes da edição confirma ausência do teste matemático. Estas evidências não constituem nova comparação com upstream.
 
 ### Decisão e aceitação
 
@@ -528,7 +528,7 @@ Manutenção interna de testes (ADR-0127), sem assinatura pública, default ou f
 ### Medição antes da decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/content-serialization-2026-10-14/before/results.json.gz
+lab/results/construction/diagnostics/content-serialization-2026-10-14/before/results.json.gz
 registra UTC, fontes/owners, status/diffstat, argv e hashes dos executáveis,
 contra pin 9f2b6e8715237cb086899a42873660fe744622e8. CLI publica func empty
 sem children para []; raw-default/lang publica apenas func raw. JSON.encode
@@ -565,7 +565,7 @@ content-serialization-2026-10-14/{before,raw-controls}/results.json.gz registra 
 
 Projeção CLI Raw usa getter para text,block,lang conhecidos nessa ordem em JSON/YAML/eval/query. Snapshot Some permanece exato, inclusive vazio.
 
-Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
+Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
 
 
 ## Campos públicos de OutlineEntry na projeção legada — 2026-10-17
@@ -583,7 +583,7 @@ Testes co-localizados antes do ramo: valores crus e wrappers com body morfológi
 ## Completar projeção da caption existente — 2026-10-17
 
 Medição anterior à decisão: caption-shape-before.json e caption-after.json em
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
 binários, HEAD/working tree de validation-result.json e pin
 9f2b6e8715237cb086899a42873660fe744622e8. Projeção de caption já produz o
 carrier, mas sua CLI imprime só func:figure.caption; body/getters/fields estão

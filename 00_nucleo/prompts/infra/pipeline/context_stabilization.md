@@ -74,7 +74,7 @@ Após expansão HTML validada, remover marcador contextual e counter-update tamb
 
 ## Snapshot realizado de Page — ratificado em 2026-10-05
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
+Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
 
 Decisão proposta: aplicar o Núcleo page-counter-snapshot. Esta unidade substitui o scope-out histórico de final apenas após ratificação. Contrato público e realização page-aware de updates exigem gate ADR-0127; não materializar ou ressellar antes da confirmação. Preservar as assinaturas existentes, ciclos e budget; não adivinhar página/total antes do snapshot conhecido.
 
@@ -89,17 +89,17 @@ Usar Engine L3 privado para a fachada ratificada. Partição bundle é registrad
 
 O total lógico de uma margem vem do snapshot final de uma ocorrência com posição extraída pelo próprio documento. Em documento sem ocorrência posicionada, usa o último número lógico daquele documento. Não usa a fronteira artificial do Locator nem uma ocorrência de outro body. A enumeração de posições inclui relações parent_locations.
 
-Ratificação: o humano confirmou o conjunto do manifesto `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
+Ratificação: o humano confirmou o conjunto do manifesto `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
 
 ## Métricas compartilhadas na sessão contextual — 2026-10-05
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado preservado em `00_nucleo/diagnosticos/contexto-cache-fontes-2026-10-05/before-state.json.gz`, binário baseline 5bc45f4ec0972c6c46450c0cab3479e2ae2ef41c286c424201c1b7fc07823eb1. Sonda GDB `count-baseline.json.gz`: selected_distinct fez 2243 consultas, 965 cálculos de shaping após miss e duas entradas no wrapper; selected_repeated teve 8 misses; controle ordinário 321 misses. `context_stabilization.rs:548` chama o wrapper sem métricas; `paged.rs:656–661` cria FallbackFontMetrics quando o handle é ausente. `font_metrics.rs:71–96` cria caches Arc por instância e Clone compartilha-os, conforme seu L0 proprietário. Há assimetria com o caminho ordinário já compartilhado. O relatório `grid-cache-share-ab-2026-10-03.md:17–23` delimitou explicitamente o compartilhamento ao caminho comum, mantendo os wrappers contextuais e de bundle com métricas novas. Esta etapa amplia aquele escopo depois da medição; não classificar esse limite documentado como decisão por inércia. A origem mais antiga do wrapper fresco permanece não auditada.
+Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado preservado em `lab/results/construction/diagnostics/contexto-cache-fontes-2026-10-05/before-state.json.gz`, binário baseline 5bc45f4ec0972c6c46450c0cab3479e2ae2ef41c286c424201c1b7fc07823eb1. Sonda GDB `count-baseline.json.gz`: selected_distinct fez 2243 consultas, 965 cálculos de shaping após miss e duas entradas no wrapper; selected_repeated teve 8 misses; controle ordinário 321 misses. `context_stabilization.rs:548` chama o wrapper sem métricas; `paged.rs:656–661` cria FallbackFontMetrics quando o handle é ausente. `font_metrics.rs:71–96` cria caches Arc por instância e Clone compartilha-os, conforme seu L0 proprietário. Há assimetria com o caminho ordinário já compartilhado. O relatório `grid-cache-share-ab-2026-10-03.md:17–23` delimitou explicitamente o compartilhamento ao caminho comum, mantendo os wrappers contextuais e de bundle com métricas novas. Esta etapa amplia aquele escopo depois da medição; não classificar esse limite documentado como decisão por inércia. A origem mais antiga do wrapper fresco permanece não auditada.
 
 Decisão interna, fluxo contínuo ADR-0127: a sessão contextual paginada selecionada pode fornecer o seu handle metrics já existente ao wrapper de layout. Cada tentativa conserva conteúdo, introspector, regiões, callbacks, transcripts, sinks e budget próprios. Somente resultados de métricas por texto/tamanho/estilo/fontes no mesmo World são compartilhados. O handle morre com a sessão; nenhuma retenção entre compilação/edições, nenhum cache de Content, frames ou execução contextual. Bundles/HTML, reconciliação final selecionada e demais callers preservam seus recursos atuais. Não copiar algoritmo/chaves de fonte em pipeline. Não alterar contrato público, modo ou fase. Manter a mudança somente com redução demonstrada de trabalho, medições A/B e controles de linguagem/geometria/diagnósticos sem regressão.
 
 ## Transporte interno de métricas até a reconciliação contextual — 2026-10-05
 
-Medição anterior à decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado e binário baseline 17201a15e36b06bb3a9ac8adba0a98c61b3dc925c4ce1f118a39d26bce26cf05, preservados em `00_nucleo/diagnosticos/contexto-cache-reconciliacao-2026-10-05/before-state.json.gz`. A sonda count-baseline.json.gz isolou a entrada em fix_line_positions_with_metrics: selected_distinct fez 321 consultas/321 cálculos nessa etapa (643 cálculos totais), enquanto ordinary_control fez 320 consultas/zero cálculos. `context_stabilization.rs:14–17,660–663` entrega Content, introspector e documento, descartando o handle da Session; `paged.rs:337–345,563–572` mantém None no caminho selecionado e chama reconciliação com métricas frescas. O owner `infra/shaper/reconciliation.md` já permite helper interno emprestando métricas do mesmo World/compilação; equações e ABI pública não mudam.
+Medição anterior à decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado e binário baseline 17201a15e36b06bb3a9ac8adba0a98c61b3dc925c4ce1f118a39d26bce26cf05, preservados em `lab/results/construction/diagnostics/contexto-cache-reconciliacao-2026-10-05/before-state.json.gz`. A sonda count-baseline.json.gz isolou a entrada em fix_line_positions_with_metrics: selected_distinct fez 321 consultas/321 cálculos nessa etapa (643 cálculos totais), enquanto ordinary_control fez 320 consultas/zero cálculos. `context_stabilization.rs:14–17,660–663` entrega Content, introspector e documento, descartando o handle da Session; `paged.rs:337–345,563–572` mantém None no caminho selecionado e chama reconciliação com métricas frescas. O owner `infra/shaper/reconciliation.md` já permite helper interno emprestando métricas do mesmo World/compilação; equações e ABI pública não mudam.
 
 Decisão interna, fluxo contínuo ADR-0127: transferir um clone do handle existente juntamente com o candidato completo aceito da sessão paginada. Prepared e prepare são internos ao módulo pipeline; seu lifetime explicita os empréstimos existentes de World/Source. Nenhuma API pública ou campo de entidade L1 muda. Preservar o contrato de aceitação, erros, contribuição, sinks e budget (inclusive o resultado final aceito sob não convergência provada); somente o braço que já produz settled transporta métricas. Resultados sem settled, HTML e bundles não transportam handle.
 
@@ -132,9 +132,9 @@ integrada; nenhuma API, instrumentação ou warning policy nova.
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
 UTC/diff/estado/fontes/binários nas coletas canônicas
-00_nucleo/diagnosticos/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
+lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
 Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8; proveniência no relatório
-00_nucleo/diagnosticos/math-bare-medicao-2026-10-06.md.
+lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md.
 
 before: frac, mat, sqrt, lr e op nus têm uma Equation no vanilla e zero no Tekt;
 math.bold([x]) e texto comum têm zero nos dois. nested e nested-equation têm
@@ -180,7 +180,7 @@ sem ratificar paridade universal, D07, math label ou outros débitos.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -215,7 +215,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ## Snapshots de entrada compartilhados — medição 2026-10-08
 
-`00_nucleo/diagnosticos/memoria-fases3-2026-10-08/profiles.json.gz` e
+`lab/results/construction/diagnostics/memoria-fases3-2026-10-08/profiles.json.gz` e
 profiles-growth.json.gz, HEAD/árvore/horas completos em state.json.gz,
 registram ~196 MiB de pico em context300 versus ~46 MiB em plain300;
 prepare sobe de ~62,5 para ~138,7 MiB. `context_stabilization.rs:196,244`
@@ -273,7 +273,7 @@ de PDFs/erros e redução mensurada de memória.
 
 ## Ordem contextual vazia sem reconstrução — ensaio interno 2026-10-09
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/cpu-style-current.json.gz` (HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, release SHA-256 `14d023d36fb765eb041f24f440eaad3bc5d67183325b611e4fd98502bd26815e`, UTC/estado/fixture/comandos no recibo) contém 76 amostras de `ordered_blocks` no caso `local-set-1600` e 25 em `no-fill-1600`, em 12 compilações cada. O gate RED `ordered-blocks-empty-red-gate.json.gz` usa o release já corrigido para referências vazias, SHA-256 `6765fa1113676347dd00007bec1ba1f4e35bf49337d01d0e033d662091c462c4`, e falha no limite predefinido de 523.000 pedidos glibc: 527.107 no caso local e 402.236 no controle. O tempo isolado deste gate sofreu carga externa e não serve como prova de ganho. A fonte `03_infra/src/pipeline/context_stabilization.rs:74-99` primeiro coleta os produtores por id e depois percorre todo o Content por `map_content` para ordená-los e detectar repetição.
+Medição anterior à decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/cpu-style-current.json.gz` (HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, release SHA-256 `14d023d36fb765eb041f24f440eaad3bc5d67183325b611e4fd98502bd26815e`, UTC/estado/fixture/comandos no recibo) contém 76 amostras de `ordered_blocks` no caso `local-set-1600` e 25 em `no-fill-1600`, em 12 compilações cada. O gate RED `ordered-blocks-empty-red-gate.json.gz` usa o release já corrigido para referências vazias, SHA-256 `6765fa1113676347dd00007bec1ba1f4e35bf49337d01d0e033d662091c462c4`, e falha no limite predefinido de 523.000 pedidos glibc: 527.107 no caso local e 402.236 no controle. O tempo isolado deste gate sofreu carga externa e não serve como prova de ganho. A fonte `03_infra/src/pipeline/context_stabilization.rs:74-99` primeiro coleta os produtores por id e depois percorre todo o Content por `map_content` para ordená-los e detectar repetição.
 
 Se a coleta exaustiva `by_id` estiver vazia, `ordered_blocks` pode devolver imediatamente `Some(Vec::new())`, sem reconstruir Content. Esta prova só vale porque a coleta do owner pipeline percorre a projeção visual e todos os carriers usados pelo ordenador; se um carrier puder ser visto pelo segundo percurso e não pela coleta, a saída antecipada é refutada. Com qualquer produtor coletado, manter integralmente a ordenação, a detecção de IDs duplicados e `None` que ativa o fallback legado. Verificar caso vazio aninhado em tabela, dois blocos com o mesmo id, bloco distinto e Realized com produtor somente em original. A mudança é privada de L3: não altera fase, contrato público, budget, seleção contextual ou semântica de warnings/erros. Manter somente com gate RED→GREEN, equivalência e ganho pareado de tempo.
 
@@ -283,7 +283,7 @@ Se a coleta exaustiva `by_id` estiver vazia, `ordered_blocks` pode devolver imed
 ### Medição anterior à decisão
 
 03_infra/src/pipeline/context_stabilization.rs:926 (C096).
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
@@ -311,7 +311,7 @@ restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
 
 ### Medição anterior à decisão
 
-O inventário clippy-aridade-final-2026-10-16 registra 17 avisos: parent e final_styles nunca lidos e Vec<Box<Execution>> nesta unidade. before.json.gz em 00_nucleo/diagnosticos/clippy-retencao-2026-10-16 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/L0 e hashes globais. O inventário completo de Execution/retired nesta fonte não contém pin, auto-referência, raw pointer ou teste do endereço do registro. input e os valores Func/StyleChain preservam identidades em Arc independentes do endereço de Execution. É medição da mecânica Rust, sem nova prova de paridade ou promessa de ganho de RSS.
+O inventário clippy-aridade-final-2026-10-16 registra 17 avisos: parent e final_styles nunca lidos e Vec<Box<Execution>> nesta unidade. before.json.gz em lab/results/construction/diagnostics/clippy-retencao-2026-10-16 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/L0 e hashes globais. O inventário completo de Execution/retired nesta fonte não contém pin, auto-referência, raw pointer ou teste do endereço do registro. input e os valores Func/StyleChain preservam identidades em Arc independentes do endereço de Execution. É medição da mecânica Rust, sem nova prova de paridade ou promessa de ganho de RSS.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -330,7 +330,7 @@ Fluxo contínuo ADR-0127: somente campos privados e representação interna, sem
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 final-freeze.json.gz e target-controls.json.gz no diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
 UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
 Styled de transporte altera func. Query também vê wrapper causal temporário;
@@ -338,7 +338,7 @@ HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427
 pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
 de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
 Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
 SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
 
 ### Responsabilidade exclusiva
@@ -362,7 +362,7 @@ comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
 
 ### Medição anterior à decisão e gate
 
-before.json.gz em 00_nucleo/diagnosticos/context-paridade-2026-10-18 conserva
+before.json.gz em lab/results/construction/diagnostics/context-paridade-2026-10-18 conserva
 HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fontes, UTC, diffstat, argv e
 SHA dos binários; baseline-build-resources.json contém a receita nova. Vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. Duas equações dão EQ EQ Q1/Q2;
@@ -375,7 +375,7 @@ mas não exige copiar representação, vtables ou algoritmo.
 Hipótese de colisão será refutada por falha de contagem, alias, callback ou replay.
 
 O humano aprovou a proposta review.md sob
-00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
+lab/history/construction/records/00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
 500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388;
 recibo approval-receipt.json no mesmo diretório. Gate ADR-0127 §2.1 satisfeito
 para a API aditiva especificada. Não autoriza mudança de fase ou API alheia.

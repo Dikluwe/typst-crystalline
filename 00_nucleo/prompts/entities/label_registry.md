@@ -12,7 +12,7 @@ Hash do Código: dad12553
 
 `LabelRegistry` é o sub-store que mapeia `Label → [Location]` (multi-label). Construído em `from_tags` (P165 .E) a partir de `Tag::Start(loc, info)` quando `info.label.is_some()`.
 
-Vanilla agrega no `ElementIntrospector` field `labels: MultiMap<Label, usize>`. Cristalino mantém isolamento num tipo próprio mas adopta semântica multi-label em P207C (M9c): refactor `HashMap<Label, Location>` → `HashMap<Label, Vec<Location>>`. Decisão fundamentada na cláusula C2 do diagnóstico P207A (item 7 da auditoria) — desbloqueio de `query_labelled` + `label_count` exige semântica que distingue 0/1/N locations por label. Ver `00_nucleo/diagnosticos/auditoria-isolamento-vs-vanilla.md` (referência histórica anterior a P207C).
+Vanilla agrega no `ElementIntrospector` field `labels: MultiMap<Label, usize>`. Cristalino mantém isolamento num tipo próprio mas adopta semântica multi-label em P207C (M9c): refactor `HashMap<Label, Location>` → `HashMap<Label, Vec<Location>>`. Decisão fundamentada na cláusula C2 do diagnóstico P207A (item 7 da auditoria) — desbloqueio de `query_labelled` + `label_count` exige semântica que distingue 0/1/N locations por label. Ver `lab/results/construction/diagnostics/auditoria-isolamento-vs-vanilla.md` (referência histórica anterior a P207C).
 
 ---
 

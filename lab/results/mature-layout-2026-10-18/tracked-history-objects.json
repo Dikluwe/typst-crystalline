@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-18T23:45:45.715573+00:00",
+  "checkpoint": "8ec827fd975bf14cd849bebb9ede245e49033337",
+  "method": "Compare Git object IDs of checkpoint historical files with staged destinations, including .typ overlay and benchmark results",
+  "manifest_tracked_checked": 37313,
+  "performance_results_checked": 820,
+  "errors": []
+}

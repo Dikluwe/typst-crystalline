@@ -1,0 +1,65 @@
+{
+  "utc": "2026-10-18T23:43:28.556212+00:00",
+  "checkpoint": "8ec827fd975bf14cd849bebb9ede245e49033337",
+  "linter_commit": "12797073972e375d9ab078cf6750c8b30b71e2b9",
+  "comparison": "rule, severity, repository-relative path, message; line numbers ignored for comment-only moves",
+  "before_counts": {
+    "V16": 105,
+    "V21": 5,
+    "V19": 1140,
+    "V20": 879
+  },
+  "after_counts": {
+    "V16": 105,
+    "V19": 1140,
+    "V20": 879
+  },
+  "new_findings": [],
+  "resolved_findings": [
+    {
+      "identity": [
+        "V21",
+        "warning",
+        "./01_core/src/compiler/layout/divider.rs",
+        "StaleCitation: ref: lab/typst-original/crates/typst-library/src/visualize/line.rs:20 (MissingFile)"
+      ],
+      "count": 1
+    },
+    {
+      "identity": [
+        "V21",
+        "warning",
+        "./01_core/src/compiler/layout/raw.rs",
+        "StaleCitation: ref: lab/typst-original/crates/typst-library/src/text/raw.rs:663 (MissingFile)"
+      ],
+      "count": 1
+    },
+    {
+      "identity": [
+        "V21",
+        "warning",
+        "./01_core/src/compiler/math/layout/accent.rs",
+        "StaleCitation: ref: lab/typst-original/crates/typst-layout/src/math/accent.rs:40 (MissingFile)"
+      ],
+      "count": 1
+    },
+    {
+      "identity": [
+        "V21",
+        "warning",
+        "./01_core/src/compiler/math/layout/grid_composition.rs",
+        "StaleCitation: ref: lab/typst-original/crates/typst-layout/src/math/run.rs:15 (MissingFile)"
+      ],
+      "count": 1
+    },
+    {
+      "identity": [
+        "V21",
+        "warning",
+        "./03_infra/src/shaper/shaping.rs",
+        "StaleCitation: ref: lab/typst-original/crates/typst-library/src/model/par.rs:210 (MissingFile)"
+      ],
+      "count": 1
+    }
+  ]
+}

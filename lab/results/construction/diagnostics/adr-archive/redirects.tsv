@@ -1,0 +1,15 @@
+old_path	archive_path	disposition	current_authority
+00_nucleo/adr/adr-stub-vs-fallback.md	00_nucleo/diagnosticos/adr-archive/adr-0113-draft-stub-vs-fallback-portuguese.md	duplicate-draft	ADR-0113
+00_nucleo/adr/typst-adr-0002-hierarquia-contencao.md	00_nucleo/diagnosticos/adr-archive/superseded/typst-adr-0002-hierarquia-contencao.md	revoked	none
+00_nucleo/adr/typst-adr-0003-comemo-contencao.md	00_nucleo/diagnosticos/adr-archive/superseded/typst-adr-0003-comemo-contencao.md	revoked	none
+00_nucleo/adr/typst-adr-0007-rustc-hash.md	00_nucleo/diagnosticos/adr-archive/superseded/typst-adr-0007-rustc-hash.md	superseded	ADR-0018
+00_nucleo/adr/typst-adr-0028-typographic-types.md	00_nucleo/diagnosticos/adr-archive/superseded/typst-adr-0028-typographic-types.md	superseded	ADR-0029
+00_nucleo/adr/typst-adr-0066-introspection-runtime-adiada.md	00_nucleo/diagnosticos/adr-archive/superseded/typst-adr-0066-introspection-runtime-adiada.md	superseded	ADR-0073
+00_nucleo/adr/typst-adr-0090-gradient-conic-strategy-type-4-vs-type-1.md	00_nucleo/diagnosticos/adr-archive/superseded/typst-adr-0090-gradient-conic-strategy-type-4-vs-type-1.md	superseded	ADR-0092
+00_nucleo/adr/typst-adr-0004-passo1-descobertas.md	00_nucleo/diagnosticos/adr-archive/process-roadmaps/typst-adr-0004-passo1-descobertas.md	misclassified-process	active L0 prompts
+00_nucleo/adr/typst-adr-0060-model-structural-roadmap.md	00_nucleo/diagnosticos/adr-archive/process-roadmaps/typst-adr-0060-model-structural-roadmap.md	misclassified-roadmap	active L0 prompts
+00_nucleo/adr/typst-adr-0061-layout-fase-x-roadmap.md	00_nucleo/diagnosticos/adr-archive/process-roadmaps/typst-adr-0061-layout-fase-x-roadmap.md	misclassified-roadmap	active L0 prompts
+00_nucleo/adr/typst-adr-0079-layout-fase-5-roadmap.md	00_nucleo/diagnosticos/adr-archive/process-roadmaps/typst-adr-0079-layout-fase-5-roadmap.md	misclassified-roadmap	active L0 prompts
+00_nucleo/adr/typst-adr-0081-m7-plus-pipeline-restructuring-scope.md	00_nucleo/diagnosticos/adr-archive/process-roadmaps/typst-adr-0081-m7-plus-pipeline-restructuring-scope.md	misclassified-roadmap	active L0 prompts
+00_nucleo/adr/typst-adr-0096-pattern-debt-37-campo-layouter-consumer-pending.md	00_nucleo/diagnosticos/adr-archive/process-roadmaps/typst-adr-0096-pattern-debt-37-campo-layouter-consumer-pending.md	misclassified-process	materialization guidance
+00_nucleo/adr/typst-adr-0097-scope-out-reconfirmado-por-fase-a.md	00_nucleo/diagnosticos/adr-archive/process-roadmaps/typst-adr-0097-scope-out-reconfirmado-por-fase-a.md	misclassified-process	materialization guidance

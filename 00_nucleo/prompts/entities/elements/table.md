@@ -94,7 +94,7 @@ geometria.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -152,7 +152,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ## Reconstrução somente após mudança — 2026-10-10
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/change-aware-red-gate.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado/status/diffstat, UTC, script/fixtures/interpositor/CPU/comandos e release SHA-256 `29745a9e80ca43160b34f4807949f00e803070392653df0fc5e214b2f42ac33a`: 483.823 pedidos glibc em local-set-1600, acima do gate pré-fixado de 470.000. `entities/content/traversal.rs:25-55,235-264` reconstrói sequências/carriers/estilos/Table/Cell mesmo se todos os callbacks retornam None; `entities/elements/table.rs:85-118` e `entities/elements/table_cell.rs:308-344` clonam metadados e contribuições visuais. O vanilla pinado visita referências e materializa apenas após mudança (`lab/typst-original/crates/typst-realize/src/lib.rs:242-291,353-410`). Isso é uma hipótese de custo, sem exigir sua vtable ou igualdade Rust (ADR-0107/0026/0109).
+Medição anterior à decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/change-aware-red-gate.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado/status/diffstat, UTC, script/fixtures/interpositor/CPU/comandos e release SHA-256 `29745a9e80ca43160b34f4807949f00e803070392653df0fc5e214b2f42ac33a`: 483.823 pedidos glibc em local-set-1600, acima do gate pré-fixado de 470.000. `entities/content/traversal.rs:25-55,235-264` reconstrói sequências/carriers/estilos/Table/Cell mesmo se todos os callbacks retornam None; `entities/elements/table.rs:85-118` e `entities/elements/table_cell.rs:308-344` clonam metadados e contribuições visuais. O vanilla pinado visita referências e materializa apenas após mudança (`lab/typst-original/crates/typst-realize/src/lib.rs:242-291,353-410`). Isso é uma hipótese de custo, sem exigir sua vtable ou igualdade Rust (ADR-0107/0026/0109).
 
 Decisão interna (ADR-0127): o owner oferece helper crate-private de reconstrução dos filhos que retorna None somente quando todos ficaram inalterados. Raw visita children, header, footer, caption nesta ordem; preparada visita exclusivamente resolved.cells e caption, conservando raw e metadados. A descida chama a prova interna de `00_nucleo/prompts/entities/content/traversal.md`; materializar Table e plano apenas depois da primeira mudança. O método público existente de Element conserva assinatura e semântica e reutiliza essa mesma implementação, sem novo método de trait. Não comparar igualdade para detectar mudança nem processar efeitos duas vezes. Testes de filhos/preparo/caption/ordem e os gates pareados acima devem passar; não certificar variantes ainda fora do recorte.
 

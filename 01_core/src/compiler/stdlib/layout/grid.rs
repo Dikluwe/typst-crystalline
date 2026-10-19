@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout/grid.md
-//! @prompt-hash 204fe1a4
+//! @prompt-hash de3bccd5
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -47,7 +47,7 @@ pub fn native_grid(
         // são elementos-filho passados posicionalmente, extraídos abaixo do
         // loop de children). `#grid(header: ..)` agora erra, paridade vanilla
         // (que rejeitaria com "unexpected argument"). Ver
-        // 00_nucleo/diagnosticos/paridade-producao-p772i.md.
+        // lab/results/construction/diagnostics/paridade-producao-p772i.md.
         if !["columns", "rows", "gutter", "align", "inset", "stroke", "fill"]
             .contains(&key.as_str())
         {
@@ -119,7 +119,7 @@ pub fn native_grid(
     // args; ver typst-layout/src/engine.rs `GRID_CELL_RULE`/`grid/mod.rs`
     // `#[elem(name = "header")]`). Só um header e um footer são suportados
     // (repeat-across-páginas e múltiplos headers por `level` são scope-out
-    // explícito — ver 00_nucleo/diagnosticos/paridade-producao-p772i.md).
+    // explícito — ver lab/results/construction/diagnostics/paridade-producao-p772i.md).
     // P822 — footer fora do fim passa a ser erro (paridade vanilla
     // `resolve.rs:1889`, "footer must end at the last row"): qualquer
     // célula do corpo depois do footer é rejeitada no loop abaixo.

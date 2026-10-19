@@ -10,7 +10,7 @@ Hash do Código: a4b620f0
 `01_core/src/compiler/lexer/scanner.rs:24` locates `pub struct Scanner<'a>`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Cursor and matching contract
 

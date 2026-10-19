@@ -1,0 +1,1760 @@
+[
+  {
+    "case": "empty--0.2",
+    "source_sha256": "d3f8c3e737186e61fc52fbdab0078a5d24c17da11c4cd0390504568b0243879e",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/empty--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/empty--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "55343aef1a56d9d965694c177cbdacd68b74bc2a8649615a9d29739528b8a7c9"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/empty--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/empty--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "3.000000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "78f40932f78fd65e2b16ceb3540ce06fa5577f9fed9bc9d4ef4d5c01a1628103"
+      }
+    }
+  },
+  {
+    "case": "empty-0.2",
+    "source_sha256": "8ded994cf4645bcda2e235cd9736b9160ba488f41ddc1956b56c7fac015eed15",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/empty-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/empty-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "85b42c17a2b3ab6aba77331b53528e71cbe81dded38269dc7a70267c7ac3c3f8"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/empty-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/empty-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "3.000000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "78f40932f78fd65e2b16ceb3540ce06fa5577f9fed9bc9d4ef4d5c01a1628103"
+      }
+    }
+  },
+  {
+    "case": "empty-0",
+    "source_sha256": "572659cacddbfbbb8d4900c125869e58b0473c338c41143c70e4f34324340739",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/empty-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/empty-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "c7ab97c0d8112d1e0da2f7886bedb8c7f92b43f815e05da47d984f69ea1eb8b0"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/empty-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/empty-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "3.000000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "78f40932f78fd65e2b16ceb3540ce06fa5577f9fed9bc9d4ef4d5c01a1628103"
+      }
+    }
+  },
+  {
+    "case": "leading--0.2",
+    "source_sha256": "8c21806c3ebc3447b8922e8c9db17f460bbcfd4905597875d98ffec4b507d9c5",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/leading--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/leading--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "25.312000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "5.840000",
+              "yMin": "-4.260000",
+              "xMax": "25.312000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "41b7f1238962924f7649a07758f548d86811d06bc8b1a05eb146aba8db8fa0c8"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/leading--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/leading--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "25.312000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "5.840000",
+              "yMin": "-4.260000",
+              "xMax": "25.312001",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "b32cf4d72182c488210fb3cefaa691c7f19dd665b6875d0ba8ed5cacf73519e4"
+      }
+    }
+  },
+  {
+    "case": "leading-0.2",
+    "source_sha256": "e87200488a4ca8fd09abd2fafbfaf181fc5a664668d70f49d109dfd1cef8a9e7",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/leading-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/leading-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "26.912000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "6.640000",
+              "yMin": "-4.260000",
+              "xMax": "26.912000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "96db2c6a20683532422c242ef684cc377b556942c03efdacf0d11be15ce4ab9e"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/leading-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/leading-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "26.912000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "6.640000",
+              "yMin": "-4.260000",
+              "xMax": "26.912000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "0faf2b114b1d91f5c462b0b350823977607a09a2608d6022172945bfd4bf9b9e"
+      }
+    }
+  },
+  {
+    "case": "leading-0",
+    "source_sha256": "5d091a99bcbdf2c98439d1264b3e152a1fe2e7cdb00fdce636c197d8ddf24c92",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/leading-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/leading-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "26.112000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "6.240000",
+              "yMin": "-4.260000",
+              "xMax": "26.112000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "ea39a4ca21ddcddbb919b06c08f204a5d223da3c64ef89a695e9181ef9b0f74f"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/leading-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/leading-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "26.112000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "6.240000",
+              "yMin": "-4.260000",
+              "xMax": "26.112000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "d68f1584eba5d67d4bcc420b3cc0dd7cbc0289513238be7b6b68d9b9a9f250db"
+      }
+    }
+  },
+  {
+    "case": "markup-space--0.2",
+    "source_sha256": "6cb187168c02dc78b5696f638dc5b3812146996241cd4cb0163f8d93b729e09f",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/markup-space--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/markup-space--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "0d7878279d7cd8e21cad96e97e6a1963397fdc1f1250d2fecd8ddc6d50259162"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/markup-space--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/markup-space--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "3.000000",
+            "height": "3.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "d7bcabc5e9ffd0acb5468006e87960bceb74b367ba81c97ce14b4f0426d4d9f0"
+      }
+    }
+  },
+  {
+    "case": "markup-space-0.2",
+    "source_sha256": "6b758e18e60eb5333830d4dce34883d2b3f9085cead11d44355f38b48a898eff",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/markup-space-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/markup-space-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "1066121d9619976e914ff44b1caaaf7ad049220de9194d595a501b7d89e28d9a"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/markup-space-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/markup-space-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "3.000000",
+            "height": "3.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "d7bcabc5e9ffd0acb5468006e87960bceb74b367ba81c97ce14b4f0426d4d9f0"
+      }
+    }
+  },
+  {
+    "case": "markup-space-0",
+    "source_sha256": "bedd8fc9b32eef85d132a3cad6ab5bcbfa2e51a19214732dce1109584dd1093a",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/markup-space-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/markup-space-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "93a565b8b69f37e7abb519d7aeae53d497606d1607d02553971282639e325bac"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/markup-space-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/markup-space-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "3.000000",
+            "height": "3.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "d7bcabc5e9ffd0acb5468006e87960bceb74b367ba81c97ce14b4f0426d4d9f0"
+      }
+    }
+  },
+  {
+    "case": "one-newline--0.2",
+    "source_sha256": "6f68b9b757466659fd59c52b6c8798d2e41acf60e2a6a2a6fee83e85f51bcffb",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/one-newline--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/one-newline--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "19.472000",
+            "height": "31.536000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "19.472000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "0bbb85534927575f079ec23966f3e0ca10aa458ad912dc76c1a3d708ee8eefbc"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/one-newline--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/one-newline--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "19.472000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "19.472000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "a58d733b99a58b01ea6ac811c996b25713a8917353e447601cee2d040904c285"
+      }
+    }
+  },
+  {
+    "case": "one-newline-0.2",
+    "source_sha256": "d61e9c495e6720b4bf00ef09df4461123414aad460770f5dd263808a1d06b656",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/one-newline-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/one-newline-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "20.272000",
+            "height": "31.536000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "20.272000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "6b5c485003624a5919d02d06753d329c9f183e364ca3f65d251287b45b5381a7"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/one-newline-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/one-newline-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "20.272000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "20.272000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "6e71e1343b9799fd0429f2727cdaa8a10fcc18cd6cdb382418b1e9ed24aa8ac2"
+      }
+    }
+  },
+  {
+    "case": "one-newline-0",
+    "source_sha256": "57d55542987acd9c26600326cf6aabcff12d16ae6df216d85698e873ea04bd71",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/one-newline-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/one-newline-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "19.872000",
+            "height": "31.536000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "19.872000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "2faf6d891dca6316800a86800ab4b9b72d9b70cc9cf00a377790f1c1bb8fa4bb"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/one-newline-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/one-newline-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "19.872000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "19.872000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "6eea082d3bef819c3515bfdedb78e72fe700519178a40731758c9c7b67a10e09"
+      }
+    }
+  },
+  {
+    "case": "space-par--0.2",
+    "source_sha256": "64eb5d34243bc37916a8b2e242628f772160e664e87e127c8a0bd7a835ab89ac",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/space-par--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/space-par--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "4d5296e693a01c3e04826de682f73c7553663115a7ff57cca275b7dc088fdc0b"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/space-par--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/space-par--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "6.040000",
+            "height": "31.536000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "271243ce752d27739a44a186c659c59216fa3fece4b32cc69d10852220e4a588"
+      }
+    }
+  },
+  {
+    "case": "space-par-0.2",
+    "source_sha256": "a29f997568610706f67c057e417dce0f278df58af9928e9180d280e2413f81d0",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/space-par-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/space-par-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "a16d5931fa5d24123fe1e32dc3ba4559c4c2d68e12ebbfdb80d1a5ea777d4652"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/space-par-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/space-par-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "6.440000",
+            "height": "31.536000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "44057f334f3186cd9e97dbc4a7b689df487077bd8cd37f84138651ff3fc66541"
+      }
+    }
+  },
+  {
+    "case": "space-par-0",
+    "source_sha256": "f04124c5d17dc1ccc6cd112486f1d98fbef4b8b1bf7817df4cd313079ae543aa",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/space-par-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/space-par-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "8a876094ac4f02b44e39fd1bf148ddfd6ba7e42c5773e243910c14c2792bf99d"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/space-par-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/space-par-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "6.240000",
+            "height": "31.536000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "099511f9a6b357ea120eb601117e0759d18d06ef520cdd47ed222f5fbb703ecf"
+      }
+    }
+  },
+  {
+    "case": "spaces-1--0.2",
+    "source_sha256": "56c4a8f7538ec665dd0defe930fb421ac0bb1dd3301816f5d40d21762a7a578e",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-1--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-1--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "d914250dcee4a908f9562705557f1ac542e8ce331cb10b93de954174caa6a08f"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-1--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-1--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "3.120000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "d9326856ecf808c4ddd594b890ee59e1d333a46a8253ffe51e05ba7af00bf09b"
+      }
+    }
+  },
+  {
+    "case": "spaces-1-0.2",
+    "source_sha256": "dc3ee22d0a354f879c2d0d53a97d19cb775684a3ac6a0375a5800497bf7e1ee3",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-1-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-1-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "36315994b05c1cfdd9233c4711aed7c775e721f16e2bd6347df3da8717c09a73"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-1-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-1-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "3.120000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "1a56f00909a452f7cfe330016f62256dade039ec49475c528c936223a57a3610"
+      }
+    }
+  },
+  {
+    "case": "spaces-1-0",
+    "source_sha256": "725c36ab419b6447b5041cd208d3aec595ad88379f7f5e47c89f00cd8f02e26a",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-1-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-1-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "646c75a8b7fa08f1c6deab10cd8c0140cf5e7a32c774a99285f1b5b3bc95fb02"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-1-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-1-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "3.120000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "1a56f00909a452f7cfe330016f62256dade039ec49475c528c936223a57a3610"
+      }
+    }
+  },
+  {
+    "case": "spaces-2--0.2",
+    "source_sha256": "a443b839967cfc232ea579ae8a184873b14c8b9e70c4956702febc00a158c2d6",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-2--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-2--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "6aab54e7b3e1c5eea4870949b41d7b161e506f97168014c4d11026a0ddb32c9d"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-2--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-2--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "6.040000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "fe7a9dbd91bc147fc413f068def514058f301e02ab3e63acbb85f517dd304e56"
+      }
+    }
+  },
+  {
+    "case": "spaces-2-0.2",
+    "source_sha256": "5da9d3d5812361dc8ee514500a15699ea47855c5c1f02918f04ebb65d6f34dba",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-2-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-2-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "a3da90c76f2aac83739bdb687b70d7c884dc81c36fbac2f6c5cc64c8693cb9fd"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-2-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-2-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "6.440000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "4f645af065f113c3eaf4eef8b94307bc93f27070a296ce226cfcb424a9f13c21"
+      }
+    }
+  },
+  {
+    "case": "spaces-2-0",
+    "source_sha256": "a7d02bdd80545502da2368bb1fe68d2e61312e2fc29679fe322c7e69d2019ed9",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-2-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-2-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "0abd7bea4ecc960c9ae93f64b376a3b632a0aa2dbc5d7a2f3ff6308eb13d1522"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-2-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-2-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "6.240000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "2914d699656c4c517d9c43385ecfaf0b2bae7dd92bb27e9b9f17db865c93eddf"
+      }
+    }
+  },
+  {
+    "case": "spaces-3--0.2",
+    "source_sha256": "7e3b43f8ddd70dc337d559699207ad49063a7ba3a1799b4a5890ce4c09fc3dc2",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-3--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-3--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "feff2e91134c2d70e72c4b44a5a7b97b93cbd80a361931124dfb369638cbceb7"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-3--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-3--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "8.960000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "6e9f4e49fdbf09cc2aaafb950468581a6551a4ca2f2d4eab9f59b13118da8e46"
+      }
+    }
+  },
+  {
+    "case": "spaces-3-0.2",
+    "source_sha256": "d8c79ccf867c9ba96d1c14ce5ba619df2e77f399ecbf1a7e2569e523ce991a32",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-3-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-3-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "452dcbfbe1cc3a23260504f9d965e6d78a2ef37737e05784519994a5af7929cb"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-3-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-3-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "9.760000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "126b23cde944d9e026365df7dbd8b1314705dd6424af6551b993bdc62b52459b"
+      }
+    }
+  },
+  {
+    "case": "spaces-3-0",
+    "source_sha256": "f4aad40d16c28d39d04fd645c12e12d538ad01834c21eb25e5fd8a559d1bfa62",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-3-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-3-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "10555518d2af62d2ec45e19fb3c5a469f3877a775f5a00341733837453058c72"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/spaces-3-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/spaces-3-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "9.360000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "bc8b41f57770fc8669b96c42fc7dfbb78f3941fbe94f071b5d813d5a505bed76"
+      }
+    }
+  },
+  {
+    "case": "styled-leading--0.2",
+    "source_sha256": "9936fca2b6ce1fb25a96be7e887f97b8f087f1ee0841d07e7388fd70a08dac06",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-leading--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-leading--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "38.368000",
+            "height": "12.852000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "8.960000",
+              "yMin": "-6.390000",
+              "xMax": "38.368000",
+              "yMax": "18.126000"
+            }
+          }
+        ],
+        "pdf_sha256": "ada774d50a932871214f46d831a290508bc424c9e579ebce7d52cb51475a7ebf"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-leading--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-leading--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "38.368000",
+            "height": "12.852000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "8.960000",
+              "yMin": "-6.390000",
+              "xMax": "38.368000",
+              "yMax": "18.126000"
+            }
+          }
+        ],
+        "pdf_sha256": "5c483398fdd086d3c2b4a9e6a9bc09e9095d603bce5f7a6b1a66a64fcf3b8a36"
+      }
+    }
+  },
+  {
+    "case": "styled-leading-0.2",
+    "source_sha256": "c712c8645483d4dfde5f50f4d94e154a68e7280d4736d5c37ff03df41407abf9",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-leading-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-leading-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "39.968000",
+            "height": "12.852000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "9.760000",
+              "yMin": "-6.390000",
+              "xMax": "39.968000",
+              "yMax": "18.126000"
+            }
+          }
+        ],
+        "pdf_sha256": "b698e3037b884ff1a4134936ebd9794f87dfbcd2b02f4b41922057fb70967ebc"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-leading-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-leading-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "39.968000",
+            "height": "12.852000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "9.760000",
+              "yMin": "-6.390000",
+              "xMax": "39.968000",
+              "yMax": "18.126000"
+            }
+          }
+        ],
+        "pdf_sha256": "b9b4bc8be1f8a2daa4f742690e7382178765a642b815079ba3693fc1572f04d8"
+      }
+    }
+  },
+  {
+    "case": "styled-leading-0",
+    "source_sha256": "487153d550fd11c8ad208737dd269cfd5bb6f4de63e45d1ebc220acb0b84f7ed",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-leading-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-leading-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "39.168000",
+            "height": "12.852000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "9.360000",
+              "yMin": "-6.390000",
+              "xMax": "39.168000",
+              "yMax": "18.126000"
+            }
+          }
+        ],
+        "pdf_sha256": "4d2da86e6a8d4a78fbc439151050defbcebe22f38346eda1c13d3ea9e5a3912a"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-leading-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-leading-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "39.168000",
+            "height": "12.852000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "9.360000",
+              "yMin": "-6.390000",
+              "xMax": "39.168000",
+              "yMax": "18.126000"
+            }
+          }
+        ],
+        "pdf_sha256": "e5b590523b7ee09059dfd5a299647fb411af81ccc4c8f1bb080417db022db3b3"
+      }
+    }
+  },
+  {
+    "case": "styled-spaces--0.2",
+    "source_sha256": "2aa9125d85adcdfcee1ba3adc10ef1654be2d5cf53f42d826aa0a47e22f489a8",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-spaces--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-spaces--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "60a82e885e67301316df921b942468f552995d6e5849d9c1c4a283353dd9e217"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-spaces--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-spaces--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "13.640000",
+            "height": "12.852000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "cd0d31d915cdd45e1920cb7cf6ee08dcbb28125feb0169b4b636050f01572f08"
+      }
+    }
+  },
+  {
+    "case": "styled-spaces-0.2",
+    "source_sha256": "3f8d58b8c27b76e6282c9edbd3b70e070d077c279fb67030d7e7615ed29638c9",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-spaces-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-spaces-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "af9899b0dcbc932ecbadd78f1b39906662a7a021b68ad7bd2f982721c3b25472"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-spaces-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-spaces-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "14.440000",
+            "height": "12.852000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "f858c040dbf285b5f7179fa27cea9130403eb025304cfcae6797fdab208ba681"
+      }
+    }
+  },
+  {
+    "case": "styled-spaces-0",
+    "source_sha256": "06212dc2195c897f02a2972c4e73c33e294d251609ef434c2683579f95d8c4dc",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-spaces-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-spaces-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "612.000000",
+            "height": "792.000000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "64ce33f8f8c3545bc558680a9b7f7652fa1d1ccc6f675f86bf83f0ea667d7e7e"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/styled-spaces-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/styled-spaces-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "14.040000",
+            "height": "12.852000"
+          }
+        ],
+        "words": [],
+        "pdf_sha256": "dc8007f90ae7429c11bfb1342dfe5305ae4e01b405d9ef4197eae98336b73c88"
+      }
+    }
+  },
+  {
+    "case": "trailing--0.2",
+    "source_sha256": "f944426ac5b10bf0d1f1e3fe4f4d7ba4340e68ff4b396e74b41f3e89fcfe2a5a",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/trailing--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/trailing--0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "19.472000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "19.472000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "b06e69d3777e74db1fccbe6320ce034e26091ec44bda64f14d65e8faa59dbb9a"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/trailing--0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/trailing--0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "25.312000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "19.472000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "ebd97a38fddf43ae92e01a70eaf31d534cd83003efe2bc38d0c9469dc3edbbe0"
+      }
+    }
+  },
+  {
+    "case": "trailing-0.2",
+    "source_sha256": "7ae47ddf7fba58e5b9a560ee8066efb07b4be7ae77a156157d54e41c6d67ace5",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/trailing-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/trailing-0.2-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "20.272000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "20.272000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "e3b6e77e41737aacc8af7aac43ea94570e1d3c065d04f8639a45856c204f2457"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/trailing-0.2.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/trailing-0.2-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "26.912000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "20.272000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "2bb238c2cca186f10caa431e571b5de5aa7abb04f3ab4e5118d30fc4b7dcc245"
+      }
+    }
+  },
+  {
+    "case": "trailing-0",
+    "source_sha256": "d068e9034ae810370aeb5e11aebbf2193a157c943ade5df4623b4141f7806677",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/tmp/typst-before-auto-space",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/trailing-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/trailing-0-tekt.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "19.872000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "19.872000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "951c7db3a0eb144638ddd121ab9a403ea7c6eb65667b56d5eb9814fa9cb9ce09"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/inputs/trailing-0.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/correcao-auto-espacos-2026-09-29/before/trailing-0-vanilla.pdf"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": "26.112000",
+            "height": "8.568000"
+          }
+        ],
+        "words": [
+          {
+            "text": "abc",
+            "box": {
+              "xMin": "0.000000",
+              "yMin": "-4.260000",
+              "xMax": "19.872000",
+              "yMax": "12.084000"
+            }
+          }
+        ],
+        "pdf_sha256": "ea6c492081ade84fb0df93a7d2d4c0763962d975c555d4d4ec76bac488539331"
+      }
+    }
+  }
+]

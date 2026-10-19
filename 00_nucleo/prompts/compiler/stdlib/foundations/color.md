@@ -238,7 +238,7 @@ processuais.
 ## Correção medida em 2026-10-13
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado.
-Fontes, hashes, UTC, status e diffstat: `00_nucleo/diagnosticos/cores-ci-2026-10-13/before.json.gz`
+Fontes, hashes, UTC, status e diffstat: `lab/results/construction/diagnostics/cores-ci-2026-10-13/before.json.gz`
 e `constructors-before.json.gz`. Sondas e prova numérica em `evidence.json.gz`.
 Vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, SHA-256 ratificado
 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
@@ -273,7 +273,7 @@ já medida de gradient.sample(25%). Esta permanece pendente de correção própr
 
 Medição anterior à decisão, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
 working tree não commitado: fontes, SHA-256, UTC, status e diffstat em
-`00_nucleo/diagnosticos/limites-cor-2026-10-13/before.json.gz` e
+`lab/results/construction/diagnostics/limites-cor-2026-10-13/before.json.gz` e
 `parents-before.json.gz`; sondas em `evidence.json.gz`. Oráculo pinado
 `9f2b6e8715237cb086899a42873660fe744622e8`, binário SHA-256
 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
@@ -318,7 +318,7 @@ Preservar o vetor CMYK já medido e formas válidas hex/Int/Ratio/conversão.
 
 ### Medição anterior à decisão
 
-T243: 01_core/src/compiler/stdlib/foundations/color.rs:375; T244: 01_core/src/compiler/stdlib/foundations/color.rs:476. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T243: 01_core/src/compiler/stdlib/foundations/color.rs:375; T244: 01_core/src/compiler/stdlib/foundations/color.rs:476. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 

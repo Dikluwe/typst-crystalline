@@ -64,7 +64,7 @@ the current implementation; they do not define language equality.
 ### Medição anterior à decisão
 
 `03_infra/src/export/gradients/mod.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -81,7 +81,7 @@ observáveis, incluindo os controles de adjacência e os invariantes pinados.
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -98,7 +98,7 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 ### Medição anterior à decisão
 
-`03_infra/src/export/gradients/mod.rs` nas linhas 18, 20, 184, 351 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`03_infra/src/export/gradients/mod.rs` nas linhas 18, 20, 184, 351 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
 
 ### Decisão e aceitação
 
@@ -108,7 +108,7 @@ Manutenção interna sem mudança de assinatura pública, default, fase, fórmul
 
 ### Refinamento de escopo após compilação — 2026-10-13
 
-A remoção dos imports do facade revelou reexports privados usados apenas pela suíte: perceptual_distance_in_space, rgb_to_cmyk, bezier_control_points_for_arc, compute_coons_patches_n_stops, compute_coons_patches_n_stops_extended e multispace_sample_stops_conic. Exportá-los ao pai somente sob cfg(test). Definições e chamadas internas produtivas continuam; conic consulta rgb_to_cmyk pelo caminho cmyk, não por este alias. Evidência e estado: `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/`. Revalidar todos os targets e preservar nomes/assertions da suíte.
+A remoção dos imports do facade revelou reexports privados usados apenas pela suíte: perceptual_distance_in_space, rgb_to_cmyk, bezier_control_points_for_arc, compute_coons_patches_n_stops, compute_coons_patches_n_stops_extended e multispace_sample_stops_conic. Exportá-los ao pai somente sob cfg(test). Definições e chamadas internas produtivas continuam; conic consulta rgb_to_cmyk pelo caminho cmyk, não por este alias. Evidência e estado: `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/`. Revalidar todos os targets e preservar nomes/assertions da suíte.
 
 ## Posicionamento cônico — 2026-10-14
 
@@ -121,7 +121,7 @@ compõe grupos, mas Pattern é relativo ao espaço inicial do stream.
 `stream/page.rs:45-49` acrescenta bleed antes dos itens. O corpus constante
 red versus conic(red,red), em before/probe.json.gz, reproduz a perda de
 cobertura na árvore atual. Fonte, L0, HEAD, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/conic-posicionamento-2026-10-14/placement-before.json.gz`.
+`lab/results/construction/diagnostics/conic-posicionamento-2026-10-14/placement-before.json.gz`.
 Os dois lados do teste são Tekt: o defeito independe de imitar o vanilla.
 
 ### Responsabilidade e aceitação
@@ -185,10 +185,10 @@ pelo harness e pelo protocolo vigente do corpus.
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -230,7 +230,7 @@ os controles que coincidem, inclusive a divergência vanilla PDF de quarter.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -239,7 +239,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -271,9 +271,9 @@ Gradientes de células PDF usam espaço local Y-down (to_pdf identidade), pois a
 A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
 hashes, UTC, status e `git diff HEAD --stat` estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
 A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
 Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
 É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
 
@@ -310,7 +310,7 @@ exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
 
 ### Medição anterior à decisão
 
-As fontes, chamadores, cláusulas vigentes, spans e inventário de 28 avisos foram conferidos antes da decisão. `00_nucleo/diagnosticos/clippy-aridade-interna-2026-10-16/before.json.gz` guarda fontes/L0 completos, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A auditoria anterior classifica estes casos como correção; não são exceções diretas. O RED deve observar as aridades atuais antes de alterações; controles funcionais existentes serão corridos antes/depois. É refatoração de representação privada, sem nova paridade ou ganho de performance medido.
+As fontes, chamadores, cláusulas vigentes, spans e inventário de 28 avisos foram conferidos antes da decisão. `lab/results/construction/diagnostics/clippy-aridade-interna-2026-10-16/before.json.gz` guarda fontes/L0 completos, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A auditoria anterior classifica estes casos como correção; não são exceções diretas. O RED deve observar as aridades atuais antes de alterações; controles funcionais existentes serão corridos antes/depois. É refatoração de representação privada, sem nova paridade ou ganho de performance medido.
 
 ### Responsabilidade exclusiva e aceitação
 

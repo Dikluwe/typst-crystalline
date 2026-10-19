@@ -228,7 +228,7 @@ em worktree isolada: zero avisos novos.
 
 ### Medição anterior à decisão
 
-T254: 01_core/src/compiler/stdlib/pdf.rs:127. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T254: 01_core/src/compiler/stdlib/pdf.rs:127. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -242,7 +242,7 @@ Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default
 ### Medição anterior à decisão
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
 conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
 baseline-reuse.json prova igualdade de fontes/configuração/binário com a
 matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz

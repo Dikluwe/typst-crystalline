@@ -14,7 +14,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/linebreak.rs:16`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -28,11 +28,11 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Transporte lógico textual — contrato ratificado em 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
+Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
 
 Esta unidade participa do transporte por Cursor privado, input Arc e spans exatos. Preparar antes de emitir o parágrafo textual inteiro, base lexical já certificada; conservar offsets por ordem de visita, não matching de strings. Sequence/Par criam escopo, nested Sequence herda; checkpoint conserva cursor e span corrente; subframe isola e restaura. Text fornece subspans para palavras e espaços literais; Space consome seu segmento mesmo quando fraco; Linebreak consome fronteira. Word emite span somente se texto exato não foi transformado.
 
@@ -40,7 +40,7 @@ Escopo inicial: incremental simple, fora de células/colunas/subframes, sem trac
 
 ## Linha explícita vazia — 2026-10-06
 
-Medição antes da decisão: `00_nucleo/diagnosticos/block-align-2026-10-06/linebreak-baseline.json.gz` mostra \ inicial seguido de ABC em y20 no Tekt contra35.507448 no vanilla, dois em y51.014828, enquanto ABC\DEF coincide. Depois de Align aninhado, a quebra explícita abre uma linha vazia de parágrafo; a falta dessa unidade explica o delta de15.5074pt restante no controle nested, não um novo alinhamento errado. `linebreak.rs:20-25` só cria causalidade se já existe primeiro item; `line_commit.rs:278` recusa flush sem causa, corretamente para flush técnico.
+Medição antes da decisão: `lab/results/construction/diagnostics/block-align-2026-10-06/linebreak-baseline.json.gz` mostra \ inicial seguido de ABC em y20 no Tekt contra35.507448 no vanilla, dois em y51.014828, enquanto ABC\DEF coincide. Depois de Align aninhado, a quebra explícita abre uma linha vazia de parágrafo; a falta dessa unidade explica o delta de15.5074pt restante no controle nested, não um novo alinhamento errado. `linebreak.rs:20-25` só cria causalidade se já existe primeiro item; `line_commit.rs:278` recusa flush sem causa, corretamente para flush técnico.
 
 Correção interna sem novo contrato/fase: quando não existe linha causal antes de Linebreak autoral, admitir baseline pelo helper existente e acrescentar um Text vazio com estilo corrente e bidi None, sem chamar Text layout (não consumir outro span do cursor bidi). Acrescentar boundary transparente existente e fechar pelo commit normal. Preservar justify, posição/direção dos trechos e consumo único de origem. Não mudar o no-op dos flushes técnicos do compilador nem transformar SpaceFromNewline em quebra explícita. Testes de 1/2 quebras iniciais comparadas ao avanço entre linhas materiais; integração depois de Align e corpus anterior.
 

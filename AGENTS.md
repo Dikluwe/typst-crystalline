@@ -1,1 +1,1 @@
-/home/dikluwe/Documentos/Antigravity/typst-crystalline/CLAUDE.md
+CLAUDE.md

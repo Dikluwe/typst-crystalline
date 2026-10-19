@@ -9,7 +9,7 @@ Architecture: ADR-0107/0108/0109/0127/0129/0130.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-structure-2026-10-18/before.json.gz registra
+lab/results/construction/diagnostics/bibliography-structure-2026-10-18/before.json.gz registra
 12 pares, fontes/argv/UTC/HEAD/status/diff HEAD --stat, textos/caixas/binários;
 before-sources.json.gz conserva as fontes e L0s anteriores. HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada, Tekt SHA-256

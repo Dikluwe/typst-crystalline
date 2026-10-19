@@ -86,7 +86,7 @@ Check loopback binding, explicit/default ports, 200/301/404, asset bytes/MIME, d
 
 ### Medição anterior à decisão
 
-`03_infra/src/watch.rs` nas linhas 170 contém os avisos registrados em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
+`03_infra/src/watch.rs` nas linhas 170 contém os avisos registrados em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
 
 ### Responsabilidade e aceitação
 
@@ -99,7 +99,7 @@ Fluxo contínuo ADR-0127: sem contrato público, default de produto ou fase novo
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em 00_nucleo/diagnosticos/tekt-ranges-2026-10-16 conserva UTC, fontes/L0, hashes, Cargo manifests/lock/toolchain/config, status e git diff HEAD --stat. A validação anterior, conferida por hashes antes desta etapa, registrou seis V18: quatro em call_spans.rs:52/161/206/226 e dois em watch.rs:287/288. Os L0 atuais e os ramos foram lidos antes da decisão. É estrutura de decisões Rust; as mensagens/spans/rotas são observáveis a preservar, sem nova medição de paridade global.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em lab/results/construction/diagnostics/tekt-ranges-2026-10-16 conserva UTC, fontes/L0, hashes, Cargo manifests/lock/toolchain/config, status e git diff HEAD --stat. A validação anterior, conferida por hashes antes desta etapa, registrou seis V18: quatro em call_spans.rs:52/161/206/226 e dois em watch.rs:287/288. Os L0 atuais e os ramos foram lidos antes da decisão. É estrutura de decisões Rust; as mensagens/spans/rotas são observáveis a preservar, sem nova medição de paridade global.
 
 A sonda isolada extrai exatamente decode_url_path da fonte e substitui somente sua closure digit no candidato. probe-details.json registra argv/rustc 1.92/SHA-256/UTC/retornos; probe-result.json registra 12 GiB, swap zero, um job e eventos. Compara todos os 256 bytes e 65.536 pares: os 22 bytes hexadecimais ASCII e 484 pares aceitos são iguais. Compara também as duas funções completas nas strings de pares e em 13 controles com saídas exigidas de UTF-8, query, segmentos ponto, truncamento, inválidos, NUL e backslash. Os números são desta sonda, não benchmark de HTTP/RSS. Nenhum dado deriva de main móvel do vanilla.
 
@@ -120,7 +120,7 @@ Não renomear módulos para escapar da regra, adicionar expectativas/supressões
 
 ### Medição anterior à decisão
 
-O snapshot before.json.gz em 00_nucleo/diagnosticos/tekt-v12-2026-10-16 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC, fontes, L0, hashes, status e git diff HEAD --stat. O inventário anterior, conferido por hashes, emite 19 V12: um enum produtivo em 04_wiring/src/main.rs:22 e 18 declarações auxiliares de testes. O enum privado Published tem exatamente Html(String) e Bundle(Vec<BundleFile>); compile.rs:90/99/363/539/541 o produz e watch.rs:103/104 despacha os dois braços. O proprietário atual é wiring.md, que autoriza o carrier privado em L4: esta proposta atualiza explicitamente essa decisão, em vez de contrariá-la sem registro. É propriedade/representação Rust, sem nova alegação de paridade ou intenção upstream.
+O snapshot before.json.gz em lab/results/construction/diagnostics/tekt-v12-2026-10-16 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC, fontes, L0, hashes, status e git diff HEAD --stat. O inventário anterior, conferido por hashes, emite 19 V12: um enum produtivo em 04_wiring/src/main.rs:22 e 18 declarações auxiliares de testes. O enum privado Published tem exatamente Html(String) e Bundle(Vec<BundleFile>); compile.rs:90/99/363/539/541 o produz e watch.rs:103/104 despacha os dois braços. O proprietário atual é wiring.md, que autoriza o carrier privado em L4: esta proposta atualiza explicitamente essa decisão, em vez de contrariá-la sem registro. É propriedade/representação Rust, sem nova alegação de paridade ou intenção upstream.
 
 ### Verificação comum
 

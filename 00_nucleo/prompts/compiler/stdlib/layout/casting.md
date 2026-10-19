@@ -6,7 +6,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/layout/casting.rs`
 
 ## Medição antes da decisão
 
-A working tree não commitada capturada em `00_nucleo/diagnosticos/atomizacao-stdlib-layout-2026-09-30-before.json.gz` contém a lógica desta família em `01_core/src/compiler/stdlib/layout.rs`; a suíte completa do L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem nova prova bilateral contra o vanilla. As decisões históricas, medidas e qualificações do pin continuam em `00_nucleo/prompts/compiler/stdlib/layout.md`.
+A working tree não commitada capturada em `lab/results/construction/diagnostics/atomizacao-stdlib-layout-2026-09-30-before.json.gz` contém a lógica desta família em `01_core/src/compiler/stdlib/layout.rs`; a suíte completa do L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem nova prova bilateral contra o vanilla. As decisões históricas, medidas e qualificações do pin continuam em `00_nucleo/prompts/compiler/stdlib/layout.md`.
 
 ## Contrato de linguagem
 
@@ -20,7 +20,7 @@ Suíte L1 e `crystalline-lint .` sem regressão. A paridade é da linguagem, seg
 
 ## Adaptação Memória 5 — proposta pendente ADR-0127
 
-Medição antes da decisão: 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/
+Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
 before.json.gz e inventory.json congelam este consumer e cada ocorrência
 file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
 Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
@@ -43,7 +43,7 @@ suas cláusulas propostas passam a vigorar nesta materialização.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17/before.json.gz e
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17/before.json.gz e
 before-expanded-measurement.json.gz fixam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado, UTC, status/diffstat e fontes/L0/config/binários.
 São 130 pares CLI. O pin é 9f2b6e8715237cb086899a42873660fe744622e8,
@@ -98,7 +98,7 @@ Sem release, merge ou commit/push do Typst. RG1 permanece independente.
 ### Incompletude e passos de conclusão nomeados
 
 Esta correção não fecha a construção integral de figura nem medidas relativas.
-FG1 (00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17/follow-ups.md)
+FG1 (lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17/follow-ups.md)
 completa identidade tipada de kind e decide síntese/recursão após auditoria dos
 owners e gate público; RM1 no mesmo documento completa o transporte de medidas
 relativas e a revisão de casts por consumer. São trabalhos pendentes, não L0

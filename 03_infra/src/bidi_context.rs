@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/bidi_context.md
-//! @prompt-hash 9eef58c1
+//! @prompt-hash 7c078bce
 //! @layer L3
 use std::{ops::Range, sync::Arc};
 use typst_core::entities::{

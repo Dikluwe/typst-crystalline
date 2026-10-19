@@ -12,7 +12,7 @@ Exclusive consumer: `01_core/src/compiler/eval/rules/set/text.rs`
 
 ## Medição antes da decisão
 
-O dispatcher em `01_core/src/compiler/eval/rules/set.rs` no estado após a extração P1499 mantém o braço text como bloco contíguo. O baseline L1 em `00_nucleo/diagnosticos/atomizacao-eval-rules-2026-09-30-before.json.gz` e a suíte após P1499 passaram com 6401 testes e 2 ignorados. Isto é medição estrutural, não benchmark nem nova medição bilateral com o vanilla.
+O dispatcher em `01_core/src/compiler/eval/rules/set.rs` no estado após a extração P1499 mantém o braço text como bloco contíguo. O baseline L1 em `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` e a suíte após P1499 passaram com 6401 testes e 2 ignorados. Isto é medição estrutural, não benchmark nem nova medição bilateral com o vanilla.
 
 ## Contrato de linguagem
 
@@ -29,7 +29,7 @@ Suíte L1 e `crystalline-lint .` sem regressão. Paridade linguística conforme 
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
 `morph-before-measurement.json.gz` e `audit.json` conservam HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
 fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
@@ -72,6 +72,6 @@ O SARIF da primeira materialização TS1 registrou dois V17 novos neste owner (l
 ## Pin do núcleo de seleção — 2026-10-18
 
 As medições e o refinamento de forma/RTL em
-00_nucleo/diagnosticos/bibliography-hanging-2026-10-18 precedem o novo pin.
+lab/results/construction/diagnostics/bibliography-hanging-2026-10-18 precedem o novo pin.
 Este owner recebe somente o pin do núcleo compartilhado; seu código executável,
 API, fase e demais responsabilidades não mudam nesta etapa.

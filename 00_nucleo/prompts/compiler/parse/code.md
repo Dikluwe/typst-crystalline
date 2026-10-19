@@ -9,7 +9,7 @@ Exclusive consumer: `01_core/src/compiler/parse/code.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/parse/code.rs:31` (pubsuper) fn codep: &mut Parser, stop_set: SyntaxSet) {); `01_core/src/compiler/parse/code.rs:38` (pubsuper) fn code_exprsp: &mut Parser, stop_set: SyntaxSet) {); `01_core/src/compiler/parse/code.rs:61` (pubsuper) fn embedded_code_exprp: &mut Parser) {) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/parse/code.rs:31` (pubsuper) fn codep: &mut Parser, stop_set: SyntaxSet) {); `01_core/src/compiler/parse/code.rs:38` (pubsuper) fn code_exprsp: &mut Parser, stop_set: SyntaxSet) {); `01_core/src/compiler/parse/code.rs:61` (pubsuper) fn embedded_code_exprp: &mut Parser) {) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 

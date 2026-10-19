@@ -16,10 +16,10 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/shape.rs:25`, `01_core/src/compiler/layout/shape.rs:35`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 The equivalent-input pinned SVG probes in
-`00_nucleo/diagnosticos/font-demand-geometry-study/results.json` show that an
+`lab/results/construction/diagnostics/font-demand-geometry-study/results.json` show that an
 initial standalone non-text block moves when only text top-edge changes in
 Tekt, while the pinned vanilla position remains the region's physical top.
 This is observable geometry, not a requirement to copy upstream algorithms.
@@ -27,7 +27,7 @@ Those earlier controls do not cover the root Place regressions measured below; l
 
 Inspection of the subframe path in the owned consumer shows that cap-height is
 queried before a branch whose ordinary positioning uses cursor_y directly.
-`00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/results.json`
+`lab/results/construction/diagnostics/font-demand-geometry-study/catalog-counts/results.json`
 records remaining actual Place catalog access; it does not prove every accessor
 call is a catalog scan. The no-typography descendant controls discriminate the
 unused query from the shared subframe's actual origin acquisition.
@@ -68,7 +68,7 @@ queries, not the subframe owner's initial catalog demand; no speedup is asserted
 
 ### Measurement before decision
 
-The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/p1431_line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `00_nucleo/diagnosticos/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
+The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/p1431_line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `lab/results/construction/diagnostics/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
 
 ### Owner responsibility
 
@@ -88,7 +88,7 @@ externo por overflow com is_sub_frame ativo. sub_frame.rs:109-121,317-340
 salva buffers/cursor, mas não uma página já comitada por esses descendentes.
 Essa hipótese será testada diretamente antes de modificar as condições.
 Fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC estão
-em `00_nucleo/diagnosticos/subframe-isolamento-2026-10-13/before.json.gz`.
+em `lab/results/construction/diagnostics/subframe-isolamento-2026-10-13/before.json.gz`.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -135,7 +135,7 @@ controles HTML, geometria, contexto/queries e suíte completa.
 
 ### Medição antes da decisão
 
-`00_nucleo/diagnosticos/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
+`lab/results/construction/diagnostics/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
 
 ### Responsabilidade exclusiva
 
@@ -182,7 +182,7 @@ bilaterais completos e refutadores, suíte/build/doc/fmt/linhagem/inventários.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -191,7 +191,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -217,7 +217,7 @@ não é certificação de produção. T4 e publicação continuam fora deste pac
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/shape-dim-before-complete/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/shape-dim-before-complete/results.json.gz`
 registra HEAD, working tree não commitado, diffstat, UTC, fontes e binários.
 Root Ratio50%/25% em região160 mede80×40 no pin; o Tekt descarta Ratio e
 em. Block80 com inset5 exige largura35 e altura75 se auto,25 se altura60.
@@ -259,7 +259,7 @@ legado None/Auto nesta etapa.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/shape-terminal-complete/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/shape-terminal-complete/results.json.gz`
 registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
 commitado, status/diffstat/UTC/fontes/binários e pin vanilla 9f2b6e871.
 Página width100/heightAuto/margem10 e rect20×10: Tekt mede altura43.2,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/stretch.md
-//! @prompt-hash 0072fe96
+//! @prompt-hash bd5402f5
 //! @layer L1
 
 use crate::compiler::layout::FontMetrics;

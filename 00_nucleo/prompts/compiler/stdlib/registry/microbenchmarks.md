@@ -31,7 +31,7 @@ lineage checks must remain valid; no unrelated consumer is authorized by this pr
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/registry/microbenchmarks.rs:203-206 contém o trecho medido. O inventário Clippy e a leitura dos owners distinguem código sem efeito, dados inválidos deliberados e verificações vazias. Fontes, L0, UTC, status, diffstat e comandos estão em `00_nucleo/diagnosticos/controle-fluxo-ci-2026-10-13/before.json.gz` e nas evidências do mesmo diretório. Não é nova medição de paridade nem inferência sobre intenção upstream.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/registry/microbenchmarks.rs:203-206 contém o trecho medido. O inventário Clippy e a leitura dos owners distinguem código sem efeito, dados inválidos deliberados e verificações vazias. Fontes, L0, UTC, status, diffstat e comandos estão em `lab/results/construction/diagnostics/controle-fluxo-ci-2026-10-13/before.json.gz` e nas evidências do mesmo diretório. Não é nova medição de paridade nem inferência sobre intenção upstream.
 
 ### Decisão e aceitação
 

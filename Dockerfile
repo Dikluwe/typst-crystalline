@@ -21,8 +21,8 @@ RUN --mount=type=cache,target=/root/.cargo/git/db \
     --mount=type=cache,target=/root/.cargo/registry/cache \
     --mount=type=cache,target=/root/.cargo/registry/index \
     xx-cargo build --locked -p typst-wiring --bin typst --release && \
-    cp target/$(xx-cargo --print-target-triple)/release/typst target/release/typst && \
-    xx-verify target/release/typst
+    cp lab/target/product/$(xx-cargo --print-target-triple)/release/typst lab/target/product/release/typst && \
+    xx-verify lab/target/product/release/typst
 
 FROM alpine:3.22@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8
 ARG CREATED
@@ -43,5 +43,5 @@ LABEL org.opencontainers.image.title="Typst Crystalline (Tekt)"
 LABEL org.opencontainers.image.url="https://github.com/Dikluwe/typst-crystalline"
 LABEL org.opencontainers.image.vendor="Typst"
 
-COPY --from=build  /app/target/release/typst /bin
+COPY --from=build  /app/lab/target/product/release/typst /bin
 ENTRYPOINT [ "/bin/typst" ]

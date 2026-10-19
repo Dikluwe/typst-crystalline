@@ -10,7 +10,7 @@ Hash do Código: 6d1cc5aa
 `01_core/src/compiler/math/mod.rs:7` locates `pub mod layout;`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Mathematical subsystem hub
 

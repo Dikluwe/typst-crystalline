@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash 66d0f557
+//! @prompt-hash 9524aa37
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -5173,7 +5173,7 @@ fn auto_text_measurement_counts_only_interword_spaces() {
 // ou `block(width: _, ..)` medirem 0pt e colidirem na mesma posição x —
 // achado da investigação do P763g (que atribuíra a colisão a "grid não
 // renderiza a segunda célula"; por coordenadas, era esta medição a 0).
-// Ver 00_nucleo/diagnosticos/paridade-producao-p772f.md.
+// Ver lab/results/construction/diagnostics/paridade-producao-p772f.md.
 
 #[test]
 fn p772f_measure_content_constrained_align_reporta_largura_do_corpo() {
@@ -5259,7 +5259,7 @@ fn p772f_measure_content_constrained_block_largura_explicita_nao_colapsa() {
 // `layout_sub_frame` (origin_x real + delta incremental de alinhamento, não
 // origin_x:0.0 + target_x inteiro). Ver
 // 00_nucleo/prompts/compiler/layout.md §"Contrato de composição de coordenadas"
-// e 00_nucleo/diagnosticos/paridade-producao-p772g.md.
+// e lab/results/construction/diagnostics/paridade-producao-p772g.md.
 
 #[test]
 fn p772g_place_dentro_de_align_dentro_de_grid_cell_bate_com_place_directo() {
@@ -5378,7 +5378,7 @@ fn p772g_footnote_com_place_dentro_de_align_bate_com_vanilla_estrutura() {
 // `.or()` do `Align2D` inteiro, descartando o eixo do grid sempre que a
 // célula especificava qualquer eixo). Ver
 // 00_nucleo/prompts/compiler/layout.md §"Alinhamento efectivo per-célula" e
-// 00_nucleo/diagnosticos/paridade-producao-p772j.md.
+// lab/results/construction/diagnostics/paridade-producao-p772j.md.
 
 #[test]
 fn p772j_grid_align_center_nao_diverge_uma_coluna_inteira_do_vanilla() {
@@ -5473,7 +5473,7 @@ fn p772j_grid_align_fold_por_eixo_preserva_eixo_do_grid() {
 // P772f), desalinhando as colunas seguintes. `header:`/`footer:` deixaram de
 // ser argumentos nomeados (paridade vanilla). Repeat-across-páginas
 // explicitamente **não implementado** (scope-out nomeado, não silencioso —
-// ver 00_nucleo/diagnosticos/paridade-producao-p772i.md).
+// ver lab/results/construction/diagnostics/paridade-producao-p772i.md).
 
 #[test]
 fn p772i_grid_header_multi_celula_preserva_todas_as_celulas() {
@@ -21066,7 +21066,7 @@ fn p756_cjk_aspas_renderiza_sem_panic() {
     // Caso das aspas CJK: a segmentação deve ocorrer sem panic e o texto
     // completo deve estar presente. A posição exacta das aspas depende do
     // algoritmo greedy e do espaço disponível (limitação documentada em
-    // 00_nucleo/diagnosticos/paridade-producao-p756.md).
+    // lab/results/construction/diagnostics/paridade-producao-p756.md).
     let doc = layout_test("#set page(width: 100pt, margin: 5pt)\n#set text(size: 12pt)\n测试文本，\"测试引号的位置\"。这是一段很长的中文文字用来测试换行的效果如何。");
     let text = doc.plain_text().replace(' ', "");
     assert!(
@@ -22576,7 +22576,7 @@ fn p908_layout_sub_frame_devolve_entradas_orfas_em_vez_de_descartar() {
 // entrada fixa `math_size: Display` em bloco / `Text` em inline),
 // `entities/layout_types.md` §P945 (tabela de factores de descida),
 // `compiler/math/layout/matrix.md`/`cases.md`/`assembly.md` §P945.
-// Medição que motiva: `00_nucleo/diagnosticos/typst-passo-945-relatorio.md`
+// Medição que motiva: `lab/results/construction/diagnostics/typst-passo-945-relatorio.md`
 // (matriz 3×3 em equação de bloco: vanilla compõe células a 11pt e o
 // delimitador com 4 peças; cristalino compunha a 7.7pt e 3 peças).
 //

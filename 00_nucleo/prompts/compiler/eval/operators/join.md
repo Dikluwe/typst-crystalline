@@ -48,7 +48,7 @@ names delegate to the error_formatting owner.
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 fontes, UTC/status/diffstat em before.json.gz de
-00_nucleo/diagnosticos/state-stack-2026-10-17. morphology-before.json.gz e
+lab/results/construction/diagnostics/state-stack-2026-10-17. morphology-before.json.gz e
 morphology-measured.json.gz medem pin bd5ebec285505889e8ff1d4f68804ab147a699f3:
 for/while com quatro corpos [X] e + repetido produzem Sequence encaixada no Tekt,
 filhos planos no vanilla. Aliases de Sequence e ambos operandos Sequence também

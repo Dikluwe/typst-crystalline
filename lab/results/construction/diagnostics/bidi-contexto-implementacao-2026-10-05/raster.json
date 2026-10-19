@@ -1,0 +1,266 @@
+{
+  "utc": "2026-10-06T01:14:29.286702+00:00",
+  "dpi": 600,
+  "threshold": 180,
+  "precision_pt_per_pixel": 0.12,
+  "renderer": "pdftoppm version 26.05.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+  "cases": {
+    "literal-terminal-space": {
+      "after": {
+        "pdf_sha256": "64c2f24537a9c0ed954bfc8f3c00842901c080af95f6f05a4d1413004124cc6e",
+        "pgm_sha256": "edc367c3bf797c3ea933186dedb1bbd8fb248d2cab891b2a3acb490d51cef7ee",
+        "command": [
+          "pdftoppm",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-singlefile",
+          "-r",
+          "600",
+          "-gray",
+          "/tmp/tekt-bidi-materializacao/literal-terminal-space-after.pdf",
+          "/tmp/tekt-bidi-materializacao/literal-terminal-space-after-raster"
+        ],
+        "ink_bbox_pixels": [
+          387,
+          166,
+          1004,
+          258
+        ],
+        "ink_bbox_pt": [
+          46.44,
+          19.919999999999998,
+          120.6,
+          31.08
+        ],
+        "dark_pixels": 11133
+      },
+      "vanilla": {
+        "pdf_sha256": "a710515374ba3d26f52bfadfc56a0c8b9bcd3085eb2b64c5cf67fe7f61e90564",
+        "pgm_sha256": "1ab6d229fb03beed1eb6450c3e5537e01d680a601e9f8af078c4d2a435738525",
+        "command": [
+          "pdftoppm",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-singlefile",
+          "-r",
+          "600",
+          "-gray",
+          "/tmp/tekt-bidi-materializacao/literal-terminal-space-vanilla.pdf",
+          "/tmp/tekt-bidi-materializacao/literal-terminal-space-vanilla-raster"
+        ],
+        "ink_bbox_pixels": [
+          387,
+          166,
+          1004,
+          258
+        ],
+        "ink_bbox_pt": [
+          46.44,
+          19.919999999999998,
+          120.6,
+          31.08
+        ],
+        "dark_pixels": 11126
+      },
+      "ink_mask_unmatched_after_within_1px": 0,
+      "ink_mask_unmatched_vanilla_within_1px": 0
+    },
+    "bidi-contexto-rtl_forced_mark": {
+      "after": {
+        "pdf_sha256": "d38691694179dee68c41faae3320fd9f1f17ebfb70477576a67f4db213eaaa91",
+        "pgm_sha256": "498a3f4c23af70b0f2ac096efc5f889563578d3c3da835254dcf2a459ff95870",
+        "command": [
+          "pdftoppm",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-singlefile",
+          "-r",
+          "600",
+          "-gray",
+          "/tmp/tekt-bidi-materializacao/bidi-contexto-rtl_forced_mark-after.pdf",
+          "/tmp/tekt-bidi-materializacao/bidi-contexto-rtl_forced_mark-after-raster"
+        ],
+        "ink_bbox_pixels": [
+          1041,
+          166,
+          1658,
+          258
+        ],
+        "ink_bbox_pt": [
+          124.92,
+          19.919999999999998,
+          199.07999999999998,
+          31.08
+        ],
+        "dark_pixels": 11133
+      },
+      "vanilla": {
+        "pdf_sha256": "c405b346ebfe7cb1ca9aee6693412e9dadec80f628226c78b0af28fbd7788bda",
+        "pgm_sha256": "498a3f4c23af70b0f2ac096efc5f889563578d3c3da835254dcf2a459ff95870",
+        "command": [
+          "pdftoppm",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-singlefile",
+          "-r",
+          "600",
+          "-gray",
+          "/tmp/tekt-bidi-materializacao/bidi-contexto-rtl_forced_mark-vanilla.pdf",
+          "/tmp/tekt-bidi-materializacao/bidi-contexto-rtl_forced_mark-vanilla-raster"
+        ],
+        "ink_bbox_pixels": [
+          1041,
+          166,
+          1658,
+          258
+        ],
+        "ink_bbox_pt": [
+          124.92,
+          19.919999999999998,
+          199.07999999999998,
+          31.08
+        ],
+        "dark_pixels": 11133
+      },
+      "ink_mask_unmatched_after_within_1px": 0,
+      "ink_mask_unmatched_vanilla_within_1px": 0
+    },
+    "bidi-contexto-rtl_literal_embedding": {
+      "after": {
+        "pdf_sha256": "8168fcb0d0e2b3cc91ea86c8db060450d41ec8575645c1dc3aa36a704261acf9",
+        "pgm_sha256": "498a3f4c23af70b0f2ac096efc5f889563578d3c3da835254dcf2a459ff95870",
+        "command": [
+          "pdftoppm",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-singlefile",
+          "-r",
+          "600",
+          "-gray",
+          "/tmp/tekt-bidi-materializacao/bidi-contexto-rtl_literal_embedding-after.pdf",
+          "/tmp/tekt-bidi-materializacao/bidi-contexto-rtl_literal_embedding-after-raster"
+        ],
+        "ink_bbox_pixels": [
+          1041,
+          166,
+          1658,
+          258
+        ],
+        "ink_bbox_pt": [
+          124.92,
+          19.919999999999998,
+          199.07999999999998,
+          31.08
+        ],
+        "dark_pixels": 11133
+      },
+      "vanilla": {
+        "pdf_sha256": "3985bcc43f2f3816d87a21a15630430f0ca8fc92922751bc9004881396e36b3d",
+        "pgm_sha256": "498a3f4c23af70b0f2ac096efc5f889563578d3c3da835254dcf2a459ff95870",
+        "command": [
+          "pdftoppm",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-singlefile",
+          "-r",
+          "600",
+          "-gray",
+          "/tmp/tekt-bidi-materializacao/bidi-contexto-rtl_literal_embedding-vanilla.pdf",
+          "/tmp/tekt-bidi-materializacao/bidi-contexto-rtl_literal_embedding-vanilla-raster"
+        ],
+        "ink_bbox_pixels": [
+          1041,
+          166,
+          1658,
+          258
+        ],
+        "ink_bbox_pt": [
+          124.92,
+          19.919999999999998,
+          199.07999999999998,
+          31.08
+        ],
+        "dark_pixels": 11133
+      },
+      "ink_mask_unmatched_after_within_1px": 0,
+      "ink_mask_unmatched_vanilla_within_1px": 0
+    },
+    "emph-mixed": {
+      "after": {
+        "pdf_sha256": "d762e85e8629682bbe91d5918fe35da224fe305f486d6cf2ac92fc1a1a956b73",
+        "pgm_sha256": "5bfbb539f3a4bc8ad973cbc30c1e3c9517c806f31b61d5a8c6b96b42ceabc608",
+        "command": [
+          "pdftoppm",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-singlefile",
+          "-r",
+          "600",
+          "-gray",
+          "/tmp/tekt-bidi-materializacao/emph-mixed-after.pdf",
+          "/tmp/tekt-bidi-materializacao/emph-mixed-after-raster"
+        ],
+        "ink_bbox_pixels": [
+          173,
+          155,
+          791,
+          242
+        ],
+        "ink_bbox_pt": [
+          20.759999999999998,
+          18.599999999999998,
+          95.03999999999999,
+          29.16
+        ],
+        "dark_pixels": 16532
+      },
+      "vanilla": {
+        "pdf_sha256": "50a4b1831e32083a4b4330f72fb991fc4579e2ade250c810c9d44d1662921c5a",
+        "pgm_sha256": "a075e627002807ccc98ba6b9c3bb5735e71d54c9eeecb5c16856deed5c1736b4",
+        "command": [
+          "pdftoppm",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-singlefile",
+          "-r",
+          "600",
+          "-gray",
+          "/tmp/tekt-bidi-materializacao/emph-mixed-vanilla.pdf",
+          "/tmp/tekt-bidi-materializacao/emph-mixed-vanilla-raster"
+        ],
+        "ink_bbox_pixels": [
+          174,
+          166,
+          791,
+          258
+        ],
+        "ink_bbox_pt": [
+          20.88,
+          19.919999999999998,
+          95.03999999999999,
+          31.08
+        ],
+        "dark_pixels": 11133
+      },
+      "ink_mask_unmatched_after_within_1px": 7248,
+      "ink_mask_unmatched_vanilla_within_1px": 1866
+    }
+  },
+  "visual_inspection": "Cropped complete ink on the single relevant page inspected for all four bilateral probes. Literal terminal space and authored bidi controls have matching visible text/positions; emph Arabic renders incompatible symbols before and after, while vanilla renders regular Arabic."
+}

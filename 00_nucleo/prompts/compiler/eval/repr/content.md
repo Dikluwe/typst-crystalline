@@ -9,7 +9,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/repr/content.rs`. No HEAD `6b147bd213e07e1dc896a8e798b84bf4d8dbbdcb` e árvore limpa, `01_core/src/compiler/eval/repr.rs:673-1373` possui o comportamento separado. SHA-256, horário e estado estão em `00_nucleo/diagnosticos/atomizacao-repr-2026-09-30-before.json.gz`. O objetivo é pesquisa algorítmica por comportamento, sem ganho de desempenho presumido.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/repr/content.rs`. No HEAD `6b147bd213e07e1dc896a8e798b84bf4d8dbbdcb` e árvore limpa, `01_core/src/compiler/eval/repr.rs:673-1373` possui o comportamento separado. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-repr-2026-09-30-before.json.gz`. O objetivo é pesquisa algorítmica por comportamento, sem ganho de desempenho presumido.
 
 ## Contrato
 
@@ -29,7 +29,7 @@ repr de carriers internos projeta body/visual e conserva representação dos ele
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Repr de Source delega ao body e não publica carrier ou span.
 
@@ -41,7 +41,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 O corpus transformacoes-2026-10-14/results.json.gz e controles suplementares
 registra identidade/presença perdida no carrier matrix/body. Fonte e owner
-pré-migração estão em materialization/transformacoes-tipadas-2026-10-14/base-files.json.gz
+pré-migração estão em lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14/base-files.json.gz
 com hashes e linhas em consumers.json. A aprovação do manifesto
 960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d autoriza
 a nova representação e resolução no layout. Semântica/morfologia são linguagem;

@@ -73,5 +73,5 @@ Preserve existing diagnostic strings, optional-service defaults, thread bounds,
 pure mocks and error propagation. ADR-0005 separates this interface from tracking;
 this prompt does not declare `TrackedWorld` or prescribe an unsupported
 `TrackedWorld: World` supertrait. Contract/code discrepancies belong to
-`00_nucleo/diagnosticos/sanitization-entities-contracts-history.md`, not to
+`lab/results/construction/diagnostics/sanitization-entities-contracts-history.md`, not to
 silent weakening of obligations or public API changes.

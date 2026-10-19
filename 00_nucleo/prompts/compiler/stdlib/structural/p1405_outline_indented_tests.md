@@ -6,7 +6,7 @@ Exclusive consumer: `01_core/tests/p1405_outline_indented.rs`
 
 ## Evidence and classification
 
-The consumer's `@prompt` at `01_core/tests/p1405_outline_indented.rs:2` establishes this exclusive ownership. Implementation inspection is not a new bilateral parity measurement; original historical qualifications remain in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+The consumer's `@prompt` at `01_core/tests/p1405_outline_indented.rs:2` establishes this exclusive ownership. Implementation inspection is not a new bilateral parity measurement; original historical qualifications remain in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Test obligations
 

@@ -10,7 +10,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/invoke.rs`. No HEAD `1492976302212e007282875aef066f84a3cf13aa` e árvore limpa, `01_core/src/compiler/eval/call_dispatch/call.rs:638-827` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-call-core-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/invoke.rs`. No HEAD `1492976302212e007282875aef066f84a3cf13aa` e árvore limpa, `01_core/src/compiler/eval/call_dispatch/call.rs:638-827` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-call-core-2026-09-30-before.json.gz`.
 
 ## Contrato
 
@@ -41,7 +41,7 @@ ou recriar Source pelo texto. Nenhum contrato público ou fase além do gate D06
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -76,7 +76,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ### Refinamento interno medido — 2026-10-07
 
-Medição anterior à decisão: 00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
+Medição anterior à decisão: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
 after-second/header-fields mostra table.header/footer como Cell e receitas duplicadas. invoke intercepta Header/Footer e native_table só extrai variantes diretas em table_grid.rs:85–100. Grupos estruturais TableHeader/TableFooter também permanecem crus no constructor, para serem extraídos pelo owner Table e realizados no plano. Não alterar outros nativos ou a política de Grid.
 A aceitação é bilateral, efeitos uma vez e geometria; não normalizar whitespace nem alterar contratos ratificados.
 
@@ -86,7 +86,7 @@ A aceitação é bilateral, efeitos uma vez e geometria; não normalizar whitesp
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
 anterior foram verificados exatamente antes do baseline. before-probe.json.gz
 e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.
@@ -176,7 +176,7 @@ retornos, sem supressão de V20/V19 e sem duplicar classificação. As matrizes 
 ### Medição anterior à decisão
 
 As coletas before/expanded/controls.json.gz e candidate.log em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 fixam HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
@@ -186,7 +186,7 @@ ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
 filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
 
 O dono aprovou a revisão
-00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
 46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
 nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
 fronteira antes dos filhos/Table/math; não cobre novo contrato público.

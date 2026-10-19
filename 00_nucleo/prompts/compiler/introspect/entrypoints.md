@@ -7,7 +7,7 @@ Núcleos Tekt:
 ## Ownership e medição
 
 Camada L1. Consumer produtivo único: `01_core/src/compiler/introspect/entrypoints.rs`.
-No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:750-921` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `00_nucleo/diagnosticos/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
+No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:750-921` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `lab/results/construction/diagnostics/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
 
 ## Contrato
 
@@ -33,7 +33,7 @@ Os dois entrypoints de bundle registram privadamente no CounterRegistry as Locat
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/hash
-registrados em 00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+registrados em lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
 before-pdf-probe.json.gz: heading-supplement-panic termina em sucesso no Tekt
 e em A1_HEADING no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-supplement-valid aceita ambos, mas só o vanilla usa Custom na referência.
@@ -61,7 +61,7 @@ sem callbacks em encoder/walk/layout e sem alegar paridade de todos os campos.
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17.
 state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
 após +1 exige 2/11; callback não lido não executa; atualização reutilizada
 executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
@@ -70,7 +70,7 @@ inicia a sequência; a ordem vem do documento, não do inteiro de Location.
 O método atual trata Func como Set e o pós-passe eager perde essa semântica.
 Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
 A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
-00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
 SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
 
 ### Responsabilidade exclusiva — supersede a fase histórica de State
@@ -97,7 +97,7 @@ pesadas sequenciais. Medir consumo sem inferir ganho global só da representaç�
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 final-freeze.json.gz e target-controls.json.gz no diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
 UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
 Styled de transporte altera func. Query também vê wrapper causal temporário;
@@ -105,7 +105,7 @@ HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427
 pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
 de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
 Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
 SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
 
 ### Responsabilidade exclusiva

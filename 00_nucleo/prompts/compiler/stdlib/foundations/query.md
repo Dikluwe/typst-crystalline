@@ -10,7 +10,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/foundations/query.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/foundations/query.rs:26`, `01_core/src/compiler/stdlib/foundations/query.rs:45`, `01_core/src/compiler/stdlib/foundations/query.rs:74` identifies the ownership boundary. Inspection is not new bilateral parity evidence or upstream intent. Historical evidence retains its original provenance in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/foundations/query.rs:26`, `01_core/src/compiler/stdlib/foundations/query.rs:45`, `01_core/src/compiler/stdlib/foundations/query.rs:74` identifies the ownership boundary. Inspection is not new bilateral parity evidence or upstream intent. Historical evidence retains its original provenance in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 
@@ -34,7 +34,7 @@ Preserve syntax, semantics, morphology, diagnostics/hints/spans, bindings, defau
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
 UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
+lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
 Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
 selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
 é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido

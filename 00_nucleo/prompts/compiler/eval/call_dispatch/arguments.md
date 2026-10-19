@@ -6,7 +6,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/arguments.rs`. No HEAD `d5c563dfab39f789e8e2f72c9a9364f5a761e3ca` e árvore limpa, `01_core/src/compiler/eval/call_dispatch.rs:390-502` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-call-dispatch-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/arguments.rs`. No HEAD `d5c563dfab39f789e8e2f72c9a9364f5a761e3ca` e árvore limpa, `01_core/src/compiler/eval/call_dispatch.rs:390-502` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-call-dispatch-2026-09-30-before.json.gz`.
 
 ## Contrato
 
@@ -21,7 +21,7 @@ Preservar a suíte L1, os testes de call_dispatch e `crystalline-lint .` com own
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -59,7 +59,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ### Medição anterior à decisão
 
-T011: 01_core/src/compiler/eval/call_dispatch/arguments.rs:99. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T011: 01_core/src/compiler/eval/call_dispatch/arguments.rs:99. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -70,7 +70,7 @@ Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default
 ## R2 — origem do construtor Sequence
 
 Medição antes da decisão: r2s-scope.json.gz em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 conserva estado
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 conserva estado
 não commitado em b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, UTC,
 diffstat e binários no pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 missing e unknown-only têm mensagem igual, mas o Tekt ancora apenas os

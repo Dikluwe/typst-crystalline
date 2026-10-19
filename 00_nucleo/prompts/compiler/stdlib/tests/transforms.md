@@ -20,7 +20,7 @@ lineage checks must remain valid; no unrelated consumer is authorized by this pr
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/stdlib/tests/transforms.rs` nas linhas 80 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `00_nucleo/diagnosticos/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+`01_core/src/compiler/stdlib/tests/transforms.rs` nas linhas 80 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
 
 ### Decisão e aceitação
 
@@ -32,12 +32,12 @@ Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, defaul
 
 ### Medição anterior à decisão
 
-O corpus em `00_nucleo/diagnosticos/transformacoes-2026-10-14/results.json.gz`
+O corpus em `lab/results/construction/diagnostics/transformacoes-2026-10-14/results.json.gz`
 registra identidade/presença perdida, named x afetando y e casts incorretos.
 Controles suplementares confirmam body string/none, factor depois de body,
 erro de dois auto apenas no layout e campos omitidos distintos de explícitos.
 O manifesto 960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d
-foi aprovado; recibo no diretório materialization/transformacoes-tipadas-2026-10-14.
+foi aprovado; recibo no diretório lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14.
 
 ### Contrato dos testes
 

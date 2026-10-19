@@ -3,7 +3,7 @@ Hash do Código: 8e70e7ce
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/html/global_attrs.rs`. No HEAD `7a813038b9af2eca0eac7c9a0f808ae8f6509d5b`, a fonte estava em `01_core/src/compiler/stdlib/html.rs:475-1398`; o manifesto `00_nucleo/diagnosticos/atomizacao-html-2026-09-30-before.json.gz` registra a proveniência exata.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/html/global_attrs.rs`. No HEAD `7a813038b9af2eca0eac7c9a0f808ae8f6509d5b`, a fonte estava em `01_core/src/compiler/stdlib/html.rs:475-1398`; o manifesto `lab/results/construction/diagnostics/atomizacao-html-2026-09-30-before.json.gz` registra a proveniência exata.
 
 ## Contrato
 

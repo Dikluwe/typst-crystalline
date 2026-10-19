@@ -13,7 +13,7 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/stacks.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, estado não commitado, hashes, comandos e UTC. Em 1.600 células com `set` local, 4.304 amostras de alocação passam pela coleta contextual contra 952 no bloco sem `set`; `TableElem::map_content` aparece em 9.835 contra 3.430 amostras. A tentativa de pular apenas a segunda ordenação vazia (`red-gate.json.gz`/`green-gate.json.gz`) reduziu 1.394.597 para 1.365.741 solicitações, 2,07%, aquém do gate de 5%, e foi revertida. Fonte: `pipeline.rs:403-460` usa `map_content` como visitante; `entities/content/traversal.rs:25-45` e `entities/elements/table{,_cell}.rs` reconstroem Table/Cell/Sequence até quando o callback só observa. Isto é custo mecânico, não propriedade da linguagem. Inferência: uma descida emprestada das três variantes evitará parte dessas alocações; o teste de alocações poderá refutá-la.
+`lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/stacks.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, estado não commitado, hashes, comandos e UTC. Em 1.600 células com `set` local, 4.304 amostras de alocação passam pela coleta contextual contra 952 no bloco sem `set`; `TableElem::map_content` aparece em 9.835 contra 3.430 amostras. A tentativa de pular apenas a segunda ordenação vazia (`red-gate.json.gz`/`green-gate.json.gz`) reduziu 1.394.597 para 1.365.741 solicitações, 2,07%, aquém do gate de 5%, e foi revertida. Fonte: `pipeline.rs:403-460` usa `map_content` como visitante; `entities/content/traversal.rs:25-45` e `entities/elements/table{,_cell}.rs` reconstroem Table/Cell/Sequence até quando o callback só observa. Isto é custo mecânico, não propriedade da linguagem. Inferência: uma descida emprestada das três variantes evitará parte dessas alocações; o teste de alocações poderá refutá-la.
 
 ### Decisão interna e limite
 
@@ -91,13 +91,13 @@ Depois de a sessão usar o helper com métricas explícitas, `rg -n "layout_with
 
 ## Preparação de bindings de exportação — 2026-10-05
 
-Medição: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/probe.txt`. Consumir helper privado resolve_export_fonts: fontes originais vinculadas, com gate de instanciação existente. Instanciação fica no consumidor exportador, na mesma fase de render/export, preservando diagnósticos/API/seleção de páginas. O nome antigo prometia bytes já instanciados e não descreve este contrato.
+Medição: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/probe.txt`. Consumir helper privado resolve_export_fonts: fontes originais vinculadas, com gate de instanciação existente. Instanciação fica no consumidor exportador, na mesma fase de render/export, preservando diagnósticos/API/seleção de páginas. O nome antigo prometia bytes já instanciados e não descreve este contrato.
 
 ## Identidade de documento e expressão — gate confirmado 2026-10-06
 
 ### Evidência anterior à decisão
 
-`00_nucleo/diagnosticos/diagnostic-paths-2026-10-06/identity-next-audit.json`
+`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
 conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
 Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
 separam erro/warning do documento de erro da expressão: o documento perde sua
@@ -134,7 +134,7 @@ Preservar as fachadas string e suas assinaturas/compatibilidade existentes.
 Nenhuma função privada do paged torna-se pública por conveniência de wiring.
 
 Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
+lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
 Consumer exclusivo preservado; Hash do Código acompanha a materialização.
 
 
@@ -184,7 +184,7 @@ O algoritmo de paginação/contexto continua com os child owners vigentes.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 A delegação transparente já owned de ShowRecipe.body também aceita Source.body, sem executar origem separada, publicar carrier ou atribuir Location. Preservar classificação/preparo/serialização conforme a operação desta unidade.
 
@@ -194,7 +194,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ### Medição anterior à decisão
 
-`03_infra/src/pipeline.rs` nas linhas 39, 85, 101, 127, 148 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`03_infra/src/pipeline.rs` nas linhas 39, 85, 101, 127, 148 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
 
 ### Decisão e aceitação
 
@@ -210,7 +210,7 @@ Manutenção interna sem mudança de assinatura pública, default, fase, fórmul
 ### Medição anterior à decisão
 
 03_infra/src/pipeline.rs:163,212.
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
@@ -240,7 +240,7 @@ restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 final-freeze.json.gz e target-controls.json.gz no diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
 UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
 Styled de transporte altera func. Query também vê wrapper causal temporário;
@@ -248,7 +248,7 @@ HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427
 pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
 de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
 Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
 SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
 
 ### Responsabilidade exclusiva

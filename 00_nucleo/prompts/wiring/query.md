@@ -52,7 +52,7 @@ Manter stdin como origem causal e base de imports/read, fora das dependências
 físicas. As APIs existentes bastam; sem nova execução do documento.
 
 Gate confirmado pelo humano em 2026-10-06 (resposta confirmo), com candidatos
-e hashes preservados em 00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
+e hashes preservados em lab/history/construction/records/00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
 
 ## Entrada física inexistente — correção de paridade em fluxo contínuo
 

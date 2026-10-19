@@ -38,7 +38,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 ### Medição anterior à decisão
 
 `03_infra/src/shaper/traversal.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -55,7 +55,7 @@ observáveis, incluindo os controles de adjacência e os invariantes pinados.
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -72,7 +72,7 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/shy-autoral-2026-09-28/initial.json` e
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/initial.json` e
 `before/resultados.json` registram estado, binários, comandos e trinta sondas
 bilaterais. Em largura 300pt, repre<U+00AD>sentation extrai dois SHY no Tekt
 e um no vanilla pinado. O controle spaces extrai seis versus um.
@@ -102,11 +102,11 @@ conforme a delimitação medida abaixo. Falha de fonte conserva Text.
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Contexto integral bidi ratificado — 2026-10-05
 
-Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
+Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
 
 Para spans certificados, usar registry proprietário local de strings auxiliares e mapas por input Arc, depois views BidiInfo emprestadas normais; não usar unsafe/self-reference. Embeddings virtuais LRE/RLE/PDF só quando dir do segmento difere da base; espaços reais e Linebreak não justificado LF (justify=true fora do certificado). Não retirar controles autorais. Resolver uma vez por input em cada registry; o pipeline paginado compartilha registry/views entre reorder e shape. Wrappers públicos existentes podem construir registry local.
 
@@ -118,7 +118,7 @@ Shape consulta os runs do input completo para span original e não auto-detecta 
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/bidi-identidade-ocorrencia-2026-10-06/before.json`
+`lab/results/construction/diagnostics/bidi-identidade-ocorrencia-2026-10-06/before.json`
 registra HEAD, working tree, código/L0, binários e sonda rustybuzz. Com a face
 DejaVu versionada por SHA e REMOVE_DEFAULT_IGNORABLES, LRM+ABC e PDI+ABC
 produzem A no cluster byte 0, B no byte 4 e C no byte 5. A substring 0..4
@@ -154,7 +154,7 @@ não adicionar envelope novo. Testes de integração asseguram escopo e cache hi
 ### Medição anterior à decisão
 
 `03_infra/src/shaper/traversal.rs` nas linhas [77] apresenta os avisos selecionados.
-`00_nucleo/diagnosticos/ci-helpers-testes-2026-10-14/before.json.gz`
+`lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/before.json.gz`
 conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
 references-before.json.gz registra chamadas, imports, módulos e referências;
 o estado da suíte/inventário anterior foi verificado por hashes. A lista de
@@ -178,7 +178,7 @@ testes que apenas espelhem cfg ou remoção de bindings. Resselo restrito ao own
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -187,7 +187,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 

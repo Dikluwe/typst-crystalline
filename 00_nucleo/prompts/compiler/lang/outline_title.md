@@ -13,7 +13,7 @@ Núcleos Tekt:
 `01_core/src/compiler/lang/outline_title.rs:48` locates `pub fn outline_title_for_lang(lang: Option<&Lang>) -> &'static str`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Contract
 

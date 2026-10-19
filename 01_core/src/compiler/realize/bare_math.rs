@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/bare_math.md
-//! @prompt-hash 76d42bd3
+//! @prompt-hash bc161f72
 //! @layer L1
 //! @updated 2026-10-09
 

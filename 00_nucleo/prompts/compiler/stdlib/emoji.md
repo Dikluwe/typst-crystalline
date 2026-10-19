@@ -6,7 +6,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/emoji.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/emoji.rs:14`, `01_core/src/compiler/stdlib/emoji.rs:26`, `01_core/src/compiler/stdlib/emoji.rs:48` identifies the ownership boundary. Inspection is not new bilateral parity evidence or upstream intent. Historical evidence retains its original provenance in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/emoji.rs:14`, `01_core/src/compiler/stdlib/emoji.rs:26`, `01_core/src/compiler/stdlib/emoji.rs:48` identifies the ownership boundary. Inspection is not new bilateral parity evidence or upstream intent. Historical evidence retains its original provenance in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 

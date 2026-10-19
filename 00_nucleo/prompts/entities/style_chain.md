@@ -206,9 +206,9 @@ têm consumers reais materializados em passos subsequentes:
   preserva representação base).
 - ADR-0084 + 0085 — Auditoria condicional + diagnóstico
   imutável (primeiro consumo directo P266).
-- `00_nucleo/diagnosticos/diagnostico-text-fase-a-passo-266.md`
+- `lab/results/construction/diagnostics/diagnostico-text-fase-a-passo-266.md`
   — diagnóstico imutável Fase A (cobertura agregada ~86%).
-- P753 — `00_nucleo/diagnosticos/paridade-producao-p753.md`:
+- P753 — `lab/results/construction/diagnostics/paridade-producao-p753.md`:
   mudança da fonte por defeito para `Libertinus Serif` e
   adopção de fontes embutidas via `typst-assets`.
 
@@ -286,7 +286,7 @@ em fluxo contínuo conforme ADR-0127.
 
 ## C2-R1 — correção interna de paridade
 
-Medição anterior à decisão: 00_nucleo/diagnosticos/performance-c2-2026-10-07/table-local-regression.json, três samples/r*-table-local/samples.json com fontes/argv/UTC/estado/hash do release ac889581 e vanilla pin9f2b6e871. Tamanho cresce10%, segunda coluna x60.880→38.999 com sobreposição. RED semântico em 00_nucleo/diagnosticos/table-local-c2r1-2026-10-07/red.log: tamanho10pt e separação Auto falham, tamanho local explícito11pt já passa.
+Medição anterior à decisão: lab/results/construction/diagnostics/performance-c2-2026-10-07/table-local-regression.json, três samples/r*-table-local/samples.json com fontes/argv/UTC/estado/hash do release ac889581 e vanilla pin9f2b6e871. Tamanho cresce10%, segunda coluna x60.880→38.999 com sobreposição. RED semântico em lab/results/construction/diagnostics/table-local-c2r1-2026-10-07/red.log: tamanho10pt e separação Auto falham, tamanho local explícito11pt já passa.
 
 Fonte upstream typst-eval/src/code.rs:32–43 aplica somente styles da declaração set à cauda. Tekt expression_dispatch.rs:132 colapsa raiz/defaults e não só declarações locais; style_chain.rs:304–315 contém size11/boldfalse/italicfalse na raiz. tracks.rs:328 reconhece somente Cell com resolved, deixando a Cell standalone Complete na projeção; measurement.rs não mede TableCell. É semântica/estilo/posição observável, não obrigação de reproduzir árvore ou algoritmo upstream. A causa conjunta é inferência refutável por fonte/tamanho/posição ainda divergentes após isolar estilos locais e medir o visual completo.
 
@@ -298,14 +298,14 @@ Responsabilidade: adicionar helper crate-private local_delta_since que retorna s
 
 ### Medição antes da decisão
 
-`00_nucleo/diagnosticos/style-font-capacity-2026-10-10/before.json.gz`
+`lab/results/construction/diagnostics/style-font-capacity-2026-10-10/before.json.gz`
 registra HEAD, working tree, arquivos/diffstat, fontes e o binário baseline
 bb138eb8d2f8a5762ed693bfe2dda526c092780a47e0dc4c5e8e4f7af35b81a8.
 O memo tentado em style-font-resolution-reuse-2026-10-10 foi descartado:
 menos pedidos não trouxeram aceleração consistente e o RSS dos alvos subiu.
 Não há cache desse experimento neste consumer.
 
-`00_nucleo/diagnosticos/style-scope-transfer-2026-10-10/stacks-current.json.gz`
+`lab/results/construction/diagnostics/style-scope-transfer-2026-10-10/stacks-current.json.gz`
 do mesmo binário inclui 400 amostras de pedidos480bytes no vetor sob
 StyleChain::font/local-set1600. `capacity-probe.json` desta rodada mede
 FontFamily=120bytes e reproduz filter_map/collect de uma família com
@@ -346,7 +346,7 @@ certifica memória residente menor.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
 `morph-before-measurement.json.gz` e `audit.json` conservam HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
 fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.

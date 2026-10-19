@@ -15,9 +15,9 @@ Núcleos Tekt:
 Before extraction, `03_infra/src/export/stream/text.rs:621,655,696,767`
 contained envelope compatibility, run-boundary selection, run emission and
 rounded inter-item TJ cursor compensation. The source snapshot and tests are
-preserved in `00_nucleo/diagnosticos/atomizacao-separadores-2026-09-28/`.
+preserved in `lab/results/construction/diagnostics/atomizacao-separadores-2026-09-28/`.
 The bilateral separator probes in
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` reproduce a text
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` reproduce a text
 extraction divergence against vanilla pin
 `9f2b6e8715237cb086899a42873660fe744622e8`. They do not establish total PDF
 byte equality, general reader behavior or the earliest historical failing build.
@@ -55,11 +55,11 @@ this L0 does not authorize inventing spaces from positive geometric gaps.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/shy-autoral-2026-09-28/tracking-controls.json`
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/tracking-controls.json`
 mede plain-verbose com desvio máximo 2.652pt contra vanilla pinado,
 enquanto plain-compact tem 0.348pt. Estado, binários e comandos estão no
 recibo daquela frente. O novo estado e a matriz estão em
-`00_nucleo/diagnosticos/tracking-pdf-2026-09-28/initial.json` e `before/`.
+`lab/results/construction/diagnostics/tracking-pdf-2026-09-28/initial.json` e `before/`.
 `03_infra/src/shaper/shaping.rs:319-326` soma tracking aos avanços;
 `03_infra/src/export/stream/text.rs:639,668` e
 `03_infra/src/export/stream/text/runs.rs:107` emitem Tc novamente.
@@ -95,7 +95,7 @@ ficam no consumer ancestral text, sem ownership compartilhado do código.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tracking-residual-2026-09-29/initial.json`, `results.json`, `summary.json` e `causal-checks.json` registram 36 entradas/108 PDFs contra vanilla pinado, fontes, UTC, HEAD e working tree completa. A palavra isolada acumula +0.052pt com tracking 0.2pt, mas fronteiras perdem um intervalo na adjacência, dois com um espaço e quatro com três espaços literais. ±1.2pt elimina a quantização sem eliminar as fronteiras. O código shaper/shaping.rs:225-232,319-326 arredonda em i32; text.rs:49-83 divide palavras; space.rs:15-33 aplica somente avanço nominal. O estado anterior à materialização está em `00_nucleo/diagnosticos/correcao-tracking-2026-09-29/initial.json`.
+`lab/results/construction/diagnostics/tracking-residual-2026-09-29/initial.json`, `results.json`, `summary.json` e `causal-checks.json` registram 36 entradas/108 PDFs contra vanilla pinado, fontes, UTC, HEAD e working tree completa. A palavra isolada acumula +0.052pt com tracking 0.2pt, mas fronteiras perdem um intervalo na adjacência, dois com um espaço e quatro com três espaços literais. ±1.2pt elimina a quantização sem eliminar as fronteiras. O código shaper/shaping.rs:225-232,319-326 arredonda em i32; text.rs:49-83 divide palavras; space.rs:15-33 aplica somente avanço nominal. O estado anterior à materialização está em `lab/results/construction/diagnostics/correcao-tracking-2026-09-29/initial.json`.
 
 ### Decisão interna e responsabilidade
 
@@ -108,7 +108,7 @@ Aceitação: testes RED→GREEN de fronteiras/seleção e interpretação indepe
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -135,7 +135,7 @@ Decisão de paridade visual (ADR-0107): somente para TextShaped com fonte certif
 ### Medição anterior à decisão
 
 `03_infra/src/export/stream/text/runs.rs` nas linhas [72] apresenta os avisos selecionados.
-`00_nucleo/diagnosticos/ci-helpers-testes-2026-10-14/before.json.gz`
+`lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/before.json.gz`
 conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
 references-before.json.gz registra chamadas, imports, módulos e referências;
 o estado da suíte/inventário anterior foi verificado por hashes. A lista de

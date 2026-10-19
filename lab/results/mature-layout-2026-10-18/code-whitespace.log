@@ -1,0 +1,6 @@
+00_nucleo/adr/adr-0114-probe-before-specification.md:4: trailing whitespace.
++**Data**: 2026-06-23  
+00_nucleo/adr/adr-0114-probe-before-specification.md:5: trailing whitespace.
++**Decisão**: A sonda do substrato (Fase A.0) é pré-condição para redigir uma spec de materialização. Se a spec for escrita primeiro, deve ser tratada como verificação retroativa, não como plano de materialização.  
+00_nucleo/adr/adr-0117-probe-a0-verification-mechanism.md:5: trailing whitespace.
++**Decisão do dono (registada):** toda spec de materialização deve ser precedida de uma sonda A.0 que produza evidência empírica; a sonda pode ser um script, uma varredura mecânica ou um conjunto de greps, desde que produza output imutável com file:line e decisão derivada. A sonda deve cobrir quatro dimensões (cláusulas 1–4).  

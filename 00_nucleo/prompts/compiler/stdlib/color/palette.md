@@ -3,7 +3,7 @@ Hash do Código: d78fbbee
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/color/palette.rs`. No HEAD `a5c6b93c258acb7cb378b9b147a8c6cd0e8d17b9` e árvore limpa, `01_core/src/compiler/stdlib/color.rs:141-245` contém o comportamento extraído. SHA-256, horário e estado estão em `00_nucleo/diagnosticos/atomizacao-color-2026-09-30-before.json.gz`. Esta é separação interna por comportamento.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/color/palette.rs`. No HEAD `a5c6b93c258acb7cb378b9b147a8c6cd0e8d17b9` e árvore limpa, `01_core/src/compiler/stdlib/color.rs:141-245` contém o comportamento extraído. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-color-2026-09-30-before.json.gz`. Esta é separação interna por comportamento.
 
 ## Contrato
 

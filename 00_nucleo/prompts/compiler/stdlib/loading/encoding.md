@@ -10,7 +10,7 @@ Núcleos Tekt:
 ## Ownership e medição
 
 Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/loading/encoding.rs`.
-No HEAD `4ac3e2082e6e708dd815ab01b47ac8ed281a14fa` e árvore limpa, `01_core/src/compiler/stdlib/loading.rs:40-646; encoders em 360-645` contém o comportamento correspondente. SHA-256, horário e estado estão em `00_nucleo/diagnosticos/atomizacao-loading-2026-09-30-before.json.gz`. É separação interna conforme ADR-0109/0127/0129; não há novo contrato público ou desempenho medido.
+No HEAD `4ac3e2082e6e708dd815ab01b47ac8ed281a14fa` e árvore limpa, `01_core/src/compiler/stdlib/loading.rs:40-646; encoders em 360-645` contém o comportamento correspondente. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-loading-2026-09-30-before.json.gz`. É separação interna conforme ADR-0109/0127/0129; não há novo contrato público ou desempenho medido.
 
 ## Contrato
 
@@ -61,12 +61,12 @@ content-serialization-2026-10-14/{before,raw-controls}/results.json.gz registra 
 
 Projeção textual Raw usa getter para text,block,lang conhecidos nessa ordem. Snapshot Some permanece exato, inclusive vazio; Source transparente.
 
-Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
+Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
 
 ## Completar projeção da caption existente — 2026-10-17
 
 Medição anterior à decisão: caption-shape-before.json e caption-after.json em
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
 binários, HEAD/working tree de validation-result.json e pin
 9f2b6e8715237cb086899a42873660fe744622e8. Projeção de caption já produz o
 carrier, mas sua CLI imprime só func:figure.caption; body/getters/fields estão

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: a1b07b65
+Hash do Código: 4c05f33c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml sha256:19eb838b3e56711fa151d416bd24394a0a6f5c8286bb9ab2d0dd9bc542b4aee7
@@ -41,7 +41,7 @@ vez; não há lookup dinâmico por registry.
 ## Atomização da família `math.vec`
 
 **Medição antes da decisão:** no working tree não commitado capturado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-vector-2026-09-30-before.json.gz`,
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-vector-2026-09-30-before.json.gz`,
 `math.rs:724-893` contém `MathVecOptions`, casts de `delim`/`align`/`gap`,
 construção e nativa; `:2401-2422` contém o teste de conversão de `gap`.
 O filtro `cargo test -p typst-core math_vec --lib --offline --locked --quiet`
@@ -91,7 +91,7 @@ Esta secção foi confirmada explicitamente pelo dono no gate P1425 em
 ## Delegação das famílias restantes — 2026-09-30
 
 **Medição anterior à decisão:** o working tree não commitado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-restante-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-restante-2026-09-30-before.json.gz`
 contém casts, builders, nativas e o catálogo estático em `math.rs:48-1685`;
 a suíte core baseline passa 6.401 testes, com 2 ignorados. Isto mede
 estrutura/regressão, não tempo nem nova paridade bilateral.
@@ -119,7 +119,7 @@ identidade, dispatch estático, assinaturas, diagnósticos e fases.
 ### Delegação do cast de `math.class` — 2026-09-30
 
 **Medição anterior à decisão:** no working tree não commitado capturado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-class-2026-09-30-before.json.gz`,
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-class-2026-09-30-before.json.gz`,
 `math.rs:1069-1152` contém a nativa e o parent mantém o registro estático.
 O hub reexporta a nativa via parent. Os filtros `math_class` e P825 passam
 29 e 15 testes, respetivamente. Isto mede estrutura e regressão local;
@@ -231,7 +231,7 @@ espelho de símbolos:
 | `math.vec` | `vec(..children, delim: "(", align: center, gap: 0.2em)` | `Content::MathVec` |
 
 **Medição estrutural 2026-09-30 anterior à decisão:** o snapshot em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-cancel-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-cancel-2026-09-30-before.json.gz`
 mostra o corpo completo de `native_cancel` em `math.rs:395-529`, o binding
 estático neste parent e a reexportação no hub; o filtro `native_cancel` passou
 4 testes. A construção, os casts e a morfologia de `cancel` passam ao owner
@@ -291,7 +291,7 @@ o vanilla rejeita. O avaliador de modo math já construía corretamente
 `Content::math_root(None, radicand)` por um braço sintático duplicado.
 
 **Medição estrutural 2026-09-30 anterior à delegação:** o snapshot em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-root-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-root-2026-09-30-before.json.gz`
 mostra `sqrt_content` e as duas nativas no parent, o bridge no hub e 12
 testes P1426 verdes antes do movimento. Não é benchmark nem nova sonda
 bilateral do vanilla. Casts, diagnósticos e carriers passam ao owner
@@ -325,7 +325,7 @@ Esta materialização foi confirmada explicitamente pelo dono em 2026-09-16.
 ## Delegação de `math.equation` — 2026-09-30
 
 **Medição anterior à decisão:** o working tree não commitado capturado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-equation-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-equation-2026-09-30-before.json.gz`
 mostra `equation_content`, os três casts de named e a nativa em
 `math.rs:46-210`; o hub reexporta quatro helpers via parent e o filtro
 P1140 passa 85 testes. Isto é medição estrutural, não benchmark nem nova
@@ -483,7 +483,7 @@ conteúdo e rejeita inteiros. Essa medição histórica não é uma nova sonda d
 snapshot vanilla atual.
 
 No working tree não commitado capturado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-frac-2026-09-30-before.json.gz`,
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-frac-2026-09-30-before.json.gz`,
 `math.rs:291-391` contém casts, validação, constructor e nativa; o registro
 estático está no mesmo parent. O filtro P1427 passou 15 testes antes do
 movimento. Esta medição estrutural não é benchmark.
@@ -501,7 +501,7 @@ mudar contrato, default, fase ou compatibilidade.
 ### Medição anterior à decisão
 
 No working tree não commitado capturado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-accent-2026-09-30-before.json.gz`,
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-accent-2026-09-30-before.json.gz`,
 `math.rs:393-550` contém a tabela de aliases de combining marks, casts de
 base/accent/size/dotless, constructor e nativa; `:2119` registra
 estaticamente `math.accent`. O filtro
@@ -523,7 +523,7 @@ público, default, fase ou compatibilidade.
 ### Medição anterior à decisão
 
 No working tree não commitado capturado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-cases-2026-09-30-before.json.gz`,
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-cases-2026-09-30-before.json.gz`,
 `math.rs:724-942` possui `MathCasesOptions`, conversão de delimitadores,
 casts, filhos e nativa; `:2367` registra estaticamente `math.cases`.
 `math/matrix.rs:20,131` já chama a conversão de delimitadores deste bloco.
@@ -547,7 +547,7 @@ compatibilidade.
 ### Medição anterior à decisão
 
 No working tree não commitado capturado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-matrix-2026-09-30-before.json.gz`,
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-matrix-2026-09-30-before.json.gz`,
 `math.rs:725-1042` possui `MathMatrixOptions`, casts, leitura de linhas,
 constructor e nativa; `:2683` registra estaticamente `math.mat`. O filtro
 `cargo test -p typst-core p1431 --lib --offline --locked --quiet` passou 29
@@ -994,7 +994,7 @@ Este L0 não altera assinatura, carrier ou layout matemático.
 Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado. A duplicação cfg(test) ocorre em `01_core/src/compiler/stdlib/structural/math/p1425_tests.rs:5` / pai :52; `01_core/src/compiler/stdlib/structural/math/p1426_tests.rs:5` / pai :55; `01_core/src/compiler/stdlib/structural/math/p1427_tests.rs:5` / pai :58.
 Fontes, L0, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/cfg-test-ci-2026-10-13/before.json.gz` e
+`lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/before.json.gz` e
 `refinement-before.json.gz`. O Clippy pinado reproduz os atributos duplicados.
 A tentativa de retirar a condição interna mantém os testes Rust, mas o linter
 arquitetural pinado não propaga a condição do pai e acusa V2 nos helpers.
@@ -1014,7 +1014,7 @@ mesma lista de testes, suíte core, build sem cfg(test), Clippy e arquitetura.
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
 commitado; pin `9f2b6e8715237cb086899a42873660fe744622e8`.
-`00_nucleo/diagnosticos/native-math-catalogue-2026-10-17/` fixa o estado
+`lab/results/construction/diagnostics/native-math-catalogue-2026-10-17/` fixa o estado
 exato em before.json.gz: UTC, diff HEAD --stat e hashes de todos os consumers,
 L0 e configuração protegidos. before-measurement.json.gz é reutilização
 verificada da matriz final da etapa anterior: fontes e binário Tekt têm

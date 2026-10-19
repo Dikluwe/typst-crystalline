@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-18T23:30:14.579026+00:00",
+  "command": [
+    "/repos/Antigravity/typst-crystalline/lab/target/linter/debug/crystalline-lint",
+    ".",
+    "--format",
+    "sarif"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/lineage-baseline",
+  "exit": 1,
+  "linter_sha256": "421d0797e7ae1a5102e9c5bcd87b488fea70a1997394c38765a03239fe579121",
+  "linter_commit": "12797073972e375d9ab078cf6750c8b30b71e2b9",
+  "checkpoint": "8ec827fd975bf14cd849bebb9ede245e49033337"
+}

@@ -478,7 +478,7 @@ da assinatura crate-private da factory.
 ### Medição anterior à decisão
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
 conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
 baseline-reuse.json prova igualdade de fontes/configuração/binário com a
 matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
@@ -539,7 +539,7 @@ antigos por cópia nem publicar.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/html-feature-identity-2026-10-17/before.json.gz registra
+lab/results/construction/diagnostics/html-feature-identity-2026-10-17/before.json.gz registra
 UTC, status, diff HEAD --stat, fontes e L0 completos e hashes; todos os 2123
 hashes da etapa anterior foram conferidos antes de reutilizar sua matriz.
 before-probe.json.gz conserva argv, fixtures, outputs e SHA-256 dos binários.

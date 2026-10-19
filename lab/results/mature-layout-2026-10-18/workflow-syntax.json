@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-18T23:51:12.821690+00:00",
+  "yaml_files": [
+    ".github/workflows/docker-image.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/ci.yml"
+  ],
+  "product_cache_mappings": 3,
+  "status": "parsed; cache paths checked; remote workflows not executed"
+}

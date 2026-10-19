@@ -14,7 +14,7 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-O lote bilateral `00_nucleo/diagnosticos/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` mede 32 entradas, com estado exato em initial.json e before/, contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Em 140pt/margem 8pt, simple escolhe delta epsilon zeta eta, optimized escolhe delta epsilon zeta e junta eta à linha seguinte; Tekt ignora a estratégia. Em 240pt justificado, optimized admite eta na primeira linha reduzindo os espaços. Fonte: eval/rules.rs:3070-3100 e stdlib/structural/par.rs:131-150 validam e descartam linebreaks; text.rs:41 e word_layout.rs:29 escolhem incrementalmente; vanilla inline/mod.rs:194-196 resolve auto pela justificação, linebreak.rs:raw_ratio/raw_cost aplica redução até 1/3 e custos cúbicos/quadráticos; model/par.rs:Limits::SPACING_DEFAULT fixa 2/3..1.5. Estilos adjacentes, literal leading/trailing e conteúdo opaco estão medidos separadamente. Observação não prova intenção histórica; inferência refutável: os scope-outs L0 explícitos de preparação/optimized legitimaram o adiamento, pois ainda vedam a implementação global apesar do transporte aceito.
+O lote bilateral `lab/results/construction/diagnostics/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` mede 32 entradas, com estado exato em initial.json e before/, contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Em 140pt/margem 8pt, simple escolhe delta epsilon zeta eta, optimized escolhe delta epsilon zeta e junta eta à linha seguinte; Tekt ignora a estratégia. Em 240pt justificado, optimized admite eta na primeira linha reduzindo os espaços. Fonte: eval/rules.rs:3070-3100 e stdlib/structural/par.rs:131-150 validam e descartam linebreaks; text.rs:41 e word_layout.rs:29 escolhem incrementalmente; vanilla inline/mod.rs:194-196 resolve auto pela justificação, linebreak.rs:raw_ratio/raw_cost aplica redução até 1/3 e custos cúbicos/quadráticos; model/par.rs:Limits::SPACING_DEFAULT fixa 2/3..1.5. Estilos adjacentes, literal leading/trailing e conteúdo opaco estão medidos separadamente. Observação não prova intenção histórica; inferência refutável: os scope-outs L0 explícitos de preparação/optimized legitimaram o adiamento, pois ainda vedam a implementação global apesar do transporte aceito.
 
 ### Decisão e escopo
 
@@ -34,7 +34,7 @@ Medição anterior à decisão: multi-before/resultados.json conserva a fonte, o
 
 ### Medição anterior à decisão
 
-O lote before-pdf de `00_nucleo/diagnosticos/correcao-hifenizacao-global-2026-09-28/` mede 67 entradas contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8; estado inicial, binários, fontes e comandos estão em initial.json, before/ e proveniencia.json. paragraph_prepare.rs:80-94 recusa a política true, paragraph_select.rs:66 considera só finais de palavras, paragraph_plan.rs:18 escolhe estratégias já transportadas, break_selection.rs:41-66 hifeniza apenas por overflow local. Vanilla inline/linebreak.rs:170-209 usa os mesmos candidatos no greedy, :626-684 aplica 135*(1+0.15*(max(5-left,0)+max(5-right,0))) por hífen, mais 135 em duas linhas consecutivas; inline/shaping.rs:583-635 desenha o glyph de '-' mas conserva SHY no texto copiado. Isto mede comportamento e contratos, não intenção histórica.
+O lote before-pdf de `lab/results/construction/diagnostics/correcao-hifenizacao-global-2026-09-28/` mede 67 entradas contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8; estado inicial, binários, fontes e comandos estão em initial.json, before/ e proveniencia.json. paragraph_prepare.rs:80-94 recusa a política true, paragraph_select.rs:66 considera só finais de palavras, paragraph_plan.rs:18 escolhe estratégias já transportadas, break_selection.rs:41-66 hifeniza apenas por overflow local. Vanilla inline/linebreak.rs:170-209 usa os mesmos candidatos no greedy, :626-684 aplica 135*(1+0.15*(max(5-left,0)+max(5-right,0))) por hífen, mais 135 em duas linhas consecutivas; inline/shaping.rs:583-635 desenha o glyph de '-' mas conserva SHY no texto copiado. Isto mede comportamento e contratos, não intenção histórica.
 
 ### Decisão
 
@@ -91,7 +91,7 @@ limitações físicas widow/orphan e contextos fora do subconjunto certificado.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
+`lab/results/construction/diagnostics/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
 
 ### Decisão vigente
 
@@ -131,7 +131,7 @@ A evidência bilateral em `paragrafo-tracking-global-2026-09-29/focused-before/r
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/paragrafo-tracking-hifenizacao-2026-09-30/before/results.json` mede divergência em tracking explícito zero + hifenização, enquanto o controle sem propriedade coincide. `after-third/results.json` mede quatro combinações de Simple/Optimized e 100/140 pt com texto, páginas, palavras e caixas dentro de 0,001 pt após admitir o preparo global. Valores não nulos continuam a divergir, e `inline/shaping.rs:546-571` preserva ou remodela glyphs em cortes seguros que FontMetrics não expõe. Não se infere intenção.
+`lab/results/construction/diagnostics/paragrafo-tracking-hifenizacao-2026-09-30/before/results.json` mede divergência em tracking explícito zero + hifenização, enquanto o controle sem propriedade coincide. `after-third/results.json` mede quatro combinações de Simple/Optimized e 100/140 pt com texto, páginas, palavras e caixas dentro de 0,001 pt após admitir o preparo global. Valores não nulos continuam a divergir, e `inline/shaping.rs:546-571` preserva ou remodela glyphs em cortes seguros que FontMetrics não expõe. Não se infere intenção.
 
 ### Decisão
 
@@ -139,7 +139,7 @@ Supersede a exclusão conjunta anterior apenas para tracking resolvido exatament
 
 ## Transporte lógico textual — contrato ratificado em 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
+Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
 
 Esta unidade participa do transporte por Cursor privado, input Arc e spans exatos. Preparar antes de emitir o parágrafo textual inteiro, base lexical já certificada; conservar offsets por ordem de visita, não matching de strings. Sequence/Par criam escopo, nested Sequence herda; checkpoint conserva cursor e span corrente; subframe isola e restaura. Text fornece subspans para palavras e espaços literais; Space consome seu segmento mesmo quando fraco; Linebreak consome fronteira. Word emite span somente se texto exato não foi transformado.
 
@@ -149,7 +149,7 @@ Escopo inicial: incremental simple, fora de células/colunas/subframes, sem trac
 
 ### Medição anterior à decisão
 
-`plain300.typ` produz uma palavra composta por centenas de fragmentos `Text` adjacentes: `paragraph_prepare.rs:130-157` junta-os sem gap, mas `paragraph_plan.rs` devolve a seleção de linha única ao fallback por `regional_only && lines.len() < 2`. O fallback `word_layout.rs:27-47` decide quebras por fragmento, enquanto o coletor vanilla `inline/collect.rs:275-298` agrega texto adjacente antes de selecionar. A sonda bilateral com string única conserva uma linha em ambos os motores; com `for` e `[#i]`, somente o Tekt quebra. Proveniência e resultados em `00_nucleo/diagnosticos/fluxo-numerico-contextual-2026-10-08/`. Esta observação não demonstra intenção histórica.
+`plain300.typ` produz uma palavra composta por centenas de fragmentos `Text` adjacentes: `paragraph_prepare.rs:130-157` junta-os sem gap, mas `paragraph_plan.rs` devolve a seleção de linha única ao fallback por `regional_only && lines.len() < 2`. O fallback `word_layout.rs:27-47` decide quebras por fragmento, enquanto o coletor vanilla `inline/collect.rs:275-298` agrega texto adjacente antes de selecionar. A sonda bilateral com string única conserva uma linha em ambos os motores; com `for` e `[#i]`, somente o Tekt quebra. Proveniência e resultados em `lab/results/construction/diagnostics/fluxo-numerico-contextual-2026-10-08/`. Esta observação não demonstra intenção histórica.
 
 ### Decisão
 
@@ -159,7 +159,7 @@ Correção interna de paridade pelo ADR-0127. Se o preparo global certificado co
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
 status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
 extra-before.json.gz contém26; boundary-before.json.gz contém10 e

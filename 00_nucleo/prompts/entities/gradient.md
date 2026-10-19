@@ -467,7 +467,7 @@ afecta L3 PDF emit (`/Coords` Type 3 nativo).
 
 - ADR-0088 §"Anotação cumulativa P269" — fórmula completa.
 - ADR-0054 anotação P269 — perfil graded preservado.
-- `00_nucleo/diagnosticos/diagnostico-gradient-focal-passo-269.md`
+- `lab/results/construction/diagnostics/diagnostico-gradient-focal-passo-269.md`
   — diagnóstico imutável (sétimo consumo directo de fonte vanilla).
 - P264 — Radial L1+stdlib subset 3 campos (precedente directo).
 - P265 — PDF Radial /ShadingType 3 (template emit; `compute_radial_coords`
@@ -554,7 +554,7 @@ pós-P270.
 - ADR-0054 — Perfil graded (anotada cumulativa P270).
 - ADR-0087/0088/0089/0090 — Variant strategies (anotadas cumulativa
   P270).
-- `00_nucleo/diagnosticos/diagnostico-gradient-space-passo-270.md`
+- `lab/results/construction/diagnostics/diagnostico-gradient-space-passo-270.md`
   — diagnóstico imutável (oitavo consumo directo de fonte vanilla).
 - P262/P264/P267 — Linear/Radial/Conic L1+stdlib (precedentes
   directos extendidos).
@@ -1061,7 +1061,7 @@ constructor, offset ou semântica; clones necessários são mecânica Rust.
 ## Correção medida em 2026-10-13
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado.
-Fontes, hashes, UTC, status e diffstat: `00_nucleo/diagnosticos/cores-ci-2026-10-13/before.json.gz`
+Fontes, hashes, UTC, status e diffstat: `lab/results/construction/diagnostics/cores-ci-2026-10-13/before.json.gz`
 e `constructors-before.json.gz`. Sondas e prova numérica em `evidence.json.gz`.
 Vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, SHA-256 ratificado
 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
@@ -1076,7 +1076,7 @@ produtiva recebe apenas resselo; não muda sua API, comportamento ou testes.
 
 Medição anterior à decisão, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
 working tree não commitado: fontes, SHA-256, UTC, status e diffstat em
-`00_nucleo/diagnosticos/limites-cor-2026-10-13/before.json.gz` e
+`lab/results/construction/diagnostics/limites-cor-2026-10-13/before.json.gz` e
 `parents-before.json.gz`; sondas em `evidence.json.gz`. Oráculo pinado
 `9f2b6e8715237cb086899a42873660fe744622e8`, binário SHA-256
 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.

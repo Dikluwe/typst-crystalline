@@ -269,7 +269,7 @@ A profundidade privada acompanha somente transformações ativas. full_error con
 
 ### Evidência anterior à decisão
 
-`00_nucleo/diagnosticos/diagnostic-paths-2026-10-06/identity-next-audit.json`
+`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
 conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
 Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
 separam erro/warning do documento de erro da expressão: o documento perde sua
@@ -308,7 +308,7 @@ fontes independentes devem usar a nova entrada. A CLI migra neste pacote.
 Não mudar World, FileId, Source ou fases de realização/layout.
 
 Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
+lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
 Consumer exclusivo preservado; Hash do Código acompanha a materialização.
 
 ## Alcance de warnings de markup vazio — 2026-10-06
@@ -349,7 +349,7 @@ estritamente a fronteira matemática já ratificada no pacote D06.
 Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado. A duplicação cfg(test) ocorre em `01_core/src/compiler/eval/p1425_tests.rs:5` / pai :972; `01_core/src/compiler/eval/p1426_tests.rs:5` / pai :975; `01_core/src/compiler/eval/p1427_tests.rs:5` / pai :978; `01_core/src/compiler/eval/p1429_observation_tests.rs:5` / pai :981; `01_core/src/compiler/eval/p1430_tests.rs:5` / pai :985; `01_core/src/compiler/eval/p1431_tests.rs:5` / pai :989.
 Fontes, L0, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/cfg-test-ci-2026-10-13/before.json.gz` e
+`lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/before.json.gz` e
 `refinement-before.json.gz`. O Clippy pinado reproduz os atributos duplicados.
 A tentativa de retirar a condição interna mantém os testes Rust, mas o linter
 arquitetural pinado não propaga a condição do pai e acusa V2 nos helpers.
@@ -366,7 +366,7 @@ mesma lista de testes, suíte core, build sem cfg(test), Clippy e arquitetura.
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/eval/mod.rs` nas linhas 958 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `00_nucleo/diagnosticos/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+`01_core/src/compiler/eval/mod.rs` nas linhas 958 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `lab/results/construction/diagnostics/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
 
 ### Decisão e aceitação
 
@@ -382,9 +382,9 @@ Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs extern
 A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
 hashes, UTC, status e `git diff HEAD --stat` estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`.
 A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+`lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`.
 Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
 É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
 
@@ -451,7 +451,7 @@ exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
 ### Medição anterior à decisão
 
 01_core/src/compiler/eval/mod.rs:811 (C006).
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
@@ -479,7 +479,7 @@ restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/eval/mod.rs:397` declara pub fn new() -> Self sem argumentos. O inventário em `00_nucleo/diagnosticos/field-reassign-2026-10-15/clippy-inventory.json` registra new_without_default; fonte/L0/hashes atuais são preservados no pacote clippy-default-2026-10-16. EvalContext::new inicializa target Paged, features vazias, full_error false, apply_show_rules true, orçamento de loop 1_000_000 e estados privados novos. Derivar Default dos campos daria defaults incorretos para orçamento e recipes; a única implementação autorizada delega a Self::new(). Isto é contrato Rust de construção, sem nova medição de paridade da linguagem.
+`01_core/src/compiler/eval/mod.rs:397` declara pub fn new() -> Self sem argumentos. O inventário em `lab/results/construction/diagnostics/field-reassign-2026-10-15/clippy-inventory.json` registra new_without_default; fonte/L0/hashes atuais são preservados no pacote clippy-default-2026-10-16. EvalContext::new inicializa target Paged, features vazias, full_error false, apply_show_rules true, orçamento de loop 1_000_000 e estados privados novos. Derivar Default dos campos daria defaults incorretos para orçamento e recipes; a única implementação autorizada delega a Self::new(). Isto é contrato Rust de construção, sem nova medição de paridade da linguagem.
 
 ### Contrato proposto
 
@@ -491,14 +491,14 @@ Nenhuma materialização antes da confirmação humana do manifesto deste pacote
 
 Os novos testes de EvalContext pertencem exclusivamente a `00_nucleo/prompts/compiler/eval/tests.md`, sem inserir uma suíte paralela no módulo produtivo.
 
-Ratificação: dono aprovou o manifesto SHA-256 `11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03` em 2026-10-16. Recibo: `00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`. O gate acima está satisfeito exclusivamente para os três impls Default e testes D1–D5 descritos; esta seção está vigente.
+Ratificação: dono aprovou o manifesto SHA-256 `11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03` em 2026-10-16. Recibo: `lab/history/construction/records/00_nucleo/materialization/clippy-default-2026-10-16/approval-receipt.json`. O gate acima está satisfeito exclusivamente para os três impls Default e testes D1–D5 descritos; esta seção está vigente.
 
 
 ## Exceções nominais materializadas — 2026-10-16
 
 ### Medição anterior à decisão
 
-O inventário validado em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `00_nucleo/diagnosticos/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
+O inventário validado em `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
 
 ### Responsabilidade e aceitação
 
@@ -511,7 +511,7 @@ Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não mu
 
 ### Medição anterior à decisão
 
-T026: 01_core/src/compiler/eval/mod.rs:937. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T026: 01_core/src/compiler/eval/mod.rs:937. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -524,7 +524,7 @@ Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default
 
 ### Medição antes da decisão
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status, git diff HEAD --stat e fontes/hashes integrais em `00_nucleo/diagnosticos/tekt-v16-introspect-origins-2026-10-16/before.json.gz`. Value tem 39 variantes e Content 120. eval/mod.rs:956 conserva fallback None latente T027; layout/realized.rs:14–45 usa predicado implícito e binding other para T158/T160; :77–130 usa cadeias if-let com false implícito. extract_payload.rs:18–98 despacha sem normalizar Source; locatable.rs:21 classifica Source pelo body. O núcleo content/source-origin.toml exige transparência e ocorrência única. Inferência a refutar por teste RED antes da implementação: Source(Heading) retorna None pela extração atual, e Located(Source(Heading)) perde a prova de preparação. map_content em entities/content/traversal.rs:79 já trata Source transparentemente. Não se infere intenção upstream nem nova paridade vanilla destes fatos; não mudar a pendência OutlineEntry sem investigação própria.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status, git diff HEAD --stat e fontes/hashes integrais em `lab/results/construction/diagnostics/tekt-v16-introspect-origins-2026-10-16/before.json.gz`. Value tem 39 variantes e Content 120. eval/mod.rs:956 conserva fallback None latente T027; layout/realized.rs:14–45 usa predicado implícito e binding other para T158/T160; :77–130 usa cadeias if-let com false implícito. extract_payload.rs:18–98 despacha sem normalizar Source; locatable.rs:21 classifica Source pelo body. O núcleo content/source-origin.toml exige transparência e ocorrência única. Inferência a refutar por teste RED antes da implementação: Source(Heading) retorna None pela extração atual, e Located(Source(Heading)) perde a prova de preparação. map_content em entities/content/traversal.rs:79 já trata Source transparentemente. Não se infere intenção upstream nem nova paridade vanilla destes fatos; não mudar a pendência OutlineEntry sem investigação própria.
 
 ### Decisão exclusiva e aceitação
 
@@ -540,7 +540,7 @@ Escrever testes co-localizados dos casos Source produtores/não produtores, Loca
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/html-feature-identity-2026-10-17/before.json.gz registra
+lab/results/construction/diagnostics/html-feature-identity-2026-10-17/before.json.gz registra
 UTC, status, diff HEAD --stat, fontes e L0 completos e hashes; todos os 2123
 hashes da etapa anterior foram conferidos antes de reutilizar sua matriz.
 before-probe.json.gz conserva argv, fixtures, outputs e SHA-256 dos binários.
@@ -612,7 +612,7 @@ regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/import-syntax-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/import-syntax-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0 e hashes; 2125 hashes do fechamento anterior
 foram conferidos. before-probe.json.gz guarda as sondas bilaterais com fixtures,
 argv, saídas e binários; before-context-probe mede oito perfis e bundle real.
@@ -674,7 +674,7 @@ high10GiB/swap0/jobs1. Sem commit/push/merge/release e sem supressões de lint.
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17.
 state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
 após +1 exige 2/11; callback não lido não executa; atualização reutilizada
 executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
@@ -683,7 +683,7 @@ inicia a sequência; a ordem vem do documento, não do inteiro de Location.
 O método atual trata Func como Set e o pós-passe eager perde essa semântica.
 Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
 A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
-00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
 SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
 
 ### Responsabilidade exclusiva — supersede a fase histórica de State
@@ -709,7 +709,7 @@ pesadas sequenciais. Medir consumo sem inferir ganho global só da representaç�
 ### Medição anterior à decisão
 
 As coletas before/expanded/controls.json.gz e candidate.log em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 fixam HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
@@ -719,7 +719,7 @@ ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
 filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
 
 O dono aprovou a revisão
-00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
 46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
 nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
 fronteira antes dos filhos/Table/math; não cobre novo contrato público.
@@ -743,7 +743,7 @@ swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
 commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
@@ -802,7 +802,7 @@ apoio em valores é criado: os vizinhos dependem da inserção atual.
 
 ### Medição anterior à decisão e gate
 
-before.json.gz em 00_nucleo/diagnosticos/context-paridade-2026-10-18 conserva
+before.json.gz em lab/results/construction/diagnostics/context-paridade-2026-10-18 conserva
 HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fontes, UTC, diffstat, argv e
 SHA dos binários; baseline-build-resources.json contém a receita nova. Vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. Duas equações dão EQ EQ Q1/Q2;
@@ -815,7 +815,7 @@ mas não exige copiar representação, vtables ou algoritmo.
 Hipótese de colisão será refutada por falha de contagem, alias, callback ou replay.
 
 O humano aprovou a proposta review.md sob
-00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
+lab/history/construction/records/00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
 500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388;
 recibo approval-receipt.json no mesmo diretório. Gate ADR-0127 §2.1 satisfeito
 para a API aditiva especificada. Não autoriza mudança de fase ou API alheia.

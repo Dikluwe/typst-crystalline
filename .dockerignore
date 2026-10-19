@@ -1,7 +1,9 @@
 .git
 **/target
 dist
-lab
+lab/*
+!lab/benches/
+!lab/benches/**
 00_nucleo
 .codex
 .agents

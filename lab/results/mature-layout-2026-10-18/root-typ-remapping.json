@@ -1,0 +1,17 @@
+{
+  "reason": "Tracked root-level Typst fixtures were initially routed to scratch; relocated to durable construction records. Original manifest is unchanged.",
+  "from": "lab/scratch/legacy-typ",
+  "to": "lab/history/construction/records/root-typ",
+  "paths": {
+    ".typ/sec_04.typ": "lab/history/construction/records/root-typ/sec_04.typ",
+    ".typ/sec_07.typ": "lab/history/construction/records/root-typ/sec_07.typ",
+    ".typ/sec_09.typ": "lab/history/construction/records/root-typ/sec_09.typ",
+    ".typ/sec_10.typ": "lab/history/construction/records/root-typ/sec_10.typ",
+    ".typ/sec_12.typ": "lab/history/construction/records/root-typ/sec_12.typ",
+    ".typ/sec_16.typ": "lab/history/construction/records/root-typ/sec_16.typ",
+    ".typ/sec_17.typ": "lab/history/construction/records/root-typ/sec_17.typ",
+    ".typ/sec_18.typ": "lab/history/construction/records/root-typ/sec_18.typ",
+    ".typ/sec_22.typ": "lab/history/construction/records/root-typ/sec_22.typ",
+    ".typ/sec_27.typ": "lab/history/construction/records/root-typ/sec_27.typ"
+  }
+}

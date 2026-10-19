@@ -48,7 +48,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 
 ### Medição anterior à decisão
 
-A sonda `00_nucleo/diagnosticos/pdf-standard-bundle-2026-09-30/results.json`
+A sonda `lab/results/construction/diagnostics/pdf-standard-bundle-2026-09-30/results.json`
 mede PDF isolado sem título rejeitado sob `--pdf-standard=ua-1` e PDF de
 bundle sem título publicado sob a mesma flag. `04_wiring/src/compile.rs:155`
 limita a construção de `standard_override` ao target PDF direto; em
@@ -75,7 +75,7 @@ vigente, ressellar este owner e verificar RED→GREEN.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/compile-stdin-2026-10-06/before.json.gz` conserva
+`lab/results/construction/diagnostics/compile-stdin-2026-10-06/before.json.gz` conserva
 HEAD/árvore/UTC, fontes, comandos e SHA-256 dos binários. Com arquivo físico
 `-` contendo #unknown_physical e stdin independente, compile - abre esse
 arquivo no Tekt; o pin 9f2b6e8715237cb086899a42873660fe744622e8 usa stdin.
@@ -145,7 +145,7 @@ e por último erros operacionais. Em sucesso, preservar warnings experimentais
 antes dos warnings do domínio. Não alterar mensagem/span/hint/trace, cor, exit ou publicação.
 
 Gate confirmado pelo humano em 2026-10-06 (resposta confirmo), com candidatos
-e hashes preservados em 00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
+e hashes preservados em lab/history/construction/records/00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
 
 Refinamento medido antes da materialização: warnings-cli-2026-10-06/before.json.gz,
 controles compile-html-warning-error/only, refuta colocar experimental após domínio.
@@ -154,9 +154,9 @@ A ordem interna dos avisos upstream permanece preservada; somente errors passam 
 
 ## Medição anterior à decisão de retenção ratificada
 
-00_nucleo/diagnosticos/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
+lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
 edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-00_nucleo/diagnosticos/watch-validacao-2026-10-07/measurement.json mede validação por
+lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
 descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
 remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
 não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
@@ -166,7 +166,7 @@ regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do re
 
 ### Decisão ratificada sob ADR-0127 §2.1/§2.2
 
-Dono ratificou com Confirmo o pacote 00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: 00_nucleo/diagnosticos/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
+Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
 
 ## Composição com sessão opcional, somente helper privado
 
@@ -185,7 +185,7 @@ deste prompt continuam fora do escopo.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/incremental-prioridade6-2026-10-08/before.json.gz,
+lab/results/construction/diagnostics/incremental-prioridade6-2026-10-08/before.json.gz,
 measurement.json.gz, control-measurement.json.gz e count.json registram árvore,
 HEAD, UTC, comandos e releases. Source::new reconstrói CST; World novo constrói
 Source main/import a cada edição. O import mínimo já absorve recursos no eval_ms;
@@ -214,7 +214,7 @@ build/suítes pertinentes e lint zero erros; não fechar incrementalidade comple
 ### Medição anterior à decisão
 
 `04_wiring/src/compile.rs` nas linhas [523, 547] contém as expressões apontadas pelo inventário
-Clippy. `00_nucleo/diagnosticos/ci-simplificacoes-2026-10-14/before.json.gz`
+Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
 conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
 red.log registra os lints selecionados como erros antes de alterar código.
 Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.
@@ -237,7 +237,7 @@ de suíte completa, build, all-targets, rustdoc, fmt, linhagem e inventário tot
 ### Medição anterior à decisão
 
 04_wiring/src/compile.rs:174 (C128).
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
@@ -265,7 +265,7 @@ restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
 
 ### Medição anterior à decisão
 
-O snapshot before.json.gz em 00_nucleo/diagnosticos/tekt-v12-2026-10-16 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC, fontes, L0, hashes, status e git diff HEAD --stat. O inventário anterior, conferido por hashes, emite 19 V12: um enum produtivo em 04_wiring/src/main.rs:22 e 18 declarações auxiliares de testes. O enum privado Published tem exatamente Html(String) e Bundle(Vec<BundleFile>); compile.rs:90/99/363/539/541 o produz e watch.rs:103/104 despacha os dois braços. O proprietário atual é wiring.md, que autoriza o carrier privado em L4: esta proposta atualiza explicitamente essa decisão, em vez de contrariá-la sem registro. É propriedade/representação Rust, sem nova alegação de paridade ou intenção upstream.
+O snapshot before.json.gz em lab/results/construction/diagnostics/tekt-v12-2026-10-16 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC, fontes, L0, hashes, status e git diff HEAD --stat. O inventário anterior, conferido por hashes, emite 19 V12: um enum produtivo em 04_wiring/src/main.rs:22 e 18 declarações auxiliares de testes. O enum privado Published tem exatamente Html(String) e Bundle(Vec<BundleFile>); compile.rs:90/99/363/539/541 o produz e watch.rs:103/104 despacha os dois braços. O proprietário atual é wiring.md, que autoriza o carrier privado em L4: esta proposta atualiza explicitamente essa decisão, em vez de contrariá-la sem registro. É propriedade/representação Rust, sem nova alegação de paridade ou intenção upstream.
 
 ### Verificação comum
 

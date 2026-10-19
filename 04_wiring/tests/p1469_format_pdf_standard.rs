@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1469-format-pdf-standard.md
-//! @prompt-hash 5e36225f
+//! @prompt-hash e526464d
 //!
 //! P1469 (RED — Agente B) — integração de binário para `pdf.standard`
 //! (`#set format.pdf(standard: ...)`) e a flag `compile --pdf-standard`.
@@ -8,7 +8,7 @@
 //! ficheiro, este exercita o CONTRATO DE LINGUAGEM de `standard` — ESCOPO
 //! REDUZIDO por decisão do dono (2026-09-21, ver
 //! `entities/document_format_options.md` P1469 e
-//! `00_nucleo/materialization/typst-passo-1469.md` §7.1): só parsing dos 17
+//! `lab/history/construction/records/00_nucleo/materialization/typst-passo-1469.md` §7.1): só parsing dos 17
 //! nomes, validação de conflitos, versão efetiva do header `%PDF-{version}` e
 //! interação com `tagged`/`pages` já materializada em P1467/P1468. NÃO
 //! verifica conformidade PDF/A ou PDF/UA estrutural real (sem identificação

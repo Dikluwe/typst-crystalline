@@ -17,7 +17,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/bindings/field_access/content_methods.rs`. No HEAD `ba5a4c7d305ed1444660d9eb80862f51b417efb6` e árvore limpa, `01_core/src/compiler/eval/bindings/field_access.rs:1165-1589` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-field-access-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/bindings/field_access/content_methods.rs`. No HEAD `ba5a4c7d305ed1444660d9eb80862f51b417efb6` e árvore limpa, `01_core/src/compiler/eval/bindings/field_access.rs:1165-1589` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-field-access-2026-09-30-before.json.gz`.
 
 ## Contrato
 
@@ -96,7 +96,7 @@ representação canônica de quotes existente para public Value.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-00_nucleo/diagnosticos/matrix-morfologia-2026-10-06/before.json.gz guarda
+lab/results/construction/diagnostics/matrix-morfologia-2026-10-06/before.json.gz guarda
 UTC/diff/fontes/binários e casos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Mat raw/query sai como {func:math.matrix} sem rows; getter/métodos perdem campos
 e func-equality retorna false. Fonte upstream math/matrix.rs:91–221 declara
@@ -121,7 +121,7 @@ mat selectors, render, Styled geral ou outros elementos não medidos.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-2026-10-07/before.json.gz
+lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz
 registra UTC, diff HEAD --stat, hashes de fontes/binários, argv/cwd e resultados
 contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8.
 Vanilla model/table.rs:734–778 declara body e propriedades; Tekt
@@ -147,7 +147,7 @@ Option None não prova omissão nem none explícito: não certificar esses casos
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-realizacao-2026-10-07/before.json.gz e
+lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz e
 presence-refuters.json conservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree, diffstat, UTC, binários e argumentos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Upstream model/table.rs:734–778 possui campos Smart/Option; o Tekt
@@ -170,7 +170,7 @@ RED→GREEN para body/presença/métodos/JSON, clone/map/observação e rejeiç�
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -206,7 +206,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Fields/func/métodos devem observar body de Source sem perder origem nem converter Styled em Cell.
 
@@ -222,7 +222,7 @@ content-serialization-2026-10-14/{before,raw-controls}/results.json.gz registra 
 
 content_field reconhece text/block/lang, Set versus Unset; demais Undeclared. content_set_fields enumera text,block,lang conhecidos nessa ordem.
 
-Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
+Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
 
 ## Transformações tipadas — contrato aprovado
 
@@ -230,7 +230,7 @@ Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0
 
 O corpus transformacoes-2026-10-14/results.json.gz e controles suplementares
 registra identidade/presença perdida no carrier matrix/body. Fonte e owner
-pré-migração estão em materialization/transformacoes-tipadas-2026-10-14/base-files.json.gz
+pré-migração estão em lab/history/construction/records/00_nucleo/materialization/transformacoes-tipadas-2026-10-14/base-files.json.gz
 com hashes e linhas em consumers.json. A aprovação do manifesto
 960f20a8593874da3f3588281dbefa535e4e0ade8109ae117acbd4f5a038281d autoriza
 a nova representação e resolução no layout. Semântica/morfologia são linguagem;
@@ -245,7 +245,7 @@ Testar RED→GREEN e revalidar os caminhos dependentes; o build não fecha X1–
 ## Completar projeção da caption existente — 2026-10-17
 
 Medição anterior à decisão: caption-shape-before.json e caption-after.json em
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
 binários, HEAD/working tree de validation-result.json e pin
 9f2b6e8715237cb086899a42873660fe744622e8. Projeção de caption já produz o
 carrier, mas sua CLI imprime só func:figure.caption; body/getters/fields estão
@@ -275,7 +275,7 @@ conforme follow-ups.md; nenhuma API pendente está autorizada por esta seção.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
 Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
 no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
 e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
@@ -316,7 +316,7 @@ pelo valor Empty. Esta cláusula supera o body Set genérico da seção A1 acima
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
 final-freeze.json.gz e target-controls.json.gz no diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
 UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
 Styled de transporte altera func. Query também vê wrapper causal temporário;
@@ -324,7 +324,7 @@ HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427
 pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
 de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
 Gate A1-H2 confirmado pelo dono nesta sessão: revisão
-00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
 SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
 
 ### Responsabilidade exclusiva
@@ -350,7 +350,7 @@ comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-00_nucleo/diagnosticos/sequence-reflection-2026-10-17/before.json.gz e
+lab/results/construction/diagnostics/sequence-reflection-2026-10-17/before.json.gz e
 before-sources.json.gz guardam UTC, diffstat, fontes e SHA dos binários. Pin
 vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. No upstream
 lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:724–728,
@@ -389,7 +389,7 @@ com MemoryMax12GiB/High8GiB/swap0/jobs1; registrar pico, não inferir ganho.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz
 e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
 bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
 foundations/content/mod.rs:724–728 declara children requerido;
@@ -444,7 +444,7 @@ só no ambiente de validação. Resselo após V15/V26 válido e proveniência ex
 ### Medição anterior à decisão
 
 As coletas before/expanded/controls.json.gz e candidate.log em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 fixam HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
@@ -454,7 +454,7 @@ ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
 filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
 
 O dono aprovou a revisão
-00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
 46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
 nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
 fronteira antes dos filhos/Table/math; não cobre novo contrato público.
@@ -479,7 +479,7 @@ swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.
 ## Divisão explícita — pendências após R2/R2-S
 
 Medição e proveniência: r2s-scope.json.gz/text-before.json.gz no diagnóstico
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17. Este pacote é
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17. Este pacote é
 incompleto no universo de morfologia e regras textuais. R3-Symbol deve
 completar identidade/igualdade do cast de Symbol (text/true no Tekt contra
 symbol/false no vanilla); exige proposta/gate próprio se criar variante

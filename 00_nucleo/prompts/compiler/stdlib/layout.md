@@ -889,7 +889,7 @@ hairline, não "invisível").
 
 No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
 cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+os probes públicos em `lab/results/construction/diagnostics/superficie-linguagem-p1140*`
 medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
 `tiling` e `version`. Os construtores atuais foram novamente executados após
 a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
@@ -920,7 +920,7 @@ continua owner de validação dos 18 named e body; nenhum dispatch por nome.
 
 ## Atomização comportamental P1498
 
-**Medição:** a working tree não commitada em `00_nucleo/diagnosticos/atomizacao-stdlib-layout-2026-09-30-before.json.gz` contém 2966 linhas neste consumer; a suíte L1 passou com 6401 testes e 2 ignorados. Não é benchmark nem nova comparação com o vanilla.
+**Medição:** a working tree não commitada em `lab/results/construction/diagnostics/atomizacao-stdlib-layout-2026-09-30-before.json.gz` contém 2966 linhas neste consumer; a suíte L1 passou com 6401 testes e 2 ignorados. Não é benchmark nem nova comparação com o vanilla.
 
 **Decisão:** este owner conserva `native_align`, a extração de alinhamento e os bindings estáticos. Os outros algoritmos são delegados a owners exclusivos `layout/{place,grid,page,casting,pad,hide,spacing,block,stack,box_elem,repeat,columns,measure,stroke,pagebreak}.md`. As cláusulas anteriores deste documento mantêm o histórico e o mapa da superfície; cada filho é owner da sua família. A separação não altera comportamento por defeito, assinaturas nem fase.
 
@@ -928,7 +928,7 @@ continua owner de validação dos 18 named e body; nenhum dispatch por nome.
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/layout.rs:64-77; 01_core/src/compiler/stdlib/tests/layout_context.rs:452-466; 01_core/src/compiler/stdlib/tests/stroke.rs:400-402 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `00_nucleo/diagnosticos/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/layout.rs:64-77; 01_core/src/compiler/stdlib/tests/layout_context.rs:452-466; 01_core/src/compiler/stdlib/tests/stroke.rs:400-402 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `lab/results/construction/diagnostics/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
 
 ### Decisão e aceitação
 

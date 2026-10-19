@@ -76,7 +76,7 @@ and native/bridge projection behavior without weakening language acceptance test
 Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado. A duplicação cfg(test) ocorre em `01_core/src/entities/elements/p1429_math_accent_tests.rs:5` / pai :46; `01_core/src/entities/elements/p1430_math_cases_tests.rs:5` / pai :48; `01_core/src/entities/elements/p1431_math_matrix_tests.rs:5` / pai :51.
 Fontes, L0, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/cfg-test-ci-2026-10-13/before.json.gz` e
+`lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/before.json.gz` e
 `refinement-before.json.gz`. O Clippy pinado reproduz os atributos duplicados.
 A tentativa de retirar a condição interna mantém os testes Rust, mas o linter
 arquitetural pinado não propaga a condição do pai e acusa V2 nos helpers.

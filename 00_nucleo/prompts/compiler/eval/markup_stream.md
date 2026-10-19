@@ -94,7 +94,7 @@ outros observáveis não são removidos indiscriminadamente.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -129,7 +129,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ### Medição e correção suplementar interna — 2026-10-07
 
-Proveniência: diagnosticos/table-cell-realizacao-d08b3-2026-10-07/geometry-fifth.json e local-bool-red.log, binário 59da863f, fonte/HEAD/estado/UTC/argv/glifos/testes.
+Proveniência: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/geometry-fifth.json e local-bool-red.log, binário 59da863f, fonte/HEAD/estado/UTC/argv/glifos/testes.
 geometry-fifth.json compara glifos de it.breakable: vanilla inline 8.8pt monoespaçado, Tekt texto 11pt. Vanilla foundations/value.rs:191–208 usa Raw(lang:typc,block:false) para Bool; markup_stream.rs:239–253 usa repr como Text. Corrigir só entrada Bool da tabela de apresentação para Content::raw(repr,Some(typc),false), mantendo demais tipos. Preservar intercepção e snapshot show de Raw também nessa apresentação (sem executar constructor para classificar). RED local-bool-red.log mostra zero Raw vs true/false. Correção interna de paridade/mapeamento, sem tipo/assinatura/fase nova. Render de tipos não medidos continua aberto.
 Não certificar antes da recoleta RED→GREEN e suites; nenhum campo/método público, flag ou mudança de fase suplementar.
 
@@ -142,7 +142,7 @@ Antes da implementação, testes devem refutar a apresentação Auto como Text e
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Assentar origem do token Text na saída da intercepção lexical antes de construir ContentBlock. A origem inicial do texto precede a do bloco; por isso [a] aponta para a e não os delimitadores. Source permanece transparente aos grupos textuais e marcadores.
 
@@ -162,7 +162,7 @@ depth-recheck.json.gz conserva os dois aborts após descascar Source em walk. ap
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-00_nucleo/diagnosticos/labels-expressoes-2026-10-14/before/results.json.gz
+lab/results/construction/diagnostics/labels-expressoes-2026-10-14/before/results.json.gz
 registra UTC, status/diffstat, fontes, owners, comandos e hashes dos binários.
 Pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. alias/direct/closure/block
 imprimem <alvo> e COUNT=0 no Tekt; o literal e o vanilla retornam COUNT=1.
@@ -200,7 +200,7 @@ fechados por esta etapa, nem promover diferenças do Tekt sem prova.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/labels-escopos-2026-10-14/before/results.json.gz
+lab/results/construction/diagnostics/labels-escopos-2026-10-14/before/results.json.gz
 registra UTC, fontes/owners/binários, comandos, status e diffstat, contra
 vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Parbreak direto, em bloco e por alias dá COUNT=0 no Tekt contra 1 no pin.
@@ -247,7 +247,7 @@ e realização de heading em show também permanecem medidos e pendentes.
 ### Medição anterior à decisão
 
 As coletas before/expanded/controls.json.gz e candidate.log em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 fixam HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
@@ -257,7 +257,7 @@ ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
 filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
 
 O dono aprovou a revisão
-00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
 46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
 nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
 fronteira antes dos filhos/Table/math; não cobre novo contrato público.
@@ -300,7 +300,7 @@ GREEN mantém limite/hints e os testes do bloco.
 ## Divisão explícita — pendências após R2/R2-S
 
 Medição e proveniência: r2s-scope.json.gz/text-before.json.gz no diagnóstico
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17. Este pacote é
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17. Este pacote é
 incompleto no universo de morfologia e regras textuais. R3-Symbol deve
 completar identidade/igualdade do cast de Symbol (text/true no Tekt contra
 symbol/false no vanilla); exige proposta/gate próprio se criar variante
@@ -316,7 +316,7 @@ aceita ou paridade já demonstrada.
 ## R2-S — slots internos não são Empty explícito
 
 Medição anterior à decisão: empty-slots-before.json.gz em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 registra fontes,
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 registra fontes,
 binários, UTC, HEAD/working tree/diffstat e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Body simples produz EBODY contra BODY; filhos none/[] produzem EEA contra
 EA; com regra textual A→AA aparecem Es adicionais. markup_stream.rs:
@@ -337,7 +337,7 @@ L0 primeiro, RED em módulo antes do código; revalidar PDF e HTML separadamente
 ## R2-S — raiz de pacote textual e EOF causal
 
 Medição anterior à decisão: validation-attempt-2.json.gz, trace-recipes,
-trace-markup2 e trace-textual2 em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17
+trace-markup2 e trace-textual2 em lab/results/construction/diagnostics/sequence-constructor-2026-10-17
 mostram 11 testes verdes e dois REDs. eof-before.json.gz mede as fontes
 exatas sem acrescentar newline: Styled com EOF produz Y nos dois; sem
 EOF produz AB nos dois. A expectativa unitária Y usava a fonte sem EOF,
@@ -363,7 +363,7 @@ do código antes da validação final. Sem campo/tipo/API/fase nova.
 ## R2-S13 — texto emitido e receitas escalares redundantes
 
 Medição antes da decisão: validation-attempt-3.json.gz e emission-after.json.gz
-em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17 preservam estado
+em lab/results/construction/diagnostics/sequence-constructor-2026-10-17 preservam estado
 working tree, UTC, fontes/argv/binários/diffstat no pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Sequence emitindo [A] ou text("A") sob A→AA produz AAAA contra AA.
 O controle text("A") sem Sequence já produz AAAA no release de pilha
@@ -402,7 +402,7 @@ novo tipo/campo público, fase ou mudança da política dos demais elementos.
 ## R2-S — origem somente quando a captura é necessária
 
 Medição antes da decisão: validation-attempt-4.json.gz, complete-workspace.log
-e conditional-origin-before-sources.json.gz em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17
+e conditional-origin-before-sources.json.gz em lab/results/construction/diagnostics/sequence-constructor-2026-10-17
 conservam HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, estado não
 commitado/UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 A suíte de core passou 7228 testes, falhou 24 e ignorou 5. Os dois
@@ -439,7 +439,7 @@ modo padrão ou fase adicional é criada.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/sequence-r3-2026-10-18/before.json.gz e
+lab/results/construction/diagnostics/sequence-r3-2026-10-18/before.json.gz e
 before-sources.json.gz registram UTC, HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
 working tree não commitado/diffstat/status, fontes e SHA dos executáveis.
 Vanilla pin bd5ebec285505889e8ff1d4f68804ab147a699f3, árvore
@@ -491,7 +491,7 @@ ocultar V16. O forwarding de append não emitia V16 no baseline; esta explicita�
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/sequence-r3-2026-10-18/{before,markup-after,
+lab/results/construction/diagnostics/sequence-r3-2026-10-18/{before,markup-after,
 textual-before,transport-before,transport-before-sources}.json.gz conserva
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/diffstat/fontes, executáveis e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
@@ -559,7 +559,7 @@ incompleto; não autoriza modificar os owners dessas projeções sem L0 próprio
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
 commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém

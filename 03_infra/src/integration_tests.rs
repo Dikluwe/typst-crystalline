@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash 8bbed4be
+//! @prompt-hash d5b4fd14
 //! @layer L3
 //! @updated 2026-10-06
 
@@ -4870,7 +4870,7 @@ mod integration {
         use typst_core::entities::font_list::FontList;
         use typst_core::entities::layout_types::{MathSize, Pt, TextStyle};
 
-        let src = include_str!("../../.typ/sec_27.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_27.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -4910,7 +4910,7 @@ mod integration {
 
     #[test]
     fn p1132e_cases_conteudo_preserva_centro_da_chave_sec09() {
-        let src = include_str!("../../.typ/sec_09.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_09.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -4946,7 +4946,7 @@ mod integration {
 
     #[test]
     fn p1132g_binom_sec07_sem_barra_e_com_posicao_vanilla() {
-        let src = include_str!("../../.typ/sec_07.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_07.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -4992,7 +4992,7 @@ mod integration {
     /// conserva a italics correction OpenType.
     #[test]
     fn p1132k_sec12_limite_unilateral_preserva_altura_vanilla() {
-        let src = include_str!("../../.typ/sec_12.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_12.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -5050,7 +5050,7 @@ mod integration {
 
     #[test]
     fn p1133b_sec04_dif_com_sup_preserva_altura_vanilla() {
-        let src = include_str!("../../.typ/sec_04.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_04.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -5092,7 +5092,7 @@ mod integration {
 
     #[test]
     fn p1134_sec07_math_multilinha_usa_leading_de_paragrafo() {
-        let src = include_str!("../../.typ/sec_07.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_07.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -5152,7 +5152,7 @@ mod integration {
 
     #[test]
     fn p1136_sec17_operadores_large_alinham_conteudo_adjacente_no_eixo() {
-        let src = include_str!("../../.typ/sec_17.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_17.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -5187,7 +5187,7 @@ mod integration {
 
     #[test]
     fn p1136b_sec16_estilos_matematicos_medem_o_glifo_emitido() {
-        let src = include_str!("../../.typ/sec_16.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_16.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -5213,7 +5213,7 @@ mod integration {
 
     #[test]
     fn p1132n_sec18_chave_externa_seleciona_variante_vanilla() {
-        let src = include_str!("../../.typ/sec_18.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_18.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -5254,7 +5254,7 @@ mod integration {
 
     #[test]
     fn p1132o_sec18_fracao_aninhada_suprime_spacing_em_script() {
-        let src = include_str!("../../.typ/sec_18.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_18.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -5321,7 +5321,7 @@ mod integration {
 
     #[test]
     fn p1132p_sec10_assembly_de_bracket_usa_attachment_central() {
-        let src = include_str!("../../.typ/sec_10.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_10.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();
@@ -5369,7 +5369,7 @@ mod integration {
 
     #[test]
     fn p1132r_sec22_brackets_invertidos_usam_as_variantes_escalaveis() {
-        let src = include_str!("../../.typ/sec_22.typ");
+        let src = include_str!("../../lab/corpus/legacy-sections/sec_22.typ");
         let (world, _dir) = world_from_str(src);
         let world = world.with_fonts_and_system(&[]);
         let source = world.source(world.main()).unwrap();

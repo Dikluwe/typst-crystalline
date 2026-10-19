@@ -9,7 +9,7 @@ Camada L1. Consumer exclusivo: 01_core/src/entities/content/source.rs.
 
 ## Medição anterior à decisão
 
-baseline.json.gz em diagnosticos/table-origens-d08b3c2-2026-10-07 registra fonte/HEAD/UTC/working tree/binários: alias/spread perdem span do conteúdo; vanilla foundations/content/mod.rs:109–114 assenta somente origem detached, model/table.rs:436–437 copia para Cell implícita. Contract C2 confirmado `confirmo`, 2026-10-07, autoriza SourceContent e Content::Source.
+baseline.json.gz em lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07 registra fonte/HEAD/UTC/working tree/binários: alias/spread perdem span do conteúdo; vanilla foundations/content/mod.rs:109–114 assenta somente origem detached, model/table.rs:436–437 copia para Cell implícita. Contract C2 confirmado `confirmo`, 2026-10-07, autoriza SourceContent e Content::Source.
 
 ## Responsabilidade
 
@@ -31,7 +31,7 @@ Verificar primeira origem preservada por clone/map e callback de body exatamente
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/tekt-v16-content-views-2026-10-17/before.json.gz registra
+lab/results/construction/diagnostics/tekt-v16-content-views-2026-10-17/before.json.gz registra
 UTC/status/diff HEAD --stat, fontes/L0 e 2129 hashes conferidos. contexts-before.json
 mapeia os seis V16 por AST/linhas; projection-plan.json guarda o domínio real
 Content (120 variantes) e os complementos por função. before-probe-result.json

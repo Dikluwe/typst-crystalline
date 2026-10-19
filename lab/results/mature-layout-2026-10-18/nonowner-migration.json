@@ -1,0 +1,53 @@
+{
+  "checkpoint": "8ec827fd975bf14cd849bebb9ede245e49033337",
+  "mappings": [
+    {
+      "from": "00_nucleo/prompts/auditar-fatiamento.md",
+      "to": "lab/tools/workflows/module-splitting-audit.md",
+      "action": "moved and translated to English",
+      "notes": "Preserves all measured criteria, numeric counts, examples, artifact correction, and unresolved fan-in proposal; updates active workflow path, current L0 ownership to 1:1 with shared claims in pinned nuclei, serial RED/GREEN, and no permanent step directory."
+    },
+    {
+      "from": "00_nucleo/prompts/auditar-spec.md",
+      "to": "lab/tools/workflows/l0-prompt-audit.md",
+      "action": "moved and translated to English",
+      "notes": "Preserves four audit blocks and finding format; updates vanilla target to bd5ebec285505889e8ff1d4f68804ab147a699f3 and tree cac836c07e4dec2a89219370428292393a3216b5, distinguishes lab oracle from lab/target/product/typst, and treats task/step references as recoverable historical provenance rather than a permanent directory."
+    },
+    {
+      "from": "00_nucleo/prompts/template-prompts.md",
+      "to": "lab/tools/workflows/l0-prompt-template.md",
+      "action": "moved and translated to English",
+      "notes": "Preserves optional technique field and five structural roles; adds current exclusive-consumer/1:1 ownership and nucleus distinction, and changes test guidance to serial RED then implementation/GREEN without simultaneous authorship."
+    },
+    {
+      "from": "00_nucleo/prompts/compiler/show-regex.md",
+      "to": "lab/history/construction/retired-l0/compiler/show-regex.md",
+      "sha256": "ce642976141509bb8e315dea16cfc6798dec37779fa3af0042d2b1e2a6071bc4",
+      "action": "retained verbatim as a non-owner; status and unresolved obligations in diagnostics"
+    },
+    {
+      "from": "00_nucleo/prompts/compiler/stdlib/text/regex.md",
+      "to": "lab/history/construction/retired-l0/compiler/stdlib/text/regex.md",
+      "sha256": "849dbe8ae2aabf2757275fc21a3528d420ef845fad0f17070f0096cc94d2c833",
+      "action": "retained verbatim as a non-owner; status and unresolved obligations in diagnostics"
+    },
+    {
+      "from": "00_nucleo/prompts/compiler/style/font-dict.md",
+      "to": "lab/history/construction/retired-l0/compiler/style/font-dict.md",
+      "sha256": "039f56e17e84c4a63c508a26028ec9e3aee05254475bafac179fe9dc804fbb95",
+      "action": "retained verbatim as a non-owner; status and unresolved obligations in diagnostics"
+    },
+    {
+      "from": "00_nucleo/prompts/infra/package_version_resolution.md",
+      "to": "lab/history/construction/retired-l0/infra/package_version_resolution.md",
+      "sha256": "d16666c65f459dd3472c3771924130e13cdcdc9f84ec62b8d182d82c105c03cf",
+      "action": "retained verbatim as a non-owner; status and unresolved obligations in diagnostics"
+    },
+    {
+      "from": "00_nucleo/prompts/package-spec-dto.md",
+      "to": "lab/history/construction/retired-l0/package-spec-dto.md",
+      "sha256": "5bf25969fba41ff444a5af4dbdafd32203f299e2b8e7a2e916495af543938265",
+      "action": "retained verbatim as a non-owner; status and unresolved obligations in diagnostics"
+    }
+  ]
+}

@@ -7,7 +7,7 @@ Hash do Código: 3f45af6e
 
 ## Medição anterior à decisão
 
-O código de `kitlangton/justice` no commit `86dbc6da8cc2059cabb2a67c0aa42d773d5023e2`, `src/engine.ts:340-400`, percorre predecessores em ordem inversa e interrompe após transbordamento sob guarda de monotonicidade. No protótipo conjunto anterior, `00_nucleo/diagnosticos/paragraph-select-podas-vanilla-justice-2026-10-02.md` mediu 1.000 palavras/240pt: 210,360 µs com limite superior Simple e 196,900 µs sem semente, contra 120,770 e 122,730 µs das respectivas DPs exatas. A função de custo e os estados do Justice diferem; isto é um decalque da regra de busca, não um porte integral.
+O código de `kitlangton/justice` no commit `86dbc6da8cc2059cabb2a67c0aa42d773d5023e2`, `src/engine.ts:340-400`, percorre predecessores em ordem inversa e interrompe após transbordamento sob guarda de monotonicidade. No protótipo conjunto anterior, `lab/results/construction/diagnostics/paragraph-select-podas-vanilla-justice-2026-10-02.md` mediu 1.000 palavras/240pt: 210,360 µs com limite superior Simple e 196,900 µs sem semente, contra 120,770 e 122,730 µs das respectivas DPs exatas. A função de custo e os estados do Justice diferem; isto é um decalque da regra de busca, não um porte integral.
 
 ## Decisão experimental
 

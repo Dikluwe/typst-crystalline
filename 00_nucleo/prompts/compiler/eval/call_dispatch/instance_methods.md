@@ -10,7 +10,7 @@ Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/i
 
 ## Contrato
 
-Mantém o match estático ordenado dos métodos de instância de Value para State, Counter, SpotColorant, Color, Gradient, valores numéricos, geometria e Version. Avalia o alvo nesta fase; se nenhum método o interceptar, transfere o valor já avaliado ao próximo despacho sem clone profundo nem segunda avaliação da expressão. Os argumentos são avaliados apenas quando necessários; preservar spans, traces, contrato público, fase do pipeline, defaults, compatibilidade e pureza L1. Medição antes da decisão: `01_core/src/compiler/eval/call_dispatch/instance_methods.rs:17-18` avalia todo alvo, enquanto `collection_methods.rs:17-18` o reavalia. O diagnóstico `00_nucleo/diagnosticos/arrays-dicts-item6-2026-10-09.md`, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree e hashes nele registrados, isolou 40.002 chamadas adicionais de `Value::clone` em array de 20 mil e 4.002 em dict de 2 mil ao acrescentar `.len()`. A atribuição causal é inferência do código e da diferença com/sem leitura; seria refutada se o clone residual após a transferência continuasse na mesma ordem de grandeza.
+Mantém o match estático ordenado dos métodos de instância de Value para State, Counter, SpotColorant, Color, Gradient, valores numéricos, geometria e Version. Avalia o alvo nesta fase; se nenhum método o interceptar, transfere o valor já avaliado ao próximo despacho sem clone profundo nem segunda avaliação da expressão. Os argumentos são avaliados apenas quando necessários; preservar spans, traces, contrato público, fase do pipeline, defaults, compatibilidade e pureza L1. Medição antes da decisão: `01_core/src/compiler/eval/call_dispatch/instance_methods.rs:17-18` avalia todo alvo, enquanto `collection_methods.rs:17-18` o reavalia. O diagnóstico `lab/results/construction/diagnostics/arrays-dicts-item6-2026-10-09.md`, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree e hashes nele registrados, isolou 40.002 chamadas adicionais de `Value::clone` em array de 20 mil e 4.002 em dict de 2 mil ao acrescentar `.len()`. A atribuição causal é inferência do código e da diferença com/sem leitura; seria refutada se o clone residual após a transferência continuasse na mesma ordem de grandeza.
 
 ## Aceitação
 
@@ -22,7 +22,7 @@ Suíte L1, `cargo build` e `crystalline-lint .` passam. Não inferir ganho de de
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
 anterior foram verificados exatamente antes do baseline. before-probe.json.gz
 e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.

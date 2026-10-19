@@ -29,7 +29,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/sub_frame.rs:29`, `01_core/src/compiler/layout/sub_frame.rs:65`, `01_core/src/compiler/layout/sub_frame.rs:329`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -49,7 +49,7 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 
 ### Measurement before decision
 
-The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/p1431_line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `00_nucleo/diagnosticos/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
+The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/p1431_line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `lab/results/construction/diagnostics/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
 
 ### Owner responsibility
 
@@ -59,7 +59,7 @@ Provide a private geometric-origin path for root Place without a cell anchor or 
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/correcao-tracking-escopos-2026-09-29/before-pdf/results.json` e `summary.json` registram 30 fontes/90 PDFs, comandos, fontes e estado exato em initial.json e before-pdf/provenance.json, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Escopos iguais repetidos acumulam cerca de 0.4pt e aninhados 0.8pt; wrap positivo muda a linha. `text_tracking.rs:50` compara apenas TextStyle resolvido. Vanilla `inline/collect.rs:287-295` conserva segmentos de cadeias distintas; `inline/shaping.rs:1269-1295` soma tracking apenas dentro de cada run. Isto mede fronteiras textuais observáveis, não exige copiar PartialEq ou representação da chain. Hide/Box também são fronteiras: hide.rs:21-24 e boxed.rs:157-208 substituem/restauram buffers sem preservar essa distinção.
+`lab/results/construction/diagnostics/correcao-tracking-escopos-2026-09-29/before-pdf/results.json` e `summary.json` registram 30 fontes/90 PDFs, comandos, fontes e estado exato em initial.json e before-pdf/provenance.json, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Escopos iguais repetidos acumulam cerca de 0.4pt e aninhados 0.8pt; wrap positivo muda a linha. `text_tracking.rs:50` compara apenas TextStyle resolvido. Vanilla `inline/collect.rs:287-295` conserva segmentos de cadeias distintas; `inline/shaping.rs:1269-1295` soma tracking apenas dentro de cada run. Isto mede fronteiras textuais observáveis, não exige copiar PartialEq ou representação da chain. Hide/Box também são fronteiras: hide.rs:21-24 e boxed.rs:157-208 substituem/restauram buffers sem preservar essa distinção.
 
 ### Contrato interno da correção
 
@@ -74,7 +74,7 @@ O experimento do owner `00_nucleo/prompts/compiler/layout/grid/measurement_cache
 
 ## Direção de parágrafo distinta de direção de run — 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/direcao-alinhamento-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes, binários e treze sondas. rtl_lines põe ABC em x=20 no Tekt e x=152.949220 no vanilla pinado; rtl_inline_only e rtl_scope coincidem à esquerda. ltr_lines põe árabe em x=174.567870 no Tekt contra x=20 no vanilla. Em `cursor.rs:156–162` e `line_commit.rs:210–216`, a âncora depende do primeiro item da linha. Vanilla `flow/collect.rs:129–136` obtém trunk_from_pairs e `inline/mod.rs:189,232` resolve direção/alinhamento compartilhados antes das linhas. Semântica observável: direção dos trechos e âncora de todas as linhas do parágrafo. Estratégia de state/preflight é mecânica interna, não cópia do vanilla. Inferência: preservar direção compartilhada evita perder a âncora em linhas só com override; refutada por controles integralmente estilizados/parbreak/wrap.
+Medição anterior à decisão: `lab/results/construction/diagnostics/direcao-alinhamento-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes, binários e treze sondas. rtl_lines põe ABC em x=20 no Tekt e x=152.949220 no vanilla pinado; rtl_inline_only e rtl_scope coincidem à esquerda. ltr_lines põe árabe em x=174.567870 no Tekt contra x=20 no vanilla. Em `cursor.rs:156–162` e `line_commit.rs:210–216`, a âncora depende do primeiro item da linha. Vanilla `flow/collect.rs:129–136` obtém trunk_from_pairs e `inline/mod.rs:189,232` resolve direção/alinhamento compartilhados antes das linhas. Semântica observável: direção dos trechos e âncora de todas as linhas do parágrafo. Estratégia de state/preflight é mecânica interna, não cópia do vanilla. Inferência: preservar direção compartilhada evita perder a âncora em linhas só com override; refutada por controles integralmente estilizados/parbreak/wrap.
 
 Correção interna/de paridade ADR-0127, fluxo contínuo L0 primeiro e RED→GREEN. Apenas campos privados de Layouter e helpers descendentes, nenhuma entidade ou assinatura pública/fase/default novo. Esta rodada certifica conteúdo textual estrutural (Text, Empty, Space/SpaceFromNewline, Linebreak, Sequence, Styled e Strong/Emph); unidades desconhecidas conservam fallback anterior. Não prometer ordem bidi mista, align explícito, HTML ou todas as formas de parágrafo. As equações existentes de largura/tracking permanecem.
 
@@ -84,7 +84,7 @@ Aceitação: RED→GREEN em parágrafo RTL com linha LTR e inverso, escopo integ
 
 ## Transporte lógico textual — contrato ratificado em 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
+Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
 
 Esta unidade participa do transporte por Cursor privado, input Arc e spans exatos. Preparar antes de emitir o parágrafo textual inteiro, base lexical já certificada; conservar offsets por ordem de visita, não matching de strings. Sequence/Par criam escopo, nested Sequence herda; checkpoint conserva cursor e span corrente; subframe isola e restaura. Text fornece subspans para palavras e espaços literais; Space consome seu segmento mesmo quando fraco; Linebreak consome fronteira. Word emite span somente se texto exato não foi transformado.
 
@@ -94,7 +94,7 @@ Guard privado bidi_scope_active distingue ausência de cursor certificado de aus
 
 ## Consumidor textual Align — 2026-10-06
 
-Medição anterior à decisão: baseline-verification.json.gz em `00_nucleo/diagnosticos/block-align-2026-10-06/` reproduz Y deslocado por um ascender em Align. `placement.rs:35-46,176-177` compõe duas origens tipográficas. Para o body textual finito certificado pelo owner placement, permitir também o uso do helper geométrico existente e origem zero na recomposição. Outros consumers preservam baseline-origin. Nenhuma assinatura pública ou nova fase. O slot privado explicit_line_alignment pertence ao hub e é herdado, não zerado, por esse subframe; quem instala/restaura o override lexical é placement. Layout isolado continua zerando/restaurando direção de parágrafo e bidi, pois alinhamento não é direção. Testes RED→GREEN/escopo e corpus bilateral refutam a correção; não se afirma suporte geral a Block/Align geométrico ou dimensions auto.
+Medição anterior à decisão: baseline-verification.json.gz em `lab/results/construction/diagnostics/block-align-2026-10-06/` reproduz Y deslocado por um ascender em Align. `placement.rs:35-46,176-177` compõe duas origens tipográficas. Para o body textual finito certificado pelo owner placement, permitir também o uso do helper geométrico existente e origem zero na recomposição. Outros consumers preservam baseline-origin. Nenhuma assinatura pública ou nova fase. O slot privado explicit_line_alignment pertence ao hub e é herdado, não zerado, por esse subframe; quem instala/restaura o override lexical é placement. Layout isolado continua zerando/restaurando direção de parágrafo e bidi, pois alinhamento não é direção. Testes RED→GREEN/escopo e corpus bilateral refutam a correção; não se afirma suporte geral a Block/Align geométrico ou dimensions auto.
 
 Medição adicional: green.log da rodada tem Center BBB ainda na origem. `sub_frame.rs:220-222` só alinha a cauda manual quando region.align_rtl, embora as linhas anteriores passem pelo cursor. Ao haver explicit_line_alignment, chamar o cursor na cauda isolada também, exatamente uma vez antes de drenar itens. O caminho inline conserva política antiga.
 
@@ -103,7 +103,7 @@ Medição adicional: green.log da rodada tem Center BBB ainda na origem. `sub_fr
 ### Medição anterior à decisão
 
 focused-candidate-verification.json.gz e candidate-source.json.gz em
-`00_nucleo/diagnosticos/block-tabela-fluxo-2026-10-06/` preservam candidato
+`lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/` preservam candidato
 com largura/âncora corretas mas ordem ABC/123/árabe incorreta em RTL.
 bidi_origin.rs:111-117 recusa todas as células/subframes; o input integral
 não chega à reordenação L3. cell_body.rs:223-235 classifica Text e TextShaped
@@ -231,7 +231,7 @@ Dados sem texto não dependem de fontes por esse reparo.
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/layout/sub_frame.rs` nas linhas 265 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `00_nucleo/diagnosticos/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+`01_core/src/compiler/layout/sub_frame.rs` nas linhas 265 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `lab/results/construction/diagnostics/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
 
 ### Decisão e aceitação
 
@@ -253,7 +253,7 @@ externo por overflow com is_sub_frame ativo. sub_frame.rs:109-121,317-340
 salva buffers/cursor, mas não uma página já comitada por esses descendentes.
 Essa hipótese será testada diretamente antes de modificar as condições.
 Fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC estão
-em `00_nucleo/diagnosticos/subframe-isolamento-2026-10-13/before.json.gz`.
+em `lab/results/construction/diagnostics/subframe-isolamento-2026-10-13/before.json.gz`.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -281,7 +281,7 @@ expand_fr_spacings. Hipóteses refutáveis: um flush local consome os
 pendentes externos e uma cauda local conserva frações/repeats sem resolver,
 vazando-os para a linha restaurada. Prova causal RED→GREEN e snapshot
 HEAD/working tree/UTC/status/diffstat/fontes em
-`00_nucleo/diagnosticos/subframe-pendentes-2026-10-13/before.json.gz`.
+`lab/results/construction/diagnostics/subframe-pendentes-2026-10-13/before.json.gz`.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -415,7 +415,7 @@ menor dentro e fora de Box com a mesma baseline, sem relaxar posições.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/links-paginacao-2026-10-14.md e os recibos
+lab/results/construction/diagnostics/links-paginacao-2026-10-14.md e os recibos
 posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
 HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
 texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
@@ -423,7 +423,7 @@ antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
 link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
 antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
 fragmentos, destino ou geometria. Snapshot anterior deste reparo:
-00_nucleo/diagnosticos/links-captura-2026-10-14/before.json.gz.
+lab/results/construction/diagnostics/links-captura-2026-10-14/before.json.gz.
 Os observáveis são conteúdo, destino, regiões e bounds; limites privados
 são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
 
@@ -455,7 +455,7 @@ A origem do body e a âncora após fluxo comitado são defeitos distintos. Esta 
 
 ### Medição antes da decisão
 
-`00_nucleo/diagnosticos/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
+`lab/results/construction/diagnostics/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
 
 ### Responsabilidade exclusiva
 
@@ -470,7 +470,7 @@ B1 completa a âncora após produtores certificados (linha, forma, Block, Align,
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/place-fluxo-2026-10-14/block-regions-before/results.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore suja, diffstat, UTC, fontes e binários. Em 24 pares contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, só 2 bboxes coincidem: inset3/top Tekt(20,15), vanilla(20,18); bottom/right Tekt(71,37), vanilla(62,44); clip apaga o marcador Tekt. block.rs:90 ignora inset.right; :220 instala largura como body, :275 usa avanço zero de Place como altura de clip, :290 agrupa filhos absolutos sem rebase. placement.rs:505 usa página/subframe sem região Block. Fonte pinada typst-layout/src/flow/block.rs:66-89 e :223-234 força tamanho interno, cresce inset e só então recorta; :278-280 desconta inset da região. Geometria é observável de linguagem; buffers Rust são mecânica. A hipótese de região local é refutada por aninhamento, texto, auto, clipping ou vazamento aos irmãos.
+`lab/results/construction/diagnostics/place-fluxo-2026-10-14/block-regions-before/results.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore suja, diffstat, UTC, fontes e binários. Em 24 pares contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, só 2 bboxes coincidem: inset3/top Tekt(20,15), vanilla(20,18); bottom/right Tekt(71,37), vanilla(62,44); clip apaga o marcador Tekt. block.rs:90 ignora inset.right; :220 instala largura como body, :275 usa avanço zero de Place como altura de clip, :290 agrupa filhos absolutos sem rebase. placement.rs:505 usa página/subframe sem região Block. Fonte pinada typst-layout/src/flow/block.rs:66-89 e :223-234 força tamanho interno, cresce inset e só então recorta; :278-280 desconta inset da região. Geometria é observável de linguagem; buffers Rust são mecânica. A hipótese de região local é refutada por aninhamento, texto, auto, clipping ou vazamento aos irmãos.
 
 ### Responsabilidade exclusiva
 
@@ -526,7 +526,7 @@ extensão intrínseca; sub_frame apenas o chama no ponto de fechamento local.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/block-auto-alignment-2026-10-14/before/results.json.gz`
+`lab/results/construction/diagnostics/block-auto-alignment-2026-10-14/before/results.json.gz`
 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
 UTC/diffstat/status/fontes e SHA dos binários. right/center/link com clip
 perdem todo o retângulo vermelho no Tekt (zero pixels), contra 3840 no pin
@@ -568,7 +568,7 @@ Salvar/restaurar relative_region_size em LIFO. No subframe, largura é a região
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/shape-dim-before-complete/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/shape-dim-before-complete/results.json.gz`
 registra HEAD, working tree não commitado, diffstat, UTC, fontes e binários.
 Root Ratio50%/25% em região160 mede80×40 no pin; o Tekt descarta Ratio e
 em. Block80 com inset5 exige largura35 e altura75 se auto,25 se altura60.
@@ -598,7 +598,7 @@ existente não ganha execução nova.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
 registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
 commitado, status/stat/UTC, fontes e binários contra o pin vanilla
 9f2b6e8715237cb086899a42873660fe744622e8. Multiword21 gera duas páginas
@@ -632,7 +632,7 @@ Subframe isolado suspende text_segment_chain e geometric_text_lines e restaura e
 
 ### Medição anterior à decisão
 
-F011: 01_core/src/compiler/layout/sub_frame.rs:293 (layout_sub_frame_with_origin); F012: 01_core/src/compiler/layout/sub_frame.rs:553 (text_of). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F011: 01_core/src/compiler/layout/sub_frame.rs:293 (layout_sub_frame_with_origin); F012: 01_core/src/compiler/layout/sub_frame.rs:553 (text_of). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 
@@ -655,7 +655,7 @@ Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets c
 ### Medição anterior à decisão — admissão e continuação
 
 pagination-block.json.gz e block-freeze.json.gz em
-00_nucleo/diagnosticos/bibliography-structure-2026-10-18 preservam estado completo,
+lab/results/construction/diagnostics/bibliography-structure-2026-10-18 preservam estado completo,
 UTC/HEAD/fontes/binários/argv e caixas do candidato Block/Place c1c222ae54ab3b67487471326012a7f6c4ed86c1e6bd61b1830ec6a987c2ccea.
 Em IEEE/200×90pt ele recupera duas páginas, mas a continuação começa em x8
 contra29.924 no oracle bd5ebec285505889e8ff1d4f68804ab147a699f3 (binário
@@ -690,7 +690,7 @@ Aceitação: RED→GREEN de prefixo/corpo na mesma página e inset nas continua�
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
 status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
 extra-before.json.gz contém26; boundary-before.json.gz contém10 e

@@ -1,5 +1,5 @@
 # L0 — stdlib/color
-Hash do Código: c5529a8a
+Hash do Código: 091b54f9
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/color.rs`
@@ -8,7 +8,7 @@ Após a atomização, este consumer possui o despacho estático do tipo color, o
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/color.rs:31` (fn err_typed<T>msg: impl Into<String>) -> SourceResult<T> {); `01_core/src/compiler/stdlib/color.rs:52` (pub fn color_type_fieldfield: &str) -> Option<Value> {); `01_core/src/compiler/stdlib/color.rs:94` (const COLOR_MAP_DATA: &str = include_str!"color_maps.hex");) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/color.rs:31` (fn err_typed<T>msg: impl Into<String>) -> SourceResult<T> {); `01_core/src/compiler/stdlib/color.rs:52` (pub fn color_type_fieldfield: &str) -> Option<Value> {); `01_core/src/compiler/stdlib/color.rs:94` (const COLOR_MAP_DATA: &str = include_str!"color_maps.hex");) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 

@@ -425,7 +425,7 @@ os três caminhos.
 
 No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
 cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+os probes públicos em `lab/results/construction/diagnostics/superficie-linguagem-p1140*`
 medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
 `tiling` e `version`. Os construtores atuais foram novamente executados após
 a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
@@ -451,7 +451,7 @@ subpaths sobrepostos. Não inferir a regra a partir de winding ou do SVG.
 
 ### Medição anterior à decisão
 
-`01_core/src/entities/geometry.rs` nas linhas 191, 192, 193, 194 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `00_nucleo/diagnosticos/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+`01_core/src/entities/geometry.rs` nas linhas 191, 192, 193, 194 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `lab/results/construction/diagnostics/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
 
 ### Decisão e aceitação
 

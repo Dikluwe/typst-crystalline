@@ -20,7 +20,7 @@ precision in this consumer's f32 matrix coefficients. All 50 suggested literal
 replacements were compiled independently as f32 and compared with `to_bits()`;
 every pair is identical. Source, original/proposed spellings, full probe and
 working-tree provenance are conserved in
-`00_nucleo/diagnosticos/qualidade-ci-2026-10-13/color-literals-before.json.gz`.
+`lab/results/construction/diagnostics/qualidade-ci-2026-10-13/color-literals-before.json.gz`.
 This is a mechanics-preservation check, not a new language parity claim.
 
 Decision: use the measured representable spellings, preserving each f32 value,
@@ -31,7 +31,7 @@ repair. Existing color and conversion behavior tests remain mandatory.
 ## Correção medida em 2026-10-13
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado.
-Fontes, hashes, UTC, status e diffstat: `00_nucleo/diagnosticos/cores-ci-2026-10-13/before.json.gz`
+Fontes, hashes, UTC, status e diffstat: `lab/results/construction/diagnostics/cores-ci-2026-10-13/before.json.gz`
 e `constructors-before.json.gz`. Sondas e prova numérica em `evidence.json.gz`.
 Vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, SHA-256 ratificado
 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
@@ -60,7 +60,7 @@ Preservar regressões de color/gradient, compilar e selar ownership/hashes.
 
 Medição anterior à decisão, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
 working tree não commitado: fontes, SHA-256, UTC, status e diffstat em
-`00_nucleo/diagnosticos/limites-cor-2026-10-13/before.json.gz` e
+`lab/results/construction/diagnostics/limites-cor-2026-10-13/before.json.gz` e
 `parents-before.json.gz`; sondas em `evidence.json.gz`. Oráculo pinado
 `9f2b6e8715237cb086899a42873660fe744622e8`, binário SHA-256
 `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
@@ -120,7 +120,7 @@ tolerância de rotate nem por constante especial para red.
 ### Exaustividade nominal do fallback LinearRgb
 
 Medição posterior ao reparo numérico: o SARIF preservado em
-`00_nucleo/diagnosticos/limites-cor-2026-10-13/evidence.json.gz` aponta V16
+`lab/results/construction/diagnostics/limites-cor-2026-10-13/evidence.json.gz` aponta V16
 no novo match de conversion.rs:383. O enum Color atual tem nove variantes;
 Oklab/Oklch possuem rotas diretas, e o braço restante usa o decode existente.
 
@@ -135,7 +135,7 @@ Validar os testes de conversão e o desaparecimento desse V16 específico.
 
 ### Medição anterior à decisão
 
-01_core/src/entities/color/conversion.rs:230. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `00_nucleo/diagnosticos/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
+01_core/src/entities/color/conversion.rs:230. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `lab/results/construction/diagnostics/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
 
 ### Responsabilidade exclusiva
 

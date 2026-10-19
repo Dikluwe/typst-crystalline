@@ -11,7 +11,7 @@ Núcleos Tekt:
 
 ## Measurement before decision
 
-At the working tree captured in `00_nucleo/diagnosticos/atomizacao-textual-projecao-2026-09-30-before.json.gz`, `01_core/src/compiler/eval/rules/textual/matching.rs:186-223` contains unmatched-range projection and flattening of replacement sequences. The existing `p1494` filter passed 17 tests after the space/matching movement, before this projection movement. These helpers use content and ranges only; engine, selector and style state are absent.
+At the working tree captured in `lab/results/construction/diagnostics/atomizacao-textual-projecao-2026-09-30-before.json.gz`, `01_core/src/compiler/eval/rules/textual/matching.rs:186-223` contains unmatched-range projection and flattening of replacement sequences. The existing `p1494` filter passed 17 tests after the space/matching movement, before this projection movement. These helpers use content and ranges only; engine, selector and style state are absent.
 
 ## Decision and behavior
 
@@ -27,7 +27,7 @@ The projection test, existing `p1494` filter and full core suite remain green. `
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
 commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém

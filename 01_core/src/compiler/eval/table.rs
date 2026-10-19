@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/table.md
-//! @prompt-hash 7fd85ee9
+//! @prompt-hash 3edbda1b
 //! @layer L1
 
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;

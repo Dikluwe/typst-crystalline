@@ -7,7 +7,7 @@ Hash do Código: ec08107b
 
 ## Measurement before decision
 
-The uncommitted working tree captured in `00_nucleo/diagnosticos/atomizacao-stdlib-math-cancel-2026-09-30-before.json.gz` places the complete `native_cancel` body in `01_core/src/compiler/stdlib/structural/math.rs:395-529`. Static `math.cancel` registration is in that parent and the public native reexport is in `structural/mod.rs`. The `native_cancel` baseline filter passed 4 tests. This is an internal structure baseline, not a new bilateral vanilla measurement or runtime benchmark.
+The uncommitted working tree captured in `lab/results/construction/diagnostics/atomizacao-stdlib-math-cancel-2026-09-30-before.json.gz` places the complete `native_cancel` body in `01_core/src/compiler/stdlib/structural/math.rs:395-529`. Static `math.cancel` registration is in that parent and the public native reexport is in `structural/mod.rs`. The `native_cancel` baseline filter passed 4 tests. This is an internal structure baseline, not a new bilateral vanilla measurement or runtime benchmark.
 
 ## Language contract
 

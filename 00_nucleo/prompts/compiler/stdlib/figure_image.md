@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: abe2d032
+Hash do Código: ef171ba7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
@@ -220,7 +220,7 @@ campo público da entidade depende do gate ADR-0127.
 
 ### Medição anterior à decisão
 
-T241: 01_core/src/compiler/stdlib/figure_image.rs:174; T242: 01_core/src/compiler/stdlib/figure_image.rs:177. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T241: 01_core/src/compiler/stdlib/figure_image.rs:174; T242: 01_core/src/compiler/stdlib/figure_image.rs:177. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -232,7 +232,7 @@ Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17/before.json.gz e
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17/before.json.gz e
 before-expanded-measurement.json.gz fixam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado, UTC, status/diffstat e fontes/L0/config/binários.
 São 130 pares CLI. O pin é 9f2b6e8715237cb086899a42873660fe744622e8,
@@ -305,7 +305,7 @@ Sem release, merge ou commit/push do Typst. RG1 permanece independente.
 ### Incompletude e passos de conclusão nomeados
 
 Esta correção não fecha a construção integral de figura nem medidas relativas.
-FG1 (00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17/follow-ups.md)
+FG1 (lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17/follow-ups.md)
 completa identidade tipada de kind e decide síntese/recursão após auditoria dos
 owners e gate público; RM1 no mesmo documento completa o transporte de medidas
 relativas e a revisão de casts por consumer. São trabalhos pendentes, não L0
@@ -315,7 +315,7 @@ candidatos antigos ao concluir os passos.
 ## Complemento de casts de figure — Type e Symbol, 2026-10-17
 
 Medição anterior à decisão: type-kind-probe.json e more-cast-probe.json em
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 registram o candidato
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 registram o candidato
 que passou 5/6 testes mas falhou em kind:int. foundations/value.rs:647-658 do
 pin 9f2b6e8715237cb086899a42873660fe744622e8 mede Func aceitando Type.constructor
 ou Symbol.func; content/element.rs:210-214 exige to_element; symbol.rs:133-137,

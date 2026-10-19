@@ -1,0 +1,306 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "properties": {
+        "v19Reference": {
+          "complete": true,
+          "notes": [],
+          "schema": "tekt-v19-reference-v1",
+          "selected": false
+        }
+      },
+      "results": [],
+      "tool": {
+        "driver": {
+          "informationUri": "https://github.com/crystalline/lint",
+          "name": "tekt-linter",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V0",
+              "name": "UnreadableSource",
+              "shortDescription": {
+                "text": "Unreadable source file — I/O error"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V1",
+              "name": "MissingPromptHeader",
+              "shortDescription": {
+                "text": "Missing @prompt lineage header"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V2",
+              "name": "MissingTestFile",
+              "shortDescription": {
+                "text": "Missing test coverage for L1 module"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V3",
+              "name": "ForbiddenImport",
+              "shortDescription": {
+                "text": "Import violates layer dependency direction"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V4",
+              "name": "ImpureCore",
+              "shortDescription": {
+                "text": "I/O operation detected in L1 core"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V5",
+              "name": "PromptDrift",
+              "shortDescription": {
+                "text": "Prompt hash mismatch — implementation drifted"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V6",
+              "name": "PromptStale",
+              "shortDescription": {
+                "text": "Public interface changed since last prompt snapshot"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V7",
+              "name": "OrphanPrompt",
+              "shortDescription": {
+                "text": "Prompt without any materialization in L1–L4"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V8",
+              "name": "AlienFile",
+              "shortDescription": {
+                "text": "Source file outside all mapped layers"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V9",
+              "name": "PubLeak",
+              "shortDescription": {
+                "text": "Import bypasses L1 encapsulation boundary"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V10",
+              "name": "QuarantineLeak",
+              "shortDescription": {
+                "text": "Production code imports from lab/ quarantine"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V11",
+              "name": "DanglingContract",
+              "shortDescription": {
+                "text": "Contract trait without implementation in L2/L3"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V12",
+              "name": "WiringLogicLeak",
+              "shortDescription": {
+                "text": "Type declaration in L4 wiring layer"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V13",
+              "name": "MutableStateInCore",
+              "shortDescription": {
+                "text": "Global mutable state in L1 core"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V14",
+              "name": "ExternalTypeInContract",
+              "shortDescription": {
+                "text": "Unauthorized external dependency in L1"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "V15",
+              "name": "MultiPromptHeader",
+              "shortDescription": {
+                "text": "Multiple @prompt headers in one file"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V16",
+              "name": "WildcardSaturation",
+              "shortDescription": {
+                "text": "Catchall arm discards domain enum information"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V17",
+              "name": "CompoundGuard",
+              "shortDescription": {
+                "text": "Compound boolean logic in pattern guard"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V18",
+              "name": "RangePatternInMatch",
+              "shortDescription": {
+                "text": "Range pattern in domain match expression"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "id": "V19",
+              "name": "OrPatternAlternatives",
+              "shortDescription": {
+                "text": "Decision arm condenses multiple or-pattern alternatives"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "id": "V20",
+              "name": "DeepPatternNesting",
+              "shortDescription": {
+                "text": "Pattern nesting depth exceeds threshold"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V21",
+              "name": "HardcodedContextualValue",
+              "shortDescription": {
+                "text": "Hardcoded contextual scalar feeds geometric sink"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "id": "V22",
+              "name": "ProvenanceInventory",
+              "shortDescription": {
+                "text": "Module-level aggregate provenance ratio metric"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V23",
+              "name": "ContextErasure",
+              "shortDescription": {
+                "text": "Required semantic context is erased before a declared sink"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V24",
+              "name": "SemanticFieldLoss",
+              "shortDescription": {
+                "text": "Required identity field is replaced by a neutral value"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V25",
+              "name": "DecisionOwnership",
+              "shortDescription": {
+                "text": "Semantic decision is recomposed outside its declared owner"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "V26",
+              "name": "NucleusIntegrity",
+              "shortDescription": {
+                "text": "Malformed, stale, cyclic, missing, or orphan Tekt nucleus"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "id": "V27",
+              "name": "MergeableDecisionArms",
+              "shortDescription": {
+                "text": "Adjacent decision arms have structurally identical consequences"
+              }
+            }
+          ],
+          "version": "0.2.0"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}

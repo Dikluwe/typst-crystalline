@@ -24,7 +24,7 @@ These are local source anchors, not a new upstream parity measurement.
 Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/tests.rs`.
 
 The language-demand diagnostic
-`00_nucleo/diagnosticos/infra-performance-followup/language-control.json` and
+`lab/results/construction/diagnostics/infra-performance-followup/language-control.json` and
 pinned buffer setup at
 `lab/typst-original/crates/typst-layout/src/inline/shaping.rs:980` motivate
 language-sensitive regression controls. The versioned Noto Sans fixture contains
@@ -48,7 +48,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 ## Identidade textual — controles do contrato aprovado
 
 Medição anterior: initial.json, before/resultados.json e red.log em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/` registram
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/` registram
 texto/caixas e a perda de SHY. O dono confirmou o contrato
 `00_nucleo/prompts/entities/layout_types.md`. A compilação de fixtures exaustivas
 exige tratar a variante nova. Projeções visuais descem nos filhos; extractors
@@ -61,7 +61,7 @@ prova que text substituto não altera glyphs/avanços nem contamina o cache.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/shy-autoral-2026-09-28/initial.json` e
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/initial.json` e
 `before/resultados.json` registram estado, binários, comandos e trinta sondas
 bilaterais. Em largura 300pt, repre<U+00AD>sentation extrai dois SHY no Tekt
 e um no vanilla pinado. O controle spaces extrai seis versus um.
@@ -90,7 +90,7 @@ ausente conserva Text. Não substituir identidade por contagem de glifos.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/shy-autoral-2026-09-28/first-round/after/`
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/first-round/after/`
 refuta a primeira materialização: trailing e ligature conservam os codepoints
 mas ampliam a caixa de ActualText em 3.12pt e perdem o espaço na extração comum.
 O caso tracking também inclui um intervalo derivado do placeholder invisível.
@@ -121,12 +121,12 @@ O controle deve provar que a família explicitamente declarada vence quando cobr
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -142,7 +142,7 @@ Medição anterior: shaper/shaping.rs volta a chamar World::font ao emitir miss/
 ## Controles bidi e resultado vazio válido (2026-10-06)
 
 Medição anterior à decisão: controles fonte→PDF da primeira rodada em
-`00_nucleo/diagnosticos/controles-bidi-pdf-2026-10-06/first-verification.json.gz`
+`lab/results/construction/diagnostics/controles-bidi-pdf-2026-10-06/first-verification.json.gz`
 conservam RLM residual após corrigir espaços. shaping.rs distingue atualmente
 vazio/falha apenas pela ausência de items; traversal conserva fallback Text.
 Verificar controle isolado com fonte versionada e cache miss/hit, sem item
@@ -159,7 +159,7 @@ entram por generalização. Sondas PDF certificam contexto integral e tinta.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/bidi-identidade-ocorrencia-2026-10-06/before.json`
+`lab/results/construction/diagnostics/bidi-identidade-ocorrencia-2026-10-06/before.json`
 registra HEAD, working tree, código/L0, binários e sonda rustybuzz. Com a face
 DejaVu versionada por SHA e REMOVE_DEFAULT_IGNORABLES, LRM+ABC e PDI+ABC
 produzem A no cluster byte 0, B no byte 4 e C no byte 5. A substring 0..4
@@ -195,7 +195,7 @@ controles existentes. A aceitação fonte→PDF usa casos repetidos e wrappers.
 
 `03_infra/src/shaper/tests.rs:113` calcula self.fonts.len() sem uso; `:520` cria FontBook mutável sem uso antes de construir o SystemWorld realmente consultado pelo teste.
 
-Fontes, owners, diagnósticos, HEAD, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/fixtures-ativos-ci-2026-10-13/before.json.gz`. O registro real da suíte antes da edição confirma ausência do teste matemático. Estas evidências não constituem nova comparação com upstream.
+Fontes, owners, diagnósticos, HEAD, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/fixtures-ativos-ci-2026-10-13/before.json.gz`. O registro real da suíte antes da edição confirma ausência do teste matemático. Estas evidências não constituem nova comparação com upstream.
 
 ### Decisão e aceitação
 
@@ -209,7 +209,7 @@ Manutenção interna de testes (ADR-0127), sem assinatura pública, default ou f
 ### Medição anterior à decisão
 
 `03_infra/src/shaper/tests.rs` nas linhas [1358, 1359, 1494] contém as expressões apontadas pelo inventário
-Clippy. `00_nucleo/diagnosticos/ci-simplificacoes-2026-10-14/before.json.gz`
+Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
 conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
 red.log registra os lints selecionados como erros antes de alterar código.
 Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.
@@ -232,10 +232,10 @@ de suíte completa, build, all-targets, rustdoc, fmt, linhagem e inventário tot
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -263,7 +263,7 @@ e já autorizados. Não alegar paridade de tiling ou produção a partir do buil
 
 ### Medição anterior à decisão
 
-`03_infra/src/shaper/tests.rs` nas linhas 174, 291, 454, 627, 1126 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `00_nucleo/diagnosticos/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
+`03_infra/src/shaper/tests.rs` nas linhas 174, 291, 454, 627, 1126 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `lab/results/construction/diagnostics/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
 
 ### Responsabilidade e aceitação
 

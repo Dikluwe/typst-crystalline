@@ -57,7 +57,7 @@ preservar D04 e não realizar math bare/D06 ou morfologia de matriz/D07.
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
 UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
+lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
 Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
 selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
 é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
@@ -101,7 +101,7 @@ e compostos, função homônima, partial/closure; preservar D05, D07 e query.
 ## Completar projeção da caption existente — 2026-10-17
 
 Medição anterior à decisão: caption-shape-before.json e caption-after.json em
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
 binários, HEAD/working tree de validation-result.json e pin
 9f2b6e8715237cb086899a42873660fe744622e8. Projeção de caption já produz o
 carrier, mas sua CLI imprime só func:figure.caption; body/getters/fields estão
@@ -133,7 +133,7 @@ conforme follow-ups.md; nenhuma API pendente está autorizada por esta seção.
 ### Medição anterior à decisão
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `00_nucleo/diagnosticos/native-element-catalogue-2026-10-17/`
+commitado. `lab/results/construction/diagnostics/native-element-catalogue-2026-10-17/`
 contém `before.json.gz` (estado/diffstat e SHA-256 de todas as fontes),
 `inventory.json.gz` (bindings efetivos em oito perfis de features),
 `before-measurement.json.gz` (3956 casos de funções com comandos e saídas
@@ -211,7 +211,7 @@ RM1, SY1 e a proposta RG1 mantêm os seus próprios escopos/gates pendentes.
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
 commitado; pin `9f2b6e8715237cb086899a42873660fe744622e8`.
-`00_nucleo/diagnosticos/native-math-catalogue-2026-10-17/` fixa o estado
+`lab/results/construction/diagnostics/native-math-catalogue-2026-10-17/` fixa o estado
 exato em before.json.gz: UTC, diff HEAD --stat e hashes de todos os consumers,
 L0 e configuração protegidos. before-measurement.json.gz é reutilização
 verificada da matriz final da etapa anterior: fontes e binário Tekt têm
@@ -303,7 +303,7 @@ sem nova violação, sob MemoryMax12GiB/High10GiB/swap0/jobs1 sequenciais.
 ### Medição anterior à decisão
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
 conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
 baseline-reuse.json prova igualdade de fontes/configuração/binário com a
 matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
@@ -389,7 +389,7 @@ antigos por cópia nem publicar.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz
 e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
 bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
 foundations/content/mod.rs:724–728 declara children requerido;

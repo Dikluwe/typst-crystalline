@@ -3,7 +3,7 @@ Hash do Código: 43ae3d72
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/power.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:256-359 e 1443-1483` contém o comportamento correspondente. SHA-256, horário e estado estão em `00_nucleo/diagnosticos/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/power.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:256-359 e 1443-1483` contém o comportamento correspondente. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
 
 ## Contrato
 
@@ -20,7 +20,7 @@ Preservar a suíte L1 e os testes de calc, compilar e passar `crystalline-lint .
 No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
 `01_core/src/compiler/stdlib/calc/power.rs:32-95` contém três fallbacks abertos:
 predicados de zero e despacho de pares. Estado completo, diffstat, hashes e UTC
-estão em `00_nucleo/diagnosticos/tekt-v16-power-2026-10-17/before.json.gz`.
+estão em `lab/results/construction/diagnostics/tekt-v16-power-2026-10-17/before.json.gz`.
 O corpus bilateral `before-measurement.json.gz` no mesmo diagnóstico mede 20 casos
 contra o pin `9f2b6e8715237cb086899a42873660fe744622e8`, binários identificados
 por SHA-256. Em `calc.pow(none,2147483648)`, o cristalino acusa expoente grande;

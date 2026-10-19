@@ -32,7 +32,7 @@ Own selector parsing, the existing approximate summary projection and transport 
 
 `query_to_summary(world: &dyn World, source: &Source, selector: &str)` returns `Result<QuerySummary, QueryError>`. Parse before eval; reuse the pipeline eval adapter, obtain module content, and introspect the pre-show tree when supplied. Preserve EvalFailed, NoContent, InvalidSelector and WorldError. This legacy entrypoint discards evaluation warnings. `summarize_query` also takes the raw selector string and retains it in the result. QuerySummary keeps selector, SelectorKind, count, kind_name, label_found and metadata_values without Serialize. Label summaries count zero/one and retain a matched label. Kind summaries count introspector matches except the existing approximate document-element projection. Metadata uses its current plain-text/debug-string projection, not generic language serialization.
 
-`count_element_in_content` retains its distinct List/Enum group walkers, boolean paragraph-text approximation and Link/Raw/Quote/Footnote variant counts; other kinds return zero. Do not promote approximate matches into located values. The list/enum walkers count all-item Sequences and recurse as currently implemented; the singleton discrepancy is recorded in `00_nucleo/diagnosticos/sanitization-infra-wiring-history.md`. The text/variant walkers descend through their explicit content containers, including PageRun.body without interpreting PageConfig. OutlineEntry text consults element; variant counting descends element/fill after the predicate precheck. A matching predicate returns once without counting descendants again.
+`count_element_in_content` retains its distinct List/Enum group walkers, boolean paragraph-text approximation and Link/Raw/Quote/Footnote variant counts; other kinds return zero. Do not promote approximate matches into located values. The list/enum walkers count all-item Sequences and recurse as currently implemented; the singleton discrepancy is recorded in `lab/results/construction/diagnostics/sanitization-infra-wiring-history.md`. The text/variant walkers descend through their explicit content containers, including PageRun.body without interpreting PageConfig. OutlineEntry text consults element; variant counting descends element/fill after the predicate precheck. A matching predicate returns once without counting descendants again.
 
 Mathematical carriers are terminal in this approximate projection, including limits/class/style wrappers, root/fraction/sequence, lr/mid/stretch, primes, accents and over/under decorations. MathUnderline, MathVec and Flush do not invent text/located occurrences or descend into math internals. Space and SpaceFromNewline remain neutral, without guessing newline origin or removing CJK spacing. Public structural traversal/repr/layout semantics remain with their L1 owners; these approximate walkers do not redefine them.
 
@@ -159,7 +159,7 @@ correção interna de paridade sem assinatura/fase nova.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -195,7 +195,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 A delegação transparente já owned de ShowRecipe.body também aceita Source.body, sem executar origem separada, publicar carrier ou atribuir Location. Preservar classificação/preparo/serialização conforme a operação desta unidade.
 
@@ -207,7 +207,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 ### Medição anterior à decisão
 
 `03_infra/src/query_helpers.rs` nas linhas [304, 305, 310, 328] contém as expressões apontadas pelo inventário
-Clippy. `00_nucleo/diagnosticos/ci-simplificacoes-2026-10-14/before.json.gz`
+Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
 conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
 red.log registra os lints selecionados como erros antes de alterar código.
 Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.

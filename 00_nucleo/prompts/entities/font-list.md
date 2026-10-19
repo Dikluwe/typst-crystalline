@@ -78,7 +78,7 @@ impl FontList {
 
 ## Validação no eval (arm `"font"`)
 
-Ver prompt `rules/style/font-dict.md`.
+See the current parsing owner `00_nucleo/prompts/compiler/eval/font_dict.md`.
 
 ## Critérios de Verificação
 

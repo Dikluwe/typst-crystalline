@@ -14,7 +14,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/bibliography.rs:25`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -30,7 +30,7 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-indent-2026-10-18/before.json.gz contém
+lab/results/construction/diagnostics/bibliography-indent-2026-10-18/before.json.gz contém
 60 pares de sondas no HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
 working tree não commitado/UTC/status/diff HEAD --stat, fontes/argv/binários,
 texto e caixas. before-sources.json.gz preserva fontes/L0. Oracle pinado
@@ -83,7 +83,7 @@ Testes RED funcionais antes da implementação; GREEN de fronteira título/cita�
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-structure-2026-10-18/before.json.gz registra
+lab/results/construction/diagnostics/bibliography-structure-2026-10-18/before.json.gz registra
 12 pares, fontes/argv/UTC/HEAD/status/diff HEAD --stat, textos/caixas/binários;
 before-sources.json.gz conserva as fontes e L0s anteriores. HEAD
 b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada, Tekt SHA-256
@@ -158,7 +158,7 @@ Place é fora do fluxo (placement.rs:432) e Block usa fim causal do corpo. Uma e
 ### Medição anterior à decisão — admissão e continuação
 
 pagination-block.json.gz e block-freeze.json.gz em
-00_nucleo/diagnosticos/bibliography-structure-2026-10-18 preservam estado completo,
+lab/results/construction/diagnostics/bibliography-structure-2026-10-18 preservam estado completo,
 UTC/HEAD/fontes/binários/argv e caixas do candidato Block/Place c1c222ae54ab3b67487471326012a7f6c4ed86c1e6bd61b1830ec6a987c2ccea.
 Em IEEE/200×90pt ele recupera duas páginas, mas a continuação começa em x8
 contra29.924 no oracle bd5ebec285505889e8ff1d4f68804ab147a699f3 (binário
@@ -205,7 +205,7 @@ sem converter execução de um modo em prova do outro ou encerrar hanging.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+lab/results/construction/diagnostics/bibliography-hanging-2026-10-18/before-sources.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
 status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
 extra-before.json.gz contém26; boundary-before.json.gz contém10 e

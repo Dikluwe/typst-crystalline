@@ -10,9 +10,9 @@ Núcleos Tekt:
 
 ## Medição anterior à decisão de retenção ratificada
 
-00_nucleo/diagnosticos/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
+lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
 edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-00_nucleo/diagnosticos/watch-validacao-2026-10-07/measurement.json mede validação por
+lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
 descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
 remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
 não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
@@ -22,7 +22,7 @@ regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do re
 
 ### Decisão ratificada sob ADR-0127 §2.1/§2.2
 
-Dono ratificou com Confirmo o pacote 00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: 00_nucleo/diagnosticos/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
+Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
 
 ## Preparação e chave de validade, somente L3 crate-private
 
@@ -53,7 +53,7 @@ fronteira sem novo ciclo. Mudança em fontes sozinha não adiciona evento novo.
 
 ## Prova rápida estrita de geração — correção interna 2026-10-08
 
-Medição antes da decisão: `00_nucleo/diagnosticos/watch-incremental-item5-2026-10-08/measurements.json`
+Medição antes da decisão: `lab/results/construction/diagnostics/watch-incremental-item5-2026-10-08/measurements.json`
 mede 54,38/54,75/54,73 ms de CPU mediana Tekt em escrita de mesmos bytes,
 palavra e expansão estrutural, todos com texto/caixas equivalentes ao vanilla.
 `correction-probe.json` mede três ciclos quentes por controle: documento sem
@@ -130,7 +130,7 @@ reagir às recusas; este owner não materializa metadados nem possui FontBook.
 ### Medição anterior à decisão
 
 `03_infra/src/fontdb/generation.rs` nas linhas [356, 571, 574] contém as expressões apontadas pelo inventário
-Clippy. `00_nucleo/diagnosticos/ci-simplificacoes-2026-10-14/before.json.gz`
+Clippy. `lab/results/construction/diagnostics/ci-simplificacoes-2026-10-14/before.json.gz`
 conserva fonte/owner, spans, HEAD, working tree não commitado, UTC e diffstat;
 red.log registra os lints selecionados como erros antes de alterar código.
 Os tipos e usos foram conferidos no consumer e no toolchain 1.92.0 pinado.

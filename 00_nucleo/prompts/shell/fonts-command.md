@@ -35,4 +35,4 @@ Successful publication is exit 0. A stdout write failure is exit 2 with `error: 
 
 ## Acceptance
 
-Use grouped families and a multi-face collection to check stable order, deduplication supplied by discovery, variants, system-font exclusion and empty/invalid paths. Compare names and face fields, not machine-specific absolute paths. Assert literal indentation, origin/index notation and stretch presentation. The unreadable-path discrepancy is tracked in `00_nucleo/diagnosticos/sanitization-shell-history.md`.
+Use grouped families and a multi-face collection to check stable order, deduplication supplied by discovery, variants, system-font exclusion and empty/invalid paths. Compare names and face fields, not machine-specific absolute paths. Assert literal indentation, origin/index notation and stretch presentation. The unreadable-path discrepancy is tracked in `lab/results/construction/diagnostics/sanitization-shell-history.md`.

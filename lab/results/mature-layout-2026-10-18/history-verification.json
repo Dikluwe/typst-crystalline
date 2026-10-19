@@ -1,0 +1,12 @@
+{
+  "checkpoint": "8ec827fd975bf14cd849bebb9ede245e49033337",
+  "utc_verified_at": "2026-10-18T23:30:47Z",
+  "manifest": "lab/history/construction/manifest.json.gz",
+  "manifest_rows_total": 163863,
+  "verified": 163863,
+  "errors_total": 0,
+  "bytes_hashed": 14224786882,
+  "elapsed_seconds": 14.024,
+  "destination_remapping": "lab/results/mature-layout-2026-10-18/root-typ-remapping.json",
+  "errors": []
+}

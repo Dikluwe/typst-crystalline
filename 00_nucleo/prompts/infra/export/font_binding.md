@@ -10,7 +10,7 @@ Núcleos Tekt:
 
 ## Medição anterior à decisão
 
-`00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/probe.txt`
+`lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/probe.txt`
 demonstra GIDs da regular associados à Oblique por resolução posterior do
 estilo. `shaper/shaping.rs:254-255,358-362` perde a face e
 `export/stream/text.rs:22-43` usa apenas a chave de estilo. O contrato
@@ -60,7 +60,7 @@ Usar cache privado por tabela de recursos/exportação para positivos validados:
 ## Cópia sob demanda do prefixo — medição 2026-10-08
 
 `03_infra/src/export/font_binding.rs:117-127` no estado congelado em
-`00_nucleo/diagnosticos/font-binding-memoria1-2026-10-08/before.json.gz`
+`lab/results/construction/diagnostics/font-binding-memoria1-2026-10-08/before.json.gz`
 executa `supplied.to_vec()` antes da travessia, copiando os Vec de bytes de
 todos os recursos; se nenhum recurso for anexado, descarta a cópia e retorna
 o slice original. A duplicação temporária é mecânica interna, não linguagem.
@@ -87,7 +87,7 @@ continua com seus arrays paralelos; não ampliar o escopo desta correção.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -96,7 +96,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 

@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-18T23:39:01.938760+00:00",
+  "check": "fixture-path smoke check using a stub compiler; not a performance measurement",
+  "exit": 0,
+  "stdout": "n=2  media=0.0000s  sigma=0.0000s  min=0.0000  max=0.0000\n",
+  "stderr": ""
+}

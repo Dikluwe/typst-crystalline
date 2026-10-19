@@ -1,5 +1,5 @@
 # L0 — tests
-Hash do Código: 7759f698
+Hash do Código: 3a910d0a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:77c7d31bf3f7276cc9b4d1b2951634724a6d0fb4352a0b45c76e6f3775b512dc
@@ -31,7 +31,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/tests.rs:31`, `01_core/src/compiler/layout/tests.rs:38`, `01_core/src/compiler/layout/tests.rs:48`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -54,7 +54,7 @@ Preserve the existing tests and their observable assertions. This documentation 
 ### Medição anterior à decisão
 
 `01_core/src/compiler/layout/tests.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -70,7 +70,7 @@ observáveis, incluindo os controles de adjacência e os invariantes pinados.
 
 ### Measurement before decision
 
-The full domain run in `00_nucleo/diagnosticos/correcao-falhas-2026-09-28/core-full.log` rejects the old zero-page assumption at `tests.rs:1013` and the former ascender-cancelled baseline formula at `tests.rs:20919`. The pinned vanilla probe `probes/empty-vanilla.pdf` has one configured 160×180pt page. The five Place integration witnesses establish that a text baseline includes its measured top edge after geometric placement. The p898 witness concerns dy preservation and must retain that observable rather than an artificial baseline-origin convention. This is a language/geometry correction, not permission to weaken failing assertions.
+The full domain run in `lab/results/construction/diagnostics/correcao-falhas-2026-09-28/core-full.log` rejects the old zero-page assumption at `tests.rs:1013` and the former ascender-cancelled baseline formula at `tests.rs:20919`. The pinned vanilla probe `probes/empty-vanilla.pdf` has one configured 160×180pt page. The five Place integration witnesses establish that a text baseline includes its measured top edge after geometric placement. The p898 witness concerns dy preservation and must retain that observable rather than an artificial baseline-origin convention. This is a language/geometry correction, not permission to weaken failing assertions.
 
 ### Responsibility
 
@@ -80,7 +80,7 @@ An empty document must retain one page with no material items. The bottom/dy wit
 
 ### Evidence before decision
 
-The current cursor measures and chooses word/chunk breaks at `cursor.rs:195–271`, emits highlighted text at `cursor.rs:149–193`, and transitions regions at `cursor.rs:314–417`. Metrics defines default width at `metrics.rs:249–262`; LineCommit requests post-line progress at `line_commit.rs:696–703`. The 63 controlled source-to-PDF observations and isolated pre-export measurements are archived in `00_nucleo/diagnosticos/auditoria-quebra-paginacao-2026-09-28/`. They expose behavior limitations but this operation separates ownership while preserving those exact decisions. Initial code, L0 and provenance for this operation are archived in `00_nucleo/diagnosticos/separacao-texto-linhas-regioes-2026-09-28/`.
+The current cursor measures and chooses word/chunk breaks at `cursor.rs:195–271`, emits highlighted text at `cursor.rs:149–193`, and transitions regions at `cursor.rs:314–417`. Metrics defines default width at `metrics.rs:249–262`; LineCommit requests post-line progress at `line_commit.rs:696–703`. The 63 controlled source-to-PDF observations and isolated pre-export measurements are archived in `lab/results/construction/diagnostics/auditoria-quebra-paginacao-2026-09-28/`. They expose behavior limitations but this operation separates ownership while preserving those exact decisions. Initial code, L0 and provenance for this operation are archived in `lab/results/construction/diagnostics/separacao-texto-linhas-regioes-2026-09-28/`.
 
 ### Internal ownership decision
 
@@ -90,7 +90,7 @@ Add a structural refutator requiring thin cursor adapters, absence of inline hyp
 
 ### Evidence before decision
 
-The 30 bilateral controls in `00_nucleo/diagnosticos/estudo-correcao-falhas-texto-2026-09-28/` measure terminal pages 2/1, explicit terminal pagebreak 3/2, and continuation 3/2 (Tekt/vanilla). The isolated pre-export control emits Four/additional on page 2 with baseline 101.84pt and page height 100pt. The causal sources are line_commit.rs:657-696 (hypothetical next baseline), region_progress.rs:113-128 (post-line transition), cursor.rs:80-135 and parbreak.rs:41-80 (paragraph baseline/spacing). Current source and L0 hashes precede edits in `00_nucleo/diagnosticos/correcao-demanda-regional-2026-09-28/initial.json` and `before/`. This is internal parity correction under ADR-0127, not a public contract/default/pipeline change.
+The 30 bilateral controls in `lab/results/construction/diagnostics/estudo-correcao-falhas-texto-2026-09-28/` measure terminal pages 2/1, explicit terminal pagebreak 3/2, and continuation 3/2 (Tekt/vanilla). The isolated pre-export control emits Four/additional on page 2 with baseline 101.84pt and page height 100pt. The causal sources are line_commit.rs:657-696 (hypothetical next baseline), region_progress.rs:113-128 (post-line transition), cursor.rs:80-135 and parbreak.rs:41-80 (paragraph baseline/spacing). Current source and L0 hashes precede edits in `lab/results/construction/diagnostics/correcao-demanda-regional-2026-09-28/initial.json` and `before/`. This is internal parity correction under ADR-0127, not a public contract/default/pipeline change.
 
 ### Decision and acceptance
 
@@ -105,7 +105,7 @@ Add regressions for two consecutive words following a paragraph across a column 
 ## Identidade textual — controles do contrato aprovado
 
 Medição anterior: initial.json, before/resultados.json e red.log em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/` registram
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/` registram
 texto/caixas e a perda de SHY. O dono confirmou o contrato
 `00_nucleo/prompts/entities/layout_types.md`. A compilação de fixtures exaustivas
 exige tratar a variante nova. Projeções visuais descem nos filhos; extractors
@@ -118,7 +118,7 @@ prova que text substituto não altera glyphs/avanços nem contamina o cache.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/correcao-tracking-2026-09-29/green-core.log` refuta o teste histórico `layout_tracking_um_char_nao_acumula_passo_137`, que exigia ausência de tracking entre palavras e ainda misturava tamanhos 11/12pt. `00_nucleo/diagnosticos/tracking-residual-2026-09-29/results.json` mede dois intervalos por um espaço e um por adjacência contra o pin vanilla, independente de quantização. O teste antigo codifica justamente o defeito agora corrigido.
+`lab/results/construction/diagnostics/correcao-tracking-2026-09-29/green-core.log` refuta o teste histórico `layout_tracking_um_char_nao_acumula_passo_137`, que exigia ausência de tracking entre palavras e ainda misturava tamanhos 11/12pt. `lab/results/construction/diagnostics/tracking-residual-2026-09-29/results.json` mede dois intervalos por um espaço e um por adjacência contra o pin vanilla, independente de quantização. O teste antigo codifica justamente o defeito agora corrigido.
 
 ### Decisão e aceitação
 
@@ -128,7 +128,7 @@ Superseder somente essa expectativa por controle de mesmo tamanho 12pt: `A B` de
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/grid-vanilla-phase-2026-10-03.md` mede desvio acumulado de 2,5 pt por coluna Auto de uma palavra, ausência desse desvio nas colunas fixas e largura de espaço de 2,5 pt nos dois motores. `measurement.rs:70-96` soma o espaço após a palavra final. A causa é hipótese verificável por regressão e ablação, não intenção atribuída ao vanilla.
+`lab/results/construction/diagnostics/grid-vanilla-phase-2026-10-03.md` mede desvio acumulado de 2,5 pt por coluna Auto de uma palavra, ausência desse desvio nas colunas fixas e largura de espaço de 2,5 pt nos dois motores. `measurement.rs:70-96` soma o espaço após a palavra final. A causa é hipótese verificável por regressão e ablação, não intenção atribuída ao vanilla.
 
 ### Responsabilidade deste owner
 
@@ -148,7 +148,7 @@ A leitura de layout_align (wrapper que constrói outro subframe) explica o contr
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 
 ## Controle de borda de colspan — 2026-10-06
@@ -241,7 +241,7 @@ recorte, build/lint e nova medição bilateral. Não é novo modo/default delibe
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-realizacao-2026-10-07/before.json.gz e
+lab/results/construction/diagnostics/table-cell-realizacao-2026-10-07/before.json.gz e
 presence-refuters.json conservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree, diffstat, UTC, binários e argumentos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Upstream model/table.rs:734–778 possui campos Smart/Option; o Tekt
@@ -264,7 +264,7 @@ RED→GREEN para body/presença/métodos/JSON, clone/map/observação e rejeiç�
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -461,7 +461,7 @@ Dados sem texto não dependem de fontes por esse reparo.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
+lab/results/construction/diagnostics/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz contém 53 sondas, coletadas em 2026-10-07T14:47:56.340144+00:00 até 14:48:12.375245+00:00. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diff HEAD --stat/status/hashes/fontes/argv/cwd/ambiente e saídas completas registrados. Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt 6ca44e46ae2c1b1f8b44207052ea2fd63e3b24b4136c3fc3d25b6d20e9b6a20f. Não misturar before/refuters/complete como rodadas adicionais independentes.
 
 isolated-default: vanilla expõe x/y/inset/align/fill/breakable auto, spans 1 e stroke dict vazio; Tekt omite esses defaults e publica duas metadata contra uma. isolated-x rejeita no Tekt, funciona no vanilla. raw-fields continua só body nos dois e raw-x rejeita nos dois. isolated-table-style confirma que defaults de Table não viram os da Cell avulsa. raw-vs-prepared mede false no vanilla e true no Tekt. nested-effects/body-effects/late-rule refutam execução única e origem lexical. fresh-isolated/table, fresh-block, fresh-styled e multi-fresh são aceitos indevidamente pelo Tekt; vanilla rejeita maximum show rule depth exceeded com span do constructor novo. identity/body/alias e fresh-conditional/hidden continuam válidos. multi-identity e multi-return-table mostram que devolver it deve permitir receita anterior ainda não consumida. isolated-query mantém cell is not locatable nos dois; location é none, sem localização falsa. cell-set é negativo separado, explicitamente excluído deste pacote.
 
@@ -480,7 +480,7 @@ Este recorte completa defaults intrínsecos da Cell isolada e distingue alias de
 
 ## C2-R1 — testes de estilo local e largura Auto
 
-Medição anterior: 00_nucleo/diagnosticos/performance-c2-2026-10-07/table-local-regression.json e samples/r{1,2,3}-table-local/samples.json, HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b dirty, hashes/UTC/fontes/argv completos. Vanilla pin9f2b6e871: primeiro Local tem largura21.880pt, seguinte x60.880; atual24.068pt, seguinte x38.999, sobreposição. Tamanho, coordenadas e contribuição são língua; bytes PDF não são gate.
+Medição anterior: lab/results/construction/diagnostics/performance-c2-2026-10-07/table-local-regression.json e samples/r{1,2,3}-table-local/samples.json, HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b dirty, hashes/UTC/fontes/argv completos. Vanilla pin9f2b6e871: primeiro Local tem largura21.880pt, seguinte x60.880; atual24.068pt, seguinte x38.999, sobreposição. Tamanho, coordenadas e contribuição são língua; bytes PDF não são gate.
 
 Acrescentar testes E2E com layout_test: Cell em Styled local com fill deve herdar set text externo de10pt, conservar tamanho local explícito11pt e não sobrepor duas colunas Auto. Contar contribuições reais, verificar estilos e coordenadas, não a estrutura Rust. Registrar RED antes da correção; suíte completa e PDF bilateral com métricas reais obrigatórios. Nenhum novo modo/API/fase.
 
@@ -499,7 +499,7 @@ contract changes are authorized by this test repair.
 ## Clippy cleanup in the layout harness — 2026-10-13
 
 Measurement: the pinned Rust 1.92 Clippy run preserved in
-`00_nucleo/diagnosticos/correcoes-producao-2026-10-13/clippy-final.jsonl` reports
+`lab/results/construction/diagnostics/correcoes-producao-2026-10-13/clippy-final.jsonl` reports
 uses of deprecated `FrameItem::Text` and its fields in this test-only consumer.
 The owner `00_nucleo/prompts/entities/layout_types.md`, P484, defines Text as
 the permanent pre-shaping output of L1; shaping with font bytes belongs to L3.
@@ -525,7 +525,7 @@ Medição anterior à decisão: a rodada pre-shaping-ci-2026-10-13, sobre HEAD
 removeu a marcação P483 do owner permanente de Text, sem mudar seus dados
 ou pipeline. O Clippy subsequente (`clippy.jsonl`, conservado em evidence)
 reporta unfulfilled_lint_expectations neste consumer:17. Fontes e L0 estão
-em `00_nucleo/diagnosticos/pre-shaping-ci-2026-10-13/layout-tests-before.json.gz`;
+em `lab/results/construction/diagnostics/pre-shaping-ci-2026-10-13/layout-tests-before.json.gz`;
 a proveniência completa da árvore está em before.json.gz da mesma rodada.
 
 A expectativa temporária de deprecated da limpeza anterior cumpriu seu
@@ -590,7 +590,7 @@ Os registros baseline-expanded/candidate-expanded mostram Place dentro de Align/
 
 ### Medição antes da decisão
 
-`00_nucleo/diagnosticos/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
+`lab/results/construction/diagnostics/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
 
 ### Responsabilidade exclusiva
 
@@ -607,7 +607,7 @@ O controle já existente de checkpoint/LIFO deve também registrar uma fronteira
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/place-fluxo-2026-10-14/block-regions-before/results.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore suja, diffstat, UTC, fontes e binários. Em 24 pares contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, só 2 bboxes coincidem: inset3/top Tekt(20,15), vanilla(20,18); bottom/right Tekt(71,37), vanilla(62,44); clip apaga o marcador Tekt. block.rs:90 ignora inset.right; :220 instala largura como body, :275 usa avanço zero de Place como altura de clip, :290 agrupa filhos absolutos sem rebase. placement.rs:505 usa página/subframe sem região Block. Fonte pinada typst-layout/src/flow/block.rs:66-89 e :223-234 força tamanho interno, cresce inset e só então recorta; :278-280 desconta inset da região. Geometria é observável de linguagem; buffers Rust são mecânica. A hipótese de região local é refutada por aninhamento, texto, auto, clipping ou vazamento aos irmãos.
+`lab/results/construction/diagnostics/place-fluxo-2026-10-14/block-regions-before/results.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore suja, diffstat, UTC, fontes e binários. Em 24 pares contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, só 2 bboxes coincidem: inset3/top Tekt(20,15), vanilla(20,18); bottom/right Tekt(71,37), vanilla(62,44); clip apaga o marcador Tekt. block.rs:90 ignora inset.right; :220 instala largura como body, :275 usa avanço zero de Place como altura de clip, :290 agrupa filhos absolutos sem rebase. placement.rs:505 usa página/subframe sem região Block. Fonte pinada typst-layout/src/flow/block.rs:66-89 e :223-234 força tamanho interno, cresce inset e só então recorta; :278-280 desconta inset da região. Geometria é observável de linguagem; buffers Rust são mecânica. A hipótese de região local é refutada por aninhamento, texto, auto, clipping ou vazamento aos irmãos.
 
 ### Responsabilidade exclusiva
 
@@ -627,10 +627,10 @@ extra-first/results.json.gz em block-regiao-2026-10-14 registra root-percent-nes
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -718,7 +718,7 @@ o esperado para64 nem apresentar esse controle como certificado vertical.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/block-auto-alignment-2026-10-14/before/results.json.gz`
+`lab/results/construction/diagnostics/block-auto-alignment-2026-10-14/before/results.json.gz`
 conserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
 UTC/diffstat/status/fontes e SHA dos binários. right/center/link com clip
 perdem todo o retângulo vermelho no Tekt (zero pixels), contra 3840 no pin
@@ -747,7 +747,7 @@ altura Auto ou fragmentação. São pendências de B2b/T3, sem crédito de parid
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -756,7 +756,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -832,7 +832,7 @@ sem inspecionar o acumulador nem usar a implementação como oráculo.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/shape-dim-before-complete/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/shape-dim-before-complete/results.json.gz`
 registra HEAD, working tree não commitado, diffstat, UTC, fontes e binários.
 Root Ratio50%/25% em região160 mede80×40 no pin; o Tekt descarta Ratio e
 em. Block80 com inset5 exige largura35 e altura75 se auto,25 se altura60.
@@ -863,7 +863,7 @@ existente não ganha execução nova.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/shape-terminal-complete/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/shape-terminal-complete/results.json.gz`
 registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
 commitado, status/diffstat/UTC/fontes/binários e pin vanilla 9f2b6e871.
 Página width100/heightAuto/margem10 e rect20×10: Tekt mede altura43.2,
@@ -895,7 +895,7 @@ continuam abertos; este contrato não autoriza encerrar esses eixos.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/block-height-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/block-height-before/results.json.gz`
 registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
 status/diffstat/UTC, fontes e binários contra pin 9f2b6e871. Em página
 width100/heightAuto/margem10, Block(height40) com Shape20×10 termina em30pt
@@ -931,7 +931,7 @@ legítimos nem certificar fragmentação por aprovar a região única.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/block-boundaries-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/block-boundaries-before/results.json.gz`
 conserva HEAD, árvore não commitada, UTC, diffstat, hashes das fontes/binários
 contra pin 9f2b6e871. Em PDF, prefixo Lead em columns desloca One por
 7.238pt adicionais; prefixo8 e prefixo18+More repetem esse erro. Após
@@ -965,7 +965,7 @@ pendências explícitas. Nenhuma API/fase nova; RED→GREEN e resselo restrito.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/align-flow-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/align-flow-before/results.json.gz`
 conserva HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
 commitado, UTC/diffstat/status/hashes/fontes/binários e PDF de40 documentos
 contra pin9f2b6e871. Block200 seguido de Align(short) gera página230pt
@@ -1024,7 +1024,7 @@ após texto e os demais casos positivos; testar os dois refutadores RED→GREEN.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/block-par-spacing-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/block-par-spacing-before/results.json.gz`
 registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
 UTC, diffstat, hashes de fontes/binários e pin vanilla 9f2b6e871. Com fonte10,
 top10 e bottom0, PRE seguido de Block20 produz página62 no Tekt contra50/55/70
@@ -1062,7 +1062,7 @@ as pendências documentadas. Observar envelopes recursivamente.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
 registra HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
 UTC/status/diffstat e hashes de fontes/binários contra vanilla pinado9f2b6e871.
 Os lotes block-par-spacing-after e block-par-extra-after anteriores já
@@ -1133,7 +1133,7 @@ real, já medida separadamente; não redefine uma quebra errada como acerto.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
 registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
 commitado, status/stat/UTC, fontes e binários contra o pin vanilla
 9f2b6e8715237cb086899a42873660fe744622e8. Multiword21 gera duas páginas
@@ -1171,7 +1171,7 @@ A medição prefix-nesting-controls refuta restauração completa: AFTER18 perma
 
 ### Medição anterior à decisão
 
-F013: 01_core/src/compiler/layout/tests.rs:703 (walk); F014: 01_core/src/compiler/layout/tests.rs:1610 (has_shape); F015: 01_core/src/compiler/layout/tests.rs:1635 (has_text); F016: 01_core/src/compiler/layout/tests.rs:1662 (collect_text); F017: 01_core/src/compiler/layout/tests.rs:3017 (sum_block_limites_empilhados_verticalmente); F018: 01_core/src/compiler/layout/tests.rs:3063 (sum_inline_usa_right_scripts); F019: 01_core/src/compiler/layout/tests.rs:3162 (align_duas_linhas_tem_ys_distintos); F020: 01_core/src/compiler/layout/tests.rs:8322 (layout_stack_ltr_empilha_horizontalmente); F021: 01_core/src/compiler/layout/tests.rs:8369 (layout_stack_spacing_avanca_cursor_entre_children); F022: 01_core/src/compiler/layout/tests.rs:8392 (layout_stack_spacing_avanca_cursor_entre_children); F023: 01_core/src/compiler/layout/tests.rs:8437 (layout_block_height_forca_minimo_vertical); F024: 01_core/src/compiler/layout/tests.rs:8466 (layout_block_height_forca_minimo_vertical); F025: 01_core/src/compiler/layout/tests.rs:10290 (extract_texts); F026: 01_core/src/compiler/layout/tests.rs:11588 (p248_table_cell_overflow_preserva_fill_stroke_externos); F027: 01_core/src/compiler/layout/tests.rs:11760 (p248_boxed_height_overflow_cross_radius_clip); F028: 01_core/src/compiler/layout/tests.rs:12638 (extract_texts_rec); F029: 01_core/src/compiler/layout/tests.rs:13520 (text_fragments); F030: 01_core/src/compiler/layout/tests.rs:17880 (walk); F031: 01_core/src/compiler/layout/tests.rs:18061 (walk); F032: 01_core/src/compiler/layout/tests.rs:22250 (find_abs_y); F033: 01_core/src/compiler/layout/tests.rs:23150 (collect_texts); F034: 01_core/src/compiler/layout/tests.rs:23304 (p994_box_em_math_produz_caixa); F035: 01_core/src/compiler/layout/tests.rs:24370 (smartquote_rendered_text). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F013: 01_core/src/compiler/layout/tests.rs:703 (walk); F014: 01_core/src/compiler/layout/tests.rs:1610 (has_shape); F015: 01_core/src/compiler/layout/tests.rs:1635 (has_text); F016: 01_core/src/compiler/layout/tests.rs:1662 (collect_text); F017: 01_core/src/compiler/layout/tests.rs:3017 (sum_block_limites_empilhados_verticalmente); F018: 01_core/src/compiler/layout/tests.rs:3063 (sum_inline_usa_right_scripts); F019: 01_core/src/compiler/layout/tests.rs:3162 (align_duas_linhas_tem_ys_distintos); F020: 01_core/src/compiler/layout/tests.rs:8322 (layout_stack_ltr_empilha_horizontalmente); F021: 01_core/src/compiler/layout/tests.rs:8369 (layout_stack_spacing_avanca_cursor_entre_children); F022: 01_core/src/compiler/layout/tests.rs:8392 (layout_stack_spacing_avanca_cursor_entre_children); F023: 01_core/src/compiler/layout/tests.rs:8437 (layout_block_height_forca_minimo_vertical); F024: 01_core/src/compiler/layout/tests.rs:8466 (layout_block_height_forca_minimo_vertical); F025: 01_core/src/compiler/layout/tests.rs:10290 (extract_texts); F026: 01_core/src/compiler/layout/tests.rs:11588 (p248_table_cell_overflow_preserva_fill_stroke_externos); F027: 01_core/src/compiler/layout/tests.rs:11760 (p248_boxed_height_overflow_cross_radius_clip); F028: 01_core/src/compiler/layout/tests.rs:12638 (extract_texts_rec); F029: 01_core/src/compiler/layout/tests.rs:13520 (text_fragments); F030: 01_core/src/compiler/layout/tests.rs:17880 (walk); F031: 01_core/src/compiler/layout/tests.rs:18061 (walk); F032: 01_core/src/compiler/layout/tests.rs:22250 (find_abs_y); F033: 01_core/src/compiler/layout/tests.rs:23150 (collect_texts); F034: 01_core/src/compiler/layout/tests.rs:23304 (p994_box_em_math_produz_caixa); F035: 01_core/src/compiler/layout/tests.rs:24370 (smartquote_rendered_text). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 
@@ -1236,7 +1236,7 @@ Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets c
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
 `morph-before-measurement.json.gz` e `audit.json` conservam HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
 fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.

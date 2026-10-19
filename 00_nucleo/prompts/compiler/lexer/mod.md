@@ -13,7 +13,7 @@ Núcleos Tekt:
 `01_core/src/compiler/lexer/mod.rs:14` locates `pub mod scanner;`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Lexer hub
 
@@ -48,7 +48,7 @@ Do not infer language parity from matching tokenization code.
 
 ### Medição anterior à decisão
 
-Lexer.next aparece no inventário Clippy de 13 avisos. A assinatura e o corpo vigentes foram lidos antes desta decisão; snapshot 00_nucleo/diagnosticos/clippy-traits-formatacao-2026-10-16/before.json.gz conserva fontes/L0 completos, hashes globais, HEAD, working tree não commitado, UTC e diffstat. O contrato de retorno difere do trait sugerido. É comparação de interfaces Rust, sem nova medição de paridade ou benefício de leitura por IA.
+Lexer.next aparece no inventário Clippy de 13 avisos. A assinatura e o corpo vigentes foram lidos antes desta decisão; snapshot lab/results/construction/diagnostics/clippy-traits-formatacao-2026-10-16/before.json.gz conserva fontes/L0 completos, hashes globais, HEAD, working tree não commitado, UTC e diffstat. O contrato de retorno difere do trait sugerido. É comparação de interfaces Rust, sem nova medição de paridade ou benefício de leitura por IA.
 
 ### Responsabilidade exclusiva e aceitação
 

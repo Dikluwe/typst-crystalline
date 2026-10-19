@@ -1,0 +1,12 @@
+Diff in /repos/Antigravity/typst-crystalline/lab/benches/pdf_builder_bench.rs:108:
+         }));
+     }
+     let mut resource_doc = small.clone();
+-    let image =
+-        Arc::new(include_bytes!("../../03_infra/fixtures/p307b/sources/tiny.jpg").to_vec());
++    let image = Arc::new(
++        include_bytes!("../../03_infra/fixtures/p307b/sources/tiny.jpg").to_vec(),
++    );
+     resource_doc.pages[0]
+         .items
+         .extend((0..32).map(|index| FrameItem::Image {

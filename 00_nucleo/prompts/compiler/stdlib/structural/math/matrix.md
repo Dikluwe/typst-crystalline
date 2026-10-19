@@ -7,7 +7,7 @@ Hash do Código: b86af868
 
 ## Measurement before decision
 
-At the uncommitted working tree captured in `00_nucleo/diagnosticos/atomizacao-stdlib-math-matrix-2026-09-30-before.json.gz`, `01_core/src/compiler/stdlib/structural/math.rs:725-1042` contains `MathMatrixOptions`, relative-length and augment casts, named option application, row interpretation, rectangular padding and the `math.mat` native. Static binding occurs later in the parent. The `p1431` test filter passed 29 tests before movement. This is a structural and regression baseline, not a performance result or a new bilateral vanilla measurement.
+At the uncommitted working tree captured in `lab/results/construction/diagnostics/atomizacao-stdlib-math-matrix-2026-09-30-before.json.gz`, `01_core/src/compiler/stdlib/structural/math.rs:725-1042` contains `MathMatrixOptions`, relative-length and augment casts, named option application, row interpretation, rectangular padding and the `math.mat` native. Static binding occurs later in the parent. The `p1431` test filter passed 29 tests before movement. This is a structural and regression baseline, not a performance result or a new bilateral vanilla measurement.
 
 ## Language contract
 
@@ -27,7 +27,7 @@ remain green. `cargo build` and `crystalline-lint .` have no new blocking violat
 
 ## D07 — measurement and correction of shorthand stroke presence
 
-`00_nucleo/diagnosticos/matrix-morfologia-2026-10-06/final.json.gz` records
+`lab/results/construction/diagnostics/matrix-morfologia-2026-10-06/final.json.gz` records
 `augment-json` and `augment-fields`: a supplied `2pt` is serialized as
 `2pt + rgb("#000000")` instead of the pinned vanilla's `2pt`.
 `lab/typst-original/crates/typst-library/src/math/matrix.rs:434` uses
@@ -45,7 +45,7 @@ bilateral augment JSON and fields controls coincide.
 
 ## Resíduos D07 — âncoras individuais de casts
 
-`00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/before.json.gz` mede augment-array e augment-array-keys
+`lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/before.json.gz` mede augment-array e augment-array-keys
 com mensagem igual mas span agregado no Tekt. delim-int/align-int/gap-str e
 Code #true/#false/#left/#center corroboram o mesmo caminho.
 `compiler/stdlib/structural/math/matrix.rs:263–271` passa args.span aos casts;
@@ -63,7 +63,7 @@ augment-array com span individual e igualdade bilateral dos diagnósticos.
 
 ### Medição anterior à decisão
 
-T259: 01_core/src/compiler/stdlib/structural/math/matrix.rs:305; T260: 01_core/src/compiler/stdlib/structural/math/matrix.rs:308. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T259: 01_core/src/compiler/stdlib/structural/math/matrix.rs:305; T260: 01_core/src/compiler/stdlib/structural/math/matrix.rs:308. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -75,7 +75,7 @@ Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default
 
 ### Medição anterior à decisão
 
-M4 em 01_core/src/compiler/stdlib/structural/math/matrix.rs:114. O inventário desta árvore não commitada (HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`) e os L0 vigentes foram lidos antes da prescrição. before.json.gz em `00_nucleo/diagnosticos/tekt-v16-math-value-2026-10-16/` conserva UTC, status, git diff HEAD --stat e hashes integrais. Value possui 39 variantes; os braços fallback medidos são internos e hoje uniformes. São avisos estruturais de evolução Rust, não prova de falha funcional ou de melhor leitura por IA. Não inferir intenção upstream.
+M4 em 01_core/src/compiler/stdlib/structural/math/matrix.rs:114. O inventário desta árvore não commitada (HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`) e os L0 vigentes foram lidos antes da prescrição. before.json.gz em `lab/results/construction/diagnostics/tekt-v16-math-value-2026-10-16/` conserva UTC, status, git diff HEAD --stat e hashes integrais. Value possui 39 variantes; os braços fallback medidos são internos e hoje uniformes. São avisos estruturais de evolução Rust, não prova de falha funcional ou de melhor leitura por IA. Não inferir intenção upstream.
 
 ### Decisão do owner e aceitação
 

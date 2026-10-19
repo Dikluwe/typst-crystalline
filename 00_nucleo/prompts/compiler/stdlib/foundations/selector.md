@@ -9,7 +9,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/foundations/selector.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/foundations/selector.rs:23`, `01_core/src/compiler/stdlib/foundations/selector.rs:269`, `01_core/src/compiler/stdlib/foundations/selector.rs:286` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/foundations/selector.rs:23`, `01_core/src/compiler/stdlib/foundations/selector.rs:269`, `01_core/src/compiler/stdlib/foundations/selector.rs:286` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 
@@ -27,7 +27,7 @@ Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaul
 
 ### Evidência antes da decisão
 
-`00_nucleo/diagnosticos/plano-debitos-2026-10-06/math-before.json.gz`
+`lab/results/construction/diagnostics/plano-debitos-2026-10-06/math-before.json.gz`
 conserva pin/HEAD/árvore/UTC/fontes/comandos/SHA. Equação explícita é locatable,
 mas query(math.equation), alias e selector(math.equation) são rejeitados.
 `01_core/src/compiler/stdlib/foundations/selector.rs:269-283` reconhece apenas
@@ -61,7 +61,7 @@ de mapeamento/paridade em fluxo contínuo ADR-0127.
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
 UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
-00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
+lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
 Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
 selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
 é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
@@ -118,7 +118,7 @@ parcial e revalidação bilateral fecham o diagnóstico, sem nova API ou fase.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
 Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
 no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
 e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md

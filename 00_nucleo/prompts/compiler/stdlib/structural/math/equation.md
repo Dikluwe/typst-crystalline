@@ -7,7 +7,7 @@ Hash do Código: c259e140
 
 ## Measurement before decision
 
-The uncommitted working tree recorded in `00_nucleo/diagnosticos/atomizacao-stdlib-math-equation-2026-09-30-before.json.gz` places `equation_content`, option casts and `native_math_equation` at `math.rs:46-210`. The structural hub reexports four helpers via the parent for eval and set rules, while the parent registers the static native. The P1140 filter passed 85 tests before movement. This measures structure and regression, not a new bilateral vanilla measurement or timing. Historical language measurements and snapshot qualifications remain in the parent L0 P1140 sections.
+The uncommitted working tree recorded in `lab/results/construction/diagnostics/atomizacao-stdlib-math-equation-2026-09-30-before.json.gz` places `equation_content`, option casts and `native_math_equation` at `math.rs:46-210`. The structural hub reexports four helpers via the parent for eval and set rules, while the parent registers the static native. The P1140 filter passed 85 tests before movement. This measures structure and regression, not a new bilateral vanilla measurement or timing. Historical language measurements and snapshot qualifications remain in the parent L0 P1140 sections.
 
 ## Language contract
 

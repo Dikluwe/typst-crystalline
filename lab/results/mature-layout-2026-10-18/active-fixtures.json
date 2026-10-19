@@ -1,0 +1,52 @@
+[
+  {
+    "historical": "lab/history/construction/records/root-typ/sec_04.typ",
+    "active": "lab/corpus/legacy-sections/sec_04.typ",
+    "sha256": "bb18aa86a321bb883353d0fd8b440a5d42f6e5a132358f99a010e95c107ed7eb"
+  },
+  {
+    "historical": "lab/history/construction/records/root-typ/sec_07.typ",
+    "active": "lab/corpus/legacy-sections/sec_07.typ",
+    "sha256": "e7caadc858d220618ba1bd330ac88aa1490768e3e78728807bdeb5ca8d53c629"
+  },
+  {
+    "historical": "lab/history/construction/records/root-typ/sec_09.typ",
+    "active": "lab/corpus/legacy-sections/sec_09.typ",
+    "sha256": "51069d1dc757c738a36199ab41cca3755c1713bd4358c0f10113b15b5ae88278"
+  },
+  {
+    "historical": "lab/history/construction/records/root-typ/sec_10.typ",
+    "active": "lab/corpus/legacy-sections/sec_10.typ",
+    "sha256": "6f420a160bc1f144d7623deef6128a5858a66e51d160e8a1965789d38f31b994"
+  },
+  {
+    "historical": "lab/history/construction/records/root-typ/sec_12.typ",
+    "active": "lab/corpus/legacy-sections/sec_12.typ",
+    "sha256": "6977f54eb0ff753f5cbdabd4453250262a0abf8bfd7d84b410c14c76a8f58013"
+  },
+  {
+    "historical": "lab/history/construction/records/root-typ/sec_16.typ",
+    "active": "lab/corpus/legacy-sections/sec_16.typ",
+    "sha256": "921b69e5d5524bb02b7e92686b2c10dc6b73a21079a105ab3bf4e31f0e27c382"
+  },
+  {
+    "historical": "lab/history/construction/records/root-typ/sec_17.typ",
+    "active": "lab/corpus/legacy-sections/sec_17.typ",
+    "sha256": "18404850471b7812d67c4f846e6fe17c31425c4c15fd5dea304a29f486099653"
+  },
+  {
+    "historical": "lab/history/construction/records/root-typ/sec_18.typ",
+    "active": "lab/corpus/legacy-sections/sec_18.typ",
+    "sha256": "cfefb865975201b2d920701bbd7840cdfef2f656678b5de9821fa1adf0eeef2e"
+  },
+  {
+    "historical": "lab/history/construction/records/root-typ/sec_22.typ",
+    "active": "lab/corpus/legacy-sections/sec_22.typ",
+    "sha256": "f92b47555012863e9250f54d0f6eacf12f92a1b9227587098dd57a8e9492b289"
+  },
+  {
+    "historical": "lab/history/construction/records/root-typ/sec_27.typ",
+    "active": "lab/corpus/legacy-sections/sec_27.typ",
+    "sha256": "67d8004602b42501b0aced71cfb6a6fafa3a3e58af26da6b0241fa53bd23648c"
+  }
+]

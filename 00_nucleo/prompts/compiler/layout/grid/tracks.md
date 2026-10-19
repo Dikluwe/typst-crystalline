@@ -21,13 +21,13 @@ Suíte L1, `cargo build` e `crystalline-lint .` passam; a extração não implic
 
 ## Produto medido consumível — 2026-10-05
 
-Evidência em tracks.rs:175 e cell_body.rs:155 e diagnóstico `00_nucleo/diagnosticos/reuso-sem-transformacao-2026-10-05.md` precede a decisão. Devolver também a pool privada do owner measurement_cache e transferir para ela o produto completo descartado após usar a altura Auto. O helper decide elegibilidade; Fixed/Fraction e cálculos geométricos continuam vigentes. Delegar invariantes de cache ao owner canônico `00_nucleo/prompts/compiler/layout/grid/measurement_cache.md`. Mudança privada de mecânica, na mesma fase e fluxo contínuo ADR-0127.
+Evidência em tracks.rs:175 e cell_body.rs:155 e diagnóstico `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05.md` precede a decisão. Devolver também a pool privada do owner measurement_cache e transferir para ela o produto completo descartado após usar a altura Auto. O helper decide elegibilidade; Fixed/Fraction e cálculos geométricos continuam vigentes. Delegar invariantes de cache ao owner canônico `00_nucleo/prompts/compiler/layout/grid/measurement_cache.md`. Mudança privada de mecânica, na mesma fase e fluxo contínuo ADR-0127.
 
 ## Sequência em coluna Auto e frame literal — 2026-10-06
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/block-tabela-fluxo-2026-10-06/before.json` conserva
+`lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/before.json` conserva
 estado/HEAD/stat/status/fontes L0 e código/binários. O lote predecessor em
 espaco-terminal-2026-10-06/verification.json.gz mede seis tabelas: ABC/123 e
 árabe ficam em duas linhas no Tekt, uma no vanilla pinado 9f2b6e871.
@@ -64,7 +64,7 @@ para Sequence inline. Fixed/Fraction, cache de células e fases conservados.
 ## Origem e override horizontal da região — 2026-10-06
 
 Medição: os controles exploratórios de Align no diagnóstico
-`00_nucleo/diagnosticos/bordas-cantos-2026-10-06.md` divergem na âncora Left
+`lab/results/construction/diagnostics/bordas-cantos-2026-10-06.md` divergem na âncora Left
 RTL de uma coluna. `tracks.rs:104-116` restringe o offset a uma coluna e usa
 margem da página como origem, mesmo em sub-região.
 
@@ -82,7 +82,7 @@ Correção interna de posição ADR-0127, sem mudança pública.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -117,7 +117,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ### Refinamento interno medido — 2026-10-07
 
-Medição anterior à decisão: 00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
+Medição anterior à decisão: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
 after-second/show-bare mede/renderiza CELL e a em linhas diferentes. measure_content_constrained não possui ramo TableCell e não deve receber esse wrapper. Table preparada mede r.visual e usa propriedades de render do default sobrevivente via helper cell_body; substituição total tem inset zero. Coordenadas/spans do plano permanecem geométricos; Cell lexical conhecida não é mutada.
 A aceitação é bilateral, efeitos uma vez e geometria; não normalizar whitespace nem alterar contratos ratificados.
 
@@ -130,13 +130,13 @@ pelo texto do getter nem abandonar controles de contagem de subframes.
 
 ### Refutação e decisão interna antes de código — 2026-10-07
 
-Medições em 00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/{after-fourth,refuters-fourth}.json.gz, nested-reuse-red.log e effect-order-red.json: fontes/binários/HEAD/estado/UTC/resultados.
+Medições em lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-fourth,refuters-fourth}.json.gz, nested-reuse-red.log e effect-order-red.json: fontes/binários/HEAD/estado/UTC/resultados.
 after-fourth/aliases e show-cell-no-default-escape permanecem com quebra de texto. measurement.rs:21–31 não certifica ShowRecipe dentro de Sequence como inline. Projeção para medir deve remover snapshots de Cell e wrappers ShowRecipe recursivamente, conservando Styled e fronteira de Table completa. Não percorrer nem retirar cells/coords de malha aninhada; ali o renderer mede plano físico por subframe. Projeção total é pura, não executa receita. Guardas originais de cache e medidas equivalentes continuam obrigatórias.
 Supersede apenas a projeção/guarda aqui medida, sem contrato público ou fase adicional. Refutação: diferença nos testes/recoletas, efeitos repetidos, fonte ocultada visível ou regressão de cache/geometry.
 
 ### Medição e correção suplementar interna — 2026-10-07
 
-Proveniência: diagnosticos/table-cell-realizacao-d08b3-2026-10-07/geometry-fifth.json e local-bool-red.log, binário 59da863f, fonte/HEAD/estado/UTC/argv/glifos/testes.
+Proveniência: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/geometry-fifth.json e local-bool-red.log, binário 59da863f, fonte/HEAD/estado/UTC/argv/glifos/testes.
 geometry-fifth.json registra quebra SECOND/d e alias LOCAL/a. break_selection.rs:24 compara coordenadas absolutas por > estrito; largura medida em origem zero e soma/transporte para origem da página podem diferir no último bit. Coluna Auto de plano preparado acrescenta limite de erro de representação EPSILON vezes escala geométrica (largura disponível + origem + largura natural), somente para largura positiva finita. Não ajustar texto, não introduzir tolerância editorial nem alterar Grid legada; testar glifos/linhas e cache. Subframe terminando com Table tem last_sub_frame_width zerado (sub_frame.rs:326), portanto medida usa bounds reais de FrameItems (metrics::line_content_right), conservando os corpos completos. Bool raw é conteúdo físico, usar esse mesmo fallback em vez da medida estática sem ramo Raw. Projeção permanece sem Func, plano já completo e sem extrair células de Table aninhada.
 Não certificar antes da recoleta RED→GREEN e suites; nenhum campo/método público, flag ou mudança de fase suplementar.
 
@@ -156,7 +156,7 @@ segunda receita nem margem editorial. Validar fonte/glifos e controles cache.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 additional-debug3 mede FUNC e styled em linhas separadas: Source não torna produto composto atômico. Classificação composed_visual atravessa body e zeros metadata; medir composição inteira em subframe existente antes de decidir auto-width, preservando geometria e propriedades externas.
 
@@ -165,7 +165,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ## C2-R1 — correção interna de paridade
 
-Medição anterior à decisão: 00_nucleo/diagnosticos/performance-c2-2026-10-07/table-local-regression.json, três samples/r*-table-local/samples.json com fontes/argv/UTC/estado/hash do release ac889581 e vanilla pin9f2b6e871. Tamanho cresce10%, segunda coluna x60.880→38.999 com sobreposição. RED semântico em 00_nucleo/diagnosticos/table-local-c2r1-2026-10-07/red.log: tamanho10pt e separação Auto falham, tamanho local explícito11pt já passa.
+Medição anterior à decisão: lab/results/construction/diagnostics/performance-c2-2026-10-07/table-local-regression.json, três samples/r*-table-local/samples.json com fontes/argv/UTC/estado/hash do release ac889581 e vanilla pin9f2b6e871. Tamanho cresce10%, segunda coluna x60.880→38.999 com sobreposição. RED semântico em lab/results/construction/diagnostics/table-local-c2r1-2026-10-07/red.log: tamanho10pt e separação Auto falham, tamanho local explícito11pt já passa.
 
 Fonte upstream typst-eval/src/code.rs:32–43 aplica somente styles da declaração set à cauda. Tekt expression_dispatch.rs:132 colapsa raiz/defaults e não só declarações locais; style_chain.rs:304–315 contém size11/boldfalse/italicfalse na raiz. tracks.rs:328 reconhece somente Cell com resolved, deixando a Cell standalone Complete na projeção; measurement.rs não mede TableCell. É semântica/estilo/posição observável, não obrigação de reproduzir árvore ou algoritmo upstream. A causa conjunta é inferência refutável por fonte/tamanho/posição ainda divergentes após isolar estilos locais e medir o visual completo.
 
@@ -179,7 +179,7 @@ Responsabilidade: measurement_visual de TableCell preparada, posicionada ou stan
 ### Medição anterior à decisão
 
 01_core/src/compiler/layout/grid/tracks.rs:225 (C013).
-O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+O snapshot before.json.gz em lab/results/construction/diagnostics/type-complexity-2026-10-15
 conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
 O gate red-clippy.log falha com este lint promovido a erro antes da edição.
 A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos

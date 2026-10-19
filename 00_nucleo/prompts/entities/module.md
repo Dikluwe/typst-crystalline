@@ -85,7 +85,7 @@ Então scope().is_empty() = true
 
 ### Evidência anterior à decisão
 
-No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree da avaliação única, `01_core/src/compiler/realize/mod.rs:197–200` constrói o TagIntrospector. `01_core/src/compiler/eval/mod.rs:888–896` descarta esse resultado e publica só o Content. `03_infra/src/pipeline/paged.rs:242`, `03_infra/src/pipeline/html.rs:102` e `03_infra/src/query_helpers.rs:478,519` reconstruem o índice inicial. Fontes e proveniência da implementação anterior estão em `00_nucleo/diagnosticos/dupla-avaliacao-implementacao-2026-10-05.md` e seus recibos. O índice calculado não possui posições ou páginas finais. Isso comprova trabalho redundante, não um ganho ainda medido.
+No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree da avaliação única, `01_core/src/compiler/realize/mod.rs:197–200` constrói o TagIntrospector. `01_core/src/compiler/eval/mod.rs:888–896` descarta esse resultado e publica só o Content. `03_infra/src/pipeline/paged.rs:242`, `03_infra/src/pipeline/html.rs:102` e `03_infra/src/query_helpers.rs:478,519` reconstruem o índice inicial. Fontes e proveniência da implementação anterior estão em `lab/results/construction/diagnostics/dupla-avaliacao-implementacao-2026-10-05.md` e seus recibos. O índice calculado não possui posições ou páginas finais. Isso comprova trabalho redundante, não um ganho ainda medido.
 
 `01_core/src/entities/content/equality.rs` e `01_core/src/entities/content/rust_hash.rs` projetam Realized no visual: a igualdade ou hash genérico de Content não é chave suficiente para distinguir origens, Locations e proveniência. A escolha de chave a seguir é mecânica interna; a aceitação permanece nas consultas, identidades, ordem causal, contadores, contextos e geometria.
 
@@ -111,7 +111,7 @@ Medir antes/depois contra o executável preservado da avaliação única, com fo
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/html-feature-identity-2026-10-17/before.json.gz registra
+lab/results/construction/diagnostics/html-feature-identity-2026-10-17/before.json.gz registra
 UTC, status, diff HEAD --stat, fontes e L0 completos e hashes; todos os 2123
 hashes da etapa anterior foram conferidos antes de reutilizar sua matriz.
 before-probe.json.gz conserva argv, fixtures, outputs e SHA-256 dos binários.

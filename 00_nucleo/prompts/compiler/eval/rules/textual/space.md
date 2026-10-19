@@ -12,7 +12,7 @@ Núcleos Tekt:
 
 ## Measurement before decision
 
-At the working tree captured in `00_nucleo/diagnosticos/atomizacao-textual-algoritmos-2026-09-30-before.json.gz`, `01_core/src/compiler/eval/rules/textual.rs:335-463` contains space origin, neighbor visibility, wrapper text, normalization and Unicode classification. The `p1494` filter passed 17 tests on that state. This is a structural baseline, not a timing or new vanilla measurement.
+At the working tree captured in `lab/results/construction/diagnostics/atomizacao-textual-algoritmos-2026-09-30-before.json.gz`, `01_core/src/compiler/eval/rules/textual.rs:335-463` contains space origin, neighbor visibility, wrapper text, normalization and Unicode classification. The `p1494` filter passed 17 tests on that state. This is a structural baseline, not a timing or new vanilla measurement.
 
 ## Decision and behavior
 
@@ -52,7 +52,7 @@ Texto supportive projeta carriers internos após realização; a política de de
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 A delegação transparente já owned de ShowRecipe.body também aceita Source.body, sem executar origem separada, publicar carrier ou atribuir Location. Preservar classificação/preparo/serialização conforme a operação desta unidade.
 
@@ -60,7 +60,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ## Normalização emprestada com mudança explícita — 2026-10-10
 
-Medição anterior à decisão: snapshot-normalization-before.json.gz em diagnosticos/table-local-scaling-followup-2026-10-09 captura UTC/fontes; space.rs:66–114 reconstitui o primeiro espaço de todo grupo. space_with_origin:24–35 conserva Styled e a origem canônica Source, mas elimina Located/Realized e normaliza Source redundante/detached. Inferência: uma decisão compartilhada por grupo permite reusar sequências sem alteração sem duplicar a política Unicode.
+Medição anterior à decisão: snapshot-normalization-before.json.gz em lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09 captura UTC/fontes; space.rs:66–114 reconstitui o primeiro espaço de todo grupo. space_with_origin:24–35 conserva Styled e a origem canônica Source, mas elimina Located/Realized e normaliza Source redundante/detached. Inferência: uma decisão compartilhada por grupo permite reusar sequências sem alteração sem duplicar a política Unicode.
 
 Disponibilizar helper crate-private normalize_markup_spaces_if_changed sobre slice emprestado, retornando None sem alteração e Vec somente a partir da primeira mudança. Compartilhar scanner e aplicação com normalize_markup_spaces in-place; cada grupo consulta o estado já normalizado dos grupos anteriores. Grupo muda quando é descartado, colapsa mais de um espaço efetivo, agrega nova origem newline ou exige normalizar carrier. Empty intermediário não é mudança por si. Space/SpaceFromNewline e Styled recursivamente podem conservar sua forma; Source somente com span não-detached e corpo sem origem direta canônica. Located/Realized mantêm a transformação anterior. Nunca usar igualdade/hash/endereço de Content como decisão. Preservar todos os critérios Unicode, Linebreak destrutivo, vizinhos, slots Empty, estilos e proveniência; não alocar Vec no consumidor in-place.
 
@@ -68,7 +68,7 @@ Aceitação: RED→GREEN de reuso, grupos mistos, Unicode, carriers e vizinhos e
 
 ### Refinamento após refutação de tempo
 
-Medição antes da decisão: diagnosticos/table-local-scaling-followup-2026-10-09/measurements-normalization{-refuter,}-first.json.gz registra fontes/binários/UTC/HEAD/dirty/argv. O primeiro candidato foi consistentemente mais lento em no-fill-1600 e table-text-1600; normalize_markup_spaces passou também a certificar a forma canônica antes de aplicar cada grupo. Inferência refutável: restringir essa certificação ao consumidor emprestado reduz custo fora de normalize_insertions.
+Medição antes da decisão: lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/measurements-normalization{-refuter,}-first.json.gz registra fontes/binários/UTC/HEAD/dirty/argv. O primeiro candidato foi consistentemente mais lento em no-fill-1600 e table-text-1600; normalize_markup_spaces passou também a certificar a forma canônica antes de aplicar cada grupo. Inferência refutável: restringir essa certificação ao consumidor emprestado reduz custo fora de normalize_insertions.
 
 O scanner compartilhado determina todo grupo e sua política; o consumidor in-place aplica cada grupo, como antes. Somente o consumidor emprestado certifica a forma canônica e decide se materializa output. A política Unicode e o estado atualizado entre grupos continuam compartilhados. Repetir contagem e tempo nos controles que refutaram a primeira variante antes de aceitar.
 
@@ -77,7 +77,7 @@ O scanner compartilhado determina todo grupo e sua política; o consumidor in-pl
 
 ### Medição anterior à decisão
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado. Fontes/L0/configuração, hashes, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-v16-whitespace-2026-10-17/before.json.gz`. AST/spans em contexts.json; 11 V16 emitidos e um forwarding de identidade latente em classified_content. measurement-before.log mede cinco diferenças entre sete pares Source. measurement-family-before.log e source-family-before-analysis.json medem 28 pares, 20 diferentes: os cinco casos de quebra à esquerda/direita e grupo atravessando Empty falham igualmente sob Source, Located, Realized.visual e Styled. Parbreak e Text continuam fronteiras/apoios iguais. É medição do algoritmo real dentro do crate em workspace descartável, não uma cópia adaptada de helpers privados nem prova global de paridade. A primeira sonda externa falhou por E0624, foi preservada e não conta como RED funcional.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado. Fontes/L0/configuração, hashes, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-v16-whitespace-2026-10-17/before.json.gz`. AST/spans em contexts.json; 11 V16 emitidos e um forwarding de identidade latente em classified_content. measurement-before.log mede cinco diferenças entre sete pares Source. measurement-family-before.log e source-family-before-analysis.json medem 28 pares, 20 diferentes: os cinco casos de quebra à esquerda/direita e grupo atravessando Empty falham igualmente sob Source, Located, Realized.visual e Styled. Parbreak e Text continuam fronteiras/apoios iguais. É medição do algoritmo real dentro do crate em workspace descartável, não uma cópia adaptada de helpers privados nem prova global de paridade. A primeira sonda externa falhou por E0624, foi preservada e não conta como RED funcional.
 
 ### Prescrição exclusiva
 

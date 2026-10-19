@@ -1,0 +1,7 @@
+{
+  "recorded_utc": "2026-10-16T18:12:35.169748+00:00",
+  "question_id": "[\"request_user_input_async\",\"call_beb444ec3fb042daab37a21f716b84d8\",0]",
+  "answer": "Aprovar a proposta",
+  "manifest_sha256": "282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950",
+  "package": "00_nucleo/materialization/clippy-enums-publicos-2026-10-16"
+}

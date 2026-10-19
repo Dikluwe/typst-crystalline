@@ -7,7 +7,7 @@ Hash do Código: c8bb280f
 
 ## Measurement before decision
 
-The uncommitted working tree recorded in `00_nucleo/diagnosticos/atomizacao-stdlib-math-frac-2026-09-30-before.json.gz` contains the style cast, operand cast, constructor and native in `math.rs:291-391`; the static `math.frac` binding is later in the same parent. The P1427 filter passed 15 tests before movement. This is structural and regression evidence, not a new bilateral vanilla measurement or a timing claim. The historical language measurement remains in the parent L0 P1427 section.
+The uncommitted working tree recorded in `lab/results/construction/diagnostics/atomizacao-stdlib-math-frac-2026-09-30-before.json.gz` contains the style cast, operand cast, constructor and native in `math.rs:291-391`; the static `math.frac` binding is later in the same parent. The P1427 filter passed 15 tests before movement. This is structural and regression evidence, not a new bilateral vanilla measurement or a timing claim. The historical language measurement remains in the parent L0 P1427 section.
 
 ## Language contract
 

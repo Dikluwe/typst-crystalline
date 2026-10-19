@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/table_grid.md
-//! @prompt-hash aafc57aa
+//! @prompt-hash f06a18fc
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -1218,7 +1218,7 @@ pub fn native_grid_header(
     // não só o primeiro. `args.items.first()` descartava silenciosamente
     // todas as células a partir da segunda — confirmado por repro directo
     // (`grid.header[Nome][Idade]` só renderizava "Nome"). Ver
-    // 00_nucleo/diagnosticos/paridade-producao-p772i.md.
+    // lab/results/construction/diagnostics/paridade-producao-p772i.md.
     let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
     for v in args.items.iter() {
         let classified = match v {

@@ -6,7 +6,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/html/frame.rs`. No HEAD `7a813038b9af2eca0eac7c9a0f808ae8f6509d5b` e árvore limpa, `01_core/src/compiler/stdlib/html.rs:60-93` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-html-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/html/frame.rs`. No HEAD `7a813038b9af2eca0eac7c9a0f808ae8f6509d5b` e árvore limpa, `01_core/src/compiler/stdlib/html.rs:60-93` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-html-2026-09-30-before.json.gz`.
 
 ## Contrato
 
@@ -22,7 +22,7 @@ Preservar os testes de `html`, a suíte L1 e a validade de `crystalline-lint .` 
 ### Medição anterior à decisão
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
 conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
 baseline-reuse.json prova igualdade de fontes/configuração/binário com a
 matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz

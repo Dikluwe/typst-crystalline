@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/reconciliation.md
-//! @prompt-hash 16d1d494
+//! @prompt-hash a764bd1b
 //! @layer L3
 //! @updated 2026-10-03
 

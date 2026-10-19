@@ -1,0 +1,89 @@
+{
+  "utc": "2026-10-13T21:17:24.145767+00:00",
+  "pin": "9f2b6e8715237cb086899a42873660fe744622e8",
+  "cases": {
+    "vec-left": {
+      "source": "#set page(width:100pt,height:100pt,margin:10pt)\n$vec(a, wide, align:left)$",
+      "tekt": {
+        "argv": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "/tmp/tmpgsjmr8rt/main.typ",
+          "/tmp/tmpgsjmr8rt/main.pdf"
+        ],
+        "code": 1,
+        "stdout": "",
+        "stderr": "error: unknown variable `left`\n  \u250c\u2500 ../../../tmp/tmpgsjmr8rt/main.typ:2:20\n  \u2502\n2 \u2502 $vec(a, wide, align:left)$\n  \u2502                     ^^^^\n  \u2502\n  = hint: `left` is not available directly in math, but is in the standard library\n  = hint: to access `left` in code mode you can add a hash: `#left`\n  = hint: or access `left` in math mode by using the `std` module: `std.left`\n\n"
+      },
+      "vanilla": {
+        "argv": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "/tmp/tmpw6scoc1x/main.typ",
+          "/tmp/tmpw6scoc1x/main.pdf"
+        ],
+        "code": 1,
+        "stdout": "",
+        "stderr": "error: unknown variable `left`\n  \u250c\u2500 ../../../tmp/tmpw6scoc1x/main.typ:2:20\n  \u2502\n2 \u2502 $vec(a, wide, align:left)$\n  \u2502                     ^^^^\n  \u2502\n  = hint: `left` is not available directly in math, but is in the standard library\n  = hint: to access `left` in code mode you can add a hash: `#left`\n  = hint: or access `left` in math mode by using the `std` module: `std.left`\n\n"
+      }
+    },
+    "vec-left-qualified": {
+      "source": "#set page(width:100pt,height:100pt,margin:10pt)\n$vec(a, wide, align:#left)$",
+      "tekt": {
+        "argv": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "/tmp/tmp8i0d0zxm/main.typ",
+          "/tmp/tmp8i0d0zxm/main.pdf"
+        ],
+        "code": 0,
+        "stdout": "",
+        "stderr": "",
+        "bbox": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n<meta name=\"Creator\" content=\"typst-crystalline\"/>\n<meta name=\"CreationDate\" content=\"2026-10-13T21:17:24Z\"/>\n<meta name=\"ModDate\" content=\"2026-10-13T21:17:24Z\"/>\n</head>\n<body>\n<doc>\n  <page width=\"100.000000\" height=\"100.000000\">\n    <word xMin=\"16.567000\" yMin=\"5.635200\" xMax=\"21.341000\" yMax=\"13.335200\">\ud835\udc4e</word>\n    <word xMin=\"10.000000\" yMin=\"8.735000\" xMax=\"16.567000\" yMax=\"19.735000\">(</word>\n    <word xMin=\"31.967000\" yMin=\"8.735000\" xMax=\"38.534000\" yMax=\"19.735000\">)</word>\n  </page>\n</doc>\n</body>\n</html>\n"
+      },
+      "vanilla": {
+        "argv": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "/tmp/tmp7euj6eb6/main.typ",
+          "/tmp/tmp7euj6eb6/main.pdf"
+        ],
+        "code": 0,
+        "stdout": "",
+        "stderr": "",
+        "bbox": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n<meta name=\"Creator\" content=\"Typst 0.15.1\"/>\n<meta name=\"CreationDate\" content=\"2026-10-13T18:17:25-03\"/>\n<meta name=\"ModDate\" content=\"2026-10-13T18:17:25-03\"/>\n</head>\n<body>\n<doc>\n  <page width=\"100.000000\" height=\"100.000000\">\n    <word xMin=\"16.567000\" yMin=\"5.635200\" xMax=\"21.341000\" yMax=\"13.335200\">\ud835\udc4e</word>\n    <word xMin=\"10.000000\" yMin=\"8.735000\" xMax=\"16.567000\" yMax=\"19.735000\">(</word>\n    <word xMin=\"31.967000\" yMin=\"8.735000\" xMax=\"38.534000\" yMax=\"19.735000\">)</word>\n  </page>\n</doc>\n</body>\n</html>\n"
+      }
+    },
+    "flush-prefix-suffix": {
+      "source": "#set page(width:100pt,height:100pt,margin:0pt)\n#block(height:30pt)[before]\n#place(bottom,float:true,block(width:100pt,height:80pt)[#place([FLOAT_BEFORE])])\n#place.flush()\n#block(height:10pt)[after #place([AFTER_MARKER])]\n#place(bottom,float:true,block(width:100pt,height:10pt)[#place([FLOAT_AFTER])])",
+      "tekt": {
+        "argv": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "/tmp/tmp82inzjlp/main.typ",
+          "/tmp/tmp82inzjlp/main.pdf"
+        ],
+        "code": 0,
+        "stdout": "",
+        "stderr": "",
+        "bbox": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n<meta name=\"Creator\" content=\"typst-crystalline\"/>\n<meta name=\"CreationDate\" content=\"2026-10-13T21:17:24Z\"/>\n<meta name=\"ModDate\" content=\"2026-10-13T21:17:24Z\"/>\n</head>\n<body>\n<doc>\n  <page width=\"100.000000\" height=\"100.000000\">\n    <word xMin=\"0.000000\" yMin=\"-2.596000\" xMax=\"28.325000\" yMax=\"9.944000\">before</word>\n  </page>\n  <page width=\"100.000000\" height=\"100.000000\">\n    <word xMin=\"0.000000\" yMin=\"17.404000\" xMax=\"75.647000\" yMax=\"29.944000\">FLOAT_BEFORE</word>\n  </page>\n  <page width=\"100.000000\" height=\"100.000000\">\n    <word xMin=\"0.000000\" yMin=\"-2.596000\" xMax=\"20.592000\" yMax=\"9.944000\">after</word>\n    <word xMin=\"0.000000\" yMin=\"4.642000\" xMax=\"80.399000\" yMax=\"17.182000\">AFTER_MARKER</word>\n  </page>\n  <page width=\"100.000000\" height=\"100.000000\">\n    <word xMin=\"0.000000\" yMin=\"87.404000\" xMax=\"69.542000\" yMax=\"99.944000\">FLOAT_AFTER</word>\n  </page>\n</doc>\n</body>\n</html>\n"
+      },
+      "vanilla": {
+        "argv": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "/tmp/tmpq5_86kyb/main.typ",
+          "/tmp/tmpq5_86kyb/main.pdf"
+        ],
+        "code": 0,
+        "stdout": "",
+        "stderr": "",
+        "bbox": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n<meta name=\"Creator\" content=\"Typst 0.15.1\"/>\n<meta name=\"CreationDate\" content=\"2026-10-13T18:17:25-03\"/>\n<meta name=\"ModDate\" content=\"2026-10-13T18:17:25-03\"/>\n</head>\n<body>\n<doc>\n  <page width=\"100.000000\" height=\"100.000000\">\n    <word xMin=\"0.000000\" yMin=\"-2.596000\" xMax=\"28.325000\" yMax=\"9.944000\">before</word>\n  </page>\n  <page width=\"100.000000\" height=\"100.000000\">\n    <word xMin=\"0.000000\" yMin=\"17.404000\" xMax=\"75.647000\" yMax=\"29.944000\">FLOAT_BEFORE</word>\n  </page>\n  <page width=\"100.000000\" height=\"100.000000\">\n    <word xMin=\"0.000000\" yMin=\"-2.596000\" xMax=\"20.592000\" yMax=\"9.944000\">after</word>\n    <word xMin=\"0.000000\" yMin=\"4.642000\" xMax=\"80.399000\" yMax=\"17.182000\">AFTER_MARKER</word>\n    <word xMin=\"0.000000\" yMin=\"87.403999\" xMax=\"69.542000\" yMax=\"99.943999\">FLOAT_AFTER</word>\n  </page>\n</doc>\n</body>\n</html>\n"
+      }
+    }
+  },
+  "binaries": {
+    "tekt": "bf0aab91cc0dc8bfc8b740845b4f267855d7e2aca4adab89e38b337e150ebb2d",
+    "vanilla": "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea"
+  }
+}

@@ -36,7 +36,7 @@ Existing inline tests cover invalid slots, pairing, synthetic collection reconst
 
 ## Coverage ranges — gate package2026-10-07
 
-Measurement before decision: 00_nucleo/diagnosticos/cmap-intervalos-2026-10-05/measurement.json.gz records sources/HEAD/dirty tree/UTC/argv/fonts and53.19→10.85ms isolated extraction/canonicalization; no CLI speedup measured. 00_nucleo/diagnosticos/coverage-ranges-preparacao-2026-10-07/audit.json verifies this consumer remains identical to the measured HEAD source, and the pure font_book consumer remains byte-identical to the experiment snapshot. ttf-parser0.25.1 format4.rs:103–115,format12.rs:68–75,format13.rs:41–48 retain declared bounds/glyph-zero; its cmap/mod.rs iterator stops at first invalid record.
+Measurement before decision: lab/results/construction/diagnostics/cmap-intervalos-2026-10-05/measurement.json.gz records sources/HEAD/dirty tree/UTC/argv/fonts and53.19→10.85ms isolated extraction/canonicalization; no CLI speedup measured. lab/results/construction/diagnostics/coverage-ranges-preparacao-2026-10-07/audit.json verifies this consumer remains identical to the measured HEAD source, and the pure font_book consumer remains byte-identical to the experiment snapshot. ttf-parser0.25.1 format4.rs:103–115,format12.rs:68–75,format13.rs:41–48 retain declared bounds/glyph-zero; its cmap/mod.rs iterator stops at first invalid record.
 
 Decision after package ratification: declare private child coverage and delegate only existing extract_coverage. Font slots, collection reconstruction, metadata, pairing, discovery timing/eager-vs-lazy policy, cache lifetime and API remain unchanged. Parent must not duplicate range parsing, normalization or callback fallback; child owns these algorithms. Invalid face and missing cmap behavior remain. The public Coverage constructor is owned exclusively by 00_nucleo/prompts/entities/font_book.md. No code before human ratification of the public constructor in this package.
 
@@ -47,7 +47,7 @@ Ratificação: dono confirmou o pacote coverage-ranges-2026-10-07 com `confirmo`
 
 ## Compartilhamento de bytes embutidos — medição 2026-10-08
 
-Estado congelado: `00_nucleo/diagnosticos/embedded-fonts-memoria2-2026-10-08/before.json.gz`. `03_infra/src/fonts.rs:32,119,158-163` retém um Vec no slot e clona seus bytes no primeiro get, mantendo os dois buffers vivos. `01_core/src/entities/world_types.rs:40-49,57-61` já oferece Font::Vec com Arc<Vec<u8>>, clone de armazenamento e slice; nenhum novo contrato L1 é necessário.
+Estado congelado: `lab/results/construction/diagnostics/embedded-fonts-memoria2-2026-10-08/before.json.gz`. `03_infra/src/fonts.rs:32,119,158-163` retém um Vec no slot e clona seus bytes no primeiro get, mantendo os dois buffers vivos. `01_core/src/entities/world_types.rs:40-49,57-61` já oferece Font::Vec com Arc<Vec<u8>>, clone de armazenamento e slice; nenhum novo contrato L1 é necessário.
 
 Classificação: duplicação mecânica interna, não obrigação da linguagem. Inferência a validar: retirar cópia diminui memória quando fonte embutida simples é carregada; se RSS pareado não diminuir de maneira repetida, não atribuir ganho do processo a esta mudança.
 
@@ -70,7 +70,7 @@ variante ou assinatura Font é introduzida.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/custo-fixo-fontes-item2-2026-10-08/probe-results.json` mede, em três processos por modo, 17 assets embutidos com 9.682.300 bytes. O catálogo embutido retém ~9,24 MiB de alocações Rust requisitadas e sobe ~9,3 MiB em mapping anônimo e ~9,3 MiB em páginas residentes do executável. `embedded_fonts.rs:92-94` copia cada slice estático para Vec; `fonts.rs:115-123` retém todos os Vecs mesmo sem `get`. `typst-kit/src/fonts.rs:136-141` no vanilla pinado fornece `Bytes::new(data)`, e `typst-library/src/foundations/bytes.rs:48-62` documenta que o slice estático é o backing direto, sem Vec. Isto mede mecânica de armazenamento, não intenção nem paridade de linguagem. O ganho de RSS é hipótese refutável por bateria pareada do CLI; o tamanho dos buffers é prova direta da duplicação.
+`lab/results/construction/diagnostics/custo-fixo-fontes-item2-2026-10-08/probe-results.json` mede, em três processos por modo, 17 assets embutidos com 9.682.300 bytes. O catálogo embutido retém ~9,24 MiB de alocações Rust requisitadas e sobe ~9,3 MiB em mapping anônimo e ~9,3 MiB em páginas residentes do executável. `embedded_fonts.rs:92-94` copia cada slice estático para Vec; `fonts.rs:115-123` retém todos os Vecs mesmo sem `get`. `typst-kit/src/fonts.rs:136-141` no vanilla pinado fornece `Bytes::new(data)`, e `typst-library/src/foundations/bytes.rs:48-62` documenta que o slice estático é o backing direto, sem Vec. Isto mede mecânica de armazenamento, não intenção nem paridade de linguagem. O ganho de RSS é hipótese refutável por bateria pareada do CLI; o tamanho dos buffers é prova direta da duplicação.
 
 ### Decisão
 
@@ -82,7 +82,7 @@ Aceitação RED→GREEN: todos os slots de `load_embedded_fonts` referenciam exa
 
 ### Medição anterior à decisão
 
-`03_infra/src/fonts.rs` nas linhas 367, 368, 369, 370 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`03_infra/src/fonts.rs` nas linhas 367, 368, 369, 370 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
 
 ### Decisão e aceitação
 

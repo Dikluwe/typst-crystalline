@@ -9,7 +9,7 @@ Exclusive consumer: `01_core/src/compiler/eval/rules/outline.rs`
 
 ## Medição antes da decisão
 
-A working tree não commitada capturada em `00_nucleo/diagnosticos/atomizacao-eval-rules-2026-09-30-before.json.gz` contém as rotinas desta família em `01_core/src/compiler/eval/rules.rs`. A suíte L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem prova bilateral nova contra o vanilla. As medidas históricas e ressalvas do pin continuam em `00_nucleo/prompts/compiler/eval/rules.md`.
+A working tree não commitada capturada em `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` contém as rotinas desta família em `01_core/src/compiler/eval/rules.rs`. A suíte L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem prova bilateral nova contra o vanilla. As medidas históricas e ressalvas do pin continuam em `00_nucleo/prompts/compiler/eval/rules.md`.
 
 ## Contrato de linguagem
 
@@ -33,7 +33,7 @@ A inspeção em `01_core/src/compiler/eval/rules/outline.rs:20–46` demonstra q
 
 ## Prova de ausência por leitura emprestada — 2026-10-09
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/stacks-deep.json.gz`
+Medição anterior à decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/stacks-deep.json.gz`
 guarda binário, HEAD/working tree, fonte, comandos e UTC. Uma em cada 64
 alocações foi amostrada; `TableElem::map_content` sob `realize_outlines`
 aparece em 451 amostras de `local-set-1600` e 150 no controle sem set.

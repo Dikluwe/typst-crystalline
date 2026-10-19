@@ -7,7 +7,7 @@ Hash do Código: b56c2dc6
 
 ## Measurement before decision
 
-The uncommitted working tree in `00_nucleo/diagnosticos/atomizacao-stdlib-math-class-2026-09-30-before.json.gz` places `native_math_class` at `math.rs:1069-1152`, with static registration in the parent and a public reexport through `structural/mod.rs`. `vanilla_type_name_class` at `math.rs:1060-1067` is shared by other natives. Baseline filters passed 29 `math_class` tests and 15 P825 tests. This is structural and regression evidence, not new bilateral vanilla evidence or a timing claim. The parent L0 retains the historical P772y/P825 language measurements.
+The uncommitted working tree in `lab/results/construction/diagnostics/atomizacao-stdlib-math-class-2026-09-30-before.json.gz` places `native_math_class` at `math.rs:1069-1152`, with static registration in the parent and a public reexport through `structural/mod.rs`. `vanilla_type_name_class` at `math.rs:1060-1067` is shared by other natives. Baseline filters passed 29 `math_class` tests and 15 P825 tests. This is structural and regression evidence, not new bilateral vanilla evidence or a timing claim. The parent L0 retains the historical P772y/P825 language measurements.
 
 ## Language contract
 

@@ -49,7 +49,7 @@ As duas chamadas pertencem a grupos cujo cm já estabelece Y-down.
 O teste causal `nested_group_clip_has_transformed_bounds_and_does_not_leak`
 obteve y de página 177..169 em vez de 169..161. O estado do primeiro
 candidato, falha e fontes/L0 anteriores deste owner estão registrados em
-`00_nucleo/diagnosticos/grupos-aninhados-2026-10-13/clip-before.json.gz`;
+`lab/results/construction/diagnostics/grupos-aninhados-2026-10-13/clip-before.json.gz`;
 HEAD, status, diffstat e UTC base em before.json.gz do mesmo lote.
 A diferença é uma segunda reflexão semântica indevida, não liberdade
 de codificação PDF.
@@ -90,7 +90,7 @@ compõe grupos, mas Pattern é relativo ao espaço inicial do stream.
 `stream/page.rs:45-49` acrescenta bleed antes dos itens. O corpus constante
 red versus conic(red,red), em before/probe.json.gz, reproduz a perda de
 cobertura na árvore atual. Fonte, L0, HEAD, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/conic-posicionamento-2026-10-14/placement-before.json.gz`.
+`lab/results/construction/diagnostics/conic-posicionamento-2026-10-14/placement-before.json.gz`.
 Os dois lados do teste são Tekt: o defeito independe de imitar o vanilla.
 
 ### Responsabilidade e aceitação
@@ -120,7 +120,7 @@ campo ou construtor de PageContext muda. O dispatcher passa seu contexto.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -129,7 +129,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 
@@ -155,7 +155,7 @@ não é certificação de produção. T4 e publicação continuam fora deste pac
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-overlap-2026-10-14/before.json.gz` preserva fontes, owners, HEAD, UTC e working tree. `tiling-nativo-2026-10-14/final-renders` e `remaining-analysis.md` registram cell8×8/pitch4×4 alpha50%: PDF vermelho opaco; SVG só uma contribuição; PNG quatro contribuições (255,15,15). `pdf_tiling.rs:184` emite BBox=size, `svg/paints.rs:148` usa overflow visible; `stream/shape.rs:155` e `stream/text.rs:275` descartam alpha. São defeitos observáveis de composição; o vanilla também corta overlap e não serve de requisito para esse defeito. Hipótese refutável: compor explicitamente um período preserva controles sem overlap e quatro contribuições coincidem com fonte-over analítica.
+`lab/results/construction/diagnostics/tiling-overlap-2026-10-14/before.json.gz` preserva fontes, owners, HEAD, UTC e working tree. `tiling-nativo-2026-10-14/final-renders` e `remaining-analysis.md` registram cell8×8/pitch4×4 alpha50%: PDF vermelho opaco; SVG só uma contribuição; PNG quatro contribuições (255,15,15). `pdf_tiling.rs:184` emite BBox=size, `svg/paints.rs:148` usa overflow visible; `stream/shape.rs:155` e `stream/text.rs:275` descartam alpha. São defeitos observáveis de composição; o vanilla também corta overlap e não serve de requisito para esse defeito. Hipótese refutável: compor explicitamente um período preserva controles sem overlap e quatro contribuições coincidem com fonte-over analítica.
 
 ### Responsabilidade desta unidade
 

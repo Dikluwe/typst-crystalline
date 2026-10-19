@@ -9,7 +9,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/layout/place.rs`
 
 ## Medição antes da decisão
 
-A working tree não commitada capturada em `00_nucleo/diagnosticos/atomizacao-stdlib-layout-2026-09-30-before.json.gz` contém a lógica desta família em `01_core/src/compiler/stdlib/layout.rs`; a suíte completa do L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem nova prova bilateral contra o vanilla. As decisões históricas, medidas e qualificações do pin continuam em `00_nucleo/prompts/compiler/stdlib/layout.md`.
+A working tree não commitada capturada em `lab/results/construction/diagnostics/atomizacao-stdlib-layout-2026-09-30-before.json.gz` contém a lógica desta família em `01_core/src/compiler/stdlib/layout.rs`; a suíte completa do L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem nova prova bilateral contra o vanilla. As decisões históricas, medidas e qualificações do pin continuam em `00_nucleo/prompts/compiler/stdlib/layout.md`.
 
 ## Contrato de linguagem
 
@@ -25,7 +25,7 @@ Suíte L1 e `crystalline-lint .` sem regressão. A paridade é da linguagem, seg
 
 ### Medição antes da decisão
 
-`01_core/src/compiler/stdlib/layout/place.rs:42–48` converte omissão em `Some(Top)`. As sondas `00_nucleo/diagnosticos/place-origem-local-2026-10-14/{before,extra-before}/results.json.gz` guardam HEAD, árvore suja, diffstat, UTC, binários e SVGs contra o pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8: após texto A, alinhamento omitido ancora na baseline; Top explícito ancora na região. `lab/typst-original/crates/typst-layout/src/flow/distribute.rs:703–715` distingue o eixo explícito do offset de flow. Trata-se de geometria de linguagem, não de igualdade Rust. Os testes place_origin_pending_line_and_explicit_top_are_distinct reproduzem a divergência antes da correção.
+`01_core/src/compiler/stdlib/layout/place.rs:42–48` converte omissão em `Some(Top)`. As sondas `lab/results/construction/diagnostics/place-origem-local-2026-10-14/{before,extra-before}/results.json.gz` guardam HEAD, árvore suja, diffstat, UTC, binários e SVGs contra o pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8: após texto A, alinhamento omitido ancora na baseline; Top explícito ancora na região. `lab/typst-original/crates/typst-layout/src/flow/distribute.rs:703–715` distingue o eixo explícito do offset de flow. Trata-se de geometria de linguagem, não de igualdade Rust. Os testes place_origin_pending_line_and_explicit_top_are_distinct reproduzem a divergência antes da correção.
 
 ### Decisão e aceitação
 

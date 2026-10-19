@@ -1,0 +1,2090 @@
+[
+  {
+    "case": "t0-simple",
+    "source_sha256": "df91270e1d2677d4e7103a15bcde4f8bf0aabaa4e7d7d0e49cf94f66365a5ee4",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t0-simple.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t0-simple-tekt.pdf"
+        ],
+        "pdf_sha256": "05d4d189cfcc2ad653a4663c5a2aa4a91efe407892788487f4c0efb2f895b951",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 39.356,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 42.476,
+            "y": 3.74,
+            "right": 67.688,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 70.808,
+            "y": 3.74,
+            "right": 114.092,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 36.308,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 39.428,
+            "y": 20.108,
+            "right": 80.192,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 83.312,
+            "y": 20.108,
+            "right": 106.784,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "eta",
+            "x": 109.904,
+            "y": 20.108,
+            "right": 127.736,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "theta",
+            "x": 8.0,
+            "y": 36.476,
+            "right": 37.58,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "iota",
+            "x": 40.7,
+            "y": 36.476,
+            "right": 62.12,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "kappa",
+            "x": 65.24,
+            "y": 36.476,
+            "right": 99.872,
+            "bottom": 52.82
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 50.54,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 53.66,
+            "y": 3.74,
+            "right": 72.296,
+            "bottom": 20.084
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta eta\ntheta iota kappa\n\n\flambda mu\n\n\f"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t0-simple.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t0-simple-vanilla.pdf"
+        ],
+        "pdf_sha256": "d17ad2fe00ce0492e3a6767340ede5cadd0259a549d1e872b014953024040c0c",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 39.356,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 42.476,
+            "y": 3.74,
+            "right": 67.688,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 70.808,
+            "y": 3.74,
+            "right": 114.092,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 36.308,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 39.428,
+            "y": 20.108,
+            "right": 80.192,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 83.312,
+            "y": 20.108,
+            "right": 106.784,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "eta",
+            "x": 109.904,
+            "y": 20.108,
+            "right": 127.736,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "theta",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 37.58,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "iota",
+            "x": 40.7,
+            "y": 3.74,
+            "right": 62.12,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "kappa",
+            "x": 65.24,
+            "y": 3.74,
+            "right": 99.872,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 50.54,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 53.66,
+            "y": 20.108,
+            "right": 72.296,
+            "bottom": 36.452
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta eta\n\n\ftheta iota kappa\nlambda mu\n\n\f"
+      }
+    },
+    "same_text": false,
+    "same_words": true,
+    "distribution": {
+      "tekt": [
+        10,
+        2
+      ],
+      "vanilla": [
+        7,
+        5
+      ]
+    },
+    "max_box_delta_pt": 32.736000000000004
+  },
+  {
+    "case": "t0-optimized",
+    "source_sha256": "969da1498c01533d21a09999bfee1c5b78b01e85f85f8e1b56612b5d2fef0f34",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t0-optimized.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t0-optimized-tekt.pdf"
+        ],
+        "pdf_sha256": "703ad1c0ebdcf5777ea438d8d57b2d2129239f4de7c2f0e2083059bf9c8d1f4e",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 39.356,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 42.476,
+            "y": 3.74,
+            "right": 67.688,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 70.808,
+            "y": 3.74,
+            "right": 114.092,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 36.308,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 39.428,
+            "y": 20.108,
+            "right": 80.192,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 83.312,
+            "y": 20.108,
+            "right": 106.784,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "eta",
+            "x": 109.904,
+            "y": 20.108,
+            "right": 127.736,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "theta",
+            "x": 8.0,
+            "y": 36.476,
+            "right": 37.58,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "iota",
+            "x": 40.7,
+            "y": 36.476,
+            "right": 62.12,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "kappa",
+            "x": 65.24,
+            "y": 36.476,
+            "right": 99.872,
+            "bottom": 52.82
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 50.54,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 53.66,
+            "y": 3.74,
+            "right": 72.296,
+            "bottom": 20.084
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta eta\ntheta iota kappa\n\n\flambda mu\n\n\f"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t0-optimized.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t0-optimized-vanilla.pdf"
+        ],
+        "pdf_sha256": "20847f0b5863d5680d03b3e95f39cd0cd196aaa74a4817cefec579ce631b0622",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 39.356,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 42.476,
+            "y": 3.74,
+            "right": 67.688,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 70.808,
+            "y": 3.74,
+            "right": 114.092,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 36.308,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 39.428,
+            "y": 20.108,
+            "right": 80.192,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 83.312,
+            "y": 20.108,
+            "right": 106.784,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "eta",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 25.832,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "theta",
+            "x": 28.952,
+            "y": 3.74,
+            "right": 58.532,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "iota",
+            "x": 61.652,
+            "y": 3.74,
+            "right": 83.072,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "kappa",
+            "x": 86.192,
+            "y": 3.74,
+            "right": 120.824,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 50.54,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 53.66,
+            "y": 20.108,
+            "right": 72.296,
+            "bottom": 36.452
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta\n\n\feta theta iota kappa\nlambda mu\n\n\f"
+      }
+    },
+    "same_text": false,
+    "same_words": true,
+    "distribution": {
+      "tekt": [
+        10,
+        2
+      ],
+      "vanilla": [
+        6,
+        6
+      ]
+    },
+    "max_box_delta_pt": 101.904
+  },
+  {
+    "case": "t0.2-simple",
+    "source_sha256": "27b1f2ed66e909156a480ec9ba48b00a8216510e0729e0217aea50c6a37a2c04",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t0.2-simple.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t0.2-simple-tekt.pdf"
+        ],
+        "pdf_sha256": "d9a6b59918f9299a59d083d3037b744d6237e38c30daf2f7b8290b8f8f141a91",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 40.156,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 43.676,
+            "y": 3.74,
+            "right": 69.488,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 73.008,
+            "y": 3.74,
+            "right": 117.092,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 37.108,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 40.628,
+            "y": 20.108,
+            "right": 82.592,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 86.112,
+            "y": 20.108,
+            "right": 110.184,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "eta",
+            "x": 113.704,
+            "y": 20.108,
+            "right": 131.936,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "theta",
+            "x": 8.0,
+            "y": 36.476,
+            "right": 38.38,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "iota",
+            "x": 41.9,
+            "y": 36.476,
+            "right": 63.92,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "kappa",
+            "x": 67.44,
+            "y": 36.476,
+            "right": 102.872,
+            "bottom": 52.82
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 51.54,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 55.06,
+            "y": 3.74,
+            "right": 73.896,
+            "bottom": 20.084
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta eta\ntheta iota kappa\n\n\flambda mu\n\n\f"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t0.2-simple.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t0.2-simple-vanilla.pdf"
+        ],
+        "pdf_sha256": "874678bdc0abb817fbe44454b95f1b9fe97a10fd0db8f009c0b274cba2c7ce39",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 40.156,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 43.675999,
+            "y": 3.74,
+            "right": 69.488,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 73.007999,
+            "y": 3.74,
+            "right": 117.091998,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 37.108,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 40.628,
+            "y": 20.108,
+            "right": 82.592,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 86.112,
+            "y": 20.108,
+            "right": 110.184,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "eta",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 26.232,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "theta",
+            "x": 29.752,
+            "y": 3.74,
+            "right": 60.132,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "iota",
+            "x": 63.651999,
+            "y": 3.74,
+            "right": 85.671999,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "kappa",
+            "x": 89.191998,
+            "y": 3.74,
+            "right": 124.623999,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 51.539999,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 55.059999,
+            "y": 20.108,
+            "right": 73.895998,
+            "bottom": 36.452
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta\n\n\feta theta iota kappa\nlambda mu\n\n\f"
+      }
+    },
+    "same_text": false,
+    "same_words": true,
+    "distribution": {
+      "tekt": [
+        10,
+        2
+      ],
+      "vanilla": [
+        6,
+        6
+      ]
+    },
+    "max_box_delta_pt": 105.70400000000001
+  },
+  {
+    "case": "t0.2-optimized",
+    "source_sha256": "2bd206300d8cc00e6f8ef96128812fc98af50bd8ca9673a996fff62eb7b781a0",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t0.2-optimized.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t0.2-optimized-tekt.pdf"
+        ],
+        "pdf_sha256": "b5b6a7224f825d41aa7b2295ef112a7e8ea951395337d9ea75e0a9d48c69d45a",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 40.156,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 43.676,
+            "y": 3.74,
+            "right": 69.488,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 73.008,
+            "y": 3.74,
+            "right": 117.092,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 37.108,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 40.628,
+            "y": 20.108,
+            "right": 82.592,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 86.112,
+            "y": 20.108,
+            "right": 110.184,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "eta",
+            "x": 113.704,
+            "y": 20.108,
+            "right": 131.936,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "theta",
+            "x": 8.0,
+            "y": 36.476,
+            "right": 38.38,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "iota",
+            "x": 41.9,
+            "y": 36.476,
+            "right": 63.92,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "kappa",
+            "x": 67.44,
+            "y": 36.476,
+            "right": 102.872,
+            "bottom": 52.82
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 51.54,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 55.06,
+            "y": 3.74,
+            "right": 73.896,
+            "bottom": 20.084
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta eta\ntheta iota kappa\n\n\flambda mu\n\n\f"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t0.2-optimized.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t0.2-optimized-vanilla.pdf"
+        ],
+        "pdf_sha256": "874678bdc0abb817fbe44454b95f1b9fe97a10fd0db8f009c0b274cba2c7ce39",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 40.156,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 43.675999,
+            "y": 3.74,
+            "right": 69.488,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 73.007999,
+            "y": 3.74,
+            "right": 117.091998,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 37.108,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 40.628,
+            "y": 20.108,
+            "right": 82.592,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 86.112,
+            "y": 20.108,
+            "right": 110.184,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "eta",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 26.232,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "theta",
+            "x": 29.752,
+            "y": 3.74,
+            "right": 60.132,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "iota",
+            "x": 63.651999,
+            "y": 3.74,
+            "right": 85.671999,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "kappa",
+            "x": 89.191998,
+            "y": 3.74,
+            "right": 124.623999,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 51.539999,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 55.059999,
+            "y": 20.108,
+            "right": 73.895998,
+            "bottom": 36.452
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta\n\n\feta theta iota kappa\nlambda mu\n\n\f"
+      }
+    },
+    "same_text": false,
+    "same_words": true,
+    "distribution": {
+      "tekt": [
+        10,
+        2
+      ],
+      "vanilla": [
+        6,
+        6
+      ]
+    },
+    "max_box_delta_pt": 105.70400000000001
+  },
+  {
+    "case": "t-0.2-simple",
+    "source_sha256": "ea49f0c132c896ab2268eea68fc85b66cd22c428a8bc52ab4d83afb6ef80fd45",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t-0.2-simple.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t-0.2-simple-tekt.pdf"
+        ],
+        "pdf_sha256": "fffc7e2a808828e44939a14426a09f017e161097f79452a1889693a5f3792a21",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 38.556,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 41.276,
+            "y": 3.74,
+            "right": 65.888,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 68.608,
+            "y": 3.74,
+            "right": 111.092,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 35.508,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 38.228,
+            "y": 20.108,
+            "right": 77.792,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 80.512,
+            "y": 20.108,
+            "right": 103.384,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "eta",
+            "x": 106.104,
+            "y": 20.108,
+            "right": 123.536,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "theta",
+            "x": 8.0,
+            "y": 36.476,
+            "right": 36.78,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "iota",
+            "x": 39.5,
+            "y": 36.476,
+            "right": 60.32,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "kappa",
+            "x": 63.04,
+            "y": 36.476,
+            "right": 96.872,
+            "bottom": 52.82
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 49.54,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 52.26,
+            "y": 3.74,
+            "right": 70.696,
+            "bottom": 20.084
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta eta\ntheta iota kappa\n\n\flambda mu\n\n\f"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t-0.2-simple.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t-0.2-simple-vanilla.pdf"
+        ],
+        "pdf_sha256": "8aa876c752a05d6624195eefadb86d64d52cb5da9d911fff20a7c75bdcc11cea",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 38.556,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 41.276,
+            "y": 3.74,
+            "right": 65.888001,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 68.608,
+            "y": 3.74,
+            "right": 111.092002,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 35.508001,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 38.228001,
+            "y": 20.108,
+            "right": 77.792001,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 80.512001,
+            "y": 20.108,
+            "right": 103.384001,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "eta",
+            "x": 106.104001,
+            "y": 20.108,
+            "right": 123.536001,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "theta",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 36.78,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "iota",
+            "x": 39.5,
+            "y": 3.74,
+            "right": 60.319999,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "kappa",
+            "x": 63.039999,
+            "y": 3.74,
+            "right": 96.871999,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 49.540001,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 52.260001,
+            "y": 20.108,
+            "right": 70.696002,
+            "bottom": 36.452
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta eta\n\n\ftheta iota kappa\nlambda mu\n\n\f"
+      }
+    },
+    "same_text": false,
+    "same_words": true,
+    "distribution": {
+      "tekt": [
+        10,
+        2
+      ],
+      "vanilla": [
+        7,
+        5
+      ]
+    },
+    "max_box_delta_pt": 32.736000000000004
+  },
+  {
+    "case": "t-0.2-optimized",
+    "source_sha256": "0cd835529bd960d3b8c0fc8518ba8302946c5ec237afd4f7e586b75665a777e9",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t-0.2-optimized.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t-0.2-optimized-tekt.pdf"
+        ],
+        "pdf_sha256": "377e4520fa0f3719d73d4ccc44628f0fd31383ed08fb8deac91e451bf7885340",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 38.556,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 41.276,
+            "y": 3.74,
+            "right": 65.888,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 68.608,
+            "y": 3.74,
+            "right": 111.092,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 35.508,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 38.228,
+            "y": 20.108,
+            "right": 77.792,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 80.512,
+            "y": 20.108,
+            "right": 103.384,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "eta",
+            "x": 106.104,
+            "y": 20.108,
+            "right": 123.536,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "theta",
+            "x": 8.0,
+            "y": 36.476,
+            "right": 36.78,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "iota",
+            "x": 39.5,
+            "y": 36.476,
+            "right": 60.32,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "kappa",
+            "x": 63.04,
+            "y": 36.476,
+            "right": 96.872,
+            "bottom": 52.82
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 49.54,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 52.26,
+            "y": 3.74,
+            "right": 70.696,
+            "bottom": 20.084
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta eta\ntheta iota kappa\n\n\flambda mu\n\n\f"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t-0.2-optimized.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t-0.2-optimized-vanilla.pdf"
+        ],
+        "pdf_sha256": "6b6a56a6a1b7796d8a8ed47d07a8cdd1fb0af967fd9fd2131eb346746955427e",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 38.556,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 41.276,
+            "y": 3.74,
+            "right": 65.888001,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 68.608,
+            "y": 3.74,
+            "right": 111.092002,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 35.508001,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 38.228001,
+            "y": 20.108,
+            "right": 77.792001,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 80.512001,
+            "y": 20.108,
+            "right": 103.384001,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "eta",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 25.432,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "theta",
+            "x": 28.152,
+            "y": 3.74,
+            "right": 56.932,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "iota",
+            "x": 59.652,
+            "y": 3.74,
+            "right": 80.471999,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "kappa",
+            "x": 83.191999,
+            "y": 3.74,
+            "right": 117.024,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 49.540001,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 52.260001,
+            "y": 20.108,
+            "right": 70.696002,
+            "bottom": 36.452
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta\n\n\feta theta iota kappa\nlambda mu\n\n\f"
+      }
+    },
+    "same_text": false,
+    "same_words": true,
+    "distribution": {
+      "tekt": [
+        10,
+        2
+      ],
+      "vanilla": [
+        6,
+        6
+      ]
+    },
+    "max_box_delta_pt": 98.104
+  },
+  {
+    "case": "t1-simple",
+    "source_sha256": "adf96b6f447ac6155efd64b25b3a0d383e78016bd8fe86e8a1285c04efb56813",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t1-simple.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t1-simple-tekt.pdf"
+        ],
+        "pdf_sha256": "4e3777d6a8bc73c0055f498bf8306ee40570bf8241be55aa3903654359924894",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 43.356,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 48.476,
+            "y": 3.74,
+            "right": 76.688,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 81.808,
+            "y": 3.74,
+            "right": 129.092,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 40.308,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 45.428,
+            "y": 20.108,
+            "right": 92.192,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 97.312,
+            "y": 20.108,
+            "right": 123.784,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "eta",
+            "x": 8.0,
+            "y": 36.476,
+            "right": 27.832,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "theta",
+            "x": 32.952,
+            "y": 36.476,
+            "right": 66.532,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "iota",
+            "x": 71.652,
+            "y": 36.476,
+            "right": 96.072,
+            "bottom": 52.82
+          },
+          {
+            "page": 1,
+            "text": "kappa",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 46.632,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 51.752,
+            "y": 3.74,
+            "right": 99.292,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 104.412,
+            "y": 3.74,
+            "right": 124.048,
+            "bottom": 20.084
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta\neta theta iota\n\n\fkappa lambda mu\n\n\f"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t1-simple.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t1-simple-vanilla.pdf"
+        ],
+        "pdf_sha256": "a795071119aec987645d7098ca5dad39ae713d4063db43923919ac9249a8077a",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 43.356001,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 48.476001,
+            "y": 3.74,
+            "right": 76.688001,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 81.808001,
+            "y": 3.74,
+            "right": 129.092001,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 40.308,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 45.428,
+            "y": 20.108,
+            "right": 92.192,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 97.312001,
+            "y": 20.108,
+            "right": 123.784,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "eta",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 27.832,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "theta",
+            "x": 32.952,
+            "y": 3.74,
+            "right": 66.532001,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "iota",
+            "x": 71.652001,
+            "y": 3.74,
+            "right": 96.072001,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "kappa",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 46.632,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 51.752001,
+            "y": 20.108,
+            "right": 99.292001,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 104.412001,
+            "y": 20.108,
+            "right": 124.048001,
+            "bottom": 36.452
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta\n\n\feta theta iota\nkappa lambda mu\n\n\f"
+      }
+    },
+    "same_text": false,
+    "same_words": true,
+    "distribution": {
+      "tekt": [
+        9,
+        3
+      ],
+      "vanilla": [
+        6,
+        6
+      ]
+    },
+    "max_box_delta_pt": 32.736000000000004
+  },
+  {
+    "case": "t1-optimized",
+    "source_sha256": "a23fa928c57a843edcef40ec18f828b10defb9095a7d85eb1ac837f69cc04935",
+    "runs": {
+      "tekt": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t1-optimized.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t1-optimized-tekt.pdf"
+        ],
+        "pdf_sha256": "c02868a7479d1b0e79c82e2d15eb710e4a422b4594936c3f99b674d64f35624f",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 43.356,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 48.476,
+            "y": 3.74,
+            "right": 76.688,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 81.808,
+            "y": 3.74,
+            "right": 129.092,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 40.308,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 45.428,
+            "y": 20.108,
+            "right": 92.192,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 97.312,
+            "y": 20.108,
+            "right": 123.784,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "eta",
+            "x": 8.0,
+            "y": 36.476,
+            "right": 27.832,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "theta",
+            "x": 32.952,
+            "y": 36.476,
+            "right": 66.532,
+            "bottom": 52.82
+          },
+          {
+            "page": 0,
+            "text": "iota",
+            "x": 71.652,
+            "y": 36.476,
+            "right": 96.072,
+            "bottom": 52.82
+          },
+          {
+            "page": 1,
+            "text": "kappa",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 46.632,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 51.752,
+            "y": 3.74,
+            "right": 99.292,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 104.412,
+            "y": 3.74,
+            "right": 124.048,
+            "bottom": 20.084
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta\neta theta iota\n\n\fkappa lambda mu\n\n\f"
+      },
+      "vanilla": {
+        "command": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "--font-path",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/fonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-inputs/t1-optimized.typ",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/paragrafo-tracking-global-2026-09-29/focused-before/t1-optimized-vanilla.pdf"
+        ],
+        "pdf_sha256": "a795071119aec987645d7098ca5dad39ae713d4063db43923919ac9249a8077a",
+        "stderr": "",
+        "pages": [
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          },
+          {
+            "width": "140.000000",
+            "height": "65.000000"
+          }
+        ],
+        "words": [
+          {
+            "page": 0,
+            "text": "alpha",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 43.356001,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "beta",
+            "x": 48.476001,
+            "y": 3.74,
+            "right": 76.688001,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "gamma",
+            "x": 81.808001,
+            "y": 3.74,
+            "right": 129.092001,
+            "bottom": 20.084
+          },
+          {
+            "page": 0,
+            "text": "delta",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 40.308,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "epsilon",
+            "x": 45.428,
+            "y": 20.108,
+            "right": 92.192,
+            "bottom": 36.452
+          },
+          {
+            "page": 0,
+            "text": "zeta",
+            "x": 97.312001,
+            "y": 20.108,
+            "right": 123.784,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "eta",
+            "x": 8.0,
+            "y": 3.74,
+            "right": 27.832,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "theta",
+            "x": 32.952,
+            "y": 3.74,
+            "right": 66.532001,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "iota",
+            "x": 71.652001,
+            "y": 3.74,
+            "right": 96.072001,
+            "bottom": 20.084
+          },
+          {
+            "page": 1,
+            "text": "kappa",
+            "x": 8.0,
+            "y": 20.108,
+            "right": 46.632,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "lambda",
+            "x": 51.752001,
+            "y": 20.108,
+            "right": 99.292001,
+            "bottom": 36.452
+          },
+          {
+            "page": 1,
+            "text": "mu",
+            "x": 104.412001,
+            "y": 20.108,
+            "right": 124.048001,
+            "bottom": 36.452
+          }
+        ],
+        "text": "alpha beta gamma\ndelta epsilon zeta\n\n\feta theta iota\nkappa lambda mu\n\n\f"
+      }
+    },
+    "same_text": false,
+    "same_words": true,
+    "distribution": {
+      "tekt": [
+        9,
+        3
+      ],
+      "vanilla": [
+        6,
+        6
+      ]
+    },
+    "max_box_delta_pt": 32.736000000000004
+  }
+]

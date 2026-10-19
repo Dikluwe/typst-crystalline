@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 9e2638df
+//! @prompt-hash 66bb7aaa
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -1168,7 +1168,7 @@ mod p1283_tests {
 
 /// P1472 (Agente B) — contrato RED das nove rotas qualificadas `math.*`
 /// ainda ausentes: `bold`, `cal`, `display`, `italic`, `sans`, `scr`,
-/// `sscript`, `upright`, `text`. Fonte: `00_nucleo/materialization/
+/// `sscript`, `upright`, `text`. Fonte: `lab/history/construction/records/00_nucleo/materialization/
 /// typst-passo-1472.md` + `00_nucleo/prompts/compiler/stdlib/structural/
 /// math.md` §P1472 + `00_nucleo/prompts/compiler/stdlib/math_style.md`
 /// §P1472. Escrito sem ver a implementação (isolamento Agente A/B) — usa

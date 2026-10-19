@@ -36,14 +36,14 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/cpu-rebaseline-2026-10-10/{profiles-normalized,font-selection-probe,font-resources}.json.gz`
+`lab/results/construction/diagnostics/cpu-rebaseline-2026-10-10/{profiles-normalized,font-selection-probe,font-resources}.json.gz`
 registra fonte, HEAD/árvore/UTC/binários e seleção: o corpus de 800 pesos usa
 três faces sem MATH, mas gera 800 recursos distintos. O perfil inclui 6070
 amostras com reverse-map; presença inclusiva não é tempo exclusivo.
 `math.rs:239-254` constrói cmap_reverse antes de consultar variants/assemblies;
 os quatro extractors em :17-202 retornam vazio quando MATH ou variants falta.
 O resultado intermediário é descartado e o mapa retornado é vazio.
-`00_nucleo/diagnosticos/math-reverse-map-skip-2026-10-10/{before,allocation-equal-red}.json.gz`
+`lab/results/construction/diagnostics/math-reverse-map-skip-2026-10-10/{before,allocation-equal-red}.json.gz`
 registra estado corrente depois da correção Cell: HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
 release 71e968c20d5ba32c652b2b66c4fd444c672158ba9bb27b0272f59cfaa5530c78.
@@ -78,9 +78,9 @@ confirmar. Executar testes font_metrics, build e lint com resselo restrito.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/tekt-v16-ssty-2026-10-17/before.json.gz conserva UTC,
+lab/results/construction/diagnostics/tekt-v16-ssty-2026-10-17/before.json.gz conserva UTC,
 status, git diff HEAD --stat, fontes/L0 e 2128 hashes conferidos do fechamento
-anterior. O SARIF em 00_nucleo/diagnosticos/import-syntax-2026-10-17/validation-architecture.log
+anterior. O SARIF em lab/results/construction/diagnostics/import-syntax-2026-10-17/validation-architecture.log
 registra 117 V16, incluindo font_metrics/math.rs:337 e shaper/shaping.rs:28.
 MathSize em 01_core/src/entities/layout_types.rs:147 possui Display, Text,
 Script e ScriptScript. math.rs:330–338 e shaping.rs:21–30 retornam Some(1/2)

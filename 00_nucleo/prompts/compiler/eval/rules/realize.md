@@ -14,7 +14,7 @@ Exclusive consumer: `01_core/src/compiler/eval/rules/realize.rs`
 
 ## Medição antes da decisão
 
-A working tree não commitada capturada em `00_nucleo/diagnosticos/atomizacao-eval-rules-2026-09-30-before.json.gz` contém as rotinas desta família em `01_core/src/compiler/eval/rules.rs`. A suíte L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem prova bilateral nova contra o vanilla. As medidas históricas e ressalvas do pin continuam em `00_nucleo/prompts/compiler/eval/rules.md`.
+A working tree não commitada capturada em `lab/results/construction/diagnostics/atomizacao-eval-rules-2026-09-30-before.json.gz` contém as rotinas desta família em `01_core/src/compiler/eval/rules.rs`. A suíte L1 passou com 6401 testes e 2 ignorados antes da extração. É medição estrutural, não benchmark nem prova bilateral nova contra o vanilla. As medidas históricas e ressalvas do pin continuam em `00_nucleo/prompts/compiler/eval/rules.md`.
 
 ## Contrato de linguagem
 
@@ -31,7 +31,7 @@ Suíte L1 e `crystalline-lint .` sem regressão. Paridade em semântica, sintaxe
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -67,7 +67,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 workspace-seventh/composition_show_par refuta Source como fronteira de scope/flow: classificar Source.body em Par/carriers e scoped prefix, transformar flow/inline/nó conservando origem. Não criar segundo parágrafo ou permitir estilo interno vencer show-set externo por wrapper novo; matemática segue seu owner.
 
@@ -78,7 +78,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 ### Medição anterior à decisão
 
 workspace-rest.log, candidato7-sources.json.gz e workspace-validation-resources.json
-em diagnosticos/r3-t1-materializacao-2026-10-18 conservam HEAD b1b486f3, working
+em lab/results/construction/diagnostics/r3-t1-materializacao-2026-10-18 conservam HEAD b1b486f3, working
 tree não commitado, UTC, fontes/diffstat e comandos sob 12 GiB. O controle
 composition_show_par_overrides_outer_set_with_page_configuration produz quatro
 palavras hifenizadas em vez de zero quando text(hyphenate:true) cobre o fluxo

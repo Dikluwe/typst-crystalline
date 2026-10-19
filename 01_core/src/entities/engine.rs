@@ -21,7 +21,7 @@
 //!
 //! Campos omitidos face ao vanilla (`introspector`, `routines`,
 //! `traced`): cristalino ainda não materializou esses subsistemas
-//! (ver `00_nucleo/diagnosticos/cristalino-introspection-passo-108.md`).
+//! (ver `lab/results/construction/diagnostics/cristalino-introspection-passo-108.md`).
 
 use std::sync::Arc;
 

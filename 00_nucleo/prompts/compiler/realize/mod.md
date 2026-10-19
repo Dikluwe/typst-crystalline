@@ -1,11 +1,9 @@
 # L0 — compiler/realize/mod
 Hash do Código: a8c5c82f
 
-
-
-**Camada:** L1.
-**Consumer produtivo exclusivo:** `01_core/src/compiler/realize/mod.rs`.
-**Governança:** ADR-0026, ADR-0029, ADR-0030, ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 e ADR-0130.
+**Layer:** L1.
+**Exclusive productive consumer:** `01_core/src/compiler/realize/mod.rs`.
+**Governance:** ADR-0026, ADR-0029, ADR-0030, ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, and ADR-0130.
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
@@ -15,21 +13,17 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
 
-## Medição que precede a decisão
+## Measured basis and domain decision
 
-No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, `01_core/src/compiler/eval/mod.rs:872–880` avalia o programa sem show e depois com show. `03_infra/src/query_helpers.rs:511–520` escolhe entre os índices original e renderizado por cardinalidade. A auditoria `00_nucleo/diagnosticos/dupla-avaliacao-auditoria-2026-10-05.md` preserva controles e proveniência: uma receita que produz um heading faz o cristalino perder o gerado; uma que produz dois headings faz perder o original. Os corpos e comandos completos estão em `dupla-avaliacao-auditoria-2026-10-05/results.json.gz`.
+The measurement preceding this decision was taken at HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`. `01_core/src/compiler/eval/mod.rs:872–880` evaluates the program without show and then with show. `03_infra/src/query_helpers.rs:511–520` chooses between original and rendered indexes by cardinality. The audit `lab/results/construction/diagnostics/dupla-avaliacao-auditoria-2026-10-05.md` preserves controls and provenance: a recipe producing one heading makes Crystalline lose the generated item; a recipe producing two headings makes it lose the original. Full cases and commands are in `lab/results/construction/diagnostics/dupla-avaliacao-auditoria-2026-10-05/results.json.gz`.
 
-O vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8` avalia o principal antes da estabilização (`lab/typst-original/crates/typst/src/lib.rs:124–132`). Sua realização prepara identidade antes de aplicar a receita e conserva tags do original enquanto visita o produto (`lab/typst-original/crates/typst-realize/src/lib.rs:353–430`). Isso demonstra o mecanismo de referência; não obriga copiar vtables, unsafe, igualdade Rust ou passos exatos do algoritmo.
+Pinned vanilla `9f2b6e8715237cb086899a42873660fe744622e8` evaluates the main program before stabilization (`lab/typst-original/crates/typst/src/lib.rs:124–132`). Its realization prepares identity before applying a recipe and preserves tags from the original while visiting the product (`lab/typst-original/crates/typst-realize/src/lib.rs:353–430`). This establishes a reference mechanism; it does not require copying vtables, unsafe code, Rust equality, or the exact algorithmic steps.
 
-## Decisão de domínio
+Separate program execution from recipe realization. Evaluation executes common code once and transports content and recipes with an immutable lexical environment. Pure realization applies recipes, preserves original and generated occurrences, and returns visual content associated with the semantic index. Layout and export are outside this consumer. Do not recover the original by re-evaluating the file, comparing tree sizes, or rebuilding records from final text. Rust/morphological equality cannot identify an occurrence: two elements with equal fields and bodies can still be distinct occurrences.
 
-Separar execução do programa de realização de receitas. A avaliação executa o código comum uma vez e transporta conteúdo e receitas com ambiente lexical imutável. A realização pura aplica receitas, conserva ocorrências originais e geradas e devolve o conteúdo visual associado ao índice semântico. Layout e exportação não pertencem a este consumer.
+## Public boundary and ownership
 
-Não obter o original reavaliando o arquivo, comparando tamanhos de árvores ou reconstruindo registros pelo texto final. Não usar igualdade morfológica como identidade de ocorrência. Dois elementos com campos e corpo iguais podem ser ocorrências distintas.
-
-## Fronteira pública
-
-O consumer possui a fachada L1 de realização e seu resultado:
+This consumer owns the L1 realization facade and its result:
 
 ```rust
 pub struct RealizedDocument {
@@ -49,103 +43,77 @@ pub fn realize_document(
 ) -> (SourceResult<RealizedDocument>, Vec<SourceDiagnostic>);
 ```
 
-Usar os tipos existentes, com seus caminhos canônicos: Content em entities/content, TagIntrospector em entities/introspector, World em contracts/world, Source em entities/source, ElementRegistry em entities/element_registry, EvalTarget em compiler/eval e Features em entities/compiler_features. A implementação não muda esses contratos por conveniência. Recursos e configuração são recebidos explicitamente, sem filesystem, relógio, ambiente, rede ou globals mutáveis.
+Use existing types at their canonical paths: `Content` in entities/content, `TagIntrospector` in entities/introspector, `World` in contracts/world, `Source` in entities/source, `ElementRegistry` in entities/element_registry, `EvalTarget` in compiler/eval, and `Features` in entities/compiler_features. Do not change these contracts for implementation convenience. Receive resources and configuration explicitly; use no filesystem, clock, environment, network, or mutable global state.
 
-O snapshot previous contém os resultados contextuais da tentativa anterior. Receitas e contribuições dependentes desses resultados podem precisar de outra tentativa; isso não autoriza executar novamente o programa comum. Um resultado anterior inválido não se acumula no índice da nova tentativa.
+`previous` is the prior attempt's contextual result. Recipes and contributions depending on it may need another attempt; that does not permit executing the common program again. An invalid prior result must not accumulate in the new index.
 
-## Transporte e ownership
+The closed enum and immutable payloads transporting content, recipes, and provenance belong exclusively to `00_nucleo/prompts/entities/content.md`. Evaluation contexts, scopes, and lexical capture belong exclusively to `00_nucleo/prompts/compiler/eval.md` and the owners of markup, rules, and closures. This consumer does not redefine entities, their constructors, equality, hashing, projections, or traversals.
 
-O enum fechado e os payloads imutáveis que transportam conteúdo, receitas e proveniência pertencem exclusivamente a `00_nucleo/prompts/entities/content.md`. Contextos, scopes e captura lexical da avaliação pertencem exclusivamente a `00_nucleo/prompts/compiler/eval.md` e aos owners de markup, rules e closures. Este consumer não redefine entidades nem seus construtores, igualdade, hashing, projeções ou travessias.
+Transport preserves body, lexical rule order, effective style, guards, causal file, function-captured environment, and presence distinctions. Do not use PropMap, vtables, dynamic native dispatch, or render values as substitutes for morphology. Internal transport must not become a new language-observable element or change `repr`/casts/query of affected elements.
 
-O transporte precisa conservar corpo, regras em ordem lexical, estilo efetivo, guards, arquivo causal, ambiente capturado pelas funções e distinções de presença. Não usar PropMap, vtable, despacho dinâmico para nativos ou valores de render como substitutos de morfologia. Transporte interno não pode se tornar um novo elemento observável da linguagem nem alterar repr/casts/query dos elementos envolvidos.
+## Identity, realization, and coordination
 
-## Identidade e realização
+Before visually consuming a locatable element, register its observable snapshot and associate its identity with the occurrence. Identity does not depend on layout coordinates, text, span alone, or memory address. Geometry is associated later by the layout/pipeline consumer. Repeated realization preserves correspondence for stable occurrences, without promising stability across edits beyond the existing Locator contract.
 
-Antes de consumir visualmente um elemento locatável, registrar seu snapshot observável e associar sua identidade à ocorrência. A identidade não depende de coordenadas de layout, texto, span sozinho ou endereço de memória. A localização geométrica é associada depois pelo consumer de layout/pipeline. Repetir realização conserva a correspondência das ocorrências estáveis, sem prometer estabilidade entre edições não relacionada ao contrato existente de Locator.
+Recipes receive the original element with its occurrence provenance. If a recipe returns that element without replacing it, do not register an extra phantom occurrence. Each produced element receives its own identity. Content not yet prepared receives distinct occurrences when inserted more than once. Additional references to the same already prepared `it` retain their original identity, including multiple visual emissions. The `query double_alias` probe on pin `9f2b6e871` returns one occurrence; `cloned_content` returns the original and two produced occurrences. Preserving identity in transport does not permit collapsing two insertions by equality.
 
-Receitas recebem o elemento original com a proveniência de sua ocorrência. Se devolvem esse elemento sem substituí-lo, não registrar uma ocorrência fantasma adicional. Se produzem outros elementos, cada ocorrência produzida recebe identidade própria. Conteúdo ainda não preparado inserido mais de uma vez recebe ocorrências distintas. Referências adicionais ao mesmo it já preparado conservam a identidade original, mesmo com múltiplas emissões visuais. A sonda query double_alias no pin 9f2b6e871 retorna uma ocorrência; cloned_content retorna original e dois produzidos. Preservar identidade durante transporte não autoriza colapsar duas inserções por igualdade.
+Register originals and generated elements in causal realization order. The index retains observable fields, labels, relations, and locations; do not choose one index by item count. Do not emit old visual content for a replaced element merely to keep it queryable. Preserve lexical styles, original context, and guards when applying a recipe. Matching and termination remain with their respective owners; do not duplicate those algorithms. Preserve already ratified language divergences, including the termination contract, until a new measured decision. Errors and warnings retain their spans, causal order, channels, and existing limits.
 
-Registrar originais e elementos gerados em ordem causal de realização. O índice conserva campos, labels, relações e localizações observáveis; não escolher um dos índices por quantidade. Conteúdo visual antigo de um elemento substituído não é emitido novamente para conservá-lo consultável.
+L3 coordinates evaluation, realization, layout, and page/position snapshot updates. L1 owns transformation and identity decisions; L4 only composes services. The same semantic realization serves PDF, HTML, bundle, and query while respecting target/features. Queries use the realized index and carry captured fields; they do not evaluate a second time or count approximate trees to decide composition.
 
-Preservar estilos lexicais, contexto do original e guards ao aplicar uma receita. A implementação de matching e terminação continua nos respectivos owners; não duplicar seu algoritmo. Preservar as divergências intencionais de linguagem já ratificadas, inclusive o contrato de terminação, até decisão nova medida. Erros e warnings mantêm spans, ordem causal, canais e limites existentes.
+A compilation without recipes or contextual dependencies should preserve its content without unnecessary reconstruction. Demonstrate this with execution counts and validation; absence of `#show` in the main file is not proof.
 
-## Coordenação
+## Observable acceptance and performance
 
-L3 coordena avaliação, realização, layout e atualização do snapshot de páginas/posições. L1 decide a transformação e a identidade; L4 apenas compõe serviços. A mesma realização semântica serve PDF, HTML, bundle e query, respeitando target/features. Queries consultam o índice realizado e transportam os campos capturados; não fazem uma segunda avaliação nem contam árvores aproximadas para decidir sua composição.
+The language and execution acceptance conditions are:
 
-Uma compilação sem receitas ou dependência contextual deve conservar seu conteúdo sem reconstrução desnecessária. Esse comportamento deve ser demonstrado por contagens de execução e validação, não presumido pela ausência de texto `#show` no arquivo principal.
+- A heading replaced by text remains queryable with its original body.
+- An original producing one or two headings preserves original and generated items in order corresponding to the pinned oracle.
+- Equal headings, two insertions of one content value, and elements sharing a span remain distinguishable.
+- A recipe returning `it`, nested rules, labels, `where` selectors, show-set, local styles, imports/includes, matrices, and contextual content preserve behavior and effect order.
+- An ordinary document, with and without show, executes non-contextual code once. A test World and call counters prove actual execution; equal final scopes do not suffice.
+- Contextual repetition does not accumulate stale records, lose originals, or duplicate counters merely by passing through the compiler.
+- PDF, HTML, bundle, and query meet applicable semantic, syntactic, and morphological cases; validate geometry where it is observable.
 
-## Aceitação linguística e de execução
+Measure performance with paired before/after runs that preserve HEAD, working tree, binary hashes, sources, commands, times, elapsed time, and memory. Do not invent a target gain. Report no gain and regressions. A fixture with a language failure cannot qualify as an equivalent performance comparison.
 
-- Heading substituído por texto continua consultável com corpo original.
-- Um original que produz um ou dois headings conserva original e produzidos em ordem correspondente ao oráculo pinado.
-- Dois headings iguais, duas inserções de um conteúdo e elementos com span compartilhado continuam distinguíveis.
-- Receita que devolve it, regras aninhadas, labels, seletores where, show-set, estilos locais, imports/includes, matrizes e conteúdo contextual preservam comportamento e ordem de efeitos.
-- Documento comum, com e sem show, executa seu código não contextual uma vez. Um World de teste e contadores de chamadas comprovam execução real; scopes finais iguais não são prova suficiente.
-- Repetição contextual não acumula registros antigos, perde originais ou duplica contadores por mera passagem do compilador.
-- PDF, HTML, bundle e query passam pelos casos pertinentes de semântica, sintaxe e morfologia; geometrias continuam validadas onde são observáveis.
+## Occurrence normalization and index construction
 
-Ganho de desempenho é medido por ensaio pareado antes/depois com HEAD, working tree, hashes dos binários, fontes, comandos, horários, tempo e memória preservados. Não existe meta de ganho inventada; ausência de ganho e regressões precisam ser reportadas. Uma fixture com falha linguística não qualifica uma comparação de desempenho equivalente.
+After applying recipes, complete identities for produced locatables and preserve the identity of every already prepared `Located`, including extra visual insertions of the same alias. Each insertion of new, unprepared content receives a new Location. The origin inside `Realized` is an immutable snapshot and does not count as a visual insertion; the first insertion of alias `it` retains the original identity. A cloned carrier is not a language occurrence.
 
-## Normalização das inserções visuais
+For `textual=true`, recipes delegate to `realize_captured_text` after realizing the group's elements; for `textual=false`, they reuse `apply_show_rules`.
 
-Após aplicação das receitas, completar identidades de locatables produzidos e conservar a identidade de cada Located já preparado, inclusive nas inserções visuais adicionais do mesmo alias. Novos conteúdos ainda não preparados recebem novas Locations a cada inserção. A origem de Realized é snapshot imutável e não participa da contagem de inserções visuais; alias it conserva a identidade original em sua primeira inserção. Não confundir clone do carrier com ocorrência da linguagem.
+Finalize visual insertions after recipes: flatten produced sequences while retaining the origin in a `Realized` marker with empty visual content, and reuse `normalize_markup_spaces` from the textual owner. Visually empty provenance is not a textual boundary. Do not normalize raw `ContentBlock` spaces before insertion.
 
-Receitas textual=true delegam a realize_captured_text após realizar os elementos do grupo; textual=false reutiliza apply_show_rules.
+When realizing a partially realized tree again, preserve its Locations and observe the used range in the input graph, including consumed origins, before allocating new occurrences. Do not reserve the range of invalid attempts in `previous`. Finalization keeps no insertion counter for prepared aliases: `Located` already carries identity. Visiting unprepared content assigns a new Location; existing carriers retain their IDs without a second reconstruction in the callback.
 
-Finalizar inserções visuais após receitas: achatar sequências produzidas mantendo a origem em marcador Realized com visual vazio, e reutilizar normalize_markup_spaces do owner textual. Proveniência visualmente vazia não vira fronteira textual. Não normalizar espaços crus de ContentBlock antes da sua inserção.
+Before recipes run, also reserve IDs of `ContextBlock`s already present or covered by `context_id_floor` in lexical snapshots. Contextual allocation is compilation-local and must not restart in the range occupied by captured content.
 
-Ao realizar novamente uma árvore parcialmente realizada, conservar suas Locations e observar a faixa já usada no grafo de entrada, incluindo origens consumidas, antes de alocar novas ocorrências. Não reservar a faixa de tentativas inválidas do previous.
+### Reuse the realized index — 2026-10-05
 
-Finalização não mantém contador de inserções de aliases preparados: Located já carrega a identidade. Visitar cada conteúdo ainda não preparado atribui Location nova; carriers existentes conservam seus IDs sem segunda reconstrução no callback.
+The measured sequence in `01_core/src/compiler/realize/mod.rs:197–200` indexes visual content before `eval/mod.rs:888–896` applies `wrap_page_columns`. To make the result contain the same content published by `Module`, call the existing `Content::wrap_page_columns` helper after `finish_occurrences`/`normalize_insertions` and before constructing `RealizedDocument` and its index. The helper remains owned by `00_nucleo/prompts/entities/content/page-structure.md`; do not duplicate it or apply it again on the realized eval path. Revalidate originals/products, columns, and contexts against fresh reconstruction.
 
-Antes de executar receitas, reservar também ids de ContextBlock já presentes ou cobertos por context_id_floor dos snapshots lexicais. Alocador contextual é compilation-local e não recomeça na faixa de conteúdo capturado.
+### Captured rule IDs — 2026-10-06
 
+Measurement: `observe_occurrences` in `mod.rs:89–107` reserves Locations and `context_id_floor` but omits rule IDs; `show.rs:382–383` allocates rules from the `EvalContext` counter. `controls-first.json` refutes a local rule being applied to an alias when the counter restarts. Before executing any recipe, advance `next_rule_id` past all `RuleId`s in captured `ShowRecipe`s, preserving the range of later snapshots not yet visited. The `apply` owner provides per-occurrence protection, and the termination revision confirmed in `apply-l0-approved.md.txt` supersedes preservation of the historical policy only for productive realization of locatables. This consumer only reserves IDs and delegates application; signatures and phase do not change.
 
-## Reaproveitamento do índice realizado — 2026-10-05
+## Automatic math insertion — ratified 2026-10-06
 
-Na sequência vigente `01_core/src/compiler/realize/mod.rs:197–200` indexa o visual antes de `eval/mod.rs:888–896` aplicar wrap_page_columns. Para que o resultado possua o mesmo conteúdo publicado pelo Module, executar o helper existente Content::wrap_page_columns após finish_occurrences/normalize_insertions e antes da construção do RealizedDocument e de seu índice. O helper permanece governado por `00_nucleo/prompts/entities/content/page-structure.md`; não duplicar a lógica nem aplicar o helper novamente no caminho realizado do eval. Revalidar originais/produtos, colunas e contextos contra reconstrução fresca.
+The approval receipt `lab/history/construction/records/00_nucleo/materialization/math-bare-aprovacao-2026-10-06.json` records human confirmation `confirmo` of manifest `149d6535b442a9275aa6612647ad79eac460351808ea1858175d09d1cf07e1f6`, promoted before tests/code. This satisfies the original ADR-0127 gate for the package below. It does not ratify general parity, D07, math labels, or other debt.
 
-## IDs de regras capturadas — 2026-10-06
+### Measurement before the proposal — D06, 2026-10-06
 
-Medição: observe_occurrences em mod.rs:89-107 reserva Locations e context_id_floor, mas omite IDs das regras; show.rs:382-383 aloca regras pelo contador de EvalContext. controls-first.json refuta uma regra local aplicada a alias quando o contador reinicia. Antes de executar qualquer receita, avançar next_rule_id acima de todos os RuleIds de ShowRecipe no grafo capturado, preservando a faixa de snapshots posteriores ainda não visitados. O owner apply mantém proteção por ocorrência e a revisão de terminação confirmada em apply-l0-approved.md.txt supersede a preservação da política histórica somente para realização produtiva de localizáveis. Este consumer apenas reserva IDs e delega aplicação; assinaturas e fase não mudam.
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree, UTC/state/diff/source/binaries are in canonical collections `lab/results/construction/diagnostics/math-bare-2026-10-06/{before,additional,refuters}.json.gz`. Vanilla pin: `9f2b6e8715237cb086899a42873660fe744622e8`; provenance report: `lab/results/construction/diagnostics/math-bare-medicao-2026-10-06.md`.
 
-## Inserção matemática automática — proposta sujeita ao gate ADR-0127
+Before: bare `frac`, `mat`, `sqrt`, `lr`, and `op` produce one `Equation` in vanilla and zero in Tekt; `math.bold([x])` and ordinary text produce zero in both. `nested` and `nested-equation` produce one in both; `reuse` produces two in vanilla. `block-style`/`local-block`/`number-style` resolve insertion scope. `show-generated` and `context-generated` expose the same gaps. Additional probes: explicit `Equation` preserves fraction rendering; vanilla rejects `it.body` with `maximum show rule depth exceeded` while `it` is valid; a later show affects only the second insertion. Refuters measure raw `frac` value and original label versus explicit `Equation`.
 
-### Medição anterior à decisão — D06, 2026-10-06
+`lab/typst-original/crates/typst-realize/src/lib.rs:245–265,302–334` transforms `Mathy` before show outside math. `01_core/src/compiler/layout/equation.rs:680–689` projects math `nu` to text; `compiler/realize/mod.rs:155–199` prepares show/identity without math normalization. `entities/content/traversal.rs:14–108` is bottom-up and recurses into math bodies; `rules/apply.rs:564–607` handles only existing locatables. These are language semantic/morphology/render observables, not requirements for vtables, buffers, Rust equality, or PDF bytes.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
-UTC/diff/estado/fontes/binários nas coletas canônicas
-00_nucleo/diagnosticos/math-bare-2026-10-06/{before,additional,refuters}.json.gz.
-Vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8; proveniência no relatório
-00_nucleo/diagnosticos/math-bare-medicao-2026-10-06.md.
+### Proposed exclusive responsibility and facade
 
-before: frac, mat, sqrt, lr e op nus têm uma Equation no vanilla e zero no Tekt;
-math.bold([x]) e texto comum têm zero nos dois. nested e nested-equation têm
-uma nos dois; reuse tem duas no vanilla. block-style/local-block/number-style
-resolvem o escopo de inserção. show-generated e context-generated expõem as
-mesmas lacunas. additional: Equation explícita preserva o render da fração;
-it.body é rejeitado no vanilla por maximum show rule depth exceeded, enquanto
-it é válido; o show posterior afeta apenas a segunda inserção. refuters mede
-valor frac cru e label original versus Equation explícita.
+Install private descendant module `bare_math`, keeping this facade as coordinator for recipes, identity, and index. Before preparing occurrences or applying `ShowRecipe`, normalize math insertions with the `bare_math` owner's helper, respecting styles and rules from the recipe snapshot. Do not apply the final snapshot to all content or modify the consumed origin of `Realized`.
 
-lab/typst-original/crates/typst-realize/src/lib.rs:245–265,302–334 transforma
-Mathy antes de show fora de math. 01_core/src/compiler/layout/equation.rs:680–689
-projeta math nu em texto; compiler/realize/mod.rs:155–199 prepara show/identidade
-sem normalização math. entities/content/traversal.rs:14–108 é bottom-up e
-recursa no corpo matemático; rules/apply.rs:564–607 trata apenas localizáveis
-já existentes. Estes observáveis são semântica/morfologia/render de linguagem,
-não requisito de vtable, buffers, igualdade Rust ou bytes PDF.
-
-### Responsabilidade exclusiva
-
-Instalar o módulo descendente privado bare_math, mantendo esta fachada como
-coordenadora de receita, identidade e índice. Antes de preparar ocorrências ou
-aplicar ShowRecipe, normalizar inserções math com o helper do owner bare_math,
-respeitando styles e rules do snapshot da receita. Não aplicar o snapshot final
-a todos os conteúdos, nem modificar a origem consumida de Realized.
-
-Adicionar exatamente esta fachada pública pura, usando os tipos existentes:
+The proposal adds exactly this pure public facade, using existing types:
 
 ```rust
 pub fn realize_math_insertions(
@@ -155,72 +123,31 @@ pub fn realize_math_insertions(
 ) -> crate::entities::source_result::SourceResult<Content>;
 ```
 
-Ela realiza a contribuição já avaliada no Engine causal recebido: normalização,
-show produtivo e preparação de ocorrências com os alocadores existentes. Não
-cria novo World, EvalContext global, Source, índice/layout ou segunda execução.
-Modo produtivo e opções transitórias são restaurados ao retornar, inclusive em
-erro; guards, sink, IDs e proveniência continuam no contexto fornecido. Reservar
-carriers presentes antes de alocar, sem colisão com as ocorrências anteriores.
-A assinatura de realize_document e RealizedDocument permanece exatamente igual.
-A cláusula anterior de fase inalterada é supersedida somente pela preparação
-math semanticamente anterior a show/índice, após ratificação deste pacote.
+It realizes the already evaluated contribution in the causal `Engine` it receives: normalization, productive show, and occurrence preparation with existing allocators. It creates no new `World`, global `EvalContext`, `Source`, index/layout, or second execution. Restore productive mode and transient options on success and error; keep guards, sink, IDs, and provenance in the supplied context. Reserve existing carriers before allocating, without colliding with prior occurrences. `realize_document` and `RealizedDocument` signatures remain exactly unchanged. The prior unchanged-phase clause is superseded only for math preparation semantically before show/index, after this package is ratified.
 
-### Gate e aceitação
+### Math gate, contextual snapshot, and no-math guard
 
-Somente materializar após confirmação humana do pacote math-bare-2026-10-06.md.
-RED→GREEN e revalidação bilateral do escopo são obrigatórios. Esta cláusula
-supersede restrições de fase anteriores apenas nas fronteiras aqui nomeadas,
-sem ratificar paridade universal, D07, math label ou outros débitos.
+The human-confirmation gate for `math-bare-2026-10-06.md` was satisfied by the receipt above; RED→GREEN and bilateral scope revalidation remain required. The ratified package supersedes earlier phase restrictions only at the named boundaries.
 
-### Snapshot contextual e origem de receita — refinamento medido
+Measured `after-additional context-show-render` proves loss of external show. The contextual collection uses a new `Engine` with empty rules, and `ContextBlock` has no rule field. A `pub(crate) capture_context_recipe` helper transports a lexical snapshot through `Styled`/custom `eval.context.recipe: Value::Content(ShowRecipe with Empty body)`, only when an active Equation rule exists, via the static helper in `bare_math`. In the contribution Engine, extract this transport and apply captured rules/guards/file, restoring previous values on every return. Do not turn private metadata into a queryable element or Location.
 
-after-additional context-show-render comprova perda do show externo; a coleta
-contextual usa Engine novo com rules vazio, e ContextBlock não possui campo
-de regras. Helper pub(crate) capture_context_recipe transporta snapshot lexical
-por Styled/custom eval.context.recipe: Value::Content(ShowRecipe com body Empty),
-apenas se há regra de Equation ativa, pelo helper estático de bare_math. No Engine de contribuição, extrair esse transporte e
-aplicar rules/guards/file capturados, restaurando os valores anteriores em todo
-retorno. Não converter metadado privado em elemento consultável/Location.
+Deferred capture of `Mathy` stores the raw `Span` in custom `eval.math.origin`. If realization of that recipe fails, only a detached error receives the captured origin; normalize formatting and `Source` through existing formatters. Do not invent spans without evidence or overwrite a known span on an internal product.
 
-Captura deferida de Mathy guarda Span cru em custom eval.math.origin. Se a
-realização dessa receita falha, somente erro detached recebe a origem capturada;
-normalizar formatação e Source pelos formatters existentes. Não inventar spans
-para falhas sem prova, não sobrescrever span conhecido de produto interno.
+Measurement `delivered-infra.log` (`p1493_descendente_unico_leitor` and `fase_html_latched`) fails after `finish_occurrences` allocates extra identities in an HTML contribution without `Mathy`. `realize_math_insertions` is not general realization. If the helper finds no external `Mathy` and no lexical Equation snapshot, return the existing `Content` before observing/preparing/allocating or applying show. If an Equation snapshot exists but there is no math target, also preserve the product. Do not change budgets, execution, IDs, or context selection for content without math.
 
-### Guarda de contribuição sem matemática
+## D08B3-A table resolution at insertion — ratified 2026-10-07
 
-Medição delivered-infra.log: p1493_descendente_unico_leitor e fase_html_latched
-falham após finish_occurrences alocar identidades adicionais em contribuição
-HTML sem Mathy. Entrada realize_math_insertions não é realização geral: quando
-o helper não encontra Mathy externo e não há snapshot lexical de Equation,
-devolver o Content existente antes de observar/preparar/alocar ou aplicar show.
-Se há snapshot de Equation mas não há alvo matemático, também conservar o
-produto. Não mudar orçamento, execução, IDs ou seleção de contextos sem math.
+The approval receipt `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-aprovacao-2026-10-07.json` records user confirmation `comfirmo`, manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`, and materialization with documented metric residuals. This satisfies the original D08B3-A gate; it does not complete the Cell domain or promote the excluded scope. Retain the receipt’s limitations on raw default typography, D08B3-B isolated Cell/fresh reconstruction, and generic Table equality/rich properties.
 
-## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
+### Measurement before the proposal
 
-### Medição anterior à decisão
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree. `lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{before,additional,order,aliases}.json.gz` records pin `9f2b6e8715237cb086899a42873660fe744622e8`, UTC, diffstat/status, sources/binaries, arguments, and results. Oracle binary SHA-256: `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`; Tekt binary: `7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2`.
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
-{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
-UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
-7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
-Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
-conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
-Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
-realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
-wrappers sem atributos. order mede zero efeitos de células quando a tabela é
-substituída e zero efeitos de heading quando a célula o oculta; aliases mede
-LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
-Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
-após a mudança; cache/paginação não são inferidos como equivalentes.
+Vanilla `lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278` resolves fields, `:1500–1530` rejects conflicts in order, `:1665–1703` creates empty cells, and `:1945–1988` derives breakability. Tekt `grid_placement.rs:91–112` prioritizes explicit placement and `:262–270` knows only `GridCell`; `realize/mod.rs:160–200` visits recipes bottom-up; `table.rs:127–152` discards wrappers without attributes. `order` measures zero cell effects when a table is replaced and zero heading effects when a cell hides it; `aliases` measures `LOCAL a`, `OUTER LOCAL a`, and `NEW a`. These are language observables, not requirements to copy mechanics, bytes, or Rust equality. Unknown fields, hidden effects, or wrong order after a change would refute the hypothesis; cache/pagination equivalence is not inferred.
 
-### Responsabilidade exclusiva proposta
+### Proposed exclusive responsibility and facade
 
-Registrar descendente privado compiler/realize/table_cells com owner próprio.
-Adicionar exatamente a fachada pública pura:
+Register private descendant `compiler/realize/table_cells` with its own owner. Add exactly this pure public facade:
 
 ```rust
 pub fn realize_table_insertions(
@@ -230,351 +157,142 @@ pub fn realize_table_insertions(
 ) -> crate::entities::source_result::SourceResult<Content>;
 ```
 
-Usa Engine/contexto causal recebidos e restaura modos/styles/rules/guards/file
-em erro e sucesso; não reavalia fonte nem cria World/índice/layout novo. Realizar
-inserções de Table nos pontos efetivos (incluindo produtos de show e context),
-antes de indexação final, coordenando com bare_math sem substituir sua guarda.
-Captura contextual privada existente pode conservar regras Table/Cell além de
-Equation; nenhum estado resolvido é armazenado em Styles/custom. O plano só é
-construído após a regra da tabela deixar uma Table para emitir; child/cell é
-fronteira terminal até o seu momento, evitando a travessia bottom-up prematura.
+Use the received causal `Engine`/context and restore modes/styles/rules/guards/file on success and error. Do not re-evaluate source or create a new `World`/index/layout. Realize Table insertions at effective points (including show/context products) before final indexing, coordinating with `bare_math` without replacing its guard. Existing private contextual capture may retain Table/Cell rules as well as Equation rules; store no resolved state in Styles/custom. Build the plan only after the table rule leaves a Table to emit; child/cell is a terminal boundary until its turn, preventing premature bottom-up traversal.
 
+### Ratified gate, acceptance, and explicit scope split
 
-### Gate, aceitação e divisão explícita
+The ratified package adds five public fields, two public carriers, and one new public facade, and changes the logical phase before Cell show. The receipt above establishes ratification for this scope. Continue to require RED→GREEN, suites/build/lint/restricted preservation, and D08A/B2, D05/D06/D07/query collections. Acceptance is language, effect, and actual geometry behavior; byte equality or whitespace normalization cannot close render acceptance.
 
-Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
-dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
-show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
-D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
-reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
-Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
-de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
-fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
-styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
-conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
-do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
+This first package D08B3-A is incomplete in the Cell domain: D08B3-B is to complete isolated Cell defaults (`raw-cell-no-placement`/`outside-fields`) and the separate decision on fresh generation by `show-cell-reconstruct`. Generic Table defaults/fields (`table-root-equality`), rich styles/functions/paint/strokes/insets, rich rows/gutters, multi-page spans, and PDF/UA conformance remain outside certification. Do not change additional legacy D08B2 casts, syntax, flags, or global non-locatable policy in this package.
 
-### Refinamento interno medido — 2026-10-07
+### Measured internal refinement — 2026-10-07
 
-Medição anterior à decisão: 00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
-after-second/context-table e nested; refuters-second/reused-prepared-table mostram preparo com regra ausente. capture_table_insertion em realize/mod.rs ignora ctx.apply_show_rules, ao contrário de eval/rules/intercept.rs:22–25. Hipótese refutável: a passagem original capturadora estava assando o plano sem regras. Captura de valor com apply_show_rules=false não prepara nem captura Table; a inserção efetiva e a fachada causal fazem esse trabalho. A fachada restaura snapshot eval.context.recipe também quando o produto é Table crua sem wrapper Styled.
-A aceitação é bilateral, efeitos uma vez e geometria; não normalizar whitespace nem alterar contratos ratificados.
+Measurement before decision: `lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz`, with pin/binaries/HEAD/state/sources/UTC/argv/results. `after-second/context-table` and `nested`; `refuters-second/reused-prepared-table` show preparation with rules absent. `capture_table_insertion` in `realize/mod.rs` ignores `ctx.apply_show_rules`, unlike `eval/rules/intercept.rs:22–25`. The refutable hypothesis is that the original capture pass baked the plan without rules. Capturing a value with `apply_show_rules=false` neither prepares nor captures Table; the effective insertion and causal facade do that work. The facade also restores the `eval.context.recipe` snapshot when the product is a raw Table without a Styled wrapper. Acceptance is bilateral behavior, effects once, and geometry; do not normalize whitespace or alter ratified contracts.
 
+## Ratified D08B3-C2 responsibility
 
-## D08B3-C2 — responsabilidade ratificada
+The prior measurement `lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz` records HEAD/working tree/UTC/sources/argv and binaries at pin `9f2b6e8715237cb086899a42873660fe744622e8`. This unit has the corresponding transparent operation in existing `ShowRecipe`/`Located`/`Realized` branches; `Source` must not leak as a language-observable value. Human approval was `confirmo`, 2026-10-07; final approval and execution record: `lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07.md`. The nested `table-origens-d08b3c2-2026-10-07/contract.md` is the pre-approval candidate retained in that history directory.
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+A crate-private helper exposes only the existing Table/Cell predicate to eval for causal block capture; it adds no public contract. Retain exclusive ownership and static dispatch, with no I/O, new signature/trait/flag, or eval↔layout phase change. C2/C/macro tests and collections, builds, and lineage remain necessary before certification.
 
-Helper crate-private expõe somente o predicado Table/Cell existente ao eval para captura causal do bloco; nenhum contrato público novo.
+## Internal content traversal and allocation decisions
 
-Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+### Finalizing occurrences without a change — 2026-10-09, superseded below
 
-## Histórico: finalização de ocorrências sem mudança — 2026-10-09 (substituído abaixo)
+The prior measurement `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/table-map-passes-before.json.gz` attributes one Table reconstruction to `finish_occurrences` in each 100/1,600-cell fixture without any `locate` call in that pass. `finish-occurrences-red-gate.json.gz` records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working-tree status/diffstat, UTC, release SHA-256 `7a37e3178feb4bd25b58998f1ff99b10e899c935b7d5a2d767b00f0845120ba0`, scripts/interposer/fixtures/commands, and **498.251** glibc requests for `local-set-1600`, above the pre-fixed gate of 490.000. `realize/mod.rs:44-54` calls `map_content` even when no node receives a Location. In `entities/content/traversal.rs:25-55`, `Source` is transparent, immediate body of `Located` receives no callback, `Realized` traverses only visual content, and `ShowRecipe` traverses body. `compiler/introspect/extract_payload.rs:18-98` determines effective candidates; `is_locatable` is not a proven substitute by variant (for example, its `OutlineEntry` arm does not appear in the extractor). Refutable inference: a conservative borrowed preflight could remove reconstruction if it proves there is no effectively visited candidate; unknown variants keep the old pass.
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/table-map-passes-before.json.gz` atribui uma reconstrução de Table a `finish_occurrences` em cada fixture de 100/1.600 células sem nenhuma chamada a `locate` nessa passagem; `finish-occurrences-red-gate.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado/status/diffstat, UTC, release SHA-256 `7a37e3178feb4bd25b58998f1ff99b10e899c935b7d5a2d767b00f0845120ba0`, script/interpositor/fixtures/comandos e **498.251** pedidos glibc em `local-set-1600`, acima do gate pré-fixado de 490.000. Fonte `realize/mod.rs:44-54` chama `map_content` mesmo quando nenhum nó recebe Location. Em `entities/content/traversal.rs:25-55`, `Source` é transparente, o corpo imediato de `Located` não recebe callback, `Realized` desce apenas em visual e `ShowRecipe` desce em body. `compiler/introspect/extract_payload.rs:18-98` determina os candidatos efetivos; `is_locatable` não substitui esse predicado sem prova por variante (por exemplo, o seu arm de `OutlineEntry` não aparece no extrator). Inferência refutável: um pré-exame emprestado conservador pode eliminar a reconstrução se provar que não existe candidato efetivamente visitado; variantes desconhecidas mantêm a passagem anterior.
+The internal continuous-flow decision was: before `finish_occurrences`, prove by reference there is no unlocated locatable in known containers using the same `Source`/`Located`/`Realized`/`ShowRecipe` boundaries as traversal; if there is any candidate or unclassified variant, run `map_content` fully. `entities/content/source.rs:23-26` shows `with_source_span` discards an outer wrapper when the body already has an origin, or the wrapper when its span is detached; therefore only a canonical `Source` with its own non-detached span and a body without a span could be preserved directly. Other shapes keep the prior traversal. Do not change location, order, payload, enum, generic traversal, public contract, or phase. Acceptance was RED→GREEN counts/allocations, trees with and without needed locations, paired time against prior release and pinned vanilla, visual/query qualification, and `cargo build && crystalline-lint .`; remove if divergent or robustly slower.
 
-Decisão interna de fluxo contínuo (ADR-0127): antes de `finish_occurrences`, provar por referência a ausência de locatáveis ainda sem `Located` nos contêineres conhecidos, com as mesmas fronteiras `Source`/`Located`/`Realized`/`ShowRecipe` da travessia; se houver qualquer candidato ou variante não classificada, executar integralmente `map_content`. `entities/content/source.rs:23-26` mostra que `with_source_span` descarta o wrapper externo se o body já tiver origem, ou o wrapper se o span externo for detached; por isso apenas um `Source` canônico com span próprio não-detached e body sem span pode ser preservado diretamente. As outras formas conservam a travessia anterior. Não mudar localização, ordem, payload, enum, travessia genérica, contrato público ou fase. Aceitação: RED→GREEN de contagem/alocação, teste de árvore sem e com localização necessária, tempo pareado contra release anterior e vanilla pinado, qualificação visual/query e `cargo build && crystalline-lint .`. Retirar se houver divergência ou regressão de tempo robusta.
+### Reuse during insertion normalization — 2026-10-10
 
-## Normalização de inserções com reuso — 2026-10-10
+Prior measurement: `snapshot-normalization-before.json.gz` in `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09` preserves complete sources and UTC; `realize/mod.rs:107–143` flattens and reconstructs every Sequence even without internal Sequence or changed space. `entities/content/traversal.rs` already propagates explicit absence of substitution. Inference: signaling `None` for canonical sequences may remove allocations; counts and time against the captured release can refute it.
 
-Medição anterior à decisão: snapshot-normalization-before.json.gz em diagnosticos/table-local-scaling-followup-2026-10-09 registra as fontes completas e UTC; realize/mod.rs:107–143 achata e reconstrói toda Sequence, mesmo sem sequência interna nem espaço alterado. entities/content/traversal.rs já propaga ausência explícita de substituição. Inferência: sinalizar None em sequências canônicas pode eliminar alocações; contagem e tempo contra o release capturado podem refutá-la.
+Internal decision: after children, return `None` for a Sequence of at least two children when neither flattening nor space normalization is needed. Borrowed normalization belongs to the textual/space owner and shares policy with the in-place variant. Keep canonicalization of empty/single-child sequences and flattening of Sequence and `Realized` with visual Sequence, including the marker with empty original visual. Preserve child changes, provenance, order, inferred/explicit spaces, and boundaries. Do not use Content equality, hashes, or pointers to infer change. Public contracts and phases remain.
 
-Decisão interna: após os filhos, devolver None quando uma Sequence com pelo menos dois filhos não exige achatamento nem normalização de espaços. A normalização emprestada pertence ao owner textual/space e compartilha sua política com a variante in-place. Manter canonicalização de sequências vazias/unitárias e achatamento de Sequence e Realized com visual Sequence, incluindo marcador original sem visual. Preservar alterações já feitas nos filhos, proveniência, ordem, espaços inferidos/explicitados e fronteiras. Sem comparação de Content, hashes ou ponteiros para inferir mudança. Contratos públicos e fases permanecem vigentes.
+Acceptance: RED→GREEN reuse-without-change and flatten/canonicalization controls; Unicode spaces and carriers; paired allocations/time, text/geometry/raster preservation against prior release and pinned-vanilla controls; core suite, cargo build, and lint. Remove if divergent or robustly slower.
 
-Aceitação: teste RED→GREEN de reuso sem mudança e controles de achatamento/canonicalização; espaços Unicode e carriers; alocações e tempo pareado, preservação de texto/geometria/raster contra o release anterior e controles vanilla pinado; core suite, cargo build e lint. Retirar se houver divergência ou regressão robusta.
+### One traversal after change-proof propagation — 2026-10-10
 
-## Travessia única após propagação de ausência de mudança — 2026-10-10
+`lab/results/construction/diagnostics/content-preflight-removal-2026-10-10/{before,measurements,confirmation,allocation-red,allocation-green,validation}.json.gz` records HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree, status/diffstat, sources, UTC, commands, fixtures, and binaries. Prior release: `2d7f5dc93f6a7f15c81ff93b74270c80a14077d6753c8f79c73c9575d113d5f1`; candidate: `9ae0a3d9285b8d0b4bae0da1db058483e7f5543003fabff46bb7d93b17e474f2`; pinned vanilla `9f2b6e8715237cb086899a42873660fe744622e8`/binary `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`. The before snapshot preserves borrowed guards; `entities/content/traversal.rs:24–82` provides explicit proof in mapping. Removing the two guards reduced paired `blocks-400` time 1.21% in both collections, six rounds with negative medians; six cases retained allocation counts. 34 text/geometry/raster/query controls were preserved; core suite remained green. Math/repeated-block cases remain outside equivalent-work comparisons with vanilla.
 
-### Medição anterior à decisão
+Current internal decision superseding the preflights above: use `map_content` directly in this unit, without a duplicated borrowed preflight. The explicit no-change proof protocol belongs to the pinned `content/map-content-change` Nucleus. Keep the existing callback, boundaries, order, error behavior, origin, location, and transformation. Do not infer change by equality, hash, or pointer; expand no variants or replace the enum with dynamic dispatch. `Source` remains transparent and preserves first origin per the current Nucleus. No public contract, default behavior, phase, or compatibility changes.
 
-`diagnosticos/content-preflight-removal-2026-10-10/{before,measurements,confirmation,allocation-red,allocation-green,validation}.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status/diffstat, fontes, UTC, comandos, fixtures e binários. Release anterior `2d7f5dc93f6a7f15c81ff93b74270c80a14077d6753c8f79c73c9575d113d5f1`; candidato `9ae0a3d9285b8d0b4bae0da1db058483e7f5543003fabff46bb7d93b17e474f2`; oracle vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8`/binário `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`. O snapshot before preserva as guardas emprestadas; entities/content/traversal.rs:24–82 fornece a prova explícita no mapeamento. Remover as duas guardas reduz tempo pareado de blocks-400 em 1,21% nas duas coletas, seis rodadas com medianas negativas; seis casos mantêm a contagem de alocações. 34 controles de texto/geometria/raster e consultas foram preservados; a suite core permanece verde. Matemática/blocos repetidos continuam fora de comparação de trabalho equivalente com vanilla.
+Acceptance: retain controls with/without columns, already located/pending occurrences, origin, effects, and query; core tests, build, and lint. Paired-time external gate must move from baseline with no gain to repeatable candidate benefit and no robust regression, without increased allocations. Arc reuse is auxiliary engineering evidence; language acceptance uses text, geometry, morphology, and effects, without requiring equal PDF bytes. This is a small improvement and does not certify general parity or lower resident memory.
 
-### Decisão interna vigente — substitui os pré-exames acima
+## Boundary arity — `clippy::too_many_arguments`
 
-Usar diretamente `map_content` na operação desta unidade, sem pré-exame emprestado duplicado. O protocolo de ausência explícita de mudança pertence ao Núcleo content/map-content-change pinado; manter o callback existente e suas fronteiras, ordem, erro, origem, localização e transformação. Não inferir mudança por igualdade, hash ou ponteiro; não ampliar o universo de variantes nem trocar enum por despacho dinâmico. Source continua transparente e conserva a primeira origem conforme o núcleo vigente. Nenhum contrato público, comportamento padrão, fase ou compatibilidade é alterado.
+### Evidence before the decision
 
-### Aceitação
+The structural reading uses HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree, captured `2026-10-15T16:39:18.873477+00:00`. Full sources, prior L0s, signatures, hashes, UTC, status, and `git diff HEAD --stat` are in `lab/results/construction/diagnostics/too-many-arguments-2026-10-15/before.json.gz`. Individual classifications and clauses read before the decision are in `lab/results/construction/diagnostics/too-many-arguments-2026-10-15/classification.json`. Clippy spans were reconfirmed against the prior inventory sources. This is Rust structure measurement, not new proof of parity or functional failure.
 
-Conservar controles com/sem coluna, ocorrência já localizada e pendente, origem, efeitos e query; testes core, build e lint. Gate quantitativo externo de tempo pareado passa do baseline sem ganho ao candidato com benefício repetido e sem regressão robusta, sem aumento de alocações. Reuso de Arc é prova auxiliar de engenharia; aceitação de linguagem se dá por texto, geometria, morfologia e efeitos, sem exigir bytes de PDF iguais. A melhoria é pequena e não certifica paridade global nem redução de memória residente.
+- `C020`: `01_core/src/compiler/realize/mod.rs:127`, `realize_document`, 8 arguments counted by Clippy (threshold 7).
 
+### Exclusive prescription and exception boundary
 
-## Aridade das fronteiras — `clippy::too_many_arguments`
+The corrections below were maintenance targets not yet materialized in that audit. Preserve current public signatures and language decisions. The need for structural correction is maintenance judgment based on the stated data; the arity warning alone does not prove a functional defect.
 
-### Evidência anterior à decisão
+For `C020` (`realize_document`), retain the exact public realization signature: content, resources, source, registry, previous snapshot, and configuration are explicit. The registry must not be removed from the API because this lint currently finds it unread. Preserve signature, order, and semantics. At materialization, apply exactly `#[expect(clippy::too_many_arguments, reason="C020: Contrato público de realização reproduzido literalmente no L0: conteúdo, recursos, source, registry, snapshot anterior e configuração são explícitos")]` to this function only. Confirm the warning in Clippy workspace/all-targets and no `unfulfilled_lint_expectations`; preserve call sites and functional controls. Do not raise the global threshold or suppress other lints.
 
-A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
-capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
-hashes, UTC, status e `git diff HEAD --stat` estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
-A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
-`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
-Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
-É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
+Authorize only `#[expect(clippy::too_many_arguments, reason = "...")]` on the named item with the stated architectural reason. Do not apply it to module/impl/crate/configuration; do not raise the threshold or cover another lint. For cases removing dead arguments, any residual exception depends on that correction. If the function no longer exceeds the threshold, remove/review the expectation; do not silence `unfulfilled_lint_expectations`. This specific permission overrides generic suppression prohibitions only for the named lint/items; all other correction duties remain.
 
-- `C020`: `01_core/src/compiler/realize/mod.rs:127`, `realize_document`, 8 argumentos contados pelo Clippy (limiar 7).
+This audit updates only L0 and its lineage seal; suppression attributes and signature/body changes remain pending materialization. Corrections require owner language/integration tests and before/after call controls without relaxing fixtures or tolerances. Preserve layers, phase, defaults, static dispatch, and absence of mutable global state. Private signature corrections also migrate callers and their L0 before code. Any new public contract or compatibility need requires a concrete proposal and ADR-0127 confirmation; this section does not pre-authorize it.
 
-### Prescrição exclusiva por função
+### Materialized named exceptions — 2026-10-16
 
-As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
-Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
-A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
-explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
+The validated inventory in `lab/results/construction/diagnostics/clippy-locais-2026-10-16/clippy-inventory.json` contains 79 warnings. Reconfirmation of sources/spans, current reasons, signatures, and hashes for this batch is in `lab/results/construction/diagnostics/clippy-excecoes-2026-10-16/before.json.gz`, with HEAD, uncommitted working tree, UTC, and `git diff HEAD --stat`. The functions and concrete data were read before this decision. Arity and type heuristics are Rust mechanics; they are not new parity or measured cognitive-benefit evidence.
 
-#### `C020` — `realize_document`: Exceção pontual justificada
+Materialize only direct named expectations already justified in this owner: C020, reconfirmed against current spans and individual clauses. Use exactly `#[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")]` on the function, never module/impl/crate; preserve signature, body, calls, cfg, and unrelated attributes. Items classified `fix`, including conditional C047/C066, remain pending and receive no annotation in this batch.
 
-Contrato público de realização reproduzido literalmente no L0: conteúdo, recursos, source, registry, snapshot anterior e configuração são explícitos. Mesmo registry atualmente sem leitura não pode ser removido da API por este lint.
+Continuous ADR-0127 flow: this batch adds lint metadata only; it changes no public contract, executable body, cfg, defaults, phase, dependencies, or architecture. It materializes only expressed named exceptions and supersedes generic suppression prohibitions only for those items/lints; it does not authorize silencing pending fixes. L0 comes first, followed by restricted resealing and proof that removing the added attributes and lineage header recovers the prior source after rustfmt. Measure RED first; then check all-targets inventory, exactly 46 arity warnings and five test warnings satisfied by 49 expectations, no new warning, and `unfulfilled_lint_expectations` treated as error. The 11 arities targeted for correction remain visible. Validate build, format, strict/reverse lineage, Tekt with no new errors/warnings, existing Counter tests and coverage under 12 GiB, zero swap, one job. The prior full suite remains evidence for the same executable code; do not create tests that mirror lint attributes or require a new performance comparison for metadata.
 
-Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C020: Contrato público de realização reproduzido literalmente no L0: conteúdo, recursos, source, registry, snapshot anterior e configuração são explícitos")], somente nesta função.
+## R2-S — nominal Sequence realization, ratified 2026-10-17
 
-Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
+### Measurement before the decision
 
-### Limite da exceção
+`before/expanded/controls.json.gz` and `candidate.log` in `lab/results/construction/diagnostics/sequence-constructor-2026-10-17` fix HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted working tree, UTC/diffstat/sources/binaries, and vanilla pin `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Eight initial REDs; five passed in the candidate, while show and recursion did not. `markup_stream.rs:240–260` flattens before selecting the sequence; `realize/mod.rs:170–210` visits children before recipe; `apply.rs:140–170` delegates non-locatables to fixed point. Vanilla accepts alias and rejects a new Sequence with equal children. These are language effects, scope, values, and diagnostics.
 
-Autorizar somente `#[expect(clippy::too_many_arguments, reason = "...")]` no item
-nominal acima, com o motivo arquitetural indicado. Não aplicar no módulo, impl,
-crate ou configuração global; não elevar o limiar nem abranger outro lint.
-Nos casos com remoção de argumento morto, a exceção residual depende dessa correção.
-Se a função deixar de exceder o limiar, retirar/revisar a expectativa; não silenciar
-`unfulfilled_lint_expectations`. Esta permissão específica supera proibições
-genéricas de supressão em seções anteriores somente para este lint e os itens
-nominais justificados aqui. As demais obrigações de correção permanecem.
-
-### Fronteira de materialização
-
-Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
-supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
-As entradas com correção exigem testes de linguagem/integração do owner e controle
-de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
-a fase, os defaults, o despacho estático e a ausência de estado global mutável.
-Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
-do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
-exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
-
-
-## Exceções nominais materializadas — 2026-10-16
-
-### Medição anterior à decisão
-
-O inventário validado em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `00_nucleo/diagnosticos/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
-
-### Responsabilidade e aceitação
+The owner approved `lab/history/construction/records/00_nucleo/materialization/sequence-realization-2026-10-17/review.md`, manifest `46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327`, in that session. ADR-0127 §2.3 covers this new boundary's order before children/Table/math; it does not cover a new public contract.
 
-Materializar somente as expectativas diretas nominais já justificadas neste owner: C020. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
-
-Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
-
-
-## R2-S — realização nominal de Sequence, ratificada em 2026-10-17
-
-### Medição anterior à decisão
-
-As coletas before/expanded/controls.json.gz e candidate.log em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
-b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
-UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
-markup_stream.rs:240–260 aplana antes de selecionar a sequência; realize/mod.rs:
-170–210 visita filhos antes de receita; apply.rs:140–170 delega não-localizáveis
-ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
-filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
-
-O dono aprovou a revisão
-00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
-46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
-nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
-fronteira antes dos filhos/Table/math; não cobre novo contrato público.
-
-### Responsabilidade exclusiva
-
-Compor descendente privado sequences e chamar sua realização pre-order de
-recipes marcados antes de realize_table_insertions/bare_math e da travessia
-genérica de ShowRecipe. A fronteira Sequence selecionável pode ocultar esses
-filhos. O descendente resolve seus produtos/guards; o hub conserva os caminhos
-existentes de outras receitas, layouts, índices e targets. Expor somente as
-rotas crate-internas necessárias a markup/invoke/apply, sem pub externo.
-
-### Aceitação
-
-S1–S20 ratificados, RED antes de código, GREEN bilateral e regressões; não
-reduzir expectativas por limite mecânico. Todos os owners 1:1 e núcleos pinados
-válidos antes do resselo. Build/workspace/doctests separados, Clippy/Rustdoc
-estritos, fmt/linhagem/reversa e SARIF sem novo erro/warning. 12GiB/High8GiB/
-swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.
-
-### R2-S — ativação do descendente
-
-A passagem existente observe_occurrences também assenta a flag privada
-has_deferred_show_rules quando encontra recipe Sequence marcado. O contexto
-novo de realização começa sem essa informação; assentar antes da composição
-evita pular corpos vazios/locais. Sem marcador/regra Sequence, o descendente
-retorna clone raso sem percorrer/reconstruir o documento. Não criar campo
-público/flag de produto nem usar estado global para esse atalho.
-
-## R3-T1 — realização causal ratificada (2026-10-18)
-
-### Medição anterior à decisão
-
-00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
-preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
-commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
-bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
-fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
-matching.rs:118–150 aplica regex reversa e depois literais em declaração;
-:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
-captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
-apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
-expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
-
-Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
-X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
-produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
-panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
-capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
-foundations/selector.rs:110–125 unifica literal escapado com regex;
-typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
-no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
-igualdade de buffers ou bytes PDF. É inferência causal que a separação de
-escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
-acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
-
-### Decisão ratificada
-
-Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
-do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
-ratificou esta ordem. Ele supersede neste escopo as
-cláusulas históricas de execução provisória de show em ContentBlock e da
-visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
-de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
-assentar render em morfologia nem criar contrato Rust público.
-
-### Responsabilidade exclusiva desta unidade
-
-Delegar a execução de receitas a compiler/realize/recipes.rs. Substituir o prepass global Sequence + realização bottom-up de ShowRecipe pela coordenação causal de raiz e produto; não executar uma Sequence escondida só porque existe no grafo. Observar/reservar identidades/contextos antes de alocar, conservar fonte/introspector, finish_occurrences e normalização final. Table/Cell preparados seguem seu owner e ordem Table→placement→Cell→body; Mathy deve ser preparado antes de seleção da sua própria inserção. Não mover essas decisões para layout/eval comum nem chamar mais uma avaliação do programa. Fachadas realize_document/realize_math_insertions/realize_table_insertions permanecem iguais.
-
-### Aceitação desta revisão
-
-RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.
-
-### R3-T1 — conservação na normalização final
-
-A normalização final não extrai a sequência visual de um Realized cujo original
-carrega o marcador privado de produto textual. Essa fronteira conserva guards
-e proveniência durante inserções posteriores; sequências comuns e Realized
-legados continuam seguindo a normalização existente. A medição R3-T1 de
-produtos separados AB/X fundamenta esta restrição; o transporte não pode ser
-descartado depois de a coordenação causal terminar.
-
-### R3-T1 — contexto matemático antes da própria inserção
-
-workspace-rest.log (candidato7) refutou a fachada de math contextual: a regra
-capturada de Equation era instalada só depois de recipes::realize já preparar
-a fração. O needs_preparation seguinte retornava falso e pulava a regra.
-Na fachada realize_math_insertions instalar o snapshot eval.context.recipe
-(regras, arquivo, floor e guards unidos aos vigentes) e flags de realização
-antes da coordenação causal. Realizar uma vez por recipes e finalizar ocorrências;
-restaurar tudo em sucesso/erro. A coordenação já possui a preparação Mathy antes
-de sua seleção. Não repetir o prepass global nem aplicar show em segunda travessia.
-Manter o retorno diferido quando defer_show_rules está ativo, a assinatura pública
-atual e a realização lazy de State/Counter. O teste de integração existente exige
-EQ no PDF contextual e é o RED; não alterar sua expectativa.
-
-### R3-T1 — contribuição bruta e identidade canônica
-
-workspace-rest-candidate8.log refutou finalizar todas as ocorrências de uma
-contribuição contextual isolada: dois controles HTML perderam estabilidade e
-query de Equation mostrada perdeu o original. A fachada só possui a contribuição,
-não a faixa canônica do documento completo. Deixar os nós brutos sem receita
-para a indexação/posição do owner contextual depois da composição; não chamar
-finish_occurrences indiscriminadamente nesta fachada. As identidades necessárias
-à execução de uma receita efetivamente casada continuam no coordenador. Instalar
-o snapshot capturado antes do preparo Mathy permanece obrigatório. A hipótese
-causal de colisão entre alocadores locais é sustentada por Locator::new e pelos
-marcadores Context/Located; os três testes existentes e a futura medição de
-múltiplos produtores a refutam. Não inventar Location/namespace nem ampliar API.
-
-### R3-T1 — guards nominais e V17
-
-A arquitetura SARIF do candidato9 apontou V17 em flatten:66. Desdobrar o guard
-composto Realized: primeiro excluir produtos protegidos no guard simples; no
-corpo testar visual Sequence, mantendo a emissão do marcador original vazio e
-o aplanamento apenas nesse caso. Para visual não Sequence emitir clone do
-conteúdo original, como o fallback anterior. Preservar a ordem dos testes e os
-mesmos efeitos; não remover guardas de produto nem normalizar outra fronteira.
-V17 deve passar sem supressão. Esta revisão não modifica comportamento, contrato
-público ou a fase ratificada; revalidar os testes existentes e os gates.
-
-
-## Context — herança textual, 2026-10-18
-
-### Medição anterior à decisão
-
-HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fonte produtiva limpa;
-00_nucleo/diagnosticos/context-paridade-2026-10-18/before.json.gz contém
-UTC, argv, diffstat e SHA dos executáveis. Build novo em baseline-build-resources.json;
-freeze completo em before-sources.json.gz. Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
-Sondas global/local devolvem A/A no Tekt contra R/L; criação antes da regra,
-aninhamento, regex e produto também perdem a regra. Controle local dentro de
-Context dá L nos dois. compiler/realize/mod.rs:240–269 só captura Equation/Table;
-compiler/realize/recipes.rs:343 trata Context como folha genérica; textual.rs:46–103
-já preserva baseline e compõe delta local por RuleId. No vanilla pinado,
-foundations/context.rs:78–86 executa com styles do ponto contextual;
-typst-realize/src/lib.rs:353–418 prepara raiz, aplica regra e visita produto.
-Isso mede escopo/efeitos de linguagem, não exige copiar a estrutura upstream.
-A causa de perda de regras é inferida desses caminhos e será refutada se os
-controles de escopo, nesting, produto ou pai ocultando filho falharem.
-
-### Decisão e fronteira
-
-Correção interna de paridade dentro da realização contextual já ratificada em
-R3-T1: manter execução adiada, API e fases vigentes. Não corrigir colisões de
-Location por offset/hash, remoção de Located ou alteração de contratos neste
-recorte. Styled comum permanece opaco no matching textual; não alterar o mapper.
-
-### Responsabilidade exclusiva
-
-A captura lexical de Context conserva todas as regras pertinentes, inclusive
-textuais, usando capture_styles para distinguir baseline e delta local. Sem
-regras pode conservar o conteúdo cru; sua inserção posterior ainda deve herdar
-as regras vigentes. Um helper privado prepara o Context emitido na realização:
-compõe o snapshot lexical existente com as regras herdadas por compose_rules e
-transporta o resultado efetivo em eval.context.recipe, com guards unidos, arquivo
-e floor preservados. O metadado tem body Empty e nunca executa callbacks.
-A fachada realize_math_insertions continua restaurando o snapshot efetivo antes
-de realizar a contribuição; não antecipa a closure nem muda sua assinatura.
-
-O lookup existente de eval.context.recipe é compartilhado por helper privado
-emprestado entre realize_math_insertions e prepare_context_recipe; conservar a
-mesma projeção rasa de Value::Content(ShowRecipe) e ausência nos demais valores.
-Não multiplicar o despacho do mesmo metadado ou alterar precedência Table local.
-
-
-## Context — identidade de ocorrências ratificada, 2026-10-18
-
-### Medição anterior à decisão e gate
-
-before.json.gz em 00_nucleo/diagnosticos/context-paridade-2026-10-18 conserva
-HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fontes, UTC, diffstat, argv e
-SHA dos binários; baseline-build-resources.json contém a receita nova. Vanilla
-bd5ebec285505889e8ff1d4f68804ab147a699f3. Duas equações dão EQ EQ Q1/Q2;
-prefixo Heading H EQ Q0/Q1; it.location observado por query dá 00/01.
-context_stabilization.rs:257 reinicia EvalContext por produtor; eval/mod.rs:438
-reinicia Locator; realize/mod.rs:41 aloca sem domínio comum; introspect/walk.rs:
-375–390 deduplica pela Location. É semântica/identidade de linguagem.
-Upstream typst-realize/src/lib.rs:353–418 prepara identidade antes da receita,
-mas não exige copiar representação, vtables ou algoritmo.
-Hipótese de colisão será refutada por falha de contagem, alias, callback ou replay.
-
-O humano aprovou a proposta review.md sob
-00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
-500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388;
-recibo approval-receipt.json no mesmo diretório. Gate ADR-0127 §2.1 satisfeito
-para a API aditiva especificada. Não autoriza mudança de fase ou API alheia.
-
-### Responsabilidade exclusiva
-
-Declarar o módulo público context_occurrences, legitimado pelo owner
-00_nucleo/prompts/compiler/realize/context_occurrences.md. locate mantém
-Located existente intacto e delega somente a obtenção da nova Location ao
-helper privado next desse módulo; sem frame ativo mantém Locator::next atual.
-A reserva de ocorrências existentes continua observando o Locator, sem emitir
-nó, executar callback ou inventar identidade por offset/hash.
+### Exclusive responsibility and acceptance
+
+Compose private descendant `sequences` and call its pre-order realization of marked recipes before `realize_table_insertions`/`bare_math` and generic `ShowRecipe` traversal. A selectable Sequence boundary can hide its children. The descendant resolves its products/guards; the hub retains existing routes for other recipes, layouts, indexes, and targets. Expose only crate-internal paths needed by markup/invoke/apply, with no external `pub`.
+
+Ratified S1–S20, RED before code, bilateral GREEN, and regressions are required; do not reduce expectations for mechanical limits. All owners must remain 1:1 and pinned nuclei valid before resealing. Validate separated build/workspace/doctests, strict Clippy/Rustdoc, fmt/lineage/reverse lineage, and SARIF with no new errors/warnings. Limits: 12 GiB/High8 GiB/swap0/jobs1; run heavy commands sequentially. No publish/release.
+
+The existing `observe_occurrences` pass also sets private flag `has_deferred_show_rules` when it finds a marked Sequence recipe. The new realization context starts without it; set it before composition to avoid skipping empty/local bodies. With no Sequence marker/rule, the descendant returns a shallow clone without traversing/reconstructing the document. Do not create a public product field/flag or global state for this shortcut.
+
+## R3-T1 — causal realization, ratified 2026-10-18
+
+### Measurement before the decision
+
+`lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz` preserves HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted working tree, UTC, status/diffstat, source/argv/binary hashes, and vanilla pin `bd5ebec285505889e8ff1d4f68804ab147a699f3`. `before-sources.json.gz` contains full source/current L0. No candidate code was implemented in this measurement. `matching.rs:118–150` applies reverse regex and then declared literals; `:194–207` exposes products to later passes. `textual.rs:102–123` captures the full snapshot. `realize/mod.rs:177–217` visits recipes bottom-up. `apply.rs:620–648` and `matching.rs:218–225` call functions without capturing children. `expression_dispatch.rs:125–129` already distinguishes `insertion_rules` from local state.
+
+Measured examples: identical literals C/B; literal/regex tie R/L; overlap X/YB; first effect LATER/FIRST; inverse chained function BBBB/BB; separate product AB/X; product plus neighbor X/AB; Strong hiding a child panics HIDDEN/Q; captured global followed by new global gives L/R, while captured local gives L/L. Local CJK input `水\n果` gives `水果/X`. Pinned `foundations/selector.rs:110–125` unifies escaped literal with regex; `typst-realize/src/lib.rs:1328–1405` chooses the start and carries revocation on the product. These data measure language effects; they do not ratify Rust mechanics, buffer equality, or PDF-byte equality. It is an inference that scope separation and visiting before children explain the results; `acceptance.json` controls for equality/fields/style/query/errors can refute it.
+
+### Ratified decision, exclusive responsibility, and acceptance
+
+Apply the pinned `textual-recipe-frontier` nucleus in this L0. Human confirmation of manifest `47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302` ratified this order. Within this scope it supersedes historical clauses for provisional show execution in `ContentBlock` and bottom-up visits of pending recipes, without changing expression evaluation order. Do not re-evaluate the program, advance State/Counter, settle render into morphology, or create a public Rust contract.
+
+Delegate recipe execution to `compiler/realize/recipes.rs`. Replace the global Sequence prepass plus bottom-up `ShowRecipe` realization with causal coordination of root and product; do not execute a hidden Sequence merely because it exists in the graph. Observe/reserve identities and contexts before allocation; preserve source/introspector, `finish_occurrences`, and final normalization. Prepared Table/Cell follow their owner and order Table→placement→Cell→body; Mathy must be prepared before selecting its own insertion. Do not move these decisions into layout/common eval or call the program again. `realize_document`/`realize_math_insertions`/`realize_table_insertions` facades remain unchanged.
+
+Require RED→GREEN for `acceptance.json` families, R2-S/R3 corpus, and one-evaluation controls. Revalidate PDF and HTML separately; build/workspace/doctests, strict Clippy/Rustdoc, fmt, V1/V5/V15/V26 and reverse lineage; differential SARIF with no new errors/warnings. Limit: 12 GiB/High8 GiB/swap0/jobs1, heavy commands sequentially. Do not claim RAM gain before paired trials or clear gates with suppression. No commit/push/release.
+
+### R3-T1 refinements
+
+**Preserve final-normalization provenance.** Final normalization does not extract visual Sequence from a `Realized` whose original carries the private textual-product marker. This boundary preserves guards and provenance for later insertions. Ordinary sequences and legacy `Realized` continue through existing normalization. R3-T1's separate-product AB/X measurement supports the restriction; do not discard transport after causal coordination.
+
+**Install contextual math snapshot before its insertion.** `workspace-rest.log` (candidate7) refuted the contextual math facade: the captured Equation rule was installed only after `recipes::realize` had prepared the fraction; the later `needs_preparation` returned false and skipped it. In `realize_math_insertions`, install the `eval.context.recipe` snapshot (rules, file, floor, and guards joined with current ones) and realization flags before causal coordination. Run `recipes` once and finish occurrences; restore everything on success/error. Coordination already prepares Mathy before selection. Do not repeat the global prepass or apply show in a second traversal. Keep deferred return while `defer_show_rules` is active, current public signature, and lazy State/Counter realization. The existing integration test requires EQ in contextual PDF and is the RED; do not change its expectation.
+
+**Leave raw contribution identity canonical.** `workspace-rest-candidate8.log` refuted finalizing every occurrence in an isolated contextual contribution: two HTML controls lost stability and query for shown Equation lost the original. The facade has only the contribution, not the canonical range of the full document. Leave raw nodes without recipes for contextual owner's later indexing/positioning; do not call `finish_occurrences` indiscriminately in this facade. Identities needed to execute an actually matched recipe remain in the coordinator. Installing the captured snapshot before Mathy preparation remains mandatory. The causal collision hypothesis is supported by `Locator::new` and Context/Located markers; the three existing tests and future multiple-producer measurement can refute it. Do not invent a Location/namespace or expand API.
+
+**Keep nominal guards and V17.** Candidate9 SARIF found V17 in `flatten:66`. Expand the compound `Realized` guard: first exclude protected products in the simple guard; in the body test visual Sequence, retaining emission of the empty original marker and flattening only in that case. For non-Sequence visual content, emit a clone of the original content, as in the prior fallback. Preserve test order and effects; remove no product guards and normalize no other boundary. V17 must pass without suppression. This refinement changes no behavior, public contract, or ratified phase; revalidate existing tests and gates.
+
+## Context — lexical inheritance, 2026-10-18
+
+### Measurement before the decision
+
+HEAD `b7e7c83223e5daa67bbdf124c36b5b7f93200731`, clean productive source; `lab/results/construction/diagnostics/context-paridade-2026-10-18/before.json.gz` contains UTC, argv, diffstat, and executable SHA. New build recipe is in `baseline-build-resources.json`; full freeze in `before-sources.json.gz`. Vanilla pin: `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Global/local probes return A/A in Tekt versus R/L; creation before rule, nesting, regex, and product also lose the rule. Local control inside Context gives L in both. `compiler/realize/mod.rs:240–269` captures only Equation/Table; `compiler/realize/recipes.rs:343` treats Context as a generic leaf; `textual.rs:46–103` already preserves baseline and composes local delta by RuleId. Pinned vanilla `foundations/context.rs:78–86` evaluates with styles at the contextual point; `typst-realize/src/lib.rs:353–418` prepares root, applies the rule, and visits product. This measures language scope/effects and does not require copying upstream structure. The cause of rule loss is inferred from these paths and is refuted if scope, nesting, product, or parent-hiding-child controls fail.
+
+### Decision, boundary, and responsibility
+
+This is an internal parity correction within already ratified R3-T1 contextual realization: retain deferred execution, API, and phases. Do not address Location collisions using offsets/hashes, remove `Located`, or change contracts in this scope. Ordinary `Styled` remains opaque to textual matching; do not alter the mapper.
+
+Lexical capture of Context retains all relevant rules, including textual rules, using `capture_styles` to distinguish baseline from local delta. With no rules, it may preserve raw content; its later insertion still inherits current rules. A private helper prepares the Context emitted during realization: compose the existing lexical snapshot with inherited rules using `compose_rules`, then carry the effective result in `eval.context.recipe`, with joined guards, file, and floor preserved. Metadata has `Empty` body and never executes callbacks. `realize_math_insertions` continues restoring the effective snapshot before realizing the contribution; it does not advance the closure or change its signature.
+
+The existing `eval.context.recipe` lookup is shared by a private helper borrowed by `realize_math_insertions` and `prepare_context_recipe`. Keep the same shallow projection of `Value::Content(ShowRecipe)` and absence for other values. Do not duplicate dispatch for the same metadata or change local Table precedence.
+
+## Context — occurrence identity, ratified 2026-10-18
+
+### Measurement and gate
+
+`before.json.gz` in `lab/results/construction/diagnostics/context-paridade-2026-10-18` preserves HEAD `b7e7c83223e5daa67bbdf124c36b5b7f93200731`, sources, UTC, diffstat, argv, and binary SHA; `baseline-build-resources.json` contains the new recipe. Vanilla pin: `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Two equations give EQ EQ Q1/Q2; Heading prefix H EQ Q0/Q1; query of `it.location` gives 00/01. `context_stabilization.rs:257` restarts `EvalContext` per producer; `eval/mod.rs:438` restarts Locator; `realize/mod.rs:41` allocates without a shared domain; `introspect/walk.rs:375–390` deduplicates by Location. This is language identity. Upstream `typst-realize/src/lib.rs:353–418` prepares identity before the recipe but does not require copying its representation, vtables, or algorithm. The collision hypothesis is refuted by failing count, alias, callback, or replay controls.
+
+The human approved `review.md` under `lab/history/construction/records/00_nucleo/materialization/context-occurrences-2026-10-18`, SHA-256 `500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388`; `approval-receipt.json` is in the same directory. ADR-0127 §2.1 is satisfied for the specified additive API. This does not authorize unrelated phase/API changes.
+
+### Exclusive responsibility
+
+Declare public module `context_occurrences`, owned by `00_nucleo/prompts/compiler/realize/context_occurrences.md`. `locate` keeps an existing `Located` intact and delegates only acquisition of a new Location to this module's private `next` helper; without an active frame it retains current `Locator::next`. Existing occurrence reservation continues observing Locator without emitting a node, running a callback, or inventing identity from offset/hash.
+
+## Revision history
+
+- 2026-10-18 — Consolidated the realization contract and dated refinements in English, preserving each clause's authority/status and evidence locator. A causal-realization correction, contextual lexical inheritance, and occurrence identity were added to the working owner; this edit does not expand their ratified scope. No public API or behavior is changed by this editorial consolidation.

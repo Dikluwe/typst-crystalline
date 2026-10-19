@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select_justice_overflow.md
-//! @prompt-hash 688024f3
+//! @prompt-hash c3de08c0
 //! @layer L1
 //! @updated 2026-10-02
 

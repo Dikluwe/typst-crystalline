@@ -53,7 +53,7 @@ language-parity criteria.
 
 ## Coordenadas no subset — correção interna 2026-10-05
 
-Medição anterior à decisão: `03_infra/src/export/subset.rs:56` chama subset sem coordenadas. Fonte local subsetter-0.2.6/src/lib.rs:108-126 distingue subset default de subset_with_variations; este último instancia e subseta conjuntamente (CFF2 converte para TrueType). `00_nucleo/diagnosticos/eixos-variaveis-export-2026-10-05/native.txt` mede H=689/734 para wght=250/900; a cadeia anterior congela H=697. Sonda e proveniência em before.json/native.rs.
+Medição anterior à decisão: `03_infra/src/export/subset.rs:56` chama subset sem coordenadas. Fonte local subsetter-0.2.6/src/lib.rs:108-126 distingue subset default de subset_with_variations; este último instancia e subseta conjuntamente (CFF2 converte para TrueType). `lab/results/construction/diagnostics/eixos-variaveis-export-2026-10-05/native.txt` mede H=689/734 para wght=250/900; a cadeia anterior congela H=697. Sonda e proveniência em before.json/native.rs.
 
 Adapter privado pub(super) subset_font_with_variations aceita os mesmos inputs de mapping mais coordenadas ttf_parser Tag/f32; reutiliza remapper/mapping/error path do adapter existente e converte tags sem arredondar eixos. As APIs públicas mantêm subset default e o comportamento CFF2 anterior; o adapter privado usa subset_with_variations mesmo com coordenadas vazias para resolver a instância default, permitindo CFF2→TrueType. A decisão de eixos, fallback e descriptor pertence exclusivamente ao owner builder/fonts. Sem nova API pública, dependência, unsafe ou fase. Aceitação pelo teste PDF do owner e parseabilidade/font widths; RED→GREEN e revalidação.
 
@@ -65,7 +65,7 @@ Medição adicional antes da decisão: o controle variable-cff2-after.pdf ainda 
 ### Medição anterior à decisão
 
 `03_infra/src/export/subset.rs:85–87` associa o erro a um binding utilizado somente no diagnóstico sob cfg(test).
-`00_nucleo/diagnosticos/avisos-clippy-tekt-2026-10-15/before.json.gz`
+`lab/results/construction/diagnostics/avisos-clippy-tekt-2026-10-15/before.json.gz`
 conserva fontes, owners, HEAD, working tree não commitado, UTC e diffstat;
 selected-red.json identifica os diagnósticos do compilador antes da edição.
 São expressões Rust equivalentes, sem nova medição de paridade upstream.
@@ -84,7 +84,7 @@ build, Clippy all-targets, formato, documentação e linhagem com resselo restri
 
 ### Medição anterior à decisão
 
-03_infra/src/export/mod.rs:42 declara mod subset privado, sem pub use de subset_font. Busca de todas as camadas/benches encontra somente a definição em subset.rs:113 e duas chamadas no seu módulo de testes. Os adapters produtivos são subset_font_with_mapping e subset_font_with_variations. O snapshot 00_nucleo/diagnosticos/clippy-retencao-2026-10-16/before.json.gz conserva fontes/L0, hashes globais, HEAD, working tree não commitado, UTC e diffstat. A palavra pub da função não cria API externamente alcançável por um módulo privado sem reexportação. O contrato anterior chamava de compatibilidade um wrapper sem consumer produtivo; essa prescrição foi refutada pela busca dos usos. É correção de representação/manutenção Rust, sem nova paridade medida.
+03_infra/src/export/mod.rs:42 declara mod subset privado, sem pub use de subset_font. Busca de todas as camadas/benches encontra somente a definição em subset.rs:113 e duas chamadas no seu módulo de testes. Os adapters produtivos são subset_font_with_mapping e subset_font_with_variations. O snapshot lab/results/construction/diagnostics/clippy-retencao-2026-10-16/before.json.gz conserva fontes/L0, hashes globais, HEAD, working tree não commitado, UTC e diffstat. A palavra pub da função não cria API externamente alcançável por um módulo privado sem reexportação. O contrato anterior chamava de compatibilidade um wrapper sem consumer produtivo; essa prescrição foi refutada pela busca dos usos. É correção de representação/manutenção Rust, sem nova paridade medida.
 
 ### Responsabilidade exclusiva e aceitação
 

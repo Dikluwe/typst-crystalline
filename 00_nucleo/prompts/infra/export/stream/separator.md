@@ -11,7 +11,7 @@ Layer: L3. Exclusive consumer: `03_infra/src/export/stream/separator.rs`.
 
 `03_infra/src/export/stream/draw.rs:164` emits fallback Text at page coordinates;
 `:771` uses the local reflection envelope. The RED probes at
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/resultados.json`
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/resultados.json`
 show A B C losing real spaces. The public carrier contract in
 `00_nucleo/prompts/entities/layout_types.md` was approved on 2026-09-28.
 This is language text loss, not a requirement for identical PDF bytes.
@@ -31,7 +31,7 @@ letter positions remain unchanged.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/espaco-terminal-2026-10-06/before.json` conserva
+`lab/results/construction/diagnostics/espaco-terminal-2026-10-06/before.json` conserva
 working tree, HEAD, código/L0 e binários. O caso literal-terminal-space no
 lote bidi-identidade-ocorrencia tem glifos posicionados corretamente, mas
 caixa extraída de 123 termina em 121.49581pt versus 125.000002pt no oracle.

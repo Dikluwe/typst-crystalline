@@ -3,7 +3,7 @@ Hash do Código: a8926822
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/abs.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:133-255` contém o comportamento correspondente. SHA-256, horário e estado estão em `00_nucleo/diagnosticos/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/calc/abs.rs`. No HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` e árvore limpa, `01_core/src/compiler/stdlib/calc.rs:133-255` contém o comportamento correspondente. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-calc-2026-09-30-before.json.gz`. Esta decisão apenas separa algoritmos por comportamento.
 
 ## Contrato
 
@@ -20,7 +20,7 @@ Preservar a suíte L1 e os testes de calc, compilar e passar `crystalline-lint .
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tekt-v16-abs-2026-10-17/before.json.gz`,
+`lab/results/construction/diagnostics/tekt-v16-abs-2026-10-17/before.json.gz`,
 `before-measurement.json.gz` e `supplement-before-measurement.json.gz`
 registram HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
 commitado, UTC/status/diffstat, fontes/L0/binários e argv. O oráculo é o pin

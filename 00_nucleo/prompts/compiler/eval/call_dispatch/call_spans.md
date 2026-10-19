@@ -3,7 +3,7 @@ Hash do Código: 099dde85
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/call_spans.rs`. No HEAD `d5c563dfab39f789e8e2f72c9a9364f5a761e3ca` e árvore limpa, `01_core/src/compiler/eval/call_dispatch.rs:69-389` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-call-dispatch-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/call_spans.rs`. No HEAD `d5c563dfab39f789e8e2f72c9a9364f5a761e3ca` e árvore limpa, `01_core/src/compiler/eval/call_dispatch.rs:69-389` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-call-dispatch-2026-09-30-before.json.gz`.
 
 ## Contrato
 
@@ -18,7 +18,7 @@ Preservar a suíte L1, os testes de call_dispatch e `crystalline-lint .` com own
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em 00_nucleo/diagnosticos/tekt-ranges-2026-10-16 conserva UTC, fontes/L0, hashes, Cargo manifests/lock/toolchain/config, status e git diff HEAD --stat. A validação anterior, conferida por hashes antes desta etapa, registrou seis V18: quatro em call_spans.rs:52/161/206/226 e dois em watch.rs:287/288. Os L0 atuais e os ramos foram lidos antes da decisão. É estrutura de decisões Rust; as mensagens/spans/rotas são observáveis a preservar, sem nova medição de paridade global.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. before.json.gz em lab/results/construction/diagnostics/tekt-ranges-2026-10-16 conserva UTC, fontes/L0, hashes, Cargo manifests/lock/toolchain/config, status e git diff HEAD --stat. A validação anterior, conferida por hashes antes desta etapa, registrou seis V18: quatro em call_spans.rs:52/161/206/226 e dois em watch.rs:287/288. Os L0 atuais e os ramos foram lidos antes da decisão. É estrutura de decisões Rust; as mensagens/spans/rotas são observáveis a preservar, sem nova medição de paridade global.
 
 A sonda isolada extrai exatamente decode_url_path da fonte e substitui somente sua closure digit no candidato. probe-details.json registra argv/rustc 1.92/SHA-256/UTC/retornos; probe-result.json registra 12 GiB, swap zero, um job e eventos. Compara todos os 256 bytes e 65.536 pares: os 22 bytes hexadecimais ASCII e 484 pares aceitos são iguais. Compara também as duas funções completas nas strings de pares e em 13 controles com saídas exigidas de UTF-8, query, segmentos ponto, truncamento, inválidos, NUL e backslash. Os números são desta sonda, não benchmark de HTTP/RSS. Nenhum dado deriva de main móvel do vanilla.
 

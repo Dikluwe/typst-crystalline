@@ -10,7 +10,7 @@ Hash do Código: 23aa74d0
 `01_core/src/compiler/lang/mod.rs:14` locates `pub mod equation_supplement;`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Static language hub
 

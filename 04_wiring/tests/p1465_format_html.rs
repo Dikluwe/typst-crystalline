@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1465-format-html.md
-//! @prompt-hash b6a6a6d4
+//! @prompt-hash 8901775d
 
 #[path = "../../03_infra/tests/support/wiring/p1465_format_html.rs"]
 mod harness;

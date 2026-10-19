@@ -10,7 +10,7 @@ Hash do Código: 53b8abb9
 `01_core/src/compiler/math/symbols.rs:10` locates `pub fn ident_to_unicode(name: &str) -> Option<&'static str>`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Pure symbol and operator classification
 

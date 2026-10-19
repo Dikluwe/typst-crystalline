@@ -57,12 +57,12 @@ idênticos confirmados via `md5sum`. Comando original:
 for f in 01-markup-plain 02-markup-heading 03-text-styling \
          04-shapes 05-gradient-linear 06-gradient-conic \
          07-multi-feature 08-image-jpeg; do
-  ./target/debug/typst sources/${f}.typ /tmp/r1.pdf
-  ./target/debug/typst sources/${f}.typ /tmp/r2.pdf
+  ./lab/target/product/debug/typst sources/${f}.typ /tmp/r1.pdf
+  ./lab/target/product/debug/typst sources/${f}.typ /tmp/r2.pdf
   diff -q /tmp/r1.pdf /tmp/r2.pdf
 done
 # Fixture 09 requer --font-path
-./target/debug/typst --font-path 03_infra/fixtures/fonts \
+./lab/target/product/debug/typst --font-path 03_infra/fixtures/fonts \
   sources/09-cidfont.typ /tmp/r.pdf
 ```
 

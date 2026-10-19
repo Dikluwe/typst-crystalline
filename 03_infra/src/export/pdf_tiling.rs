@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/pdf_tiling.md
-//! @prompt-hash 9c27abcc
+//! @prompt-hash f41775ed
 //! @layer L3
 
 use std::collections::HashMap;

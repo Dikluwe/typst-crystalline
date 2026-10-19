@@ -36,9 +36,9 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 
 ## Medição anterior à decisão de retenção ratificada
 
-00_nucleo/diagnosticos/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
+lab/results/construction/diagnostics/watch-retencao-2026-10-07.md registra HEAD/árvore/binários/UTC,
 edições reais, recuperação e contagem dinâmica de aquisição por ciclo.
-00_nucleo/diagnosticos/watch-validacao-2026-10-07/measurement.json mede validação por
+lab/results/construction/diagnostics/watch-validacao-2026-10-07/measurement.json mede validação por
 descoberta versus aquisição completa no mesmo estado; controls.json testa adição,
 remoção, substituição, mtime restaurado, links e configuração. São custos isolados,
 não ganho de CLI ou prova de intenção upstream. FontBook/slots/cobertura devem
@@ -48,7 +48,7 @@ regressão ou retenção ilimitada. Fixtures/proveniência/limites constam do re
 
 ### Decisão ratificada sob ADR-0127 §2.1/§2.2
 
-Dono ratificou com Confirmo o pacote 00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: 00_nucleo/diagnosticos/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
+Dono ratificou com Confirmo o pacote lab/history/construction/records/00_nucleo/materialization/watch-catalogo-2026-10-07/manifest.json. Receipt: lab/results/construction/diagnostics/watch-catalogo-execucao-2026-10-07/ratification.json. Cada owner continua 1:1.
 
 ## Builder público da sessão (única assinatura nova deste owner)
 

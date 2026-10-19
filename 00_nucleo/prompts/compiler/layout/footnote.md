@@ -9,7 +9,7 @@ Hash do Código: 38d79bdb
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/footnote.rs:31`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -25,7 +25,7 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/footnote-composicao-2026-09-30/results.json` fixa o
+`lab/results/construction/diagnostics/footnote-composicao-2026-09-30/results.json` fixa o
 vanilla `9f2b6e8715237cb086899a42873660fe744622e8`, o binário cristalino,
 HEAD e árvore não commitada da sonda. Em `defer.typ`, o vanilla coloca a linha
 `Alpha¹ omega.` e a nota na página seguinte; o cristalino deixa a chamada na

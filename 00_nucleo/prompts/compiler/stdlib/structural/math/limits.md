@@ -10,7 +10,7 @@ Núcleos Tekt:
 
 ## Measurement before decision
 
-The uncommitted working tree captured in `00_nucleo/diagnosticos/atomizacao-stdlib-math-restante-2026-09-30-before.json.gz` places this behavior in `01_core/src/compiler/stdlib/structural/math.rs`. The full core baseline passed 6,401 tests with 2 ignored before movement. This is a structural regression baseline, not a new bilateral vanilla measurement or benchmark. Historical language measurements and pin qualifications remain in the parent L0.
+The uncommitted working tree captured in `lab/results/construction/diagnostics/atomizacao-stdlib-math-restante-2026-09-30-before.json.gz` places this behavior in `01_core/src/compiler/stdlib/structural/math.rs`. The full core baseline passed 6,401 tests with 2 ignored before movement. This is a structural regression baseline, not a new bilateral vanilla measurement or benchmark. Historical language measurements and pin qualifications remain in the parent L0.
 
 ## Language contract
 
@@ -29,7 +29,7 @@ Existing core regressions remain green. The full core suite, `cargo build` and `
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
 commitado; pin `9f2b6e8715237cb086899a42873660fe744622e8`.
-`00_nucleo/diagnosticos/native-math-catalogue-2026-10-17/` fixa o estado
+`lab/results/construction/diagnostics/native-math-catalogue-2026-10-17/` fixa o estado
 exato em before.json.gz: UTC, diff HEAD --stat e hashes de todos os consumers,
 L0 e configuração protegidos. before-measurement.json.gz é reutilização
 verificada da matriz final da etapa anterior: fontes e binário Tekt têm

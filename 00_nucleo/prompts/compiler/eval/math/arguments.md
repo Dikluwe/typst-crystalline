@@ -3,7 +3,7 @@ Hash do Código: 8b9fae7b
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/arguments.rs`. No HEAD `e754ab364a221dbe344852178e84bd42b02c463e` e árvore limpa, `01_core/src/compiler/eval/math.rs:10-16,251-575` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-eval-math-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/arguments.rs`. No HEAD `e754ab364a221dbe344852178e84bd42b02c463e` e árvore limpa, `01_core/src/compiler/eval/math.rs:10-16,251-575` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-eval-math-2026-09-30-before.json.gz`.
 
 ## Contrato
 
@@ -15,7 +15,7 @@ A suíte L1 e os testes de math passam; `crystalline-lint .` valida ownership e 
 
 ## Resíduos D07 — medição antes da decisão
 
-`00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/before.json.gz` mostra bare-none, bare-align-left e bare-center
+`lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/before.json.gz` mostra bare-none, bare-align-left e bare-center
 resolvendo por Code/global onde o vanilla pinado produz unknown variable com
 hints matemáticos. code-none e code-align-left são controles positivos.
 `lab/typst-original/crates/typst-library/src/foundations/scope.rs:81–100`
@@ -35,7 +35,7 @@ RED→GREEN de bare-none/left e bilateral dos controles bare/#/local.
 
 ## D07 — refutação de conservação dos tipos locais
 
-`00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/local-refuters-before.json.gz`
+`lab/results/construction/diagnostics/math-residuos-table-cell-2026-10-06/local-refuters-before.json.gz`
 mede local-left/local-none válidos no vanilla e rejeitados como content no Tekt;
 local-auto/local-boolean têm cast error de auto/boolean no vanilla e content no
 Tekt. Essa coleta usa o binário do primeiro reparo, a62789ae46d2dbc3ab9ecd0137a94f3ed18c6d44a2b54869b9b77f600d36cdd5,

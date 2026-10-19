@@ -9,7 +9,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/structural/markup.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/structural/markup.rs:28`, `01_core/src/compiler/stdlib/structural/markup.rs:54`, `01_core/src/compiler/stdlib/structural/markup.rs:78` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/structural/markup.rs:28`, `01_core/src/compiler/stdlib/structural/markup.rs:54`, `01_core/src/compiler/stdlib/structural/markup.rs:78` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 
@@ -31,4 +31,4 @@ content-serialization-2026-10-14/{before,raw-controls}/results.json.gz registra 
 
 native_raw marca block quando Bool lexical e lang quando argumento presente, inclusive none. block:none legado permanece omitido; casts/diagnósticos/arity legados preservados.
 
-Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
+Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em lab/history/construction/records/00_nucleo/materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.

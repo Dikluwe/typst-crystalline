@@ -49,7 +49,7 @@ Preserve existing public contracts, defaults and pipeline phases. Referenced chi
 ### Medição anterior à decisão
 
 `03_infra/src/pipeline/tests.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -64,7 +64,7 @@ observáveis, incluindo os controles de adjacência e os invariantes pinados.
 ## Identidade textual — controles do contrato aprovado
 
 Medição anterior: initial.json, before/resultados.json e red.log em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/` registram
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/` registram
 texto/caixas e a perda de SHY. O dono confirmou o contrato
 `00_nucleo/prompts/entities/layout_types.md`. A compilação de fixtures exaustivas
 exige tratar a variante nova. Projeções visuais descem nos filhos; extractors
@@ -75,7 +75,7 @@ prova que text substituto não altera glyphs/avanços nem contamina o cache.
 
 ## Regressão do PDF/UA no bundle — 2026-09-30
 
-A medição causal em `00_nucleo/diagnosticos/auditoria-composicao-construcao-2026-09-29/probe.json` antecede a decisão: PDF isolado sob UA-1 sem título falha, bundle publica um PDF declarado UA-1 sem título. Adicionar teste integrado com a fixture World existente para exigir, no bundle, o diagnóstico exato de ausência de título e nenhum ficheiro retornado; manter controle de sucesso quando o título está presente e ausência de exigência fora de UA-1. O teste materializa somente a aceitação dos owners `infra/pipeline/pdf.md` e `infra/pipeline/bundle.md`, sem legitimar lógica produtiva por este prompt.
+A medição causal em `lab/results/construction/diagnostics/auditoria-composicao-construcao-2026-09-29/probe.json` antecede a decisão: PDF isolado sob UA-1 sem título falha, bundle publica um PDF declarado UA-1 sem título. Adicionar teste integrado com a fixture World existente para exigir, no bundle, o diagnóstico exato de ausência de título e nenhum ficheiro retornado; manter controle de sucesso quando o título está presente e ausência de exigência fora de UA-1. O teste materializa somente a aceitação dos owners `infra/pipeline/pdf.md` e `infra/pipeline/bundle.md`, sem legitimar lógica produtiva por este prompt.
 
 O controle GREEN usa `title:` nomeado em `#document("one.pdf", title: [Okay])[...]`, pois é o carrier próprio da entrada bundle; `#set document` é uma regra de eval do percurso individual, não a metadata de uma entrada. Conferir que o PDF emitido contém título e identificação UA-1. Um segundo documento sem título não herda o título do primeiro.
 
@@ -107,7 +107,7 @@ Exercitar a fachada paginada com contexto de counter(page).display: padrão/call
 
 ## Snapshot realizado de Page — ratificado em 2026-10-05
 
-Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
+Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
 
 Decisão proposta: aplicar o Núcleo page-counter-snapshot. Esta unidade substitui o scope-out histórico de final apenas após ratificação. Contrato público e realização page-aware de updates exigem gate ADR-0127; não materializar ou ressellar antes da confirmação. Preservar as assinaturas existentes, ciclos e budget; não adivinhar página/total antes do snapshot conhecido.
 
@@ -120,7 +120,7 @@ Sentinelas page_snapshot current/final, callbacks e HTML são RED na CLI/código
 
 Aceitação adicional: estados Page vazios e de vários níveis têm get/final realizados projetados em um nível, incluindo delta físico zero. Oráculo e fonte anteriores à decisão no owner counter_updates.
 
-Ratificação: o humano confirmou o conjunto do manifesto `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
+Ratificação: o humano confirmou o conjunto do manifesto `lab/results/construction/diagnostics/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
 
 A suíte caracteriza a retenção de snapshots nas fixtures de tabela pequena e grande: current/final da compilação retornada têm a mesma geração e finais por ocorrência correspondem ao total realizado. Relatar número de entradas, capacidades e payload reservado por Vec, sem equiparar isso a RSS ou ganho de tempo.
 
@@ -140,16 +140,16 @@ Medição antes da decisão no owner paged, seção Métricas retidas no bidi co
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Envelopes de identidade no pipeline completo
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-implementacao-2026-10-05/verification.json.gz` preserva o primeiro candidato; RTL mixed/LTR numeric ainda coincidem com baseline errado. `pipeline-context.log` registra RED pelo pipeline completo: todas as folhas sem span; `realize/mod.rs:38–44` insere Located em ocorrências. Avaliação direta não exercitava esse envelope. Correção interna: Located é transparente somente para certificação da sua body textual integral, sem ignorar corpos opacos nem alterar registro de Location. Direção lexical e coleta devem atravessar o mesmo envelope. O teste do pipeline exige spans em todas as folhas textuais e ordem RTL com primeiro trecho latino; preservar artefatos do primeiro candidato.
+Medição anterior à decisão: `lab/results/construction/diagnostics/bidi-contexto-implementacao-2026-10-05/verification.json.gz` preserva o primeiro candidato; RTL mixed/LTR numeric ainda coincidem com baseline errado. `pipeline-context.log` registra RED pelo pipeline completo: todas as folhas sem span; `realize/mod.rs:38–44` insere Located em ocorrências. Avaliação direta não exercitava esse envelope. Correção interna: Located é transparente somente para certificação da sua body textual integral, sem ignorar corpos opacos nem alterar registro de Location. Direção lexical e coleta devem atravessar o mesmo envelope. O teste do pipeline exige spans em todas as folhas textuais e ordem RTL com primeiro trecho latino; preservar artefatos do primeiro candidato.
 
 
 ## Face efetiva de TextShaped — materialização ratificada 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+Medição anterior à decisão: `lab/results/construction/diagnostics/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `lab/results/construction/diagnostics/identidade-fonte-shaped-implementacao-2026-10-05/`.
 
 Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
 
@@ -161,7 +161,7 @@ Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity
 
 ### Evidência anterior à decisão
 
-`00_nucleo/diagnosticos/diagnostic-paths-2026-10-06/identity-next-audit.json`
+`lab/results/construction/diagnostics/diagnostic-paths-2026-10-06/identity-next-audit.json`
 conserva comandos, fontes, UTC, HEAD, árvore alterada e hashes dos binários do
 Tekt e do vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8. Os casos
 separam erro/warning do documento de erro da expressão: o documento perde sua
@@ -184,7 +184,7 @@ sem impor uma única passagem de layout ou fixpoint. Conservar origens de
 imports/callbacks e base de read relativa. Fachadas legadas ficam como controles.
 
 Gate ADR-0127 confirmado pelo dono em 2026-10-06 (resposta: confirmo), conforme
-00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
+lab/history/construction/records/00_nucleo/materialization/origem-fontes-expressao-aprovacao-2026-10-06.json.
 Consumer exclusivo preservado; Hash do Código acompanha a materialização.
 
 
@@ -224,7 +224,7 @@ e Worlds isolados existentes; não testar somente chamada de helper/match privad
 
 ## Prova de reuso da Cell local sem numbering — 2026-10-09
 
-Medição: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/layout-call-counts-before.json.gz` registra release, HEAD/árvore/UTC/fixtures/comandos e duas passagens completas para `local-set-1600` contra uma para `no-fill-1600`. `03_infra/src/pipeline/paged.rs:13-53,434-468` liga a diferença à prova estrutural que recusa a receita local e força segundo layout no ciclo de numeração. É custo de mecânica; preservar texto, caixas, páginas e tinta é observável de linguagem.
+Medição: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/layout-call-counts-before.json.gz` registra release, HEAD/árvore/UTC/fixtures/comandos e duas passagens completas para `local-set-1600` contra uma para `no-fill-1600`. `03_infra/src/pipeline/paged.rs:13-53,434-468` liga a diferença à prova estrutural que recusa a receita local e força segundo layout no ciclo de numeração. É custo de mecânica; preservar texto, caixas, páginas e tinta é observável de linguagem.
 
 Testar via fachada paginada que Table local multipágina com `set table.cell(fill: red)` e sem numbering reutiliza o primeiro candidato completo: uma chamada contada no wrapper `cfg(test)`, todas as células e páginas presentes. Um show local capturado mantém duas chamadas; numbering existente continua duas. Não inferir independência de qualquer ShowRecipe ou função arbitrária. Este consumer de testes apenas exerce o contrato do owner `infra/pipeline/paged.md`; não define o algoritmo nem amplia API/fase/default.
 
@@ -232,7 +232,7 @@ Testar via fachada paginada que Table local multipágina com `set table.cell(fil
 
 ### Medição anterior à decisão
 
-`03_infra/src/pipeline/tests.rs` nas linhas 1492 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+`03_infra/src/pipeline/tests.rs` nas linhas 1492 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
 
 ### Decisão e aceitação
 
@@ -261,7 +261,7 @@ workspace, gate de lint, build e linhagem com resselo restrito.
 
 ### Medição anterior à decisão
 
-03_infra/src/pipeline/tests.rs:388 (clippy::redundant_guards). O snapshot `00_nucleo/diagnosticos/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
+03_infra/src/pipeline/tests.rs:388 (clippy::redundant_guards). O snapshot `lab/results/construction/diagnostics/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -274,7 +274,7 @@ Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependênc
 
 ### Medição anterior à decisão
 
-F067: 03_infra/src/pipeline/tests.rs:750 (frame_items_text); F068: 03_infra/src/pipeline/tests.rs:764 (contains_bold_text). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F067: 03_infra/src/pipeline/tests.rs:750 (frame_items_text); F068: 03_infra/src/pipeline/tests.rs:764 (contains_bold_text). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 
@@ -297,7 +297,7 @@ Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets c
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`lab/results/construction/diagnostics/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
 `morph-before-measurement.json.gz` e `audit.json` conservam HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
 fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
@@ -333,7 +333,7 @@ Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length 
 ### Medição anterior à decisão
 
 HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fonte produtiva limpa;
-00_nucleo/diagnosticos/context-paridade-2026-10-18/before.json.gz contém
+lab/results/construction/diagnostics/context-paridade-2026-10-18/before.json.gz contém
 UTC, argv, diffstat e SHA dos executáveis. Build novo em baseline-build-resources.json;
 freeze completo em before-sources.json.gz. Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Sondas global/local devolvem A/A no Tekt contra R/L; criação antes da regra,
@@ -368,7 +368,7 @@ textuais pertencem à correção interna desta revisão; identidade pede seu esc
 
 ### Medição anterior à decisão e gate
 
-before.json.gz em 00_nucleo/diagnosticos/context-paridade-2026-10-18 conserva
+before.json.gz em lab/results/construction/diagnostics/context-paridade-2026-10-18 conserva
 HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fontes, UTC, diffstat, argv e
 SHA dos binários; baseline-build-resources.json contém a receita nova. Vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. Duas equações dão EQ EQ Q1/Q2;
@@ -381,7 +381,7 @@ mas não exige copiar representação, vtables ou algoritmo.
 Hipótese de colisão será refutada por falha de contagem, alias, callback ou replay.
 
 O humano aprovou a proposta review.md sob
-00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
+lab/history/construction/records/00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
 500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388;
 recibo approval-receipt.json no mesmo diretório. Gate ADR-0127 §2.1 satisfeito
 para a API aditiva especificada. Não autoriza mudança de fase ou API alheia.
@@ -398,7 +398,7 @@ antes do código, conservar todos os controles textuais e a suíte precedente.
 ### Delimitação medida dos controles de replay — 2026-10-18
 
 `green-occurrences1.log`/recibo e `occurrences-candidate1-sources.json.gz`
-em 00_nucleo/diagnosticos/context-paridade-2026-10-18 preservam sete controles
+em lab/results/construction/diagnostics/context-paridade-2026-10-18 preservam sete controles
 aprovados e três falhas. 00_nucleo/prompts/infra/pipeline/context_stabilization.md:29–32 conserva
 contribuições não selecionadas; implementação: selecionar apenas leituras efetivas
 de filtered-counter/posição HTML, laço de validação ignora os demais produtores.

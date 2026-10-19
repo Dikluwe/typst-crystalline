@@ -13,7 +13,7 @@ Exclusive consumer: `01_core/src/compiler/eval/syntax_diagnostics.rs`
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/import-syntax-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/import-syntax-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0 e hashes; 2125 hashes do fechamento anterior
 foram conferidos. before-probe.json.gz guarda as sondas bilaterais com fixtures,
 argv, saídas e binários; before-context-probe mede oito perfis e bundle real.

@@ -1,5 +1,5 @@
 # Prompt L0 — entities/lang
-Hash do Código: af93146b
+Hash do Código: 2e8f09dc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/lang.rs`
@@ -19,7 +19,7 @@ newtype compacto (3 bytes ASCII padded + length discriminator),
 Copy, zero alocação.
 
 Diagnóstico prévio:
-`00_nucleo/diagnosticos/diagnostico-lang-passo-131a.md`.
+`lab/results/construction/diagnostics/diagnostico-lang-passo-131a.md`.
 
 ## Interface pública
 

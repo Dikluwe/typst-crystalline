@@ -42,7 +42,7 @@ Existing tests cover Latin identity, Arabic/mixed visual order, real widths, whi
 ### Medição anterior à decisão
 
 `03_infra/src/layout_bidi.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -59,7 +59,7 @@ observáveis, incluindo os controles de adjacência e os invariantes pinados.
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -74,7 +74,7 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 ## Sufixos RTL em múltiplas linhas — 2026-10-05
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/rtl-numeros-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree integral, UTC, binários e doze controles CLI. Oito grupos numerados colados coincidem; doze extraem 10 antes de 8/9 no Tekt, contra sequência no vanilla pinado; o controle com números separados coincide. Em `layout_bidi.rs:411–422,467–486`, inserir sufixo na primeira linha desloca índices das outras linhas sem atualizá-los. Isso pode separar o texto errado na linha seguinte (inferência refutada por teste causal que preserve a associação texto/baseline). A intenção histórica é separar sufixos, não inferida como autorização para perder linhas. Paridade é texto e posições; vetor e estratégia de índices são mecânica interna.
+Medição anterior à decisão: `lab/results/construction/diagnostics/rtl-numeros-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree integral, UTC, binários e doze controles CLI. Oito grupos numerados colados coincidem; doze extraem 10 antes de 8/9 no Tekt, contra sequência no vanilla pinado; o controle com números separados coincide. Em `layout_bidi.rs:411–422,467–486`, inserir sufixo na primeira linha desloca índices das outras linhas sem atualizá-los. Isso pode separar o texto errado na linha seguinte (inferência refutada por teste causal que preserve a associação texto/baseline). A intenção histórica é separar sufixos, não inferida como autorização para perder linhas. Paridade é texto e posições; vetor e estratégia de índices são mecânica interna.
 
 Decisão interna ADR-0127, L0 primeiro e RED→GREEN: congelar os índices originais elegíveis de todas as linhas RTL e processar inserções por índice original decrescente. Não reutilizar índices de outras linhas após mutação. Esse ordenamento protege as referências ainda não processadas independentemente de x, y ou ordem dos clusters. Os índices locais são privados e descartáveis após a separação. Preservar associação de cada base/sufixo com estilo e baseline originais, trailing whitespace e equação x_base−suffix_width existentes. Não alterar wrapping, ordem das fases, assinaturas públicas ou shaping. Corrigir somente validade das referências durante inserções; não prometer geometria universal RTL.
 
@@ -88,11 +88,11 @@ Esta cláusula supersede somente a equação anterior de separação: conservar 
 
 ## Migração do carrier bidi ratificado (2026-10-05)
 
-Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+Medição anterior à decisão: o inventário `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
 
 ## Contexto integral bidi ratificado — 2026-10-05
 
-Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
+Medição anterior à decisão: o lote bilateral e a refutação Unicode estão em `lab/results/construction/diagnostics/bidi-contexto-2026-10-05/{initial,probe}.json.gz`, com fontes/estado/binários. `layout_bidi.rs:73–82,227–240` redetecta base e inventa separadores; `shaper/bidi.rs:34` redetecta o fragmento; isto perde a entrada integral ratificada pelo humano. Correção interna de paridade, sem nova fase/assinatura pública externa.
 
 Para spans certificados, usar registry proprietário local de strings auxiliares e mapas por input Arc, depois views BidiInfo emprestadas normais; não usar unsafe/self-reference. Embeddings virtuais LRE/RLE/PDF só quando dir do segmento difere da base; espaços reais e Linebreak não justificado LF (justify=true fora do certificado). Não retirar controles autorais. Resolver uma vez por input em cada registry; o pipeline paginado compartilha registry/views entre reorder e shape. Wrappers públicos existentes podem construir registry local.
 
@@ -108,7 +108,7 @@ Folhas Text de range vazio preservam posição/estilo/span e efeitos causais; n�
 ### Medição anterior à decisão
 
 `03_infra/src/layout_bidi.rs` nas linhas [572] apresenta os avisos selecionados.
-`00_nucleo/diagnosticos/ci-helpers-testes-2026-10-14/before.json.gz`
+`lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/before.json.gz`
 conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
 references-before.json.gz registra chamadas, imports, módulos e referências;
 o estado da suíte/inventário anterior foi verificado por hashes. A lista de
@@ -132,7 +132,7 @@ testes que apenas espelhem cfg ou remoção de bindings. Resselo restrito ao own
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -141,7 +141,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 

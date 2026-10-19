@@ -24,6 +24,8 @@ jobs:
       - name: Install pinned Rust toolchain
         run: rustup show active-toolchain
       - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: ". -> lab/target/product"
       - name: Install linter used by integration tests
         run: cargo install --locked --git https://github.com/Dikluwe/tekt-linter --rev 12797073972e375d9ab078cf6750c8b30b71e2b9 crystalline-lint
       - name: Install Linux export observers
@@ -35,19 +37,19 @@ jobs:
         with:
           repository: typst/typst
           ref: bd5ebec285505889e8ff1d4f68804ab147a699f3
-          path: .ci-oracle
+          path: lab/ci-oracle
           persist-credentials: false
       - name: Build and record pinned oracle
         if: runner.os == 'Linux'
         run: |
-          python3 tools/ci/build_oracle.py --source .ci-oracle --receipt oracle-build.json
-          echo "TYPST_VANILLA=$GITHUB_WORKSPACE/.ci-oracle/target/release/typst" >> "$GITHUB_ENV"
+          python3 lab/tools/ci/build_oracle.py --source lab/ci-oracle --receipt lab/results/oracle-build.json
+          echo "TYPST_VANILLA=$GITHUB_WORKSPACE/lab/ci-oracle/target/release/typst" >> "$GITHUB_ENV"
       - name: Preserve oracle provenance
         if: ${{ !cancelled() && runner.os == 'Linux' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: oracle-provenance
-          path: oracle-build.json
+          path: lab/results/oracle-build.json
           if-no-files-found: error
       - run: cargo build --workspace --all-targets --locked
       # Export contract fixtures explicitly require Linux tmpfs in their L0.
@@ -64,6 +66,8 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - run: rustup component add clippy rustfmt
       - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: ". -> lab/target/product"
       - run: cargo clippy --locked --workspace --all-targets -- -D warnings
       - if: ${{ !cancelled() }}
         run: cargo fmt --check --all
@@ -88,22 +92,28 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - run: rustup show active-toolchain
       - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: ". -> lab/target/product"
       - name: Install published, pinned Tekt linter
         run: cargo install --locked --git https://github.com/Dikluwe/tekt-linter --rev 12797073972e375d9ab078cf6750c8b30b71e2b9 crystalline-lint
-      - run: python3 -m unittest discover -s tools/ci
+      - name: Check mature repository layout and links
+        run: python3 lab/tools/ci/check_mature_layout.py
+      - run: python3 -m unittest discover -s lab/tools/ci
       - name: Architecture report
-        run: crystalline-lint . --format sarif > lineage.sarif
+        run: |
+          mkdir -p lab/results
+          crystalline-lint . --format sarif > lab/results/lineage.sarif
       - name: Strict forward lineage, ownership and nuclei
         if: ${{ !cancelled() }}
         run: crystalline-lint . --checks v1,v5,v15,v26 --fail-on warning
       - name: Strict reverse lineage
         if: ${{ !cancelled() }}
-        run: python3 tools/ci/check_reverse_lineage.py
+        run: python3 lab/tools/ci/check_reverse_lineage.py
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ !cancelled() }}
         with:
           name: tekt-lineage
-          path: lineage.sarif
+          path: lab/results/lineage.sarif
           if-no-files-found: error
 
   tests:

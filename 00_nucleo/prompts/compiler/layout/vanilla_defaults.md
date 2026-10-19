@@ -9,7 +9,7 @@ Hash do Código: f9f664e8
 
 The current consumer implements the operations specified below at `lab/typst-original/crates/typst-library/src/model/par.rs:210`, `lab/typst-original/crates/typst-library/src/model/par.rs:224`, `lab/typst-original/crates/typst-library/src/layout/container.rs:348`, `01_core/src/compiler/layout/vanilla_defaults.rs:14`, `01_core/src/compiler/layout/vanilla_defaults.rs:18`, `01_core/src/compiler/layout/vanilla_defaults.rs:23`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 

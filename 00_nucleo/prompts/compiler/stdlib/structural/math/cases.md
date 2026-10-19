@@ -7,7 +7,7 @@ Hash do Código: 36dd7dcc
 
 ## Measurement before decision
 
-At the uncommitted working tree captured in `00_nucleo/diagnosticos/atomizacao-stdlib-math-cases-2026-09-30-before.json.gz`, `01_core/src/compiler/stdlib/structural/math.rs:724-942` contains `MathCasesOptions`, delimiter cast/matching, option application, child conversion and the native. `math/matrix.rs:20,131` consumes the same delimiter cast. The `p1430` test filter passed 22 tests before movement. This is a structural regression baseline, not a timing result or a new bilateral vanilla measurement.
+At the uncommitted working tree captured in `lab/results/construction/diagnostics/atomizacao-stdlib-math-cases-2026-09-30-before.json.gz`, `01_core/src/compiler/stdlib/structural/math.rs:724-942` contains `MathCasesOptions`, delimiter cast/matching, option application, child conversion and the native. `math/matrix.rs:20,131` consumes the same delimiter cast. The `p1430` test filter passed 22 tests before movement. This is a structural regression baseline, not a timing result or a new bilateral vanilla measurement.
 
 ## Language contract
 

@@ -1,0 +1,723 @@
+{
+  "utc": "2026-10-06T02:18:04.278219+00:00",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "diff_stat": " 00_nucleo/prompts/compiler/columns.md              |   9 +-\n 00_nucleo/prompts/compiler/eval.md                 |  85 +++++-\n .../eval/bindings/field_access/content_methods.md  |  12 +-\n .../prompts/compiler/eval/observation/content.md   |   7 +-\n 00_nucleo/prompts/compiler/eval/repr/content.md    |   7 +-\n 00_nucleo/prompts/compiler/eval/rules.md           |  12 +-\n 00_nucleo/prompts/compiler/eval/rules/apply.md     |  37 ++-\n 00_nucleo/prompts/compiler/eval/rules/outline.md   |  12 +-\n 00_nucleo/prompts/compiler/eval/rules/textual.md   |  22 +-\n .../compiler/eval/rules/textual/matching.md        |  12 +-\n .../prompts/compiler/eval/rules/textual/space.md   |  27 +-\n .../prompts/compiler/eval/selector_matching.md     |   7 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |  42 ++-\n .../prompts/compiler/footnote_overflow_columns.md  |  20 +-\n 00_nucleo/prompts/compiler/introspect.md           |   7 +-\n .../prompts/compiler/introspect/classification.md  |   7 +-\n .../prompts/compiler/introspect/entrypoints.md     |  14 +-\n .../prompts/compiler/introspect/extract_payload.md |   7 +-\n 00_nucleo/prompts/compiler/introspect/from_tags.md |   7 +-\n .../introspect/from_tags/counter_updates.md        |  53 +++-\n 00_nucleo/prompts/compiler/introspect/locatable.md |   7 +-\n .../compiler/introspect/materialize_time.md        |   7 +-\n 00_nucleo/prompts/compiler/introspect/queries.md   |  27 +-\n 00_nucleo/prompts/compiler/introspect/walk.md      |  42 ++-\n 00_nucleo/prompts/compiler/layout.md               |  54 +++-\n 00_nucleo/prompts/compiler/layout/checkpoint.md    |  25 +-\n 00_nucleo/prompts/compiler/layout/cursor.md        |  18 +-\n 00_nucleo/prompts/compiler/layout/enum_item.md     |   9 +-\n 00_nucleo/prompts/compiler/layout/equation.md      |  20 +-\n 00_nucleo/prompts/compiler/layout/finish.md        |   9 +-\n 00_nucleo/prompts/compiler/layout/grid.md          |   7 +-\n .../prompts/compiler/layout/grid/cell_body.md      |   7 +-\n .../prompts/compiler/layout/grid/cell_emission.md  |   7 +-\n 00_nucleo/prompts/compiler/layout/grid/tracks.md   |   7 +-\n 00_nucleo/prompts/compiler/layout/helpers.md       |  30 +-\n 00_nucleo/prompts/compiler/layout/line_commit.md   |  18 +-\n 00_nucleo/prompts/compiler/layout/linebreak.md     |  17 +-\n 00_nucleo/prompts/compiler/layout/link.md          |   8 +-\n 00_nucleo/prompts/compiler/layout/list_item.md     |   9 +-\n 00_nucleo/prompts/compiler/layout/measurement.md   |  12 +-\n 00_nucleo/prompts/compiler/layout/page_commit.md   |   8 +-\n 00_nucleo/prompts/compiler/layout/paragraph.md     |  34 ++-\n .../prompts/compiler/layout/paragraph_emit.md      |   8 +-\n .../prompts/compiler/layout/paragraph_plan.md      |  10 +\n 00_nucleo/prompts/compiler/layout/parbreak.md      |   9 +-\n 00_nucleo/prompts/compiler/layout/place.md         |  20 +-\n 00_nucleo/prompts/compiler/layout/sequence.md      |  28 +-\n 00_nucleo/prompts/compiler/layout/slicing.md       |  20 +-\n 00_nucleo/prompts/compiler/layout/space.md         |  22 +-\n 00_nucleo/prompts/compiler/layout/stack.md         |   8 +-\n 00_nucleo/prompts/compiler/layout/sub_frame.md     |  29 +-\n 00_nucleo/prompts/compiler/layout/tests.md         |  20 +-\n 00_nucleo/prompts/compiler/layout/text.md          |  16 +-\n 00_nucleo/prompts/compiler/layout/text_tracking.md |   8 +-\n 00_nucleo/prompts/compiler/layout/word_layout.md   |  16 +-\n 00_nucleo/prompts/compiler/math/layout/_comum.md   |  20 +-\n .../compiler/math/layout/external_bridge.md        |   9 +-\n 00_nucleo/prompts/compiler/math/layout/spacing.md  |   7 +-\n 00_nucleo/prompts/compiler/math/layout/tests.md    |   8 +-\n 00_nucleo/prompts/compiler/mod.md                  |   7 +-\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  18 +-\n .../prompts/compiler/stdlib/counter/display.md     |  39 ++-\n .../compiler/stdlib/counter/filtered_reads.md      |  30 +-\n 00_nucleo/prompts/entities/content.md              |  19 +-\n 00_nucleo/prompts/entities/content/emptiness.md    |   7 +-\n 00_nucleo/prompts/entities/content/equality.md     |   7 +-\n 00_nucleo/prompts/entities/content/fields.md       |   7 +-\n 00_nucleo/prompts/entities/content/identity.md     |  12 +-\n 00_nucleo/prompts/entities/content/morphology.md   |   7 +-\n .../prompts/entities/content/page-structure.md     |   7 +-\n 00_nucleo/prompts/entities/content/plain-text.md   |   7 +-\n 00_nucleo/prompts/entities/content/rust-hash.md    |   7 +-\n 00_nucleo/prompts/entities/content/traversal.md    |  27 +-\n 00_nucleo/prompts/entities/counter_registry.md     |  31 +-\n 00_nucleo/prompts/entities/font_book.md            |  35 ++-\n 00_nucleo/prompts/entities/introspector.md         |  20 +-\n 00_nucleo/prompts/entities/layout_types.md         | 137 ++++++++-\n 00_nucleo/prompts/entities/locator.md              |   7 +-\n 00_nucleo/prompts/entities/mod.md                  |  14 +-\n 00_nucleo/prompts/entities/module.md               |  39 ++-\n 00_nucleo/prompts/entities/source-result.md        |   7 +-\n 00_nucleo/prompts/entities/state_registry.md       |  27 +-\n 00_nucleo/prompts/infra.md                         |  15 +-\n 00_nucleo/prompts/infra/export/builder.md          |  21 +-\n 00_nucleo/prompts/infra/export/builder/fonts.md    |  21 +-\n 00_nucleo/prompts/infra/export/fonts.md            |  20 +-\n 00_nucleo/prompts/infra/export/html/document.md    |   7 +-\n 00_nucleo/prompts/infra/export/html/inline.md      |   7 +-\n 00_nucleo/prompts/infra/export/render.md           |  20 +-\n 00_nucleo/prompts/infra/export/stream.md           |  27 +-\n 00_nucleo/prompts/infra/export/stream/draw.md      |  20 +-\n 00_nucleo/prompts/infra/export/stream/text.md      |  27 +-\n 00_nucleo/prompts/infra/export/stream/text/runs.md |  21 +-\n .../infra/export/stream/text_replacement.md        |   8 +-\n 00_nucleo/prompts/infra/export/svg.md              |  28 +-\n 00_nucleo/prompts/infra/export/svg/groups.md       |  12 +-\n 00_nucleo/prompts/infra/export/svg/navigation.md   |  10 +-\n 00_nucleo/prompts/infra/export/svg/tests.md        |  21 +-\n 00_nucleo/prompts/infra/export/tests/mod.md        |  21 +-\n .../export/tests/p1481_pdfua_structure_tests.md    |   9 +-\n 00_nucleo/prompts/infra/integration_tests.md       |   8 +-\n 00_nucleo/prompts/infra/layout_bidi.md             |  34 ++-\n 00_nucleo/prompts/infra/pipeline.md                |  31 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  19 +-\n .../infra/pipeline/context_stabilization.md        |  63 +++-\n 00_nucleo/prompts/infra/pipeline/html.md           |  17 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |  95 +++++-\n 00_nucleo/prompts/infra/pipeline/pdf.md            |  14 +-\n 00_nucleo/prompts/infra/pipeline/raster.md         |   7 +-\n 00_nucleo/prompts/infra/pipeline/resources.md      |  14 +-\n 00_nucleo/prompts/infra/pipeline/svg.md            |   7 +-\n 00_nucleo/prompts/infra/pipeline/tests.md          |  87 +++++-\n 00_nucleo/prompts/infra/query-helpers.md           |  22 +-\n 00_nucleo/prompts/infra/shaper.md                  |  14 +-\n 00_nucleo/prompts/infra/shaper/bidi.md             |  13 +\n 00_nucleo/prompts/infra/shaper/cache.md            |   6 +-\n 00_nucleo/prompts/infra/shaper/reconciliation.md   |  14 +-\n 00_nucleo/prompts/infra/shaper/shaping.md          |  36 ++-\n 00_nucleo/prompts/infra/shaper/tests.md            |  20 +-\n 00_nucleo/prompts/infra/shaper/traversal.md        |  18 +-\n 00_nucleo/prompts/world-types.md                   |   7 +-\n .../eval/bindings/field_access/content_methods.rs  |  31 +-\n 01_core/src/compiler/eval/mod.rs                   |  80 ++---\n 01_core/src/compiler/eval/observation/content.rs   |  23 +-\n 01_core/src/compiler/eval/repr/content.rs          |   7 +-\n 01_core/src/compiler/eval/rules.rs                 |   8 +-\n 01_core/src/compiler/eval/rules/apply.rs           |  42 ++-\n 01_core/src/compiler/eval/rules/outline.rs         |  27 +-\n 01_core/src/compiler/eval/rules/textual.rs         |  64 +++-\n .../src/compiler/eval/rules/textual/matching.rs    |  13 +-\n 01_core/src/compiler/eval/rules/textual/space.rs   |  17 +-\n 01_core/src/compiler/eval/selector_matching.rs     |  10 +-\n 01_core/src/compiler/eval/tests.rs                 | 194 +++++++++++-\n 01_core/src/compiler/introspect.rs                 |   6 +-\n 01_core/src/compiler/introspect/classification.rs  |   7 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  17 +-\n 01_core/src/compiler/introspect/extract_payload.rs |   6 +-\n 01_core/src/compiler/introspect/from_tags.rs       |   4 +-\n .../introspect/from_tags/counter_updates.rs        | 227 +++++++++++++-\n 01_core/src/compiler/introspect/locatable.rs       |   6 +-\n .../src/compiler/introspect/materialize_time.rs    |  13 +-\n 01_core/src/compiler/introspect/queries.rs         |  10 +-\n 01_core/src/compiler/introspect/walk.rs            | 106 ++++++-\n 01_core/src/compiler/layout/checkpoint.rs          |  17 +-\n 01_core/src/compiler/layout/columns.rs             |   4 +-\n 01_core/src/compiler/layout/cursor.rs              |  14 +-\n 01_core/src/compiler/layout/enum_item.rs           |   4 +-\n 01_core/src/compiler/layout/equation.rs            |  16 +-\n 01_core/src/compiler/layout/finish.rs              |   6 +-\n 01_core/src/compiler/layout/footnote_flush.rs      |  12 +-\n 01_core/src/compiler/layout/grid.rs                |   8 +-\n 01_core/src/compiler/layout/grid/cell_body.rs      |  13 +-\n 01_core/src/compiler/layout/grid/cell_emission.rs  |   6 +-\n 01_core/src/compiler/layout/grid/tracks.rs         |  23 +-\n 01_core/src/compiler/layout/helpers.rs             |  49 ++-\n 01_core/src/compiler/layout/line_commit.rs         |  19 +-\n 01_core/src/compiler/layout/linebreak.rs           |   5 +-\n 01_core/src/compiler/layout/link.rs                |   6 +-\n 01_core/src/compiler/layout/list_item.rs           |   4 +-\n 01_core/src/compiler/layout/measurement.rs         |  33 +-\n 01_core/src/compiler/layout/mod.rs                 |  76 ++++-\n 01_core/src/compiler/layout/page_commit.rs         |   4 +-\n 01_core/src/compiler/layout/paragraph.rs           | 289 +++++++++++++++++-\n 01_core/src/compiler/layout/paragraph_emit.rs      |   4 +-\n 01_core/src/compiler/layout/paragraph_plan.rs      |   2 +-\n 01_core/src/compiler/layout/parbreak.rs            |   4 +-\n 01_core/src/compiler/layout/place.rs               |  12 +-\n 01_core/src/compiler/layout/sequence.rs            |  26 +-\n 01_core/src/compiler/layout/slicing.rs             |  14 +-\n 01_core/src/compiler/layout/space.rs               |  27 +-\n 01_core/src/compiler/layout/stack.rs               |   4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |  27 +-\n 01_core/src/compiler/layout/tests.rs               | 159 ++++++++--\n 01_core/src/compiler/layout/text.rs                |  15 +-\n 01_core/src/compiler/layout/text_tracking.rs       |  12 +-\n 01_core/src/compiler/layout/word_layout.rs         |   4 +-\n .../src/compiler/math/layout/external_bridge.rs    |   4 +-\n 01_core/src/compiler/math/layout/mod.rs            |  16 +-\n 01_core/src/compiler/math/layout/spacing.rs        |   7 +-\n 01_core/src/compiler/math/layout/tests.rs          |   6 +-\n 01_core/src/compiler/mod.rs                        |   5 +-\n 01_core/src/compiler/stdlib/counter.rs             |  11 +-\n 01_core/src/compiler/stdlib/counter/display.rs     |  18 +-\n .../src/compiler/stdlib/counter/filtered_reads.rs  |  11 +-\n 01_core/src/entities/content.rs                    |  33 +-\n 01_core/src/entities/content/emptiness.rs          |   7 +-\n 01_core/src/entities/content/equality.rs           |  10 +-\n 01_core/src/entities/content/fields.rs             |   7 +-\n 01_core/src/entities/content/identity.rs           |  10 +-\n 01_core/src/entities/content/morphology.rs         |   7 +-\n 01_core/src/entities/content/page_structure.rs     |   7 +-\n 01_core/src/entities/content/plain_text.rs         |   7 +-\n 01_core/src/entities/content/rust_hash.rs          |   7 +-\n 01_core/src/entities/content/traversal.rs          |  39 ++-\n 01_core/src/entities/counter_registry.rs           |  25 +-\n 01_core/src/entities/font_book.rs                  |  32 +-\n 01_core/src/entities/introspector.rs               |   5 +-\n 01_core/src/entities/layout_types.rs               |  18 +-\n 01_core/src/entities/locator.rs                    |  13 +-\n 01_core/src/entities/mod.rs                        |   3 +-\n 01_core/src/entities/module.rs                     |  49 ++-\n 01_core/src/entities/source_result.rs              |   6 +-\n 01_core/src/entities/state_registry.rs             |  16 +-\n 01_core/src/entities/world_types.rs                |  11 +-\n 03_infra/src/export/builder.rs                     |  16 +-\n 03_infra/src/export/builder/fonts.rs               |  31 +-\n 03_infra/src/export/fonts.rs                       |   8 +-\n 03_infra/src/export/html/document.rs               |  17 +-\n 03_infra/src/export/html/inline.rs                 |   7 +-\n 03_infra/src/export/mod.rs                         |   8 +\n 03_infra/src/export/render.rs                      |  28 +-\n 03_infra/src/export/stream.rs                      |  25 +-\n 03_infra/src/export/stream/draw.rs                 |  34 +--\n 03_infra/src/export/stream/text.rs                 |  52 ++--\n 03_infra/src/export/stream/text/runs.rs            |  24 +-\n 03_infra/src/export/stream/text_replacement.rs     |   6 +-\n 03_infra/src/export/svg.rs                         |  13 +-\n 03_infra/src/export/svg/glyphs.rs                  |  16 +-\n 03_infra/src/export/svg/groups.rs                  |   6 +-\n 03_infra/src/export/svg/navigation.rs              |   6 +-\n 03_infra/src/export/svg/tests.rs                   |   4 +-\n 03_infra/src/export/tests/mod.rs                   |  32 +-\n .../export/tests/p1481_pdfua_structure_tests.rs    |   4 +-\n 03_infra/src/integration_tests.rs                  |  12 +-\n 03_infra/src/layout_bidi.rs                        | 339 +++++++++++++++++----\n 03_infra/src/lib.rs                                |   3 +-\n 03_infra/src/pipeline.rs                           |  22 +-\n 03_infra/src/pipeline/bundle.rs                    |  29 +-\n 03_infra/src/pipeline/context_stabilization.rs     | 314 ++++++++++++-------\n 03_infra/src/pipeline/html.rs                      |  11 +-\n 03_infra/src/pipeline/paged.rs                     | 170 ++++++++---\n 03_infra/src/pipeline/pdf.rs                       |   4 +-\n 03_infra/src/pipeline/raster.rs                    |   4 +-\n 03_infra/src/pipeline/resources.rs                 |  33 +-\n 03_infra/src/pipeline/svg.rs                       |   4 +-\n 03_infra/src/pipeline/tests.rs                     | 276 ++++++++++++++++-\n 03_infra/src/query_helpers.rs                      |  41 ++-\n 03_infra/src/shaper.rs                             |   4 +-\n 03_infra/src/shaper/bidi.rs                        |   2 +-\n 03_infra/src/shaper/cache.rs                       |   4 +-\n 03_infra/src/shaper/reconciliation.rs              |   7 +-\n 03_infra/src/shaper/shaping.rs                     |  14 +-\n 03_infra/src/shaper/tests.rs                       |  59 ++--\n 03_infra/src/shaper/traversal.rs                   |  85 +++++-\n 244 files changed, 5426 insertions(+), 999 deletions(-)\n",
+  "binaries": {
+    "before": "3159634c96c3008ffd2b904d2d6a0f3b5ac439717c71b708673eee20e1f8a8ee",
+    "after": "6ffe35c209c9de6c0febc6a0eafd8a4123d8acc44a768407f2ea4c9ff4d67f27",
+    "vanilla": "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea"
+  },
+  "cases": {
+    "grid4": {
+      "source": "#table(columns: 2,[cell 0],[cell 1],[cell 2],[cell 3])",
+      "commands": {
+        "before": [
+          "/tmp/tekt-font-bound/typst-before",
+          "compile",
+          "/tmp/tekt-font-bound/bench-grid4.typ",
+          "/tmp/tekt-font-bound/bench-grid4-before.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ],
+        "after": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "/tmp/tekt-font-bound/bench-grid4.typ",
+          "/tmp/tekt-font-bound/bench-grid4-after.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ],
+        "vanilla": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "/tmp/tekt-font-bound/bench-grid4.typ",
+          "/tmp/tekt-font-bound/bench-grid4-vanilla.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ]
+      },
+      "samples_ms": {
+        "before": [
+          155.557273,
+          158.312337,
+          158.000035,
+          158.666065,
+          159.96507,
+          174.667876,
+          166.61005,
+          176.284423,
+          164.66445,
+          165.694286,
+          164.092366,
+          162.779875,
+          163.969167,
+          161.198464,
+          165.540941
+        ],
+        "after": [
+          154.965431,
+          161.011927,
+          158.978846,
+          162.37344,
+          163.724833,
+          170.489455,
+          176.511926,
+          171.453948,
+          171.682053,
+          164.017146,
+          167.40124,
+          162.078651,
+          162.737185,
+          159.997941,
+          164.854764
+        ],
+        "vanilla": [
+          132.993606,
+          134.41004,
+          130.956938,
+          132.230928,
+          130.755313,
+          145.81934,
+          144.044951,
+          142.314191,
+          133.814382,
+          138.622665,
+          136.868593,
+          133.91529,
+          134.037247,
+          133.701772,
+          133.634276
+        ]
+      },
+      "paired_rounds": [
+        {
+          "after": 154.965431,
+          "before": 155.557273,
+          "vanilla": 132.993606
+        },
+        {
+          "before": 158.312337,
+          "vanilla": 134.41004,
+          "after": 161.011927
+        },
+        {
+          "before": 158.000035,
+          "after": 158.978846,
+          "vanilla": 130.956938
+        },
+        {
+          "vanilla": 132.230928,
+          "before": 158.666065,
+          "after": 162.37344
+        },
+        {
+          "vanilla": 130.755313,
+          "before": 159.96507,
+          "after": 163.724833
+        },
+        {
+          "after": 170.489455,
+          "vanilla": 145.81934,
+          "before": 174.667876
+        },
+        {
+          "after": 176.511926,
+          "vanilla": 144.044951,
+          "before": 166.61005
+        },
+        {
+          "vanilla": 142.314191,
+          "after": 171.453948,
+          "before": 176.284423
+        },
+        {
+          "after": 171.682053,
+          "before": 164.66445,
+          "vanilla": 133.814382
+        },
+        {
+          "after": 164.017146,
+          "vanilla": 138.622665,
+          "before": 165.694286
+        },
+        {
+          "before": 164.092366,
+          "vanilla": 136.868593,
+          "after": 167.40124
+        },
+        {
+          "before": 162.779875,
+          "after": 162.078651,
+          "vanilla": 133.91529
+        },
+        {
+          "before": 163.969167,
+          "vanilla": 134.037247,
+          "after": 162.737185
+        },
+        {
+          "vanilla": 133.701772,
+          "after": 159.997941,
+          "before": 161.198464
+        },
+        {
+          "vanilla": 133.634276,
+          "before": 165.540941,
+          "after": 164.854764
+        }
+      ],
+      "median_ms": {
+        "before": 163.969167,
+        "after": 163.724833,
+        "vanilla": 133.91529
+      },
+      "paired_delta_median_ms": -0.591842000000014,
+      "paired_delta_range_ms": [
+        -4.830475000000007,
+        9.901875999999987
+      ]
+    },
+    "grid320": {
+      "source": "#table(columns: 8,[cell 0],[cell 1],[cell 2],[cell 3],[cell 4],[cell 5],[cell 6],[cell 7],[cell 8],[cell 9],[cell 10],[cell 11],[cell 12],[cell 13],[cell 14],[cell 15],[cell 16],[cell 17],[cell 18],[cell 19],[cell 20],[cell 21],[cell 22],[cell 23],[cell 24],[cell 25],[cell 26],[cell 27],[cell 28],[cell 29],[cell 30],[cell 31],[cell 32],[cell 33],[cell 34],[cell 35],[cell 36],[cell 37],[cell 38],[cell 39],[cell 40],[cell 41],[cell 42],[cell 43],[cell 44],[cell 45],[cell 46],[cell 47],[cell 48],[cell 49],[cell 50],[cell 51],[cell 52],[cell 53],[cell 54],[cell 55],[cell 56],[cell 57],[cell 58],[cell 59],[cell 60],[cell 61],[cell 62],[cell 63],[cell 64],[cell 65],[cell 66],[cell 67],[cell 68],[cell 69],[cell 70],[cell 71],[cell 72],[cell 73],[cell 74],[cell 75],[cell 76],[cell 77],[cell 78],[cell 79],[cell 80],[cell 81],[cell 82],[cell 83],[cell 84],[cell 85],[cell 86],[cell 87],[cell 88],[cell 89],[cell 90],[cell 91],[cell 92],[cell 93],[cell 94],[cell 95],[cell 96],[cell 97],[cell 98],[cell 99],[cell 100],[cell 101],[cell 102],[cell 103],[cell 104],[cell 105],[cell 106],[cell 107],[cell 108],[cell 109],[cell 110],[cell 111],[cell 112],[cell 113],[cell 114],[cell 115],[cell 116],[cell 117],[cell 118],[cell 119],[cell 120],[cell 121],[cell 122],[cell 123],[cell 124],[cell 125],[cell 126],[cell 127],[cell 128],[cell 129],[cell 130],[cell 131],[cell 132],[cell 133],[cell 134],[cell 135],[cell 136],[cell 137],[cell 138],[cell 139],[cell 140],[cell 141],[cell 142],[cell 143],[cell 144],[cell 145],[cell 146],[cell 147],[cell 148],[cell 149],[cell 150],[cell 151],[cell 152],[cell 153],[cell 154],[cell 155],[cell 156],[cell 157],[cell 158],[cell 159],[cell 160],[cell 161],[cell 162],[cell 163],[cell 164],[cell 165],[cell 166],[cell 167],[cell 168],[cell 169],[cell 170],[cell 171],[cell 172],[cell 173],[cell 174],[cell 175],[cell 176],[cell 177],[cell 178],[cell 179],[cell 180],[cell 181],[cell 182],[cell 183],[cell 184],[cell 185],[cell 186],[cell 187],[cell 188],[cell 189],[cell 190],[cell 191],[cell 192],[cell 193],[cell 194],[cell 195],[cell 196],[cell 197],[cell 198],[cell 199],[cell 200],[cell 201],[cell 202],[cell 203],[cell 204],[cell 205],[cell 206],[cell 207],[cell 208],[cell 209],[cell 210],[cell 211],[cell 212],[cell 213],[cell 214],[cell 215],[cell 216],[cell 217],[cell 218],[cell 219],[cell 220],[cell 221],[cell 222],[cell 223],[cell 224],[cell 225],[cell 226],[cell 227],[cell 228],[cell 229],[cell 230],[cell 231],[cell 232],[cell 233],[cell 234],[cell 235],[cell 236],[cell 237],[cell 238],[cell 239],[cell 240],[cell 241],[cell 242],[cell 243],[cell 244],[cell 245],[cell 246],[cell 247],[cell 248],[cell 249],[cell 250],[cell 251],[cell 252],[cell 253],[cell 254],[cell 255],[cell 256],[cell 257],[cell 258],[cell 259],[cell 260],[cell 261],[cell 262],[cell 263],[cell 264],[cell 265],[cell 266],[cell 267],[cell 268],[cell 269],[cell 270],[cell 271],[cell 272],[cell 273],[cell 274],[cell 275],[cell 276],[cell 277],[cell 278],[cell 279],[cell 280],[cell 281],[cell 282],[cell 283],[cell 284],[cell 285],[cell 286],[cell 287],[cell 288],[cell 289],[cell 290],[cell 291],[cell 292],[cell 293],[cell 294],[cell 295],[cell 296],[cell 297],[cell 298],[cell 299],[cell 300],[cell 301],[cell 302],[cell 303],[cell 304],[cell 305],[cell 306],[cell 307],[cell 308],[cell 309],[cell 310],[cell 311],[cell 312],[cell 313],[cell 314],[cell 315],[cell 316],[cell 317],[cell 318],[cell 319])",
+      "commands": {
+        "before": [
+          "/tmp/tekt-font-bound/typst-before",
+          "compile",
+          "/tmp/tekt-font-bound/bench-grid320.typ",
+          "/tmp/tekt-font-bound/bench-grid320-before.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ],
+        "after": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "/tmp/tekt-font-bound/bench-grid320.typ",
+          "/tmp/tekt-font-bound/bench-grid320-after.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ],
+        "vanilla": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "/tmp/tekt-font-bound/bench-grid320.typ",
+          "/tmp/tekt-font-bound/bench-grid320-vanilla.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ]
+      },
+      "samples_ms": {
+        "before": [
+          210.071512,
+          206.496684,
+          206.408179,
+          210.083135,
+          203.574348,
+          203.949086,
+          203.030537,
+          202.409983,
+          200.665748,
+          199.698249,
+          202.665067,
+          201.879556,
+          201.909612,
+          202.366652,
+          201.221762
+        ],
+        "after": [
+          221.907597,
+          203.077605,
+          216.674674,
+          217.563597,
+          203.48377,
+          201.678042,
+          202.75792,
+          202.862384,
+          203.818772,
+          201.922846,
+          201.867153,
+          204.705762,
+          203.174695,
+          202.462981,
+          203.770933
+        ],
+        "vanilla": [
+          155.732276,
+          154.814369,
+          159.885691,
+          161.264496,
+          155.064525,
+          154.043255,
+          152.080765,
+          153.118285,
+          150.903887,
+          151.368711,
+          154.005495,
+          151.130327,
+          151.939131,
+          151.966291,
+          151.940514
+        ]
+      },
+      "paired_rounds": [
+        {
+          "after": 221.907597,
+          "before": 210.071512,
+          "vanilla": 155.732276
+        },
+        {
+          "before": 206.496684,
+          "vanilla": 154.814369,
+          "after": 203.077605
+        },
+        {
+          "before": 206.408179,
+          "after": 216.674674,
+          "vanilla": 159.885691
+        },
+        {
+          "vanilla": 161.264496,
+          "before": 210.083135,
+          "after": 217.563597
+        },
+        {
+          "vanilla": 155.064525,
+          "before": 203.574348,
+          "after": 203.48377
+        },
+        {
+          "after": 201.678042,
+          "vanilla": 154.043255,
+          "before": 203.949086
+        },
+        {
+          "after": 202.75792,
+          "vanilla": 152.080765,
+          "before": 203.030537
+        },
+        {
+          "vanilla": 153.118285,
+          "after": 202.862384,
+          "before": 202.409983
+        },
+        {
+          "after": 203.818772,
+          "before": 200.665748,
+          "vanilla": 150.903887
+        },
+        {
+          "after": 201.922846,
+          "vanilla": 151.368711,
+          "before": 199.698249
+        },
+        {
+          "before": 202.665067,
+          "vanilla": 154.005495,
+          "after": 201.867153
+        },
+        {
+          "before": 201.879556,
+          "after": 204.705762,
+          "vanilla": 151.130327
+        },
+        {
+          "before": 201.909612,
+          "vanilla": 151.939131,
+          "after": 203.174695
+        },
+        {
+          "vanilla": 151.966291,
+          "after": 202.462981,
+          "before": 202.366652
+        },
+        {
+          "vanilla": 151.940514,
+          "before": 201.221762,
+          "after": 203.770933
+        }
+      ],
+      "median_ms": {
+        "before": 202.665067,
+        "after": 203.174695,
+        "vanilla": 153.118285
+      },
+      "paired_delta_median_ms": 1.2650830000000042,
+      "paired_delta_range_ms": [
+        -3.419078999999982,
+        11.836084999999997
+      ]
+    },
+    "rtl160": {
+      "source": "#set text(dir: rtl, font: \"DejaVu Sans\")\nمرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم مرحبا عالم ",
+      "commands": {
+        "before": [
+          "/tmp/tekt-font-bound/typst-before",
+          "compile",
+          "/tmp/tekt-font-bound/bench-rtl160.typ",
+          "/tmp/tekt-font-bound/bench-rtl160-before.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ],
+        "after": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "/tmp/tekt-font-bound/bench-rtl160.typ",
+          "/tmp/tekt-font-bound/bench-rtl160-after.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ],
+        "vanilla": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "/tmp/tekt-font-bound/bench-rtl160.typ",
+          "/tmp/tekt-font-bound/bench-rtl160-vanilla.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ]
+      },
+      "samples_ms": {
+        "before": [
+          167.4071,
+          166.607323,
+          166.914153,
+          160.790404,
+          161.468715,
+          160.23442,
+          161.211617,
+          159.934331,
+          165.698602,
+          166.524428,
+          166.195717,
+          165.799149,
+          165.3537,
+          166.241381,
+          165.727916
+        ],
+        "after": [
+          168.151084,
+          167.594448,
+          169.067949,
+          162.787979,
+          160.843432,
+          162.157216,
+          159.878367,
+          162.651615,
+          166.22463,
+          167.571376,
+          165.802185,
+          167.031792,
+          165.076004,
+          166.285634,
+          166.247453
+        ],
+        "vanilla": [
+          136.057924,
+          135.492652,
+          134.545871,
+          128.333327,
+          129.168129,
+          127.911492,
+          129.069946,
+          128.642241,
+          135.745272,
+          134.21214,
+          137.025503,
+          133.632833,
+          137.154442,
+          133.810393,
+          134.874683
+        ]
+      },
+      "paired_rounds": [
+        {
+          "after": 168.151084,
+          "before": 167.4071,
+          "vanilla": 136.057924
+        },
+        {
+          "before": 166.607323,
+          "vanilla": 135.492652,
+          "after": 167.594448
+        },
+        {
+          "before": 166.914153,
+          "after": 169.067949,
+          "vanilla": 134.545871
+        },
+        {
+          "vanilla": 128.333327,
+          "before": 160.790404,
+          "after": 162.787979
+        },
+        {
+          "vanilla": 129.168129,
+          "before": 161.468715,
+          "after": 160.843432
+        },
+        {
+          "after": 162.157216,
+          "vanilla": 127.911492,
+          "before": 160.23442
+        },
+        {
+          "after": 159.878367,
+          "vanilla": 129.069946,
+          "before": 161.211617
+        },
+        {
+          "vanilla": 128.642241,
+          "after": 162.651615,
+          "before": 159.934331
+        },
+        {
+          "after": 166.22463,
+          "before": 165.698602,
+          "vanilla": 135.745272
+        },
+        {
+          "after": 167.571376,
+          "vanilla": 134.21214,
+          "before": 166.524428
+        },
+        {
+          "before": 166.195717,
+          "vanilla": 137.025503,
+          "after": 165.802185
+        },
+        {
+          "before": 165.799149,
+          "after": 167.031792,
+          "vanilla": 133.632833
+        },
+        {
+          "before": 165.3537,
+          "vanilla": 137.154442,
+          "after": 165.076004
+        },
+        {
+          "vanilla": 133.810393,
+          "after": 166.285634,
+          "before": 166.241381
+        },
+        {
+          "vanilla": 134.874683,
+          "before": 165.727916,
+          "after": 166.247453
+        }
+      ],
+      "median_ms": {
+        "before": 165.727916,
+        "after": 166.22463,
+        "vanilla": 134.21214
+      },
+      "paired_delta_median_ms": 0.7439839999999833,
+      "paired_delta_range_ms": [
+        -1.3332499999999925,
+        2.7172840000000065
+      ]
+    },
+    "mixed160": {
+      "source": "#set text(dir: rtl, font: \"DejaVu Sans\")\nABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ABC 123 مرحبا عالم ",
+      "commands": {
+        "before": [
+          "/tmp/tekt-font-bound/typst-before",
+          "compile",
+          "/tmp/tekt-font-bound/bench-mixed160.typ",
+          "/tmp/tekt-font-bound/bench-mixed160-before.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ],
+        "after": [
+          "/repos/Antigravity/typst-crystalline/target/release/typst",
+          "compile",
+          "/tmp/tekt-font-bound/bench-mixed160.typ",
+          "/tmp/tekt-font-bound/bench-mixed160-after.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ],
+        "vanilla": [
+          "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+          "compile",
+          "/tmp/tekt-font-bound/bench-mixed160.typ",
+          "/tmp/tekt-font-bound/bench-mixed160-vanilla.pdf",
+          "--pdf-tagged=false",
+          "--pretty=false"
+        ]
+      },
+      "samples_ms": {
+        "before": [
+          162.275174,
+          164.308195,
+          164.540488,
+          164.552429,
+          166.374408,
+          164.838472,
+          165.670028,
+          164.23528,
+          164.95639,
+          171.328262,
+          168.490504,
+          164.418661,
+          167.564311,
+          164.292295,
+          163.199974
+        ],
+        "after": [
+          164.650813,
+          165.423159,
+          165.768862,
+          165.754476,
+          167.666862,
+          164.128952,
+          165.383304,
+          164.448947,
+          164.614615,
+          164.817562,
+          166.031841,
+          166.333222,
+          167.480736,
+          168.188542,
+          165.324195
+        ],
+        "vanilla": [
+          133.89493,
+          133.824058,
+          132.046853,
+          134.277903,
+          135.437619,
+          132.5993,
+          133.182885,
+          132.563794,
+          132.993153,
+          133.748006,
+          134.364503,
+          133.912693,
+          135.608767,
+          134.676152,
+          135.288322
+        ]
+      },
+      "paired_rounds": [
+        {
+          "after": 164.650813,
+          "before": 162.275174,
+          "vanilla": 133.89493
+        },
+        {
+          "before": 164.308195,
+          "vanilla": 133.824058,
+          "after": 165.423159
+        },
+        {
+          "before": 164.540488,
+          "after": 165.768862,
+          "vanilla": 132.046853
+        },
+        {
+          "vanilla": 134.277903,
+          "before": 164.552429,
+          "after": 165.754476
+        },
+        {
+          "vanilla": 135.437619,
+          "before": 166.374408,
+          "after": 167.666862
+        },
+        {
+          "after": 164.128952,
+          "vanilla": 132.5993,
+          "before": 164.838472
+        },
+        {
+          "after": 165.383304,
+          "vanilla": 133.182885,
+          "before": 165.670028
+        },
+        {
+          "vanilla": 132.563794,
+          "after": 164.448947,
+          "before": 164.23528
+        },
+        {
+          "after": 164.614615,
+          "before": 164.95639,
+          "vanilla": 132.993153
+        },
+        {
+          "after": 164.817562,
+          "vanilla": 133.748006,
+          "before": 171.328262
+        },
+        {
+          "before": 168.490504,
+          "vanilla": 134.364503,
+          "after": 166.031841
+        },
+        {
+          "before": 164.418661,
+          "after": 166.333222,
+          "vanilla": 133.912693
+        },
+        {
+          "before": 167.564311,
+          "vanilla": 135.608767,
+          "after": 167.480736
+        },
+        {
+          "vanilla": 134.676152,
+          "after": 168.188542,
+          "before": 164.292295
+        },
+        {
+          "vanilla": 135.288322,
+          "before": 163.199974,
+          "after": 165.324195
+        }
+      ],
+      "median_ms": {
+        "before": 164.552429,
+        "after": 165.423159,
+        "vanilla": 133.89493
+      },
+      "paired_delta_median_ms": 1.1149639999999863,
+      "paired_delta_range_ms": [
+        -6.510699999999986,
+        3.8962470000000167
+      ]
+    }
+  },
+  "status": " M 00_nucleo/prompts/compiler/columns.md\n M 00_nucleo/prompts/compiler/eval.md\n M 00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md\n M 00_nucleo/prompts/compiler/eval/observation/content.md\n M 00_nucleo/prompts/compiler/eval/repr/content.md\n M 00_nucleo/prompts/compiler/eval/rules.md\n M 00_nucleo/prompts/compiler/eval/rules/apply.md\n M 00_nucleo/prompts/compiler/eval/rules/outline.md\n M 00_nucleo/prompts/compiler/eval/rules/textual.md\n M 00_nucleo/prompts/compiler/eval/rules/textual/matching.md\n M 00_nucleo/prompts/compiler/eval/rules/textual/space.md\n M 00_nucleo/prompts/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/compiler/eval/tests.md\n M 00_nucleo/prompts/compiler/footnote_overflow_columns.md\n M 00_nucleo/prompts/compiler/introspect.md\n M 00_nucleo/prompts/compiler/introspect/classification.md\n M 00_nucleo/prompts/compiler/introspect/entrypoints.md\n M 00_nucleo/prompts/compiler/introspect/extract_payload.md\n M 00_nucleo/prompts/compiler/introspect/from_tags.md\n M 00_nucleo/prompts/compiler/introspect/from_tags/counter_updates.md\n M 00_nucleo/prompts/compiler/introspect/locatable.md\n M 00_nucleo/prompts/compiler/introspect/materialize_time.md\n M 00_nucleo/prompts/compiler/introspect/queries.md\n M 00_nucleo/prompts/compiler/introspect/walk.md\n M 00_nucleo/prompts/compiler/layout.md\n M 00_nucleo/prompts/compiler/layout/checkpoint.md\n M 00_nucleo/prompts/compiler/layout/cursor.md\n M 00_nucleo/prompts/compiler/layout/enum_item.md\n M 00_nucleo/prompts/compiler/layout/equation.md\n M 00_nucleo/prompts/compiler/layout/finish.md\n M 00_nucleo/prompts/compiler/layout/grid.md\n M 00_nucleo/prompts/compiler/layout/grid/cell_body.md\n M 00_nucleo/prompts/compiler/layout/grid/cell_emission.md\n M 00_nucleo/prompts/compiler/layout/grid/tracks.md\n M 00_nucleo/prompts/compiler/layout/helpers.md\n M 00_nucleo/prompts/compiler/layout/line_commit.md\n M 00_nucleo/prompts/compiler/layout/linebreak.md\n M 00_nucleo/prompts/compiler/layout/link.md\n M 00_nucleo/prompts/compiler/layout/list_item.md\n M 00_nucleo/prompts/compiler/layout/measurement.md\n M 00_nucleo/prompts/compiler/layout/page_commit.md\n M 00_nucleo/prompts/compiler/layout/paragraph.md\n M 00_nucleo/prompts/compiler/layout/paragraph_emit.md\n M 00_nucleo/prompts/compiler/layout/paragraph_plan.md\n M 00_nucleo/prompts/compiler/layout/parbreak.md\n M 00_nucleo/prompts/compiler/layout/place.md\n M 00_nucleo/prompts/compiler/layout/sequence.md\n M 00_nucleo/prompts/compiler/layout/slicing.md\n M 00_nucleo/prompts/compiler/layout/space.md\n M 00_nucleo/prompts/compiler/layout/stack.md\n M 00_nucleo/prompts/compiler/layout/sub_frame.md\n M 00_nucleo/prompts/compiler/layout/tests.md\n M 00_nucleo/prompts/compiler/layout/text.md\n M 00_nucleo/prompts/compiler/layout/text_tracking.md\n M 00_nucleo/prompts/compiler/layout/word_layout.md\n M 00_nucleo/prompts/compiler/math/layout/_comum.md\n M 00_nucleo/prompts/compiler/math/layout/external_bridge.md\n M 00_nucleo/prompts/compiler/math/layout/spacing.md\n M 00_nucleo/prompts/compiler/math/layout/tests.md\n M 00_nucleo/prompts/compiler/mod.md\n M 00_nucleo/prompts/compiler/stdlib/counter.md\n M 00_nucleo/prompts/compiler/stdlib/counter/display.md\n M 00_nucleo/prompts/compiler/stdlib/counter/filtered_reads.md\n M 00_nucleo/prompts/entities/content.md\n M 00_nucleo/prompts/entities/content/emptiness.md\n M 00_nucleo/prompts/entities/content/equality.md\n M 00_nucleo/prompts/entities/content/fields.md\n M 00_nucleo/prompts/entities/content/identity.md\n M 00_nucleo/prompts/entities/content/morphology.md\n M 00_nucleo/prompts/entities/content/page-structure.md\n M 00_nucleo/prompts/entities/content/plain-text.md\n M 00_nucleo/prompts/entities/content/rust-hash.md\n M 00_nucleo/prompts/entities/content/traversal.md\n M 00_nucleo/prompts/entities/counter_registry.md\n M 00_nucleo/prompts/entities/font_book.md\n M 00_nucleo/prompts/entities/introspector.md\n M 00_nucleo/prompts/entities/layout_types.md\n M 00_nucleo/prompts/entities/locator.md\n M 00_nucleo/prompts/entities/mod.md\n M 00_nucleo/prompts/entities/module.md\n M 00_nucleo/prompts/entities/source-result.md\n M 00_nucleo/prompts/entities/state_registry.md\n M 00_nucleo/prompts/infra.md\n M 00_nucleo/prompts/infra/export/builder.md\n M 00_nucleo/prompts/infra/export/builder/fonts.md\n M 00_nucleo/prompts/infra/export/fonts.md\n M 00_nucleo/prompts/infra/export/html/document.md\n M 00_nucleo/prompts/infra/export/html/inline.md\n M 00_nucleo/prompts/infra/export/render.md\n M 00_nucleo/prompts/infra/export/stream.md\n M 00_nucleo/prompts/infra/export/stream/draw.md\n M 00_nucleo/prompts/infra/export/stream/text.md\n M 00_nucleo/prompts/infra/export/stream/text/runs.md\n M 00_nucleo/prompts/infra/export/stream/text_replacement.md\n M 00_nucleo/prompts/infra/export/svg.md\n M 00_nucleo/prompts/infra/export/svg/groups.md\n M 00_nucleo/prompts/infra/export/svg/navigation.md\n M 00_nucleo/prompts/infra/export/svg/tests.md\n M 00_nucleo/prompts/infra/export/tests/mod.md\n M 00_nucleo/prompts/infra/export/tests/p1481_pdfua_structure_tests.md\n M 00_nucleo/prompts/infra/integration_tests.md\n M 00_nucleo/prompts/infra/layout_bidi.md\n M 00_nucleo/prompts/infra/pipeline.md\n M 00_nucleo/prompts/infra/pipeline/bundle.md\n M 00_nucleo/prompts/infra/pipeline/context_stabilization.md\n M 00_nucleo/prompts/infra/pipeline/html.md\n M 00_nucleo/prompts/infra/pipeline/paged.md\n M 00_nucleo/prompts/infra/pipeline/pdf.md\n M 00_nucleo/prompts/infra/pipeline/raster.md\n M 00_nucleo/prompts/infra/pipeline/resources.md\n M 00_nucleo/prompts/infra/pipeline/svg.md\n M 00_nucleo/prompts/infra/pipeline/tests.md\n M 00_nucleo/prompts/infra/query-helpers.md\n M 00_nucleo/prompts/infra/shaper.md\n M 00_nucleo/prompts/infra/shaper/bidi.md\n M 00_nucleo/prompts/infra/shaper/cache.md\n M 00_nucleo/prompts/infra/shaper/reconciliation.md\n M 00_nucleo/prompts/infra/shaper/shaping.md\n M 00_nucleo/prompts/infra/shaper/tests.md\n M 00_nucleo/prompts/infra/shaper/traversal.md\n M 00_nucleo/prompts/world-types.md\n M 01_core/src/compiler/eval/bindings/field_access/content_methods.rs\n M 01_core/src/compiler/eval/mod.rs\n M 01_core/src/compiler/eval/observation/content.rs\n M 01_core/src/compiler/eval/repr/content.rs\n M 01_core/src/compiler/eval/rules.rs\n M 01_core/src/compiler/eval/rules/apply.rs\n M 01_core/src/compiler/eval/rules/outline.rs\n M 01_core/src/compiler/eval/rules/textual.rs\n M 01_core/src/compiler/eval/rules/textual/matching.rs\n M 01_core/src/compiler/eval/rules/textual/space.rs\n M 01_core/src/compiler/eval/selector_matching.rs\n M 01_core/src/compiler/eval/tests.rs\n M 01_core/src/compiler/introspect.rs\n M 01_core/src/compiler/introspect/classification.rs\n M 01_core/src/compiler/introspect/entrypoints.rs\n M 01_core/src/compiler/introspect/extract_payload.rs\n M 01_core/src/compiler/introspect/from_tags.rs\n M 01_core/src/compiler/introspect/from_tags/counter_updates.rs\n M 01_core/src/compiler/introspect/locatable.rs\n M 01_core/src/compiler/introspect/materialize_time.rs\n M 01_core/src/compiler/introspect/queries.rs\n M 01_core/src/compiler/introspect/walk.rs\n M 01_core/src/compiler/layout/checkpoint.rs\n M 01_core/src/compiler/layout/columns.rs\n M 01_core/src/compiler/layout/cursor.rs\n M 01_core/src/compiler/layout/enum_item.rs\n M 01_core/src/compiler/layout/equation.rs\n M 01_core/src/compiler/layout/finish.rs\n M 01_core/src/compiler/layout/footnote_flush.rs\n M 01_core/src/compiler/layout/grid.rs\n M 01_core/src/compiler/layout/grid/cell_body.rs\n M 01_core/src/compiler/layout/grid/cell_emission.rs\n M 01_core/src/compiler/layout/grid/tracks.rs\n M 01_core/src/compiler/layout/helpers.rs\n M 01_core/src/compiler/layout/line_commit.rs\n M 01_core/src/compiler/layout/linebreak.rs\n M 01_core/src/compiler/layout/link.rs\n M 01_core/src/compiler/layout/list_item.rs\n M 01_core/src/compiler/layout/measurement.rs\n M 01_core/src/compiler/layout/mod.rs\n M 01_core/src/compiler/layout/page_commit.rs\n M 01_core/src/compiler/layout/paragraph.rs\n M 01_core/src/compiler/layout/paragraph_emit.rs\n M 01_core/src/compiler/layout/paragraph_plan.rs\n M 01_core/src/compiler/layout/parbreak.rs\n M 01_core/src/compiler/layout/place.rs\n M 01_core/src/compiler/layout/sequence.rs\n M 01_core/src/compiler/layout/slicing.rs\n M 01_core/src/compiler/layout/space.rs\n M 01_core/src/compiler/layout/stack.rs\n M 01_core/src/compiler/layout/sub_frame.rs\n M 01_core/src/compiler/layout/tests.rs\n M 01_core/src/compiler/layout/text.rs\n M 01_core/src/compiler/layout/text_tracking.rs\n M 01_core/src/compiler/layout/word_layout.rs\n M 01_core/src/compiler/math/layout/external_bridge.rs\n M 01_core/src/compiler/math/layout/mod.rs\n M 01_core/src/compiler/math/layout/spacing.rs\n M 01_core/src/compiler/math/layout/tests.rs\n M 01_core/src/compiler/mod.rs\n M 01_core/src/compiler/stdlib/counter.rs\n M 01_core/src/compiler/stdlib/counter/display.rs\n M 01_core/src/compiler/stdlib/counter/filtered_reads.rs\n M 01_core/src/entities/content.rs\n M 01_core/src/entities/content/emptiness.rs\n M 01_core/src/entities/content/equality.rs\n M 01_core/src/entities/content/fields.rs\n M 01_core/src/entities/content/identity.rs\n M 01_core/src/entities/content/morphology.rs\n M 01_core/src/entities/content/page_structure.rs\n M 01_core/src/entities/content/plain_text.rs\n M 01_core/src/entities/content/rust_hash.rs\n M 01_core/src/entities/content/traversal.rs\n M 01_core/src/entities/counter_registry.rs\n M 01_core/src/entities/font_book.rs\n M 01_core/src/entities/introspector.rs\n M 01_core/src/entities/layout_types.rs\n M 01_core/src/entities/locator.rs\n M 01_core/src/entities/mod.rs\n M 01_core/src/entities/module.rs\n M 01_core/src/entities/source_result.rs\n M 01_core/src/entities/state_registry.rs\n M 01_core/src/entities/world_types.rs\n M 03_infra/src/export/builder.rs\n M 03_infra/src/export/builder/fonts.rs\n M 03_infra/src/export/fonts.rs\n M 03_infra/src/export/html/document.rs\n M 03_infra/src/export/html/inline.rs\n M 03_infra/src/export/mod.rs\n M 03_infra/src/export/render.rs\n M 03_infra/src/export/stream.rs\n M 03_infra/src/export/stream/draw.rs\n M 03_infra/src/export/stream/text.rs\n M 03_infra/src/export/stream/text/runs.rs\n M 03_infra/src/export/stream/text_replacement.rs\n M 03_infra/src/export/svg.rs\n M 03_infra/src/export/svg/glyphs.rs\n M 03_infra/src/export/svg/groups.rs\n M 03_infra/src/export/svg/navigation.rs\n M 03_infra/src/export/svg/tests.rs\n M 03_infra/src/export/tests/mod.rs\n M 03_infra/src/export/tests/p1481_pdfua_structure_tests.rs\n M 03_infra/src/integration_tests.rs\n M 03_infra/src/layout_bidi.rs\n M 03_infra/src/lib.rs\n M 03_infra/src/pipeline.rs\n M 03_infra/src/pipeline/bundle.rs\n M 03_infra/src/pipeline/context_stabilization.rs\n M 03_infra/src/pipeline/html.rs\n M 03_infra/src/pipeline/paged.rs\n M 03_infra/src/pipeline/pdf.rs\n M 03_infra/src/pipeline/raster.rs\n M 03_infra/src/pipeline/resources.rs\n M 03_infra/src/pipeline/svg.rs\n M 03_infra/src/pipeline/tests.rs\n M 03_infra/src/query_helpers.rs\n M 03_infra/src/shaper.rs\n M 03_infra/src/shaper/bidi.rs\n M 03_infra/src/shaper/cache.rs\n M 03_infra/src/shaper/reconciliation.rs\n M 03_infra/src/shaper/shaping.rs\n M 03_infra/src/shaper/tests.rs\n M 03_infra/src/shaper/traversal.rs\n?? 00_nucleo/diagnosticos/bidi-contexto-2026-10-05.md\n?? 00_nucleo/diagnosticos/bidi-contexto-2026-10-05/\n?? 00_nucleo/diagnosticos/bidi-contexto-implementacao-2026-10-05.md\n?? 00_nucleo/diagnosticos/bidi-contexto-implementacao-2026-10-05/\n?? 00_nucleo/diagnosticos/catalogo-aquisicao-2026-10-05.md\n?? 00_nucleo/diagnosticos/catalogo-aquisicao-2026-10-05/\n?? 00_nucleo/diagnosticos/catalogo-seletivo-2026-10-05.md\n?? 00_nucleo/diagnosticos/catalogo-seletivo-2026-10-05/\n?? 00_nucleo/diagnosticos/cmap-intervalos-2026-10-05.md\n?? 00_nucleo/diagnosticos/cmap-intervalos-2026-10-05/\n?? 00_nucleo/diagnosticos/contexto-cache-bidi-2026-10-05.md\n?? 00_nucleo/diagnosticos/contexto-cache-bidi-2026-10-05/\n?? 00_nucleo/diagnosticos/contexto-cache-fontes-2026-10-05.md\n?? 00_nucleo/diagnosticos/contexto-cache-fontes-2026-10-05/\n?? 00_nucleo/diagnosticos/contexto-cache-reconciliacao-2026-10-05.md\n?? 00_nucleo/diagnosticos/contexto-cache-reconciliacao-2026-10-05/\n?? 00_nucleo/diagnosticos/contexto-page-display-2026-10-05.md\n?? 00_nucleo/diagnosticos/contexto-page-display-2026-10-05/\n?? 00_nucleo/diagnosticos/contexto-page-snapshot-2026-10-05.md\n?? 00_nucleo/diagnosticos/contexto-page-snapshot-2026-10-05/\n?? 00_nucleo/diagnosticos/contexto-page-total-2026-10-05.md\n?? 00_nucleo/diagnosticos/contexto-page-total-2026-10-05/\n?? 00_nucleo/diagnosticos/custo-fixo-2026-10-05.md\n?? 00_nucleo/diagnosticos/custo-fixo-2026-10-05/\n?? 00_nucleo/diagnosticos/direcao-alinhamento-2026-10-05.md\n?? 00_nucleo/diagnosticos/direcao-alinhamento-2026-10-05/\n?? 00_nucleo/diagnosticos/dupla-avaliacao-auditoria-2026-10-05.md\n?? 00_nucleo/diagnosticos/dupla-avaliacao-auditoria-2026-10-05/\n?? 00_nucleo/diagnosticos/dupla-avaliacao-caminhos-2026-10-05.md\n?? 00_nucleo/diagnosticos/dupla-avaliacao-implementacao-2026-10-05.md\n?? 00_nucleo/diagnosticos/dupla-avaliacao-pesquisa-bateia-2026-10-05.md\n?? 00_nucleo/diagnosticos/frames-celulas-2026-10-05.md\n?? 00_nucleo/diagnosticos/frames-celulas-2026-10-05/\n?? 00_nucleo/diagnosticos/grid-pagination-cost-2026-10-05.md\n?? 00_nucleo/diagnosticos/grid-pagination-cost-2026-10-05/\n?? 00_nucleo/diagnosticos/herancas-reescrita-frentes-2026-10-05.md\n?? 00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05.md\n?? 00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/\n?? 00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/\n?? 00_nucleo/diagnosticos/layout-inicial-2026-10-05.md\n?? 00_nucleo/diagnosticos/layout-inicial-2026-10-05/\n?? 00_nucleo/diagnosticos/macro-micro-2026-10-05.md\n?? 00_nucleo/diagnosticos/macro-micro-2026-10-05/\n?? 00_nucleo/diagnosticos/memoizacao-indice-2026-10-05.md\n?? 00_nucleo/diagnosticos/memoizacao-indice-2026-10-05/\n?? 00_nucleo/diagnosticos/reuso-sem-transformacao-2026-10-05.md\n?? 00_nucleo/diagnosticos/reuso-sem-transformacao-2026-10-05/\n?? 00_nucleo/diagnosticos/rtl-numeros-2026-10-05.md\n?? 00_nucleo/diagnosticos/rtl-numeros-2026-10-05/\n?? 00_nucleo/materialization/bidi-contexto-2026-10-05.md\n?? 00_nucleo/materialization/bidi-contexto-aprovacao-2026-10-05.json\n?? 00_nucleo/materialization/bidi-contexto-l0-manifest-2026-10-05.json\n?? 00_nucleo/materialization/catalogo-aquisicao-2026-10-05.md\n?? 00_nucleo/materialization/catalogo-seletivo-2026-10-05.md\n?? 00_nucleo/materialization/cmap-intervalos-2026-10-05.md\n?? 00_nucleo/materialization/contexto-page-display-2026-10-05.md\n?? 00_nucleo/materialization/contexto-page-total-2026-10-05.md\n?? 00_nucleo/materialization/custo-fixo-2026-10-05.md\n?? 00_nucleo/materialization/dupla-avaliacao-ensaio-2026-10-05.md\n?? 00_nucleo/materialization/frames-celulas-2026-10-05.md\n?? 00_nucleo/materialization/identidade-fonte-shaped-aprovacao-2026-10-05.json\n?? 00_nucleo/materialization/identidade-fonte-shaped-l0-manifest-2026-10-05.json\n?? 00_nucleo/materialization/layout-inicial-2026-10-05.md\n?? 00_nucleo/materialization/memoizacao-indice-2026-10-05.md\n?? 00_nucleo/materialization/reuso-sem-transformacao-2026-10-05.md\n?? 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml\n?? 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml\n?? 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml\n?? 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml\n?? 00_nucleo/prompts/_nuclei/realization-order.toml\n?? 00_nucleo/prompts/compiler/layout/bidi_origin.md\n?? 00_nucleo/prompts/compiler/layout/grid/measurement_cache.md\n?? 00_nucleo/prompts/compiler/layout/realized.md\n?? 00_nucleo/prompts/compiler/realize/\n?? 00_nucleo/prompts/entities/bidi_context.md\n?? 00_nucleo/prompts/infra/bidi_context.md\n?? 00_nucleo/prompts/infra/export/font_binding.md\n?? 01_core/src/compiler/layout/bidi_origin.rs\n?? 01_core/src/compiler/layout/grid/measurement_cache.rs\n?? 01_core/src/compiler/layout/realized.rs\n?? 01_core/src/compiler/realize/\n?? 01_core/src/entities/bidi_context.rs\n?? 03_infra/src/bidi_context.rs\n?? 03_infra/src/export/font_binding.rs\n",
+  "source_hashes": {
+    "01_core/src/compiler/layout/equation.rs": "491b0a8b1045093866e2b84b7cc38d1df8ca03c2a1e395ca39c04e5e79933f99",
+    "01_core/src/compiler/layout/footnote_flush.rs": "1652e577739e8a538325cb0c74dddbddfec5875084cbf1b344ee65ce6650f17f",
+    "01_core/src/compiler/layout/helpers.rs": "1ea379cefb02487873fc504a96457ba036bac1d60fa4d083c10334f30814465d",
+    "01_core/src/compiler/layout/place.rs": "102c2d0dfa05df47593e434562d8aba292edc50748b00a2f18e991067b76445d",
+    "01_core/src/compiler/layout/slicing.rs": "2e8822a598d0a678839e916d6d1c9619c6e78b9c8361ca7e2a79c393b38ed181",
+    "01_core/src/compiler/math/layout/mod.rs": "5a50dc0f20a9322aff28c831e18acd2466bbba03a82d4b044d90a0e94e90e02a",
+    "01_core/src/entities/layout_types.rs": "b71de0a277db4467528f8343a3d3c15f6ca35c2d1de3159988fb522d78e0c1c3",
+    "03_infra/src/export/builder.rs": "ae2e1378bfbd51f497cd2562c0dbb49b2fbbc5c460001927e2abf48bfbce4c90",
+    "03_infra/src/export/builder/fonts.rs": "25d0302d4ee30dcc6e62807b46c5020985740975d782b8e40e7265423f2b7841",
+    "03_infra/src/export/fonts.rs": "964b4947f5fbe560780c90b5197648b3db553cefc788a9b2163171d5f7f2ead3",
+    "03_infra/src/export/render.rs": "cd8c24d73e287afa53ed133e634970635afedeeb2777e0cffefb4429dae24826",
+    "03_infra/src/export/stream.rs": "1018c7c7b84552e12295dc1669c7dc95812967a88473b14ce9d64933a1b23e30",
+    "03_infra/src/export/stream/draw.rs": "8367bfa78ab61b780cd689dedb91099a40ff9b4ba4e1fdeee2d937945b146503",
+    "03_infra/src/export/stream/text.rs": "7447b613ebea9352ecba628921475d140fdf09e30304b653c057e5c9e218e3ca",
+    "03_infra/src/export/stream/text/runs.rs": "745fedb2fb912b66c6a75eb751b174821fa04846e413a2bcd1a5fca81f4cda2e",
+    "03_infra/src/export/svg.rs": "4d9f18b4494a67f860c91d6ef04f9cb8e9de5aa9372e94505b35b2bd08278673",
+    "03_infra/src/export/svg/tests.rs": "2de86aa57cb3a0e7fba4430a3de8c6873dcf324ac608f6bb442f9a68dec6732f",
+    "03_infra/src/export/tests/mod.rs": "efb929db20c40c21a4b708009b884ab3743b18a775ae93a40a698ddc33ed4c54",
+    "03_infra/src/pipeline/bundle.rs": "3bb9f90e10f00681bfd9b1edbc9f2d217d16d741805e65a0e2838d3a52949e94",
+    "03_infra/src/pipeline/pdf.rs": "b70e0c1d4e156443bff0f8dce2a07495c001dff7f7dc3d88caaaebc04e5665a5",
+    "03_infra/src/pipeline/resources.rs": "5e38fb0498ec993ef876712c79efb43a8f3286d8f261540eeca9fd90a655717c",
+    "03_infra/src/pipeline/tests.rs": "4f548d04a693fb3914176e9e5d71ef5eea4160ba3e04c9fafba8eb796d365e58",
+    "03_infra/src/shaper/shaping.rs": "46a4edaf6a2ff75cd0dedb8637b0a32feccf00d9061441e6d35ea4e13ea6ada4",
+    "03_infra/src/shaper/tests.rs": "f9d61e5d3f300e919c3c69cc5e348892a2fec6c6fd96af3b0e7816f79f45758e",
+    "03_infra/src/export/svg/groups.rs": "af384669a8a240308ae37448a01cc39d8da47fdd886a6e41230bb179a6ef8c41",
+    "03_infra/src/export/svg/navigation.rs": "d9bd4ac8a67eafc98fa6930e6e77f5d876de31531196d8371a7508339303318e",
+    "03_infra/src/export/font_binding.rs": "4fdcda2dffffa0ae3bc2059d94152cd5404f393ad727672d9d9ea70ba74571dd",
+    "03_infra/src/pipeline.rs": "a85a5c3cdf3510f38b79177611f37b0ac5276c84959051d84badb01a4311bf0f",
+    "03_infra/src/pipeline/svg.rs": "6504bae0c36d89b50fec677f8018cb7b3e7f484959c937d115da1a448283c317",
+    "03_infra/src/pipeline/html.rs": "79d30e3a1ed221a1051ba5aad869edc456edefa71adde30796e32a1d41171078",
+    "03_infra/src/pipeline/raster.rs": "c5e3e2296fe5b6673c0a4b5252abda807306091cb1732fd46537f0ff98eb85b3"
+  },
+  "measurement": "Entire CLI wall clock; 2 warmups and 15 randomized paired rounds; same font/catalog env; no phase attribution"
+}

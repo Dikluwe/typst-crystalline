@@ -1,0 +1,1332 @@
+warning: unused import: `Type`
+  --> 01_core/src/compiler/eval/mod.rs:55:30
+   |
+55 | use crate::entities::value::{Type, Value};
+   |                              ^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `callee_error::*` and `fields::*`
+   --> 01_core/src/compiler/eval/bindings/field_access.rs:458:12
+    |
+458 | use self::{callee_error::*, content_methods::*, fields::*, identity::*};
+    |            ^^^^^^^^^^^^^^^                      ^^^^^^^^^
+
+warning: unused import: `crate::entities::introspector::Introspector`
+  --> 01_core/src/compiler/eval/bindings/value_methods/state.rs:81:9
+   |
+81 |     use crate::entities::introspector::Introspector;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `eval_content_method_at`
+  --> 01_core/src/compiler/eval/bindings/mod.rs:28:26
+   |
+28 |     eval_content_method, eval_content_method_at, eval_introspected_content_method_at,
+   |                          ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `super::*`
+ --> 01_core/src/compiler/eval/repr/format.rs:7:5
+  |
+7 | use super::*;
+  |     ^^^^^^^^
+
+warning: unused import: `repr_paint`
+  --> 01_core/src/compiler/eval/repr.rs:40:58
+   |
+40 | use self::paint::{repr_align, repr_color, repr_gradient, repr_paint, repr_tiling};
+   |                                                          ^^^^^^^^^^
+
+warning: unused imports: `counter_keys_eq`, `selector_contains_element`, and `selectors_eq`
+  --> 01_core/src/compiler/eval/selector_matching.rs:22:5
+   |
+22 |     counter_keys_eq, selector_contains_element, selectors_eq, values_eq,
+   |     ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^
+
+warning: unused import: `RegionTailCheckpoint`
+  --> 01_core/src/compiler/layout/mod.rs:13:46
+   |
+13 | use self::checkpoint::{FlowSuffixCheckpoint, RegionTailCheckpoint};
+   |                                              ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Point`
+  --> 01_core/src/compiler/layout/mod.rs:31:69
+   |
+31 |         FrameItem, HAlign, Length, Page, PageConfig, PagedDocument, Point, Pt, TextStyle,
+   |                                                                     ^^^^^
+
+warning: unused import: `crate::entities::content::Content`
+  --> 01_core/src/compiler/layout/title.rs:10:5
+   |
+10 | use crate::entities::content::Content;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `self::inline_prefix::InlinePrefixRuntime`
+  --> 01_core/src/compiler/layout/sequence.rs:26:5
+   |
+26 | use self::inline_prefix::InlinePrefixRuntime;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Point`
+  --> 01_core/src/compiler/layout/cursor.rs:14:39
+   |
+14 |     layout_types::{FrameItem, HAlign, Point, Pt},
+   |                                       ^^^^^
+
+warning: unused import: `super::*`
+ --> 01_core/src/compiler/stdlib/html/attr_specs.rs:7:5
+  |
+7 | use super::*;
+  |     ^^^^^^^^
+
+warning: unused imports: `elem::*` and `namespace::*`
+  --> 01_core/src/compiler/stdlib/html.rs:47:50
+   |
+47 |     attr_cast::*, attr_specs::*, attr_values::*, elem::*, frame::*, global_attrs::*,
+   |                                                  ^^^^^^^
+48 |     namespace::*, tag_attrs::*, typed_element::*, typed_tags::*,
+   |     ^^^^^^^^^^^^
+
+warning: unused import: `self::page::is_horizontal_page_binding`
+  --> 01_core/src/compiler/stdlib/layout.rs:64:16
+   |
+64 | pub(super) use self::page::is_horizontal_page_binding;
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `self::page::is_positional_paper`
+  --> 01_core/src/compiler/stdlib/layout.rs:65:16
+   |
+65 | pub(super) use self::page::is_positional_paper;
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `self::place::validate_flush_args`
+  --> 01_core/src/compiler/stdlib/layout.rs:70:16
+   |
+70 | pub(super) use self::place::validate_flush_args;
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `self::stroke::is_valid_miter_limit`
+  --> 01_core/src/compiler/stdlib/layout.rs:77:16
+   |
+77 | pub(super) use self::stroke::is_valid_miter_limit;
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::compiler::eval::EvalContext`
+  --> 01_core/src/compiler/stdlib/structural/math.rs:13:5
+   |
+13 | use crate::compiler::eval::EvalContext;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::args::Args`
+  --> 01_core/src/compiler/stdlib/structural/math.rs:16:5
+   |
+16 | use crate::entities::args::Args;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::elements::math_attach::MathAttachSlot`
+  --> 01_core/src/compiler/stdlib/structural/math.rs:18:5
+   |
+18 | use crate::entities::elements::math_attach::MathAttachSlot;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::file_id::FileId`
+  --> 01_core/src/compiler/stdlib/structural/math.rs:19:5
+   |
+19 | use crate::entities::file_id::FileId;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::source_result::SourceResult`
+  --> 01_core/src/compiler/stdlib/structural/math.rs:20:5
+   |
+20 | use crate::entities::source_result::SourceResult;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::span::Span`
+  --> 01_core/src/compiler/stdlib/structural/math.rs:21:5
+   |
+21 | use crate::entities::span::Span;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `math::class::native_math_class`
+   --> 01_core/src/compiler/stdlib/structural/mod.rs:119:9
+    |
+119 | pub use math::class::native_math_class;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `conic::*`, `dispatch::*`, `linear::*`, `modifiers::*`, and `radial::*`
+  --> 01_core/src/compiler/stdlib/gradients.rs:49:19
+   |
+49 |     accessors::*, conic::*, dispatch::*, linear::*, modifiers::*, parsing::*, radial::*,
+   |                   ^^^^^^^^  ^^^^^^^^^^^  ^^^^^^^^^  ^^^^^^^^^^^^              ^^^^^^^^^
+
+warning: unused import: `decode_cbor`
+  --> 01_core/src/compiler/stdlib/loading.rs:42:22
+   |
+42 | pub use self::cbor::{decode_cbor, native_cbor, native_cbor_encode};
+   |                      ^^^^^^^^^^^
+
+warning: unused imports: `RowType` and `decode_csv`
+  --> 01_core/src/compiler/stdlib/loading.rs:43:21
+   |
+43 | pub use self::csv::{decode_csv, native_csv, RowType};
+   |                     ^^^^^^^^^^              ^^^^^^^
+
+warning: unused import: `crate::entities::content::Content`
+  --> 01_core/src/compiler/stdlib/visualize.rs:19:5
+   |
+19 | use crate::entities::content::Content;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `math_matrix_augment`
+   --> 01_core/src/compiler/stdlib/mod.rs:122:42
+    |
+122 |     math_cases_delim, math_lr_from_args, math_matrix_augment, math_mid_from_args,
+    |                                          ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::span::Span`
+  --> 01_core/src/entities/ast/expr.rs:16:5
+   |
+16 | use crate::entities::span::Span;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `self::conversion::*`
+  --> 01_core/src/entities/color.rs:24:5
+   |
+24 | use self::conversion::*;
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/finish.rs:175:56
+    |
+175 |                         marginal_items.push(FrameItem::Text {
+    |                                                        ^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/finish.rs:267:53
+    |
+267 |                     page.foreground.push(FrameItem::Text {
+    |                                                     ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/metrics.rs:264:71
+    |
+264 |                     FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+    |                                                                       ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/metrics.rs:279:32
+    |
+279 |                     FrameItem::Text { text, style, .. } => {
+    |                                ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/grid/cell_body.rs:252:32
+    |
+252 |                     FrameItem::Text { .. } | FrameItem::TextShaped { .. } | FrameItem::TextSeparator { .. }
+    |                                ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/sub_frame.rs:439:28
+    |
+439 |                 FrameItem::Text { .. } | FrameItem::TextShaped { .. } => {
+    |                            ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/boxed.rs:391:63
+    |
+391 |             FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+    |                                                               ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/boxed.rs:418:20
+    |
+418 |         FrameItem::Text { .. }
+    |                    ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/stack.rs:38:24
+   |
+38 |             FrameItem::Text { pos, text, style , .. } => {
+   |                        ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/stack.rs:240:32
+    |
+240 |                     FrameItem::Text { pos, .. }
+    |                                ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/html_frame.rs:100:20
+    |
+100 |         FrameItem::Text { pos, style, .. } | FrameItem::TextShaped { pos, style, .. } => {
+    |                    ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/transform.rs:162:67
+    |
+162 |                 FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+    |                                                                   ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/transform.rs:175:67
+    |
+175 |                 FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+    |                                                                   ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/transform.rs:188:67
+    |
+188 |                 FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+    |                                                                   ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/transform.rs:237:28
+    |
+237 |                 FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+    |                            ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/text.rs:37:55
+   |
+37 |             crate::entities::layout_types::FrameItem::Text {
+   |                                                       ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/linebreak.rs:24:63
+   |
+24 |         layouter.regions.current.current_line.push(FrameItem::Text {
+   |                                                               ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/linebreak.rs:42:36
+   |
+42 |             items: vec![FrameItem::Text {
+   |                                    ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/paragraph.rs:72:55
+   |
+72 |             crate::entities::layout_types::FrameItem::Text { style, .. } => style.dir,
+   |                                                       ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/parbreak.rs:32:32
+   |
+32 |         items: vec![FrameItem::Text {
+   |                                ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/raw.rs:150:51
+    |
+150 | ...   crate::entities::layout_types::FrameItem::Text{style,..}|crate::entities::layout_types::FrameItem::TextShaped{style,..} => Some((-l...
+    |                                                 ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/cell_tail_commit.rs:46:71
+   |
+46 |                     FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.y.0,
+   |                                                                       ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/text_tracking.rs:53:24
+   |
+53 |             FrameItem::Text { text, style, .. }
+   |                        ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/text_tracking.rs:61:24
+   |
+61 |             FrameItem::Text { .. }
+   |                        ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/text_tracking.rs:98:24
+   |
+98 |             FrameItem::Text { text, style, .. }
+   |                        ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/text_tracking.rs:105:24
+    |
+105 |             FrameItem::Text { .. }
+    |                        ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+    --> 01_core/src/entities/layout_types.rs:1925:24
+     |
+1925 |             FrameItem::Text { .. } | FrameItem::TextSeparator { .. } => self.visit_text(item),
+     |                        ^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/metrics.rs:264:78
+    |
+264 |                     FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+    |                                                                              ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/metrics.rs:279:39
+    |
+279 |                     FrameItem::Text { text, style, .. } => {
+    |                                       ^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/metrics.rs:279:45
+    |
+279 |                     FrameItem::Text { text, style, .. } => {
+    |                                             ^^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/boxed.rs:391:70
+    |
+391 |             FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+    |                                                                      ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/stack.rs:38:31
+   |
+38 |             FrameItem::Text { pos, text, style , .. } => {
+   |                               ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/stack.rs:38:36
+   |
+38 |             FrameItem::Text { pos, text, style , .. } => {
+   |                                    ^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/stack.rs:38:42
+   |
+38 |             FrameItem::Text { pos, text, style , .. } => {
+   |                                          ^^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/stack.rs:240:39
+    |
+240 |                     FrameItem::Text { pos, .. }
+    |                                       ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/html_frame.rs:100:27
+    |
+100 |         FrameItem::Text { pos, style, .. } | FrameItem::TextShaped { pos, style, .. } => {
+    |                           ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/html_frame.rs:100:32
+    |
+100 |         FrameItem::Text { pos, style, .. } | FrameItem::TextShaped { pos, style, .. } => {
+    |                                ^^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/transform.rs:162:74
+    |
+162 |                 FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+    |                                                                          ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/transform.rs:175:74
+    |
+175 |                 FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+    |                                                                          ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/transform.rs:188:74
+    |
+188 |                 FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+    |                                                                          ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/transform.rs:237:35
+    |
+237 |                 FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+    |                                   ^^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/paragraph.rs:72:62
+   |
+72 |             crate::entities::layout_types::FrameItem::Text { style, .. } => style.dir,
+   |                                                              ^^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/compiler/layout/raw.rs:150:56
+    |
+150 | ...   crate::entities::layout_types::FrameItem::Text{style,..}|crate::entities::layout_types::FrameItem::TextShaped{style,..} => Some((-l...
+    |                                                      ^^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/cell_tail_commit.rs:46:78
+   |
+46 |                     FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.y.0,
+   |                                                                              ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/text_tracking.rs:53:31
+   |
+53 |             FrameItem::Text { text, style, .. }
+   |                               ^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/text_tracking.rs:53:37
+   |
+53 |             FrameItem::Text { text, style, .. }
+   |                                     ^^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/text_tracking.rs:98:31
+   |
+98 |             FrameItem::Text { text, style, .. }
+   |                               ^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 01_core/src/compiler/layout/text_tracking.rs:98:37
+   |
+98 |             FrameItem::Text { text, style, .. }
+   |                                     ^^^^^
+
+warning: unused import: `Track`
+  --> 01_core/src/compiler/eval/modules.rs:15:14
+   |
+15 | use comemo::{Track, TrackedMut};
+   |              ^^^^^
+
+warning: unused import: `std::hash::Hash`
+  --> 01_core/src/entities/elements/page_run.rs:43:13
+   |
+43 |         use std::hash::Hash;
+   |             ^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+  --> 01_core/src/compiler/eval/rules/apply.rs:19:5
+   |
+19 |     mut content: Content,
+   |     ----^^^^^^^
+   |     |
+   |     help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> 01_core/src/compiler/eval/mod.rs:684:5
+    |
+684 |     mut sink: TrackedMut<Sink>,
+    |     ----^^^^
+    |     |
+    |     help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> 01_core/src/compiler/eval/mod.rs:711:5
+    |
+711 |     mut sink: TrackedMut<Sink>,
+    |     ----^^^^
+    |     |
+    |     help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> 01_core/src/compiler/eval/mod.rs:807:9
+    |
+807 |     let mut run_pass = |apply_show_rules: bool,
+    |         ----^^^^^^^^
+    |         |
+    |         help: remove this `mut`
+
+warning: unreachable pattern
+   --> 01_core/src/compiler/layout/equation.rs:454:17
+    |
+376 |                 FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
+    |                 --------------------------------------------------------------------- matches all the relevant values
+...
+454 |                 FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no value can reach this
+    |
+    = note: `#[warn(unreachable_patterns)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `rowspan`
+  --> 01_core/src/compiler/layout/grid/row_groups.rs:79:17
+   |
+79 |             let rowspan = rowspan.unwrap_or(1).max(1);
+   |                 ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_rowspan`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `line_leading_pt`
+   --> 01_core/src/compiler/layout/sub_frame.rs:262:13
+    |
+262 |         let line_leading_pt = self
+    |             ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_line_leading_pt`
+
+warning: variable does not need to be mutable
+   --> 01_core/src/compiler/layout/boxed.rs:337:13
+    |
+337 |         let mut outer_w = outer_w;
+    |             ----^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> 01_core/src/compiler/layout/boxed.rs:342:13
+    |
+342 |         let mut outer_h = inner_h + outset_top + outset_bottom;
+    |             ----^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> 01_core/src/compiler/layout/boxed.rs:343:13
+    |
+343 |         let mut pos = crate::entities::layout_types::Point {
+    |             ----^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `box_h`
+   --> 01_core/src/compiler/layout/boxed.rs:263:13
+    |
+263 |         let box_h = inset_top + h_pt + inset_bottom;
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_box_h`
+
+warning: unused variable: `heading_descent`
+   --> 01_core/src/compiler/layout/heading.rs:114:9
+    |
+114 |     let heading_descent = bottom.0.abs();
+    |         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_heading_descent`
+
+warning: unused variable: `font_size`
+   --> 01_core/src/compiler/layout/mod.rs:873:9
+    |
+873 |         font_size: f64,
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_font_size`
+
+warning: unused variable: `dx`
+   --> 01_core/src/compiler/math/layout/accent.rs:152:13
+    |
+152 |         let dx = base_attach - accent_attach;
+    |             ^^ help: if this is intentional, prefix it with an underscore: `_dx`
+
+warning: value assigned to `ratio` is never read
+  --> 01_core/src/compiler/math/layout/assembly.rs:36:21
+   |
+36 |     let mut ratio = 0.0_f64;
+   |                     ^^^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+   = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `sub_top`
+   --> 01_core/src/compiler/math/layout/attach.rs:686:21
+    |
+686 |                 let sub_top = sup_b.descent - shift_down; // em coordenadas onde y cresce para baixo, sub_top é -shift_down + sub_b.ascent
+    |                     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_sub_top`
+
+warning: unreachable pattern
+   --> 01_core/src/compiler/math/layout/spacing.rs:122:11
+    |
+103 |         Content::Equation(e) => base_math_class(&e.body),
+    |         -------------------- matches all the relevant values
+...
+122 |         | Content::Equation(_)
+    |           ^^^^^^^^^^^^^^^^^^^^ no value can reach this
+
+warning: unreachable pattern
+   --> 01_core/src/compiler/math/layout/spacing.rs:155:11
+    |
+102 |         Content::Styled(styled) => base_math_class(&styled.body),
+    |         ----------------------- matches all the relevant values
+...
+155 |         | Content::Styled(_)
+    |           ^^^^^^^^^^^^^^^^^^ no value can reach this
+
+warning: unreachable pattern
+   --> 01_core/src/compiler/math/layout/spacing.rs:390:9
+    |
+373 |         (Opening, _) | (_, Closing) => Some(0.0),
+    |         --------------------------- matches all the relevant values
+...
+390 |         (Opening, Fence) | (Fence, Closing) => Some(0.0),
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no value can reach this
+
+warning: variable does not need to be mutable
+   --> 01_core/src/compiler/stdlib/foundations/str.rs:130:28
+    |
+130 | pub(crate) fn format_radix(mut n: i64, base: u32) -> String {
+    |                            ----^
+    |                            |
+    |                            help: remove this `mut`
+
+warning: unused variable: `idx`
+   --> 01_core/src/compiler/stdlib/numbering.rs:168:10
+    |
+168 |     for (idx, (prefix, symbol)) in pieces.iter().enumerate() {
+    |          ^^^ help: if this is intentional, prefix it with an underscore: `_idx`
+
+warning: type `bidi_origin::Cursor` is more private than the item `compiler::layout::Layouter::bidi_cursor`
+   --> 01_core/src/compiler/layout/mod.rs:554:5
+    |
+554 |     pub(super) bidi_cursor: Option<bidi_origin::Cursor>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ field `compiler::layout::Layouter::bidi_cursor` is reachable at visibility `pub(in crate::compiler)`
+    |
+note: but type `bidi_origin::Cursor` is only usable at visibility `pub(in crate::compiler::layout)`
+   --> 01_core/src/compiler/layout/bidi_origin.rs:16:1
+    |
+ 16 | pub(super) struct Cursor {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: `#[warn(private_interfaces)]` on by default
+
+warning: type `PendingRepeat` is more private than the item `compiler::layout::Layouter::pending_repeats`
+   --> 01_core/src/compiler/layout/mod.rs:696:5
+    |
+696 |     pub(super) pending_repeats: Vec<repeat::PendingRepeat>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ field `compiler::layout::Layouter::pending_repeats` is reachable at visibility `pub(in crate::compiler)`
+    |
+note: but type `PendingRepeat` is only usable at visibility `pub(in crate::compiler::layout)`
+   --> 01_core/src/compiler/layout/repeat.rs:17:1
+    |
+ 17 | pub(super) struct PendingRepeat {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `make_stdlib` is never used
+   --> 01_core/src/compiler/eval/mod.rs:953:4
+    |
+953 | fn make_stdlib(inputs: &SysInputs) -> Scope {
+    |    ^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `load_bib_entries_from_path` is never used
+  --> 01_core/src/compiler/eval/bibliography.rs:34:8
+   |
+34 | pub fn load_bib_entries_from_path(
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `line_content_bottom` is never used
+   --> 01_core/src/compiler/layout/helpers.rs:111:15
+    |
+111 | pub(super) fn line_content_bottom<'a>(
+    |               ^^^^^^^^^^^^^^^^^^^
+
+warning: function `extract_cell_fields` is never used
+   --> 01_core/src/compiler/layout/grid_placement.rs:141:4
+    |
+141 | fn extract_cell_fields(
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: method `layout_accent` is never used
+  --> 01_core/src/compiler/math/layout/accent.rs:29:19
+   |
+24 | impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+   | --------------------------------------------------- method in this implementation
+...
+29 |     pub(super) fn layout_accent(
+   |                   ^^^^^^^^^^^^^
+
+warning: method `layout_cancel` is never used
+  --> 01_core/src/compiler/math/layout/cancel.rs:21:19
+   |
+19 | impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+   | --------------------------------------------------- method in this implementation
+20 |     /// Compatibility surface for the pre-P1291 internal tests and callers.
+21 |     pub(super) fn layout_cancel(
+   |                   ^^^^^^^^^^^^^
+
+warning: method `layout_cases` is never used
+  --> 01_core/src/compiler/math/layout/cases.rs:23:19
+   |
+22 | impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+   | --------------------------------------------------- method in this implementation
+23 |     pub(super) fn layout_cases(
+   |                   ^^^^^^^^^^^^
+
+warning: function `lr_target_pt` is never used
+  --> 01_core/src/compiler/math/layout/delimited.rs:54:4
+   |
+54 | fn lr_target_pt(body_height: f64, font_size: f64, size: Rel<Length>) -> f64 {
+   |    ^^^^^^^^^^^^
+
+warning: method `layout_frac` is never used
+   --> 01_core/src/compiler/math/layout/frac.rs:101:19
+    |
+ 19 | impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+    | --------------------------------------------------- method in this implementation
+...
+101 |     pub(super) fn layout_frac(
+    |                   ^^^^^^^^^^^
+
+warning: method `layout_matrix` is never used
+  --> 01_core/src/compiler/math/layout/matrix.rs:21:19
+   |
+20 | impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
+   | --------------------------------------------------------------------- method in this implementation
+21 |     pub(super) fn layout_matrix(
+   |                   ^^^^^^^^^^^^^
+
+warning: fields `row_ascent` and `row_descent` are never read
+   --> 01_core/src/compiler/math/layout/matrix.rs:377:5
+    |
+374 | struct GridGeometry {
+    |        ------------ fields in this struct
+...
+377 |     row_ascent: Vec<f64>,
+    |     ^^^^^^^^^^
+378 |     row_descent: Vec<f64>,
+    |     ^^^^^^^^^^^
+
+warning: function `spacing_between` is never used
+   --> 01_core/src/compiler/math/layout/spacing.rs:401:15
+    |
+401 | pub(super) fn spacing_between(
+    |               ^^^^^^^^^^^^^^^
+
+warning: function `decode_cbor` is never used
+  --> 01_core/src/compiler/stdlib/loading/cbor.rs:13:8
+   |
+13 | pub fn decode_cbor(bytes: &[u8]) -> SourceResult<Value> {
+   |        ^^^^^^^^^^^
+
+warning: function `decode_csv` is never used
+  --> 01_core/src/compiler/stdlib/loading/csv.rs:19:8
+   |
+19 | pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResult<Value> {
+   |        ^^^^^^^^^^
+
+warning: variant `Pure` is never constructed
+  --> 01_core/src/compiler/stdlib/loading/csv.rs:25:5
+   |
+24 | enum CsvErrorContext<'a> {
+   |      --------------- variant in this enum
+25 |     Pure,
+   |     ^^^^
+   |
+   = note: `CsvErrorContext` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+warning: function `native_array_all_static` is never used
+   --> 01_core/src/compiler/stdlib/collections.rs:519:4
+    |
+519 | fn native_array_all_static(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `native_str_clusters_static` is never used
+   --> 01_core/src/compiler/stdlib/collections.rs:553:4
+    |
+553 | fn native_str_clusters_static(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `str_trim` is never used
+  --> 01_core/src/compiler/stdlib/collections/str_transform.rs:72:15
+   |
+72 | pub(super) fn str_trim(s: EcoString) -> Value {
+   |               ^^^^^^^^
+
+warning: function `expect_one_array` is never used
+   --> 01_core/src/compiler/stdlib/collections/validation.rs:140:15
+    |
+140 | pub(super) fn expect_one_array(args: Args, context: &str) -> SourceResult<Vec<Value>> {
+    |               ^^^^^^^^^^^^^^^^
+
+warning: function `counter_at_location` is never used
+   --> 01_core/src/compiler/stdlib/counter.rs:471:8
+    |
+471 | pub fn counter_at_location(
+    |        ^^^^^^^^^^^^^^^^^^^
+
+warning: `typst-core` (lib) generated 125 warnings (run `cargo fix --lib -p typst-core` to apply 48 suggestions)
+   Compiling typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+warning: unused import: `std::sync::Arc`
+  --> 03_infra/src/export/gradients/mod.rs:18:5
+   |
+18 | use std::sync::Arc;
+   |     ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `FrameItem` and `PagedDocument`
+  --> 03_infra/src/export/gradients/mod.rs:20:42
+   |
+20 | use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
+   |                                          ^^^^^^^^^        ^^^^^^^^^^^^^
+
+warning: unused imports: `Linear` and `Radial`
+  --> 03_infra/src/export/gradients/cmyk.rs:12:38
+   |
+12 | use typst_core::entities::gradient::{Linear, Radial};
+   |                                      ^^^^^^  ^^^^^^
+
+warning: unused import: `typst_core::entities::layout_types::Color`
+  --> 03_infra/src/export/gradients/cmyk.rs:13:5
+   |
+13 | use typst_core::entities::layout_types::Color;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::Linear`
+  --> 03_infra/src/export/gradients/linear.rs:12:5
+   |
+12 | use typst_core::entities::gradient::Linear;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::axes::Axes`
+  --> 03_infra/src/export/gradients/radial.rs:12:5
+   |
+12 | use typst_core::entities::axes::Axes;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::Radial`
+  --> 03_infra/src/export/gradients/radial.rs:13:5
+   |
+13 | use typst_core::entities::gradient::Radial;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::layout_types::Ratio`
+  --> 03_infra/src/export/gradients/radial.rs:14:5
+   |
+14 | use typst_core::entities::layout_types::Ratio;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::RelativeTo`
+  --> 03_infra/src/export/gradients/relative.rs:12:5
+   |
+12 | use typst_core::entities::gradient::RelativeTo;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Pt`
+   --> 03_infra/src/export/gradients/mod.rs:184:57
+    |
+184 |     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
+    |                                                         ^^
+
+warning: unused import: `Pt`
+   --> 03_infra/src/export/gradients/mod.rs:349:57
+    |
+349 |     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
+    |                                                         ^^
+
+warning: unused import: `PageContext`
+ --> 03_infra/src/export/stream/text.rs:9:39
+  |
+9 |     text_to_hex_string, FontScenario, PageContext,
+  |                                       ^^^^^^^^^^^
+
+warning: unused imports: `BitmapGlyphRef`, `collect_bitmap_glyphs_for_ids`, and `used_glyph_ids_for_face`
+  --> 03_infra/src/export/mod.rs:45:5
+   |
+45 |     collect_bitmap_glyphs_for_ids, used_glyph_ids_for_face, BitmapGlyphRef,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^
+
+warning: unused imports: `RectKey`, `bezier_control_points_for_arc`, `compute_coons_patches_n_stops_extended`, `compute_coons_patches_n_stops`, `multispace_sample_stops_conic`, `perceptual_distance_in_space`, and `rgb_to_cmyk`
+  --> 03_infra/src/export/mod.rs:55:51
+   |
+55 |     adaptive_n_for_stops, apply_parent_transform, bezier_control_points_for_arc,
+   |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+56 |     compute_axial_coords, compute_coons_patches_n_stops,
+   |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+57 |     compute_coons_patches_n_stops_extended, compute_radial_coords, dedup_key_for,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+61 |     multispace_sample_stops_conic, multispace_sample_stops_linear_cmyk,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+62 |     multispace_sample_stops_radial, multispace_sample_stops_radial_cmyk,
+63 |     pattern_resources_for_page, perceptual_distance_in_space, resolve_relative,
+   |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+64 |     rgb_to_cmyk, scan_all_gradients, spot_bbox_for_shape, DedupKey, GradientObject,
+   |     ^^^^^^^^^^^
+65 |     GradientObjectKind, PatternRef, RectKey,
+   |                                     ^^^^^^^
+
+warning: unused imports: `PdfImagePayload` and `process_png_for_pdf`
+  --> 03_infra/src/export/mod.rs:70:18
+   |
+70 |     jpeg_is_rgb, process_png_for_pdf, scan_all_images, srgb_icc_profile_for_version,
+   |                  ^^^^^^^^^^^^^^^^^^^
+71 |     xobject_resources_for_page, ImageFormat, ImageRef, ImageXObject, PdfImagePayload,
+   |                                                                      ^^^^^^^^^^^^^^^
+
+warning: unused imports: `FontScenario`, `draw_item_local`, `emit_glyph_pdf`, `emit_rounded_rect_ops`, `emit_shape_path_local`, `emit_stroke_paint`, `emit_text_pdf`, and `line_rg_prefix`
+  --> 03_infra/src/export/mod.rs:74:24
+   |
+74 |     build_page_stream, draw_item_local, emit_glyph_pdf, emit_rounded_rect_ops,
+   |                        ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^
+75 |     emit_shape_path_local, emit_stroke_paint, emit_text_pdf, line_rg_prefix,
+   |     ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^
+76 |     FontScenario, PageContext,
+   |     ^^^^^^^^^^^^
+
+warning: unused import: `PathBuf`
+  --> 03_infra/src/fontdb.rs:13:23
+   |
+13 | use std::path::{Path, PathBuf};
+   |                       ^^^^^^^
+
+warning: unused import: `instantiate_variable_font`
+  --> 03_infra/src/pipeline.rs:39:39
+   |
+39 |     axis_variations_for_font_variant, instantiate_variable_font, is_variable_font,
+   |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `compile_to_paged_document_full_error`
+  --> 03_infra/src/pipeline.rs:85:32
+   |
+85 |     bind_logical_page_numbers, compile_to_paged_document_full_error,
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `collect_bundle_entries`
+   --> 03_infra/src/pipeline.rs:101:19
+    |
+101 |     bundle_error, collect_bundle_entries, introspect_bundle_with_runtime_for_pipeline,
+    |                   ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `require_ua1_image_alt` and `resolve_pdf_pages_and_tags`
+   --> 03_infra/src/pipeline.rs:127:5
+    |
+127 |     require_ua1_image_alt, resolve_pdf_pages_and_tags,
+    |     ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `first_font_from_doc` and `resolve_font`
+   --> 03_infra/src/pipeline.rs:148:29
+    |
+148 |     collect_fonts_from_doc, first_font_from_doc, resolve_export_fonts, resolve_font,
+    |                             ^^^^^^^^^^^^^^^^^^^                        ^^^^^^^^^^^^
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/bidi_context.rs:113:20
+    |
+113 |         FrameItem::Text { bidi, .. }
+    |                    ^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 03_infra/src/export/builder/fonts.rs:86:31
+   |
+86 |             if let FrameItem::Text { text, style, .. } = item {
+   |                               ^^^^
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/builder/metadata.rs:712:69
+    |
+712 |                 FrameItem::TextSeparator { style, .. } | FrameItem::Text { style, .. }
+    |                                                                     ^^^^
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/builder/resources.rs:126:72
+    |
+126 |             if let FrameItem::TextSeparator { style, .. } | FrameItem::Text { style, .. } = item {
+    |                                                                        ^^^^
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/gradients/mod.rs:307:62
+    |
+307 |                 FrameItem::TextSeparator { .. } | FrameItem::Text { .. }
+    |                                                              ^^^^
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/gradients/mod.rs:409:62
+    |
+409 |                 FrameItem::TextSeparator { .. } | FrameItem::Text { .. }
+    |                                                              ^^^^
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/render.rs:193:54
+    |
+193 |         FrameItem::TextSeparator { .. } | FrameItem::Text { .. } => {}
+    |                                                      ^^^^
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/svg.rs:246:20
+    |
+246 |         FrameItem::Text { pos, text, style , .. } => {
+    |                    ^^^^
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/font_binding.rs:230:28
+    |
+230 |                 FrameItem::Text { style, .. }
+    |                            ^^^^
+
+warning: use of deprecated field `typst_core::entities::layout_types::FrameItem::Text::bidi`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/bidi_context.rs:113:27
+    |
+113 |         FrameItem::Text { bidi, .. }
+    |                           ^^^^
+
+warning: use of deprecated field `typst_core::entities::layout_types::FrameItem::Text::text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 03_infra/src/export/builder/fonts.rs:86:38
+   |
+86 |             if let FrameItem::Text { text, style, .. } = item {
+   |                                      ^^^^
+
+warning: use of deprecated field `typst_core::entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+  --> 03_infra/src/export/builder/fonts.rs:86:44
+   |
+86 |             if let FrameItem::Text { text, style, .. } = item {
+   |                                            ^^^^^
+
+warning: use of deprecated field `typst_core::entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/builder/metadata.rs:712:76
+    |
+712 |                 FrameItem::TextSeparator { style, .. } | FrameItem::Text { style, .. }
+    |                                                                            ^^^^^
+
+warning: use of deprecated field `typst_core::entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/builder/resources.rs:126:79
+    |
+126 |             if let FrameItem::TextSeparator { style, .. } | FrameItem::Text { style, .. } = item {
+    |                                                                               ^^^^^
+
+warning: use of deprecated field `typst_core::entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/svg.rs:246:27
+    |
+246 |         FrameItem::Text { pos, text, style , .. } => {
+    |                           ^^^
+
+warning: use of deprecated field `typst_core::entities::layout_types::FrameItem::Text::text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/svg.rs:246:32
+    |
+246 |         FrameItem::Text { pos, text, style , .. } => {
+    |                                ^^^^
+
+warning: use of deprecated field `typst_core::entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/svg.rs:246:38
+    |
+246 |         FrameItem::Text { pos, text, style , .. } => {
+    |                                      ^^^^^
+
+warning: use of deprecated field `typst_core::entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/font_binding.rs:230:35
+    |
+230 |                 FrameItem::Text { style, .. }
+    |                                   ^^^^^
+
+warning: unreachable pattern
+   --> 03_infra/src/export/gradients/mod.rs:312:19
+    |
+203 | /                 FrameItem::Shape {
+204 | |                     pos,
+205 | |                     width,
+206 | |                     height,
+...   |
+210 | |                     ..
+211 | |                 } => {
+    | |_________________- matches all the relevant values
+...
+312 |                   | FrameItem::Shape { .. } => {}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^ no value can reach this
+    |
+    = note: `#[warn(unreachable_patterns)]` (part of `#[warn(unused)]`) on by default
+
+warning: unreachable pattern
+   --> 03_infra/src/export/gradients/mod.rs:414:19
+    |
+365 | /                 FrameItem::Shape {
+366 | |                     pos,
+367 | |                     width,
+368 | |                     height,
+...   |
+372 | |                     ..
+373 | |                 } => {
+    | |_________________- matches all the relevant values
+...
+414 |                   | FrameItem::Shape { .. } => {}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^ no value can reach this
+
+warning: unused variable: `font`
+  --> 03_infra/src/export/stream/text/runs.rs:65:43
+   |
+65 |     if let FrameItem::TextShaped { style, font, .. } = &items[start] {
+   |                                           ^^^^ help: try ignoring the field: `font: _`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `intrinsic_width`
+   --> 03_infra/src/export/stream/draw.rs:272:13
+    |
+272 |             intrinsic_width,
+    |             ^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_width: _`
+
+warning: unused variable: `intrinsic_height`
+   --> 03_infra/src/export/stream/draw.rs:273:13
+    |
+273 |             intrinsic_height,
+    |             ^^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_height: _`
+
+warning: unused variable: `intrinsic_width`
+   --> 03_infra/src/export/stream/draw.rs:814:13
+    |
+814 |             intrinsic_width,
+    |             ^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_width: _`
+
+warning: unused variable: `intrinsic_height`
+   --> 03_infra/src/export/stream/draw.rs:815:13
+    |
+815 |             intrinsic_height,
+    |             ^^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_height: _`
+
+warning: unused variable: `e`
+  --> 03_infra/src/export/subset.rs:84:13
+   |
+84 |         Err(e) => {
+   |             ^ help: if this is intentional, prefix it with an underscore: `_e`
+
+warning: variable does not need to be mutable
+   --> 03_infra/src/export/svg/glyphs.rs:319:9
+    |
+319 |     let mut y = 0.0;
+    |         ----^
+    |         |
+    |         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `variant`
+   --> 03_infra/src/font_metrics/caches.rs:129:13
+    |
+129 |         let variant = text_style_to_font_variant(style);
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_variant`
+
+warning: unused variable: `variant`
+   --> 03_infra/src/font_metrics/caches.rs:210:13
+    |
+210 |         let variant = text_style_to_font_variant(style);
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_variant`
+
+warning: function `multispace_sample_stops_conic` is never used
+  --> 03_infra/src/export/gradients/conic.rs:17:15
+   |
+17 | pub(crate) fn multispace_sample_stops_conic(
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `subset_font` is never used
+   --> 03_infra/src/export/subset.rs:112:8
+    |
+112 | pub fn subset_font(font_data: &[u8], used_glyphs: &BTreeSet<u16>) -> Option<Vec<u8>> {
+    |        ^^^^^^^^^^^
+
+warning: function `split_ltr_suffixes_page` is never used
+   --> 03_infra/src/layout_bidi.rs:560:4
+    |
+560 | fn split_ltr_suffixes_page(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: field `final_styles` is never read
+  --> 03_infra/src/pipeline/context_stabilization.rs:25:5
+   |
+19 | struct Execution {
+   |        --------- field in this struct
+...
+25 |     final_styles: StyleChain,
+   |     ^^^^^^^^^^^^
+
+warning: field `parent` is never read
+  --> 03_infra/src/pipeline/context_stabilization.rs:31:5
+   |
+28 | struct Producer {
+   |        -------- field in this struct
+...
+31 |     parent: Option<usize>,
+   |     ^^^^^^
+
+warning: function `compile_to_paged_document_full_error` is never used
+   --> 03_infra/src/pipeline/paged.rs:274:15
+    |
+274 | pub(super) fn compile_to_paged_document_full_error(
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `try_shape` is never used
+   --> 03_infra/src/shaper/shaping.rs:114:15
+    |
+114 | pub(super) fn try_shape(
+    |               ^^^^^^^^^
+
+warning: function `shape_item` is never used
+  --> 03_infra/src/shaper/traversal.rs:77:15
+   |
+77 | pub(super) fn shape_item(
+   |               ^^^^^^^^^^
+
+warning: field `live` is never read
+   --> 03_infra/src/watch.rs:170:5
+    |
+165 | pub struct BundleHttpServer {
+    |            ---------------- field in this struct
+...
+170 |     live: bool,
+    |     ^^^^
+
+warning: method `catalog_with` is never used
+  --> 03_infra/src/world/font_session.rs:35:8
+   |
+22 | impl FontCatalogSession {
+   | ----------------------- method in this implementation
+...
+35 |     fn catalog_with(
+   |        ^^^^^^^^^^^^
+
+warning: `typst-infra` (lib) generated 61 warnings (run `cargo fix --lib -p typst-infra` to apply 31 suggestions)
+   Compiling typst-wiring v0.1.0 (/repos/Antigravity/typst-crystalline/04_wiring)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.70s
+     Running tests/cli.rs (target/debug/deps/cli-b65499395fa8e345)
+
+running 9 tests
+test p1170_1_html_a_repr_casts_e_dom_aninhado ... ok
+test p1171_1_html_br_void_e_whitespace_dom ... FAILED
+test p1172_1_html_agrupa_phrasing_no_topo ... ok
+test p1173_1_html_lote_global_only_2_e_whitespace_block ... FAILED
+test p1174_1_html_lote_global_only_3 ... FAILED
+test p1175_1_html_lote_global_only_4_e_espaco_protegido ... ok
+test p1176_1_html_lote_residual_normal ... FAILED
+test p1177_1_html_familia_ruby ... FAILED
+test p1178_1_html_familia_documento ... FAILED
+
+failures:
+
+---- p1171_1_html_br_void_e_whitespace_dom stdout ----
+
+thread 'p1171_1_html_br_void_e_whitespace_dom' (512) panicked at 04_wiring/tests/cli.rs:2346:5:
+assertion failed: html.contains("<div>A<br>B <span>C</span> <span>D</span></div>")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- p1173_1_html_lote_global_only_2_e_whitespace_block stdout ----
+
+thread 'p1173_1_html_lote_global_only_2_e_whitespace_block' (517) panicked at 04_wiring/tests/cli.rs:2422:5:
+assertion failed: html.contains("<article id=\"art\"><address>Addr</address><aside>Side</aside></article><p><abbr>A</abbr><b>B</b><bdi>C</bdi><bdo>D</bdo><cite>E</cite><code>F</code><dfn>G</dfn><i>H</i><kbd>I</kbd></p>")
+
+---- p1174_1_html_lote_global_only_3 stdout ----
+
+thread 'p1174_1_html_lote_global_only_3' (520) panicked at 04_wiring/tests/cli.rs:2471:5:
+assertion failed: html.contains("<dl><dt>Term</dt><dd>Definition</dd></dl><figure><figcaption>Caption</figcaption></figure><header>Head</header><hgroup><h1>Title</h1></hgroup><main><legend>Legend</legend><menu>Menu</menu><mark>Marked</mark></main><footer>Foot</footer>")
+
+---- p1176_1_html_lote_residual_normal stdout ----
+
+thread 'p1176_1_html_lote_residual_normal' (526) panicked at 04_wiring/tests/cli.rs:2569:5:
+assertion failed: html.contains("<p><span>A</span></p><datalist>Hidden</datalist><p><noscript>Fallback</noscript><span>B</span></p><summary>Top</summary><details><summary>Inside</summary>Body</details>")
+
+---- p1177_1_html_familia_ruby stdout ----
+
+thread 'p1177_1_html_familia_ruby' (529) panicked at 04_wiring/tests/cli.rs:2618:5:
+assertion failed: html.contains("<p><ruby>A <rt>T</rt></ruby> <ruby>A <span>X</span> B</ruby> <ruby><rp>(</rp><rt>T</rt><rp>)</rp></ruby></p><rp>P</rp><rt>T</rt>")
+
+---- p1178_1_html_familia_documento stdout ----
+
+thread 'p1178_1_html_familia_documento' (532) panicked at 04_wiring/tests/cli.rs:2660:5:
+assertion `left == right` failed: error: HTML raw text element cannot have non-text children
+
+warning: html export is under active development and incomplete
+ = hint: its behaviour may change at any time
+ = hint: do not rely on this feature for production use cases
+ = hint: see https://github.com/typst/typst/issues/5512 for more information
+
+
+  left: Some(1)
+ right: Some(0)
+
+
+failures:
+    p1171_1_html_br_void_e_whitespace_dom
+    p1173_1_html_lote_global_only_2_e_whitespace_block
+    p1174_1_html_lote_global_only_3
+    p1176_1_html_lote_residual_normal
+    p1177_1_html_familia_ruby
+    p1178_1_html_familia_documento
+
+test result: FAILED. 3 passed; 6 failed; 0 ignored; 0 measured; 117 filtered out; finished in 0.26s
+
+error: test failed, to rerun pass `-p typst-wiring --test cli`

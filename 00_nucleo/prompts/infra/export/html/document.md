@@ -48,7 +48,7 @@ Antes de classificar blocos/raiz HTML, projetar visualmente os carriers internos
 ## Heading sob estilos transparentes — 2026-10-06
 
 Medição anterior à decisão: html-headings e html-show na baseline
-`00_nucleo/diagnosticos/paridade-dominios-2026-10-06/measurement.json.gz`
+`lab/results/construction/diagnostics/paridade-dominios-2026-10-06/measurement.json.gz`
 retornam erro unsupported no Tekt e h2/h3 no vanilla pinado 9f2b6e871.
 `document.rs:47-87,145-158` classifica apenas Heading direto e mapeia seu
 nível sem offset; Styled cai em inline, que não aceita blocos. No oracle
@@ -137,7 +137,7 @@ fora do gate; não alegar HTML bytes idênticos quando só glyph/body coincidem.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 workspace-seventh/p1421 HTML contextual refuta perda de tag sob Source. Coleta/root, bloco-inline e render de documento/sequence delegam Source ao body, preservando tags, estilos, encoding e estado SmartQuote; Source não fabrica parágrafo/container.
 
@@ -151,7 +151,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/fontes/argv e diffstat em candidate-probe/target-controls/state-extended.json.gz
 e candidate-probes-resources.json de
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17.
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17.
 State reader-init, unused e at-prefix passam no PDF, mas HTML rejeita o marcador
 com unsupported; vanilla pin bd5ebec285505889e8ff1d4f68804ab147a699f3 aceita.
 Upstream foundations/styles.rs:1049–1050 registra StateUpdate/Metadata como empty

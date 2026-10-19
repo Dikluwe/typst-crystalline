@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/recipes.md
-//! @prompt-hash 9bda3c5b
+//! @prompt-hash 3d09f9a1
 //! @layer L1
 //! @updated 2026-10-18
 

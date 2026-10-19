@@ -11,7 +11,7 @@ Núcleos Tekt:
 
 ## Evidência antes da decisão
 
-`grid/tracks.rs:175` constrói o subframe de altura Auto e descarta todos os itens; `grid/cell_body.rs:155` os reconstrói na emissão. `grid.rs:218–239` mede antes de placement. O diagnóstico `00_nucleo/diagnosticos/reuso-sem-transformacao-2026-10-05.md` mediu diferenças de contexto e documentou a remoção histórica do cache P234 por reordenação. A etapa layout-inicial removeu um relayout completo, mas não esse par medição/emissão. O baseline e as fontes atuais estão preservados em `00_nucleo/diagnosticos/frames-celulas-2026-10-05/before-state.json.gz`. Fonte `paragraph_plan.rs:48–56` recusa planejamento em subframes, e `line_commit.rs:493` não consome contador raiz dentro de subframe. `word_layout.rs:21–55` emite uma palavra mantida sem callback/identidade; `sub_frame.rs:314–346` devolve produtos locais e restaura estado pai, preservando last_sub_frame_width/bottom como resultados laterais. Isso motiva um experimento limitado; não prova antecipadamente ganho.
+`grid/tracks.rs:175` constrói o subframe de altura Auto e descarta todos os itens; `grid/cell_body.rs:155` os reconstrói na emissão. `grid.rs:218–239` mede antes de placement. O diagnóstico `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05.md` mediu diferenças de contexto e documentou a remoção histórica do cache P234 por reordenação. A etapa layout-inicial removeu um relayout completo, mas não esse par medição/emissão. O baseline e as fontes atuais estão preservados em `lab/results/construction/diagnostics/frames-celulas-2026-10-05/before-state.json.gz`. Fonte `paragraph_plan.rs:48–56` recusa planejamento em subframes, e `line_commit.rs:493` não consome contador raiz dentro de subframe. `word_layout.rs:21–55` emite uma palavra mantida sem callback/identidade; `sub_frame.rs:314–346` devolve produtos locais e restaura estado pai, preservando last_sub_frame_width/bottom como resultados laterais. Isso motiva um experimento limitado; não prova antecipadamente ganho.
 
 ## Unidade e fronteira
 
@@ -31,7 +31,7 @@ RED→GREEN: duas células Auto de um token requerem dois subframes totais, não
 
 O cache é interno na mesma fase, sem API externa/default/compatibilidade: fluxo contínuo ADR-0127.
 
-Refinamento medido na sonda: para Beta/FixedMetrics, last_sub_frame_width foi 26.400000000000006 e body_w 26.4; o critério estrito descartava o produto por cancelamento de f64 em cursor_x − origin_x. A tolerância classificatória acima permite esse carrier, mas origem/largura de entrada e o produto continuam exatamente iguais. A revalidação em `00_nucleo/diagnosticos/frames-celulas-2026-10-05/width-probe.json.gz` conserva esses números, a sonda cfg(test) e seu estado exato; o log discovery original permanece exploratório. Recusar ambiente matemático também conserva o fallback.
+Refinamento medido na sonda: para Beta/FixedMetrics, last_sub_frame_width foi 26.400000000000006 e body_w 26.4; o critério estrito descartava o produto por cancelamento de f64 em cursor_x − origin_x. A tolerância classificatória acima permite esse carrier, mas origem/largura de entrada e o produto continuam exatamente iguais. A revalidação em `lab/results/construction/diagnostics/frames-celulas-2026-10-05/width-probe.json.gz` conserva esses números, a sonda cfg(test) e seu estado exato; o log discovery original permanece exploratório. Recusar ambiente matemático também conserva o fallback.
 
 Provas locais do helper: origem ou largura diferentes invalidam e consomem a tentativa do registro, sem hit posterior; mudança de tracking no canal custom da chain altera o TextStyle efetivo e exige fallback mesmo quando o estilo pai achatado não mudou. Esses testes complementam a integração de grid e legitimam a guardas mecânicas, não paridade por igualdade de Content.
 
@@ -40,7 +40,7 @@ Provas locais do helper: origem ou largura diferentes invalidam e consomem a ten
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -77,7 +77,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/celulas-prioridade5-2026-10-07/before.json.gz conserva HEAD
+lab/results/construction/diagnostics/celulas-prioridade5-2026-10-07/before.json.gz conserva HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada, UTC/diffstat/fontes de
 código e binário fc5b2571. audit.log e audit-test.rs.txt conservam a sonda: Alpha,
 12.34, item-2, abc_def e a/b produzem uma folha Text de mesmo texto; pontuação é
@@ -141,7 +141,7 @@ contratos de origem ratificados no C2.
 
 ### Medição antes da decisão
 
-`00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/stacks-current.json.gz`
+`lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/stacks-current.json.gz`
 registra HEAD, árvore não commitada, diffstat/status, UTC, fontes, binário e
 interpositor. Em 1.600 Cell, a amostragem de alocações sob
 `style_scope::layout_styled` é 5.435 no `local-set` e 1.471 no
@@ -184,7 +184,7 @@ qualificação, com proveniência do estado exato.
 
 ### Medição anterior à decisão
 
-T134: 01_core/src/compiler/layout/grid/measurement_cache.rs:69; T135: 01_core/src/compiler/layout/grid/measurement_cache.rs:80; T136: 01_core/src/compiler/layout/grid/measurement_cache.rs:83. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+T134: 01_core/src/compiler/layout/grid/measurement_cache.rs:69; T135: 01_core/src/compiler/layout/grid/measurement_cache.rs:80; T136: 01_core/src/compiler/layout/grid/measurement_cache.rs:83. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `lab/results/construction/diagnostics/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
 
 ### Responsabilidade exclusiva e aceitação
 

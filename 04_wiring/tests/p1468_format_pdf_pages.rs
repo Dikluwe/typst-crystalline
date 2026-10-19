@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1468-format-pdf-pages.md
-//! @prompt-hash 168c3b03
+//! @prompt-hash 481de079
 //!
 //! P1468 (RED — Agente B) — integração de binário para `pdf.pages`
 //! (`#set format.pdf(pages: ...)`) e a flag `compile --pages`. Modelado em
@@ -412,7 +412,7 @@ fn p1468_link_to_removed_page_omits_annotation() {
     // a partir de um label é a referência cruzada `@label`
     // (`compiler/layout/references.rs`), não `#outline()` (cujo próprio
     // mecanismo de sumário foi descartado como fonte de teste — ver
-    // `00_nucleo/materialization/typst-passo-1468.md` §8.1 item 3). Heading
+    // `lab/history/construction/records/00_nucleo/materialization/typst-passo-1468.md` §8.1 item 3). Heading
     // numerado para que `@target` seja referenciável.
     let source = "#set heading(numbering: \"1.\")\nSee @target.\n#pagebreak()\n= Target <target>\n#pagebreak()\nTrailer";
 

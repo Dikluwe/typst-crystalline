@@ -7,7 +7,7 @@ Hash do Código: d7ebae7b
 
 ## Measurement before decision
 
-At the uncommitted working tree captured in `00_nucleo/diagnosticos/atomizacao-stdlib-math-accent-2026-09-30-before.json.gz`, `01_core/src/compiler/stdlib/structural/math.rs:393-550` contains the alias table for combining marks, normalization, base/accent/size/dotless casts, semantic constructor and native. Static registration occurs later in the parent. The `p1429` filter passed 9 tests before movement. This is a structural regression baseline, not timing or a new bilateral vanilla measurement.
+At the uncommitted working tree captured in `lab/results/construction/diagnostics/atomizacao-stdlib-math-accent-2026-09-30-before.json.gz`, `01_core/src/compiler/stdlib/structural/math.rs:393-550` contains the alias table for combining marks, normalization, base/accent/size/dotless casts, semantic constructor and native. Static registration occurs later in the parent. The `p1429` filter passed 9 tests before movement. This is a structural regression baseline, not timing or a new bilateral vanilla measurement.
 
 ## Language contract
 
@@ -24,7 +24,7 @@ The P1429 regression filter and full core suite remain green. A local test check
 ## Complemento de casts de figure — Type e Symbol, 2026-10-17
 
 Medição anterior à decisão: type-kind-probe.json e more-cast-probe.json em
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 registram o candidato
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 registram o candidato
 que passou 5/6 testes mas falhou em kind:int. foundations/value.rs:647-658 do
 pin 9f2b6e8715237cb086899a42873660fe744622e8 mede Func aceitando Type.constructor
 ou Symbol.func; content/element.rs:210-214 exige to_element; symbol.rs:133-137,

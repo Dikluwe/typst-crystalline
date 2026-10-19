@@ -10,7 +10,7 @@ Hash do Código: cccc33c1
 `01_core/src/compiler/math/layout/p1425_tests.rs:14` locates `fn style() -> TextStyle`.
 This audit locates the existing consumer; it does not establish language parity.
 Historical evidence and unresolved discrepancies are archived in
-`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
+`lab/results/construction/diagnostics/sanitization-remaining-compiler-history.md`.
 
 ## Test-only obligation
 

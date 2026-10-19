@@ -11,7 +11,7 @@ Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/c
 
 ## Contrato
 
-Own collection method interception and Func.with partial application in the existing order. Receber o valor do receiver avaliado pelo despacho anterior para acesso a campo e consumi-lo uma vez, sem reavaliar a expressão; preservar argument spans, trace handling e fallthrough. Preservar contrato público, fase do pipeline, defaults, compatibilidade e pureza L1. Evidência e proveniência da duplicação em `00_nucleo/diagnosticos/arrays-dicts-item6-2026-10-09.md` e `instance_methods.md`.
+Own collection method interception and Func.with partial application in the existing order. Receber o valor do receiver avaliado pelo despacho anterior para acesso a campo e consumi-lo uma vez, sem reavaliar a expressão; preservar argument spans, trace handling e fallthrough. Preservar contrato público, fase do pipeline, defaults, compatibilidade e pureza L1. Evidência e proveniência da duplicação em `lab/results/construction/diagnostics/arrays-dicts-item6-2026-10-09.md` e `instance_methods.md`.
 
 ## Aceitação
 
@@ -47,7 +47,7 @@ regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
 anterior foram verificados exatamente antes do baseline. before-probe.json.gz
 e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.

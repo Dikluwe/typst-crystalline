@@ -53,7 +53,7 @@ normal builds. Preserve recursion, style and context semantics in both builds.
 ## Context — identidade das regras locais, 2026-10-18
 
 Medição anterior: green-text1.log e seu recibo em
-00_nucleo/diagnosticos/context-paridade-2026-10-18, HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731,
+lab/results/construction/diagnostics/context-paridade-2026-10-18, HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731,
 working tree do candidato1. O controle local-inside-context regrediu de L para R.
 context_stabilization.rs:257 cria EvalContext fresco; rules/show.rs:455–456
 aloca RuleId começando do mesmo zero da regra herdada. textual.rs:86–103 compõe

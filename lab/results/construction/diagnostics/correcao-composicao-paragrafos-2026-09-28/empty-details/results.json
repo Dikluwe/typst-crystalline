@@ -1,0 +1,297 @@
+{
+  "utc": "2026-09-28T17:49:07.065698+00:00",
+  "head": "17f13b1df79b87ea065ee62e78164b18e477da3d",
+  "diff_HEAD_stat": " 00_nucleo/adr/README.md                            |  4371 +-----\n 00_nucleo/adr/adr-stub-vs-fallback.md              |    76 -\n 00_nucleo/adr/template-adr.md                      |    79 +-\n .../adr/typst-adr-0001-estrategia-migracao.md      |     2 +-\n .../adr/typst-adr-0002-hierarquia-contencao.md     |   182 -\n 00_nucleo/adr/typst-adr-0003-comemo-contencao.md   |   159 -\n 00_nucleo/adr/typst-adr-0004-passo1-descobertas.md |   198 -\n 00_nucleo/adr/typst-adr-0005-packagespec-world.md  |     2 +-\n 00_nucleo/adr/typst-adr-0006-typst-timing.md       |     2 +-\n 00_nucleo/adr/typst-adr-0007-rustc-hash.md         |    85 -\n 00_nucleo/adr/typst-adr-0008-defer-inline.md       |     2 +-\n 00_nucleo/adr/typst-adr-0009-math-class.md         |     2 +-\n 00_nucleo/adr/typst-adr-0010-unicode-ident.md      |     2 +-\n 00_nucleo/adr/typst-adr-0011-unicode-math-class.md |     2 +-\n 00_nucleo/adr/typst-adr-0012-unicode-script.md     |     2 +-\n .../adr/typst-adr-0013-unicode-segmentation.md     |     2 +-\n 00_nucleo/adr/typst-adr-0014-unscanny.md           |     2 +-\n 00_nucleo/adr/typst-adr-0015-ecow.md               |     2 +-\n 00_nucleo/adr/typst-adr-0016-lazyhash.md           |     2 +-\n .../typst-adr-0017-adiamento-eval-typst-library.md |     2 +-\n 00_nucleo/adr/typst-adr-0018-rustc-hash.md         |     2 +-\n 00_nucleo/adr/typst-adr-0019-ttf-rustybuzz.md      |     2 +-\n 00_nucleo/adr/typst-adr-0020-fontdb.md             |     2 +-\n 00_nucleo/adr/typst-adr-0021-datetime.md           |     2 +-\n 00_nucleo/adr/typst-adr-0022-fontbook.md           |     2 +-\n 00_nucleo/adr/typst-adr-0023-indexmap.md           |     2 +-\n 00_nucleo/adr/typst-adr-0024-ecow-value.md         |     2 +-\n 00_nucleo/adr/typst-adr-0025-int-eq-float.md       |     2 +-\n 00_nucleo/adr/typst-adr-0026-R1-content-arc.md     |     2 +-\n .../adr/typst-adr-0026-content-divergencia.md      |     2 +-\n 00_nucleo/adr/typst-adr-0027-cidfont-subsetting.md |     2 +-\n 00_nucleo/adr/typst-adr-0028-typographic-types.md  |    52 -\n ...typst-adr-0029-pureza-fisica-revoga-adr-0028.md |     2 +-\n .../adr/typst-adr-0030-performance-dominio-l1.md   |     2 +-\n .../adr/typst-adr-0031-early-hashing-source.md     |     2 +-\n 00_nucleo/adr/typst-adr-0032-unsafe-em-l1.md       |     2 +-\n .../typst-adr-0033-paridade-funcional-vanilla.md   |     2 +-\n .../typst-adr-0034-diagnostico-tipos-vanilla.md    |     2 +-\n 00_nucleo/adr/typst-adr-0035-ecovec-autorizacao.md |     2 +-\n .../adr/typst-adr-0036-atomizacao-progressiva.md   |     2 +-\n 00_nucleo/adr/typst-adr-0037-coesao-por-dominio.md |     2 +-\n 00_nucleo/adr/typst-adr-0038-sistema-estilos-l1.md |     2 +-\n 00_nucleo/adr/typst-adr-0039-frameitem-style.md    |     2 +-\n 00_nucleo/adr/typst-adr-0040-activacao-set-rule.md |     2 +-\n .../adr/typst-adr-0041-activacao-show-rule.md      |     2 +-\n 00_nucleo/adr/typst-adr-0042-sink-materializado.md |     2 +-\n 00_nucleo/adr/typst-adr-0043-canal-sink-saida.md   |     2 +-\n 00_nucleo/adr/typst-adr-0044-engine-agregador.md   |     2 +-\n .../adr/typst-adr-0045-formato-diagnosticos.md     |     3 +-\n 00_nucleo/adr/typst-adr-0046-cli-minima.md         |     2 +-\n 00_nucleo/adr/typst-adr-0047-cli-clap.md           |     2 +-\n .../adr/typst-adr-0048-diagnosticos-com-cor.md     |     2 +-\n 00_nucleo/adr/typst-adr-0049-cli-em-l2.md          |     2 +-\n 00_nucleo/adr/typst-adr-0050-formatter-em-l2.md    |     2 +-\n 00_nucleo/adr/typst-adr-0051-flags-funcionais.md   |     2 +-\n .../adr/typst-adr-0052-lang-tipo-semantico.md      |     2 +-\n 00_nucleo/adr/typst-adr-0053-font-tipo-composto.md |     2 +-\n .../adr/typst-adr-0054-criterio-fecho-debt-1.md    |     2 +-\n .../adr/typst-adr-0055-font-consumer-cidfont.md    |     2 +-\n 00_nucleo/adr/typst-adr-0057-lang-hyphenation.md   |     2 +-\n .../adr/typst-adr-0058-value-type-simplificado.md  |     2 +-\n 00_nucleo/adr/typst-adr-0059-args-tipo-separado.md |     2 +-\n .../adr/typst-adr-0060-model-structural-roadmap.md |   779 --\n .../adr/typst-adr-0061-layout-fase-x-roadmap.md    |  1645 ---\n ...ypst-adr-0062-hayagriva-bibliography-parsing.md |     3 +-\n .../typst-adr-0064-smart-para-option-default.md    |     2 +-\n .../adr/typst-adr-0065-inventariar-primeiro.md     |     2 +-\n .../typst-adr-0066-introspection-runtime-adiada.md |   496 -\n .../typst-adr-0067-attribute-grammar-scoping.md    |     2 +-\n .../adr/typst-adr-0068-location-aware-layouter.md  |     2 +-\n .../typst-adr-0069-post-recursion-tag-emission.md  |     2 +-\n ...pst-adr-0070-eliminacao-counter-state-legacy.md |     3 +-\n .../adr/typst-adr-0071-walk-pipeline-redesign.md   |     3 +-\n .../typst-adr-0072-m7-fixpoint-runtime-fechado.md  |     2 +-\n .../adr/typst-adr-0073-comemo-introspector.md      |     3 +-\n ...pst-adr-0074-f3-layouter-substores-trackable.md |     3 +-\n .../adr/typst-adr-0075-vanilla-integration.md      |     3 +-\n .../adr/typst-adr-0076-introspector-completion.md  |     3 +-\n 00_nucleo/adr/typst-adr-0077-regex-l1.md           |     3 +-\n .../adr/typst-adr-0078-column-flow-algorithm.md    |     6 +-\n .../adr/typst-adr-0079-layout-fase-5-roadmap.md    |  2628 ----\n .../typst-adr-0080-l0-minimal-para-refactors.md    |     2 +-\n ...dr-0081-m7-plus-pipeline-restructuring-scope.md |  1085 --\n ...t-adr-0082-promocoes-reais-scope-outs-graded.md |     3 +-\n ...or-paridade-vanilla-com-subset-materializado.md |     3 +-\n .../adr/typst-adr-0084-auditoria-condicional.md    |     2 +-\n .../adr/typst-adr-0085-diagnostico-imutavel.md     |     2 +-\n .../adr/typst-adr-0086-paint-wrapper-solid-only.md |     2 +-\n .../adr/typst-adr-0087-gradient-linear-only.md     |     2 +-\n .../adr/typst-adr-0088-gradient-radial-only.md     |     2 +-\n .../adr/typst-adr-0089-gradient-conic-only.md      |     2 +-\n ...090-gradient-conic-strategy-type-4-vs-type-1.md |   561 -\n ...091-gradient-space-runtime-and-cmyk-strategy.md |     3 +-\n .../typst-adr-0092-conic-coons-patches-rgb-cmyk.md |     3 +-\n ...ypst-adr-0093-meta-metodologia-evolucao-adrs.md |     3 +-\n .../adr/typst-adr-0094-meta-operacional-specs.md   |     3 +-\n .../typst-adr-0095-dedup-arc-as-ptr-resources.md   |     3 +-\n ...tern-debt-37-campo-layouter-consumer-pending.md |   259 -\n ...t-adr-0097-scope-out-reconfirmado-por-fase-a.md |   269 -\n ...8-single-source-of-truth-invariante-anti-bug.md |     3 +-\n ...-adr-0099-activacao-posterior-feature-graded.md |     3 +-\n .../adr/typst-adr-0100-coesao-por-dominio-l3.md    |     2 +-\n .../adr/typst-adr-0101-ieee754-restricao-stdlib.md |     2 +-\n .../adr/typst-adr-0102-math-style-mechanism.md     |     2 +-\n .../adr/typst-adr-0103-math-style-composition.md   |     2 +-\n .../adr/typst-adr-0104-atomicidade-para-agentes.md |     2 +-\n ...t-adr-0105-modelo-elemento-d-agora-f-destino.md |     2 +-\n .../adr/typst-adr-0106-fronteira-de-extensao-e1.md |     2 +-\n ...pst-adr-0107-paridade-linguagem-nao-mecanica.md |     2 +-\n .../adr/typst-adr-0108-disciplina-anti-deriva.md   |     2 +-\n 00_nucleo/adr/typst-adr-0109-atomizacao.md         |     3 +-\n 00_nucleo/adr/typst-adr-0110-marcador-vanilla.md   |     3 +-\n .../adr/typst-adr-0111-crates-parsing-loading.md   |     3 +-\n 00_nucleo/adr/typst-adr-0112-rust-decimal-l1.md    |     3 +-\n ...-0113-stub-transparente-vs-fallback-software.md |     2 +-\n .../adr/typst-adr-0114-sonda-antes-da-spec.md      |     2 +-\n .../adr/typst-adr-0115-infra-benchmark-scanner.md  |     3 +-\n ...typst-adr-0116-excecao-get-unchecked-scanner.md |     3 +-\n 00_nucleo/adr/typst-adr-0117-sonda-a0-mecanismo.md |     3 +-\n .../adr/typst-adr-0118-runtime-state-context.md    |     3 +-\n .../adr/typst-adr-0119-disciplina-verificacao.md   |     2 +-\n .../adr/typst-adr-0120-textshaped-rustybuzz.md     |     3 +-\n .../adr/typst-adr-0121-proveniencia-medicao.md     |     2 +-\n .../adr/typst-adr-0122-paridade-defeitos-testes.md |     2 +-\n .../adr/typst-adr-0123-geometria-tipografica.md    |     2 +-\n .../adr/typst-adr-0124-checklist-sublayouts.md     |     2 +-\n .../typst-adr-0125-implementacao-vs-linguagem.md   |     2 +-\n .../adr/typst-adr-0126-modo-verboso-primeiro.md    |     2 +-\n .../adr/typst-adr-0127-gate-l0-paragem-vs-fluxo.md |     2 +-\n .../adr/typst-adr-0128-html-target-semantico.md    |     2 +-\n ...typst-adr-0129-nucleos-tekt-l0-compartilhado.md |     3 +-\n .../adr/typst-adr-0130-referencias-canonicas-l0.md |    94 +-\n 00_nucleo/prompts/compiler/columns.md              |   682 +-\n 00_nucleo/prompts/compiler/eval.md                 |  1368 +-\n 00_nucleo/prompts/compiler/eval/bibliography.md    |    35 +-\n 00_nucleo/prompts/compiler/eval/bindings.md        |   147 +-\n 00_nucleo/prompts/compiler/eval/bindings/access.md |   103 +-\n .../prompts/compiler/eval/bindings/binding.md      |   113 +-\n .../prompts/compiler/eval/bindings/field_access.md |  1675 +--\n .../compiler/eval/bindings/method_dispatch.md      |   157 +-\n .../compiler/eval/bindings/value_methods.md        |   465 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  1169 +-\n 00_nucleo/prompts/compiler/eval/cast.md            |    78 +-\n 00_nucleo/prompts/compiler/eval/closures.md        |   226 +-\n 00_nucleo/prompts/compiler/eval/control_flow.md    |    32 +-\n 00_nucleo/prompts/compiler/eval/flow.md            |    26 +-\n 00_nucleo/prompts/compiler/eval/font_dict.md       |   116 +-\n 00_nucleo/prompts/compiler/eval/markup.md          |    51 +-\n 00_nucleo/prompts/compiler/eval/math.md            |   849 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   167 +-\n 00_nucleo/prompts/compiler/eval/operators.md       |   106 +-\n .../prompts/compiler/eval/operators/arithmetic.md  |   304 +-\n .../prompts/compiler/eval/operators/equality.md    |   274 +-\n .../compiler/eval/operators/error_formatting.md    |   136 +-\n 00_nucleo/prompts/compiler/eval/operators/join.md  |   163 +-\n .../prompts/compiler/eval/operators/ordering.md    |   161 +-\n 00_nucleo/prompts/compiler/eval/p1425-tests.md     |    36 +-\n 00_nucleo/prompts/compiler/eval/p1426-tests.md     |    37 +-\n 00_nucleo/prompts/compiler/eval/p1427-tests.md     |    60 +-\n .../compiler/eval/p1429-observation-tests.md       |    31 +-\n 00_nucleo/prompts/compiler/eval/p1430-tests.md     |    59 +-\n 00_nucleo/prompts/compiler/eval/p1431-tests.md     |    53 +-\n 00_nucleo/prompts/compiler/eval/repr.md            |  1224 +-\n 00_nucleo/prompts/compiler/eval/rules.md           |   989 +-\n .../prompts/compiler/eval/selector_matching.md     |   368 +-\n .../prompts/compiler/eval/show_rule_termination.md |   277 +-\n 00_nucleo/prompts/compiler/eval/table.md           |   158 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   521 +-\n .../prompts/compiler/footnote_overflow_columns.md  |   215 +-\n 00_nucleo/prompts/compiler/introspect.md           |  2310 +---\n .../prompts/compiler/introspect/convergence.md     |   109 +-\n .../prompts/compiler/introspect/extract_payload.md |   183 +-\n 00_nucleo/prompts/compiler/introspect/fixpoint.md  |   215 +-\n 00_nucleo/prompts/compiler/introspect/from_tags.md |   471 +-\n 00_nucleo/prompts/compiler/introspect/heading.md   |   181 +-\n 00_nucleo/prompts/compiler/introspect/labelled.md  |    96 +-\n 00_nucleo/prompts/compiler/introspect/locatable.md |   391 +-\n 00_nucleo/prompts/compiler/lang.md                 |    71 +-\n .../prompts/compiler/lang/equation_supplement.md   |    39 +-\n .../prompts/compiler/lang/figure_supplement.md     |    44 +-\n .../prompts/compiler/lang/heading_supplement.md    |   167 +-\n 00_nucleo/prompts/compiler/lang/outline_title.md   |    39 +-\n 00_nucleo/prompts/compiler/lang/quotes.md          |    89 +-\n 00_nucleo/prompts/compiler/layout-image.md         |    15 +-\n 00_nucleo/prompts/compiler/layout.md               |   922 +-\n 00_nucleo/prompts/compiler/layout/bib_csl.md       |   160 +-\n 00_nucleo/prompts/compiler/layout/bibliography.md  |   235 +-\n 00_nucleo/prompts/compiler/layout/block.md         |   135 +-\n 00_nucleo/prompts/compiler/layout/boxed.md         |   132 +-\n .../prompts/compiler/layout/cell_tail_commit.md    |    72 +-\n 00_nucleo/prompts/compiler/layout/cite.md          |    29 +-\n 00_nucleo/prompts/compiler/layout/colbreak.md      |    29 +-\n 00_nucleo/prompts/compiler/layout/cursor.md        |   747 +-\n 00_nucleo/prompts/compiler/layout/curve.md         |    30 +-\n 00_nucleo/prompts/compiler/layout/decorations.md   |    29 +-\n 00_nucleo/prompts/compiler/layout/divider.md       |    29 +-\n 00_nucleo/prompts/compiler/layout/dynamic.md       |    27 +-\n 00_nucleo/prompts/compiler/layout/enum_item.md     |   146 +-\n 00_nucleo/prompts/compiler/layout/equation.md      |   680 +-\n 00_nucleo/prompts/compiler/layout/flow_suffix.md   |    62 +-\n 00_nucleo/prompts/compiler/layout/flush.md         |    98 +-\n 00_nucleo/prompts/compiler/layout/footnote.md      |   102 +-\n .../prompts/compiler/layout/format_options.md      |   370 +-\n 00_nucleo/prompts/compiler/layout/grid.md          |    30 +-\n 00_nucleo/prompts/compiler/layout/grid_cell.md     |    29 +-\n 00_nucleo/prompts/compiler/layout/grid_footer.md   |    29 +-\n 00_nucleo/prompts/compiler/layout/grid_header.md   |    29 +-\n .../prompts/compiler/layout/grid_placement.md      |    29 +-\n 00_nucleo/prompts/compiler/layout/h_space.md       |    29 +-\n 00_nucleo/prompts/compiler/layout/heading.md       |   185 +-\n 00_nucleo/prompts/compiler/layout/helpers.md       |    77 +-\n 00_nucleo/prompts/compiler/layout/hide.md          |    29 +-\n 00_nucleo/prompts/compiler/layout/html_frame.md    |   113 +-\n 00_nucleo/prompts/compiler/layout/hyphenation.md   |    27 +-\n 00_nucleo/prompts/compiler/layout/line_commit.md   |    57 +-\n 00_nucleo/prompts/compiler/layout/linebreak.md     |    28 +-\n 00_nucleo/prompts/compiler/layout/link.md          |   129 +-\n 00_nucleo/prompts/compiler/layout/list_item.md     |   121 +-\n 00_nucleo/prompts/compiler/layout/metrics.md       |    63 +-\n 00_nucleo/prompts/compiler/layout/pad.md           |    29 +-\n 00_nucleo/prompts/compiler/layout/page_canvas.md   |    31 +-\n 00_nucleo/prompts/compiler/layout/page_commit.md   |    69 +-\n 00_nucleo/prompts/compiler/layout/page_geometry.md |    29 +-\n 00_nucleo/prompts/compiler/layout/page_run.md      |    28 +-\n 00_nucleo/prompts/compiler/layout/page_running.md  |    31 +-\n 00_nucleo/prompts/compiler/layout/pagebreak.md     |    29 +-\n 00_nucleo/prompts/compiler/layout/parbreak.md      |    27 +-\n 00_nucleo/prompts/compiler/layout/pdf_artifact.md  |    66 +-\n 00_nucleo/prompts/compiler/layout/pdf_attach.md    |    73 +-\n 00_nucleo/prompts/compiler/layout/place.md         |   160 +-\n 00_nucleo/prompts/compiler/layout/placement.md     |    44 +-\n 00_nucleo/prompts/compiler/layout/quote.md         |    29 +-\n 00_nucleo/prompts/compiler/layout/raw_highlight.md |    42 +-\n 00_nucleo/prompts/compiler/layout/repeat.md        |    41 +-\n 00_nucleo/prompts/compiler/layout/sequence.md      |   686 +-\n .../compiler/layout/shape_block_behaviour.md       |    15 +-\n 00_nucleo/prompts/compiler/layout/slicing.md       |    45 +-\n 00_nucleo/prompts/compiler/layout/smartquote.md    |    43 +-\n 00_nucleo/prompts/compiler/layout/stack.md         |    55 +-\n 00_nucleo/prompts/compiler/layout/sub_frame.md     |    70 +-\n 00_nucleo/prompts/compiler/layout/table.md         |   111 +-\n 00_nucleo/prompts/compiler/layout/table_cell.md    |    41 +-\n 00_nucleo/prompts/compiler/layout/table_footer.md  |    29 +-\n 00_nucleo/prompts/compiler/layout/table_header.md  |    29 +-\n 00_nucleo/prompts/compiler/layout/term_item.md     |    29 +-\n 00_nucleo/prompts/compiler/layout/terms.md         |    29 +-\n 00_nucleo/prompts/compiler/layout/tests.md         |   191 +-\n 00_nucleo/prompts/compiler/layout/text.md          |    62 +-\n 00_nucleo/prompts/compiler/layout/tiling.md        |    69 +-\n 00_nucleo/prompts/compiler/layout/title.md         |    36 +-\n 00_nucleo/prompts/compiler/layout/transform.md     |    66 +-\n 00_nucleo/prompts/compiler/layout/v_space.md       |    29 +-\n .../prompts/compiler/layout/vanilla_defaults.md    |    32 +-\n 00_nucleo/prompts/compiler/layout/word_segment.md  |    55 +-\n 00_nucleo/prompts/compiler/layout_counters.md      |    75 +-\n 00_nucleo/prompts/compiler/layout_figure.md        |   120 +-\n 00_nucleo/prompts/compiler/layout_outline.md       |   238 +-\n 00_nucleo/prompts/compiler/layout_references.md    |   239 +-\n 00_nucleo/prompts/compiler/lexer/code.md           |    83 +-\n 00_nucleo/prompts/compiler/lexer/markup.md         |    88 +-\n 00_nucleo/prompts/compiler/lexer/math.md           |    74 +-\n 00_nucleo/prompts/compiler/lexer/mod.md            |   230 +-\n 00_nucleo/prompts/compiler/math/layout/_comum.md   |  1852 +--\n 00_nucleo/prompts/compiler/math/layout/accent.md   |   304 +-\n 00_nucleo/prompts/compiler/math/layout/assembly.md |   268 +-\n 00_nucleo/prompts/compiler/math/layout/attach.md   |   542 +-\n .../prompts/compiler/math/layout/callbacks.md      |   234 +-\n 00_nucleo/prompts/compiler/math/layout/cancel.md   |   161 +-\n 00_nucleo/prompts/compiler/math/layout/cases.md    |   175 +-\n .../prompts/compiler/math/layout/delimited.md      |   148 +-\n 00_nucleo/prompts/compiler/math/layout/frac.md     |   317 +-\n 00_nucleo/prompts/compiler/math/layout/matrix.md   |   253 +-\n 00_nucleo/prompts/compiler/math/layout/op.md       |    52 +-\n .../prompts/compiler/math/layout/p1425-tests.md    |    40 +-\n .../prompts/compiler/math/layout/p1426-tests.md    |    36 +-\n .../prompts/compiler/math/layout/p1427-tests.md    |    72 +-\n .../prompts/compiler/math/layout/p1429-tests.md    |    50 +-\n .../prompts/compiler/math/layout/p1430-tests.md    |    39 +-\n .../prompts/compiler/math/layout/p1431-tests.md    |    81 +-\n 00_nucleo/prompts/compiler/math/layout/root.md     |   335 +-\n 00_nucleo/prompts/compiler/math/layout/spacing.md  |   670 +-\n 00_nucleo/prompts/compiler/math/layout/stretch.md  |    43 +-\n 00_nucleo/prompts/compiler/math/layout/stretchy.md |   277 +-\n 00_nucleo/prompts/compiler/math/layout/tests.md    |    51 +-\n .../prompts/compiler/math/layout/underline.md      |   128 +-\n .../prompts/compiler/math/layout/underover.md      |   492 +-\n 00_nucleo/prompts/compiler/math/layout/vec.md      |   105 +-\n 00_nucleo/prompts/compiler/math/mod.md             |    75 +-\n 00_nucleo/prompts/compiler/math/symbols.md         |   420 +-\n 00_nucleo/prompts/compiler/mod.md                  |    99 +-\n 00_nucleo/prompts/compiler/parse.md                |    32 +-\n 00_nucleo/prompts/compiler/parse/code.md           |    29 +-\n 00_nucleo/prompts/compiler/parse/markup.md         |    30 +-\n 00_nucleo/prompts/compiler/parse/math.md           |    27 +-\n 00_nucleo/prompts/compiler/parse/parser.md         |    35 +-\n 00_nucleo/prompts/compiler/parse/patterns.md       |    26 +-\n 00_nucleo/prompts/compiler/parse/rules.md          |    26 +-\n 00_nucleo/prompts/compiler/scanner.md              |   159 +-\n 00_nucleo/prompts/compiler/scopes.md               |   365 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   293 +-\n 00_nucleo/prompts/compiler/stdlib/assert.md        |    97 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  1176 +-\n 00_nucleo/prompts/compiler/stdlib/collections.md   |   534 +-\n 00_nucleo/prompts/compiler/stdlib/color.md         |   621 +-\n 00_nucleo/prompts/compiler/stdlib/context.md       |   135 +-\n 00_nucleo/prompts/compiler/stdlib/emoji.md         |   108 +-\n 00_nucleo/prompts/compiler/stdlib/eval.md          |    82 +-\n 00_nucleo/prompts/compiler/stdlib/foundations.md   |    72 +-\n .../prompts/compiler/stdlib/foundations/cast.md    |    71 +-\n .../compiler/stdlib/foundations/datetime.md        |   117 +-\n .../prompts/compiler/stdlib/foundations/float.md   |   238 +-\n .../prompts/compiler/stdlib/foundations/int.md     |    87 +-\n .../prompts/compiler/stdlib/foundations/path.md    |    26 +-\n .../prompts/compiler/stdlib/foundations/query.md   |   171 +-\n .../prompts/compiler/stdlib/foundations/regex.md   |    49 +-\n .../prompts/compiler/stdlib/foundations/repr.md    |   127 +-\n .../compiler/stdlib/foundations/selector.md        |   114 +-\n .../prompts/compiler/stdlib/foundations/str.md     |    77 +-\n .../prompts/compiler/stdlib/foundations/ty.md      |    31 +-\n .../prompts/compiler/stdlib/html/p1423-tests.md    |    35 +-\n .../prompts/compiler/stdlib/html/p1424-tests.md    |    33 +-\n 00_nucleo/prompts/compiler/stdlib/label.md         |    64 +-\n 00_nucleo/prompts/compiler/stdlib/numbering.md     |   123 +-\n 00_nucleo/prompts/compiler/stdlib/panic.md         |    86 +-\n .../compiler/stdlib/primitives-constructors.md     |    76 +-\n .../stdlib/primitives-constructors/array.md        |    65 +-\n .../stdlib/primitives-constructors/decimal.md      |    35 +-\n .../stdlib/primitives-constructors/duration.md     |    47 +-\n .../stdlib/primitives-constructors/version.md      |   107 +-\n 00_nucleo/prompts/compiler/stdlib/ref.md           |    62 +-\n 00_nucleo/prompts/compiler/stdlib/structural.md    |  1325 +-\n .../compiler/stdlib/structural/bibliography.md     |    98 +-\n .../prompts/compiler/stdlib/structural/divider.md  |    54 +-\n .../prompts/compiler/stdlib/structural/document.md |   118 +-\n .../prompts/compiler/stdlib/structural/heading.md  |   107 +-\n .../prompts/compiler/stdlib/structural/markup.md   |    46 +-\n .../compiler/stdlib/structural/math/p1425-tests.md |    33 +-\n .../compiler/stdlib/structural/math/p1426-tests.md |    29 +-\n .../compiler/stdlib/structural/math/p1427-tests.md |    37 +-\n .../structural/p1405_outline_indented_tests.md     |    26 +-\n .../compiler/stdlib/structural/p1429-tests.md      |    21 +-\n .../compiler/stdlib/structural/p1430-tests.md      |    21 +-\n .../compiler/stdlib/structural/p1431-tests.md      |    21 +-\n .../compiler/stdlib/structural/p1436-tests.md      |    30 +-\n .../compiler/stdlib/structural/p1437-tests.md      |    32 +-\n .../compiler/stdlib/structural/p1438-tests.md      |    32 +-\n .../compiler/stdlib/structural/p1439-tests.md      |    30 +-\n .../compiler/stdlib/structural/p1440-tests.md      |    30 +-\n .../compiler/stdlib/structural/p1441-tests.md      |    29 +-\n .../compiler/stdlib/structural/p1442-tests.md      |    30 +-\n .../compiler/stdlib/structural/p1443-tests.md      |    30 +-\n .../compiler/stdlib/structural/p1444-tests.md      |    27 +-\n .../compiler/stdlib/structural/p1445-tests.md      |    32 +-\n .../compiler/stdlib/structural/p1446-tests.md      |    23 +-\n .../compiler/stdlib/structural/p1447-tests.md      |    34 +-\n .../compiler/stdlib/structural/p1448-tests.md      |    30 +-\n .../compiler/stdlib/structural/p1449-tests.md      |    30 +-\n .../compiler/stdlib/structural/p1450-tests.md      |    30 +-\n .../compiler/stdlib/structural/p1451-tests.md      |    30 +-\n .../prompts/compiler/stdlib/structural/par.md      |    55 +-\n .../prompts/compiler/stdlib/structural/quote.md    |    58 +-\n .../compiler/stdlib/structural/table_grid.md       |    85 +-\n .../compiler/stdlib/structural/table_lines.md      |    76 +-\n .../prompts/compiler/stdlib/structural/title.md    |    72 +-\n 00_nucleo/prompts/compiler/stdlib/sys.md           |   122 +-\n 00_nucleo/prompts/compiler/stdlib/text.md          |   186 +-\n 00_nucleo/prompts/compiler/stdlib/text/case.md     |    70 +-\n .../prompts/compiler/stdlib/text/constructor.md    |   143 +-\n 00_nucleo/prompts/compiler/stdlib/text/deco.md     |   132 +-\n 00_nucleo/prompts/compiler/stdlib/text/lorem.md    |    87 +-\n 00_nucleo/prompts/compiler/stdlib/text/regex.md    |    63 +-\n 00_nucleo/prompts/compiler/stdlib/text/shift.md    |    85 +-\n .../prompts/compiler/stdlib/text/smallcaps.md      |    77 +-\n .../prompts/compiler/stdlib/text/smartquote.md     |   130 +-\n 00_nucleo/prompts/compiler/utils.md                |    81 +-\n 00_nucleo/prompts/contracts/package_downloader.md  |    23 +-\n 00_nucleo/prompts/contracts/plugin_host.md         |   201 +-\n 00_nucleo/prompts/contracts/world.md               |   352 +-\n 00_nucleo/prompts/entities/axes.md                 |    69 +-\n 00_nucleo/prompts/entities/bytes.md                |   139 +-\n 00_nucleo/prompts/entities/compiler_features.md    |   106 +-\n 00_nucleo/prompts/entities/content.md              |  3580 +----\n 00_nucleo/prompts/entities/content_hash.md         |   170 +-\n 00_nucleo/prompts/entities/corners.md              |   102 +-\n 00_nucleo/prompts/entities/dir.md                  |   125 +-\n .../prompts/entities/document_format_options.md    |   618 +-\n 00_nucleo/prompts/entities/document_info.md        |    76 +-\n 00_nucleo/prompts/entities/duration.md             |   196 +-\n 00_nucleo/prompts/entities/element_registry.md     |    34 +-\n 00_nucleo/prompts/entities/elements/_comum.md      |   260 +-\n 00_nucleo/prompts/entities/elements/align.md       |    53 +-\n 00_nucleo/prompts/entities/elements/colbreak.md    |    61 +-\n .../prompts/entities/elements/context_block.md     |    25 +-\n .../prompts/entities/elements/counter_display.md   |    49 +-\n 00_nucleo/prompts/entities/elements/divider.md     |    50 +-\n 00_nucleo/prompts/entities/elements/dynamic.md     |    36 +-\n 00_nucleo/prompts/entities/elements/emph.md        |    72 +-\n 00_nucleo/prompts/entities/elements/flush.md       |    57 +-\n 00_nucleo/prompts/entities/elements/grid_footer.md |    49 +-\n 00_nucleo/prompts/entities/elements/grid_header.md |    49 +-\n 00_nucleo/prompts/entities/elements/hide.md        |    43 +-\n 00_nucleo/prompts/entities/elements/linebreak.md   |    89 +-\n .../entities/elements/p1429-math-accent-tests.md   |     1 +\n .../entities/elements/p1430-math-cases-tests.md    |     2 +-\n .../entities/elements/p1431-math-matrix-tests.md   |     1 +\n 00_nucleo/prompts/entities/elements/pad.md         |    48 +-\n 00_nucleo/prompts/entities/elements/state.md       |    52 +-\n .../prompts/entities/elements/state_display.md     |    50 +-\n 00_nucleo/prompts/entities/elements/strong.md      |    73 +-\n .../prompts/entities/elements/table_footer.md      |    49 +-\n .../prompts/entities/elements/table_header.md      |    49 +-\n 00_nucleo/prompts/entities/elements/terms.md       |    50 +-\n .../prompts/entities/elements/test_callout.md      |    34 +-\n 00_nucleo/prompts/entities/elements/title.md       |    47 +-\n 00_nucleo/prompts/entities/font_variations.md      |   127 +-\n 00_nucleo/prompts/entities/label_kind.md           |    17 +-\n 00_nucleo/prompts/entities/layout_types.md         |   121 +-\n 00_nucleo/prompts/entities/location.md             |   122 +-\n 00_nucleo/prompts/entities/mod.md                  |    26 +-\n 00_nucleo/prompts/entities/p1431-line-cap-tests.md |     1 +\n 00_nucleo/prompts/entities/page_canvas.md          |    58 +-\n 00_nucleo/prompts/entities/page_geometry.md        |   106 +-\n 00_nucleo/prompts/entities/page_running.md         |   140 +-\n 00_nucleo/prompts/entities/page_store.md           |   308 +-\n 00_nucleo/prompts/entities/page_supplement.md      |   154 +-\n 00_nucleo/prompts/entities/parity.md               |    93 +-\n 00_nucleo/prompts/entities/ptr-eq-arc.md           |    96 +-\n 00_nucleo/prompts/entities/rel.md                  |   131 +-\n 00_nucleo/prompts/entities/shaped_glyph.md         |    66 +-\n 00_nucleo/prompts/entities/state.md                |    17 +-\n 00_nucleo/prompts/entities/syntax-node.md          |   238 +-\n 00_nucleo/prompts/infra/bibtex.md                  |   106 +-\n 00_nucleo/prompts/infra/embedded_fonts.md          |   243 +-\n 00_nucleo/prompts/infra/export-fixtures.md         |   288 +-\n 00_nucleo/prompts/infra/export/bitmap_glyphs.md    |   111 +-\n 00_nucleo/prompts/infra/export/builder.md          |  2279 +--\n 00_nucleo/prompts/infra/export/font_subset.md      |   215 +-\n 00_nucleo/prompts/infra/export/fonts.md            |   112 +-\n .../prompts/infra/export/gradients/adaptive.md     |   213 +-\n 00_nucleo/prompts/infra/export/gradients/cmyk.md   |    55 +-\n 00_nucleo/prompts/infra/export/gradients/conic.md  |    92 +-\n .../infra/export/gradients/function_dict.md        |    88 +-\n 00_nucleo/prompts/infra/export/gradients/linear.md |    56 +-\n 00_nucleo/prompts/infra/export/gradients/mod.md    |   120 +-\n 00_nucleo/prompts/infra/export/gradients/radial.md |    56 +-\n .../prompts/infra/export/gradients/relative.md     |    62 +-\n 00_nucleo/prompts/infra/export/html.md             |   392 +-\n 00_nucleo/prompts/infra/export/images.md           |   177 +-\n 00_nucleo/prompts/infra/export/mod.md              |   295 +-\n 00_nucleo/prompts/infra/export/oracle.md           |   161 +-\n .../prompts/infra/export/p1250_svg_integrated.md   |    39 +-\n .../prompts/infra/export/p1405_pdf_label_tests.md  |    39 +-\n .../prompts/infra/export/p1431-line-cap-tests.md   |    59 +-\n 00_nucleo/prompts/infra/export/pdf_defaults.md     |    49 +-\n 00_nucleo/prompts/infra/export/render.md           |   185 +-\n 00_nucleo/prompts/infra/export/stream.md           |   669 +-\n 00_nucleo/prompts/infra/export/svg.md              |   699 +-\n 00_nucleo/prompts/infra/export/tests/mod.md        |   154 +-\n .../tests/p1475_pdfa_conformance_core_tests.md     |    70 +-\n .../tests/p1476_pdfa_attachments_af_tests.md       |    61 +-\n .../p1477_pdfa_icc_version_and_cidset_tests.md     |    91 +-\n .../p1478_pdfa4f_empty_embedded_files_tests.md     |    73 +-\n .../tests/p1480_pdfua_identification_tests.md      |    92 +-\n .../export/tests/p1481_pdfua_structure_tests.md    |    69 +-\n .../infra/export/tests/p1483_pdf_spot_tests.md     |    79 +-\n .../export/tests/p1486_pdf_page_labels_tests.md    |    57 +-\n 00_nucleo/prompts/infra/fallback_fonts.md          |   112 +-\n 00_nucleo/prompts/infra/font_metrics.md            |  1059 +-\n 00_nucleo/prompts/infra/font_variant.md            |    96 +-\n 00_nucleo/prompts/infra/fontdb.md                  |   133 +-\n 00_nucleo/prompts/infra/integration_tests.md       |   133 +-\n 00_nucleo/prompts/infra/layout.md                  |    53 +-\n 00_nucleo/prompts/infra/layout_bidi.md             |   455 +-\n 00_nucleo/prompts/infra/measurements.md            |   265 +-\n 00_nucleo/prompts/infra/package_downloader.md      |   176 +-\n .../prompts/infra/package_version_resolution.md    |   116 +-\n 00_nucleo/prompts/infra/pipeline/resources.md      |    22 +-\n 00_nucleo/prompts/infra/pipeline/tests.md          |    22 +-\n 00_nucleo/prompts/infra/plugin_host.md             |   387 +-\n 00_nucleo/prompts/infra/query-helpers.md           |   607 +-\n 00_nucleo/prompts/infra/runtime_info.md            |    23 +-\n 00_nucleo/prompts/infra/shaper/reconciliation.md   |    22 +-\n 00_nucleo/prompts/infra/shaper/traversal.md        |    22 +-\n .../prompts/infra/tests/p1295_watch_contract.md    |    53 +-\n .../infra/tests/p1297_watch_capability_contract.md |    89 +-\n 00_nucleo/prompts/infra/tests/p1424-tests.md       |    63 +-\n 00_nucleo/prompts/infra/tests/p1425-tests.md       |    26 +-\n 00_nucleo/prompts/infra/tests/p1426-tests.md       |    36 +-\n 00_nucleo/prompts/infra/tests/p1427-tests.md       |    48 +-\n 00_nucleo/prompts/infra/tests/p1428-tests.md       |    31 +-\n 00_nucleo/prompts/shell/build.md                   |    32 +-\n 00_nucleo/prompts/shell/cli.md                     |  1571 +--\n 00_nucleo/prompts/shell/completions.md             |    93 +-\n 00_nucleo/prompts/shell/diagnostic.md              |   115 +-\n 00_nucleo/prompts/shell/duration.md                |   161 +-\n 00_nucleo/prompts/shell/fonts-command.md           |    52 +-\n 00_nucleo/prompts/shell/info.md                    |    91 +-\n 00_nucleo/prompts/shell/init.md                    |   110 +-\n 00_nucleo/prompts/shell/tests/p1361-duration.md    |    47 +-\n 00_nucleo/prompts/shell/watch.md                   |   249 +-\n 00_nucleo/prompts/wiring.md                        |   995 +-\n 00_nucleo/prompts/wiring/eviction.md               |   110 +-\n 00_nucleo/prompts/wiring/tests/cli.md              |   164 +-\n 00_nucleo/prompts/wiring/tests/crystalline_lint.md |    66 +-\n .../wiring/tests/p1289_float_is_infinite.md        |    31 +-\n .../prompts/wiring/tests/p1291_callback_runtime.md |    53 +-\n 00_nucleo/prompts/wiring/tests/p1292_contract.md   |    78 +-\n 00_nucleo/prompts/wiring/tests/p1293_contract.md   |    42 +-\n 00_nucleo/prompts/wiring/tests/p1462-format-svg.md |    39 +-\n 00_nucleo/prompts/wiring/tests/p1463-format-png.md |    45 +-\n 00_nucleo/prompts/wiring/tests/p1464-format-pdf.md |   134 +-\n .../prompts/wiring/tests/p1465-format-html.md      |   114 +-\n .../wiring/tests/p1467-format-pdf-tagged-pretty.md |   102 +-\n .../prompts/wiring/tests/p1468-format-pdf-pages.md |   126 +-\n .../wiring/tests/p1469-format-pdf-standard.md      |   152 +-\n 01_core/Cargo.toml                                 |     3 +\n 01_core/src/compiler/eval/bibliography.rs          |     4 +-\n 01_core/src/compiler/eval/bibtex.rs                |     2 +-\n 01_core/src/compiler/eval/bindings/access.rs       |     2 +-\n 01_core/src/compiler/eval/bindings/binding.rs      |     2 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |    36 +-\n .../src/compiler/eval/bindings/method_dispatch.rs  |    34 +-\n 01_core/src/compiler/eval/bindings/mod.rs          |     2 +-\n .../src/compiler/eval/bindings/value_methods.rs    |    22 +-\n 01_core/src/compiler/eval/call_dispatch.rs         |    32 +-\n 01_core/src/compiler/eval/cast.rs                  |     2 +-\n 01_core/src/compiler/eval/closures.rs              |     2 +-\n 01_core/src/compiler/eval/control_flow.rs          |     4 +-\n 01_core/src/compiler/eval/flow.rs                  |     2 +-\n 01_core/src/compiler/eval/font_dict.rs             |     7 +-\n 01_core/src/compiler/eval/markup.rs                |     2 +-\n 01_core/src/compiler/eval/math.rs                  |    10 +-\n 01_core/src/compiler/eval/mod.rs                   |  6437 +--------\n 01_core/src/compiler/eval/modules.rs               |     4 +-\n 01_core/src/compiler/eval/operators/arithmetic.rs  |     8 +-\n 01_core/src/compiler/eval/operators/equality.rs    |     2 +-\n .../compiler/eval/operators/error_formatting.rs    |     2 +-\n 01_core/src/compiler/eval/operators/join.rs        |     2 +-\n 01_core/src/compiler/eval/operators/mod.rs         |     2 +-\n 01_core/src/compiler/eval/operators/ordering.rs    |     2 +-\n 01_core/src/compiler/eval/p1425_tests.rs           |     2 +-\n 01_core/src/compiler/eval/p1426_tests.rs           |     2 +-\n 01_core/src/compiler/eval/p1427_tests.rs           |     8 +-\n .../src/compiler/eval/p1429_observation_tests.rs   |     2 +-\n 01_core/src/compiler/eval/p1430_tests.rs           |     4 +-\n 01_core/src/compiler/eval/p1431_tests.rs           |     4 +-\n 01_core/src/compiler/eval/repr.rs                  |    26 +-\n 01_core/src/compiler/eval/rules.rs                 |   488 +-\n 01_core/src/compiler/eval/selector_matching.rs     |    11 +-\n 01_core/src/compiler/eval/show_rule_termination.rs |     2 +-\n 01_core/src/compiler/eval/table.rs                 |     2 +-\n 01_core/src/compiler/eval/tests.rs                 |  1021 +-\n 01_core/src/compiler/introspect.rs                 |    56 +-\n 01_core/src/compiler/introspect/convergence.rs     |     2 +-\n 01_core/src/compiler/introspect/extract_payload.rs |     2 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |    10 +-\n 01_core/src/compiler/introspect/from_tags.rs       |    43 +-\n 01_core/src/compiler/introspect/heading.rs         |     2 +-\n 01_core/src/compiler/introspect/labelled.rs        |     2 +-\n 01_core/src/compiler/introspect/locatable.rs       |     6 +-\n 01_core/src/compiler/layout/bib_csl.rs             |     2 +-\n 01_core/src/compiler/layout/bibliography.rs        |     2 +-\n 01_core/src/compiler/layout/block.rs               |     2 +-\n 01_core/src/compiler/layout/boxed.rs               |     4 +-\n 01_core/src/compiler/layout/cell_tail_commit.rs    |     4 +-\n 01_core/src/compiler/layout/cite.rs                |     2 +-\n 01_core/src/compiler/layout/colbreak.rs            |     2 +-\n 01_core/src/compiler/layout/columns.rs             |    12 +-\n 01_core/src/compiler/layout/counters.rs            |     2 +-\n 01_core/src/compiler/layout/cursor.rs              |   242 +-\n 01_core/src/compiler/layout/curve.rs               |     2 +-\n 01_core/src/compiler/layout/decorations.rs         |     6 +-\n 01_core/src/compiler/layout/divider.rs             |     2 +-\n 01_core/src/compiler/layout/dynamic.rs             |     2 +-\n 01_core/src/compiler/layout/enum_item.rs           |     2 +-\n 01_core/src/compiler/layout/equation.rs            |   154 +-\n 01_core/src/compiler/layout/figure.rs              |     2 +-\n 01_core/src/compiler/layout/flow_suffix.rs         |     2 +-\n 01_core/src/compiler/layout/flush.rs               |     2 +-\n 01_core/src/compiler/layout/footnote.rs            |     2 +-\n 01_core/src/compiler/layout/footnote_flush.rs      |     4 +-\n 01_core/src/compiler/layout/format_options.rs      |    45 +-\n 01_core/src/compiler/layout/grid.rs                |     2 +-\n 01_core/src/compiler/layout/grid_cell.rs           |     2 +-\n 01_core/src/compiler/layout/grid_footer.rs         |     2 +-\n 01_core/src/compiler/layout/grid_header.rs         |     2 +-\n 01_core/src/compiler/layout/grid_placement.rs      |     2 +-\n 01_core/src/compiler/layout/h_space.rs             |     2 +-\n 01_core/src/compiler/layout/heading.rs             |     2 +-\n 01_core/src/compiler/layout/helpers.rs             |    99 +-\n 01_core/src/compiler/layout/hide.rs                |     2 +-\n 01_core/src/compiler/layout/html_frame.rs          |    20 +-\n 01_core/src/compiler/layout/hyphenation.rs         |     2 +-\n 01_core/src/compiler/layout/image.rs               |     9 +-\n 01_core/src/compiler/layout/line_commit.rs         |    34 +-\n 01_core/src/compiler/layout/linebreak.rs           |     2 +-\n 01_core/src/compiler/layout/link.rs                |     3 +-\n 01_core/src/compiler/layout/list_item.rs           |     2 +-\n 01_core/src/compiler/layout/metrics.rs             |    21 +-\n 01_core/src/compiler/layout/mod.rs                 |  1089 +-\n 01_core/src/compiler/layout/outline.rs             |     2 +-\n 01_core/src/compiler/layout/pad.rs                 |     2 +-\n 01_core/src/compiler/layout/page_canvas.rs         |     2 +-\n 01_core/src/compiler/layout/page_commit.rs         |     2 +-\n 01_core/src/compiler/layout/page_geometry.rs       |    47 +-\n 01_core/src/compiler/layout/page_run.rs            |     2 +-\n 01_core/src/compiler/layout/page_running.rs        |     2 +-\n 01_core/src/compiler/layout/pagebreak.rs           |     2 +-\n 01_core/src/compiler/layout/parbreak.rs            |   109 +-\n 01_core/src/compiler/layout/pdf_artifact.rs        |     2 +-\n 01_core/src/compiler/layout/pdf_attach.rs          |     2 +-\n 01_core/src/compiler/layout/place.rs               |     4 +-\n 01_core/src/compiler/layout/placement.rs           |   166 +-\n 01_core/src/compiler/layout/quote.rs               |     2 +-\n 01_core/src/compiler/layout/raw.rs                 |     2 +-\n 01_core/src/compiler/layout/references.rs          |     2 +-\n 01_core/src/compiler/layout/repeat.rs              |     2 +-\n 01_core/src/compiler/layout/sequence.rs            |    65 +-\n 01_core/src/compiler/layout/set_page.rs            |    75 +-\n 01_core/src/compiler/layout/shape.rs               |     9 +-\n 01_core/src/compiler/layout/slicing.rs             |    11 +-\n 01_core/src/compiler/layout/smartquote.rs          |     2 +-\n 01_core/src/compiler/layout/stack.rs               |     4 +-\n 01_core/src/compiler/layout/sub_frame.rs           |    50 +-\n 01_core/src/compiler/layout/table.rs               |     2 +-\n 01_core/src/compiler/layout/table_cell.rs          |     2 +-\n 01_core/src/compiler/layout/table_footer.rs        |     2 +-\n 01_core/src/compiler/layout/table_header.rs        |     2 +-\n 01_core/src/compiler/layout/term_item.rs           |     2 +-\n 01_core/src/compiler/layout/terms.rs               |     2 +-\n 01_core/src/compiler/layout/tests.rs               |  1405 +-\n 01_core/src/compiler/layout/text.rs                |   215 +-\n 01_core/src/compiler/layout/tiling.rs              |     2 +-\n 01_core/src/compiler/layout/title.rs               |     2 +-\n 01_core/src/compiler/layout/transform.rs           |    10 +-\n 01_core/src/compiler/layout/v_space.rs             |     2 +-\n 01_core/src/compiler/layout/vanilla_defaults.rs    |     2 +-\n 01_core/src/compiler/layout/word_segment.rs        |    44 +-\n 01_core/src/compiler/math/layout/accent.rs         |     4 +-\n 01_core/src/compiler/math/layout/attach.rs         |     4 +-\n 01_core/src/compiler/math/layout/mod.rs            |    55 +-\n 01_core/src/compiler/math/layout/p1426_tests.rs    |     2 +-\n 01_core/src/compiler/math/layout/p1430_tests.rs    |     4 +-\n 01_core/src/compiler/math/layout/p1431_tests.rs    |     2 +-\n 01_core/src/compiler/math/layout/spacing.rs        |    18 +-\n 01_core/src/compiler/math/layout/tests.rs          |     2 +-\n 01_core/src/compiler/parse/parser.rs               |   629 +-\n 01_core/src/compiler/stdlib/color.rs               |   219 +-\n 01_core/src/compiler/stdlib/counter.rs             |    10 +-\n 01_core/src/compiler/stdlib/format.rs              |    12 +-\n 01_core/src/compiler/stdlib/foundations/color.rs   |     6 +-\n 01_core/src/compiler/stdlib/gradients.rs           |    11 +-\n 01_core/src/compiler/stdlib/layout.rs              |    36 +-\n 01_core/src/compiler/stdlib/loading.rs             |     5 +-\n 01_core/src/compiler/stdlib/mod.rs                 | 13854 +------------------\n 01_core/src/compiler/stdlib/structural/document.rs |    45 +-\n 01_core/src/compiler/stdlib/structural/math.rs     |     2 +-\n .../compiler/stdlib/structural/math/p1426_tests.rs |     2 +-\n 01_core/src/compiler/stdlib/structural/mod.rs      |   125 +-\n 01_core/src/compiler/stdlib/structural/outline.rs  |     6 +-\n .../src/compiler/stdlib/structural/p1429_tests.rs  |     2 +-\n .../src/compiler/stdlib/structural/p1430_tests.rs  |     2 +-\n 01_core/src/compiler/stdlib/structural/par.rs      |   102 +-\n 01_core/src/compiler/stdlib/text/constructor.rs    |    42 +-\n 01_core/src/entities/color.rs                      |    31 +-\n 01_core/src/entities/content.rs                    |  6763 +--------\n 01_core/src/entities/content_hash.rs               |    12 +-\n 01_core/src/entities/elements/figure_caption.rs    |     6 +-\n 01_core/src/entities/elements/footnote_entry.rs    |     8 +-\n .../entities/elements/p1430_math_cases_tests.rs    |     2 +-\n 01_core/src/entities/gradient.rs                   |    24 +-\n 01_core/src/entities/layout_types.rs               |    20 +-\n 01_core/src/entities/locator.rs                    |     1 -\n 01_core/src/entities/style.rs                      |     4 +-\n 01_core/src/entities/style_chain.rs                |    18 +-\n 01_core/src/entities/syntax_node.rs                |  1122 +-\n 02_shell/build.rs                                  |     2 +-\n 02_shell/src/cli.rs                                |    36 +-\n 02_shell/src/completions.rs                        |     2 +-\n 02_shell/src/diagnostic.rs                         |     2 +-\n 02_shell/src/duration.rs                           |     2 +-\n 02_shell/src/fonts.rs                              |     2 +-\n 02_shell/src/info.rs                               |     2 +-\n 02_shell/tests/p1361_duration.rs                   |     2 +-\n 03_infra/fixtures/p307b/MANIFEST.md                |    24 +-\n .../fixtures/p307b/reference/01-markup-plain.pdf   |   Bin 2266 -> 2277 bytes\n .../fixtures/p307b/reference/02-markup-heading.pdf |   Bin 2692 -> 2709 bytes\n .../fixtures/p307b/reference/03-text-styling.pdf   |   Bin 2390 -> 2464 bytes\n .../fixtures/p307b/reference/07-multi-feature.pdf  |   Bin 14979 -> 15032 bytes\n 03_infra/fixtures/p307b/reference/09-cidfont.pdf   |   Bin 6657 -> 6759 bytes\n 03_infra/src/embedded_fonts.rs                     |     2 +-\n 03_infra/src/export/bitmap_glyphs.rs               |     2 +-\n 03_infra/src/export/builder.rs                     |  4274 +-----\n 03_infra/src/export/fonts.rs                       |     6 +-\n 03_infra/src/export/gradients/adaptive.rs          |     2 +-\n 03_infra/src/export/gradients/cmyk.rs              |     2 +-\n 03_infra/src/export/gradients/conic.rs             |     2 +-\n 03_infra/src/export/gradients/function_dict.rs     |     2 +-\n 03_infra/src/export/gradients/linear.rs            |     2 +-\n 03_infra/src/export/gradients/mod.rs               |     8 +-\n 03_infra/src/export/gradients/radial.rs            |     2 +-\n 03_infra/src/export/gradients/relative.rs          |     2 +-\n 03_infra/src/export/html.rs                        |  1286 +-\n 03_infra/src/export/images.rs                      |   594 +-\n 03_infra/src/export/mod.rs                         |     2 +-\n 03_infra/src/export/oracle.rs                      |     2 +-\n 03_infra/src/export/p1431_line_cap_tests.rs        |    21 +-\n 03_infra/src/export/pdf_defaults.rs                |     2 +-\n 03_infra/src/export/render.rs                      |     6 +-\n 03_infra/src/export/stream.rs                      |  2138 +--\n 03_infra/src/export/subset.rs                      |     2 +-\n 03_infra/src/export/svg.rs                         |  3272 +----\n 03_infra/src/export/tests/mod.rs                   |     4 +-\n .../tests/p1475_pdfa_conformance_core_tests.rs     |    10 +-\n .../tests/p1476_pdfa_attachments_af_tests.rs       |    16 +-\n .../p1477_pdfa_icc_version_and_cidset_tests.rs     |    14 +-\n .../p1478_pdfa4f_empty_embedded_files_tests.rs     |    11 +-\n .../tests/p1480_pdfua_identification_tests.rs      |     2 +-\n .../export/tests/p1481_pdfua_structure_tests.rs    |     2 +-\n 03_infra/src/export/tests/p1483_pdf_spot_tests.rs  |     2 +-\n .../export/tests/p1486_pdf_page_labels_tests.rs    |     2 +-\n 03_infra/src/fallback_fonts.rs                     |     2 +-\n 03_infra/src/font_metrics.rs                       |  3373 +----\n 03_infra/src/font_variant.rs                       |     2 +-\n 03_infra/src/fontdb.rs                             |     2 +-\n 03_infra/src/integration_tests.rs                  |   316 +-\n 03_infra/src/layout.rs                             |     2 +-\n 03_infra/src/layout_bidi.rs                        |    30 +-\n 03_infra/src/measurements.rs                       |     2 +-\n 03_infra/src/p307b_snapshot_tests.rs               |     2 +-\n 03_infra/src/package_downloader.rs                 |     2 +-\n 03_infra/src/pipeline/resources.rs                 |     8 +-\n 03_infra/src/pipeline/tests.rs                     |    10 +-\n 03_infra/src/plugin_host.rs                        |   838 +-\n 03_infra/src/project_init.rs                       |     2 +-\n 03_infra/src/query_helpers.rs                      |    11 +-\n 03_infra/src/runtime_info.rs                       |     2 +-\n 03_infra/src/shaper/reconciliation.rs              |    11 +-\n 03_infra/src/shaper/traversal.rs                   |     7 +-\n 03_infra/src/watch.rs                              |    69 +-\n 03_infra/tests/p1250_svg_integrated.rs             |     6 +-\n 03_infra/tests/p1295_watch_contract.rs             |     2 +-\n 03_infra/tests/p1297_watch_capability_contract.rs  |     2 +-\n 03_infra/tests/p1405_pdf_label.rs                  |     3 +-\n 03_infra/tests/p1424_html_frame.rs                 |     2 +-\n 03_infra/tests/p1425_math_limits.rs                |     2 +-\n 03_infra/tests/p1426_math_root.rs                  |     2 +-\n 03_infra/tests/p1427_math_frac.rs                  |     2 +-\n 03_infra/tests/p1428_math_frac.rs                  |     2 +-\n 04_wiring/src/eviction.rs                          |     2 +-\n 04_wiring/src/main.rs                              |  1358 +-\n 04_wiring/tests/cli.rs                             |   332 +-\n 04_wiring/tests/crystalline_lint.rs                |     2 +-\n 04_wiring/tests/p1289_float_is_infinite.rs         |     2 +-\n 04_wiring/tests/p1291_callback_runtime.rs          |     2 +-\n 04_wiring/tests/p1292_contract.rs                  |     2 +-\n 04_wiring/tests/p1293_contract.rs                  |     2 +-\n 04_wiring/tests/p1462_format_svg.rs                |     2 +-\n 04_wiring/tests/p1463_format_png.rs                |     2 +-\n 04_wiring/tests/p1464_format_pdf.rs                |     2 +-\n 04_wiring/tests/p1465_format_html.rs               |     2 +-\n 04_wiring/tests/p1467_format_pdf_tagged_pretty.rs  |     2 +-\n 04_wiring/tests/p1468_format_pdf_pages.rs          |     2 +-\n 04_wiring/tests/p1469_format_pdf_standard.rs       |     2 +-\n Cargo.lock                                         |     3 +\n 765 files changed, 16694 insertions(+), 118397 deletions(-)\n",
+  "rows": [
+    {
+      "name": "start-text",
+      "source": "#par(\"\") AFTER",
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea",
+        "pages": [
+          {
+            "height": "47.536000",
+            "words": [
+              {
+                "xMin": "8.000000",
+                "yMin": "26.708000",
+                "xMax": "42.704000",
+                "yMax": "43.052000",
+                "text": "AFTER"
+              }
+            ]
+          }
+        ]
+      },
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "e4c8eb628ea99a2b6adf30970c9b0b749f01c0b734b55e39953ab6f2c2104665",
+        "pages": [
+          {
+            "height": "38.968000",
+            "words": [
+              {
+                "xMin": "8.000000",
+                "yMin": "18.140000",
+                "xMax": "42.704000",
+                "yMax": "34.484000",
+                "text": "AFTER"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "end-text",
+      "source": "BEFORE #par(\"\")",
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea",
+        "pages": [
+          {
+            "height": "47.536000",
+            "words": [
+              {
+                "xMin": "8.000000",
+                "yMin": "3.740001",
+                "xMax": "52.208000",
+                "yMax": "20.084001",
+                "text": "BEFORE"
+              }
+            ]
+          }
+        ]
+      },
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "e4c8eb628ea99a2b6adf30970c9b0b749f01c0b734b55e39953ab6f2c2104665",
+        "pages": [
+          {
+            "height": "38.968000",
+            "words": [
+              {
+                "xMin": "8.000000",
+                "yMin": "3.740000",
+                "xMax": "52.208000",
+                "yMax": "20.084000",
+                "text": "BEFORE"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "only-text",
+      "source": "#par(\"\")",
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea",
+        "pages": [
+          {
+            "height": "24.568000",
+            "words": []
+          }
+        ]
+      },
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "e4c8eb628ea99a2b6adf30970c9b0b749f01c0b734b55e39953ab6f2c2104665",
+        "pages": [
+          {
+            "height": "30.400000",
+            "words": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "only-empty",
+      "source": "#par[]",
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea",
+        "pages": [
+          {
+            "height": "16.000000",
+            "words": []
+          }
+        ]
+      },
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "e4c8eb628ea99a2b6adf30970c9b0b749f01c0b734b55e39953ab6f2c2104665",
+        "pages": [
+          {
+            "height": "30.400000",
+            "words": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "styled-end",
+      "source": "BEFORE #par(leading:2pt)[]",
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea",
+        "pages": [
+          {
+            "height": "38.968000",
+            "words": [
+              {
+                "xMin": "8.000000",
+                "yMin": "3.740002",
+                "xMax": "52.208000",
+                "yMax": "20.084002",
+                "text": "BEFORE"
+              }
+            ]
+          }
+        ]
+      },
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "e4c8eb628ea99a2b6adf30970c9b0b749f01c0b734b55e39953ab6f2c2104665",
+        "pages": [
+          {
+            "height": "61.936000",
+            "words": [
+              {
+                "xMin": "8.000000",
+                "yMin": "3.740000",
+                "xMax": "52.208000",
+                "yMax": "20.084000",
+                "text": "BEFORE"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "text-middle",
+      "source": "BEFORE #par(\"\") AFTER",
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea",
+        "pages": [
+          {
+            "height": "70.504000",
+            "words": [
+              {
+                "xMin": "8.000000",
+                "yMin": "3.740003",
+                "xMax": "52.208000",
+                "yMax": "20.084003",
+                "text": "BEFORE"
+              },
+              {
+                "xMin": "8.000000",
+                "yMin": "49.676004",
+                "xMax": "42.704000",
+                "yMax": "66.020004",
+                "text": "AFTER"
+              }
+            ]
+          }
+        ]
+      },
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "e4c8eb628ea99a2b6adf30970c9b0b749f01c0b734b55e39953ab6f2c2104665",
+        "pages": [
+          {
+            "height": "61.936000",
+            "words": [
+              {
+                "xMin": "8.000000",
+                "yMin": "3.740000",
+                "xMax": "52.208000",
+                "yMax": "20.084000",
+                "text": "BEFORE"
+              },
+              {
+                "xMin": "8.000000",
+                "yMin": "41.108000",
+                "xMax": "42.704000",
+                "yMax": "57.452000",
+                "text": "AFTER"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "two-empty",
+      "source": "BEFORE #par[]#par[] AFTER",
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea",
+        "pages": [
+          {
+            "height": "76.336000",
+            "words": [
+              {
+                "xMin": "8.000000",
+                "yMin": "3.740002",
+                "xMax": "52.208000",
+                "yMax": "20.084002",
+                "text": "BEFORE"
+              },
+              {
+                "xMin": "8.000000",
+                "yMin": "55.508000",
+                "xMax": "42.704000",
+                "yMax": "71.852000",
+                "text": "AFTER"
+              }
+            ]
+          }
+        ]
+      },
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "binary_sha256": "e4c8eb628ea99a2b6adf30970c9b0b749f01c0b734b55e39953ab6f2c2104665",
+        "pages": [
+          {
+            "height": "76.336000",
+            "words": [
+              {
+                "xMin": "8.000000",
+                "yMin": "3.740000",
+                "xMax": "52.208000",
+                "yMax": "20.084000",
+                "text": "BEFORE"
+              },
+              {
+                "xMin": "8.000000",
+                "yMin": "55.508000",
+                "xMax": "42.704000",
+                "yMax": "71.852000",
+                "text": "AFTER"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

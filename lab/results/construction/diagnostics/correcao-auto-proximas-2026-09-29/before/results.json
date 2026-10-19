@@ -1,0 +1,562 @@
+[
+  {
+    "case": "empty",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n#text(\"\")",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 3.0
+          }
+        ],
+        "text": "\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 8.568
+          }
+        ],
+        "text": "\f"
+      }
+    }
+  },
+  {
+    "case": "empty18",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n#text(size:18pt)[#text(\"\")]",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 3.0
+          }
+        ],
+        "text": "\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 12.852
+          }
+        ],
+        "text": "\f"
+      }
+    }
+  },
+  {
+    "case": "empty-plus",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n#text(\"\")abc",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      }
+    }
+  },
+  {
+    "case": "plus-empty",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\nabc#text(\"\")",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      }
+    }
+  },
+  {
+    "case": "abc",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\nabc",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      }
+    }
+  },
+  {
+    "case": "abc-lf",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\nabc\n",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      }
+    }
+  },
+  {
+    "case": "abc-lflf",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\nabc\n\n",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 31.536
+          }
+        ],
+        "text": "abc\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      }
+    }
+  },
+  {
+    "case": "abc-par",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\nabc\n\nxyz",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 31.536
+          }
+        ],
+        "text": "abc\nxyz\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 31.536
+          }
+        ],
+        "text": "abc\nxyz\n\n\f"
+      }
+    }
+  },
+  {
+    "case": "abc-lf-empty",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\nabc\n#text(\"\")",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 22.992,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      }
+    }
+  },
+  {
+    "case": "spaces-par",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n#text(\"  \")\n\n#text(\" \")",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 9.36,
+            "height": 8.568
+          }
+        ],
+        "text": "\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 6.24,
+            "height": 31.536
+          }
+        ],
+        "text": "\f"
+      }
+    }
+  },
+  {
+    "case": "spaces-par-text",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n#text(\"  \")\n\nabc",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 26.112,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 31.536
+          }
+        ],
+        "text": "abc\n\n\f"
+      }
+    }
+  },
+  {
+    "case": "text-par-spaces",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\nabc\n\n#text(\"  \")",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 31.536
+          }
+        ],
+        "text": "abc\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 31.536
+          }
+        ],
+        "text": "abc\n\n\f"
+      }
+    }
+  },
+  {
+    "case": "spaces-lf",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n#text(\"  \")\n",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 6.24,
+            "height": 8.568
+          }
+        ],
+        "text": "\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 6.24,
+            "height": 8.568
+          }
+        ],
+        "text": "\f"
+      }
+    }
+  },
+  {
+    "case": "empty-par",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n#text(\"\")\n\n#text(\"\")",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 3.0
+          }
+        ],
+        "text": "\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 31.536
+          }
+        ],
+        "text": "\f"
+      }
+    }
+  },
+  {
+    "case": "markup-par",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\nabc\n\n",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 31.536
+          }
+        ],
+        "text": "abc\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 8.568
+          }
+        ],
+        "text": "abc\n\n\f"
+      }
+    }
+  },
+  {
+    "case": "empty-plain",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 3.0
+          }
+        ],
+        "text": "\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 3.0
+          }
+        ],
+        "text": "\f"
+      }
+    }
+  },
+  {
+    "case": "spaces-lflf",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n#text(\"  \")\n\n",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 6.24,
+            "height": 8.568
+          }
+        ],
+        "text": "\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 6.24,
+            "height": 8.568
+          }
+        ],
+        "text": "\f"
+      }
+    }
+  },
+  {
+    "case": "empty-lflf",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n#text(\"\")\n\n",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 3.0
+          }
+        ],
+        "text": "\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 8.568
+          }
+        ],
+        "text": "\f"
+      }
+    }
+  },
+  {
+    "case": "par-only",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\n\n\n",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 3.0
+          }
+        ],
+        "text": "\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 3.0,
+            "height": 3.0
+          }
+        ],
+        "text": "\f"
+      }
+    }
+  },
+  {
+    "case": "para-text-empty",
+    "source": "#set page(width:auto,height:auto,margin:0pt)\n#set text(font:\"Noto Sans\",size:12pt,lang:\"en\",hyphenate:false,tracking:0pt)\nabc\n\n#text(\"\")",
+    "runs": {
+      "tekt": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 31.536
+          }
+        ],
+        "text": "abc\n\n\f"
+      },
+      "vanilla": {
+        "exit": 0,
+        "stderr": "",
+        "pages": [
+          {
+            "width": 19.872,
+            "height": 31.536
+          }
+        ],
+        "text": "abc\n\n\f"
+      }
+    }
+  }
+]

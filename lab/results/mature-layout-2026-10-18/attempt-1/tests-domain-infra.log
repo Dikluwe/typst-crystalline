@@ -1,0 +1,76 @@
+   Compiling typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+error: couldn't read `03_infra/src/../../.typ/sec_27.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:4873:19
+     |
+4873 |         let src = include_str!("../../.typ/sec_27.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_09.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:4913:19
+     |
+4913 |         let src = include_str!("../../.typ/sec_09.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_07.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:4949:19
+     |
+4949 |         let src = include_str!("../../.typ/sec_07.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_12.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:4995:19
+     |
+4995 |         let src = include_str!("../../.typ/sec_12.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_04.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5053:19
+     |
+5053 |         let src = include_str!("../../.typ/sec_04.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_07.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5095:19
+     |
+5095 |         let src = include_str!("../../.typ/sec_07.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_17.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5155:19
+     |
+5155 |         let src = include_str!("../../.typ/sec_17.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_16.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5190:19
+     |
+5190 |         let src = include_str!("../../.typ/sec_16.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_18.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5216:19
+     |
+5216 |         let src = include_str!("../../.typ/sec_18.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_18.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5257:19
+     |
+5257 |         let src = include_str!("../../.typ/sec_18.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_10.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5324:19
+     |
+5324 |         let src = include_str!("../../.typ/sec_10.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `03_infra/src/../../.typ/sec_22.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5372:19
+     |
+5372 |         let src = include_str!("../../.typ/sec_22.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `typst-infra` (lib test) due to 12 previous errors

@@ -179,7 +179,7 @@ a linguagem Typst (não a versão do crate/binário cristalino, ver decisão em
 
 **Medição direta reproduzida em P1137** (2026-08-23; HEAD
 `781b207b4a5de9c2bfbe5819918a193d1d9293e5`, working tree não commitada; binários e
-comandos registados em `diagnosticos/paridade-matriz-p1137-baseline.md`):
+comandos registados em `lab/results/construction/diagnostics/paridade-matriz-p1137-baseline.md`):
 
 ```
 lab/typst-original/target/release/typst --version → typst 0.15.1 (...)
@@ -247,7 +247,7 @@ continua histórica, não prova automaticamente outros comportamentos do novo pi
 
 No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
 cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+os probes públicos em `lab/results/construction/diagnostics/superficie-linguagem-p1140*`
 medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
 `tiling` e `version`. Os construtores atuais foram novamente executados após
 a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
@@ -307,7 +307,7 @@ a divergência de campos nomeados ausentes registrada em A.2.
 
 ### Medição anterior à decisão
 
-`01_core/src/entities/version.rs:134` contém a implementação manual de Default sinalizada pelo Clippy. O corpo existente retorna a mesma variante ou inicializa cada campo pelo seu default. O tipo não é genérico, portanto a derivação não acrescenta bounds a parâmetros públicos. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, spans, UTC, status e diffstat estão em `00_nucleo/diagnosticos/expressoes-defaults-ci-2026-10-13/before.json.gz`. É evidência de implementação, não nova medição de paridade ou desempenho.
+`01_core/src/entities/version.rs:134` contém a implementação manual de Default sinalizada pelo Clippy. O corpo existente retorna a mesma variante ou inicializa cada campo pelo seu default. O tipo não é genérico, portanto a derivação não acrescenta bounds a parâmetros públicos. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, spans, UTC, status e diffstat estão em `lab/results/construction/diagnostics/expressoes-defaults-ci-2026-10-13/before.json.gz`. É evidência de implementação, não nova medição de paridade ou desempenho.
 
 ### Decisão e aceitação
 
@@ -320,7 +320,7 @@ Não alterar assinatura pública, campos, variantes, comportamento padrão do pr
 
 ### Medição anterior à decisão
 
-Version.from_str aparece no inventário Clippy de 13 avisos. A assinatura e o corpo vigentes foram lidos antes desta decisão; snapshot 00_nucleo/diagnosticos/clippy-traits-formatacao-2026-10-16/before.json.gz conserva fontes/L0 completos, hashes globais, HEAD, working tree não commitado, UTC e diffstat. O contrato de retorno difere do trait sugerido. É comparação de interfaces Rust, sem nova medição de paridade ou benefício de leitura por IA.
+Version.from_str aparece no inventário Clippy de 13 avisos. A assinatura e o corpo vigentes foram lidos antes desta decisão; snapshot lab/results/construction/diagnostics/clippy-traits-formatacao-2026-10-16/before.json.gz conserva fontes/L0 completos, hashes globais, HEAD, working tree não commitado, UTC e diffstat. O contrato de retorno difere do trait sugerido. É comparação de interfaces Rust, sem nova medição de paridade ou benefício de leitura por IA.
 
 ### Responsabilidade exclusiva e aceitação
 
@@ -347,4 +347,4 @@ T1: usos genéricos Display+ToString e collect::<Styles> devem falhar antes por 
 
 ## Ratificação humana — 2026-10-16
 
-Proposta aprovada pelo humano nesta sessão, manifesto SHA-256 `d3fba43d799461d294ad562c37649ba9c2e4da2a45d7b7099953624ced28e7e8`. O contrato acima passa a vigente; a aprovação inclui materialização e testes T1–T5, sem release. Registro em `00_nucleo/diagnosticos/clippy-enums-2026-10-16/approval-receipt.json`.
+Proposta aprovada pelo humano nesta sessão, manifesto SHA-256 `d3fba43d799461d294ad562c37649ba9c2e4da2a45d7b7099953624ced28e7e8`. O contrato acima passa a vigente; a aprovação inclui materialização e testes T1–T5, sem release. Registro em `lab/results/construction/diagnostics/clippy-enums-2026-10-16/approval-receipt.json`.

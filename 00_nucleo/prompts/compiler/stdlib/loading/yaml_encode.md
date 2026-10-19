@@ -6,7 +6,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/loading/yaml_encode.rs`. No HEAD `4ac3e2082e6e708dd815ab01b47ac8ed281a14fa` com árvore limpa, os encoders estavam em `01_core/src/compiler/stdlib/loading.rs:40-646`; estado completo em `00_nucleo/diagnosticos/atomizacao-loading-2026-09-30-before.json.gz`. A separação é interna e não mede desempenho.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/loading/yaml_encode.rs`. No HEAD `4ac3e2082e6e708dd815ab01b47ac8ed281a14fa` com árvore limpa, os encoders estavam em `01_core/src/compiler/stdlib/loading.rs:40-646`; estado completo em `lab/results/construction/diagnostics/atomizacao-loading-2026-09-30-before.json.gz`. A separação é interna e não mede desempenho.
 
 ## Contrato
 

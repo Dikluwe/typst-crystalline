@@ -19,7 +19,7 @@ lineage checks must remain valid; no unrelated consumer is authorized by this pr
 
 Estado medido: HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree
 não commitado. Fontes, hashes, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/testes-ci-2026-10-13/before.json.gz`. O inventário
+`lab/results/construction/diagnostics/testes-ci-2026-10-13/before.json.gz`. O inventário
 Clippy de entrada é `matematica-ci-2026-10-13/clippy-inventory.json`, conservado
 no evidence.json.gz daquela rodada. Medir antes de decidir (ADR-0108).
 

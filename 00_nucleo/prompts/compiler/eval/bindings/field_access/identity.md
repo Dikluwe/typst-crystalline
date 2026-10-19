@@ -7,7 +7,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/bindings/field_access/identity.rs`. No HEAD `ba5a4c7d305ed1444660d9eb80862f51b417efb6` e árvore limpa, `01_core/src/compiler/eval/bindings/field_access.rs:434-556` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-field-access-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/bindings/field_access/identity.rs`. No HEAD `ba5a4c7d305ed1444660d9eb80862f51b417efb6` e árvore limpa, `01_core/src/compiler/eval/bindings/field_access.rs:434-556` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-field-access-2026-09-30-before.json.gz`.
 
 ## Contrato
 
@@ -23,7 +23,7 @@ Preservar a suíte L1 e os testes de acesso a campos; `crystalline-lint .` passa
 ### Medição anterior à decisão
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
 conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
 baseline-reuse.json prova igualdade de fontes/configuração/binário com a
 matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
@@ -83,7 +83,7 @@ antigos por cópia nem publicar.
 
 Medição anterior à decisão: candidate-1/state.json.gz e
 differential-review.json em
-00_nucleo/diagnosticos/native-format-catalogue-2026-10-17 registram oito
+lab/results/construction/diagnostics/native-format-catalogue-2026-10-17 registram oito
 notas V19 novas e quatro atualizadas. Estas últimas apenas incluem Format
 no padrão e elevam a contagem; não são violações removidas. O primeiro
 comparador exigia mensagem idêntica e por isso recusou a atualização.
@@ -102,7 +102,7 @@ continua política de campo/gate, sem autenticar capacidade de elemento.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/html-feature-identity-2026-10-17/before.json.gz registra
+lab/results/construction/diagnostics/html-feature-identity-2026-10-17/before.json.gz registra
 UTC, status, diff HEAD --stat, fontes e L0 completos e hashes; todos os 2123
 hashes da etapa anterior foram conferidos antes de reutilizar sua matriz.
 before-probe.json.gz conserva argv, fixtures, outputs e SHA-256 dos binários.

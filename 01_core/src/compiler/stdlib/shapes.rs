@@ -241,7 +241,7 @@ mod tests {
 }
 
 /// P1473 (Agente B) — contrato RED de `polygon.regular`. Fonte:
-/// `00_nucleo/materialization/typst-passo-1473.md` +
+/// `lab/history/construction/records/00_nucleo/materialization/typst-passo-1473.md` +
 /// `00_nucleo/prompts/compiler/stdlib/shapes.md` §P1473. Escrito sem ver a
 /// implementação (isolamento Agente A/B) — usa `eval_expression` (avaliação
 /// de expressões Typst) como oráculo de observáveis de língua; a fórmula

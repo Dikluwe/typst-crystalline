@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/tests.md
-//! @prompt-hash 247bc424
+//! @prompt-hash 1c5193d2
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -5106,7 +5106,7 @@ mod p922_tests {
 //
 // Especificação: `00_nucleo/prompts/entities/layout_types.md` §P945,
 // `compiler/math/layout/_comum.md` §P945, `matrix.md`/`cases.md` §P945.
-// Medição que motiva: `00_nucleo/diagnosticos/typst-passo-945-relatorio.md`
+// Medição que motiva: `lab/results/construction/diagnostics/typst-passo-945-relatorio.md`
 // (células de mat/cases compostas a ×0.7 incondicional — o vanilla desce um
 // nível DISCRETO: Display→Text ×1.0, Text→Script ×0.7,
 // Script→ScriptScript ×sscript/script, ScriptScript→ScriptScript ×1.0).

@@ -27,7 +27,7 @@ Verify embedded slots load without disk access, Libertinus Serif and New Compute
 
 ## Transferência única para o slot — medição 2026-10-08
 
-`03_infra/src/embedded_fonts.rs:92-96`, congelado em `00_nucleo/diagnosticos/embedded-fonts-memoria2-2026-10-08/before.json.gz`, copia slice estático para Vec, clona o Vec ao construir o slot e descarta o primeiro Vec após obter os metadados. São dois buffers por iteração de carga; não afirmar duplicação persistente de todo o catálogo por esse clone temporário.
+`03_infra/src/embedded_fonts.rs:92-96`, congelado em `lab/results/construction/diagnostics/embedded-fonts-memoria2-2026-10-08/before.json.gz`, copia slice estático para Vec, clona o Vec ao construir o slot e descarta o primeiro Vec após obter os metadados. São dois buffers por iteração de carga; não afirmar duplicação persistente de todo o catálogo por esse clone temporário.
 
 Extrair os mesmos metadados diretamente do slice de typst_assets. Somente com metadados válidos, copiar uma vez os bytes para o Vec transferido ao new_embedded existente. Conservar composição, classificação, ordem e pareamento slot/book. Não substituir a representação pública dos assets/fonts, não alterar descoberta ou default de linguagem. Aceitação: classificação e carregamento existentes, compartilhamento source/get do owner fonts, controles de exportação e medição conjunta com proveniência.
 
@@ -35,7 +35,7 @@ Extrair os mesmos metadados diretamente do slice de typst_assets. Somente com me
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/custo-fixo-fontes-item2-2026-10-08/probe-results.json` mede 9.682.300 bytes nos 17 assets embutidos, ~9,24 MiB de alocação própria retida e páginas estáticas residentes do executável. O ponto de cópia está em `03_infra/src/embedded_fonts.rs:92-94`; o loader vanilla pinado em `lab/typst-original/crates/typst-kit/src/fonts.rs:136-141` passa os slices estáticos a Bytes sem Vec. A comparação de CLI simples atual reproduziu 41,83 MiB Tekt e 29,21 MiB vanilla, com texto visível igual; a lacuna não é atribuída toda a este ponto sem ensaio após mudança. Estes são fatos de armazenamento e saída observável, não intenção histórica.
+`lab/results/construction/diagnostics/custo-fixo-fontes-item2-2026-10-08/probe-results.json` mede 9.682.300 bytes nos 17 assets embutidos, ~9,24 MiB de alocação própria retida e páginas estáticas residentes do executável. O ponto de cópia está em `03_infra/src/embedded_fonts.rs:92-94`; o loader vanilla pinado em `lab/typst-original/crates/typst-kit/src/fonts.rs:136-141` passa os slices estáticos a Bytes sem Vec. A comparação de CLI simples atual reproduziu 41,83 MiB Tekt e 29,21 MiB vanilla, com texto visível igual; a lacuna não é atribuída toda a este ponto sem ensaio após mudança. Estes são fatos de armazenamento e saída observável, não intenção histórica.
 
 ### Decisão
 
@@ -47,7 +47,7 @@ Supersede a transferência obrigatória de cada asset para Vec: após extrair me
 
 `03_infra/src/embedded_fonts.rs:192` possui uma função com asserções de exclusão e presença de New Computer Modern Math, mas sem `#[test]`. Em `:135`, a sonda de famílias só imprime metadados e não contém asserção. Em `:235`, o controle DejaVu observa apenas exclusão de texto, sem presença em math/code.
 
-Fontes, owners, diagnósticos, HEAD, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/fixtures-ativos-ci-2026-10-13/before.json.gz`. O registro real da suíte antes da edição confirma ausência do teste matemático. Estas evidências não constituem nova comparação com upstream.
+Fontes, owners, diagnósticos, HEAD, working tree não commitado, UTC, status e diffstat estão em `lab/results/construction/diagnostics/fixtures-ativos-ci-2026-10-13/before.json.gz`. O registro real da suíte antes da edição confirma ausência do teste matemático. Estas evidências não constituem nova comparação com upstream.
 
 ### Decisão e aceitação
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/p1431-line-cap-tests.md
-//! @prompt-hash 97d43eba
+//! @prompt-hash bc23bd8f
 //! @layer L3
 
 use super::*;

@@ -127,7 +127,7 @@ O consumidor externo ao módulo é o teste em
 `01_core/src/compiler/stdlib/tests/introspection.rs:163`; chamadas produtivas
 usam a função dentro de content_methods. HEAD
 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes,
-UTC e diffstat em `00_nucleo/diagnosticos/imports-ci-2026-10-13/before.json.gz`
+UTC e diffstat em `lab/results/construction/diagnostics/imports-ci-2026-10-13/before.json.gz`
 e `first-check-state.json.gz`.
 
 Manter a reexportação de eval_content_method_at somente sob cfg(test),
@@ -165,7 +165,7 @@ regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
 anterior foram verificados exatamente antes do baseline. before-probe.json.gz
 e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.
@@ -234,7 +234,7 @@ hints, traces e perfis anteriores, sem retirar assertivas ou ignorar o teste.
 ## A1 — revisão do residual histórico text.text, 2026-10-17
 
 Medição antes da decisão: workspace.log do diagnóstico
-00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17
+lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17
 registra p1325_content_direct_alias_and_known_lookup_residual falhando porque
 `[x].text` agora devolve o texto, conforme sonda bilateral before-pdf-probe.json.gz
 contra vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. A asserção de erro era
@@ -249,7 +249,7 @@ dispatch produtivo deste hub. L0 antes do teste, resselo e suíte completa.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17/{before,expanded}.json.gz
 e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
 bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
 foundations/content/mod.rs:724–728 declara children requerido;

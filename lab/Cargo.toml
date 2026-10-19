@@ -10,6 +10,7 @@
 [workspace]
 resolver = "2"
 members  = ["parity"]
+exclude = ["scratch/tekt-linter-pinned"]
 
 [workspace.lints.clippy]
 blocks_in_conditions   = "allow"

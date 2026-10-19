@@ -97,7 +97,7 @@ Decisão interna contínua ADR-0127: nos braços existentes Length + Color e Col
 
 ## Adaptação Memória 5 — proposta pendente ADR-0127
 
-Medição antes da decisão: 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/
+Medição antes da decisão: lab/results/construction/diagnostics/value-compacto-memoria5-2026-10-08/
 before.json.gz e inventory.json congelam este consumer e cada ocorrência
 file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
 Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
@@ -122,7 +122,7 @@ suas cláusulas propostas passam a vigorar nesta materialização.
 ### Medição anterior à decisão
 
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/diffstat/fontes
-em before.json.gz de 00_nucleo/diagnosticos/state-stack-2026-10-17.
+em before.json.gz de lab/results/construction/diagnostics/state-stack-2026-10-17.
 morphology-before.json.gz/morphology-measured.json.gz comparam repr de loops e +
 com vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3: o Tekt encaixa Sequence
 a cada junção; vanilla concatena os filhos imediatos. debug-root.log localiza

@@ -56,7 +56,7 @@ Packages:
 
 Repeat `  Path: {path}` for supplied font paths; omit it for an empty list. Booleans use `true`/`false`. Commit is its first eight bytes, or the whole shorter value; an absent commit displays `unknown`. Absent package paths display `unavailable`. Output ends with newline.
 
-The current human formatter does not print `env`. The prior same-categories acceptance and pinned nucleus must not be silently weakened to approve that omission; the required reconciliation is recorded in `00_nucleo/diagnosticos/sanitization-shell-history.md`.
+The current human formatter does not print `env`. The prior same-categories acceptance and pinned nucleus must not be silently weakened to approve that omission; the required reconciliation is recorded in `lab/results/construction/diagnostics/sanitization-shell-history.md`.
 
 ## Command and collection boundary
 

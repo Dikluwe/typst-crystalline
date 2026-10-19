@@ -25,7 +25,7 @@ revoke it. This cleanup neither adds nor removes a reexport.
 f64, que já é Copy. A assinatura derivada em :17 deve suportar também
 T: Clone sem Copy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working
 tree não commitado; fontes, L0, UTC, status e diffstat ficam em
-`00_nucleo/diagnosticos/simplificacoes-ci-2026-10-13/before.json.gz`.
+`lab/results/construction/diagnostics/simplificacoes-ci-2026-10-13/before.json.gz`.
 O filtro axes anterior passa; o aviso Clippy expõe a redundância da fixture,
 não um defeito confirmado na implementação de Clone.
 

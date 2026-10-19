@@ -33,7 +33,7 @@ Segmentação de páginas conserva os carriers de ocorrência como unidades caus
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -69,7 +69,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Source é transparente nesta projeção, delegando ao body; não expõe span como identidade de língua nem executa receitas. Segmentação conserva origem por segmento quando aplicável.
 
@@ -77,7 +77,7 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 ## Histórico: caminho sem colunas — 2026-10-09 (substituído abaixo)
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/table-map-passes-before.json.gz` atribui uma reconstrução da Table a `wrap_page_columns` para cada fixture de 100/1.600 células, sem `page(columns:)`. `page-column-fast-path-red-gate.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado/status/diffstat, UTC, release `702060185fdc0533de86e7bf00c107e26fd0d281170ccd9c76d12b91e4e46883`, script/interpositor/fixtures/comandos: 512.679 pedidos glibc em `local-set-1600`, acima do gate 500.000. Fonte `page_structure.rs:185-245` chama `map_content` em toda a árvore antes de saber se alguma Sequence contém `SetPage` com `columns: Some`; o callback retorna `None` nos casos medidos. Inferência refutável: um pré-exame emprestado que prove ausência do gatilho elimina esta reconstrução; qualquer contêiner desconhecido deve ser tratado como potencial gatilho, nunca pulado.
+Medição anterior à decisão: `lab/results/construction/diagnostics/table-local-scaling-followup-2026-10-09/table-map-passes-before.json.gz` atribui uma reconstrução da Table a `wrap_page_columns` para cada fixture de 100/1.600 células, sem `page(columns:)`. `page-column-fast-path-red-gate.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado/status/diffstat, UTC, release `702060185fdc0533de86e7bf00c107e26fd0d281170ccd9c76d12b91e4e46883`, script/interpositor/fixtures/comandos: 512.679 pedidos glibc em `local-set-1600`, acima do gate 500.000. Fonte `page_structure.rs:185-245` chama `map_content` em toda a árvore antes de saber se alguma Sequence contém `SetPage` com `columns: Some`; o callback retorna `None` nos casos medidos. Inferência refutável: um pré-exame emprestado que prove ausência do gatilho elimina esta reconstrução; qualquer contêiner desconhecido deve ser tratado como potencial gatilho, nunca pulado.
 
 Decisão interna de fluxo contínuo (ADR-0127): antes de `wrap_page_columns`, detectar a ausência de `SetPage { columns: Some(_) }` com descida emprestada no enum para os contêineres conhecidos, incluindo Table/Cell preparada; em variante não coberta, executar o caminho antigo. Quando há gatilho, manter a transformação antiga integralmente. Nenhum contrato público, representação, vtable, configuração padrão ou fase muda. Aceitação: teste RED→GREEN para a prova conservadora e casos com/sem colunas, gate de alocações, tempo pareado contra release anterior/vanilla pinado e qualificação de render/query. Retirar a otimização se houver divergência ou regressão de tempo.
 
@@ -85,7 +85,7 @@ Decisão interna de fluxo contínuo (ADR-0127): antes de `wrap_page_columns`, de
 
 ### Medição anterior à decisão
 
-`diagnosticos/content-preflight-removal-2026-10-10/{before,measurements,confirmation,allocation-red,allocation-green,validation}.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status/diffstat, fontes, UTC, comandos, fixtures e binários. Release anterior `2d7f5dc93f6a7f15c81ff93b74270c80a14077d6753c8f79c73c9575d113d5f1`; candidato `9ae0a3d9285b8d0b4bae0da1db058483e7f5543003fabff46bb7d93b17e474f2`; oracle vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8`/binário `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`. O snapshot before preserva as guardas emprestadas; entities/content/traversal.rs:24–82 fornece a prova explícita no mapeamento. Remover as duas guardas reduz tempo pareado de blocks-400 em 1,21% nas duas coletas, seis rodadas com medianas negativas; seis casos mantêm a contagem de alocações. 34 controles de texto/geometria/raster e consultas foram preservados; a suite core permanece verde. Matemática/blocos repetidos continuam fora de comparação de trabalho equivalente com vanilla.
+`lab/results/construction/diagnostics/content-preflight-removal-2026-10-10/{before,measurements,confirmation,allocation-red,allocation-green,validation}.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status/diffstat, fontes, UTC, comandos, fixtures e binários. Release anterior `2d7f5dc93f6a7f15c81ff93b74270c80a14077d6753c8f79c73c9575d113d5f1`; candidato `9ae0a3d9285b8d0b4bae0da1db058483e7f5543003fabff46bb7d93b17e474f2`; oracle vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8`/binário `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`. O snapshot before preserva as guardas emprestadas; entities/content/traversal.rs:24–82 fornece a prova explícita no mapeamento. Remover as duas guardas reduz tempo pareado de blocks-400 em 1,21% nas duas coletas, seis rodadas com medianas negativas; seis casos mantêm a contagem de alocações. 34 controles de texto/geometria/raster e consultas foram preservados; a suite core permanece verde. Matemática/blocos repetidos continuam fora de comparação de trabalho equivalente com vanilla.
 
 ### Decisão interna vigente — substitui os pré-exames acima
 

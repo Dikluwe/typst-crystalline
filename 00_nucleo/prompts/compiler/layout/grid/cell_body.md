@@ -23,7 +23,7 @@ O despacho permanece estático. Testes L1, build e crystalline-lint devem passar
 
 ## Produto medido consumível — 2026-10-05
 
-Evidência em tracks.rs:175 e cell_body.rs:155 e diagnóstico `00_nucleo/diagnosticos/reuso-sem-transformacao-2026-10-05.md` precede a decisão. Solicitar o produto medido ao helper measurement_cache antes de instalar região da célula, depois de calcular body_x/body_w e alinhamento efetivo. Sem hit executar o subframe vigente; com hit conservar exatamente os pipelines posteriores de decoração, rebase, clipping, overflow, preenchimentos e caudas. Regras de validade e métricas laterais pertencem ao helper. Delegar invariantes de cache ao owner canônico `00_nucleo/prompts/compiler/layout/grid/measurement_cache.md`. Mudança privada de mecânica, na mesma fase e fluxo contínuo ADR-0127.
+Evidência em tracks.rs:175 e cell_body.rs:155 e diagnóstico `lab/results/construction/diagnostics/reuso-sem-transformacao-2026-10-05.md` precede a decisão. Solicitar o produto medido ao helper measurement_cache antes de instalar região da célula, depois de calcular body_x/body_w e alinhamento efetivo. Sem hit executar o subframe vigente; com hit conservar exatamente os pipelines posteriores de decoração, rebase, clipping, overflow, preenchimentos e caudas. Regras de validade e métricas laterais pertencem ao helper. Delegar invariantes de cache ao owner canônico `00_nucleo/prompts/compiler/layout/grid/measurement_cache.md`. Mudança privada de mecânica, na mesma fase e fluxo contínuo ADR-0127.
 
 
 
@@ -32,7 +32,7 @@ Evidência em tracks.rs:175 e cell_body.rs:155 e diagnóstico `00_nucleo/diagnos
 ### Medição anterior à decisão
 
 focused-candidate-verification.json.gz e candidate-source.json.gz em
-`00_nucleo/diagnosticos/block-tabela-fluxo-2026-10-06/` preservam candidato
+`lab/results/construction/diagnostics/block-tabela-fluxo-2026-10-06/` preservam candidato
 com largura/âncora corretas mas ordem ABC/123/árabe incorreta em RTL.
 bidi_origin.rs:111-117 recusa todas as células/subframes; o input integral
 não chega à reordenação L3. cell_body.rs:223-235 classifica Text e TextShaped
@@ -51,7 +51,7 @@ Instalar/restaurar capacidade privada somente para col_starts.len()==1 e body_w 
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -86,7 +86,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 
 ### Refinamento interno medido — 2026-10-07
 
-Medição anterior à decisão: 00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
+Medição anterior à decisão: lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/{after-second,refuters-second}.json.gz, pin/binários/HEAD/estado/fontes/UTC/argv/resultados completos.
 after-second/show-body: vanilla ab, Tekt a b. Inset/alignment do default show da Cell só são desenhados se sua receita emitir o snapshot da Cell. A medição ab refere espaçamento; não prova perda de fill/stroke, que a precisão C abaixo reconhece como tinta independente do plano da Table. Um helper puro neste owner reconhece somente snapshot preparado sobrevivente (wrappers semânticos transparentes), para ser compartilhado por tracks; sem reflexão pelo texto/PartialEq e sem callbacks.
 A aceitação é bilateral, efeitos uma vez e geometria; não normalizar whitespace nem alterar contratos ratificados.
 
@@ -99,7 +99,7 @@ Decisão contínua interna ADR-0127: TableCell posicionada usa fill/stroke/break
 
 ## D08B3-C2 — responsabilidade ratificada
 
-Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+Medição anterior: lab/results/construction/diagnostics/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em lab/history/construction/records/00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/contract.md.
 
 Medição additional-debug3 refuta Source como barreira ao default show sobrevivente: reconhecer snapshot/metadata zero por body transparente, sem perder inset/align nem tocar tinta externa do plano.
 
@@ -111,10 +111,10 @@ Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -142,7 +142,7 @@ e já autorizados. Não alegar paridade de tiling ou produção a partir do buil
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+`lab/results/construction/diagnostics/tiling-nativo-2026-10-14/before.json.gz` registra
 HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
 layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
 materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
@@ -151,7 +151,7 @@ prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
 comprovam que dense-open e stroke-open ainda divergem nos três targets.
 O contrato foi aprovado no manifesto
 `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
-recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+recibo em `lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A preparação/contagem de objetos é mecânica de transporte; render, contornos,
 texto, geometria e diagnósticos são obrigações observáveis de linguagem.
 

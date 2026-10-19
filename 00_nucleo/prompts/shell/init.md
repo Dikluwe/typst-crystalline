@@ -8,7 +8,7 @@ Hash do Código: e636235b
 
 `03_infra/src/project_init.rs:22` implements initialization, manifest validation and staged copying; `:96` implements package resolution. Parsing belongs to `00_nucleo/prompts/shell/cli.md`; command publication belongs to `00_nucleo/prompts/wiring/init.md`. The directory containing this L0 does not change the consumer's L3 layer.
 
-Package/version resolution is referenced canonically at `00_nucleo/prompts/infra/package_version_resolution.md`. This prompt does not share ownership of that consumer. Observable selection, destination safety and errors are contracts; downloader internals are not a requirement to reproduce vanilla mechanics.
+Package/version resolution is referenced canonically at `lab/history/construction/retired-l0/infra/package_version_resolution.md`. This prompt does not share ownership of that consumer. Observable selection, destination safety and errors are contracts; downloader internals are not a requirement to reproduce vanilla mechanics.
 
 ## Public contract
 

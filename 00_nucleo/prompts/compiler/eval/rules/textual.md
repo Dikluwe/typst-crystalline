@@ -19,7 +19,7 @@ space normalization and their focal tests. `compiler/eval/mod.rs:1371,1408,
 1416,1470,1550` calls the three entrypoints. The existing `p1494` test filter
 passes 17/17 before movement; this is structural baseline, not a new bilateral
 parity measurement. Source state and command are recorded in
-`00_nucleo/diagnosticos/atomizacao-textual-2026-09-30.md`.
+`lab/results/construction/diagnostics/atomizacao-textual-2026-09-30.md`.
 
 ## Decision and ownership
 
@@ -41,7 +41,7 @@ owned respectively by `compiler/eval/rules.md` and
 ## Refinement measurement
 
 At the working tree captured in
-`00_nucleo/diagnosticos/atomizacao-textual-algoritmos-2026-09-30-before.json.gz`,
+`lab/results/construction/diagnostics/atomizacao-textual-algoritmos-2026-09-30-before.json.gz`,
 this consumer contains the coordinator, the space algorithm at lines 335-463
 and the matching algorithm at lines 96-333. The `p1494` filter passed 17 tests
 before this second movement. The distinct inputs and helpers support two
@@ -99,7 +99,7 @@ Snapshot de grupo textual conserva watermark contextual, incluindo conteúdo lex
 ## R2-S13 — uma avaliação por grupo textual pendente
 
 Medição antes da decisão: r2s-scope.json.gz e text-before.json.gz em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 preservam estado
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 preservam estado
 não commitado em b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, UTC,
 diffstat, binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 As sondas textual-no-repeat/baseline/interpolation/captured produzem
@@ -130,7 +130,7 @@ e não legitima alterar a ordem do matcher neste owner.
 ## Divisão explícita — pendências após R2/R2-S
 
 Medição e proveniência: r2s-scope.json.gz/text-before.json.gz no diagnóstico
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17. Este pacote é
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17. Este pacote é
 incompleto no universo de morfologia e regras textuais. R3-Symbol deve
 completar identidade/igualdade do cast de Symbol (text/true no Tekt contra
 symbol/false no vanilla); exige proposta/gate próprio se criar variante
@@ -146,7 +146,7 @@ aceita ou paridade já demonstrada.
 ## R2-S — slots internos não são Empty explícito
 
 Medição anterior à decisão: empty-slots-before.json.gz em
-00_nucleo/diagnosticos/sequence-constructor-2026-10-17 registra fontes,
+lab/results/construction/diagnostics/sequence-constructor-2026-10-17 registra fontes,
 binários, UTC, HEAD/working tree/diffstat e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Body simples produz EBODY contra BODY; filhos none/[] produzem EEA contra
 EA; com regra textual A→AA aparecem Es adicionais. markup_stream.rs:
@@ -177,7 +177,7 @@ para esconder diferenças de realização.
 ## R2-S — raiz de pacote textual e EOF causal
 
 Medição anterior à decisão: validation-attempt-2.json.gz, trace-recipes,
-trace-markup2 e trace-textual2 em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17
+trace-markup2 e trace-textual2 em lab/results/construction/diagnostics/sequence-constructor-2026-10-17
 mostram 11 testes verdes e dois REDs. eof-before.json.gz mede as fontes
 exatas sem acrescentar newline: Styled com EOF produz Y nos dois; sem
 EOF produz AB nos dois. A expectativa unitária Y usava a fonte sem EOF,
@@ -203,7 +203,7 @@ do código antes da validação final. Sem campo/tipo/API/fase nova.
 ## R2-S13 — texto emitido e receitas escalares redundantes
 
 Medição antes da decisão: validation-attempt-3.json.gz e emission-after.json.gz
-em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17 preservam estado
+em lab/results/construction/diagnostics/sequence-constructor-2026-10-17 preservam estado
 working tree, UTC, fontes/argv/binários/diffstat no pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
 Sequence emitindo [A] ou text("A") sob A→AA produz AAAA contra AA.
 O controle text("A") sem Sequence já produz AAAA no release de pilha
@@ -244,7 +244,7 @@ novo tipo/campo público, fase ou mudança da política dos demais elementos.
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/sequence-r3-2026-10-18/{before,markup-after,
+lab/results/construction/diagnostics/sequence-r3-2026-10-18/{before,markup-after,
 textual-before,transport-before,transport-before-sources}.json.gz conserva
 HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
 UTC/diffstat/fontes, executáveis e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
@@ -309,7 +309,7 @@ incompleto; não autoriza modificar os owners dessas projeções sem L0 próprio
 
 ### Medição anterior à decisão
 
-00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+lab/results/construction/diagnostics/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
 preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
 commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
 bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém

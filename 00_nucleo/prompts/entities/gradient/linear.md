@@ -3,7 +3,7 @@ Hash do Código: d6320860
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/entities/gradient/linear.rs`. No HEAD `b7c6bbe0a0bfe3bebf0bb071b33fa0da51574229` e árvore limpa, `01_core/src/entities/gradient.rs:113-284` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `00_nucleo/diagnosticos/atomizacao-gradient-entity-2026-09-30-before.json.gz`.
+Camada L1. Consumer produtivo único: `01_core/src/entities/gradient/linear.rs`. No HEAD `b7c6bbe0a0bfe3bebf0bb071b33fa0da51574229` e árvore limpa, `01_core/src/entities/gradient.rs:113-284` contém o comportamento extraído. O SHA-256, horário e estado inicial estão em `lab/results/construction/diagnostics/atomizacao-gradient-entity-2026-09-30-before.json.gz`.
 
 ## Contrato
 

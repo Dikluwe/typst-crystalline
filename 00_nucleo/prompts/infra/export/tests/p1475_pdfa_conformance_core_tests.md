@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/p1475_pdfa_conformance_core_tests
-Hash do Código: 935ce472
+Hash do Código: a641403b
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/tests/p1475_pdfa_conformance_core_tests.rs`

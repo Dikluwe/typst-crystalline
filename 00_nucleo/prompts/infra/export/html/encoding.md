@@ -95,7 +95,7 @@ produção fornece chain ativa. Nunca escapar glyph duas vezes.
 `03_infra/src/export/html/encoding.rs:12` and `:31` reject carriers before
 reaching their textual children. The verified vanilla accepts the literal title
 fixture that Tekt rejects; evidence is in
-`diagnosticos/auditoria-producao-tekt-2026-10-13/html-probes.json.gz`.
+`lab/results/construction/diagnostics/auditoria-producao-tekt-2026-10-13/html-probes.json.gz`.
 
 Raw/title projection must traverse Source.body, ShowRecipe.body, Located.body
 and Realized.visual without executing recipes or serializing original provenance.

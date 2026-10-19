@@ -6,7 +6,7 @@ Núcleos Tekt:
 
 ## Ownership e medição
 
-Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/shapes/rect.rs`. No HEAD `a5c6b93c258acb7cb378b9b147a8c6cd0e8d17b9` e árvore limpa, `01_core/src/compiler/stdlib/shapes.rs:77-228` contém o comportamento extraído. SHA-256, horário e estado estão em `00_nucleo/diagnosticos/atomizacao-shapes-2026-09-30-before.json.gz`. Esta é separação interna por comportamento.
+Camada L1. Consumer produtivo único: `01_core/src/compiler/stdlib/shapes/rect.rs`. No HEAD `a5c6b93c258acb7cb378b9b147a8c6cd0e8d17b9` e árvore limpa, `01_core/src/compiler/stdlib/shapes.rs:77-228` contém o comportamento extraído. SHA-256, horário e estado estão em `lab/results/construction/diagnostics/atomizacao-shapes-2026-09-30-before.json.gz`. Esta é separação interna por comportamento.
 
 ## Contrato
 
@@ -22,7 +22,7 @@ Preservar a suíte L1 e os testes de shapes, compilar e passar `crystalline-lint
 ## Correção de ausência explícita — 2026-10-06
 
 Medição anterior à decisão: as sondas visual-rect/visual-circle em
-`00_nucleo/diagnosticos/paridade-dominios-2026-10-06/measurement.json.gz`
+`lab/results/construction/diagnostics/paridade-dominios-2026-10-06/measurement.json.gz`
 compilam no vanilla pinado 9f2b6e871 e são rejeitadas pelo Tekt no cast de stroke.
 `lab/typst-original/crates/typst-layout/src/shapes.rs:125-129,335-339` distingue
 Auto condicionado a fill de Custom(None). O consumer sempre enviava None ao

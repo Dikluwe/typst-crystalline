@@ -1,11 +1,12 @@
 [workspace]
 resolver = "2"
+exclude = ["lab/scratch/tekt-linter-pinned"]
 members = [
     "01_core",
     "02_shell",
     "03_infra",
     "04_wiring",
-    "benches",
+    "lab/benches",
     # lab/typst-original não é membro do workspace cristalino
     # compile separadamente se necessário para testes de paridade
 ]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/lang.md
-//! @prompt-hash c3dbfd53
+//! @prompt-hash c1475028
 //! @layer L1
 //! @updated 2026-04-24
 //!
@@ -12,7 +12,7 @@
 //! inválidos (ISO 639-1/2/3 format: 2 ou 3 letras ASCII).
 //!
 //! Ver ADR-0052 e diagnóstico
-//! `00_nucleo/diagnosticos/diagnostico-lang-passo-131a.md`.
+//! `lab/results/construction/diagnostics/diagnostico-lang-passo-131a.md`.
 
 use std::str::FromStr;
 

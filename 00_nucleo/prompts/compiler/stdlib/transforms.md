@@ -163,7 +163,7 @@ de teste) — a correcção é só no parsing do factor.
 
 ## Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/{before,results}.json.gz` e
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/{before,results}.json.gz` e
 `controls/results.json`, `binding-controls/results.json`, `context-controls/results.json`
 preservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC,
 diffstat, fontes, comandos e hashes de binários. Pin 9f2b6e8715237cb086899a42873660fe744622e8.

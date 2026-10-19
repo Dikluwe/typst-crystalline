@@ -8,7 +8,7 @@ Núcleos Tekt:
 ## Ownership e medição
 
 Camada L1. Consumer produtivo único: `01_core/src/compiler/introspect/bibliography.rs`.
-No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:67-286` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `00_nucleo/diagnosticos/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
+No estado `df72a6c4a701917ab56a7c6169764a92ea775693` com árvore limpa, `01_core/src/compiler/introspect.rs:67-286` contém o comportamento que esta unidade recebe. A fonte e o estado estão registrados em `lab/results/construction/diagnostics/atomizacao-introspect-2026-09-30-before.json.gz`. A decisão é separá-lo por comportamento, sem alterar a API ou alegar ganho de desempenho.
 
 ## Contrato
 
@@ -25,7 +25,7 @@ Preservar os testes de introspecção e a suíte L1, compilar e passar `crystall
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+lab/results/construction/diagnostics/table-cell-realizacao-d08b3-2026-10-07/
 {before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
 UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
@@ -64,7 +64,7 @@ do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/tekt-v16-introspect-carriers-2026-10-17/before.json.gz
+lab/results/construction/diagnostics/tekt-v16-introspect-carriers-2026-10-17/before.json.gz
 preserva UTC/status/diff HEAD --stat, fontes/L0 e 2130 hashes conferidos do
 fechamento anterior. contexts-before.json identifica os três V16 vigentes.
 before-citation-probe.json conserva argv, rlib/programa com SHA-256, source
@@ -140,7 +140,7 @@ enum/modelo, teste de label e código produtivo não mudam por este refinamento.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/tekt-v16-bibliography-static-2026-10-17/before.json.gz
+lab/results/construction/diagnostics/tekt-v16-bibliography-static-2026-10-17/before.json.gz
 registra UTC, status, diff HEAD --stat, os textos anteriores e 2130 hashes
 conferidos. bibliography.rs:21–79 enumera só parte dos containers e omite
 Heading, Repeat, Columns e TableCell crua; :87–266 repete o catálogo parcial.

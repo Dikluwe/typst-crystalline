@@ -12,7 +12,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/mod.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/mod.rs:212` (pubsuper) fn errmsg: impl Into<String>) -> SourceResult<Value> {); `01_core/src/compiler/stdlib/mod.rs:221` (pubsuper) fn expect_no_named) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/mod.rs:212` (pubsuper) fn errmsg: impl Into<String>) -> SourceResult<Value> {); `01_core/src/compiler/stdlib/mod.rs:221` (pubsuper) fn expect_no_named) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 
@@ -63,7 +63,7 @@ preservar D04 e não realizar math bare/D06 ou morfologia de matriz/D07.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-00_nucleo/diagnosticos/matrix-morfologia-2026-10-06/before.json.gz guarda
+lab/results/construction/diagnostics/matrix-morfologia-2026-10-06/before.json.gz guarda
 UTC/diff/fontes/binários e casos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Mat raw/query sai como {func:math.matrix} sem rows; getter/métodos perdem campos
 e func-equality retorna false. Fonte upstream math/matrix.rs:91–221 declara
@@ -87,7 +87,7 @@ mat selectors, render, Styled geral ou outros elementos não medidos.
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/mod.rs:123; 01_core/src/compiler/stdlib/structural/math/matrix.rs:81,163,406 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `00_nucleo/diagnosticos/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/mod.rs:123; 01_core/src/compiler/stdlib/structural/math/matrix.rs:81,163,406 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `lab/results/construction/diagnostics/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
 
 ### Decisão e aceitação
 
@@ -102,7 +102,7 @@ Correção de composição interna, sem mudança de assinatura pública, default
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
 commitado; pin `9f2b6e8715237cb086899a42873660fe744622e8`.
-`00_nucleo/diagnosticos/native-math-catalogue-2026-10-17/` fixa o estado
+`lab/results/construction/diagnostics/native-math-catalogue-2026-10-17/` fixa o estado
 exato em before.json.gz: UTC, diff HEAD --stat e hashes de todos os consumers,
 L0 e configuração protegidos. before-measurement.json.gz é reutilização
 verificada da matriz final da etapa anterior: fontes e binário Tekt têm
@@ -154,7 +154,7 @@ sem nova violação, sob MemoryMax12GiB/High10GiB/swap0/jobs1 sequenciais.
 ### Posição das pontes no hub — correção Clippy
 
 Medição anterior à decisão: candidate-1/strict-details.json em
-00_nucleo/diagnosticos/native-math-catalogue-2026-10-17 registra
+lab/results/construction/diagnostics/native-math-catalogue-2026-10-17 registra
 clippy::items_after_test_module no hub estrutural:137/1199. Fontes, hashes
 e comandos congelados dessa tentativa estão em candidate-1/state.json.gz.
 O conjunto de callbacks e seus corpos já passou os testes focados e a
@@ -172,7 +172,7 @@ tentativa anterior são histórico e não substituem os gates da versão final.
 ### Medição anterior à decisão
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
-commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+commitado. `lab/results/construction/diagnostics/native-format-catalogue-2026-10-17/`
 conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
 baseline-reuse.json prova igualdade de fontes/configuração/binário com a
 matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
@@ -231,7 +231,7 @@ antigos por cópia nem publicar.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
-00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+lab/results/construction/diagnostics/call-once-2026-10-17/before.json.gz registra UTC,
 status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
 anterior foram verificados exatamente antes do baseline. before-probe.json.gz
 e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.

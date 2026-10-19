@@ -10,7 +10,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/structural/mod.rs`
 
 ## Evidence and classification
 
-`01_core/src/compiler/stdlib/structural/mod.rs:1` (@prompt) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+`01_core/src/compiler/stdlib/structural/mod.rs:1` (@prompt) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `lab/results/construction/diagnostics/sanitization-parser-stdlib-history.md`.
 
 ## Contract and ownership
 
@@ -23,7 +23,7 @@ Do not copy rendering into entities or remove native bindings as part of atomiza
 ## Rota de reexport dos helpers de matriz
 
 **Medição anterior à decisão:** o working tree não commitado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-matrix-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-matrix-2026-09-30-before.json.gz`
 mostra `mod.rs:105-114` a reexportar `MathMatrixOptions`, `math_matrix_augment`
 e `apply_math_matrix_option` via o parent `math.rs`; consumidores em eval e
 layout usam o bridge do stdlib. O filtro P1431 passa 29 testes na base.
@@ -36,7 +36,7 @@ fase, diagnóstico, contrato público ou dispatch.
 ## Rota de reexport dos helpers de cases
 
 **Medição anterior à decisão:** o working tree não commitado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-cases-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-cases-2026-09-30-before.json.gz`
 mostra `mod.rs:108-115` a reexportar `MathCasesOptions`,
 `math_cases_delim` e `apply_math_cases_option` via `math.rs`; eval e layout
 usam o bridge do stdlib. O filtro P1430 passa 22 testes na base.
@@ -48,7 +48,7 @@ algoritmo, dispatch ou fase ao hub.
 ## Rota de reexport de `math.accent`
 
 **Medição anterior à decisão:** o working tree não commitado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-accent-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-accent-2026-09-30-before.json.gz`
 mostra `mod.rs:111-123` a reexportar `math_accent_content` e `native_accent`
 via `math.rs`; eval e o registry usam esses nomes. O filtro P1429 passa 9
 testes na base.
@@ -60,7 +60,7 @@ wrapper, cast, algoritmo nem despacho a este hub.
 ## Rota de reexport de `math.cancel`
 
 **Medição anterior à decisão:** o working tree não commitado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-cancel-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-cancel-2026-09-30-before.json.gz`
 mostra `native_cancel` em `math.rs:395-529` e o hub a reexportá-lo via parent.
 O filtro `native_cancel` passa 4 testes na base.
 
@@ -71,7 +71,7 @@ wrapper, cast, algoritmo nem despacho a este hub.
 ## Rota de reexport de `sqrt_content`
 
 **Medição anterior à decisão:** o working tree não commitado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-root-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-root-2026-09-30-before.json.gz`
 mostra `sqrt_content` em `math.rs:46-48` e o hub a reexportá-lo pelo
 parent; eval math mode consome o bridge de `compiler::stdlib`. O filtro
 P1426 passa 12 testes na base.
@@ -83,7 +83,7 @@ wrapper, cast, algoritmo ou despacho ao hub.
 ## Rota de reexport dos helpers de `math.equation`
 
 **Medição anterior à decisão:** o working tree não commitado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-equation-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-equation-2026-09-30-before.json.gz`
 mostra `equation_content`, `equation_number_align`,
 `equation_supplement` e `equation_alt` em `math.rs:46-112`, reexportados
 pelo hub; eval e set rules usam o bridge de `compiler::stdlib`. O filtro
@@ -96,7 +96,7 @@ wrapper, cast, algoritmo ou despacho ao hub.
 ## Rota de reexport de `math.class`
 
 **Medição anterior à decisão:** o working tree não commitado em
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-class-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-class-2026-09-30-before.json.gz`
 mostra a nativa em `math.rs:1069-1152` e o hub a reexportá-la via parent.
 Os filtros `math_class` e P825 passam 29 e 15 testes na base.
 
@@ -107,7 +107,7 @@ wrapper, cast, algoritmo ou despacho ao hub.
 ## Reexports diretos das famílias matemáticas restantes
 
 **Medição anterior à decisão:** o snapshot
-`00_nucleo/diagnosticos/atomizacao-stdlib-math-restante-2026-09-30-before.json.gz`
+`lab/results/construction/diagnostics/atomizacao-stdlib-math-restante-2026-09-30-before.json.gz`
 registra os bridges de `math.rs` reexportados por este hub. A suíte core
 baseline passa 6.401 testes, com 2 ignorados.
 
@@ -148,7 +148,7 @@ Atualizar o teste de representação de native_par para exigir o nó Par, preser
 
 ### Evidência antes da decisão
 
-`00_nucleo/diagnosticos/plano-debitos-2026-10-06/math-before.json.gz`
+`lab/results/construction/diagnostics/plano-debitos-2026-10-06/math-before.json.gz`
 conserva pin/HEAD/árvore/UTC/fontes/comandos/SHA. Equação explícita é locatable,
 mas query(math.equation), alias e selector(math.equation) são rejeitados.
 `01_core/src/compiler/stdlib/foundations/selector.rs:269-283` reconhece apenas
@@ -208,7 +208,7 @@ preservar D04 e não realizar math bare/D06 ou morfologia de matriz/D07.
 ### Medição anterior à decisão
 
 HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
-00_nucleo/diagnosticos/matrix-morfologia-2026-10-06/before.json.gz guarda
+lab/results/construction/diagnostics/matrix-morfologia-2026-10-06/before.json.gz guarda
 UTC/diff/fontes/binários e casos contra o pin 9f2b6e8715237cb086899a42873660fe744622e8.
 Mat raw/query sai como {func:math.matrix} sem rows; getter/métodos perdem campos
 e func-equality retorna false. Fonte upstream math/matrix.rs:91–221 declara
@@ -233,7 +233,7 @@ mat selectors, render, Styled geral ou outros elementos não medidos.
 Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
 working tree não commitado. A duplicação cfg(test) ocorre em `01_core/src/compiler/stdlib/structural/p1429_tests.rs:5` / pai :38; `01_core/src/compiler/stdlib/structural/p1430_tests.rs:5` / pai :42; `01_core/src/compiler/stdlib/structural/p1431_tests.rs:5` / pai :46; `01_core/src/compiler/stdlib/structural/p1436_tests.rs:5` / pai :50; `01_core/src/compiler/stdlib/structural/p1437_tests.rs:5` / pai :54; `01_core/src/compiler/stdlib/structural/p1438_tests.rs:5` / pai :58; `01_core/src/compiler/stdlib/structural/p1439_tests.rs:5` / pai :62; `01_core/src/compiler/stdlib/structural/p1440_tests.rs:5` / pai :66; `01_core/src/compiler/stdlib/structural/p1441_tests.rs:5` / pai :70; `01_core/src/compiler/stdlib/structural/p1442_tests.rs:5` / pai :73; `01_core/src/compiler/stdlib/structural/p1443_tests.rs:5` / pai :76; `01_core/src/compiler/stdlib/structural/p1444_tests.rs:5` / pai :78; `01_core/src/compiler/stdlib/structural/p1445_tests.rs:5` / pai :80; `01_core/src/compiler/stdlib/structural/p1446_tests.rs:5` / pai :82; `01_core/src/compiler/stdlib/structural/p1447_tests.rs:5` / pai :84; `01_core/src/compiler/stdlib/structural/p1448_tests.rs:5` / pai :86; `01_core/src/compiler/stdlib/structural/p1449_tests.rs:5` / pai :88; `01_core/src/compiler/stdlib/structural/p1450_tests.rs:5` / pai :90; `01_core/src/compiler/stdlib/structural/p1451_tests.rs:5` / pai :92.
 Fontes, L0, UTC, status e diffstat estão em
-`00_nucleo/diagnosticos/cfg-test-ci-2026-10-13/before.json.gz` e
+`lab/results/construction/diagnostics/cfg-test-ci-2026-10-13/before.json.gz` e
 `refinement-before.json.gz`. O Clippy pinado reproduz os atributos duplicados.
 A tentativa de retirar a condição interna mantém os testes Rust, mas o linter
 arquitetural pinado não propaga a condição do pai e acusa V2 nos helpers.
@@ -250,7 +250,7 @@ mesma lista de testes, suíte core, build sem cfg(test), Clippy e arquitetura.
 
 ### Medição anterior à decisão
 
-HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/structural/mod.rs:100,107,1079; 01_core/src/compiler/stdlib/structural/math/matrix.rs:81,163,406 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `00_nucleo/diagnosticos/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/structural/mod.rs:100,107,1079; 01_core/src/compiler/stdlib/structural/math/matrix.rs:81,163,406 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `lab/results/construction/diagnostics/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
 
 ### Decisão e aceitação
 
@@ -261,7 +261,7 @@ Correção de composição interna, sem mudança de assinatura pública, default
 ## Complemento de casts de figure — Type e Symbol, 2026-10-17
 
 Medição anterior à decisão: type-kind-probe.json e more-cast-probe.json em
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 registram o candidato
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 registram o candidato
 que passou 5/6 testes mas falhou em kind:int. foundations/value.rs:647-658 do
 pin 9f2b6e8715237cb086899a42873660fe744622e8 mede Func aceitando Type.constructor
 ou Symbol.func; content/element.rs:210-214 exige to_element; symbol.rs:133-137,
@@ -291,7 +291,7 @@ dos owners após V15/V26; preservar testes de matemática e classificadores orig
 
 HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
 commitado; pin `9f2b6e8715237cb086899a42873660fe744622e8`.
-`00_nucleo/diagnosticos/native-math-catalogue-2026-10-17/` fixa o estado
+`lab/results/construction/diagnostics/native-math-catalogue-2026-10-17/` fixa o estado
 exato em before.json.gz: UTC, diff HEAD --stat e hashes de todos os consumers,
 L0 e configuração protegidos. before-measurement.json.gz é reutilização
 verificada da matriz final da etapa anterior: fontes e binário Tekt têm
@@ -343,7 +343,7 @@ sem nova violação, sob MemoryMax12GiB/High10GiB/swap0/jobs1 sequenciais.
 ### Posição das pontes no hub — correção Clippy
 
 Medição anterior à decisão: candidate-1/strict-details.json em
-00_nucleo/diagnosticos/native-math-catalogue-2026-10-17 registra
+lab/results/construction/diagnostics/native-math-catalogue-2026-10-17 registra
 clippy::items_after_test_module no hub estrutural:137/1199. Fontes, hashes
 e comandos congelados dessa tentativa estão em candidate-1/state.json.gz.
 O conjunto de callbacks e seus corpos já passou os testes focados e a

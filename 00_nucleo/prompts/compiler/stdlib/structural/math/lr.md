@@ -7,7 +7,7 @@ Hash do Código: 55c1b2a0
 
 ## Measurement before decision
 
-The uncommitted working tree captured in `00_nucleo/diagnosticos/atomizacao-stdlib-math-restante-2026-09-30-before.json.gz` places this behavior in `01_core/src/compiler/stdlib/structural/math.rs`. The full core baseline passed 6,401 tests with 2 ignored before movement. This is a structural regression baseline, not a new bilateral vanilla measurement or benchmark. Historical language measurements and pin qualifications remain in the parent L0.
+The uncommitted working tree captured in `lab/results/construction/diagnostics/atomizacao-stdlib-math-restante-2026-09-30-before.json.gz` places this behavior in `01_core/src/compiler/stdlib/structural/math.rs`. The full core baseline passed 6,401 tests with 2 ignored before movement. This is a structural regression baseline, not a new bilateral vanilla measurement or benchmark. Historical language measurements and pin qualifications remain in the parent L0.
 
 ## Language contract
 
@@ -22,7 +22,7 @@ Existing core regressions remain green. The full core suite, `cargo build` and `
 ## Complemento de casts de figure — Type e Symbol, 2026-10-17
 
 Medição anterior à decisão: type-kind-probe.json e more-cast-probe.json em
-00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 registram o candidato
+lab/results/construction/diagnostics/tekt-v16-figure-casts-2026-10-17 registram o candidato
 que passou 5/6 testes mas falhou em kind:int. foundations/value.rs:647-658 do
 pin 9f2b6e8715237cb086899a42873660fe744622e8 mede Func aceitando Type.constructor
 ou Symbol.func; content/element.rs:210-214 exige to_element; symbol.rs:133-137,

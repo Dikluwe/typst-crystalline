@@ -12,7 +12,7 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/shy-autoral-2026-09-28/initial.json` e
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/initial.json` e
 `before/resultados.json` registram estado, binários, comandos e trinta sondas
 bilaterais. Em largura 300pt, repre<U+00AD>sentation extrai dois SHY no Tekt
 e um no vanilla pinado. O controle spaces extrai seis versus um.
@@ -56,7 +56,7 @@ sem fonte não são certificados. Ownership 1:1; dependências não ampliam owne
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/shy-autoral-2026-09-28/first-round/after/`
+`lab/results/construction/diagnostics/shy-autoral-2026-09-28/first-round/after/`
 refuta a primeira materialização: trailing e ligature conservam os codepoints
 mas ampliam a caixa de ActualText em 3.12pt e perdem o espaço na extração comum.
 O caso tracking também inclui um intervalo derivado do placeholder invisível.
@@ -85,13 +85,13 @@ Texto exclusivamente invisível e seleção de quebras continuam fora do escopo.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/controles-bidi-pdf-2026-10-06/before.json` registra
+`lab/results/construction/diagnostics/controles-bidi-pdf-2026-10-06/before.json` registra
 HEAD, working tree, fontes de código/L0 e binário anterior. As sondas
 `bidi-contexto-rtl_literal_embedding-cmap-before.json` e
 `bidi-contexto-rtl_forced_mark-cmap-before.json` mostram CID 0001 associado
 respectivamente a U+202C e U+200F: espaços posteriores extraem controles e
 fundem palavras. A extração bilateral com fontes e comandos está no lote
-`00_nucleo/diagnosticos/block-align-2026-10-06/verification.json.gz`.
+`lab/results/construction/diagnostics/block-align-2026-10-06/verification.json.gz`.
 `lab/typst-original/crates/typst-layout/src/inline/shaping.rs:992-997`, pin
 9f2b6e8715237cb086899a42873660fe744622e8, remove placeholders Default_Ignorable
 após shaping. `03_infra/src/export/fonts.rs:307-328` mantém controles na
@@ -117,7 +117,7 @@ Este owner possui configure_authored_ignorables_buffer privado, ativando REMOVE_
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/bidi-identidade-ocorrencia-2026-10-06/before.json`
+`lab/results/construction/diagnostics/bidi-identidade-ocorrencia-2026-10-06/before.json`
 registra HEAD, working tree, código/L0, binários e sonda rustybuzz. Com a face
 DejaVu versionada por SHA e REMOVE_DEFAULT_IGNORABLES, LRM+ABC e PDI+ABC
 produzem A no cluster byte 0, B no byte 4 e C no byte 5. A substring 0..4

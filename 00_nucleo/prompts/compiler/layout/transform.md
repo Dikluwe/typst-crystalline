@@ -16,7 +16,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/transform.rs:26`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
 ## Ownership and contract
 
@@ -33,7 +33,7 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 ### Medição anterior à decisão
 
 `01_core/src/compiler/layout/transform.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
-`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+`lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` e a inspeção
 dos handlers desse consumer precedem esta alteração. A aprovação do contrato
 público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
 2026-09-28 e registrada na proveniência da materialização.
@@ -52,7 +52,7 @@ A segunda medição da AABB inline, após rebase dos sub_items, também exclui T
 ### Medição anterior à decisão
 
 As sondas bilaterais e o estado exato em
-`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+`lab/results/construction/diagnostics/identidade-hifen-discricionario-2026-09-28/initial.json`
 e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
 A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
 O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
@@ -71,10 +71,10 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 
 O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
 foi aprovado pelo humano para T1–T3; recibo em
-`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+`lab/history/construction/records/00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
 A evidência bilateral de Parent e controles Solid está no contrato aprovado;
 ela não é substituída por inspeção estrutural. A rodada
-`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+`lab/results/construction/diagnostics/paint-root-2026-10-14/before/results.json.gz` conserva
 fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
 diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
 e Gradient Parent. O inventário before-source/syntax-nodes registra neste
@@ -101,7 +101,7 @@ e já autorizados. Não alegar paridade de tiling ou produção a partir do buil
 
 ## Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/{before,results}.json.gz` e
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/{before,results}.json.gz` e
 `controls/results.json`, `binding-controls/results.json`, `context-controls/results.json`
 preservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC,
 diffstat, fontes, comandos e hashes de binários. Pin 9f2b6e8715237cb086899a42873660fe744622e8.
@@ -197,7 +197,7 @@ Move usa tamanho real do contexto de porcentagens, não a sentinela de paginaç�
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/refuters-first/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/refuters-first/results.json.gz`
 preserva fontes, HEAD, diffstat, UTC e hashes dos dois binários. As imagens
 `reflow-wrap` e `reflow-wrap-rotate` foram inspecionadas: scale 200% mantém
 ONE/TWO na mesma linha no candidato; no pin cada palavra fica numa linha.
@@ -250,7 +250,7 @@ Isso não promove wrappers adicionais a transparentes nem altera Matrix legado.
 
 ### Evidência anterior à decisão
 
-`00_nucleo/diagnosticos/transformacoes-2026-10-14/logical-before-complete/results.json.gz`
+`lab/results/construction/diagnostics/transformacoes-2026-10-14/logical-before-complete/results.json.gz`
 registra HEAD, árvore não commitada, diffstat, UTC, fontes e binários.
 Em flip-long-word, flip-wide-shape e flip-inline-width a reflexão desloca o
 conteúdo excedente porque transform.rs:651–654 toma cursor e tinta como
@@ -289,7 +289,7 @@ externo; RED→GREEN e refutadores existentes permanecem obrigatórios.
 
 ### Medição anterior à decisão
 
-F036: 01_core/src/compiler/layout/transform.rs:183 (layout_matrix); F037: 01_core/src/compiler/layout/transform.rs:197 (layout_matrix); F038: 01_core/src/compiler/layout/transform.rs:273 (layout_matrix). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+F036: 01_core/src/compiler/layout/transform.rs:183 (layout_matrix); F037: 01_core/src/compiler/layout/transform.rs:197 (layout_matrix); F038: 01_core/src/compiler/layout/transform.rs:273 (layout_matrix). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
 
 ### Prescrição exclusiva desta unidade
 

@@ -21,4 +21,4 @@ Use isolated temporary worlds. Identity errors, timeout, crash, OOM, truncated o
 
 ## Verification boundary
 
-The prompt's missing legacy code-seal metadata is recorded in `00_nucleo/diagnosticos/sanitization-infra-wiring-history.md`; sanitation does not invent a seal or alter the test header.
+The prompt's missing legacy code-seal metadata is recorded in `lab/results/construction/diagnostics/sanitization-infra-wiring-history.md`; sanitation does not invent a seal or alter the test header.

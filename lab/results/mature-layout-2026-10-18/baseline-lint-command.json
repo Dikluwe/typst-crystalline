@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-18T23:22:50.515608+00:00",
+  "ref": "tekt-construction-2026-10-18",
+  "scope": "Exact checkpoint product sources, owner/nucleus files, benchmark crate, manifests and lint config; excludes ignored diagnostic/lab trees",
+  "argv": [
+    "crystalline-lint",
+    "lab/scratch/lineage-baseline",
+    "--format",
+    "sarif"
+  ],
+  "exit": 1
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/tests/table_grid.md
-//! @prompt-hash b18daf99
+//! @prompt-hash cda1092c
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -51,7 +51,7 @@ fn p772i_native_grid_header_footer_nomeados_rejeitados() {
     // `header:`/`footer:` deixaram de ser argumentos nomeados válidos
     // (paridade vanilla — são elementos-filho `grid.header(...)`/
     // `grid.footer(...)`, nunca named args da função `grid()`). Ver
-    // 00_nucleo/diagnosticos/paridade-producao-p772i.md.
+    // lab/results/construction/diagnostics/paridade-producao-p772i.md.
     null_ctx!(ctx);
     let mut args = p(vec![Value::Content(Content::text("body"))]);
     args.named

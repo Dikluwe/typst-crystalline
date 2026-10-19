@@ -66,20 +66,20 @@ jobs:
       run: cargo build --locked -p typst-wiring --bin typst --release --target ${{ matrix.target }}
 
     - name: Package binary with provenance and checksums
-      run: python tools/ci/package_release.py --target ${{ matrix.target }} --builder ${{ matrix.cross && 'cross' || 'cargo' }}
+      run: python lab/tools/ci/package_release.py --target ${{ matrix.target }} --builder ${{ matrix.cross && 'cross' || 'cargo' }}
 
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: github.event_name == 'workflow_dispatch'
       with:
         name: typst-${{ matrix.target }}
-        path: "dist/typst-${{ matrix.target }}.*"
+        path: "lab/target/release-packages/typst-${{ matrix.target }}.*"
         if-no-files-found: error
         retention-days: 3
 
     - uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
       if: github.event_name == 'release'
       with:
-        artifacts: "dist/typst-${{ matrix.target }}.*"
+        artifacts: "lab/target/release-packages/typst-${{ matrix.target }}.*"
         allowUpdates: true
         omitNameDuringUpdate: true
         omitBodyDuringUpdate: true
