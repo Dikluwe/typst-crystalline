@@ -1,0 +1,21 @@
+{
+  "utc": "2026-10-20T01:18:04.769564+00:00",
+  "status": "new stronger expected-text policies derived from immutable oracle render; original policies/sources/receipts unchanged",
+  "policies": [
+    [
+      "render-order-policies-v2.json",
+      20
+    ],
+    [
+      "additional-render-order-policies-v2.json",
+      4
+    ],
+    [
+      "targeted-render-order-policies-v2.json",
+      2
+    ]
+  ],
+  "prior_runner_sha256": "6cbe77837955541eb6f94cf8dc3dc756aad5b8a04e67f827d1294fcc6e5d8a67",
+  "current_runner_sha256": "afcfd5ff5dd20312494f2b2ff64d4ef866de8ae186fcfdbdc3d3b2e99d7aee5e",
+  "actual_candidate_status": "pending root next frozen build run; no parity claim"
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/labelled.md
-//! @prompt-hash 903b5f4c
+//! @prompt-hash e1686ee9
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -60,20 +60,24 @@ pub(super) fn compute_labelled<I: Introspector>(
             }
         }
         Content::Figure(e) => {
-            // F-5a de-bake (P365): o gate (padrão + caption) não é mais lido de um
-            // campo — vive no **contador** `figure:{kind}`, que só é avançado quando
-            // `is_counted` (padrão-da-chain && caption) na emissão (walk top). Logo
-            // `flat_counter_at` location-aware devolve >0 só para figuras numeradas
-            // (espelho do arm Equation, que confia no contador). Sem leitura de campo.
-            let kind_key = e.kind.as_deref().unwrap_or("image");
-            let counter_key = CounterKey::Str(format!("figure:{}", kind_key).into());
+            if e.resolved_kind.is_some() {
+                return (None, None);
+            }
+            let kind_key = match e.kind.as_ref().and_then(|kind| kind.as_ref()) {
+                Some(crate::entities::elements::figure::FigureKind::Name(name)) => {
+                    name.as_str()
+                }
+                Some(crate::entities::elements::figure::FigureKind::Element(_))
+                | None => "image",
+            };
+            let counter_key = CounterKey::Str(format!("figure:{kind_key}").into());
             let n = intr.flat_counter_at(&counter_key, location).unwrap_or(0);
             if n > 0 {
                 let supplement =
                     crate::compiler::lang::figure_supplement::figure_supplement_for_lang(
                         kind_key, lang,
                     );
-                (Some(format!("{} {}", supplement, n)), Some(n))
+                (Some(format!("{supplement} {n}")), Some(n))
             } else {
                 (Some(String::new()), None)
             }
@@ -198,6 +202,32 @@ pub(super) fn compute_labelled<I: Introspector>(
     }
 }
 
+fn located_reference_original(content: &Content) -> Option<(&Content, Location)> {
+    let mut current = content;
+    let mut location = None;
+    loop {
+        if let Content::Source(source) = current {
+            current = &source.body;
+        } else if let Content::Located(located) = current {
+            location = Some(located.location);
+            current = &located.body;
+        } else if let Content::Realized(realized) = current {
+            current = &realized.original;
+        } else if let Content::Styled(styled) = current {
+            current = &styled.body;
+        } else if let Content::ShowRecipe(recipe) = current {
+            current = &recipe.body;
+        } else {
+            break;
+        }
+    }
+    if matches!(current, Content::Ref(_)) {
+        location.map(|location| (current, location))
+    } else {
+        None
+    }
+}
+
 /// Percorre o alvo de Label e publica os registros derivados quando aplicáveis.
 pub(super) fn walk_label(
     e: &LabelElem,
@@ -209,6 +239,21 @@ pub(super) fn walk_label(
     chain: &StyleChain,
 ) {
     let label = Label(e.name.to_string());
+    if let Some((reference, location)) = located_reference_original(&e.body) {
+        let first = intr.labels.lookup(&label).is_none();
+        intr.labels.add(label.clone(), location);
+        intr.elements.entry(location).or_insert_with(|| {
+            crate::entities::value::IntrospectedContent::new(reference.clone(), None)
+        });
+        intr.counters.observe_location(location);
+        intr.state.observe_location(location);
+        if first {
+            intr.unreferencable_labels
+                .insert(label, crate::entities::label_kind::UnreferencableKind::Other);
+        }
+        walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
+        return;
+    }
     if e.auto {
         // P464: Label auto-gerado (ex-sintaxe `<label>`). Mantém
         // comportamento legado de `Content::Labelled`: emite Tag

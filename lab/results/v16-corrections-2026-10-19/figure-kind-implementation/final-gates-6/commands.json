@@ -1,0 +1,82 @@
+[
+  {
+    "name": "preflight",
+    "argv": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--start-at",
+      "clippy",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/preflight-final-7"
+    ],
+    "utc_start": "2026-10-20T03:21:58.600515+00:00",
+    "utc_end": "2026-10-20T03:24:44.366666+00:00",
+    "exit": 0
+  },
+  {
+    "name": "structural",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/structural.py",
+      "candidate",
+      "final5"
+    ],
+    "utc_start": "2026-10-20T03:24:44.732120+00:00",
+    "utc_end": "2026-10-20T03:24:57.260640+00:00",
+    "exit": 0
+  },
+  {
+    "name": "clean-product-packages",
+    "argv": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ],
+    "utc_start": "2026-10-20T03:24:57.629581+00:00",
+    "utc_end": "2026-10-20T03:24:58.386591+00:00",
+    "exit": 0
+  },
+  {
+    "name": "integrated12",
+    "argv": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/validation-final-5"
+    ],
+    "utc_start": "2026-10-20T03:24:58.750124+00:00",
+    "utc_end": "2026-10-20T03:39:47.863197+00:00",
+    "exit": 0
+  },
+  {
+    "name": "cli-acceptance",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/final_acceptance.py"
+    ],
+    "utc_start": "2026-10-20T03:39:48.263067+00:00",
+    "utc_end": "2026-10-20T03:40:18.675565+00:00",
+    "exit": 0
+  },
+  {
+    "name": "references",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/run_reference_acceptance.py",
+      "--build",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-build-4/receipt.json",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-final"
+    ],
+    "utc_start": "2026-10-20T03:40:19.036419+00:00",
+    "utc_end": "2026-10-20T03:41:04.867159+00:00",
+    "exit": 0
+  }
+]

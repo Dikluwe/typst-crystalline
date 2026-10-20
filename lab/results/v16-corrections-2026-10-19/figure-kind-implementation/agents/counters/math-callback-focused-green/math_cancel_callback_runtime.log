@@ -1,0 +1,14 @@
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+   Compiling typst-wiring v0.1.0 (/repos/Antigravity/typst-crystalline/04_wiring)
+    Finished `test` profile [unoptimized] target(s) in 10.14s
+     Running tests/math_cancel_callback_runtime.rs (lab/target/product/debug/deps/math_cancel_callback_runtime-0f7c67bae31eecfc)
+
+running 5 tests
+test p1291_callback_aninhada_em_script_observa_size_efetivo_reduzido ... ok
+test p1291_callback_runtime_altera_angulo_final ... ok
+test p1291_callback_runtime_erro_preserva_span_da_chamada ... ok
+test p1291_callback_runtime_observa_style_efetivo ... ok
+test p1291_cross_sobrepoe_inverted_na_geometria_final ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.17s
+

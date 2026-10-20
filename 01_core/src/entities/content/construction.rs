@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/construction.md
-//! @prompt-hash 21ecfaf2
+//! @prompt-hash 2261741c
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -412,7 +412,16 @@ impl Content {
         kind: Option<String>,
         numbering: Option<String>,
     ) -> Self {
-        let fig = Self::Figure(Arc::new(FigureElem { body, caption, kind }));
+        let fig = Self::Figure(Arc::new(FigureElem {
+            body,
+            caption,
+            kind: kind.map(|name| {
+                Some(crate::entities::elements::figure::FigureKind::Name(name.into()))
+            }),
+            resolved_kind: None,
+            supplement: None,
+            resolved_supplement: None,
+        }));
         match numbering {
             Some(pat) => {
                 use crate::entities::style::Styles;

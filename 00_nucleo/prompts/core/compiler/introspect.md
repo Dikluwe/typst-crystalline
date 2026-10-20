@@ -1,5 +1,5 @@
 # L0 — introspect
-Hash do Código: 7d367f7e
+Hash do Código: 533b8a8c
 
 ```text
 Núcleos Tekt:
@@ -269,3 +269,28 @@ retain their boundaries. Require workspace/doctests/build/Clippy/Rustdoc, fmt,
 V1/V5/V15/V26/reverse lineage and no V16 increase; use
 12GiB/High 8 GiB/swap0/jobs1 with heavy commands sequential. RAM gain requires
 measurement, not intention.
+
+
+## Approved Figure/Grid occurrence counter correction
+
+### Evidence before decision
+
+Baseline HEAD `731f0ffdf4c7c152f590551e72ff63f7bd85ef85`; the reviewed current-pin measurements and exact source anchors are retained in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, `agents/counter/design.md` and `agents/counter/counter-probes.json`. In that evidence, captionless/numbered Figures count; manual Set/Func actions make caption ordinal indexing incorrect; typed element kinds and custom names require distinct keys. These are language values/errors, not Rust or rendering-byte equality. The human explicitly approved the complete Figure/Grid contracts, phases and compatibility changes in the current implementation session. This approval satisfies ADR-0127 for this exact scope. Historical conflicting caption-only or productive string-projection clauses are superseded only as described here; unrelated contracts remain.
+
+### Exclusive responsibility
+
+Register private figure_counters and figure_demands owners and reexport only the approved additive target-aware bundle facade. No key/fold/traversal business logic in this hub. Migrate historical tests that asserted caption-only counting or productive auxiliary string histories to the approved numbering-only actions and typed key plus Location; preserve unrelated synthetic string histories and assertions.
+
+### Acceptance and limits
+
+L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.
+
+
+### Causal ownership refutation controls
+
+`figure-kind-implementation/ownership-oracle-2/receipt.json` freezes ancestor-hidden Figure query/global/typed counts at zero, versus own-hidden prepared Figure at one; the same receipt fixes first-label typed identity and an unnumbered first target independently of later labels. Add focused unit RED controls before modifying action discovery or label-key insertion. Preserve synthetic standalone Figure compatibility and the first registry Location; no broad original-tree pruning or new shadow counters is authorized merely by these tests.
+
+
+### Static reference demand fixture boundary
+
+Source measurement before decision: the approved reference capture now converts a reached raw Ref into a contextual producer during realization (`compiler/realize/reference_supplements.rs`); the pure introspection unit has no L3 Session to execute that producer. The frozen reference-tests-2 core run therefore observed the captionless reference-demand unit returning no demanded history when its helper realized the complete Figure-plus-Ref sequence. Prepare the actual Figure first, then append the static Ref immediately before introspect_with_runtime in this focused collector test. Preserve its typed final history and label-scalar assertions. Real emitted reference producer execution remains covered by the separate actual Paged Session regressions; do not change productive admission, fake an execution or weaken the history expectations to repair this fixture.

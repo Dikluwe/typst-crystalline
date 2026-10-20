@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/tests/representation.md
-//! @prompt-hash 4ceb0882
+//! @prompt-hash 8b92da04
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -613,6 +613,7 @@ fn p224_grid_variant_aceita_5_fields_aditivos() {
     use crate::entities::sides::Sides;
     let g =
         Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
             cells: vec![Content::text("A")],
@@ -641,6 +642,7 @@ fn p224_grid_partial_eq_inclui_5_fields_novos() {
     use crate::entities::sides::Sides;
     let mk = |gutter: Option<Length>| {
         Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
             cells: vec![],
@@ -716,6 +718,7 @@ fn p227_grid_variant_aceita_stroke() {
     use crate::entities::sides::Sides;
     let g =
         Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
             cells: vec![Content::text("A")],
@@ -790,6 +793,7 @@ fn p227_grid_partial_eq_inclui_stroke() {
     use crate::entities::sides::Sides;
     let mk = |stroke: Option<Stroke>| {
         Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
             cells: vec![],
@@ -823,6 +827,7 @@ fn p228_grid_variant_aceita_fill() {
     use crate::entities::sides::Sides;
     let g =
         Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
             cells: vec![Content::text("A")],
@@ -881,6 +886,7 @@ fn p228_grid_partial_eq_inclui_fill() {
     use crate::entities::sides::Sides;
     let mk = |fill: Option<Color>| {
         Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
             cells: vec![],

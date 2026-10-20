@@ -1,0 +1,260 @@
+{
+  "status": "source matrix; outputs are not guessed and require actual pinned oracle receipt",
+  "proposal_sha256": "1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2",
+  "cases": [
+    {
+      "name": "backward-explicit",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "actual nested Figure insertion and typed counters",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "forward-explicit",
+      "source": "@outer\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "forward target dependency retries",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "backward-callback",
+      "source": "#figure([OUTER],kind:image,supplement:it=>figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "resolved callback result selected without rerunning outer callback",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "two-raw-references",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "two fresh nested Locations from one raw template",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "caption-and-two-references",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner]),caption:[OUTER-CAP]) <outer>\n@outer\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "caption plus two actual reference insertions remain distinct",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "raw-context-two-references",
+      "source": "#let inner=context figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])\n#figure([OUTER],kind:image,supplement:inner)<outer>\n@outer\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "fresh raw ContextBlock IDs at distinct retained insertion sites",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "raw-context-caption-two-references",
+      "source": "#let inner=context figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])\n#figure([OUTER],kind:image,caption:[CAP],supplement:inner)<outer>\n@outer\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "raw Context replay slots stable with caption and repeated reference",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "prepared-alias-two-references",
+      "source": "#figure([PREEXISTING],kind:table)<inner>\n#context { let prepared=query(<inner>).first(); [#figure([OUTER],kind:image,supplement:prepared)<outer>] }\n@outer\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "intentionally prepared Located alias retains existing Location",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "show-reference-identity",
+      "source": "#show ref:it=>it\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "identity recipe admits actual alias once",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "show-reference-two-aliases",
+      "source": "#show ref:it=>[#it #it]\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "returned Ref aliases retain guards and actual uses",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "show-reference-none",
+      "source": "#show ref:none\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "own replacement prunes supplement effects",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "show-reference-replaced",
+      "source": "#show ref:[REPLACED]\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "replacing recipe prunes supplement effects",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "hidden-reference-parent",
+      "source": "#show block:none\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n#block[@outer]\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "hidden ancestor prunes reference producer",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "own-hidden-outer",
+      "source": "#show figure.where(kind:image):none\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "query-retained outer original remains valid target",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "no-reference-no-caption",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "retained raw supplement is inert without actual use",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "explicit-reference-override",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n#ref(<outer>,supplement:[OVERRIDE])\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "explicit Ref supplement wins over target template",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "explicit-reference-none",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n#ref(<outer>,supplement:none)\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "canonical Empty selected child suppresses target raw template",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "label-on-reference",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer <reference-label>\n#context [#metadata((query(<reference-label>).len(), query(<reference-label>).first().func()==ref)) <reference-probe>]\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "label preserves original Ref morphology; no producer/inner retarget",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "ordinary-heading",
+      "source": "= HEADING <heading>\n@heading\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "non-Figure passthrough retains ordinary reference default",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "page-reference",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n#ref(<outer>,form:\"page\")\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "Page reference does not admit Figure supplement",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "stable-missing-target",
+      "source": "@missing",
+      "goal": "stable missing target reports original reference failure",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "missing-rich-override",
+      "source": "#ref(<missing>,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner]))",
+      "goal": "missing target cannot render speculative nested Figure",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "unnumbered-target",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner]),numbering:none) <outer>\n@outer",
+      "goal": "numbering gate fails before nested supplement effects",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "duplicate-label-first",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n#figure([SECOND],kind:image,supplement:[SECOND-SUPPLEMENT])<outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "first duplicate-label target governs supplement selection",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "inner-panic-reference",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,supplement:it=>panic(\"REF_INNER\")))<outer>\n@outer",
+      "goal": "nested callback source error appears only at actual use",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "inner-panic-hidden-reference",
+      "source": "#show ref:none\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,supplement:it=>panic(\"REF_INNER\")))<outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "hidden own Ref prevents inner callback failure",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "nested-references",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <nested>\n#figure([ROOT],kind:image,supplement:[@nested])<outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "nested reference producers share occurrence arena and terminate",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "self-reference-cycle",
+      "source": "#figure([OUTER],kind:image,supplement:[@outer])<outer>\n@outer",
+      "goal": "cycle terminates with error within existing budget",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "bibliography-precedence",
+      "source": "#bibliography(\"refs.yml\")\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "bibliography key wins before Figure rich supplement admission",
+      "query": true,
+      "target": "pdf",
+      "extras": {
+        "refs.yml": "outer:\n  type: Book\n  title: Reference Work\n  author: Example\n  date: 2020\n"
+      }
+    },
+    {
+      "name": "html-explicit-counter-reads",
+      "source": "#show figure:it=>it.body\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "HTML explicit typed reads remain independent; no implicit HTML rendering certification",
+      "query": true,
+      "target": "html",
+      "extras": {}
+    },
+    {
+      "name": "context-language-pt-fr",
+      "source": "#context { set text(lang:\"pt\"); let lang1=text.lang; set text(lang:\"fr\"); let lang2=text.lang; assert.eq((lang1,lang2),(\"pt\",\"fr\")); [LANG-OK] }",
+      "goal": "positive p792 contextual pt\u2192fr typed assertion",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    }
+  ],
+  "limits": [
+    "Generated ContextBlock query exclusion is covered by Rust Selector::Kind(ContextBlock) control; legacy string selector is not bilateral language parity.",
+    "HTML case certifies explicit reads only. Bundle CLI transport is covered by existing integration owners; no inferred bundle syntax."
+  ]
+}

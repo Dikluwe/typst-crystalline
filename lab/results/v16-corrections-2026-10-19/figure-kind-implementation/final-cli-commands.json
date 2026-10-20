@@ -1,0 +1,58 @@
+[
+  {
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/build.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-build-4"
+    ],
+    "utc_start": "2026-10-20T03:39:48.294852+00:00",
+    "utc_end": "2026-10-20T03:39:49.223000+00:00",
+    "exit": 0
+  },
+  {
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/replay.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-replay-4",
+      "--phase",
+      "candidate",
+      "--build-receipt",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-build-4/receipt.json"
+    ],
+    "utc_start": "2026-10-20T03:39:49.223016+00:00",
+    "utc_end": "2026-10-20T03:40:09.589449+00:00",
+    "exit": 0
+  },
+  {
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/target_controls.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-4",
+      "--build-receipt",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-build-4/receipt.json"
+    ],
+    "utc_start": "2026-10-20T03:40:09.589464+00:00",
+    "utc_end": "2026-10-20T03:40:15.431625+00:00",
+    "exit": 1
+  },
+  {
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership_controls.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-4"
+    ],
+    "utc_start": "2026-10-20T03:40:15.431642+00:00",
+    "utc_end": "2026-10-20T03:40:17.081647+00:00",
+    "exit": 0
+  }
+]

@@ -1,0 +1,192 @@
+{
+  "utc_start": "2026-10-20T01:55:03.716815+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "product": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+  "product_sha256": "f1e204cb843614da876d6c0e37cd6fcebab78bbbec34f587391434f2e90c990e",
+  "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-build-8/receipt.json",
+  "build_receipt_sha256": "d987560f6702534dcd2ce012b06a84c48a09bb6ff75838719e3324d341a3073a",
+  "historical_baseline": false,
+  "oracle_receipt_sha256": "2a7fc19864a6eb38c69ee76a46bc0016df4917965a23de4c8e2f7e7810813a7d",
+  "matrix_sha256": "c7291503fd713f31aa77c78f30e88e507089c79b1d3bdcd45219ba1cb8208fb5",
+  "policies_sha256": "f6c6e8500700e269e26dffa21de51474f36bac7dd1ca3536025317387fd28a3a",
+  "runner_sha256": "afcfd5ff5dd20312494f2b2ff64d4ef866de8ae186fcfdbdc3d3b2e99d7aee5e",
+  "cases": [
+    {
+      "name": "show-origin-identity-multiline",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<oldmissing>` does not exist in the document",
+        "origin": [
+          5,
+          0
+        ],
+        "criterion": "identity show return preserves original missing Ref origin, not callback identifier",
+        "oracle_note": "Actual pinned oracle error and origin; unrestricted new/distinct Ref shows retrigger and must not be relabeled a missing-label oracle."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:55:03.851030+00:00",
+          "utc_end": "2026-10-20T01:55:03.866012+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-identity-multiline.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-product-8/show-origin-identity-multiline.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<oldmissing>` does not exist in the document\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-identity-multiline.typ:5:0\n  \u2502\n5 \u2502 @oldmissing\n  \u2502 ^^^^^^^^^^^\n\n"
+        }
+      ],
+      "observed_error_origin": [
+        5,
+        0
+      ],
+      "expected_error_origin": [
+        5,
+        0
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": true
+      },
+      "pass": true
+    },
+    {
+      "name": "show-origin-new-native-multiline",
+      "policy": {
+        "class": "required-error",
+        "message": "maximum show rule depth exceeded",
+        "origin": [
+          2,
+          2
+        ],
+        "criterion": "new Ref constructed inside callback retains its own constructor origin and new label",
+        "oracle_note": "Actual pinned oracle error and origin; unrestricted new/distinct Ref shows retrigger and must not be relabeled a missing-label oracle."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:55:03.866380+00:00",
+          "utc_end": "2026-10-20T01:55:03.881642+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-new-native-multiline.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-product-8/show-origin-new-native-multiline.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<newmissing>` does not exist in the document\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-new-native-multiline.typ:5:0\n  \u2502\n5 \u2502 @oldmissing\n  \u2502 ^^^^^^^^^^^\n\n"
+        }
+      ],
+      "observed_error_origin": [
+        5,
+        0
+      ],
+      "expected_error_origin": [
+        2,
+        2
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": false,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "show-origin-original-alias-multiline",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<oldmissing>` does not exist in the document",
+        "origin": [
+          1,
+          11
+        ],
+        "criterion": "identity return of an existing Ref alias preserves original constructor origin",
+        "oracle_note": "Actual pinned oracle error and origin; unrestricted new/distinct Ref shows retrigger and must not be relabeled a missing-label oracle."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:55:03.882016+00:00",
+          "utc_end": "2026-10-20T01:55:03.896767+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-original-alias-multiline.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-product-8/show-origin-original-alias-multiline.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<oldmissing>` does not exist in the document\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-original-alias-multiline.typ:1:11\n  \u2502\n1 \u2502 #let old = ref(<oldmissing>)\n  \u2502            ^^^^^^^^^^^^^^^^^\n\n"
+        }
+      ],
+      "observed_error_origin": [
+        1,
+        11
+      ],
+      "expected_error_origin": [
+        1,
+        11
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": true
+      },
+      "pass": true
+    },
+    {
+      "name": "show-origin-other-alias-multiline",
+      "policy": {
+        "class": "required-error",
+        "message": "maximum show rule depth exceeded",
+        "origin": [
+          1,
+          13
+        ],
+        "criterion": "callback returning a distinct stored Ref retains its own prior source, not input source",
+        "oracle_note": "Actual pinned oracle error and origin; unrestricted new/distinct Ref shows retrigger and must not be relabeled a missing-label oracle."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:55:03.897142+00:00",
+          "utc_end": "2026-10-20T01:55:03.912931+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-other-alias-multiline.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-product-8/show-origin-other-alias-multiline.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<aliasmissing>` does not exist in the document\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-other-alias-multiline.typ:1:13\n  \u2502\n1 \u2502 #let other = ref(<aliasmissing>)\n  \u2502              ^^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      ],
+      "observed_error_origin": [
+        1,
+        13
+      ],
+      "expected_error_origin": [
+        1,
+        13
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": false,
+        "error_origin": true
+      },
+      "pass": false
+    }
+  ],
+  "utc_end": "2026-10-20T01:55:03.913172+00:00",
+  "oracle_comparison_failures": [
+    "show-origin-new-native-multiline",
+    "show-origin-other-alias-multiline"
+  ],
+  "required_failures": [
+    "show-origin-new-native-multiline",
+    "show-origin-other-alias-multiline"
+  ]
+}

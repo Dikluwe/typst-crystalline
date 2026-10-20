@@ -1,0 +1,29 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0412]: cannot find type `Args` in this scope
+   --> 01_core/src/compiler/eval/context_reads.rs:174:14
+    |
+174 |             &Args,
+    |              ^^^^ not found in this scope
+    |
+help: consider importing one of these structs
+    |
+  7 + use crate::entities::args::Args;
+    |
+  7 + use crate::entities::ast::expr::Args;
+    |
+  7 + use std::env::Args;
+    |
+
+error[E0412]: cannot find type `Span` in this scope
+  --> 01_core/src/compiler/realize/recipes.rs:44:13
+   |
+44 |     origin: Span,
+   |             ^^^^ not found in this scope
+   |
+help: consider importing this struct
+   |
+ 7 + use crate::entities::span::Span;
+   |
+
+For more information about this error, try `rustc --explain E0412`.
+error: could not compile `typst-core` (lib test) due to 2 previous errors

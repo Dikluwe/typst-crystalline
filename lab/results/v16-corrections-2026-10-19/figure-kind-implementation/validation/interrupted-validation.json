@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-20T00:32:28.584373+00:00",
+  "reason": "Root stopped bounded service after three real test failures were fully recorded, before editing for now-approved reference phase and fixing outdated fixtures. Later gates did not run. No pass claimed for interrupted armed-watch test.",
+  "changed_inputs": [],
+  "failures": [
+    "p792_text_lang_dynamic",
+    "p462_ref_numeric::ref_supplement_explicit_overrides_default",
+    "pipeline_figura_numerada_prefixo_no_pdf"
+  ],
+  "partial_suites": {
+    "core": {
+      "passed": 7687,
+      "failed": 2,
+      "preexisting_ignored": 5
+    },
+    "infra": {
+      "passed": 1384,
+      "failed": 1,
+      "preexisting_ignored": 2
+    }
+  }
+}

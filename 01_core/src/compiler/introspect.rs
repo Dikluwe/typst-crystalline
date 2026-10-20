@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect.md
-//! @prompt-hash 3f2e7775
+//! @prompt-hash a634f9a8
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -29,6 +29,8 @@ use std::collections::HashMap;
 mod bibliography;
 mod classification;
 mod entrypoints;
+pub(crate) mod figure_counters;
+mod figure_demands;
 mod materialize_time;
 mod outline_entries;
 mod parent_index;
@@ -73,6 +75,7 @@ use self::bibliography::{collect_bib_keys, convert_refs};
 use self::classification::classify_unreferencable_body;
 pub use self::entrypoints::{
     introspect_bundle_documents_with_runtime_and_starts,
+    introspect_bundle_documents_with_runtime_targets_and_starts,
     introspect_bundle_documents_with_starts, introspect_with_introspector,
     introspect_with_runtime, realize_heading_supplements,
 };
@@ -367,10 +370,10 @@ mod tests {
             .into(),
         );
 
-        let intr = introspect_with_introspector(&content);
+        let intr = introspect_figure_fixture(&content);
         // **P1034** — default de linguagem é `en`; label resolve para "Figure 1".
         assert_eq!(
-            intr.resolved_labels.get(&Label("fig1".to_string())),
+            test_figure_label_text(&intr, &Label("fig1".to_string())).as_deref(),
             Some("Figure 1"),
             "label de figura deve resolver para 'Figure 1'"
         );
@@ -402,13 +405,19 @@ mod tests {
             .into(),
         );
 
-        let intr = introspect_with_introspector(&content);
-        assert_eq!(intr.resolved_labels.get(&Label("f1".to_string())), Some("Figure 1"));
-        assert_eq!(intr.resolved_labels.get(&Label("f2".to_string())), Some("Figure 2"));
+        let intr = introspect_figure_fixture(&content);
+        assert_eq!(
+            test_figure_label_text(&intr, &Label("f1".to_string())).as_deref(),
+            Some("Figure 1")
+        );
+        assert_eq!(
+            test_figure_label_text(&intr, &Label("f2".to_string())).as_deref(),
+            Some("Figure 2")
+        );
     }
 
     #[test]
-    fn introspect_figura_sem_caption_nao_incrementa_contador() {
+    fn introspect_figura_sem_caption_incrementa_contador() {
         let content = Content::Sequence(
             vec![
                 Content::figure(
@@ -430,12 +439,12 @@ mod tests {
             .into(),
         );
 
-        let intr = introspect_with_introspector(&content);
+        let intr = introspect_figure_fixture(&content);
         // Figura sem caption não consome contador — a segunda figura numerada é "Figure 1"
         assert_eq!(
-            intr.resolved_labels.get(&Label("f2".to_string())),
-            Some("Figure 1"),
-            "figura sem caption não deve consumir o contador"
+            test_figure_label_text(&intr, &Label("f2".to_string())).as_deref(),
+            Some("Figure 2"),
+            "numbered captionless Figure consumes one automatic action"
         );
     }
 
@@ -574,7 +583,7 @@ mod tests {
                 .map(|(_, v)| v.clone());
             assert_eq!(pat, Some(Value::Str("1".into())));
             assert!(
-                matches!(body, Content::Figure(e) if e.kind.as_deref() == Some("image"))
+                matches!(body, Content::Figure(e) if e.kind == Some(Some(crate::entities::elements::figure::FigureKind::Name("image".into()))))
             );
         } else {
             panic!("esperado Styled (transporte de numbering)");
@@ -607,13 +616,13 @@ mod tests {
             .into(),
         );
 
-        let intr = introspect_with_introspector(&doc);
+        let intr = introspect_figure_fixture(&doc);
 
         let image_nums = (0..)
-            .map_while(|i| intr.figure_number_at_index("image", i))
+            .map_while(|i| test_figure_number_at_location(&intr, "image", i))
             .collect::<Vec<_>>();
         let table_nums = (0..)
-            .map_while(|i| intr.figure_number_at_index("table", i))
+            .map_while(|i| test_figure_number_at_location(&intr, "table", i))
             .collect::<Vec<_>>();
 
         assert_eq!(
@@ -634,24 +643,11 @@ mod tests {
     /// **P190G**: retorna `(state, intr)` — testes leem
     /// `intr.resolved_labels` (field state.resolved_labels eliminado).
     fn introspect_with_lang(content: &Content, lang_code: &str) -> TagIntrospector {
-        use crate::entities::lang::Lang;
-        use std::str::FromStr;
-        let lang = Lang::from_str(lang_code).unwrap();
-        let mut locator = Locator::new();
-        let mut tags: Vec<Tag> = Vec::new();
-        let mut intr = TagIntrospector::empty();
-        let mut auto_label_counter: usize = 0;
-        walk(
-            content,
-            &mut locator,
-            &mut tags,
-            &mut intr,
-            &mut auto_label_counter,
-            Some(&lang),
-            &crate::entities::style_chain::StyleChain::default_chain(),
-            None,
-        );
-        intr
+        let lang: crate::entities::lang::Lang = lang_code.parse().expect("test language");
+        introspect_figure_fixture(&Content::styled(
+            content.clone(),
+            Styles::new().push_custom("text.lang", Value::Str(lang.as_str().into())),
+        ))
     }
 
     #[test]
@@ -667,9 +663,9 @@ mod tests {
             Some("1".to_string()),
         );
         let labelled = labelled_prod(figure, label.clone());
-        let intr = introspect_with_introspector(&labelled);
+        let intr = introspect_figure_fixture(&labelled);
         assert_eq!(
-            intr.resolved_labels.get(&label),
+            test_figure_label_text(&intr, &label).as_deref(),
             Some("Figure 1"),
             "Default sem lang → EN 'Figure'"
         );
@@ -687,7 +683,7 @@ mod tests {
         );
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "pt");
-        assert_eq!(intr.resolved_labels.get(&label), Some("Figura 1"),);
+        assert_eq!(test_figure_label_text(&intr, &label).as_deref(), Some("Figura 1"),);
     }
 
     #[test]
@@ -702,7 +698,7 @@ mod tests {
         );
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "en");
-        assert_eq!(intr.resolved_labels.get(&label), Some("Table 1"),);
+        assert_eq!(test_figure_label_text(&intr, &label).as_deref(), Some("Table 1"),);
     }
 
     #[test]
@@ -717,7 +713,7 @@ mod tests {
         );
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "de");
-        assert_eq!(intr.resolved_labels.get(&label), Some("Listing 1"),);
+        assert_eq!(test_figure_label_text(&intr, &label).as_deref(), Some("Listing 1"),);
     }
 
     #[test]
@@ -735,14 +731,14 @@ mod tests {
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "zh");
         assert_eq!(
-            intr.resolved_labels.get(&label),
+            test_figure_label_text(&intr, &label).as_deref(),
             Some("Figure 1"),
             "Lang desconhecido cai no fallback EN (default da linguagem)"
         );
     }
 
     #[test]
-    fn figure_label_kind_custom_devolve_capitalizado() {
+    fn figure_label_custom_name_uses_explicit_supplement() {
         // P158B §6: kind desconhecido devolve string capitalizada.
         use crate::entities::label::Label;
         let label = Label("custom1".to_string());
@@ -752,12 +748,26 @@ mod tests {
             Some("custom".to_string()),
             Some("1".to_string()),
         );
+        let figure = figure
+            .map_content(&mut |content| {
+                if let Content::Figure(e) = content {
+                    let mut e = (**e).clone();
+                    e.supplement = Some(
+                        crate::entities::elements::figure::FigureSupplement::Content(
+                            Content::text("Custom"),
+                        ),
+                    );
+                    return Ok(Some(Content::Figure(Arc::new(e))));
+                }
+                Ok(None)
+            })
+            .unwrap();
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "en");
         assert_eq!(
-            intr.resolved_labels.get(&label),
+            test_figure_label_text(&intr, &label).as_deref(),
             Some("Custom 1"),
-            "Kind desconhecido capitalizado"
+            "custom kind requires an explicit supplement, never an inferred name"
         );
     }
 
@@ -786,17 +796,17 @@ mod tests {
                 Some("1".to_string()),
             ),
         ]));
-        let intr = introspect_with_introspector(&content);
+        let intr = introspect_figure_fixture(&content);
         assert_eq!(
             (0..)
-                .map_while(|i| intr.figure_number_at_index("image", i))
+                .map_while(|i| test_figure_number_at_location(&intr, "image", i))
                 .collect::<Vec<_>>(),
             vec![1, 2],
             "image counter independente"
         );
         assert_eq!(
             (0..)
-                .map_while(|i| intr.figure_number_at_index("table", i))
+                .map_while(|i| test_figure_number_at_location(&intr, "table", i))
                 .collect::<Vec<_>>(),
             vec![1],
             "table counter independente"
@@ -822,18 +832,18 @@ mod tests {
             )]
             .into(),
         );
-        let intr = introspect_with_introspector(&content);
+        let intr = introspect_figure_fixture(&content);
         // Counter "image" deve avançar via fallback default.
         assert_eq!(
             (0..)
-                .map_while(|i| intr.figure_number_at_index("image", i))
+                .map_while(|i| test_figure_number_at_location(&intr, "image", i))
                 .collect::<Vec<_>>(),
             vec![1],
             "kind=None deve cair no default 'image' no counter"
         );
         // **P1034** — default de linguagem é `en`; label resolve para "Figure 1".
         assert_eq!(
-            intr.resolved_labels.get(&Label("f_none".to_string())),
+            test_figure_label_text(&intr, &Label("f_none".to_string())).as_deref(),
             Some("Figure 1"),
             "label de figura kind=None deve resolver via fallback 'image' default"
         );
@@ -886,7 +896,10 @@ mod tests {
         // (Heading abre, Labelled abre, Labelled fecha, HeadingForToc
         // abre, HeadingForToc fecha, HeadingForBookmarks abre,
         // HeadingForBookmarks fecha, Heading fecha).
-        match (&tags[0], &tags[1], &tags[2], &tags[3], &tags[4], &tags[5], &tags[6], &tags[7]) {
+        match (
+            &tags[0], &tags[1], &tags[2], &tags[3], &tags[4], &tags[5], &tags[6],
+            &tags[7],
+        ) {
             (
                 Tag::Start(_, _),
                 Tag::Start(_, _),
@@ -897,7 +910,9 @@ mod tests {
                 Tag::End(_, _),
                 Tag::End(_, _),
             ) => {}
-            other => panic!("ordem esperada: Start, Start, End, Start, End, Start, End, End; obtido {other:?}"),
+            other => panic!(
+                "ordem esperada: Start, Start, End, Start, End, Start, End, End; obtido {other:?}"
+            ),
         }
     }
 
@@ -1221,20 +1236,24 @@ mod tests {
         );
         let tags = introspect_with_tags(&content);
 
-        let captured_kinds: Vec<Option<String>> = tags
-            .iter()
-            .filter_map(|t| match t {
-                Tag::Start(_, info) => match &info.payload {
-                    ElementPayload::Figure { kind, .. } => Some(kind.clone()),
+        let captured_kinds: Vec<Option<crate::entities::elements::figure::FigureKind>> =
+            tags.iter()
+                .filter_map(|t| match t {
+                    Tag::Start(_, info) => match &info.payload {
+                        ElementPayload::Figure { kind, .. } => Some(kind.clone()),
+                        _ => None,
+                    },
                     _ => None,
-                },
-                _ => None,
-            })
-            .collect();
+                })
+                .collect();
 
         assert_eq!(
             captured_kinds,
-            vec![Some("image".to_string()), Some("table".to_string()), None],
+            vec![
+                Some(crate::entities::elements::figure::FigureKind::Name("image".into())),
+                Some(crate::entities::elements::figure::FigureKind::Name("table".into())),
+                None
+            ],
             "kinds das figures em tags não batem com input"
         );
 
@@ -1390,17 +1409,21 @@ mod tests {
             ]
             .into(),
         );
-        let intr = introspect_with_introspector(&content);
+        let intr = introspect_figure_fixture(&content);
         assert_eq!(intr.query_by_kind(ElementKind::Figure).len(), 3);
         // CounterStateLegacy resolve kind=None para "image" → image=2, table=1.
         // Introspector preserva kind literal mas conta as 3 sob ElementKind::Figure.
         // Divergência conhecida (m1-lacunas-captura.md #1).
         assert_eq!(
-            (0..).map_while(|i| intr.figure_number_at_index("image", i)).count(),
+            (0..)
+                .map_while(|i| test_figure_number_at_location(&intr, "image", i))
+                .count(),
             2
         );
         assert_eq!(
-            (0..).map_while(|i| intr.figure_number_at_index("table", i)).count(),
+            (0..)
+                .map_while(|i| test_figure_number_at_location(&intr, "table", i))
+                .count(),
             1
         );
     }
@@ -1681,6 +1704,728 @@ mod tests {
             };
             $body
         }};
+    }
+
+    /// Historical numeric fixtures intended real image/table elements. The public
+    /// string adapter now means a custom name, so migration states that intent here.
+    fn introspect_figure_fixture(content: &Content) -> TagIntrospector {
+        use crate::entities::elements::figure::FigureKind;
+        let typed = content
+            .map_content(&mut |content| {
+                if let Content::Figure(figure) = content {
+                    let mut figure = (**figure).clone();
+                    figure.kind = match figure.kind {
+                        Some(Some(FigureKind::Name(ref name))) if name == "image" => {
+                            Some(Some(FigureKind::Element(Func::native(
+                                "image",
+                                crate::compiler::stdlib::native_image,
+                            ))))
+                        }
+                        Some(Some(FigureKind::Name(ref name))) if name == "raw" => {
+                            Some(Some(FigureKind::Element(Func::native(
+                                "raw",
+                                crate::compiler::stdlib::native_raw,
+                            ))))
+                        }
+                        Some(Some(FigureKind::Name(ref name))) if name == "table" => {
+                            Some(Some(FigureKind::Element(Func::native(
+                                "table",
+                                crate::compiler::stdlib::native_table,
+                            ))))
+                        }
+                        other => other,
+                    };
+                    return Ok(Some(Content::Figure(Arc::new(figure))));
+                }
+                Ok(None)
+            })
+            .unwrap();
+        let world = make_e2e_world();
+        with_engine!(&world, |engine, ctx| {
+            let prepared = crate::compiler::realize::realize_math_insertions(
+                typed,
+                &mut ctx,
+                &mut engine,
+            )
+            .unwrap();
+            introspect_with_runtime(&prepared, &mut engine, &mut ctx).unwrap()
+        })
+    }
+
+    fn test_figure_key(kind: &str) -> CounterKey {
+        use crate::entities::elements::figure::FigureKind;
+        let function = match kind {
+            "table" => Func::native("table", crate::compiler::stdlib::native_table),
+            "image" => Func::native("image", crate::compiler::stdlib::native_image),
+            other => panic!("unmigrated historical Figure fixture kind {other}"),
+        };
+        super::figure_counters::figure_counter_key(&FigureKind::Element(function))
+    }
+
+    fn test_figure_number_at_location(
+        intr: &TagIntrospector,
+        kind: &str,
+        index: usize,
+    ) -> Option<usize> {
+        let key = test_figure_key(kind);
+        let CounterKey::Selector(selector) = &key else { unreachable!() };
+        let location = *intr.query(selector).get(index)?;
+        intr.flat_counter_at(&key, location)
+    }
+
+    fn test_figure_number_for_label(
+        intr: &TagIntrospector,
+        label: &Label,
+    ) -> Option<usize> {
+        let location = intr.query_by_label(label)?;
+        let key = intr.counter_key_for_label(label)?;
+        intr.flat_counter_at(key, location)
+    }
+
+    fn test_figure_label_text(intr: &TagIntrospector, label: &Label) -> Option<String> {
+        let location = intr.query_by_label(label)?;
+        let key = intr.counter_key_for_label(label)?;
+        let number = intr.formatted_counter_at(key, location)?;
+        let Content::Figure(figure) = intr.element_at(location)? else {
+            return None;
+        };
+        let supplement = figure
+            .resolved_supplement
+            .as_ref()?
+            .as_ref()
+            .map(Content::plain_text)
+            .unwrap_or_default();
+        Some(if supplement.is_empty() {
+            number
+        } else {
+            format!("{supplement} {number}")
+        })
+    }
+
+    fn figure_runtime_content(
+        content: Content,
+        target: crate::compiler::eval::EvalTarget,
+    ) -> crate::entities::source_result::SourceResult<TagIntrospector> {
+        let world = make_e2e_world();
+        with_engine!(&world, |engine, ctx| {
+            ctx.target = target;
+            let prepared = crate::compiler::realize::realize_math_insertions(
+                content,
+                &mut ctx,
+                &mut engine,
+            )?;
+            introspect_with_runtime(&prepared, &mut engine, &mut ctx)
+        })
+    }
+
+    fn typed_figure(kind: &str, caption: bool) -> Content {
+        use crate::entities::elements::figure::{FigureElem, FigureKind};
+        let function = match kind {
+            "image" => Func::native("image", crate::compiler::stdlib::native_image),
+            "raw" => Func::native("raw", crate::compiler::stdlib::native_raw),
+            "table" => Func::native("table", crate::compiler::stdlib::native_table),
+            other => panic!("unknown test element {other}"),
+        };
+        Content::Figure(Arc::new(FigureElem {
+            body: Content::text("body"),
+            caption: caption.then(|| Content::text("caption")),
+            kind: Some(Some(FigureKind::Element(function))),
+            resolved_kind: None,
+            supplement: None,
+            resolved_supplement: None,
+        }))
+    }
+
+    fn figure_action(key: CounterKey, action: CounterAction) -> Content {
+        Content::CounterUpdate(Arc::new(
+            crate::entities::elements::counter_update::CounterUpdateElem { key, action },
+        ))
+    }
+
+    fn figure_double(
+        _ctx: &mut EvalContext,
+        args: &Args,
+        _world: &dyn crate::contracts::world::World,
+        _file: FileId,
+    ) -> crate::entities::source_result::SourceResult<Value> {
+        assert!(_ctx.current_location.is_none(), "counter callbacks have Context::none");
+        let [Value::Int(value)] = args.items.as_slice() else {
+            panic!("one integer state")
+        };
+        Ok(Value::Int(value * 2))
+    }
+
+    fn figure_fail(
+        _ctx: &mut EvalContext,
+        args: &Args,
+        _world: &dyn crate::contracts::world::World,
+        _file: FileId,
+    ) -> crate::entities::source_result::SourceResult<Value> {
+        Err(vec![crate::entities::source_result::SourceDiagnostic::error(
+            args.span,
+            "FIGURE_COUNTER_LATE_ERROR",
+        )])
+    }
+
+    #[test]
+    fn figure_counter_numbering_only_actions_and_location_prefixes() {
+        let key = test_figure_key("image");
+        let content = Content::Sequence(
+            vec![
+                typed_figure("image", false),
+                figure_action(key.clone(), CounterAction::Set(vec![7])),
+                labelled_prod(typed_figure("image", true), Label("b".into())),
+                figure_action(
+                    key.clone(),
+                    CounterAction::Func(Func::native("double", figure_double)),
+                ),
+                labelled_prod(typed_figure("image", true), Label("c".into())),
+            ]
+            .into(),
+        );
+        let intr =
+            figure_runtime_content(content, crate::compiler::eval::EvalTarget::Paged)
+                .unwrap();
+        let b = intr.query_by_label(&Label("b".into())).unwrap();
+        let c = intr.query_by_label(&Label("c".into())).unwrap();
+        assert_eq!(intr.counter_values_at(&key, b), Some(&[8][..]));
+        assert_eq!(intr.figure_number_for_label(&Label("b".into())), Some(8));
+        assert_eq!(intr.figure_number_for_label(&Label("c".into())), Some(17));
+        assert_eq!(intr.counter_values_at(&key, c), Some(&[17][..]));
+        assert_eq!(intr.counter_final_values(&key), Some(&[17][..]));
+        assert_eq!(
+            intr.counters
+                .actions()
+                .iter()
+                .filter(|event| event.key.is_none())
+                .count(),
+            3
+        );
+        assert_eq!(
+            intr.figure_number_at_index("image", 0),
+            None,
+            "no automatic string alias"
+        );
+    }
+
+    #[test]
+    fn figure_counter_complete_demand_propagates_later_error() {
+        let key = test_figure_key("image");
+        let content = Content::Sequence(
+            vec![
+                typed_figure("image", true),
+                figure_action(
+                    key,
+                    CounterAction::Func(Func::native("fail", figure_fail)),
+                ),
+            ]
+            .into(),
+        );
+        let errors =
+            figure_runtime_content(content, crate::compiler::eval::EvalTarget::Paged)
+                .unwrap_err();
+        assert!(errors
+            .iter()
+            .any(|error| error.message == "FIGURE_COUNTER_LATE_ERROR"));
+    }
+
+    #[test]
+    fn figure_counter_unread_and_html_caption_do_not_demand() {
+        for (caption, target) in [
+            (false, crate::compiler::eval::EvalTarget::Paged),
+            (true, crate::compiler::eval::EvalTarget::Html),
+        ] {
+            let key = test_figure_key("image");
+            let content = Content::Sequence(
+                vec![
+                    typed_figure("image", caption),
+                    figure_action(
+                        key,
+                        CounterAction::Func(Func::native("fail", figure_fail)),
+                    ),
+                ]
+                .into(),
+            );
+            let intr = figure_runtime_content(content, target).unwrap();
+            assert!(intr.figure_counter_snapshots.is_empty());
+            assert_eq!(
+                intr.counters
+                    .actions()
+                    .iter()
+                    .filter(|event| event.key.is_none())
+                    .count(),
+                1
+            );
+        }
+    }
+
+    #[test]
+    fn figure_counter_reference_demands_captionless_target() {
+        let world = make_e2e_world();
+        let intr = with_engine!(&world, |engine, ctx| {
+            let prepared = crate::compiler::realize::realize_math_insertions(
+                labelled_prod(typed_figure("image", false), Label("f".into())),
+                &mut ctx,
+                &mut engine,
+            )
+            .unwrap();
+            // This unit exercises static demand collection; contextual Ref
+            // producer execution is covered by the actual Session tests.
+            let content =
+                Content::Sequence(vec![prepared, Content::reference("f")].into());
+            introspect_with_runtime(&content, &mut engine, &mut ctx).unwrap()
+        });
+        assert_eq!(intr.counter_final_values(&test_figure_key("image")), Some(&[1][..]));
+        assert_eq!(test_figure_number_for_label(&intr, &Label("f".into())), Some(1));
+    }
+
+    #[test]
+    fn figure_counter_empty_states_stay_present_and_next_step_recovers() {
+        let key = test_figure_key("image");
+        let content = Content::Sequence(
+            vec![
+                typed_figure("image", true),
+                figure_action(key.clone(), CounterAction::Set(vec![])),
+            ]
+            .into(),
+        );
+        let intr =
+            figure_runtime_content(content, crate::compiler::eval::EvalTarget::Paged)
+                .unwrap();
+        assert_eq!(intr.counter_final_values(&key), Some(&[][..]));
+        let end = intr.counters.actions().last().unwrap().location;
+        assert_eq!(intr.counter_values_at(&key, end), Some(&[][..]));
+        assert_eq!(intr.flat_counter_at(&key, end), None);
+        let content = Content::Sequence(
+            vec![
+                typed_figure("image", false),
+                figure_action(key.clone(), CounterAction::Set(vec![])),
+                typed_figure("image", true),
+            ]
+            .into(),
+        );
+        let intr =
+            figure_runtime_content(content, crate::compiler::eval::EvalTarget::Paged)
+                .unwrap();
+        assert_eq!(intr.counter_final_values(&key), Some(&[1][..]));
+    }
+
+    #[test]
+    fn figure_counter_none_is_ineligible_even_after_numbered_target() {
+        let content = Content::Sequence(
+            vec![
+                typed_figure("image", true),
+                Content::styled(
+                    labelled_prod(typed_figure("image", false), Label("off".into())),
+                    Styles::new().push_custom("figure.numbering", Value::None),
+                ),
+                Content::reference("off"),
+            ]
+            .into(),
+        );
+        let intr =
+            figure_runtime_content(content, crate::compiler::eval::EvalTarget::Paged)
+                .unwrap();
+        assert!(intr.counter_key_for_label(&Label("off".into())).is_none());
+        assert_eq!(
+            intr.counters
+                .actions()
+                .iter()
+                .filter(|event| event.key.is_none())
+                .count(),
+            1
+        );
+    }
+
+    #[test]
+    fn figure_counter_bundle_targets_validate_before_any_effect() {
+        let world = make_e2e_world();
+        with_engine!(&world, |engine, ctx| {
+            let errors = introspect_bundle_documents_with_runtime_targets_and_starts(
+                &[Content::Empty],
+                &[],
+                Default::default(),
+                &mut engine,
+                &mut ctx,
+            )
+            .unwrap_err();
+            assert_eq!(
+                errors[0].message,
+                "bundle body target metadata does not match body count"
+            );
+            assert!(errors[0].span.is_detached());
+            let (intr, starts) =
+                introspect_bundle_documents_with_runtime_targets_and_starts(
+                    &[],
+                    &[],
+                    Default::default(),
+                    &mut engine,
+                    &mut ctx,
+                )
+                .unwrap();
+            assert!(starts.is_empty());
+            assert!(intr.counters.actions().is_empty());
+            let (compat, compat_starts) =
+                introspect_bundle_documents_with_runtime_and_starts(
+                    &[Content::Empty],
+                    &mut engine,
+                    &mut ctx,
+                )
+                .unwrap();
+            let (explicit, explicit_starts) =
+                introspect_bundle_documents_with_runtime_targets_and_starts(
+                    &[Content::Empty],
+                    &[crate::compiler::eval::EvalTarget::Paged],
+                    Default::default(),
+                    &mut engine,
+                    &mut ctx,
+                )
+                .unwrap();
+            assert_eq!(compat_starts, explicit_starts);
+            assert_eq!(
+                compat.query_by_kind(ElementKind::Figure),
+                explicit.query_by_kind(ElementKind::Figure)
+            );
+        });
+    }
+
+    fn figure_warn(
+        ctx: &mut EvalContext,
+        args: &Args,
+        world: &dyn crate::contracts::world::World,
+        file: FileId,
+        _scopes: &mut crate::compiler::scopes::Scopes<'_>,
+        engine: &mut Engine<'_>,
+    ) -> crate::entities::source_result::SourceResult<Value> {
+        engine.sink.warn_note(
+            args.span,
+            "FIGURE_COUNTER_RETAINED_WARNING",
+            "original counter hint",
+        );
+        figure_double(ctx, args, world, file)
+    }
+
+    fn figure_runtime_with_warnings(
+        content: Content,
+    ) -> (
+        crate::entities::source_result::SourceResult<TagIntrospector>,
+        Vec<crate::entities::source_result::SourceDiagnostic>,
+    ) {
+        use comemo::Track;
+        let world = make_e2e_world();
+        let mut ctx = EvalContext::new();
+        let route = Route::root().with_id(world.main_id);
+        let mut styles = StyleChain::default_chain();
+        let mut rules: Arc<[ShowRule]> = Arc::from([]);
+        let mut guards = Vec::new();
+        let metrics = FixedMetrics;
+        let mut sink = Sink::new();
+        let result = {
+            let mut tracked = sink.track_mut();
+            let mut engine = Engine {
+                world: &world,
+                font_metrics: &metrics,
+                route: route.track(),
+                styles: &mut styles,
+                show_rules: &mut rules,
+                active_guards: &mut guards,
+                current_file: world.main_id,
+                sink: &mut tracked,
+            };
+            crate::compiler::realize::realize_math_insertions(
+                content,
+                &mut ctx,
+                &mut engine,
+            )
+            .and_then(|prepared| {
+                introspect_with_runtime(&prepared, &mut engine, &mut ctx)
+            })
+        };
+        (result, sink.into_diagnostics())
+    }
+
+    #[test]
+    fn figure_counter_validation_and_retained_transactions_keep_own_diagnostics() {
+        let key = test_figure_key("image");
+        let source_span = crate::entities::span::Span::from_range(
+            FileId::from_raw(NonZeroU16::new(1).unwrap()),
+            8..19,
+        );
+        let content =
+            Content::Source(Arc::new(crate::entities::content::SourceContent {
+                span: source_span,
+                body: Content::Sequence(
+                    vec![
+                        typed_figure("image", true),
+                        figure_action(
+                            key,
+                            CounterAction::Func(Func::native_with_engine(
+                                "warn",
+                                figure_warn,
+                            )),
+                        ),
+                    ]
+                    .into(),
+                ),
+            }));
+        // A validation-only candidate is discarded. Its result cannot consume
+        // diagnostic publication on behalf of the following retained transaction.
+        let (validation, discarded) = figure_runtime_with_warnings(content.clone());
+        validation.unwrap();
+        let (retained, diagnostics) = figure_runtime_with_warnings(content.clone());
+        retained.unwrap();
+        assert_eq!(discarded.len(), 1);
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(diagnostics[0].span, source_span);
+        assert_eq!(diagnostics[0].message, "FIGURE_COUNTER_RETAINED_WARNING");
+        assert_eq!(diagnostics[0].hints, vec!["original counter hint"]);
+        assert_eq!(discarded[0].span, diagnostics[0].span);
+        assert_eq!(discarded[0].trace, diagnostics[0].trace);
+        let (second_retained, second_diagnostics) = figure_runtime_with_warnings(content);
+        second_retained.unwrap();
+        assert_eq!(
+            second_diagnostics.len(),
+            1,
+            "another retained transaction publishes independently"
+        );
+        let (replacement, replacement_diagnostics) =
+            figure_runtime_with_warnings(typed_figure("image", false));
+        replacement.unwrap();
+        assert!(
+            replacement_diagnostics.is_empty(),
+            "retired candidate effects do not become a global cache"
+        );
+    }
+
+    #[test]
+    fn figure_counter_mixed_bundle_has_global_actions_and_paged_only_demands() {
+        let world = make_e2e_world();
+        with_engine!(&world, |engine, ctx| {
+            let raw_key = super::figure_counters::figure_counter_key(
+                &crate::entities::elements::figure::FigureKind::Element(Func::native(
+                    "raw",
+                    crate::compiler::stdlib::native_raw,
+                )),
+            );
+            let html = Content::Sequence(
+                vec![
+                    typed_figure("raw", true),
+                    figure_action(
+                        raw_key.clone(),
+                        CounterAction::Func(Func::native("fail", figure_fail)),
+                    ),
+                    typed_figure("image", false),
+                ]
+                .into(),
+            );
+            ctx.target = crate::compiler::eval::EvalTarget::Html;
+            let html = crate::compiler::realize::realize_math_insertions(
+                html,
+                &mut ctx,
+                &mut engine,
+            )
+            .unwrap();
+            ctx.target = crate::compiler::eval::EvalTarget::Paged;
+            let paged = crate::compiler::realize::realize_math_insertions(
+                typed_figure("image", true),
+                &mut ctx,
+                &mut engine,
+            )
+            .unwrap();
+            let bodies = vec![html, paged];
+            let (intr, starts) =
+                introspect_bundle_documents_with_runtime_targets_and_starts(
+                    &bodies,
+                    &[
+                        crate::compiler::eval::EvalTarget::Html,
+                        crate::compiler::eval::EvalTarget::Paged,
+                    ],
+                    ctx.features,
+                    &mut engine,
+                    &mut ctx,
+                )
+                .unwrap();
+            assert_eq!(starts.len(), 2);
+            assert_eq!(intr.query_by_kind(ElementKind::Figure).len(), 3);
+            assert_eq!(
+                intr.counter_final_values(&test_figure_key("image")),
+                Some(&[2][..])
+            );
+            assert!(!intr.figure_counter_snapshots.iter().any(|snapshot| {
+                crate::compiler::eval::operators::equality::counter_keys_eq(
+                    &snapshot.key,
+                    &raw_key,
+                )
+            }));
+            let errors = introspect_bundle_documents_with_runtime_and_starts(
+                &bodies,
+                &mut engine,
+                &mut ctx,
+            )
+            .unwrap_err();
+            assert!(
+                errors
+                    .iter()
+                    .any(|error| error.message == "FIGURE_COUNTER_LATE_ERROR"),
+                "all-Paged compatibility wrapper really demands both captions"
+            );
+        });
+    }
+
+    #[test]
+    fn figure_counter_ancestor_hidden_unprepared_descendant_has_no_action_or_query_membership(
+    ) {
+        let hidden =
+            Content::Realized(Arc::new(crate::entities::content::RealizedContent {
+                original: Content::block(
+                    typed_figure("raw", true),
+                    None,
+                    None,
+                    crate::entities::sides::Sides::uniform(
+                        crate::entities::layout_types::Length::ZERO,
+                    ),
+                    true,
+                ),
+                visual: Content::Empty,
+            }));
+        let intr =
+            figure_runtime_content(hidden, crate::compiler::eval::EvalTarget::Paged)
+                .unwrap();
+        assert_eq!(intr.original_walk_depth, 0);
+        assert!(
+            intr.query_by_kind(ElementKind::Figure).is_empty(),
+            "an ancestor's semantic original does not realize its hidden raw descendants"
+        );
+        assert_eq!(
+            intr.counters
+                .actions()
+                .iter()
+                .filter(|event| event.key.is_none())
+                .count(),
+            0
+        );
+        assert_eq!(
+            intr.counter_final_values(&CounterKey::Selector(Selector::Kind(
+                ElementKind::Figure
+            ))),
+            None
+        );
+        assert!(intr.figure_counter_snapshots.is_empty());
+        let world = make_e2e_world();
+        with_engine!(&world, |engine, ctx| {
+            let own = crate::compiler::realize::realize_math_insertions(
+                typed_figure("raw", true),
+                &mut ctx,
+                &mut engine,
+            )
+            .unwrap();
+            let own_hidden =
+                Content::Realized(Arc::new(crate::entities::content::RealizedContent {
+                    original: own,
+                    visual: Content::Empty,
+                }));
+            let intr =
+                introspect_with_runtime(&own_hidden, &mut engine, &mut ctx).unwrap();
+            assert_eq!(intr.query_by_kind(ElementKind::Figure).len(), 1);
+            assert_eq!(
+                intr.counters
+                    .actions()
+                    .iter()
+                    .filter(|event| event.key.is_none())
+                    .count(),
+                1
+            );
+            assert!(
+                intr.figure_counter_snapshots.is_empty(),
+                "own hidden Figure is an action, not an implicit caption demand"
+            );
+        });
+    }
+
+    #[test]
+    fn figure_counter_first_label_keeps_typed_key_and_unnumbered_first_stays_unreferenceable(
+    ) {
+        let mut observed = Vec::new();
+        for enabled in [true, false] {
+            let first = labelled_prod(typed_figure("table", true), Label("same".into()));
+            let first = if enabled {
+                first
+            } else {
+                Content::styled(
+                    first,
+                    Styles::new().push_custom("figure.numbering", Value::None),
+                )
+            };
+            let later = labelled_prod(typed_figure("raw", true), Label("same".into()));
+            let intr = figure_runtime_content(
+                Content::Sequence(vec![first, later].into()),
+                crate::compiler::eval::EvalTarget::Paged,
+            )
+            .unwrap();
+            let label = Label("same".into());
+            let first_location = intr.query_by_label(&label).unwrap();
+            let Content::Figure(first) = intr.element_at(first_location).unwrap() else {
+                panic!("first label target")
+            };
+            assert_eq!(
+                first.resolved_kind.as_ref(),
+                Some(&crate::entities::elements::figure::FigureKind::Element(
+                    Func::native("table", crate::compiler::stdlib::native_table)
+                ))
+            );
+            let correct = if enabled {
+                intr.counter_key_for_label(&label).is_some_and(|key| {
+                    crate::compiler::eval::operators::equality::counter_keys_eq(
+                        key,
+                        &test_figure_key("table"),
+                    )
+                })
+            } else {
+                intr.counter_key_for_label(&label).is_none()
+            };
+            observed.push(correct);
+        }
+        assert_eq!(
+            observed,
+            vec![true, true],
+            "later typed Figure must not overwrite first label's key or numbering absence"
+        );
+    }
+
+    #[test]
+    fn figure_counter_indexes_only_actually_emitted_caption_supplement_metadata() {
+        use crate::entities::elements::figure::FigureSupplement;
+        for (caption, numbering, expected) in [
+            (true, Value::Str("1".into()), vec![Value::Str("visible".into())]),
+            (false, Value::Str("1".into()), vec![]),
+            (true, Value::None, vec![]),
+            (true, Value::Func(Func::native("double", figure_double)), vec![]),
+        ] {
+            let Content::Figure(figure) = typed_figure("image", caption) else {
+                unreachable!()
+            };
+            let mut figure = (*figure).clone();
+            figure.supplement = Some(FigureSupplement::Content(Content::label_auto(
+                "supp".to_string(),
+                Content::Metadata(Arc::new(
+                    crate::entities::elements::metadata::MetadataElem {
+                        value: Box::new(Value::Str("visible".into())),
+                    },
+                )),
+            )));
+            let figure = Content::styled(
+                Content::Figure(Arc::new(figure)),
+                Styles::new().push_custom("figure.numbering", numbering),
+            );
+            let intr =
+                figure_runtime_content(figure, crate::compiler::eval::EvalTarget::Paged)
+                    .unwrap();
+            assert_eq!(intr.query_metadata(), expected.as_slice());
+            assert_eq!(
+                intr.query_by_label(&Label("supp".into())).is_some(),
+                !expected.is_empty()
+            );
+        }
     }
 
     #[test]
@@ -2156,11 +2901,11 @@ mod tests {
             Some("image".into()),
             Some("1".to_string()),
         );
-        let intr = introspect_with_introspector(&content);
+        let intr = introspect_figure_fixture(&content);
 
         // Consumer C3 path (P184D): figure_number_at_index retorna Some.
         assert_eq!(
-            intr.figure_number_at_index("image", 0),
+            test_figure_number_at_location(&intr, "image", 0),
             Some(1),
             "caminho Introspector já activo desde P184 — P197B não alterou"
         );
@@ -2191,12 +2936,12 @@ mod tests {
             ]
             .into(),
         );
-        let intr = introspect_with_introspector(&content);
+        let intr = introspect_figure_fixture(&content);
 
         // 2 figures image numeradas → intr.figure_number_at_index = [1, 2].
         assert_eq!(
             (0..)
-                .map_while(|i| intr.figure_number_at_index("image", i))
+                .map_while(|i| test_figure_number_at_location(&intr, "image", i))
                 .collect::<Vec<_>>(),
             vec![1, 2],
             "P190H: populate_intr Figure popula intr.counters em ordem (1-based)"
@@ -2214,13 +2959,13 @@ mod tests {
             Some("table".into()),
             Some("1".to_string()),
         );
-        let intr = introspect_with_introspector(&content);
+        let intr = introspect_figure_fixture(&content);
 
-        let intr_num = intr.figure_number_at_index("table", 0);
+        let intr_num = test_figure_number_at_location(&intr, "table", 0);
         assert_eq!(
             intr_num,
             Some(1),
-            "P190H: figura única counted → intr.figure_number_at_index(table, 0) = 1"
+            "P190H: figura única counted → test_figure_number_at_location(&intr, table, 0) = 1"
         );
     }
 
@@ -2230,17 +2975,15 @@ mod tests {
         // = false → populate_intr arm Figure (gated por is_counted)
         // NÃO popula intr.counters. Field state.figure_numbers e
         // state.local_figure_counters eliminados.
-        let figura_sem_caption = Content::figure(
-            Content::Empty,
-            None,
-            Some("image".into()),
-            Some("1".to_string()),
+        let figura_sem_caption = Content::styled(
+            Content::figure(Content::Empty, None, Some("image".into()), None),
+            Styles::new().push_custom("figure.numbering", Value::None),
         );
-        let intr = introspect_with_introspector(&figura_sem_caption);
+        let intr = introspect_figure_fixture(&figura_sem_caption);
 
         // intr.counters["figure:image"] não populated — gate is_counted.
         assert_eq!(
-            intr.figure_number_at_index("image", 0),
+            test_figure_number_at_location(&intr, "image", 0),
             None,
             "is_counted=false → populate_intr não aplica counter"
         );
@@ -2261,12 +3004,12 @@ mod tests {
             ),
             Label("fig1".to_string()),
         );
-        let intr = introspect_with_introspector(&content);
+        let intr = introspect_figure_fixture(&content);
 
         // P190H: intr.figure_label_numbers populated via populate_intr
         // arms Figure + Labelled (sem fallback legacy).
         assert_eq!(
-            intr.figure_label_numbers.get(&Label("fig1".to_string())).copied(),
+            test_figure_number_for_label(&intr, &Label("fig1".to_string())),
             Some(1),
             "Introspector path: figure_label_numbers populated via P195D + P184B"
         );
@@ -2345,7 +3088,7 @@ mod tests {
         match extract_payload(fig_inner(&caso1)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
                 assert_eq!(kind, None, "caso1 kind preservado None literal");
-                assert!(!is_counted, "caso1 sem caption → is_counted=false");
+                assert!(is_counted, "captionless Figure remains automatically eligible");
             }
             other => panic!("caso1: esperado Some(Figure), obtido {other:?}"),
         }
@@ -2360,7 +3103,9 @@ mod tests {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
                 assert_eq!(
                     kind,
-                    Some("table".to_string()),
+                    Some(crate::entities::elements::figure::FigureKind::Name(
+                        "table".into()
+                    )),
                     "caso3 kind literal Some(\"table\")"
                 );
                 assert!(is_counted, "caso3 com caption+numbering → is_counted=true");
@@ -2371,52 +3116,42 @@ mod tests {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
                 assert_eq!(
                     kind,
-                    Some("table".to_string()),
+                    Some(crate::entities::elements::figure::FigureKind::Name(
+                        "table".into()
+                    )),
                     "caso4 kind literal Some(\"table\")"
                 );
-                assert!(!is_counted, "caso4 sem caption → is_counted=false");
+                assert!(
+                    is_counted,
+                    "captionless custom Figure remains automatically eligible"
+                );
             }
             other => panic!("caso4: esperado Some(Figure), obtido {other:?}"),
         }
 
-        // (b) `populate_intr_from_tag_start` aplica gate `is_counted`
-        //     + default `unwrap_or("image")` consistentemente para os
-        //     4 casos. Lacuna #1b fecha — gate aplicado no caminho
-        //     activo (não em from_tags arm porque tal arm não existe;
-        //     população é durante walk via populate_intr_from_tag_start
-        //     desde P191B/C ADR-0071).
-        let intr1 = introspect_with_introspector(&caso1);
-        assert_eq!(
-            intr1.figure_number_at_index("image", 0),
-            None,
-            "caso1 is_counted=false → counter NÃO populated (gate aplicado)"
-        );
-
-        let intr2 = introspect_with_introspector(&caso2);
-        assert_eq!(
-            intr2.figure_number_at_index("image", 0),
-            Some(1),
-            "caso2 is_counted=true + kind=None → kind_key='image' (default) → counter[1]"
-        );
-
-        let intr3 = introspect_with_introspector(&caso3);
-        assert_eq!(
-            intr3.figure_number_at_index("table", 0),
-            Some(1),
-            "caso3 is_counted=true + kind=Some(\"table\") → counter['table'][1]"
-        );
-        assert_eq!(
-            intr3.figure_number_at_index("image", 0),
-            None,
-            "caso3 kind='table' → contador 'image' NÃO populated"
-        );
-
-        let intr4 = introspect_with_introspector(&caso4);
-        assert_eq!(
-            intr4.figure_number_at_index("table", 0),
-            None,
-            "caso4 is_counted=false → counter NÃO populated (gate aplicado)"
-        );
+        // Effective numbering, not caption presence, owns automatic eligibility.
+        for case in [&caso1, &caso2, &caso3, &caso4] {
+            let intr = introspect_with_introspector(case);
+            assert_eq!(intr.query_by_kind(ElementKind::Figure).len(), 1);
+            assert_eq!(
+                intr.counters
+                    .actions()
+                    .iter()
+                    .filter(|event| event.key.is_none())
+                    .count(),
+                1
+            );
+            assert_eq!(
+                intr.figure_number_at_index("image", 0),
+                None,
+                "no automatic legacy string alias"
+            );
+            assert_eq!(
+                intr.figure_number_at_index("table", 0),
+                None,
+                "custom and element identities cannot share a string namespace"
+            );
+        }
 
         // (c) Walk emite Tags consistentes (Tag preserva kind literal).
         let tags1 = introspect_with_tags(&caso1);
@@ -2433,7 +3168,7 @@ mod tests {
         });
         assert_eq!(
             payload1,
-            Some((None, false)),
+            Some((None, true)),
             "Tag preserva kind=None literal e is_counted=false (paridade pre-walk)."
         );
         // caso2 (com caption, kind=None): payload kind=None preservado, is_counted=true.

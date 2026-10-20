@@ -1,0 +1,149 @@
+{
+  "utc": "2026-10-20T01:50:46.175002+00:00",
+  "state": "Ten frozen actual oracle sources: six narrowed acceptance controls and four additional Empty/Sequence morphology probes; initial confounded corpus preserved separately. No product baseline invented.",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "oracle_binary": "lab/typst-original/target/release/typst",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "assets": {},
+  "cases": [
+    {
+      "name": "captionless-block-controls-v2-callback-body-morphology",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/callback-body-morphology.typ",
+      "source_sha256": "e0726520112edbde146f4ec4f7a2bb45ef4225c91b5e86ba22f73c7d7ca76801",
+      "expected_returncode": 0,
+      "expected_normalized_text": "BLOCKBODYVALID",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/oracle-receipt.json",
+      "oracle_receipt_sha256": "76a3a49556baed6458857aafc139a54a712ae1f88d9583ffcfcccf3d1ad72a15"
+    },
+    {
+      "name": "captionless-block-controls-v2-location-reference",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/location-reference.typ",
+      "source_sha256": "d8a825bbbc690459babe2e4710c4336e1c2af1fa9ec3b0b60a31970a2dec41cf",
+      "expected_returncode": 0,
+      "expected_normalized_text": "BODY Figure 1",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/oracle-receipt.json",
+      "oracle_receipt_sha256": "76a3a49556baed6458857aafc139a54a712ae1f88d9583ffcfcccf3d1ad72a15",
+      "expected_query": {
+        "selector": "<count>",
+        "field": "value",
+        "returncode": 0,
+        "stdout": "[[1]]\n",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<count>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/location-reference.typ` instead\n\n"
+      }
+    },
+    {
+      "name": "captionless-block-controls-v2-none-prunes-context",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/none-prunes-context.typ",
+      "source_sha256": "bc548c845a76a906f13d39406e844cdda7920571b2d235ce0198d9b029893602",
+      "expected_returncode": 0,
+      "expected_normalized_text": "",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/oracle-receipt.json",
+      "oracle_receipt_sha256": "76a3a49556baed6458857aafc139a54a712ae1f88d9583ffcfcccf3d1ad72a15",
+      "expected_query": {
+        "selector": "<count>",
+        "field": "value",
+        "returncode": 0,
+        "stdout": "[[1]]\n",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<count>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/none-prunes-context.typ` instead\n\n"
+      }
+    },
+    {
+      "name": "captionless-block-controls-v2-none-prunes-nested-figure",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/none-prunes-nested-figure.typ",
+      "source_sha256": "fad7673a79ffa37ddd5fb0f21e381457554297e265b560f68771ca14651d29ae",
+      "expected_returncode": 0,
+      "expected_normalized_text": "",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/oracle-receipt.json",
+      "oracle_receipt_sha256": "76a3a49556baed6458857aafc139a54a712ae1f88d9583ffcfcccf3d1ad72a15",
+      "expected_query": {
+        "selector": "<count>",
+        "field": "value",
+        "returncode": 0,
+        "stdout": "[[1]]\n",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<count>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/none-prunes-nested-figure.typ` instead\n\n"
+      }
+    },
+    {
+      "name": "captionless-block-controls-v2-own-figure-replacement",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/own-figure-replacement.typ",
+      "source_sha256": "600a21992483d22f38400007e7aa81fcde2687ff2d732950fbe7951fd11ce2ab",
+      "expected_returncode": 0,
+      "expected_normalized_text": "OWNPRODUCT",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/oracle-receipt.json",
+      "oracle_receipt_sha256": "76a3a49556baed6458857aafc139a54a712ae1f88d9583ffcfcccf3d1ad72a15"
+    },
+    {
+      "name": "captionless-block-controls-v2-reached-context-and-nested-figure",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/reached-context-and-nested-figure.typ",
+      "source_sha256": "4f96b7a374198ae995cb20580fcd67788b977c3825fcfb27424721b6ce4ca900",
+      "expected_returncode": 0,
+      "expected_normalized_text": "OUTER CTX INNER",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/oracle-receipt.json",
+      "oracle_receipt_sha256": "76a3a49556baed6458857aafc139a54a712ae1f88d9583ffcfcccf3d1ad72a15",
+      "expected_query": {
+        "selector": "<count>",
+        "field": "value",
+        "returncode": 0,
+        "stdout": "[[[1],[1]]]\n",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<count>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/captionless-block-controls-v2/reached-context-and-nested-figure.typ` instead\n\n"
+      }
+    },
+    {
+      "name": "default-figure-block-oracle-v2-empty-body",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/default-figure-block-oracle-v2/empty-body.typ",
+      "source_sha256": "6c854cb416e932e83829a25721022eca1c74381dcd64e06fdc4eee2c208eb5f1",
+      "expected_returncode": 0,
+      "expected_normalized_text": "sequence(parbreak())",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/default-figure-block-oracle-v2/receipt.json",
+      "oracle_receipt_sha256": "e5a8a5b856290467adab5471a0d59d260ce3c846767c14bc65c4f955b116a44e"
+    },
+    {
+      "name": "default-figure-block-oracle-v2-sequence-body",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/default-figure-block-oracle-v2/sequence-body.typ",
+      "source_sha256": "e4bdf98be7adfb54dc240e63c4e6a135a8cb9379b51aba682de252f3f552335d",
+      "expected_returncode": 0,
+      "expected_normalized_text": "sequence([A], [ ], strong(body: [B]), [ ], [C], parbreak())",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/default-figure-block-oracle-v2/receipt.json",
+      "oracle_receipt_sha256": "e5a8a5b856290467adab5471a0d59d260ce3c846767c14bc65c4f955b116a44e"
+    },
+    {
+      "name": "default-figure-block-oracle-v2-source-empty-body",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/default-figure-block-oracle-v2/source-empty-body.typ",
+      "source_sha256": "09d14e00306e495d415f6cd4255058cb6d708afe2db3cc7920b426dbc4e3b5fb",
+      "expected_returncode": 0,
+      "expected_normalized_text": "sequence(parbreak())",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/default-figure-block-oracle-v2/receipt.json",
+      "oracle_receipt_sha256": "e5a8a5b856290467adab5471a0d59d260ce3c846767c14bc65c4f955b116a44e"
+    },
+    {
+      "name": "default-figure-block-oracle-v2-nested-empty-strong",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/default-figure-block-oracle-v2/nested-empty-strong.typ",
+      "source_sha256": "752d35adfa6c6bdd2b6cc5441486582e9ba7fb715bfe713ce5a6fa72a6b74aab",
+      "expected_returncode": 0,
+      "expected_normalized_text": "sequence(strong(body: []), parbreak())",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/default-figure-block-oracle-v2/receipt.json",
+      "oracle_receipt_sha256": "e5a8a5b856290467adab5471a0d59d260ce3c846767c14bc65c4f955b116a44e"
+    }
+  ]
+}

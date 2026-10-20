@@ -1,5 +1,5 @@
 # L0 — introspect/walk
-Hash do Código: ea1d26d5
+Hash do Código: 84685146
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -629,3 +629,62 @@ retain their boundaries. Require workspace/doctests/build/Clippy/Rustdoc, fmt,
 V1/V5/V15/V26/reverse lineage and no V16 increase; use
 12GiB/High 8 GiB/swap0/jobs1 with heavy commands sequential. RAM gain requires
 measurement, not intention.
+
+
+## Approved Figure/Grid occurrence counter correction
+
+### Evidence before decision
+
+Baseline HEAD `731f0ffdf4c7c152f590551e72ff63f7bd85ef85`; the reviewed current-pin measurements and exact source anchors are retained in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, `agents/counter/design.md` and `agents/counter/counter-probes.json`. In that evidence, captionless/numbered Figures count; manual Set/Func actions make caption ordinal indexing incorrect; typed element kinds and custom names require distinct keys. These are language values/errors, not Rust or rendering-byte equality. The human explicitly approved the complete Figure/Grid contracts, phases and compatibility changes in the current implementation session. This approval satisfies ADR-0127 for this exact scope. Historical conflicting caption-only or productive string-projection clauses are superseded only as described here; unrelated contracts remain.
+
+### Exclusive responsibility
+
+Effective Figure is_counted is numbering-present independently of caption, including Func and captionless occurrences; None disables. Preserve one action per prepared Location, Source/Located/Realized original identity and existing semantic indexes. Tag presence never creates implicit demand; discovery belongs to actual-visual figure_demands.
+
+### Acceptance and limits
+
+L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.
+
+
+### Effective Figure style carrier identity
+
+Current `walk.rs:1338` delegates Styled to walk, clearing forced_location and shallow_table despite Source/ShowRecipe already preserving those traversal contexts. Approved final preparation transports matched show-set numbering inside Located(Styled(Figure)), so that reset would allocate a second identity and break alias/action conservation. Before code, require carrier identity regression. Delegate Styled body with pushed chain through walk_at and the received forced_location/shallow_table, preserving all accumulators, outline-prefix recording, label and order. No wrapper Location/action, new phase or shadow state.
+
+
+### Static running Figure actions
+
+`figure-kind-implementation/target-controls-oracle/receipt.json` freezes the current-pin header/body control: rendered header Figure 1, body Figure 2, global final (2,). Current PageRun walk visits only body while actual Paged layout renders static header/footer/background/foreground. Index static Content in observed causal order background → header → body → footer → foreground in the same walk and effective chain, preserving explicit Locations and one action per occurrence. Never execute Func marginals, recurse page supplement metadata, invent actions for hidden originals or add duplicate per-page source actions. Running Content is indexed once under its prepared identity; actual physical repeats remain the marginal owner's mechanics. This is required approved Figure action/demand coherence, not a new Grid phase or blanket Page metadata traversal.
+
+Later `figure-kind-implementation/marginal-order-oracle/receipt.json` refines the header control: background/header precede body; footer/foreground follow it. Pinned pages/finalize.rs:56–72 agrees. Preserve that exact action and demand ordering, not merely the same final scalar. Static one-page controls certify this scope; repeated-page and dynamic marginal realization retain their separately visible boundaries.
+
+
+### Hidden ancestor Figure eligibility
+
+Actual RED in integration-tests-4 and current-pin ownership-oracle-2 require no Figure query/action membership for an unprepared descendant behind an ancestor replacement, while an own-hidden prepared Figure remains indexed once. Scope a private candidate original_walk_depth around Realized.original traversal, restoring it before visual traversal. At depth>0, return without indexing/recursing only a Figure with resolved_kind None. Keep prepared originals, other original element behavior, synthetic standalone Figures at depth0, existing Table shallow policy, pure walk signatures and all action/Location order unchanged. The transient depth is zero after completed walk; existing helper recursion carries the shared candidate, avoiding broad signature/module changes. No ignored warning, shadow action or global mutable state.
+
+
+### Emitted prepared caption supplement child
+
+`figure-kind-implementation/candidate-replay-1/receipt.json` records four required-closure callback-metadata cases returning [] instead of table/sequence/heading/first-body values. The callback result is rich Content and layout/figure emits it between body and caption; the old walker/collector omitted that actual visual child. For a prepared Figure with a present caption and a currently emitted numeric prefix (default or Str numbering), traverse resolved_supplement Content after body and before caption in canonical walk and demand discovery. Do not traverse lexical aliases or invoke callbacks. No-caption, numbering None and the explicit Func visual-prefix debt emit no supplement child and retain no traversal/demand from it. The Figure's own preparation callback/error semantics are unchanged. Preserve exact typed keys, occurrence Locations and selected-content alias conservation; no new Ref synthesis or physical SetPage admission phase is authorized.
+
+
+## Approved reference contribution integration
+
+Measured existing boundary before decision: `01_core/src/compiler/introspect/walk.rs:356 and :1051` retains the old generic transport or legacy assertion behavior. Source inspection establishes ownership; the independently frozen actual L3 INNER_PREPARATION RED establishes the language omission.
+
+The human approved frozen proposal SHA1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2, recorded in `lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-phase-approval.json`, including the separate no-child clarification. Actual L3 explicit/callback INNER_PREPARATION regressions failed on the unchanged pre-implementation source (`reference-phase-red-frozen`), authorizing RED-to-GREEN for this exact phase. Existing unrelated obligations remain.
+
+Index the prepared Figure original root only (through Source/Located/Styled wrappers), then traverse actual visual Figure children even when the root Location is already indexed. Do not walk retained raw body/supplement templates for actions. Recognize the exact prepared-reference child facade before Styled traversal; visit that one selected child under the existing lexical chain, omitting the token-only carrier delta. Recognize generated reference ContextBlock before generic payload publication: retain its real allocator/forced Location and context_block_locations entry, but publish no semantic element/query/tag/action. Ordinary source ContextBlock remains unchanged. Preserve original Ref label morphology rather than promoting internal transport or first inserted Figure to the language label target.
+
+No additional public contract beyond the exact three approved transport functions, new target inference, second arena, shared result/effect cache, fake observation, weakened diagnostic or unrelated generic visitor change is authorized. Preserve five-attempt stabilization, canonical paths and scoped lineage; validate reached and hidden effects, forward/repeated references, aliases, missing/unnumbered/non-Figure/bibliography/page controls and mixed target behavior.
+
+Private root traversal may distinguish ordinary indexing, original-root-only indexing and already-indexed visual-child traversal explicitly. This prevents either duplicate automatic root actions or skipped emitted Figure children while retaining existing Table visual handling.
+
+
+### Ordinary Block original root versus actual children
+
+Measurement before decision: ordinary-block-hidden-heading/receipt.json under agents/counters binds pinned oracle and frozen build8. A real source show block:none leaves child Heading query count0 in oracle but1 in product; identity Block shows INNER in both yet counts1 versus2. The captionless Block integration independently retained an unexecuted raw body Context as a second semantic Context through Realized.original. Current walk's original-root-only classification and return cover Table/Figure, while ordinary Block originals recurse raw bodies. Read current realization-order and content/source-origin Nuclei: identity is not order, source is transparent and contributes no extra occurrence.
+
+Classify a Realized ordinary Block original as root-only, preserving any root snapshot/label/action if that root has a semantic payload, then visit its actual visual children normally. Extend the existing explicit OriginalOnly return to Block; do not reclassify arbitrary containers as empty or change generic alias policy. A registered Located visual Block whose canonical original at that Location is also Block must still visit actual Block children through ChildrenOnly, preserving one root. Restrict this same-type transport case; do not bind Figure Location to arbitrary Block/replacement products or reopen all aliases. Existing Table/Figure behavior and causal order remain unchanged.
+
+The separate labeled Block probe records oracle [1,1] versus build8 [2,0]: child count duplication belongs to this correction; absence of Block label query membership is a pre-existing nonlocatable-label projection gap, retained as open rather than silently expanding Label ownership. Require hidden/identity/identity-labeled child language regressions plus existing reached Context membership, positions, counters and source wrappers. No callbacks, public field/API, new phase, cache, suppression or global registry relaxation.

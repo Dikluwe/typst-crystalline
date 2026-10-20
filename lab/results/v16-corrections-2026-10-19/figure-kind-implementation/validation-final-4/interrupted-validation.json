@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-20T03:08:38.074070+00:00",
+  "state": "intentionally interrupted before source changes; not a completed validation",
+  "changed_inputs": [],
+  "completed_jobs": 5,
+  "expected_jobs": 12,
+  "unit": "tekt-figure-final-gates-5.service",
+  "termination": "TERM after systemctl stop; do not treat wrapper exit0 as successful gates",
+  "reason": "counter.final noLocation false-zero regression requires private Engine-language guard",
+  "request_sha256": "a557fbc7675099daeed87d684a41e71c32f3bf591b4c2c3e0ddc1470b61f6c7d"
+}

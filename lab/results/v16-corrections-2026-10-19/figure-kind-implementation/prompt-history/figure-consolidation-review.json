@@ -1,0 +1,25 @@
+{
+  "utc": "2026-10-20T02:17:20.938935+00:00",
+  "status": "Review draft written; not sealed; productive source unchanged",
+  "active_path": "00_nucleo/prompts/core/compiler/realize/figure.md",
+  "active_sha256": "c2713d2fa45482321f70940470f99727be710091e76d819eed381db744d5e8ef",
+  "old_sha256": "cdc539c3c1c27c9646bd2754793616cf2bb3dd3a6eaaa6c4a54aaeca61839790",
+  "archive": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/prompt-history/figure-before-consolidation-cdc539c3.md",
+  "unchanged_productive_source": {
+    "01_core/src/compiler/realize/figure.rs": "dc5875a28a0c5fba3f3da3411a10316fbacb05ee50c3b699d67036bb3b19b78a"
+  },
+  "canonical_references_exist": true,
+  "coverage": {
+    "authority": "Current Figure/Grid approval, ratified Ref SHA/receipt and captionless continuous-flow classification retained.",
+    "preview": "Kind precedence, pure Grid invariant, identity-allocation prohibition with permitted RAM reconstruction, no callback/child/source-eval preserved.",
+    "final": "Show-set-aware preparation, explicit precedence, localization/error/default numbering, display conversion, noLocation context/restoration and exact value span preserved.",
+    "aliases": "Actual supplied LocatedContent Location and prepared original fields/templates retained; no inferred identity/snapshot fields.",
+    "caption_children": "Actual ordering/body-selected-caption, numbering None/Func inactivity, visual Some(None), immutable original template retained.",
+    "contexts_ref": "Fresh raw template Context sites, stable retained retries, shared Locator, prepared aliases and ratified Ref boundary preserved.",
+    "captionless": "join/native_block raw-root-before-child semantics and breakable:false ordinary defaults; exact visual wrapper omission; original Figure identity/action/position retained; no forced Block FigureLocation.",
+    "acceptance": "All prior functional/lineage/lint/provenance gates and hidden/source/alias/typedcounter/page/morphology controls retained; no assertion/history manufacturing.",
+    "limits": "Current captionless slice distinguished from full caption/default/breakability/float/HTML/Dynamic/Table/order/SetPage debt.",
+    "history": "Exact old bytes/hash/code-hash/provenance archived; obsolete pending/unratified/status/build narration removed from active instructions."
+  },
+  "no_other_source_or_prompt_edit": "Only active core/compiler/realize/figure.md changed by this consolidation; history artifacts new under prompt-history."
+}

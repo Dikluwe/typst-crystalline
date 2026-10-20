@@ -1,0 +1,9 @@
+# Authorization review: reseal-10, 63 owners
+
+All 126 current productive/L0 hashes match reseal-10.after. The 63 canonical owners, forward/reverse seals and 75 effective Nucleus hashes were independently checked. The exact 145-file original proposal package and both approval-bound Figure/Grid and rich Ref proposals remain intact. The external surface still adds only the approved target-aware bundle function and exact three Ref facade functions; no existing public signature changed or disappeared. Configuration, Cargo files and Nucleus sources remain unchanged, with no new allow/expect attributes or ignored tests.
+
+Since the prior audit, two identical Block/Figure child-walk bodies were factored under the same pure predicate and exact arguments. This retains the narrow same-type Block admission. The Paged snapshot error return now uses ?, preserving the same error exit before warning publication. Figure source changed only its lineage seal: restoring the previous line reproduces the prior full source SHA.
+
+The consolidated Figure L0 preserves preview/final precedence, reached validation, callback target/context/restoration and spans, original raw template versus actual children, fresh raw Context insertions with stable retries, prepared aliases, exact Paged captionless Block construction, omitted forced Figure Location, mandatory acceptance and explicit limits. Its exact prior prompt/code-hash line is archived with provenance under prompt-history. The consolidation changes no public contract, implementation behavior or gate.
+
+All previous55/62/63 reviews remain unchanged. This audit binds current stored contracts and authorization only. Fresh candidate-build-4, current CLI replay, integrated12 and structural compiler/differential-lint evidence remain required before final closure assessment. Stale build9 proves only its historical state. No productive/L0/test edit, Cargo, formatting or reseal occurred in this audit.

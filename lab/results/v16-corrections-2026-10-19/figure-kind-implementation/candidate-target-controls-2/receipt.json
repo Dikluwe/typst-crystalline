@@ -1,0 +1,245 @@
+{
+  "utc_start": "2026-10-20T00:02:53.105254+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "diff_head_stat": " .../core/compiler/eval/bindings/field_access.md    |  15 +\n .../eval/bindings/field_access/content_methods.md  |  15 +\n .../compiler/eval/bindings/field_access/fields.md  |  19 +\n 00_nucleo/prompts/core/compiler/eval/mod.md        |  21 +\n .../core/compiler/eval/observation/elements.md     |  45 +\n .../core/compiler/eval/operators/equality.md       |  15 +\n .../prompts/core/compiler/eval/rules/apply.md      |  17 +\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  17 +\n .../core/compiler/eval/selector_matching.md        |  17 +\n 00_nucleo/prompts/core/compiler/eval/tests.md      |  12 +\n 00_nucleo/prompts/core/compiler/introspect.md      |  20 +\n .../core/compiler/introspect/convergence.md        |  24 +\n .../core/compiler/introspect/entrypoints.md        |  15 +\n .../core/compiler/introspect/extract_payload.md    |  15 +\n .../prompts/core/compiler/introspect/fixpoint.md   |  15 +\n .../prompts/core/compiler/introspect/labelled.md   |  15 +\n .../prompts/core/compiler/introspect/locatable.md  |  15 +\n .../core/compiler/introspect/materialize_time.md   |  26 +\n .../prompts/core/compiler/introspect/populate.md   |  20 +\n .../prompts/core/compiler/introspect/queries.md    |  15 +\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  37 +\n .../prompts/core/compiler/layout/checkpoint.md     |  17 +\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  27 +\n .../prompts/core/compiler/layout/measurement.md    |  15 +\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  23 +\n .../prompts/core/compiler/layout/placement.md      |  15 +\n .../prompts/core/compiler/layout/references.md     |  20 +\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  26 +\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  15 +\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  25 +\n .../prompts/core/compiler/stdlib/figure_image.md   |  17 +\n .../prompts/core/compiler/stdlib/layout/grid.md    |  15 +\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  15 +\n .../core/compiler/stdlib/tests/figure_image.md     |  14 +\n .../prompts/core/entities/content/construction.md  |  15 +\n .../core/entities/content/tests/representation.md  |  15 +\n .../core/entities/content/tests/traversal.md       |  15 +\n .../prompts/core/entities/content/traversal.md     |  15 +\n 00_nucleo/prompts/core/entities/element_payload.md |  29 +\n 00_nucleo/prompts/core/entities/elements/figure.md |  37 +\n 00_nucleo/prompts/core/entities/elements/grid.md   |  20 +\n 00_nucleo/prompts/core/entities/introspector.md    |  22 +\n 00_nucleo/prompts/infra/export/tests/mod.md        |  15 +\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  15 +\n .../infra/pipeline/context_stabilization.md        |  15 +\n 00_nucleo/prompts/shell/cli.md                     |  15 +\n 01_core/src/compiler/eval/bindings/field_access.rs |  43 +\n .../eval/bindings/field_access/content_methods.rs  |  26 +-\n .../compiler/eval/bindings/field_access/fields.rs  |  21 +\n 01_core/src/compiler/eval/mod.rs                   |   1 +\n 01_core/src/compiler/eval/observation/elements.rs  | 228 ++++-\n 01_core/src/compiler/eval/operators/equality.rs    | 126 ++-\n 01_core/src/compiler/eval/rules/apply.rs           | 182 ++--\n 01_core/src/compiler/eval/rules/set.rs             |  57 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 122 ++-\n 01_core/src/compiler/eval/tests.rs                 |  31 +\n 01_core/src/compiler/introspect.rs                 | 960 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  81 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  38 +\n 01_core/src/compiler/introspect/extract_payload.rs |   7 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  30 +\n 01_core/src/compiler/introspect/labelled.rs        |  20 +-\n .../src/compiler/introspect/materialize_time.rs    |  88 +-\n 01_core/src/compiler/introspect/populate.rs        |  59 +-\n 01_core/src/compiler/introspect/queries.rs         |  43 +-\n 01_core/src/compiler/introspect/walk.rs            |  43 +-\n 01_core/src/compiler/layout/checkpoint.rs          |   6 +\n 01_core/src/compiler/layout/figure.rs              | 336 +++++++-\n 01_core/src/compiler/layout/measurement.rs         |   5 +-\n 01_core/src/compiler/layout/mod.rs                 |  33 +\n 01_core/src/compiler/layout/placement.rs           |   1 +\n 01_core/src/compiler/layout/references.rs          | 140 +++\n 01_core/src/compiler/layout/tests.rs               | 370 +++++++-\n 01_core/src/compiler/realize/mod.rs                |   2 +\n 01_core/src/compiler/realize/recipes.rs            |  37 +-\n 01_core/src/compiler/stdlib/figure_image.rs        | 324 +++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  14 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 112 ++-\n 01_core/src/entities/content/construction.rs       |  11 +-\n .../src/entities/content/tests/representation.rs   |   6 +\n 01_core/src/entities/content/tests/traversal.rs    |  34 +\n 01_core/src/entities/content/traversal.rs          |  11 +\n 01_core/src/entities/element_payload.rs            |  44 +-\n 01_core/src/entities/elements/figure.rs            | 537 +++++++++++-\n 01_core/src/entities/elements/grid.rs              |  59 ++\n 01_core/src/entities/introspector.rs               |   9 +\n 02_shell/src/cli.rs                                |  87 +-\n 03_infra/src/export/tests/mod.rs                   |  27 +-\n 03_infra/src/pipeline/bundle.rs                    |  11 +-\n 03_infra/src/pipeline/context_stabilization.rs     |  13 +-\n 91 files changed, 4773 insertions(+), 547 deletions(-)\n",
+  "product": {
+    "path": "lab/target/product/debug/typst",
+    "sha256": "12265c0a05442725b28274a3d11f89ee8c93578d4dc308bcd224178249e0396a"
+  },
+  "oracle_receipt_sha256": "9827128412eb27a210be7fffc00a26fa5c22826b155ead3b64b557f5c0372b81",
+  "baseline": false,
+  "cases": [
+    {
+      "name": "caption-manual-interleave",
+      "source_sha256": "f419b6ed9e36df962980e260fbbebffbfe76dc8be69dc0694ae9de3cd7b11f6d",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/caption-manual-interleave.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/caption-manual-interleave.pdf"
+      ],
+      "utc_start": "2026-10-20T00:02:53.355693+00:00",
+      "utc_end": "2026-10-20T00:02:54.060177+00:00",
+      "returncode": 0,
+      "text": "A Table 8: CAPA B Table 19: CAPB Table 8; Table 19",
+      "stderr": "",
+      "expected_returncode": 0,
+      "expected_text": "A Table 8: CAPA B Table 19: CAPB Table 8; Table 19",
+      "expected_warnings": [],
+      "passed": true
+    },
+    {
+      "name": "caption-includes-uncaptioned",
+      "source_sha256": "39e525c964716c0e14dcd154d2f38f32d9224b159e0ad756f8f47475de6722c5",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/caption-includes-uncaptioned.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/caption-includes-uncaptioned.pdf"
+      ],
+      "utc_start": "2026-10-20T00:02:54.060432+00:00",
+      "utc_end": "2026-10-20T00:02:54.638894+00:00",
+      "returncode": 0,
+      "text": "A B Figure 2: CAP",
+      "stderr": "",
+      "expected_returncode": 0,
+      "expected_text": "A B Figure 2: CAP",
+      "expected_warnings": [],
+      "passed": true
+    },
+    {
+      "name": "caption-hidden-original",
+      "source_sha256": "fc4fc19af4098f182a0ccde611d6fa81f0831b1122f7b1846e4ad862b6f60a86",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/caption-hidden-original.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/caption-hidden-original.pdf"
+      ],
+      "utc_start": "2026-10-20T00:02:54.639097+00:00",
+      "utc_end": "2026-10-20T00:02:54.652359+00:00",
+      "returncode": 1,
+      "text": null,
+      "stderr": "error: show rule deve retornar Content ou String, recebeu none\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/caption-hidden-original.typ:2:1\n  \u2502\n2 \u2502 #figure([H],kind:raw)\n  \u2502  ^^^^^^^^^^^^^^^^^^^^\n\n",
+      "expected_returncode": 0,
+      "expected_text": "V Listing 2: CAP",
+      "expected_warnings": [],
+      "passed": false
+    },
+    {
+      "name": "warning-demanded",
+      "source_sha256": "7ce48f997e2f9773752d2eb90a8d03c57ecb099711b371f7feecac34d64aca80",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/warning-demanded.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/warning-demanded.pdf"
+      ],
+      "utc_start": "2026-10-20T00:02:54.652585+00:00",
+      "utc_end": "2026-10-20T00:02:55.231313+00:00",
+      "returncode": 0,
+      "text": "A Table 1: CAP",
+      "stderr": "warning: the numeral system `hebrew` cannot represent zero\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/warning-demanded.typ:1:67\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>{let ignored=numbering(\"\u05d0\",0);n})\n  \u2502                                                                    ^^^^^^^\n\nwarning: the numeral system `hebrew` cannot represent zero\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/warning-demanded.typ:1:67\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>{let ignored=numbering(\"\u05d0\",0);n})\n  \u2502                                                                    ^^^^^^^\n\n",
+      "expected_returncode": 0,
+      "expected_text": "A Table 1: CAP",
+      "expected_warnings": [
+        "warning: the numeral system `hebrew` cannot represent zero"
+      ],
+      "passed": false
+    },
+    {
+      "name": "warning-undemanded",
+      "source_sha256": "35bf78131e7bef9060d5b081792dd5e8f5d1d4d6596352b0daa98e5e8d28253b",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/warning-undemanded.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/warning-undemanded.pdf"
+      ],
+      "utc_start": "2026-10-20T00:02:55.231521+00:00",
+      "utc_end": "2026-10-20T00:02:55.798667+00:00",
+      "returncode": 0,
+      "text": "A",
+      "stderr": "",
+      "expected_returncode": 0,
+      "expected_text": "A",
+      "expected_warnings": [],
+      "passed": true
+    },
+    {
+      "name": "warning-explicit-plus-caption",
+      "source_sha256": "d40f4205649feaf1b1612a5510d92fd84e2e49088826ea80391d5f2ae44e86b6",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/warning-explicit-plus-caption.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/warning-explicit-plus-caption.pdf"
+      ],
+      "utc_start": "2026-10-20T00:02:55.798849+00:00",
+      "utc_end": "2026-10-20T00:02:56.385907+00:00",
+      "returncode": 0,
+      "text": "A Table 1: CAP (1,)",
+      "stderr": "warning: the numeral system `hebrew` cannot represent zero\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/warning-explicit-plus-caption.typ:1:67\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>{let ignored=numbering(\"\u05d0\",0);n})\n  \u2502                                                                    ^^^^^^^\n\nwarning: the numeral system `hebrew` cannot represent zero\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/warning-explicit-plus-caption.typ:1:67\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>{let ignored=numbering(\"\u05d0\",0);n})\n  \u2502                                                                    ^^^^^^^\n\n",
+      "expected_returncode": 0,
+      "expected_text": "A Table 1: CAP (1,)",
+      "expected_warnings": [
+        "warning: the numeral system `hebrew` cannot represent zero"
+      ],
+      "passed": false
+    },
+    {
+      "name": "html-kind-explicit",
+      "source_sha256": "70cbc0779384157ef104eb16bc467410c5af98f44720094c860e1a567c9dc963",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/html-kind-explicit.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/html-kind-explicit.html",
+        "--features",
+        "html"
+      ],
+      "utc_start": "2026-10-20T00:02:56.386104+00:00",
+      "utc_end": "2026-10-20T00:02:56.400110+00:00",
+      "returncode": 0,
+      "text": "(function, table)",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "expected_returncode": 0,
+      "expected_text": "(function, table)",
+      "expected_warnings": [
+        "warning: html export is under active development and incomplete"
+      ],
+      "passed": true
+    },
+    {
+      "name": "html-kind-inherited-auto",
+      "source_sha256": "49560c2a3e13e9bb32fed8ea4a0a762b631b7f9eaefa5237f61ce5838e41a934",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/html-kind-inherited-auto.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/html-kind-inherited-auto.html",
+        "--features",
+        "html"
+      ],
+      "utc_start": "2026-10-20T00:02:56.400272+00:00",
+      "utc_end": "2026-10-20T00:02:56.414127+00:00",
+      "returncode": 0,
+      "text": "raw table",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "expected_returncode": 0,
+      "expected_text": "rawtable",
+      "expected_warnings": [
+        "warning: html export is under active development and incomplete"
+      ],
+      "passed": false
+    },
+    {
+      "name": "html-explicit-filtered-read",
+      "source_sha256": "287245f1121d01513ed313d278cb2182fbd7eada4c13e5deb792d0565eb65783",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/html-explicit-filtered-read.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/html-explicit-filtered-read.html",
+        "--features",
+        "html"
+      ],
+      "utc_start": "2026-10-20T00:02:56.414303+00:00",
+      "utc_end": "2026-10-20T00:02:56.428006+00:00",
+      "returncode": 1,
+      "text": null,
+      "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/html-explicit-filtered-read.typ:1:0\n  \u2502  \n1 \u2502 \u256d #show figure:none\n2 \u2502 \u2502 #figure([A],kind:table)\n3 \u2502 \u2502 #context repr(counter(figure.where(kind:table)).final())\n4 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "expected_returncode": 0,
+      "expected_text": "(1,)",
+      "expected_warnings": [
+        "warning: html export is under active development and incomplete"
+      ],
+      "passed": false
+    },
+    {
+      "name": "html-no-paged-demand",
+      "source_sha256": "eab4248bc0a3713b9ec094ced762e9b15a96e4a36fa05ea51314a5d664b091b0",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/html-no-paged-demand.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/html-no-paged-demand.html",
+        "--features",
+        "html"
+      ],
+      "utc_start": "2026-10-20T00:02:56.428230+00:00",
+      "utc_end": "2026-10-20T00:02:56.442294+00:00",
+      "returncode": 0,
+      "text": "DONE",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "expected_returncode": 0,
+      "expected_text": "DONE",
+      "expected_warnings": [
+        "warning: html export is under active development and incomplete"
+      ],
+      "passed": true
+    },
+    {
+      "name": "header-figure-boundary",
+      "source_sha256": "9f93fc8d20015c656d366b0be1584089f0a0d2be483b79b12ea49bb6d66233b6",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/header-figure-boundary.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-2/header-figure-boundary.pdf"
+      ],
+      "utc_start": "2026-10-20T00:02:56.442458+00:00",
+      "utc_end": "2026-10-20T00:02:57.047736+00:00",
+      "returncode": 0,
+      "text": "H Figure 1: HC B Figure 1: BC (1,)",
+      "stderr": "",
+      "expected_returncode": 0,
+      "expected_text": "H Figure 1: HC B Figure 2: BC (2,)",
+      "expected_warnings": [],
+      "passed": false
+    }
+  ],
+  "utc_end": "2026-10-20T00:02:57.047766+00:00",
+  "passed": false,
+  "changed_inputs": []
+}

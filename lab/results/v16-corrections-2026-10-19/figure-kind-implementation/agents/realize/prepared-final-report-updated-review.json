@@ -1,0 +1,30 @@
+{
+  "utc": "2026-10-20T03:43:57.675675+00:00",
+  "reviewer": "figure_realize_impl",
+  "mode": "read-only updated report-script review; no scripts executed and no source/L0/root-report edits",
+  "inputs": {
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/final_report.py": "b9c8e10c5a9096961c0625a7e63baf2fadd560ce334d648d8420bb4f2cbfb741",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/update_progress.py": "84fb7a543666c9d6855711547c042b49a3d2d911b8da2f5bb26202d110f1270c",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-extra-controls-review.json": "79cdd018367c837a62467815702c0219730d6d731986690deb717ea243acdff3",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-product-final/receipt.json": "ba241c7758ac3461a7c2536107bbc6b3dea7a864b9b76e3761c297ce17a30ca2",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-product-final-post-freeze.json": "a377a5dae8bec140de1f7c19ef2b1676fa96e322ea580173cb909995e7bb9c19"
+  },
+  "status": "PASS on wording and repaired evidence gates; generated reports still require the planned final review",
+  "prior_findings_resolved": [
+    "Final replay,target,native,broad and all6extra binaries/build receipts explicitly bound.",
+    "Ownership exact4tuples/source hashes asserted, receipt pinned and policy row distinguishes duplicate-label gaps.",
+    "Current64pairs/128hashes match sealed authorization; driver6commands and required40Ref observations checked."
+  ],
+  "scope_and_debt_review": [
+    "Bounded F/V16-055 repair; no full Figure/Grid,Typst or zero-lint claim.",
+    "Exact3Ref public facades and approved delayed phase remain bounded; modernfinal repair leaves public legacy helpers intact.",
+    "Math14vs20/returnedContext conflict remains separate decision, not ratified intentional divergence.",
+    "All6error-source diagnostic differences remain explicit; modernfinal message/hints correctness does not imply anchor parity.",
+    "Broad4all terminate and origins match; fresh/distinct2missing-label versus oraclemaxdepth strict comparisons remain failed.",
+    "Current Blocklabel/SetPage/bibliographyambiguity failures use final receipts; historical receipts are labelled historical.",
+    "Preview,fullcaption/defaults/alignment/floats/numbering/HTML/Dynamic/Grid/Tableorder/Statekey/physicalpage and priorbatch debts retained."
+  ],
+  "remaining_needed_corrections": [],
+  "generation_preconditions": "Writer remains dependent on pending scope-closure-obligations-final evidence and successful final receipts; do not infer completion from this script-only review.",
+  "syntax": "Both prepared Python scripts parse successfully without executing their mutation paths."
+}

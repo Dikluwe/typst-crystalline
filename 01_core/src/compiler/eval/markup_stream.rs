@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/markup_stream.md
-//! @prompt-hash c7a42271
+//! @prompt-hash 32fd9b29
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -371,6 +371,9 @@ fn append_markup_sequence(
         return;
     }
     match content {
+        Content::Source(e) if matches!(e.body.source_body(), Content::Ref(_)) => {
+            parts.push(Content::Source(e));
+        }
         Content::Source(e) => append_markup_sequence(parts, e.body.clone(), false),
         Content::Sequence(children) => {
             for child in children.iter().cloned() {

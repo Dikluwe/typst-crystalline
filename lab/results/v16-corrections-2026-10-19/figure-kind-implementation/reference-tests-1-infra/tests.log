@@ -1,0 +1,27 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0308]: mismatched types
+   --> 01_core/src/compiler/realize/reference_supplements.rs:282:60
+    |
+281 |     let target = match target {
+    |                        ------ this expression has type `entities::value::Value`
+282 |         Value::LocatedContent(content, _) | Value::Content(content) => content,
+    |                               -------                      ^^^^^^^ expected `IntrospectedContent`, found `Content`
+    |                               |
+    |                               first introduced with type `IntrospectedContent` here
+    |
+    = note: in the same arm, a binding must have the same type in all alternatives
+
+error[E0599]: no method named `source_body` found for struct `IntrospectedContent` in the current scope
+   --> 01_core/src/compiler/realize/reference_supplements.rs:285:42
+    |
+285 |     let Content::Figure(figure) = target.source_body() else {
+    |                                          ^^^^^^^^^^^ method not found in `IntrospectedContent`
+    |
+   ::: 01_core/src/entities/value.rs:26:1
+    |
+ 26 | pub struct IntrospectedContent {
+    | ------------------------------ method `source_body` not found for this struct
+
+Some errors have detailed explanations: E0308, E0599.
+For more information about an error, try `rustc --explain E0308`.
+error: could not compile `typst-core` (lib) due to 2 previous errors

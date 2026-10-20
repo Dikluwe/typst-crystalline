@@ -1,5 +1,5 @@
 # L0 — core/compiler/stdlib/mod
-Hash do Código: 90d32d39
+Hash do Código: c83d648e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
@@ -71,3 +71,18 @@ Apply pinned math-native-bridges invariants with exclusive owner boundaries. Int
 Apply pinned format-native-identity nucleus. Native/Format grouping is justified by same payload/ABI for projection/execution, but test every alternative for name/namespace/pointer/Eq/Hash/clone/With/dispatch; inventory/link V19 to tests without suppression, explicitly name new variant in exhaustive matches. No external definition/signature/field/trait/compatibility/default/phase changes, ADR-0127 continuous flow. Before code functional RED via current factories for fifteen cases and real observation against unmarked Native; GREEN full corpus/144 field-call/456 compatibility outside where/kind, public-contract and sizeof before/after. L0/ownership/V26 before restricted eleven-pair reseal; build/workspace/strict Clippy/Rustdoc/fmt/strict-reverse lineage/global no new errors/warnings. Sequential 12GiB/High10GiB/swap0/jobs1. Only where/kind admission closes; full selection/show/query/synthesis/carrier morphology/counter, FG1/RM1/SY1/RG1/V16 retain separate scopes/gates. No old-candidate copying or publication.
 
 Consume pinned call-once invariants. Internal ADR-0127 continuous-flow correction supersedes only conflicting internal-signature/name-compensation restrictions, retaining Tekt extensions, public functions/reexports/structs/traits/fields/default/phase. Functional co-located RED→GREEN for observed receiver/args effects, mutating fallback/error-before-args, where/With/selector/collections/matrix without truncating legitimate effects; hits/misses, spans/occurrences and Value complements. Unhandled preserves receiver and does not execute args callback; count effects, not PDF bytes/Rust Eq/benchmark. Preserve residual diagnostics explicitly. Ownership/V26 before restricted resealing; build/workspace/strict all-target Clippy including unfulfilled expectations/Rustdoc/fmt/strict-reverse V1/V5/V15/V26/global differential SARIF, no new error/config/suppression. Informative V19 retains alternatives matrix and behavioral relation. Sequential 12GiB/High10GiB/swap0/jobs1. No publish/commit/merge/release/global-completion claim.
+
+## Internal Figure cast bridges
+
+The approved Figure/Grid integration at baseline
+`731f0ffdf4c7c152f590551e72ff63f7bd85ef85` moves kind preparation into the
+compiler realization owner. Its first workspace check records E0603 for access
+to the private structural module in
+`lab/results/v16-corrections-2026-10-19/figure-kind-implementation/integration-check.log`.
+The existing pure `is_known_math_accent` and `is_callable_lr_symbol` classifiers
+already own the measured Symbol callable distinction. Expose only these two
+functions through crate-private reexports so realization preserves that exact
+classification without copying tables or changing external APIs. Structural
+modules and classifier algorithms remain unchanged; this hub owns no new domain
+logic. Validate existing Symbol diagnostics, workspace compilation, topology,
+canonical lineage and the complete Figure acceptance suite.

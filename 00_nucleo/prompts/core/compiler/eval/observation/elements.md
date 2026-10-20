@@ -1,5 +1,5 @@
 # L0 — compiler/eval/observation/elements
-Hash do Código: 64c72434
+Hash do Código: 42e78abb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/observation-relation.toml sha256:6f6d86b0ee72d314a84d86b12f9524b2959e075b29f99fcf6d2de9f30a4b338a
@@ -354,3 +354,48 @@ Both sides must be exhaustive so a new variant requires an explicit decision.
 No geometry, callbacks, textual name or language Hash/PartialEq shortcut proves
 reuse. Require same/cross-origin controls with equal other fields and unchanged
 existing field-sensitive behavior.
+
+
+## Approved Figure/Grid occurrence amendment (2026-10-19)
+
+### Evidence before specification
+
+Baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` preserves the measured proposal in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, semantic partition, independent audit and counter receipts. The fixed oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Constructor string kind loses function identity; constructor inference precedes occurrence styles; separated Grid fields lose source order. Typed identity, lexical presence, field traversal and counter results are language semantics/morphology. The chosen Rust carriers are implementation mechanics. The owner explicitly approved the linked public fields, contracts, phases and compatibility changes on 2026-10-19 under ADR-0127; this amendment materializes that bounded decision.
+
+### Exclusive contract
+
+Figure observation conservatively compares all six causal fields, nominal FigureKind Element/Name and all FigureSupplement states. Kind identity uses exact typed function identity, not global Func name equality; Func supplement comparison retains conservative existing function observation and causal spans. Use exhaustive nested enum decisions so future FigureKind/FigureSupplement additions fail compilation. Grid compares source_order, exhaustively considering Cell/Header/Footer/HLine/VLine. Preserve every existing observer field and policy.
+
+### Acceptance and limits
+
+Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+## Figure kind capability reflexivity
+
+The integrated own-hidden/query controls fail contextual reflexivity. The actual
+stdlib raw Func carries a namespace containing the dynamic raw.line constructor
+(`stdlib/registry/structural.rs:93–108`). FigureKind observation currently adds
+generic Func observation, which recursively yields Unproven for that Element
+value even when the complete immutable Func Arc is the same retained clone.
+`context_reads.rs:384` correctly rejects this unproven full query result; the
+query-length membership guarantee must remain strict.
+
+For FigureKind::Element, exact typed nominal identity remains necessary. A shared
+immutable Func representation may prove all its stored capabilities identical;
+this is stronger evidence than call-pointer equality alone. Distinct native
+namespaces and diagnostic metadata remain compared by their existing causal
+protocol, including namespace content changes. Independent stdlib generations
+with fresh opaque dynamic constructor capabilities remain Unproven until an
+explicit proof covers them. Do not omit namespaces, stringify kind values, or
+broaden global Element/Plugin observation as a shortcut. Focused RED→GREEN must
+use the real registry raw function with namespace, retain changed namespace and
+constructor detection, and preserve the independent-capability Unproven control.
+
+The released proof after `integration-tests-6/tests.log` observed clone RED is
+strictly scoped to FigureKind: identical immutable Func representation Arc plus
+equal outer diagnostic Span proves identical stored representation, namespace
+and origin. It makes no claim about executing those capabilities. Compare the
+outer Span even though it is outside the shared Arc; changed origins remain
+Different. If representation Arcs differ, retain the existing generic Func
+observation, including independent raw.line capabilities remaining Unproven.
+Global Func/Element/Plugin observers and strict query membership remain unchanged.

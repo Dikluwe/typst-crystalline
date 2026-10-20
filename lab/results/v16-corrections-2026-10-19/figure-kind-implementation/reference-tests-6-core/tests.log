@@ -1,0 +1,26 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0308]: mismatched types
+   --> 01_core/src/compiler/realize/reference_supplements.rs:274:44
+    |
+274 |     let original = Content::Ref(Arc::clone(reference));
+    |                                 ---------- ^^^^^^^^^ expected `&Arc<RefElem>`, found `&RefElem`
+    |                                 |
+    |                                 arguments to this function are incorrect
+    |
+    = note: expected reference `&std::sync::Arc<entities::elements::r#ref::RefElem>`
+               found reference `&entities::elements::r#ref::RefElem`
+note: method defined here
+   --> /home/dikluwe/.rustup/toolchains/1.92.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/clone.rs:236:8
+    |
+236 |     fn clone(&self) -> Self;
+    |        ^^^^^
+
+error[E0614]: type `entities::elements::r#ref::RefElem` cannot be dereferenced
+   --> 01_core/src/compiler/realize/reference_supplements.rs:361:24
+    |
+361 |     let mut prepared = (**reference).clone();
+    |                        ^^^^^^^^^^^^^ can't be dereferenced
+
+Some errors have detailed explanations: E0308, E0614.
+For more information about an error, try `rustc --explain E0308`.
+error: could not compile `typst-core` (lib test) due to 2 previous errors

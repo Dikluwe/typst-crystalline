@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: 2fd219ca
+Hash do Código: c3a8e6b7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
@@ -42,3 +42,49 @@ Do not synthesize kind/supplement/numbering/counter/figure_location, realize num
 Preserve image loading/format/signature/deep decode errors/page validated-no-op/alt presence/type/source sandbox controls and existing geometry. Figure functional RED before code for missing-invalid body/caption/kind/causal precedence/extra order, actual aliases/homonyms/Type/Symbol cases and grapheme survival; repeat 130 pairs classifying intended fixes/controls/prior diagnostics without claiming JSON/fields/reflection completeness. Caption Align top-bottom versus String/left, None/Str/Symbol/Located coercions/known EmptySeparator/span,7new+8prior controls and exact independent RED→GREEN. Source/public carrier graph audited before proposals; no defaults/synthesis invented at encoding or construction.
 
 V17 structural rewrite preserves accepted domain/error/short-circuit/effects with no suppression/config hiding; existing functional controls before/after, family RED→zeroV17. L0/validV15-V26 before restricted owners reseal/full workspace/build/strict all-target Clippy+unfulfilled/Rustdoc four indexes/fmt/strict-reverse lineage/diff/SARIF, sequential 12GiB/High 10GiB/swap 0/jobs1, no release/merge/commit/push; RG1 independent. No general ICC/morphology/render/phase certification or new public default/signature from this internal repair.
+
+
+## Approved Figure/Grid occurrence amendment (2026-10-19)
+
+### Evidence before specification
+
+Baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` preserves the measured proposal in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, semantic partition, independent audit and counter receipts. The fixed oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Constructor string kind loses function identity; constructor inference precedes occurrence styles; separated Grid fields lose source order. Typed identity, lexical presence, field traversal and counter results are language semantics/morphology. The chosen Rust carriers are implementation mechanics. The owner explicitly approved the linked public fields, contracts, phases and compatibility changes on 2026-10-19 under ADR-0127; this amendment materializes that bounded decision.
+
+### Exclusive contract
+
+Stop constructor-time infer_kind_from_body entirely. Native Figure validates body→caption→kind→supplement→numbering→unknown/excess arguments, independent of named source order. Preserve last named value_span→occurrence.span→Args.span and positional origins. Kind omission is None, explicit auto Some(None), string Some(Some(Name)), and actual recognized element Func Some(Some(Element)) retaining the original Func identity. Use typed native_element_fields registry or actual FuncRepr::Element, never name alone; preserve Type/Symbol/With errors. No inference/callback executes during construction.
+
+Supplement accepts Auto, None, Content, LocatedContent, Str/Symbol via Content cast, and Func with its argument span. Invalid supplement errors `expected content, function, none, or auto, found {type}`. Numbering accepts Str/Func/None, transports the exact supplied Value in existing figure.numbering Styled chain; omission stays absent. Invalid numbering errors `expected string, function, or none, found {type}`. Explicit constructor values override inherited settings; resolved fields start None. Preserve body/caption cast semantics, unknown/excess diagnostics, all independent figure.caption and image loading/decoding contracts including unsupported SVG/PDF. New kind inference/preparation belongs to the occurrence coordinator, not this owner.
+
+### Acceptance and limits
+
+Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+## Located supplement alias preservation
+
+Actual `reference-matrix-product-2-main/receipt.json`, case
+prepared-alias-two-references, records queried Figure/count/distinct-Location
+values [[4,[3],[1],4]] while the pinned oracle reference-acceptance/oracle receipt
+records [[2,[1],[1],2]]. The constructor's supplement cast calls
+caption_content_value at figure_image.rs:39, where LocatedContent(snapshot,actual
+Location) was projected to snapshot.content() alone. That erases an intentionally
+prepared alias before two reference uses; source parent/derived re-location then
+creates extra automatic actions. This is a measured alias-contract defect, not
+permission to deduplicate by value, regenerate a Location, or skip counter actions.
+
+For LocatedContent accepted by this existing content cast, retain its existing
+content unchanged inside the existing Content::Located carrier with the supplied
+actual Location. Figure query snapshots already contain the prepared Figure
+entity fields (their separate authoritative fields slot is None in this measured
+path). Preserve that complete underlying entity, source wrappers and resolved
+kind/supplement state; do not invent a generic snapshot-field reification API or
+fabricate extra fields. Other Value casts and native_figure's separate body and
+caption branches remain unchanged. Existing figure.caption helper callers retain
+the same content and identity instead of losing an accepted Located alias.
+
+Add a focused native Figure constructor control using a fully prepared Figure
+LocatedContent as its supplement: require the exact original Location and complete
+body/caption/kind/lexical/resolved fields, without executing any callback. The real
+repeated-reference matrix remains the language-level RED→GREEN requirement. This
+is an internal correction within the approved alias/carrier contract, with no new
+public signature, entity field, phase, inference or generic Func/Content equality.

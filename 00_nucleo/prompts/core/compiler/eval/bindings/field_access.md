@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access
-Hash do Código: bc314723
+Hash do Código: bae2d93c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -261,3 +261,18 @@ V1/V5/V15/V26/reverse/differential SARIF without new error-warning. Prescribed
 nominal V19 allowed visibly without suppression, alternatives tested. Heavy tasks
 sequential, MemoryMax 12 GiB/High 8 GiB/swap0/jobs1; debug0/incremental0 in validation
 environment only. Reseal after valid V15/V26/exact provenance.
+
+
+## Approved Figure/Grid kind repair (2026-10-19)
+
+### Measurement and classification before decision
+
+The frozen proposal at baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, `agents/contracts/semantic-partition.json`, and `agents/counter/design.md` bind measurements and full source/oracle provenance. Current-pin oracle is `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Constructor inference loses typed identity and lexical occurrence styles; semantic inspection and final supplement need separate phases. These are language semantics and causal effects, not a requirement for upstream Rust mechanics. The human explicitly approved the exact public carriers, phase changes and compatibility migration in the current session under ADR-0127.
+
+### Exclusive responsibility
+
+Preserve existing pure value/member lookup routing; Figure field behavior remains owned by field_access/content_methods with raw versus occurrence presence distinctions. Any test migration uses typed intent and preserves language assertions; no API change in this coordinator.
+
+### Acceptance and boundaries
+
+Require functional RED→GREEN, frozen kind/set/show-set/supplement/hidden-parent cases, alias/homonym and field snapshots, full build/tests, paths, strict forward/reverse lineage, V15/V26 and differential lint. No suppressions, opaque catchall, fake neutral child or weakened assertion. Caption omission/none, complete caption synthesis, supplement-dependent preview selection, complete function-number formatting, HTML implicit captions/references, Dynamic field enumeration, and mixed Table header/ordinary-cell supplemental target order remain explicit bounded debts.

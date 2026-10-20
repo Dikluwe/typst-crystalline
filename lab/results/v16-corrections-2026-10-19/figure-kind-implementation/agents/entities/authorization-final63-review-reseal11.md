@@ -1,0 +1,7 @@
+# Authorization review: reseal-11, 63 owners
+
+All 126 source/L0 hashes match reseal-11.after. Canonical owners, all 63 forward/reverse seals and 75 effective Nucleus hashes were independently checked. All 145 original proposal files and approval-bound Figure/Grid/Ref hashes remain intact. External additions remain the approved bundle function and exact three Ref facade functions; no existing public signature changed. No suppression, ignored test, configuration, Cargo or Nucleus change was introduced.
+
+Since reseal-10, only three fixtures and their two existing L0 owners changed. The raw Ref source remains @meu_label and now verifies complete original/bound Ref fields, exact producer identity, common Location, lexical span and empty diagnostics. The two Heading Ref fixtures preserve their exact sources and Section 1/not Secção and Cap 1 predicates; they now execute the existing retained contextual Session with actual World/Source before pure layout. No productive behavior or generic helper was changed, and no assertion was replaced by a weaker variant check. Actual full-suite failures and focused GREEN are preserved in the independent before/after review.
+
+All prior reviews remain historical and unchanged. This audit binds current authorization/stored contracts only. Final preflight, structural compiler evidence, clean/full12, build4 and current CLI/broad-origin receipts remain required before closure assessment. It does not certify complete Figure/Grid parity. No productive/L0/test edit, Cargo, formatting or reseal occurred during this audit.

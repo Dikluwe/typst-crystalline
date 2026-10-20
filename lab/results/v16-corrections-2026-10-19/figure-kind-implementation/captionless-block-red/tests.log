@@ -1,0 +1,48 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `test` profile [unoptimized] target(s) in 39.00s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 4 tests
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_callback_sees_actual_body_morphology ... FAILED
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_none_prunes_body_before_effects ... FAILED
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_own_figure_replacement_has_no_artificial_block ... FAILED
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_preserves_original_location_reference_and_page ... FAILED
+
+failures:
+
+---- pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_callback_sees_actual_body_morphology stdout ----
+
+thread 'pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_callback_sees_actual_body_morphology' (2152444) panicked at 03_infra/src/pipeline/context_stabilization.rs:2082:9:
+assertion `left == right` failed
+  left: "BODY"
+ right: "BLOCK_BODY_VALID"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_none_prunes_body_before_effects stdout ----
+
+thread 'pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_none_prunes_body_before_effects' (2152445) panicked at 03_infra/src/pipeline/context_stabilization.rs:2044:42:
+[SourceDiagnostic { severity: Error, span: Span(292711985546518), message: "panicked with: BODY_CONTEXT_PREPARATION", hints: [], trace: [] }]
+
+---- pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_own_figure_replacement_has_no_artificial_block stdout ----
+
+thread 'pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_own_figure_replacement_has_no_artificial_block' (2152446) panicked at 03_infra/src/pipeline/context_stabilization.rs:2126:9:
+assertion `left == right` failed
+  left: "OWN _PRODUCT"
+ right: "OWN_PRODUCT"
+
+---- pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_preserves_original_location_reference_and_page stdout ----
+
+thread 'pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_preserves_original_location_reference_and_page' (2152447) panicked at 03_infra/src/pipeline/context_stabilization.rs:2120:9:
+BODY  Figure   1
+
+
+failures:
+    pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_callback_sees_actual_body_morphology
+    pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_none_prunes_body_before_effects
+    pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_own_figure_replacement_has_no_artificial_block
+    pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_preserves_original_location_reference_and_page
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 1395 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p typst-infra --lib`

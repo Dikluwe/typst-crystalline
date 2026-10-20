@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/entrypoints.md
-//! @prompt-hash df864e6d
+//! @prompt-hash 34c5b898
 //! @layer L1
 //! @updated 2026-10-05
 
@@ -122,6 +122,30 @@ pub fn introspect_bundle_documents_with_runtime_and_starts(
     engine: &mut crate::entities::engine::Engine<'_>,
     ctx: &mut crate::compiler::eval::EvalContext,
 ) -> crate::entities::source_result::SourceResult<(TagIntrospector, Vec<LocatorSeed>)> {
+    let targets = vec![crate::compiler::eval::EvalTarget::Paged; bodies.len()];
+    introspect_bundle_documents_with_runtime_targets_and_starts(
+        bodies,
+        &targets,
+        ctx.features,
+        engine,
+        ctx,
+    )
+}
+
+/// Complete global snapshot with actual per-body semantic targets.
+pub fn introspect_bundle_documents_with_runtime_targets_and_starts(
+    bodies: &[Content],
+    targets: &[crate::compiler::eval::EvalTarget],
+    features: crate::entities::compiler_features::Features,
+    engine: &mut Engine<'_>,
+    ctx: &mut EvalContext,
+) -> SourceResult<(TagIntrospector, Vec<LocatorSeed>)> {
+    if bodies.len() != targets.len() {
+        return Err(vec![crate::entities::source_result::SourceDiagnostic::error(
+            crate::entities::span::Span::detached(),
+            "bundle body target metadata does not match body count",
+        )]);
+    }
     let keys = bodies
         .iter()
         .fold(std::collections::HashSet::new(), |mut keys, body| {
@@ -185,6 +209,19 @@ pub fn introspect_bundle_documents_with_runtime_and_starts(
     from_tags::apply_equation_supplements(&tags, &mut intr, engine, ctx)?;
     from_tags::apply_heading_supplements(&mut intr, engine, ctx)?;
     from_tags::realize_equation_elements(&tags, &mut intr);
+    let paged: Vec<_> = bodies
+        .iter()
+        .zip(targets)
+        .filter_map(|(body, target)| {
+            (*target == crate::compiler::eval::EvalTarget::Paged).then_some(body)
+        })
+        .collect();
+    let mut observer = EvalContext::new();
+    observer.target = crate::compiler::eval::EvalTarget::Paged;
+    observer.features = features;
+    super::figure_counters::prepare_figure_counters_for_bodies(
+        &paged, &mut intr, engine, &observer,
+    )?;
     Ok((intr, starts))
 }
 
@@ -222,6 +259,7 @@ pub fn introspect_with_runtime(
     from_tags::apply_equation_supplements(&tags, &mut intr, engine, ctx)?;
     from_tags::apply_heading_supplements(&mut intr, engine, ctx)?;
     from_tags::realize_equation_elements(&tags, &mut intr);
+    super::figure_counters::prepare_figure_counters(&content, &mut intr, engine, ctx)?;
     Ok(intr)
 }
 

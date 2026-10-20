@@ -1,0 +1,23 @@
+{
+  "status": "implementation-ready-source-frozen-no-cargo",
+  "cause": "Integrated RED8 actual own-hidden query: fields=None, kind=Same, body=Unproven, supplement=Unproven; unconditional ShowRecipe Unproven.",
+  "owners_added": [
+    "entities/style_chain",
+    "compiler/eval/observation/style",
+    "compiler/eval/observation/content"
+  ],
+  "proof": "Complete seven-field captured recipe comparison; borrowed head-to-parent raw style deltas, preserving every empty/shadowed node and opaque Value; existing ShowRule/Func observers unchanged. No cascade or Arc shortcuts.",
+  "tests": [
+    "figure_v16_raw_style_deltas_borrow_every_node_in_head_parent_order",
+    "figure_v16_raw_chain_observation_preserves_order_presence_and_shadowed_values",
+    "figure_v16_raw_chain_shared_shadowed_opaque_slot_remains_unproven",
+    "figure_v16_recipe_observation_compares_every_causal_field_and_order",
+    "figure_v16_recipe_observation_preserves_opaque_body_styles_and_rule_capabilities"
+  ],
+  "validation": "rustfmt scoped to the three owners; no Cargo run by agent. Root owns actual GREEN and lineage resealing.",
+  "source_sha256": {
+    "01_core/src/entities/style_chain.rs": "b9b0ac8766949a1c254038b0909046148c7b4547592d338c70174346f283e9b8",
+    "01_core/src/compiler/eval/observation/style.rs": "ad0029184ca666d3830d5ed80689b946bdbcaf25fc1a91abe2868f795ee1d7b1",
+    "01_core/src/compiler/eval/observation/content.rs": "540e61d13df98ae95ee1253b84a163a3a06173a05ed8cd6862f7d928e04e60a9"
+  }
+}

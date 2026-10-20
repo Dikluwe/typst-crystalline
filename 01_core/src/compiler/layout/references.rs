@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/references.md
-//! @prompt-hash cf7b41e5
+//! @prompt-hash e941b9a4
 //! @layer L1
 //! @updated 2026-09-18
 
@@ -20,7 +20,6 @@ use crate::{
         layout_types::{LinkTarget, Point},
         selector::Selector,
         source_result::SourceDiagnostic,
-        span::Span,
     },
 };
 
@@ -76,7 +75,7 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
             || layouter.runtime.known_page_numbers.contains_key(&target_label);
         if !known && !layouter.runtime.known_page_store.is_empty() {
             layouter.layout_errors.push(SourceDiagnostic::error(
-                Span::detached(),
+                layouter.current_source_span,
                 format!("label `<{}>` does not exist in the document", elem.name),
             ));
             return;
@@ -92,7 +91,7 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
         else {
             layouter.layout_errors.push(
                 SourceDiagnostic::error(
-                    Span::detached(),
+                    layouter.current_source_span,
                     "cannot reference without page numbering",
                 )
                 .with_hint(
@@ -133,7 +132,7 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
     match layouter.introspector.unreferencable_label_kind(&target_label) {
         Some(crate::entities::label_kind::UnreferencableKind::Raw) => {
             layouter.layout_errors.push(SourceDiagnostic::error(
-                Span::detached(),
+                layouter.current_source_span,
                 "cannot reference raw directly, try putting it into a figure",
             ));
             return;
@@ -143,7 +142,7 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
         ) => {
             layouter.layout_errors.push(
                 SourceDiagnostic::error(
-                    Span::detached(),
+                    layouter.current_source_span,
                     "cannot reference equation without numbering",
                 )
                 .with_hint(
@@ -154,9 +153,10 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
         }
         Some(crate::entities::label_kind::UnreferencableKind::Text)
         | Some(crate::entities::label_kind::UnreferencableKind::Other) => {
-            layouter
-                .layout_errors
-                .push(SourceDiagnostic::error(Span::detached(), "cannot reference text"));
+            layouter.layout_errors.push(SourceDiagnostic::error(
+                layouter.current_source_span,
+                "cannot reference text",
+            ));
             return;
         }
         None => {}
@@ -164,14 +164,15 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
 
     // **P788** — validações do vanilla (antes: "?" / vazio em silêncio,
     // achados A8/A10 de P786). Mensagens medidas no vanilla 0.15.0.
-    // `RefElem` não carrega span → `Span::detached()` (limitação registada).
+    // Source transport supplies the nearest lexical origin; synthetic input
+    // retains the initialized detached span.
     let known = layouter.introspector.counter_key_for_label(&target_label).is_some()
         || layouter.introspector.figure_number_for_label(&target_label).is_some()
         || layouter.introspector.resolved_label_for(&target_label).is_some()
         || layouter.introspector.query_by_label(&target_label).is_some();
     if !known {
         layouter.layout_errors.push(SourceDiagnostic::error(
-            Span::detached(),
+            layouter.current_source_span,
             format!("label `<{}>` does not exist in the document", elem.name),
         ));
         return;
@@ -182,7 +183,7 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
             if layouter.introspector.heading_has_numbering(loc) == Some(false) {
                 layouter.layout_errors.push(
                     SourceDiagnostic::error(
-                        Span::detached(),
+                        layouter.current_source_span,
                         "cannot reference heading without numbering",
                     )
                     .with_hint(
@@ -199,12 +200,66 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
             if layouter.introspector.equation_has_numbering(loc) == Some(false) {
                 layouter.layout_errors.push(
                     SourceDiagnostic::error(
-                        Span::detached(),
+                        layouter.current_source_span,
                         "cannot reference equation without numbering",
                     )
                     .with_hint(
                         "you can enable equation numbering with `#set math.equation(numbering: \"1.\")`",
                     ),
+                );
+                return;
+            }
+        }
+    }
+
+    if let Some(location) = layouter.introspector.query_by_label(&target_label) {
+        if let Some(Content::Figure(figure)) = layouter.introspector.element_at(location)
+        {
+            if figure.resolved_kind.is_some()
+                && layouter.introspector.counter_key_for_label(&target_label).is_none()
+            {
+                layouter.layout_errors.push(SourceDiagnostic::error(
+                    layouter.current_source_span,
+                    "cannot reference figure without numbering",
+                ));
+                return;
+            }
+        }
+    }
+
+    if let Some(location) = layouter.introspector.query_by_label(&target_label) {
+        if let Some(Content::Figure(figure)) = layouter.introspector.element_at(location)
+        {
+            if figure.resolved_kind.is_some() {
+                let Some(key) =
+                    layouter.introspector.counter_key_for_label(&target_label)
+                else {
+                    return;
+                };
+                let Some(values) = layouter.introspector.counter_values_at(key, location)
+                else {
+                    layouter.layout_errors.push(SourceDiagnostic::error(
+                        layouter.current_source_span,
+                        "figure counter snapshot could not be verified",
+                    ));
+                    return;
+                };
+                let number = values.last().map(usize::to_string).unwrap_or_default();
+                let supplement = elem
+                    .supplement
+                    .clone()
+                    .or_else(|| figure.resolved_supplement.clone().flatten());
+                let text = match supplement {
+                    Some(supplement) if !supplement.is_empty() => Content::Sequence(
+                        vec![supplement, Content::text("\u{a0}"), Content::text(number)]
+                            .into(),
+                    ),
+                    Some(_) | None => Content::text(number),
+                };
+                layouter.layout_link_capture(
+                    &text,
+                    LinkTarget::Destination(target_label),
+                    false,
                 );
                 return;
             }
@@ -296,6 +351,18 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
                     .or_else(|| {
                         default_supplement_for_key(key, layouter.style.lang.as_ref())
                     })
+            } else if let Some(Content::Figure(figure)) =
+                layouter.introspector.element_at(loc)
+            {
+                if figure.resolved_kind.is_some() {
+                    elem.supplement
+                        .clone()
+                        .or_else(|| figure.resolved_supplement.clone().flatten())
+                } else {
+                    elem.supplement.clone().or_else(|| {
+                        default_supplement_for_key(key, layouter.style.lang.as_ref())
+                    })
+                }
             } else {
                 elem.supplement.clone().or_else(|| {
                     default_supplement_for_key(key, layouter.style.lang.as_ref())
@@ -409,6 +476,40 @@ fn default_supplement_for_key(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn figure_reference_layout_source_transport_and_synthetic_default() {
+        use crate::entities::{
+            content::SourceContent, file_id::FileId, introspector::TagIntrospector,
+            span::Span,
+        };
+        use comemo::Track;
+        use std::{num::NonZeroU16, sync::Arc};
+        let intr = TagIntrospector::empty();
+        let span = Span::from_range(FileId::from_raw(NonZeroU16::new(1).unwrap()), 4..12);
+        for source_span in [None, Some(span)] {
+            let mut layouter = Layouter::new(
+                super::super::FixedMetrics,
+                super::super::NullImageSizer,
+                11.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            let reference = Content::reference("missing");
+            let content = source_span.map_or(reference.clone(), |span| {
+                Content::Source(Arc::new(SourceContent { body: reference, span }))
+            });
+            layouter.layout_content(&content);
+            assert_eq!(layouter.layout_errors.len(), 1);
+            assert_eq!(
+                layouter.layout_errors[0].span,
+                source_span.unwrap_or_else(Span::detached)
+            );
+            assert_eq!(
+                layouter.layout_errors[0].message,
+                "label `<missing>` does not exist in the document"
+            );
+        }
+    }
+
     use super::*;
     use crate::entities::lang::Lang;
     use std::str::FromStr;
@@ -576,5 +677,79 @@ mod v16_d_tests {
                 "{selector:?}"
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod figure_morphology_tests {
+    use super::*;
+    use crate::entities::{
+        elements::figure::{FigureElem, FigureKind},
+        func::Func,
+        introspector::{FigureCounterSnapshot, TagIntrospector},
+        layout_types::{FrameItem, FrameVisitor},
+        location::Location,
+        value::IntrospectedContent,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    #[test]
+    fn figure_reference_keeps_resolved_supplement_strong_morphology() {
+        let kind = FigureKind::Element(Func::native(
+            "image",
+            crate::compiler::stdlib::native_image,
+        ));
+        let key = crate::compiler::introspect::figure_counters::figure_counter_key(&kind);
+        let location = Location::from_raw(71);
+        let label = Label("rich".into());
+        let mut intr = TagIntrospector::empty();
+        intr.counters.observe_location(location);
+        intr.labels.add(label.clone(), location);
+        intr.label_to_counter_key.insert(label, key.clone());
+        intr.figure_counter_snapshots
+            .push(FigureCounterSnapshot { key, history: vec![(location, vec![3])] });
+        let figure = FigureElem {
+            body: Content::Empty,
+            caption: None,
+            kind: None,
+            resolved_kind: Some(kind),
+            supplement: None,
+            resolved_supplement: Some(Some(Content::strong(Content::text("Figure")))),
+        };
+        intr.elements.insert(
+            location,
+            IntrospectedContent::new(Content::Figure(Arc::new(figure)), None),
+        );
+        let mut layouter = Layouter::new(
+            super::super::FixedMetrics,
+            super::super::NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        layouter.layout_content(&Content::reference("rich"));
+        assert!(layouter.layout_errors.is_empty());
+        let document = layouter.finish();
+        struct Bold(bool);
+        impl FrameVisitor for Bold {
+            fn visit_text(&mut self, item: &FrameItem) {
+                if let FrameItem::Text { text, style, .. } = item {
+                    if text.as_str().contains("Figure") && style.bold {
+                        self.0 = true;
+                    }
+                }
+            }
+        }
+        let mut bold = Bold(false);
+        for page in &document.pages {
+            bold.visit_items(&page.items);
+        }
+        assert!(bold.0, "Figure reference must retain the resolved Content morphology");
+        assert!(document
+            .plain_text()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+            .contains("Figure 3"));
     }
 }

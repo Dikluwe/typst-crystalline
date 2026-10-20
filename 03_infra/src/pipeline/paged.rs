@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash 31fa1119
+//! @prompt-hash 3d3dd73a
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -471,154 +471,35 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
             selected_layout_metrics = Some(metrics);
             (doc, intr, headings)
         } else {
-            let (runtime_intr, runtime_warnings) =
-                introspect_with_runtime_for_pipeline(&content, world, source);
-            warnings.extend(runtime_warnings);
-            let mut intr = match runtime_intr {
-                Ok(intr) => intr,
-                Err(errors) => {
-                    timings.expand_context_ms =
-                        duration_ms(Instant::now().duration_since(t2));
-                    timings.total_ms = timings.eval_ms
-                        + timings.introspect_ms
-                        + timings.expand_context_ms;
-                    return (Err(errors), warnings);
-                }
-            };
-            for (key, style) in module.bibliography_styles() {
-                intr.bib_store.add_style(*key, style.clone());
-            }
-            let extracted_headings = intr.headings_for_bookmarks().to_vec();
-            let mut intr_for_positions = intr.clone();
-            let mut layout_intr = intr;
-            let (realized, realization_warnings) =
-                realize_outlines_for_pipeline(&content, &layout_intr, world, source);
-            warnings.extend(realization_warnings);
-            let (realized_content, realized_intr) = match realized {
-                Ok(pair) => pair,
-                Err(errors) => return (Err(errors), warnings),
-            };
-            layout_intr = realized_intr;
-            let realized_content = match expand_realized_outline_contexts(
-                realized_content,
-                &content,
-                &layout_intr,
-                world,
-                source,
-            ) {
-                Ok(content) => content,
-                Err(errors) => return (Err(errors), warnings),
-            };
-            let mut final_realized_content = realized_content.clone();
-            // One World and one compilation: let the second numbering candidate
-            // reuse font/shaping caches warmed by the first layout.
-            let layout_metrics = FallbackFontMetrics::new(world);
-            let (mut doc, callback_warnings) =
-                match layout_with_realized_math_callbacks_with_metrics(
-                    &realized_content,
-                    layout_intr.clone(),
-                    world,
-                    source,
-                    &layout_metrics,
-                ) {
-                    Ok(pair) => pair,
-                    Err(errors) => return (Err(errors), warnings),
-                };
-            warnings.extend(callback_warnings);
-            let reuse_initial_layout = initial_layout_independent(&contextual_content)
-                && initial_layout_independent(&realized_content)
-                && doc.pages.iter().all(|page| page.numbering.is_none());
-            // P1159: callbacks são executados somente aqui, onde existe Engine. O
-            // layouter recebe apenas vistas Content seladas da passagem anterior.
-            for _ in 0..5 {
-                let previous_pages = doc.pages.len();
-                let previous_values = layout_intr.page_counter_values.clone();
-                let previous_finals = layout_intr.page_counter_final_values.clone();
-                layout_intr.inject_positions(doc.extracted_positions.clone());
-                let (snapshot, snapshot_warnings) =
-                    context_stabilization::realize_page_snapshot_for_pipeline(
-                        &[(Vec::new(), std::num::NonZeroUsize::new(doc.pages.len()))],
-                        &mut layout_intr,
-                        world,
-                        source,
-                    );
-                if let Err(errors) = snapshot {
-                    return (Err(errors), warnings);
-                }
-                warnings.extend(snapshot_warnings);
-                let page_numbers = (1..=doc.pages.len())
-                    .map(|p| {
-                        layout_intr
-                            .page_store
-                            .logical_number_for_page(
-                                std::num::NonZeroUsize::new(p).unwrap(),
-                            )
-                            .unwrap_or(p)
-                    })
-                    .collect::<Vec<_>>();
-                let final_number = layout_intr
-                    .page_counter_final_values
-                    .values()
-                    .next()
-                    .and_then(|v| v.first())
-                    .copied()
-                    .unwrap_or_else(|| page_numbers.last().copied().unwrap_or(0));
-                let snapshot_same = previous_values == layout_intr.page_counter_values
-                    && previous_finals == layout_intr.page_counter_final_values;
-                let reference_pages = page_reference_pages(&content, &doc);
-                let (store, numbering_warnings) = match realize_page_numberings(
-                    world,
-                    source,
-                    &doc,
-                    &page_numbers,
-                    final_number,
-                    &reference_pages,
-                ) {
-                    Ok(pair) => pair,
-                    Err(errors) => return (Err(errors), warnings),
-                };
-                warnings.extend(numbering_warnings);
-                layout_intr.inject_positions(doc.extracted_positions.clone());
-                layout_intr.inject_pages(store.clone());
-                if reuse_initial_layout {
-                    break;
-                }
-                // `location.page-numbering()` vive em `context`; a primeira expansão
-                // ocorreu legitimamente sem páginas conhecidas. Reexecutá-la com o
-                // snapshot anterior é parte do fixpoint, não um default falso.
-                let expanded = match context_stabilization::expand_legacy(
-                    contextual_content.clone(),
-                    &layout_intr,
-                    world,
-                    source,
-                ) {
-                    Ok(expanded) => expanded,
-                    Err(errors) => return (Err(errors), warnings),
-                };
-                let (runtime_expanded, runtime_expanded_warnings) =
-                    introspect_with_runtime_for_pipeline(&expanded, world, source);
-                warnings.extend(runtime_expanded_warnings);
-                let mut expanded_intr = match runtime_expanded {
+            let runtime_warning_position = warnings.len();
+            let mut runtime_generation_warnings = Vec::new();
+            let ordinary: SourceResult<_> = (|| {
+                let (runtime_intr, runtime_warnings) =
+                    introspect_with_runtime_for_pipeline(&content, world, source);
+                runtime_generation_warnings = runtime_warnings;
+                let mut intr = match runtime_intr {
                     Ok(intr) => intr,
-                    Err(errors) => return (Err(errors), warnings),
+                    Err(errors) => {
+                        timings.expand_context_ms =
+                            duration_ms(Instant::now().duration_since(t2));
+                        timings.total_ms = timings.eval_ms
+                            + timings.introspect_ms
+                            + timings.expand_context_ms;
+                        return Err(errors);
+                    }
                 };
                 for (key, style) in module.bibliography_styles() {
-                    expanded_intr.bib_store.add_style(*key, style.clone());
+                    intr.bib_store.add_style(*key, style.clone());
                 }
-                expanded_intr.inject_positions(doc.extracted_positions.clone());
-                expanded_intr.inject_pages(store);
-                expanded_intr.page_counter_values =
-                    layout_intr.page_counter_values.clone();
-                expanded_intr.page_counter_final_values =
-                    layout_intr.page_counter_final_values.clone();
-                content = expanded;
-                layout_intr = expanded_intr;
+                let extracted_headings = intr.headings_for_bookmarks().to_vec();
+                let mut intr_for_positions = intr.clone();
+                let mut layout_intr = intr;
                 let (realized, realization_warnings) =
                     realize_outlines_for_pipeline(&content, &layout_intr, world, source);
                 warnings.extend(realization_warnings);
                 let (realized_content, realized_intr) = match realized {
                     Ok(pair) => pair,
-                    Err(errors) => return (Err(errors), warnings),
+                    Err(errors) => return Err(errors),
                 };
                 layout_intr = realized_intr;
                 let realized_content = match expand_realized_outline_contexts(
@@ -629,9 +510,13 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
                     source,
                 ) {
                     Ok(content) => content,
-                    Err(errors) => return (Err(errors), warnings),
+                    Err(errors) => return Err(errors),
                 };
-                let (next, callback_warnings) =
+                let mut final_realized_content = realized_content.clone();
+                // One World and one compilation: let the second numbering candidate
+                // reuse font/shaping caches warmed by the first layout.
+                let layout_metrics = FallbackFontMetrics::new(world);
+                let (mut doc, callback_warnings) =
                     match layout_with_realized_math_callbacks_with_metrics(
                         &realized_content,
                         layout_intr.clone(),
@@ -640,25 +525,159 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
                         &layout_metrics,
                     ) {
                         Ok(pair) => pair,
-                        Err(errors) => return (Err(errors), warnings),
+                        Err(errors) => return Err(errors),
                     };
                 warnings.extend(callback_warnings);
-                let converged = next.pages.len() == previous_pages
-                    && (snapshot_same || layout_intr.context_block_locations.is_empty());
-                final_realized_content = realized_content;
-                doc = next;
-                if converged {
-                    break;
+                let reuse_initial_layout =
+                    initial_layout_independent(&contextual_content)
+                        && initial_layout_independent(&realized_content)
+                        && doc.pages.iter().all(|page| page.numbering.is_none());
+                // P1159: callbacks são executados somente aqui, onde existe Engine. O
+                // layouter recebe apenas vistas Content seladas da passagem anterior.
+                for _ in 0..5 {
+                    let previous_pages = doc.pages.len();
+                    let previous_values = layout_intr.page_counter_values.clone();
+                    let previous_finals = layout_intr.page_counter_final_values.clone();
+                    layout_intr.inject_positions(doc.extracted_positions.clone());
+                    let (snapshot, snapshot_warnings) =
+                        context_stabilization::realize_page_snapshot_for_pipeline(
+                            &[(Vec::new(), std::num::NonZeroUsize::new(doc.pages.len()))],
+                            &mut layout_intr,
+                            world,
+                            source,
+                        );
+                    snapshot?;
+                    warnings.extend(snapshot_warnings);
+                    let page_numbers = (1..=doc.pages.len())
+                        .map(|p| {
+                            layout_intr
+                                .page_store
+                                .logical_number_for_page(
+                                    std::num::NonZeroUsize::new(p).unwrap(),
+                                )
+                                .unwrap_or(p)
+                        })
+                        .collect::<Vec<_>>();
+                    let final_number = layout_intr
+                        .page_counter_final_values
+                        .values()
+                        .next()
+                        .and_then(|v| v.first())
+                        .copied()
+                        .unwrap_or_else(|| page_numbers.last().copied().unwrap_or(0));
+                    let snapshot_same = previous_values
+                        == layout_intr.page_counter_values
+                        && previous_finals == layout_intr.page_counter_final_values;
+                    let reference_pages = page_reference_pages(&content, &doc);
+                    let (store, numbering_warnings) = match realize_page_numberings(
+                        world,
+                        source,
+                        &doc,
+                        &page_numbers,
+                        final_number,
+                        &reference_pages,
+                    ) {
+                        Ok(pair) => pair,
+                        Err(errors) => return Err(errors),
+                    };
+                    warnings.extend(numbering_warnings);
+                    layout_intr.inject_positions(doc.extracted_positions.clone());
+                    layout_intr.inject_pages(store.clone());
+                    if reuse_initial_layout {
+                        break;
+                    }
+                    // `location.page-numbering()` vive em `context`; a primeira expansão
+                    // ocorreu legitimamente sem páginas conhecidas. Reexecutá-la com o
+                    // snapshot anterior é parte do fixpoint, não um default falso.
+                    let expanded = match context_stabilization::expand_legacy(
+                        contextual_content.clone(),
+                        &layout_intr,
+                        world,
+                        source,
+                    ) {
+                        Ok(expanded) => expanded,
+                        Err(errors) => return Err(errors),
+                    };
+                    let (runtime_expanded, runtime_expanded_warnings) =
+                        introspect_with_runtime_for_pipeline(&expanded, world, source);
+                    runtime_generation_warnings = runtime_expanded_warnings;
+                    let mut expanded_intr = match runtime_expanded {
+                        Ok(intr) => intr,
+                        Err(errors) => return Err(errors),
+                    };
+                    for (key, style) in module.bibliography_styles() {
+                        expanded_intr.bib_store.add_style(*key, style.clone());
+                    }
+                    expanded_intr.inject_positions(doc.extracted_positions.clone());
+                    expanded_intr.inject_pages(store);
+                    expanded_intr.page_counter_values =
+                        layout_intr.page_counter_values.clone();
+                    expanded_intr.page_counter_final_values =
+                        layout_intr.page_counter_final_values.clone();
+                    content = expanded;
+                    layout_intr = expanded_intr;
+                    let (realized, realization_warnings) = realize_outlines_for_pipeline(
+                        &content,
+                        &layout_intr,
+                        world,
+                        source,
+                    );
+                    warnings.extend(realization_warnings);
+                    let (realized_content, realized_intr) = match realized {
+                        Ok(pair) => pair,
+                        Err(errors) => return Err(errors),
+                    };
+                    layout_intr = realized_intr;
+                    let realized_content = match expand_realized_outline_contexts(
+                        realized_content,
+                        &content,
+                        &layout_intr,
+                        world,
+                        source,
+                    ) {
+                        Ok(content) => content,
+                        Err(errors) => return Err(errors),
+                    };
+                    let (next, callback_warnings) =
+                        match layout_with_realized_math_callbacks_with_metrics(
+                            &realized_content,
+                            layout_intr.clone(),
+                            world,
+                            source,
+                            &layout_metrics,
+                        ) {
+                            Ok(pair) => pair,
+                            Err(errors) => return Err(errors),
+                        };
+                    warnings.extend(callback_warnings);
+                    let converged = next.pages.len() == previous_pages
+                        && (snapshot_same
+                            || layout_intr.context_block_locations.is_empty());
+                    final_realized_content = realized_content;
+                    doc = next;
+                    if converged {
+                        break;
+                    }
                 }
+                intr_for_positions.inject_pages(layout_intr.page_store.clone());
+                intr_for_positions.page_counter_values =
+                    layout_intr.page_counter_values.clone();
+                intr_for_positions.page_counter_final_values =
+                    layout_intr.page_counter_final_values.clone();
+                format_content = final_realized_content;
+                ordinary_layout_metrics = Some(layout_metrics);
+                Ok((doc, intr_for_positions, extracted_headings))
+            })();
+            // Keep retained runtime effects at their causal phase position;
+            // only this generation's diagnostics survive candidate replacement.
+            drop(warnings.splice(
+                runtime_warning_position..runtime_warning_position,
+                runtime_generation_warnings,
+            ));
+            match ordinary {
+                Ok(compiled) => compiled,
+                Err(errors) => return (Err(errors), warnings),
             }
-            intr_for_positions.inject_pages(layout_intr.page_store.clone());
-            intr_for_positions.page_counter_values =
-                layout_intr.page_counter_values.clone();
-            intr_for_positions.page_counter_final_values =
-                layout_intr.page_counter_final_values.clone();
-            format_content = final_realized_content;
-            ordinary_layout_metrics = Some(layout_metrics);
-            (doc, intr_for_positions, extracted_headings)
         };
 
     let realized_total = intr_for_positions
@@ -667,10 +686,13 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
         .map(|count| count.get())
         .unwrap_or(0);
     if realized_total != doc.pages.len() {
-        return (Err(bundle_error(format!(
-            "realized page numbers do not match final document (rendered {}, store {realized_total})",
-            doc.pages.len(),
-        ))), warnings);
+        return (
+            Err(bundle_error(format!(
+                "realized page numbers do not match final document (rendered {}, store {realized_total})",
+                doc.pages.len(),
+            ))),
+            warnings,
+        );
     }
     if let Err(errors) =
         bind_logical_page_numbers(&mut doc, &intr_for_positions.page_store, 0)
@@ -916,6 +938,7 @@ fn realize_math_cancel_requests(
 ) -> SourceResult<(SealedMathCallbacks, Vec<SourceDiagnostic>)> {
     let font_metrics = FallbackFontMetrics::new(world);
     let mut ctx = EvalContext::new();
+    ctx.in_context = true;
     let mut scopes = Scopes::new(None);
     let mut styles = StyleChain::default_chain();
     let mut show_rules: Arc<[ShowRule]> = Arc::from([]);

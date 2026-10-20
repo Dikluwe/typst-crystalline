@@ -1,0 +1,55 @@
+    Finished `test` profile [unoptimized] target(s) in 0.19s
+     Running tests/math_cancel_callback_runtime.rs (lab/target/product/debug/deps/math_cancel_callback_runtime-0f7c67bae31eecfc)
+
+running 5 tests
+test p1291_callback_aninhada_em_script_observa_size_efetivo_reduzido ... FAILED
+test p1291_callback_runtime_altera_angulo_final ... ok
+test p1291_callback_runtime_erro_preserva_span_da_chamada ... ok
+test p1291_callback_runtime_observa_style_efetivo ... FAILED
+test p1291_cross_sobrepoe_inverted_na_geometria_final ... ok
+
+failures:
+
+---- p1291_callback_aninhada_em_script_observa_size_efetivo_reduzido stdout ----
+
+thread 'p1291_callback_aninhada_em_script_observa_size_efetivo_reduzido' (2280295) panicked at 04_wiring/tests/math_cancel_callback_runtime.rs:47:5:
+exit=Some(1)
+stdout:
+
+stderr:
+error: can only be used when context is known
+  ┌─ ../../../../tmp/typst-p1291-callback-script-effective-size-2280294-ThreadId(2)/main.typ:3:11
+  │
+3 │ $ x_(cancel(y, angle: a => context if text.size == 14pt { 0deg } else if text.size == 20pt { 90deg } else { 45deg })) $
+  │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  │
+  = hint: try wrapping this in a `context` expression
+
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- p1291_callback_runtime_observa_style_efetivo stdout ----
+
+thread 'p1291_callback_runtime_observa_style_efetivo' (2280402) panicked at 04_wiring/tests/math_cancel_callback_runtime.rs:47:5:
+exit=Some(1)
+stdout:
+
+stderr:
+error: can only be used when context is known
+  ┌─ ../../../../tmp/typst-p1291-callback-style-effective-2280294-ThreadId(5)/main.typ:3:7
+  │
+3 │ $cancel(x, angle: a => context if text.size == 19pt { 0deg } else { 90deg })$
+  │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  │
+  = hint: try wrapping this in a `context` expression
+
+
+
+
+failures:
+    p1291_callback_aninhada_em_script_observa_size_efetivo_reduzido
+    p1291_callback_runtime_observa_style_efetivo
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.99s
+
+error: test failed, to rerun pass `-p typst-wiring --test math_cancel_callback_runtime`

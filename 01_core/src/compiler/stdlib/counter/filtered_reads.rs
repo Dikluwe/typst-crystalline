@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/counter/filtered_reads.md
-//! @prompt-hash 10a78be6
+//! @prompt-hash 0432f3fc
 //! @layer L1
 //! @updated 2026-10-05
 
@@ -198,15 +198,22 @@ pub(crate) fn counter_final_owned(
     engine: &mut Engine<'_>,
     span: Span,
 ) -> SourceResult<Value> {
-    if !is_filtered_key(&counter.key) {
-        return counter_final(counter, ctx, span);
+    let filtered = is_filtered_key(&counter.key);
+    if filtered {
+        ctx.mark_filtered_counter_read(&counter.key);
     }
-    ctx.mark_filtered_counter_read(&counter.key);
-    if !ctx.in_context {
+    if !ctx.in_context || ctx.current_location.is_none() {
         return Err(vec![SourceDiagnostic::error(
             span,
             "can only be used when context is known",
+        )
+        .with_hint("try wrapping this in a `context` expression")
+        .with_hint(
+            "the `context` expression should wrap everything that depends on this function",
         )]);
+    }
+    if !filtered {
+        return counter_final(counter, ctx, span);
     }
     let result = filtered_history(counter, ctx, scopes, engine, span).map(|history| {
         state_value(history.last().map(|(_, values)| values.as_slice()).unwrap_or(&[0]))
@@ -329,6 +336,210 @@ pub(crate) fn replay_context_read(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::contracts::world::World;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::func::Func;
+    use crate::entities::location::Location;
+    use crate::entities::source::Source;
+    use crate::entities::source_result::Severity;
+    use crate::entities::style_chain::StyleChain;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library, Route, Sink,
+    };
+    use comemo::Track;
+
+    #[derive(Default)]
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+    }
+
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn native_element_key() -> CounterKey {
+        CounterKey::Selector(Selector::Element {
+            function: Func::native("heading", crate::compiler::stdlib::native_heading),
+            fields: Vec::new().into(),
+        })
+    }
+
+    fn seeded_context(key: &CounterKey) -> EvalContext {
+        let mut ctx = EvalContext::new();
+        ctx.in_context = true;
+        let location = Location::from_raw(41);
+        ctx.introspector.counters.observe_location(location);
+        ctx.introspector
+            .counters
+            .apply(key.clone(), CounterAction::Set(vec![7]));
+        ctx.introspector.counters.record_action(
+            location,
+            Some(key.clone()),
+            CounterAction::Set(vec![7]),
+        );
+        ctx
+    }
+
+    fn forbidden_fold_effect(
+        _ctx: &mut EvalContext,
+        args: &Args,
+        _world: &dyn World,
+        _file: FileId,
+        _scopes: &mut Scopes<'_>,
+        engine: &mut Engine<'_>,
+    ) -> SourceResult<Value> {
+        engine.sink.warn_diagnostic(SourceDiagnostic::warning(
+            args.span,
+            "FORBIDDEN_FOLD_EFFECT",
+        ));
+        Err(vec![SourceDiagnostic::error(args.span, "FORBIDDEN_FOLD_EXECUTED")])
+    }
+
+    fn owned_final(
+        key: &CounterKey,
+        ctx: &mut EvalContext,
+        span: Span,
+    ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+        let world = TestWorld::default();
+        let route = Route::root().with_id(world.main());
+        let mut styles = StyleChain::default_chain();
+        let mut rules = std::sync::Arc::from([]);
+        let mut guards = Vec::new();
+        let mut sink = Sink::new();
+        let mut scopes = Scopes::new(None);
+        let result = {
+            let mut tracked = sink.track_mut();
+            let mut engine = Engine {
+                world: &world,
+                font_metrics: &FixedMetrics,
+                route: route.track(),
+                styles: &mut styles,
+                show_rules: &mut rules,
+                active_guards: &mut guards,
+                current_file: world.main(),
+                sink: &mut tracked,
+            };
+            counter_final_owned(
+                &Counter { key: key.clone() },
+                ctx,
+                &mut scopes,
+                &mut engine,
+                span,
+            )
+        };
+        (result, sink.into_diagnostics())
+    }
+
+    fn assert_unavailable_context(key: CounterKey, known: bool, located: bool) {
+        let world = TestWorld::default();
+        let source = Source::new(world.main(), "counter(\"x\").final()".into());
+        let span = Span::from_range(world.main(), 0..source.text().len());
+        let mut ctx = seeded_context(&key);
+        ctx.in_context = known;
+        ctx.current_location = located.then(|| Location::from_raw(42));
+        ctx.introspector.counters.record_action(
+            Location::from_raw(43),
+            Some(key.clone()),
+            CounterAction::Func(Func::native_with_engine(
+                "forbidden-fold",
+                forbidden_fold_effect,
+            )),
+        );
+        let (result, diagnostics) = owned_final(&key, &mut ctx, span);
+        assert!(
+            diagnostics.is_empty(),
+            "rejected read executed a Func effect: {diagnostics:?}"
+        );
+        assert_eq!(
+            ctx.has_filtered_counter_reads(),
+            is_filtered_key(&key),
+            "demand must be marked before rejection only for native Element keys"
+        );
+        let errors =
+            result.expect_err("materialized data does not grant document context");
+        assert_eq!(errors.len(), 1);
+        let error = &errors[0];
+        assert_eq!(error.severity, Severity::Error);
+        assert_eq!(error.message, "can only be used when context is known");
+        assert_eq!(error.span, span);
+        assert_eq!(source.span_byte_range(error.span), Some(0..source.text().len()));
+        assert_eq!(error.hints, vec![
+            "try wrapping this in a `context` expression",
+            "the `context` expression should wrap everything that depends on this function",
+        ]);
+        assert!(error.trace.is_empty());
+    }
+
+    #[test]
+    fn counter_final_owned_rejects_style_only_string_with_materialized_seven() {
+        assert_unavailable_context(CounterKey::Str("x".into()), true, false);
+    }
+
+    #[test]
+    fn counter_final_owned_rejects_style_only_page_with_materialized_seven() {
+        assert_unavailable_context(CounterKey::Page, true, false);
+    }
+
+    #[test]
+    fn counter_final_owned_rejects_style_only_element_before_func_effect() {
+        assert_unavailable_context(native_element_key(), true, false);
+    }
+
+    #[test]
+    fn counter_final_owned_rejects_unknown_context_even_with_location() {
+        for key in [CounterKey::Str("x".into()), CounterKey::Page, native_element_key()] {
+            assert_unavailable_context(key, false, true);
+        }
+    }
+
+    #[test]
+    fn counter_final_owned_located_context_returns_real_final_seven() {
+        for key in [CounterKey::Str("x".into()), CounterKey::Page, native_element_key()] {
+            let mut ctx = seeded_context(&key);
+            ctx.current_location = Some(Location::from_raw(42));
+            let (result, diagnostics) = owned_final(&key, &mut ctx, Span::detached());
+            assert_eq!(result.unwrap(), Value::Array(vec![Value::Int(7)]));
+            assert!(diagnostics.is_empty());
+        }
+    }
+
+    #[test]
+    fn counter_final_owned_keeps_public_materialized_helper_without_location() {
+        for key in [CounterKey::Str("x".into()), CounterKey::Page, native_element_key()] {
+            let ctx = seeded_context(&key);
+            assert!(ctx.current_location.is_none());
+            assert_eq!(
+                counter_final(&Counter { key }, &ctx, Span::detached()).unwrap(),
+                Value::Array(vec![Value::Int(7)])
+            );
+        }
+    }
+
     #[test]
     fn plain_key_is_not_filtered() {
         assert!(!is_filtered_key(&CounterKey::Str("x".into())));

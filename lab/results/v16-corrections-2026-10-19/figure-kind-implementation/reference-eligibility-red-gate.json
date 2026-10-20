@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-20T01:19:39.923250+00:00",
+  "accepted": true,
+  "state_sha256": "ed619029f5873138dddae5cafb43c3a19983da0c6e644aeba485070a2d7bc481",
+  "state": "reference-eligibility-red/state.json.gz",
+  "actual_semantic_failures": 4,
+  "preservation_passes": 2,
+  "changed_inputs": [],
+  "interpretation": "Exact generated reference projection must retain diagnostic origins, function metadata and typed slot shape; no generic observation relaxation."
+}

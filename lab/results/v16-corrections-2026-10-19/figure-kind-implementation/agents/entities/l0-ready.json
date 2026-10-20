@@ -1,0 +1,87 @@
+[
+  {
+    "owner": "00_nucleo/prompts/core/entities/elements/figure.md",
+    "before_sha256": "3b7f699668a76ea012f077121645522c99a61a2ff8dcf80bc70f19f1d119918d",
+    "after_sha256": "60464ec3e93901e7175da06214b7e648c5ce1481c593e56ea0a9f7882186e6ac"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/entities/elements/grid.md",
+    "before_sha256": "7ddeeecce709f1fe472a6bd846ec57e785d97facf9a708c43f05017263f4e766",
+    "after_sha256": "33778a9f38b2cc55485f335705cdfc4d2e6ec9316bed5d94d8bcfba8cb0e8d99"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/entities/element_payload.md",
+    "before_sha256": "67d7a896f9d1e26324956a6a1c6f602a696fb5b1e182e94a81aca045657304e7",
+    "after_sha256": "63ac88f2e44452dbb910b75fd1caae20cdd8c89e96f68add90aaad8c03ae2fc4"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/entities/content/construction.md",
+    "before_sha256": "35437de362fe5bcc08f22216d276e809cf7bc9d96b5d4ec1debbf6b42925dc99",
+    "after_sha256": "411b425f10cfa59957ab28016c85b2a2d6dece0b87635c9ba45dd5fe412b2a41"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/entities/content/traversal.md",
+    "before_sha256": "ced51dba9414f643d6824aebc8a0537b1414a922b17dd0639aa5885d76607e69",
+    "after_sha256": "2920c58f746f28560da630cbbfb34581b782ebf69b941d010750e1dfdeae5454"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/entities/content/tests/representation.md",
+    "before_sha256": "9686c1711d96f6f81b05b3ad054117ac37ff66d8cfb3fe073392661adab9b5c2",
+    "after_sha256": "b5fd0a671a96bb5811059831a31b2b1163d9f64a88b6c62cf837587bce166589"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/entities/content/tests/traversal.md",
+    "before_sha256": "6b92efa75a78e67db07c864399bdb91fd29646d173e4b9f489ef4ff0954748d0",
+    "after_sha256": "5da1f05ec50b0d42ce1e17f46480158f0744c69887dc41188da8f98d5c49b8b7"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/compiler/stdlib/figure_image.md",
+    "before_sha256": "7a0adf6e21580440065bb70fa5f0f2ae9b8276d5c9f7a331026a9d35b9eb67ba",
+    "after_sha256": "e60c6d53b33149139ee7fb4123e9c684cac1c10f454da03c47675eb12de31534"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md",
+    "before_sha256": "1e8c1a15978ef96be17357b86671630860c5f91be88666b6e1cfc2b34d9e085f",
+    "after_sha256": "7f1c6607f473ae4ad9dd535c6d9db5e5c81dd558ee65e0245eda718bdf504b8c"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+    "before_sha256": "4e616fa8202fc516d552ba12fb0cae2a4d7825dc5c04a193c278f92c15718e55",
+    "after_sha256": "a390eecaa2e802b65fe50e52926d66c56c627aff3aaa4f0d958ff7583ed1f046"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/compiler/introspect/materialize_time.md",
+    "before_sha256": "0b0666c90912f7f6ed8ff5057c882f5e2df9bdc8df1c5c6fdab380f064c78d63",
+    "after_sha256": "3418d444eb1dd7be7c75610bd6600056b896d3526c58b6a47fe3ea60fc0af40f"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/compiler/introspect/convergence.md",
+    "before_sha256": "773e6a285ec5d1f5f8bab7e7e8c51c404624c2bfc31be075007cac00c0e25af9",
+    "after_sha256": "0a97dc842915590e180d88994f88f387c852cbd5c3d7543ef37e06c765dd6fdc"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/compiler/introspect/extract_payload.md",
+    "before_sha256": "17a6c9118f505dec24d29ec25568d50acd847b01fb0b3b9c8f46cf94c3c916b0",
+    "after_sha256": "202293694d96afc1f9031834a7a3e2eae231dbf5333a8aca9fb10ae687959f85"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/compiler/introspect/locatable.md",
+    "before_sha256": "a5822ca1d16afd8a358b5f61fea85b6be97b8a73c0052a98ad41234695be2e87",
+    "after_sha256": "3788cb559e14a0542c84b6a337f4fa66e2ad678bdf51992169c237c44d642b14"
+  },
+  {
+    "owner": "00_nucleo/prompts/core/compiler/layout/placement.md",
+    "before_sha256": "c57e06fa4e4a716c4a2961f6974657fce34f7f3644ad18f734bc379b2c763e9b",
+    "after_sha256": "710ca5ff3afa3375cead05ebe04204329aa3573c19df8870e499d01e2190cb07"
+  },
+  {
+    "owner": "00_nucleo/prompts/shell/cli.md",
+    "before_sha256": "278be884d63f1595fa1af68c1e52364c37b30bcb751cfdbc5269897d4692b36a",
+    "after_sha256": "a542e889db5025e98280f1ce68c04c45b3c9076503aec81be834aeeea9dbac1d"
+  },
+  {
+    "owner": "00_nucleo/prompts/infra/export/tests/mod.md",
+    "before_sha256": "482d87730de8c0a62510376f6e4dc069d5622f0764d42524f75392ecfc0b1ee2",
+    "after_sha256": "e626b22ebea3633fe01c059ae9c9f6f90ea9ea30a14728ddc602716276e0f3ad"
+  }
+]

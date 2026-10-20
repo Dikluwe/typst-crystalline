@@ -1,5 +1,5 @@
 # L0 — entities/content/traversal
-Hash do Código: b21ce7f8
+Hash do Código: 3909498f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
@@ -549,3 +549,34 @@ axes if rustc's first witness alone does not demonstrate them. Preserve exact
 source state, UTC, commands and diagnostic locations. This test-only internal
 classification uses ADR-0127 continuous flow after sealing; productive traversal,
 public API, pipeline phase, defaults and nucleus claims remain unchanged.
+
+
+## Approved Figure/Grid occurrence amendment (2026-10-19)
+
+### Evidence before specification
+
+Baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` preserves the measured proposal in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, semantic partition, independent audit and counter receipts. The fixed oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Constructor string kind loses function identity; constructor inference precedes occurrence styles; separated Grid fields lose source order. Typed identity, lexical presence, field traversal and counter results are language semantics/morphology. The chosen Rust carriers are implementation mechanics. The owner explicitly approved the linked public fields, contracts, phases and compatibility changes on 2026-10-19 under ADR-0127; this amendment materializes that bounded decision.
+
+### Exclusive contract
+
+Preserve generic visual visitor boundaries and all existing transformation order. Every Figure reconstruction copies lexical kind, resolved_kind, supplement and resolved_supplement. Both maps recurse body/caption and exactly one selected supplement Content: prepared resolved Content if resolved_supplement is Some, otherwise lexical FigureSupplement::Content; keep lexical origin unchanged when prepared. Functions/spans/None/Auto are preserved and never invoked. Grid reconstructions copy source_order; maps retain their current child order, once per actual child. This is not the specialized semantic kind visitor.
+
+### Acceptance and limits
+
+Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+## Borrowed nearest-origin preorder coordination
+
+The actual nested missing-Ref error has no span after generic Block traversal:
+map_content_pre's Source arm descends before callback and therefore recipes' root
+Source entry cannot observe nested lexical origins. Preserve the original method's
+Source-transparent callback contract. Add only crate-internal
+map_content_pre_with_origin(callback(&Content, Span)); both front doors delegate
+one private recursive implementation with the existing one static Content
+reconstruction enumeration. A Source changes the closest proven Span passed to
+its body; Source itself never reaches callback. Clone/rebuild preserves first
+origin and preorder Some pruning. The old method forwards ignoring Span, with
+identical callback count/order, reconstruction and opacity. No second compiler
+container catalogue, public API, Nucleus change, dynamic execution or entity-to-
+compiler dependency. Tests prove nested Source chooses closest span, old callbacks
+stay Source-transparent/once and replacement prunes identically.

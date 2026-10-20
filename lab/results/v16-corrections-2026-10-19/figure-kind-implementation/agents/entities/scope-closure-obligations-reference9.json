@@ -1,0 +1,255 @@
+{
+  "utc": "2026-10-20T02:12:57.147953+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "review_status": "Historical exact build9 executable assessment; current walk.rs differs and no current-source validation is claimed.",
+  "working_state": "uncommitted build9 exact inputs are recorded in immutable successful build/replay receipts; current freshness below",
+  "build_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-build-9/receipt.json",
+  "build_receipt_sha256": "ad398b5f5311565a9e716ca24516909627d7aebc99d30fc527b9ef2348a43505",
+  "product_sha256": "1d6886f1dd91f643ea5c8024b6f0cb11a37b84e5f72a94063899ece6fb7eab2b",
+  "earlier_post_freeze_binding": {
+    "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-product9-post-freeze.json",
+    "sha256": "3fef1320c348e4861611973096471430b47d88b2b9632edd5d53e688eb60dd7e",
+    "all_build9_inputs_matched_at_that_utc": true
+  },
+  "current_input_changes_after_measurement": [
+    {
+      "path": "00_nucleo/prompts/core/compiler/introspect/walk.md",
+      "build9_sha256": "2bdc5dc3268ddf43d7bdb70dc7e2009933e83883e44408e7c1a5c5a28dd892a0",
+      "now_sha256": "86cd06af88a1d243f2d4df93addd4abc018bd0a99033bb8d7013a25b2b0575a7"
+    },
+    {
+      "path": "01_core/src/compiler/introspect/walk.rs",
+      "build9_sha256": "3bf7b43988009ae8058bbdab7564c5551a265c416f4b97f0862571f7caeab41e",
+      "now_sha256": "62a30c6939b52b7bf8b585c50532222c303be21febc30547e008df7172a42b61"
+    }
+  ],
+  "approval_bindings": {
+    "original_review_sha256": "e8cabe3a7ab236e9c81303ffa9e8732198cbdb4e83a1aa4b557708dd167b433c",
+    "original_classification_sha256": "b1bdb766f6c51d23eb1ccaf9bf32a755ff7f5da2d760682861b7d92f0becdb40",
+    "reference_proposal_sha256": "1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2",
+    "reference_approval_sha256": "9ddeb35a39e84ac51006b51b26125f193a23e7824f615575a7c7255d8896d39b"
+  },
+  "scope": "Bounded causal Figure typed kind/semantic inspection/Grid order/occurrence/counter correction plus explicitly approved rich numeric Ref contributions; not all Figure/Grid features.",
+  "original_acceptance": {
+    "counts": {
+      "negative-control-only": 2,
+      "preserved-known-debt": 5,
+      "required-closure": 71
+    },
+    "all_original78_sources_dispositions_and_expected_at_closure_unchanged": true,
+    "current_counts": {
+      "required-closure": 77,
+      "negative-control-only": 2,
+      "preserved-known-debt": 5
+    },
+    "additional_counter_cases": [
+      "counter-uncaptioned-then-caption",
+      "counter-uncaptioned-only-explicit-demand",
+      "counter-disabled-then-caption",
+      "counter-hidden-then-caption",
+      "counter-manual-interleave",
+      "counter-uncaptioned-reference"
+    ],
+    "replay_sha256": "24b604caaae691728862d2bd690614303f1801881247d4e354fa16508533b59d",
+    "all84_declared_policies_pass_at_build9": true,
+    "limit": "Five known-debt and two negative-target controls are not oracle parity claims; [] does not prove callback target/execution."
+  },
+  "retained_original_debts": [
+    {
+      "name": "selector-supplement-default",
+      "reason": "Kind-only preview intentionally does not synthesize supplement for matching. Current L0 excludes synthesis and current product [] proves no existing supported match is removed. Must retain this failure visibly; not an all-green oracle gate.",
+      "actual_build9": {
+        "returncode": 0,
+        "json": []
+      }
+    },
+    {
+      "name": "selector-supplement-callback",
+      "reason": "Kind-only preview intentionally does not synthesize supplement for matching. Current L0 excludes synthesis and current product [] proves no existing supported match is removed. Must retain this failure visibly; not an all-green oracle gate.",
+      "actual_build9": {
+        "returncode": 0,
+        "json": []
+      }
+    },
+    {
+      "name": "grid-footer-before-body",
+      "reason": "Existing Grid validation phase differs upstream; defer validator migration. Baseline missing-kind error masks precise post-kind-repair outcome. Direct/fields controls independently measure retained footer validation; do not claim original fixture already reported footer error.",
+      "actual_build9": {
+        "returncode": 0,
+        "json": [
+          "table"
+        ]
+      }
+    },
+    {
+      "name": "state-update-fields",
+      "reason": "StateUpdate field reflection key omission is preexisting unrelated debt, no change authorized.",
+      "actual_build9": {
+        "returncode": 0,
+        "json": [
+          {}
+        ]
+      }
+    },
+    {
+      "name": "grid-footer-fields",
+      "reason": "Existing invalid-Grid field observation/validation phase debt; no validator phase migration authorized.",
+      "actual_build9": {
+        "returncode": 1,
+        "error": "error: footer must end at the last row"
+      }
+    }
+  ],
+  "six_reference_corpora": [
+    {
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-9/main/receipt.json",
+      "sha256": "08c4da0b7da4188814009de769df3c6ff2f257ef06082b409e6ae2ad74027d96",
+      "count": 31,
+      "required_count": 28,
+      "required_failures": [],
+      "failed_comparisons": [
+        {
+          "name": "duplicate-label-first",
+          "policy": {
+            "class": "open-bilateral-gap",
+            "criterion": "Pinned oracle rejects duplicate labels; approved existing Tekt first-label behavior requires baseline proof, generic ambiguity remains an open bilateral gap."
+          },
+          "checks": {
+            "oracle_success_class": false,
+            "oracle_error_message": false
+          }
+        },
+        {
+          "name": "bibliography-precedence",
+          "policy": {
+            "class": "open-bilateral-gap",
+            "criterion": "Pinned oracle rejects document/bibliography collision; existing precedence behavior requires baseline proof, generic ambiguity remains an open bilateral gap."
+          },
+          "checks": {
+            "oracle_success_class": false,
+            "oracle_error_message": false
+          }
+        },
+        {
+          "name": "context-language-pt-fr",
+          "policy": {
+            "class": "refuted-fixture",
+            "criterion": "Single context snapshot does not change on local set; oracle en,en refutes this attempted p792 test. Preserved immutable; corrected separate source required."
+          },
+          "checks": {
+            "oracle_success_class": false,
+            "oracle_error_message": false
+          }
+        }
+      ]
+    },
+    {
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-9/additional/receipt.json",
+      "sha256": "3803b224b9c313e2d2a69e44524eb9608313371353ce35ce8eed8025bb67570a",
+      "count": 4,
+      "required_count": 4,
+      "required_failures": [],
+      "failed_comparisons": []
+    },
+    {
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-9/targeted/receipt.json",
+      "sha256": "7d0fcf7c8d06ad7b91aa0b537e629a23a5f0cf707e7b22144d4253f5eaf67a38",
+      "count": 2,
+      "required_count": 2,
+      "required_failures": [],
+      "failed_comparisons": []
+    },
+    {
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-9/origin/receipt.json",
+      "sha256": "39a06f431fddf4af2109ec7eababe5b0cc6381c3eb8ed8ce8a42783ea87a5695",
+      "count": 1,
+      "required_count": 1,
+      "required_failures": [],
+      "failed_comparisons": []
+    },
+    {
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-9/origin-edge/receipt.json",
+      "sha256": "135b83b40345c8a2397f94bc620324d874e9386e40e134546d7228000f49fec6",
+      "count": 3,
+      "required_count": 3,
+      "required_failures": [],
+      "failed_comparisons": []
+    },
+    {
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-9/show-origin-selected/receipt.json",
+      "sha256": "e5f9027cf3667fe894c5440ec219d32b4d225117fe9668b9372e9dfebe2ca61f",
+      "count": 2,
+      "required_count": 2,
+      "required_failures": [],
+      "failed_comparisons": []
+    }
+  ],
+  "broad4_origin": {
+    "receipt_sha256": "46e7cee97611a8aa538cae99fdf3468a1111a2a974b5a5aef7fc4eeeec77561d",
+    "identity_and_original_alias_pass": true,
+    "failed_comparisons_preserved": [
+      "show-origin-new-native-multiline",
+      "show-origin-other-alias-multiline"
+    ],
+    "origins_all4_match": true,
+    "meaning": "Unrestricted fresh/distinct Ref shows produce vanilla max-depth but Tekt missing-label error. Correct origin is not correct error semantics or global show parity."
+  },
+  "additional_targets": {
+    "receipt_sha256": "489240060c22b4faa25d08529ea610b4872af188cd145f8fe2bd0a6ba2d90a30",
+    "pass": [
+      "caption-manual-interleave",
+      "caption-includes-uncaptioned",
+      "caption-hidden-original",
+      "warning-demanded",
+      "warning-undemanded",
+      "warning-explicit-plus-caption",
+      "html-kind-explicit",
+      "html-kind-inherited-auto",
+      "html-explicit-filtered-read",
+      "html-no-paged-demand"
+    ],
+    "fail": [
+      "header-figure-boundary"
+    ],
+    "boundary": "SetPage operational configuration does not admit physical repeated headers. Native PageRun is a distinct supported carrier; source failure stays open, no 11/11 target claim."
+  },
+  "ref_acceptance_vs_ambiguity": "Frozen proposal requires current first matching label/bibliography precedence. Actual sources preserve those effects, but both disagree with pinned oracle ambiguity errors and remain failed comparisons. The single-context language fixture is refuted, with corrected separate two-context source passing. No 31/31 parity claim.",
+  "known_limits_not_promoted_to_green": [
+    "supplement-dependent selector preview",
+    "Grid invalid-footer validation/field timing",
+    "StateUpdate field key reflection",
+    "complete Figure caption synthesis/function-number formatting",
+    "external Dynamic semantic-field enumeration",
+    "mixed Table header/ordinary-cell non-Table target order",
+    "HTML implicit Figure caption/Ref rendering",
+    "SetPage physical running-content admission",
+    "Block breakability/style reflection and nonlocatable Block-label projection",
+    "generic duplicate-label/bibliography ambiguity errors",
+    "unrestricted show-ref reapplication diagnostic parity"
+  ],
+  "filtered_logs": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-tests-9-core/tests.log",
+      "sha256": "8a3aa1d44e7f2e73fccf245d2bc3e8c8688ef2f130b8041f017cb4ff3fcbd27e",
+      "actual_results": [
+        "test result: ok. 209 passed; 0 failed; 0 ignored; 0 measured; 7507 filtered out; finished in 0.61s"
+      ]
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-tests-9-infra/tests.log",
+      "sha256": "e98b167b73cc6cbbe3ac43a8b6f23df6afe8f3e42cedead675a047609230a61f",
+      "actual_results": [
+        "test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 1373 filtered out; finished in 0.53s"
+      ]
+    }
+  ],
+  "mandatory_closure_pending": [
+    "Full established workspace/build/tests/all-target/Clippy/Rustdoc/format checks",
+    "Canonical paths, strict forward+reverse lineage, V15/V26",
+    "Final actual enum-extension E0004 decision witnesses",
+    "Full differential lint with no new violations or suppressions and explicit residuals",
+    "Fresh exact source/build/receipt binding after later walk.rs change"
+  ],
+  "assessment": "Original bounded required semantics and approved Ref required corpora pass at historical build9 without changing original78 expectations. Full batch closure requires root final12/structural and current freshness gates; no complete Figure/Grid or unrestricted vanilla parity is established.",
+  "no_source_l0_test_or_existing_policy_changes": true
+}

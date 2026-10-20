@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/mod.md
-//! @prompt-hash b12fddb7
+//! @prompt-hash db761ae7
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -918,6 +918,11 @@ pub fn eval_with_full_error_target_and_features(
         Value::Content(content) => {
             if has_recipes
                 || crate::compiler::realize::bare_math::needs_preparation(&content)
+                || crate::compiler::realize::figure::needs_preparation(&content)
+                || (target == EvalTarget::Paged
+                    && crate::compiler::realize::reference_supplements::needs_preparation(
+                        &content,
+                    ))
             {
                 let previous = crate::entities::introspector::TagIntrospector::empty();
                 let (result, warnings) = crate::compiler::realize::realize_document(

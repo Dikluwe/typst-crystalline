@@ -1,0 +1,8 @@
+   Compiling clap v4.6.6
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling clap_complete v4.6.9
+   Compiling typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+   Compiling clap_complete_nushell v4.6.2
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+   Compiling typst-wiring v0.1.0 (/repos/Antigravity/typst-crystalline/04_wiring)
+    Finished `dev` profile [unoptimized] target(s) in 32.80s

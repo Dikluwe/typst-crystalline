@@ -1,5 +1,5 @@
 # L0 — compiler/eval/markup_stream
-Hash do Código: 225aaab7
+Hash do Código: 16f4e8e2
 
 
 
@@ -570,3 +570,13 @@ A new Value variant must fail exhaustiveness at this owner decision. This is
 continuous ADR-0127 internal transport/parity correction, with no new public
 contract, flag, default mode or phase. Full tests/paths/lineage remain mandatory;
 closing the wildcard obligation does not close the named presentation debts.
+
+## Preserve Ref lexical Source through markup flattening
+
+The frozen Ref origin probe (reference-origin-product-2) refutes recovering a
+nested Ref's missing origin from later container realization. append_markup_sequence
+currently strips every Source when preserve_source is false. Preserve a Source
+whose body root is Ref before ordinary Source flattening; expression_dispatch
+owns first lexical origin. Source remains transparent to language fields/identity,
+text and attachment, and contributes one occurrence. Do not retain every prose
+Source, guess origins from contents or change ordinary flattening/capture order.

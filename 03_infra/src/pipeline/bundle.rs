@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/bundle.md
-//! @prompt-hash 6920d3c2
+//! @prompt-hash 2544b914
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -13,6 +13,8 @@ use typst_core::entities::document_info::DocumentInfo;
 /// bodies; usa um único Engine e devolve os seeds do mesmo walk.
 pub(super) fn introspect_bundle_with_runtime_for_pipeline(
     bodies: &[Content],
+    html_targets: &[bool],
+    features: typst_core::entities::compiler_features::Features,
     world: &dyn World,
     source: &Source,
 ) -> (
@@ -24,6 +26,11 @@ pub(super) fn introspect_bundle_with_runtime_for_pipeline(
 ) {
     let font_metrics = FallbackFontMetrics::new(world);
     let mut ctx = EvalContext::new();
+    ctx.features = features;
+    let targets: Vec<_> = html_targets
+        .iter()
+        .map(|html| if *html { EvalTarget::Html } else { EvalTarget::Paged })
+        .collect();
     let mut styles = StyleChain::default_chain();
     let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
     let mut active_guards = Vec::new();
@@ -42,8 +49,10 @@ pub(super) fn introspect_bundle_with_runtime_for_pipeline(
             current_file: source.id(),
             sink: &mut local_sink,
         };
-        typst_core::compiler::introspect::introspect_bundle_documents_with_runtime_and_starts(
+        typst_core::compiler::introspect::introspect_bundle_documents_with_runtime_targets_and_starts(
             bodies,
+            &targets,
+            features,
             &mut engine,
             &mut ctx,
         )
@@ -234,7 +243,7 @@ pub fn compile_to_bundle_files(
                             Err(bundle_error("page offset overflow")),
                             warnings,
                             timings,
-                        )
+                        );
                     }
                 };
                 files.push(BundleFile {

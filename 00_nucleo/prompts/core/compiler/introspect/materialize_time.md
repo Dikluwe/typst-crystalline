@@ -1,5 +1,5 @@
 # L0 — introspect/materialize_time
-Hash do Código: c9ff8ff4
+Hash do Código: 578b1008
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -171,3 +171,29 @@ Rust shape/reconstruction is mechanics. Reconstruct Transform preserving the
 whole operation, materializing body only; never replace typed operations by
 Matrix. Require RED→GREEN/dependent-route revalidation; build does not close
 X1–X5.
+
+
+## Approved Figure/Grid occurrence amendment (2026-10-19)
+
+### Evidence before specification
+
+Baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` preserves the measured proposal in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, semantic partition, independent audit and counter receipts. The fixed oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Constructor string kind loses function identity; constructor inference precedes occurrence styles; separated Grid fields lose source order. Typed identity, lexical presence, field traversal and counter results are language semantics/morphology. The chosen Rust carriers are implementation mechanics. The owner explicitly approved the linked public fields, contracts, phases and compatibility changes on 2026-10-19 under ADR-0127; this amendment materializes that bounded decision.
+
+### Exclusive contract
+
+Reconstruct Figure directly rather than through lossy Content::figure legacy adapter. Materialize body/caption and selected semantic supplement Content exactly once (resolved when prepared, lexical Content otherwise); retain lexical origin when prepared and copy every typed kind/resolved/presence/function/span field. Grid struct-update retains source_order. Temporal expression behavior and every other content branch remain unchanged.
+
+### Acceptance and limits
+
+Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+### Grid line-vector retention
+
+The integrated carrier review found `materialize_time.rs:292–299` resets Grid
+hlines/vlines while struct-update retains source_order. A native HLine/VLine
+descriptor would then refer to an empty vector, violating the approved invariant.
+Preserve the original hlines/vlines vectors exactly through temporal reconstruction;
+line nodes are terminal and require no context evaluation. Do not erase descriptors,
+silently normalize malformed Some, or relax the semantic resolver's validity check.
+A regression must retain both real line entities and their ordered descriptors.
+This internal retention repair changes no public contract or pipeline phase.

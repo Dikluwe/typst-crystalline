@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/selector_matching.md
-//! @prompt-hash cbad6239
+//! @prompt-hash 5a2116d3
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -140,13 +140,26 @@ pub(crate) fn query_selector_to_show_selector(
 /// de show-set: ambos usam exatamente o mesmo critério de match. `Selector::Text`
 /// nunca casa aqui (tratado por `map_text`).
 pub(crate) fn selector_matches(work: &Content, selector: &Selector) -> bool {
-    let work = match work {
-        Content::Source(e) => &e.body,
-        Content::ShowRecipe(e) => &e.body,
-        Content::Located(e) => &e.body,
-        Content::Realized(e) => &e.visual,
-        other => other,
-    };
+    let mut work = work;
+    loop {
+        if let Content::Source(e) = work {
+            work = &e.body;
+        } else if let Content::ShowRecipe(e) = work {
+            work = &e.body;
+        } else if let Content::Located(e) = work {
+            work = &e.body;
+        } else if let Content::Realized(e) = work {
+            work = &e.visual;
+        } else if let Content::Styled(e) = work {
+            if crate::compiler::realize::figure::is_figure(&e.body) {
+                work = &e.body;
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
     // F-5b fatia 1 (P371): `show strong/emph` casam as **variantes próprias**
     // `Content::Strong`/`Emph` (S1, por tipo). P431 (DEBT-50) acrescenta a
     // distinção de origem no `Style` para o cenário pós-bake-in (wrapping):
@@ -217,6 +230,14 @@ pub(crate) fn selector_matches(work: &Content, selector: &Selector) -> bool {
         Selector::Where { base, field, value } => {
             if !selector_matches(work, base) {
                 return false;
+            }
+            if field.as_str() == "kind" && matches!(work, Content::Figure(_)) {
+                return work.get_field("kind").is_some_and(|actual| {
+                    super::operators::equality::figure_kind_values_eq(
+                        &actual,
+                        value.as_ref(),
+                    )
+                });
             }
             if native_element_base(base).is_some() {
                 native_element_field(work, field.as_str())
@@ -331,11 +352,29 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         Content::Located(e) => native_element_matches(&e.body, function),
         Content::Realized(e) => native_element_matches(&e.visual, function),
         Content::Styled(e) => {
-            native!(native_math_equation) && native_element_matches(&e.body, function)
+            if crate::compiler::realize::figure::is_figure(&e.body) {
+                native_element_matches(&e.body, function)
+            } else {
+                native!(native_math_equation) && native_element_matches(&e.body, function)
+            }
         }
         Content::Empty | Content::Sequence(_) => native!(native_sequence),
         Content::Equation(_) => native!(native_math_equation),
         Content::Text(_) => native!(native_text),
+        Content::Title(_) => native!(native_title),
+        Content::FigureCaption(_) => native!(native_figure_caption),
+        Content::FootnoteEntry(_) => native!(native_footnote_entry),
+        Content::HtmlElem(_) => native!(native_html_elem),
+        Content::HtmlFrame(_) => native!(native_html_frame),
+        Content::PdfArtifact(_) => native!(native_pdf_artifact),
+        Content::PdfAttach(_) => native!(native_pdf_attach),
+        Content::ListItem(_) => native!(native_list_item),
+        Content::EnumItem(_) => native!(native_enum_item),
+        Content::TermItem(_) => native!(native_terms_item),
+        Content::Flush(_) => native!(native_flush),
+        Content::Divider(_) => native!(native_divider),
+        Content::Document { .. } => native!(native_document),
+        Content::Asset { .. } => native!(native_asset),
         Content::Table(_) => native!(native_table),
         Content::Grid(_) => native!(native_grid),
         Content::Metadata(_) => native!(native_metadata),
@@ -375,7 +414,12 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         Content::GridCell(_) => native!(native_grid_cell),
         // The antecedent erased constructor identity in these representations.
         // P1339 does not infer square/rect, circle/ellipse or transforms from geometry.
-        Content::Shape(_) => false,
+        Content::Shape(shape) => match shape.origin {
+            crate::entities::elements::shape::ShapeOrigin::Circle => {
+                native!(native_circle)
+            }
+            crate::entities::elements::shape::ShapeOrigin::Geometry => false,
+        },
         Content::Transform(e) => match e.operation {
             crate::entities::elements::transform::TransformOperation::Matrix(_) => false,
             crate::entities::elements::transform::TransformOperation::Move { .. } => {
@@ -391,6 +435,29 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
                 native!(native_skew)
             }
         },
+        Content::Curve(curve) => {
+            if let [segment] = curve.segments.as_slice() {
+                match segment {
+                    crate::entities::elements::curve::CurveSegment::Move(_) => {
+                        native!(native_curve_move)
+                    }
+                    crate::entities::elements::curve::CurveSegment::Line(_) => {
+                        native!(native_curve_line)
+                    }
+                    crate::entities::elements::curve::CurveSegment::Cubic(_, _, _) => {
+                        native!(native_curve_cubic)
+                    }
+                    crate::entities::elements::curve::CurveSegment::Quad(_, _) => {
+                        native!(native_curve_quad)
+                    }
+                    crate::entities::elements::curve::CurveSegment::Close(_) => {
+                        native!(native_curve_close)
+                    }
+                }
+            } else {
+                false
+            }
+        }
         Content::MathFrac(e) => e.line && native!(native_math_frac),
         Content::MathAttach(_) => native!(native_math_attach),
         Content::MathPrimes(_) => native!(native_math_primes),
@@ -448,16 +515,11 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         },
         Content::Space
         | Content::SpaceFromNewline
-        | Content::HtmlElem(_)
-        | Content::HtmlFrame(_)
         | Content::Par { .. }
         | Content::Heading(_)
-        | Content::Title(_)
         | Content::Strong(_)
         | Content::Emph(_)
         | Content::Raw(_)
-        | Content::ListItem(_)
-        | Content::EnumItem(_)
         | Content::Link(_)
         | Content::MathSequence(_)
         | Content::MathIdent(_)
@@ -470,23 +532,13 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         | Content::CounterDisplay(_)
         | Content::CounterUpdate(_)
         | Content::Figure(_)
-        | Content::FigureCaption(_)
-        | Content::Curve(_)
         | Content::SetPage(_)
-        | Content::Flush(_)
-        | Content::Divider(_)
-        | Content::TermItem(_)
         | Content::Quote(_)
-        | Content::Document { .. }
-        | Content::Asset { .. }
-        | Content::PdfAttach(_)
-        | Content::PdfArtifact(_)
         | Content::Underline(_)
         | Content::Strike(_)
         | Content::Overline(_)
         | Content::SmallCaps { .. }
         | Content::Footnote(_)
-        | Content::FootnoteEntry(_)
         | Content::State(_)
         | Content::StateUpdate(_)
         | Content::StateDisplay(_)
@@ -510,6 +562,9 @@ fn native_element_field(content: &Content, field: &str) -> Option<Value> {
             _ => content.get_field(field),
         },
         Content::Styled(styled) => {
+            if crate::compiler::realize::figure::is_figure(&styled.body) {
+                return native_element_field(&styled.body, field);
+            }
             if field == "body" && is_styled_origin(content, true, true, true, true, true)
             {
                 Some(Value::Content(styled.body.clone()))
@@ -644,12 +699,21 @@ pub(crate) fn element_selector_matches(
     fields: &[(ecow::EcoString, Value)],
 ) -> bool {
     native_element_matches(entry.content(), function)
-        && fields.iter().all(|(name, expected)| match entry.fields() {
-            Some(snapshot) => {
-                snapshot.get(name).is_some_and(|actual| values_eq(actual, expected))
+        && fields.iter().all(|(name, expected)| {
+            let equal = |actual: &Value| {
+                if name.as_str() == "kind"
+                    && crate::compiler::realize::figure::is_figure(entry.content())
+                {
+                    super::operators::equality::figure_kind_values_eq(actual, expected)
+                } else {
+                    values_eq(actual, expected)
+                }
+            };
+            match entry.fields() {
+                Some(snapshot) => snapshot.get(name).is_some_and(equal),
+                None => native_element_field(entry.content(), name)
+                    .is_some_and(|actual| equal(&actual)),
             }
-            None => native_element_field(entry.content(), name)
-                .is_some_and(|actual| values_eq(&actual, expected)),
         })
 }
 

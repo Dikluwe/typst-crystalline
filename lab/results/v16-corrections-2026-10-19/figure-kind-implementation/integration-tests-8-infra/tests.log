@@ -1,0 +1,65 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `test` profile [unoptimized] target(s) in 38.88s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 11 tests
+test export::html::document::figure_product_morphology::figure_html_empty_product_keeps_boundary_and_nonfigure_product_stays_inline ... FAILED
+test export::html::document::figure_product_morphology::figure_html_show_products_keep_paragraphs_and_rich_inline_morphology ... FAILED
+test integration_tests::integration::p1018_counter_string_figure_nao_colide_com_selector_figure ... ok
+test integration_tests::integration::p204f_corpus_figure_ref_compila ... ok
+test integration_tests::integration::pipeline_figure_com_ref_gera_pdf ... ok
+test integration_tests::integration::pipeline_figure_sem_ref_nao_causa_panico ... ok
+test measurements::tests::p204g_counts_figure_number_for_label_invocado_3x ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_html_explicit_filtered_read_keeps_actual_target ... FAILED
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_explicit_and_implicit_effects_in_one_candidate_sink ... FAILED
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_only_accepted_implicit_warning_generation ... FAILED
+test query_helpers::tests::p1285_query_elements_recupera_metadata_e_figure_na_ordem ... ok
+
+failures:
+
+---- export::html::document::figure_product_morphology::figure_html_empty_product_keeps_boundary_and_nonfigure_product_stays_inline stdout ----
+
+thread 'export::html::document::figure_product_morphology::figure_html_empty_product_keeps_boundary_and_nonfigure_product_stays_inline' (2048616) panicked at 03_infra/src/export/html/document.rs:516:9:
+assertion `left == right` failed
+  left: ["A  B"]
+ right: ["A", "B"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- export::html::document::figure_product_morphology::figure_html_show_products_keep_paragraphs_and_rich_inline_morphology stdout ----
+
+thread 'export::html::document::figure_product_morphology::figure_html_show_products_keep_paragraphs_and_rich_inline_morphology' (2048617) panicked at 03_infra/src/export/html/document.rs:498:9:
+assertion `left == right` failed
+  left: ["A X B <strong>Y</strong> C"]
+ right: ["A", "X", "B", "<strong>Y</strong>", "C"]
+
+---- pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_html_explicit_filtered_read_keeps_actual_target stdout ----
+
+thread 'pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_html_explicit_filtered_read_keeps_actual_target' (2048634) panicked at 03_infra/src/pipeline/context_stabilization.rs:1722:27:
+HTML explicit Figure read must stabilize without paged implicit demand: [SourceDiagnostic { severity: Error, span: Span(282071322000299), message: "contextual stability could not be verified", hints: [], trace: [] }]
+
+---- pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_explicit_and_implicit_effects_in_one_candidate_sink stdout ----
+
+thread 'pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_explicit_and_implicit_effects_in_one_candidate_sink' (2048635) panicked at 03_infra/src/pipeline/context_stabilization.rs:1704:9:
+assertion `left == right` failed
+  left: ["the numeral system `hebrew` cannot represent zero", "the numeral system `hebrew` cannot represent zero"]
+ right: ["the numeral system `hebrew` cannot represent zero"]
+
+---- pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_only_accepted_implicit_warning_generation stdout ----
+
+thread 'pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_only_accepted_implicit_warning_generation' (2048636) panicked at 03_infra/src/pipeline/context_stabilization.rs:1688:13:
+assertion `left == right` failed
+  left: ["the numeral system `hebrew` cannot represent zero", "the numeral system `hebrew` cannot represent zero"]
+ right: ["the numeral system `hebrew` cannot represent zero"]
+
+
+failures:
+    export::html::document::figure_product_morphology::figure_html_empty_product_keeps_boundary_and_nonfigure_product_stays_inline
+    export::html::document::figure_product_morphology::figure_html_show_products_keep_paragraphs_and_rich_inline_morphology
+    pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_html_explicit_filtered_read_keeps_actual_target
+    pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_explicit_and_implicit_effects_in_one_candidate_sink
+    pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_only_accepted_implicit_warning_generation
+
+test result: FAILED. 6 passed; 5 failed; 0 ignored; 0 measured; 1373 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `-p typst-infra --lib`

@@ -1,0 +1,209 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 31s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 180 tests
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_figure_known_caption_and_metadata_value_are_enumerated ... ok
+test compiler::eval::bindings::field_access::fields::builtin_module_identity_tests::figure_counter_context_none_rejects_contextual_text_fields ... ok
+test compiler::eval::bindings::field_access::figure_kind_field_projection_tests::figure_kind_direct_getter_distinguishes_raw_auto_and_prepared_empty_supplement ... ok
+test compiler::eval::observation::elements::figure_kind_capability_observation_tests::figure_v16_actual_raw_kind_clone_proves_complete_capability_reflexivity ... FAILED
+test compiler::eval::observation::elements::figure_kind_capability_observation_tests::figure_v16_kind_observation_retains_namespace_and_independent_capability_boundaries ... ok
+test compiler::eval::operators::equality::figure_kind_filter_identity_tests::figure_kind_filter_equality_preserves_aliases_and_rejects_homonyms ... ok
+test compiler::eval::tests::regressions::eval_figure_sem_caption_via_stdlib ... ok
+test compiler::eval::tests::regressions::eval_figure_sem_interceptador_em_eval_rs ... ok
+test compiler::eval::tests::regressions::f2s3_set_figure_escopo_lexical_nao_vaza ... ok
+test compiler::eval::tests::regressions::f2s3_set_figure_numbering_assa_via_chain ... ok
+test compiler::eval::tests::regressions::f339c_wrap_figure_carrega_custom ... ok
+test compiler::eval::tests::regressions::figure_v16_plain_output_module_resolves_typed_kind_without_show_recipes ... ok
+test compiler::eval::tests::regressions::figure_v16_plain_output_supplement_error_precedes_caption_demand ... ok
+test compiler::eval::tests::regressions::figure_v16_unused_figure_keeps_no_figure_fast_path_and_callback_inert ... ok
+test compiler::eval::tests::regressions::p417_show_rule_where_aplica_a_figure_kind ... ok
+test compiler::eval::tests::regressions::p633_set_figure_numbering_int_error ... ok
+test compiler::introspect::convergence::tests::figure_v16_native_kind_alias_preserves_payload_and_content_hashes ... ok
+test compiler::introspect::convergence::tests::figure_v16_typed_kind_changes_reflection_and_same_location_convergence ... ok
+test compiler::introspect::extract_payload::tests::figure_kind_none_preserva_none ... ok
+test compiler::introspect::extract_payload::tests::figure_produz_some_payload ... ok
+test compiler::introspect::figure_demands::tests::figure_demand_carries_source_style_location_through_only_transparent_root ... ok
+test compiler::introspect::figure_demands::tests::figure_demand_outline_entry_uses_emitted_body_not_semantic_element_or_fill ... ok
+test compiler::introspect::figure_demands::tests::figure_demand_uses_realized_visual_and_ignores_metadata_and_document_fields ... ok
+test compiler::introspect::locatable::tests::figure_e_locatable ... ok
+test compiler::introspect::materialize_time::figure_grid_carrier_tests::figure_v16_temporal_grid_preserves_line_vectors_and_source_descriptors ... ok
+test compiler::introspect::tests::figure_compute_labelled_p195d_continua_funcional ... ok
+test compiler::introspect::tests::figure_counter_ancestor_hidden_unprepared_descendant_has_no_action_or_query_membership ... ok
+test compiler::introspect::tests::figure_counter_bundle_targets_validate_before_any_effect ... ok
+test compiler::introspect::tests::figure_counter_complete_demand_propagates_later_error ... ok
+test compiler::introspect::tests::figure_counter_empty_states_stay_present_and_next_step_recovers ... ok
+test compiler::introspect::tests::figure_counter_first_label_keeps_typed_key_and_unnumbered_first_stays_unreferenceable ... ok
+test compiler::introspect::tests::figure_counter_indexes_only_actually_emitted_caption_supplement_metadata ... ok
+test compiler::introspect::tests::figure_counter_mixed_bundle_has_global_actions_and_paged_only_demands ... ok
+test compiler::introspect::tests::figure_counter_none_is_ineligible_even_after_numbered_target ... ok
+test compiler::introspect::tests::figure_counter_numbering_only_actions_and_location_prefixes ... ok
+test compiler::introspect::tests::figure_counter_reference_demands_captionless_target ... ok
+test compiler::introspect::tests::figure_counter_unread_and_html_caption_do_not_demand ... ok
+test compiler::introspect::tests::figure_counter_validation_and_retained_transactions_keep_own_diagnostics ... ok
+test compiler::introspect::tests::figure_counters_independentes_por_kind_continuam_a_funcionar_apos_p158b ... ok
+test compiler::introspect::tests::figure_label_custom_name_uses_explicit_supplement ... ok
+test compiler::introspect::tests::figure_label_default_no_lang_set_devolve_figure ... ok
+test compiler::introspect::tests::figure_label_lang_de_raw_devolve_listing ... ok
+test compiler::introspect::tests::figure_label_lang_en_table_devolve_table ... ok
+test compiler::introspect::tests::figure_label_lang_pt_image_devolve_figura ... ok
+test compiler::introspect::tests::figure_label_lang_unknown_fallback_en ... ok
+test compiler::introspect::tests::figure_numbering_inactivo_nao_popula_intr ... ok
+test compiler::introspect::tests::figure_paridade_introspector_pos_p190h ... ok
+test compiler::introspect::tests::figure_tem_kind_e_numbering ... ok
+test compiler::introspect::tests::figure_walk_caminho_introspector_ja_activo ... ok
+test compiler::introspect::tests::figure_walk_intr_counters_populated_correctamente ... ok
+test compiler::introspect::tests::introspect_figure_kind_none_resolve_para_image_no_counter ... ok
+test compiler::lang::figure_supplement::tests::fallback_kind_desconhecido_devolve_capitalizado ... ok
+test compiler::lang::figure_supplement::tests::fallback_lang_desconhecido_devolve_en ... ok
+test compiler::lang::figure_supplement::tests::fallback_lang_none_devolve_en ... ok
+test compiler::lang::figure_supplement::tests::lookup_image_en_devolve_figure ... ok
+test compiler::lang::figure_supplement::tests::lookup_image_fr_devolve_figure ... ok
+test compiler::lang::figure_supplement::tests::lookup_image_pt_devolve_figura ... ok
+test compiler::lang::figure_supplement::tests::lookup_raw_it_devolve_listato ... ok
+test compiler::lang::figure_supplement::tests::lookup_table_de_devolve_tabelle ... ok
+test compiler::layout::figure::paragraph_boundary_tests::figure_blocks_keep_adjacent_bodies_and_following_text_in_separate_paragraphs ... FAILED
+test compiler::layout::figure::tests::figure_layout_missing_snapshot_keeps_source_span_and_emits_no_fabricated_prefix ... ok
+test compiler::layout::figure::tests::figure_layout_prepared_location_never_consumes_synthetic_progress ... ok
+test compiler::layout::figure::tests::figure_layout_returned_located_styled_occurrence_keeps_exact_location ... ok
+test compiler::layout::references::figure_morphology_tests::figure_reference_keeps_resolved_supplement_strong_morphology ... ok
+test compiler::layout::references::tests::p1458_figure_reference_uses_owner_localization_for_all_kinds ... ok
+test compiler::layout::tests::f_caracterizacao_estilo::carac_set_figure_numbering_caption_prefixo ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_body_replacement_preserves_body_morphology ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_context_output_is_not_evaluated_during_inference ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_custom_name_retains_string_identity ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_explicit_element_retains_function_identity ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_filtered_show_set_previews_then_resolves ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_grid_header_order_precedes_or_follows_body ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_hidden_parent_does_not_prepare_child ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_metadata_arrays_recurse_and_dictionaries_stay_opaque ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_metadata_content_is_semantic_descendant ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_omission_inherits_but_explicit_auto_inspects_body ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_supplement_callback_targets_actual_element ... ok
+test compiler::layout::tests::layout_figure_com_caption_tem_prefixo ... ok
+test compiler::layout::tests::layout_figure_pattern_invalido_fallback_arabico ... ok
+test compiler::layout::tests::layout_figure_pattern_letras_maiusculas ... ok
+test compiler::layout::tests::layout_figure_pattern_letras_minusculas ... ok
+test compiler::layout::tests::layout_figure_pattern_romano ... ok
+test compiler::layout::tests::layout_figure_sem_caption_sem_prefixo ... ok
+test compiler::layout::tests::layout_figure_sequencial_romano ... ok
+test compiler::layout::tests::p168_figure_ref_migration::figura_sem_caption_nao_gera_figure_ref ... ok
+test compiler::layout::tests::p168_figure_ref_migration::legacy_path_via_layout_continues_to_work ... ok
+test compiler::layout::tests::p168_figure_ref_migration::migrated_path_via_layout_with_introspector_renders_figure_ref ... ok
+test compiler::layout::tests::p168_figure_ref_migration::paridade_pre_post_migracao ... ok
+test compiler::layout::tests::p184e_figure_per_kind::kind_none_default_image ... ok
+test compiler::layout::tests::p184e_figure_per_kind::kinds_distintos_isolados_image_e_table ... ok
+test compiler::layout::tests::p184e_figure_per_kind::paridade_layout_legacy_vs_layout_with_introspector_figures ... ok
+test compiler::layout::tests::p184e_figure_per_kind::pipeline_completo_figure_kind_image_via_introspector ... ok
+test compiler::layout::tests::p184e_figure_per_kind::pipeline_via_fallback_legacy_dead_code_idx_plus_one ... ok
+test compiler::layout::tests::p189b_walk_puro_m5::walk_excepcao_e3_figure_via_intr ... ok
+test compiler::layout::tests::p195d_walk_labelled::labelled_figure_target_popula_figure_label_numbers ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_resolves_figure_number ... ok
+test compiler::realize::figure::nested_supplement_tests::figure_kind_nested_supplement_prepares_only_when_caption_emits_it ... ok
+test compiler::realize::figure::tests::figure_kind_localization_is_nominal_and_pointer_based ... ok
+test compiler::realize::figure::tests::figure_kind_preview_distinguishes_omitted_auto_and_explicit_style_precedence ... ok
+test compiler::realize::figure::tests::figure_kind_preview_has_no_supplement_callback_and_preserves_prepared_alias ... ok
+test compiler::realize::figure_kind::tests::figure_kind_annotations_respect_explicit_presence ... ok
+test compiler::realize::figure_kind::tests::figure_kind_context_does_not_execute_callback ... ok
+test compiler::realize::figure_kind::tests::figure_kind_dynamic_container_is_explicitly_opaque_without_callbacks ... ok
+test compiler::realize::figure_kind::tests::figure_kind_explicit_kinds_cannot_bypass_reached_grid_order_invariant ... ok
+test compiler::realize::figure_kind::tests::figure_kind_explicit_targets_find_represented_roots_inside_sequence ... ok
+test compiler::realize::figure_kind::tests::figure_kind_grid_explicit_line_targets_follow_descriptor_order ... ok
+test compiler::realize::figure_kind::tests::figure_kind_grid_rejects_every_malformed_order_before_early_match ... ok
+test compiler::realize::figure_kind::tests::figure_kind_grid_source_order_is_not_storage_order ... ok
+test compiler::realize::figure_kind::tests::figure_kind_metadata_arrays_and_authoritative_snapshot_fields ... ok
+test compiler::realize::figure_kind::tests::figure_kind_original_semantics_and_opaque_state_update ... ok
+test compiler::realize::figure_kind::tests::figure_kind_ref_fields_and_first_exact_element_target ... ok
+test compiler::realize::figure_kind::tests::figure_kind_selected_supplement_and_caption_semantic_order ... ok
+test compiler::stdlib::figure_image::p1473_tests::caption_shape_constructor_uses_content_casts_and_causal_error ... ok
+test compiler::stdlib::figure_image::p1473_tests::figure_domain_errors_follow_field_order_and_causal_value_spans ... ok
+test compiler::stdlib::figure_image::p1473_tests::figure_domain_located_values_are_content_for_body_and_caption ... ok
+test compiler::stdlib::figure_image::p1473_tests::figure_domain_rejects_invalid_body_instead_of_empty_content ... ok
+test compiler::stdlib::figure_image::p1473_tests::figure_domain_rejects_invalid_caption_instead_of_type_text ... ok
+test compiler::stdlib::figure_image::p1473_tests::figure_domain_rejects_invalid_kind_and_non_element_functions ... ok
+test compiler::stdlib::figure_image::p1473_tests::figure_domain_valid_controls_keep_body_caption_and_explicit_name ... ok
+test compiler::stdlib::figure_image::p1473_tests::figure_symbol_body_and_caption_keep_effective_grapheme ... ok
+test compiler::stdlib::figure_image::p1473_tests::figure_symbol_kind_uses_function_cast_diagnostics ... ok
+test compiler::stdlib::figure_image::p1473_tests::figure_v16_constructor_last_supplement_and_numbering_origins_are_causal ... ok
+test compiler::stdlib::figure_image::p1473_tests::figure_v16_constructor_validates_supplement_before_numbering_and_excess ... ok
+test compiler::stdlib::figure_image::p1473_tests::p1473_figure_caption_constructs_body_only ... ok
+test compiler::stdlib::figure_image::p1473_tests::p1473_figure_caption_constructs_with_position_and_separator ... ok
+test compiler::stdlib::figure_image::p1473_tests::p1473_figure_caption_invalid_position ... ok
+test compiler::stdlib::figure_image::p1473_tests::p1473_figure_caption_missing_body ... ok
+test compiler::stdlib::figure_image::p1473_tests::p1473_figure_caption_position_wrong_type ... ok
+test compiler::stdlib::figure_image::p1473_tests::p1473_figure_caption_type_is_function ... ok
+test compiler::stdlib::figure_image::p1473_tests::p1473_figure_caption_wrong_type ... ok
+test compiler::stdlib::figure_image::p1473_tests::p1473_figure_parent_keeps_function_kind_and_direct_call ... ok
+test compiler::stdlib::figure_image::p1473_tests::p1473_native_figure_accepts_figure_caption_and_extracts_body ... ok
+test compiler::stdlib::registry::figure_image::tests::public_bindings_keep_their_kinds_and_names ... ok
+test compiler::stdlib::tests::figure_image::figure_auto_detect_image ... ok
+test compiler::stdlib::tests::figure_image::figure_auto_detect_image_dentro_de_sequence ... ok
+test compiler::stdlib::tests::figure_image::figure_auto_detect_raw ... ok
+test compiler::stdlib::tests::figure_image::figure_auto_detect_table ... ok
+test compiler::stdlib::tests::figure_image::figure_kind_auto_explicito_devolve_none ... ok
+test compiler::stdlib::tests::figure_image::figure_kind_explicit_override_auto_detect ... ok
+test compiler::stdlib::tests::figure_image::figure_kind_none_quando_body_nao_detectavel ... ok
+test compiler::stdlib::tests::figure_image::native_figure_caption_none_value ... ok
+test compiler::stdlib::tests::figure_image::native_figure_com_body_e_caption ... ok
+test compiler::stdlib::tests::figure_image::native_figure_sem_body_retorna_err ... ok
+test compiler::stdlib::tests::figure_image::native_figure_sem_caption ... ok
+test compiler::stdlib::tests::figure_image::native_image_ficheiro_inexistente_gera_erro ... ok
+test compiler::stdlib::tests::figure_image::native_image_formato_desconhecido_gera_erro ... ok
+test compiler::stdlib::tests::figure_image::native_image_jpeg_valido_sem_regressao ... ok
+test compiler::stdlib::tests::figure_image::native_image_pdf_gera_erro_nao_suportado ... ok
+test compiler::stdlib::tests::figure_image::native_image_rejeita_named_arg_invalido ... ok
+test compiler::stdlib::tests::figure_image::native_image_retorna_content_image ... ok
+test compiler::stdlib::tests::figure_image::native_image_svg_gera_erro_nao_suportado ... ok
+test compiler::stdlib::tests::figure_image::p835_image_page_positivo_aceito_sem_efeito ... ok
+test compiler::stdlib::tests::figure_image::p835_image_page_tipo_errado_erro_vanilla ... ok
+test compiler::stdlib::tests::figure_image::p835_image_page_zero_erro_vanilla ... ok
+test entities::content::tests::traversal::figure_v16_preorder_map_preserves_prepared_supplement_origin_and_presence ... ok
+test entities::element_payload::tests::figure_is_counted_distingue_payloads ... ok
+test entities::element_payload::tests::figure_kind_none_distinto_de_some ... ok
+test entities::element_payload::tests::labelled_figure_number_distingue_payloads ... ok
+test entities::elements::figure::figure_kind_contract_tests::figure_v16_format_and_engine_kind_identity_keep_nominal_abis ... ok
+test entities::elements::figure::figure_kind_contract_tests::figure_v16_kind_identity_distinguishes_homonyms_and_preserves_alias_hashes ... ok
+test entities::elements::figure::figure_kind_contract_tests::figure_v16_kind_synthetic_invalid_functions_remain_nominal_and_nonexecuting ... ok
+test entities::elements::figure::figure_kind_contract_tests::figure_v16_lexical_and_prepared_fields_preserve_presence_and_nominal_values ... ok
+test entities::elements::figure::figure_kind_contract_tests::figure_v16_maps_transform_one_supplement_and_preserve_lexical_origin ... ok
+test entities::elements::figure::figure_kind_contract_tests::figure_v16_no_caption_payload_keeps_automatic_count_eligibility ... ok
+test entities::elements::figure::tests::figure_caption_projection_retains_body_and_omits_unresolved_defaults ... ok
+test entities::elements::figure_caption::caption_shape_tests::caption_shape_getters_keep_only_explicit_fields ... ok
+test entities::elements::figure_caption::tests::eq_e_hash_discriminam_position ... ok
+test entities::elements::figure_caption::tests::map_content_preserva_position_e_recursa_em_body_e_separator ... ok
+test entities::elements::figure_caption::tests::map_text_transforma_body_e_separator_preserva_position ... ok
+test entities::elements::figure_caption::tests::plain_text_e_is_empty_delegam_ao_body ... ok
+test entities::elements::figure_caption::tests::position_e_separator_sao_preservados_por_valor ... ok
+test entities::elements::grid::tests::figure_v16_grid_maps_preserve_source_descriptors_without_revisiting_children ... ok
+test entities::introspector::tests::figure_number_at_index_apos_populate_devolve_some ... ok
+test entities::introspector::tests::figure_number_at_index_default_kind_image ... ok
+test entities::introspector::tests::figure_number_at_index_em_introspector_vazio_devolve_none ... ok
+test entities::introspector::tests::figure_number_at_index_idx_fora_de_range_devolve_none ... ok
+test entities::introspector::tests::figure_number_at_index_kinds_distintos_isolados ... ok
+test entities::layouter_runtime_state::p488_tests::p488_known_figure_page_numbers_injectado_e_lido ... ok
+test entities::layouter_runtime_state::p488_tests::p488_layouter_runtime_figure_page_numbers_default_vazio ... ok
+test entities::layouter_runtime_state::p488_tests::p488_record_figure_page_armazena_page_number ... ok
+
+failures:
+
+---- compiler::eval::observation::elements::figure_kind_capability_observation_tests::figure_v16_actual_raw_kind_clone_proves_complete_capability_reflexivity stdout ----
+
+thread 'compiler::eval::observation::elements::figure_kind_capability_observation_tests::figure_v16_actual_raw_kind_clone_proves_complete_capability_reflexivity' (2031952) panicked at 01_core/src/compiler/eval/observation/elements.rs:1534:9:
+assertion `left == right` failed
+  left: Unproven
+ right: Same
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::layout::figure::paragraph_boundary_tests::figure_blocks_keep_adjacent_bodies_and_following_text_in_separate_paragraphs stdout ----
+
+thread 'compiler::layout::figure::paragraph_boundary_tests::figure_blocks_keep_adjacent_bodies_and_following_text_in_separate_paragraphs' (2032008) panicked at 01_core/src/compiler/layout/figure.rs:350:9:
+each Figure is a block; actual emitted lines: [("ALPHA", 78.56614173228347), ("BETA", 78.56614173228347), ("TAIL", 78.56614173228347)]
+
+
+failures:
+    compiler::eval::observation::elements::figure_kind_capability_observation_tests::figure_v16_actual_raw_kind_clone_proves_complete_capability_reflexivity
+    compiler::layout::figure::paragraph_boundary_tests::figure_blocks_keep_adjacent_bodies_and_following_text_in_separate_paragraphs
+
+test result: FAILED. 178 passed; 2 failed; 0 ignored; 0 measured; 7506 filtered out; finished in 0.54s
+
+error: test failed, to rerun pass `-p typst-core --lib`

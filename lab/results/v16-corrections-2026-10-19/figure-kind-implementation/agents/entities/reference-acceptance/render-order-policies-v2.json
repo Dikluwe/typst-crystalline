@@ -1,0 +1,303 @@
+{
+  "utc": "2026-10-20T00:43:50.221126+00:00",
+  "status": "No oracle outputs changed; open gaps and refuted fixture remain explicit. Baseline comparison pending.",
+  "cases": {
+    "backward-explicit": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      },
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "forward-explicit": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      },
+      "render_text_whitespace_normalized": "INNER Inner 1: INNER-CAP 1 OUTER",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "backward-callback": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      },
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "two-raw-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 2,
+        "OUTER": 1,
+        "INNER-CAP": 2
+      },
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1 INNER Inner 2: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "caption-and-two-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 3,
+        "OUTER": 1,
+        "INNER-CAP": 3,
+        "OUTER-CAP": 1
+      },
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1: OUTER-CAP INNER Inner 2: INNER-CAP 1 INNER Inner 3: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "raw-context-two-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 2,
+        "OUTER": 1,
+        "INNER-CAP": 2
+      },
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1 INNER Inner 2: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "raw-context-caption-two-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 3,
+        "OUTER": 1,
+        "INNER-CAP": 3
+      },
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1: CAP INNER Inner 2: INNER-CAP 1 INNER Inner 3: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "prepared-alias-two-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1
+      },
+      "render_text_whitespace_normalized": "PREEXISTING OUTER PREEXISTING 1 PREEXISTING 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "show-reference-identity": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      },
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "show-reference-two-aliases": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 2,
+        "OUTER": 1,
+        "INNER-CAP": 2
+      },
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1 INNER Inner 2: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "show-reference-none": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1
+      },
+      "render_text_whitespace_normalized": "OUTER",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "show-reference-replaced": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1,
+        "REPLACED": 1
+      },
+      "render_text_whitespace_normalized": "OUTER REPLACED",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "hidden-reference-parent": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {},
+      "render_text_whitespace_normalized": "",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "own-hidden-outer": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "INNER-CAP": 1
+      },
+      "render_text_whitespace_normalized": "INNER Inner 1: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "no-reference-no-caption": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1
+      },
+      "render_text_whitespace_normalized": "OUTER",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "explicit-reference-override": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1,
+        "OVERRIDE": 1
+      },
+      "render_text_whitespace_normalized": "OUTER OVERRIDE 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "explicit-reference-none": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1
+      },
+      "render_text_whitespace_normalized": "OUTER 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "label-on-reference": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      },
+      "secondary_query": {
+        "selector": "<reference-probe>",
+        "field": "value",
+        "criterion": "exact [query cardinality, func()==ref] language values from fresh oracle measurement"
+      },
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "ordinary-heading": {
+      "class": "required-error",
+      "message": "cannot reference heading without numbering",
+      "origin": [
+        2,
+        0
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "page-reference": {
+      "class": "required-error",
+      "message": "cannot reference without page numbering",
+      "origin": [
+        2,
+        1
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "stable-missing-target": {
+      "class": "required-error",
+      "message": "label `<missing>` does not exist in the document",
+      "origin": [
+        1,
+        0
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "missing-rich-override": {
+      "class": "required-error",
+      "message": "label `<missing>` does not exist in the document",
+      "origin": [
+        1,
+        1
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "unnumbered-target": {
+      "class": "required-error",
+      "message": "cannot reference figure without numbering",
+      "origin": [
+        2,
+        0
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "duplicate-label-first": {
+      "class": "open-bilateral-gap",
+      "criterion": "Pinned oracle rejects duplicate labels; approved existing Tekt first-label behavior requires baseline proof, generic ambiguity remains an open bilateral gap."
+    },
+    "inner-panic-reference": {
+      "class": "required-error",
+      "message": "panicked with: REF_INNER",
+      "origin": [
+        1,
+        79
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "inner-panic-hidden-reference": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1
+      },
+      "render_text_whitespace_normalized": "OUTER",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "nested-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      },
+      "render_text_whitespace_normalized": "OUTER ROOT INNER Inner 1: INNER-CAP 12",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "self-reference-cycle": {
+      "class": "required-termination",
+      "message": "maximum show rule depth exceeded",
+      "origin": [
+        1,
+        39
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "bibliography-precedence": {
+      "class": "open-bilateral-gap",
+      "criterion": "Pinned oracle rejects document/bibliography collision; existing precedence behavior requires baseline proof, generic ambiguity remains an open bilateral gap."
+    },
+    "html-explicit-counter-reads": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality"
+    },
+    "context-language-pt-fr": {
+      "class": "refuted-fixture",
+      "criterion": "Single context snapshot does not change on local set; oracle en,en refutes this attempted p792 test. Preserved immutable; corrected separate source required."
+    }
+  },
+  "versioned_render_evidence": {
+    "utc": "2026-10-20T01:18:04.768228+00:00",
+    "base_policy_sha256": "c934cda2e07cb9411b4ec66c5e5c0e45189cc5579398ba6031f23907549a7088",
+    "oracle_receipt": "oracle/receipt.json",
+    "oracle_receipt_sha256": "cba1b85cc4de91e88a3bb9ce9aa1eb07a6fc1b41d97b1ee97f645384568c1e58",
+    "normalization": "Unicode whitespace runs collapse to one ASCII space; preserve all nonwhitespace characters, word/number order and exact occurrences.",
+    "pdf_render_cases": 20,
+    "limits": "HTML row does not gain PDF text certification; original policy classifications/gaps/errors and every immutable source/oracle receipt remain unchanged."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "utc": "2026-10-20T00:02:51.698746+00:00",
+  "mode": "evidence-only frozen-source review; no Cargo/source/L0 edits",
+  "hashes": {
+    "01_core/src/compiler/eval/observation/elements.rs": "fc130d55109bdeae35395ecb3bdfb550599ad5a60843028f1a47658190883922",
+    "01_core/src/entities/elements/figure.rs": "e22398506b5f693f5c90646b590b2bf6f5dc48048fbf27973c6d1c266fed1648",
+    "01_core/src/entities/elements/grid.rs": "6166498f4ddf861aa04ad2821e1582885ddb52d197d8493dd871576e952e953c",
+    "01_core/src/entities/element_payload.rs": "a0cbd19216bb6cab19d768205e00dcb98046d40b9bc8f9eca4662360f3ee9b35",
+    "01_core/src/entities/content/traversal.rs": "dbcd9e4004ba24b666f207856197b549c743a29e3bbea3651a3ef03b7f2a16fb",
+    "01_core/src/compiler/introspect/materialize_time.rs": "cbc9143b3499e1cf361af23e98f311ce10c16a6543c48499887073fedf4209de",
+    "01_core/src/compiler/realize/figure_kind.rs": "9f5f440cc35343468d6f3ac9ca73e38fb4f0f1607e5aa1d9578c2c67308630c3",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/ref-phase-proposal.md": "1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2"
+  },
+  "observation_proof": {
+    "conclusion": "Scoped stored-representation proof is valid without changing generic Func observer or strict query membership.",
+    "conditions": [
+      "FigureKind nominal identity still required.",
+      "Identical Func representation Arc fixes stored name, namespace and representation; it does not prove behavior upon execution.",
+      "Outer diagnostic span is outside the Arc and is compared explicitly.",
+      "Distinct representations retain generic proof, including independent opaque namespaces Unproven.",
+      "Changed namespace/name/constructor and changed span controls remain Different."
+    ]
+  },
+  "carrier_crosscheck": {
+    "conclusion": "Exact approved FigureKind/FigureSupplement/six Figure fields/GridChildOrder/source_order are retained. No seventh Figure field introduced.",
+    "verified": [
+      "Nominal kind Eq/Hash uses exact typed native/Format/engine/constructor Arc partitions.",
+      "Lexical omission/auto and prepared explicit-none remain distinct.",
+      "Maps and temporal reconstruction transform only selected resolved-or-lexical supplement and retain origin.",
+      "Grid descriptors and line vectors survive mapping/temporal reconstruction; semantic validation rejects malformed Some without fallback.",
+      "Payload retains resolved values and numbering-only eligibility; typed kind contributes exact convergence hash.",
+      "Semantic traversal preserves ordered fields, annotation presence, known-empty snapshots and explicit opaque boundaries."
+    ]
+  },
+  "ref_phase_proposal": {
+    "status": "Unratified; reviewed only, no implementation permitted.",
+    "public_contracts": "Three exact additive doc-hidden public signatures are explicit; L3 consumes classifier/accessor/map and owns no marker business decision.",
+    "consistency": "Phase ordering, template/original transport, no-layout callbacks, stable arena use, retained diagnostic ownership and strict observation are coherent.",
+    "clarification_required": "Specify recognized prepared Styled(Ref) must carry Some(selected Content), including known empty Content for None, or define precise no-child accessor/map semantics; current transform-exactly-once promise cannot hold for recognized Ref.supplement=None.",
+    "implementation_proof_obligation": "Fresh raw ContextBlock IDs must also yield stable contribution identity across retries via the existing arena/producer frame; globally fresh per-execution IDs alone do not establish stable repeated-use behavior. Acceptance already requires distinct stable locations/cycle termination."
+  }
+}

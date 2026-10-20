@@ -1,0 +1,254 @@
+{
+  "utc": "2026-10-20T00:43:50.221126+00:00",
+  "status": "No oracle outputs changed; open gaps and refuted fixture remain explicit. Baseline comparison pending.",
+  "cases": {
+    "backward-explicit": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      }
+    },
+    "forward-explicit": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      }
+    },
+    "backward-callback": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      }
+    },
+    "two-raw-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 2,
+        "OUTER": 1,
+        "INNER-CAP": 2
+      }
+    },
+    "caption-and-two-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 3,
+        "OUTER": 1,
+        "INNER-CAP": 3,
+        "OUTER-CAP": 1
+      }
+    },
+    "raw-context-two-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 2,
+        "OUTER": 1,
+        "INNER-CAP": 2
+      }
+    },
+    "raw-context-caption-two-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 3,
+        "OUTER": 1,
+        "INNER-CAP": 3
+      }
+    },
+    "prepared-alias-two-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1
+      }
+    },
+    "show-reference-identity": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      }
+    },
+    "show-reference-two-aliases": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 2,
+        "OUTER": 1,
+        "INNER-CAP": 2
+      }
+    },
+    "show-reference-none": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1
+      }
+    },
+    "show-reference-replaced": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1,
+        "REPLACED": 1
+      }
+    },
+    "hidden-reference-parent": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {}
+    },
+    "own-hidden-outer": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "INNER-CAP": 1
+      }
+    },
+    "no-reference-no-caption": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1
+      }
+    },
+    "explicit-reference-override": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1,
+        "OVERRIDE": 1
+      }
+    },
+    "explicit-reference-none": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1
+      }
+    },
+    "label-on-reference": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      },
+      "secondary_query": {
+        "selector": "<reference-probe>",
+        "field": "value",
+        "criterion": "exact [query cardinality, func()==ref] language values from fresh oracle measurement"
+      }
+    },
+    "ordinary-heading": {
+      "class": "required-error",
+      "message": "cannot reference heading without numbering",
+      "origin": [
+        2,
+        0
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "page-reference": {
+      "class": "required-error",
+      "message": "cannot reference without page numbering",
+      "origin": [
+        2,
+        1
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "stable-missing-target": {
+      "class": "required-error",
+      "message": "label `<missing>` does not exist in the document",
+      "origin": [
+        1,
+        0
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "missing-rich-override": {
+      "class": "required-error",
+      "message": "label `<missing>` does not exist in the document",
+      "origin": [
+        1,
+        1
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "unnumbered-target": {
+      "class": "required-error",
+      "message": "cannot reference figure without numbering",
+      "origin": [
+        2,
+        0
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "duplicate-label-first": {
+      "class": "open-bilateral-gap",
+      "criterion": "Pinned oracle rejects duplicate labels; approved existing Tekt first-label behavior requires baseline proof, generic ambiguity remains an open bilateral gap."
+    },
+    "inner-panic-reference": {
+      "class": "required-error",
+      "message": "panicked with: REF_INNER",
+      "origin": [
+        1,
+        79
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "inner-panic-hidden-reference": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "OUTER": 1
+      }
+    },
+    "nested-references": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+      "render_token_counts": {
+        "INNER": 1,
+        "OUTER": 1,
+        "INNER-CAP": 1
+      }
+    },
+    "self-reference-cycle": {
+      "class": "required-termination",
+      "message": "maximum show rule depth exceeded",
+      "origin": [
+        1,
+        39
+      ],
+      "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+    },
+    "bibliography-precedence": {
+      "class": "open-bilateral-gap",
+      "criterion": "Pinned oracle rejects document/bibliography collision; existing precedence behavior requires baseline proof, generic ambiguity remains an open bilateral gap."
+    },
+    "html-explicit-counter-reads": {
+      "class": "required-language",
+      "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality"
+    },
+    "context-language-pt-fr": {
+      "class": "refuted-fixture",
+      "criterion": "Single context snapshot does not change on local set; oracle en,en refutes this attempted p792 test. Preserved immutable; corrected separate source required."
+    }
+  }
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/context_occurrences.md
-//! @prompt-hash 133fa4cb
+//! @prompt-hash 5e12e958
 //! @layer L1
 //! @updated 2026-10-18
 
@@ -30,6 +30,9 @@ pub struct ContextOccurrenceFrame {
 pub(crate) struct OccurrenceSlots {
     locations: Vec<Location>,
     cursor: usize,
+    context_ids: Vec<u64>,
+    context_cursor: usize,
+    instantiate_contexts: bool,
 }
 
 impl ContextOccurrenceArena {
@@ -61,6 +64,7 @@ impl ContextOccurrenceArena {
     ) -> R {
         assert!(Arc::ptr_eq(&self.owner, &frame.owner), "frame belongs to another arena");
         frame.slots.cursor = 0;
+        frame.slots.context_cursor = 0;
         let previous_slots =
             ctx.context_occurrence_slots.replace(std::mem::take(&mut frame.slots));
         std::mem::swap(&mut self.locator, &mut ctx.realization_locator);
@@ -87,6 +91,48 @@ pub(super) fn next(ctx: &mut EvalContext) -> Location {
     };
     slots.cursor += 1;
     location
+}
+
+pub(super) fn next_context_id(ctx: &mut EvalContext) -> u64 {
+    let proposed = ctx.next_context_id;
+    let id = if let Some(slots) = ctx.context_occurrence_slots.as_mut() {
+        let id = if let Some(id) = slots.context_ids.get(slots.context_cursor) {
+            *id
+        } else {
+            slots.context_ids.push(proposed);
+            proposed
+        };
+        slots.context_cursor += 1;
+        id
+    } else {
+        proposed
+    };
+    ctx.next_context_id = ctx.next_context_id.max(id.saturating_add(1));
+    id
+}
+
+pub(super) fn instantiating_template(ctx: &EvalContext) -> bool {
+    ctx.context_occurrence_slots
+        .as_ref()
+        .is_some_and(|slots| slots.instantiate_contexts)
+}
+
+pub(super) fn with_template<R>(
+    ctx: &mut EvalContext,
+    operation: impl FnOnce(&mut EvalContext) -> R,
+) -> R {
+    let temporary = ctx.context_occurrence_slots.is_none();
+    let slots = ctx
+        .context_occurrence_slots
+        .get_or_insert_with(OccurrenceSlots::default);
+    let old = std::mem::replace(&mut slots.instantiate_contexts, true);
+    let result = operation(ctx);
+    if temporary {
+        ctx.context_occurrence_slots = None;
+    } else if let Some(slots) = ctx.context_occurrence_slots.as_mut() {
+        slots.instantiate_contexts = old;
+    }
+    result
 }
 
 #[cfg(test)]
@@ -173,5 +219,48 @@ mod tests {
                 .len(),
             3
         );
+    }
+    #[test]
+    fn figure_reference_template_context_ids_are_fresh_per_frame_and_stable_after_retry_growth(
+    ) {
+        let mut arena = ContextOccurrenceArena::new(&Content::Empty);
+        let mut first = arena.frame();
+        let mut second = arena.frame();
+        let mut ctx = EvalContext::new();
+        let original_id = next_context_id(&mut ctx);
+        let a = arena.evaluate(&mut first, &mut ctx, |ctx| {
+            with_template(ctx, |ctx| {
+                assert!(instantiating_template(ctx));
+                next_context_id(ctx)
+            })
+        });
+        let b = arena.evaluate(&mut second, &mut ctx, next_context_id);
+        assert_ne!(a, b);
+        assert_ne!(a, original_id);
+        let (again, extra) = arena.evaluate(&mut first, &mut ctx, |ctx| {
+            (next_context_id(ctx), next_context_id(ctx))
+        });
+        assert_eq!(again, a);
+        assert_ne!(extra, b);
+        let failed: Result<u64, u64> = arena.evaluate(&mut first, &mut ctx, |ctx| {
+            with_template(ctx, |ctx| Err(next_context_id(ctx)))
+        });
+        assert_eq!(failed.unwrap_err(), a);
+        assert!(!instantiating_template(&ctx));
+        assert_eq!(arena.evaluate(&mut first, &mut ctx, next_context_id), a);
+        assert!(ctx.next_context_id > extra.max(b));
+    }
+
+    #[test]
+    fn figure_reference_template_scope_preserves_parent_allocator_on_error() {
+        let mut ctx = EvalContext::new();
+        let before = ctx.realization_locator.checkpoint();
+        let result: Result<(), u64> = with_template(&mut ctx, |ctx| {
+            let id = next_context_id(ctx);
+            Err(id)
+        });
+        assert!(result.is_err());
+        assert!(ctx.context_occurrence_slots.is_none());
+        assert_eq!(ctx.realization_locator.checkpoint(), before);
     }
 }

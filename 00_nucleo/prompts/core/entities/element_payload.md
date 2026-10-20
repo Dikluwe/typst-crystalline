@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_payload`
-Hash do Código: 525513e9
+Hash do Código: aaa67a95
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/element_payload.rs`
@@ -109,3 +109,32 @@ Native promotion requires their extraction/locatability/walk/query/count/layout-
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/element_payload.md` preserves the original evidence and chronology.
+
+
+## Approved Figure/Grid occurrence amendment (2026-10-19)
+
+### Evidence before specification
+
+Baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` preserves the measured proposal in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, semantic partition, independent audit and counter receipts. The fixed oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Constructor string kind loses function identity; constructor inference precedes occurrence styles; separated Grid fields lose source order. Typed identity, lexical presence, field traversal and counter results are language semantics/morphology. The chosen Rust carriers are implementation mechanics. The owner explicitly approved the linked public fields, contracts, phases and compatibility changes on 2026-10-19 under ADR-0127; this amendment materializes that bounded decision.
+
+### Exclusive contract
+
+ElementPayload::Figure changes kind to Option<FigureKind> and adds supplement: Option<Option<Content>>. Preserve counter_update, is_counted, caption_text and every other payload variant. Kind/supplement carry resolved occurrence values; None is permitted only for documented synthetic unprepared data. is_counted is effective numbering present, independent of caption, superseding caption conjunction and string-kind fallback clauses. No productive `figure:<kind>` user-string alias substitutes for typed identity. Clone/equality/hash retain new fields; migrate fixtures to explicit Name versus actual Element intent.
+
+### Acceptance and limits
+
+Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+### Typed Figure identity in convergence hashing
+
+Integrated review at `element_payload.rs:277–284` observes the inherited Hash
+implementation formats Debug, while `entities/func.rs:392–395` deliberately
+prints every Func as `<function>`. Distinct Element(table)/Element(raw) kinds
+then have the same hash input even though their reflected Figure kind and typed
+counter keys differ. Figure payload hashing must additionally hash its typed
+FigureKind using that owner's exact nominal Hash implementation. Preserve all
+other payload fields and inherited hashing behavior. This is a bounded internal
+hash correction within the already approved typed payload contract; no global
+Content hash rewrite or equality change follows. A same-Location Figure-kind
+convergence RED must become GREEN, and equal pointer aliases must keep equal
+hashes. Hash remains probabilistic convergence evidence, never language equality.

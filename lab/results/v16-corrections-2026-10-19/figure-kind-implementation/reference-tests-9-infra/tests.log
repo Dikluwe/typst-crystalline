@@ -1,0 +1,39 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `test` profile [unoptimized] target(s) in 40.10s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 30 tests
+test export::html::document::figure_product_morphology::figure_html_captured_showrecipe_original_keeps_real_source_paragraphs ... ok
+test export::html::document::figure_product_morphology::figure_html_empty_product_keeps_boundary_and_nonfigure_product_stays_inline ... ok
+test export::html::document::figure_product_morphology::figure_html_show_products_keep_paragraphs_and_rich_inline_morphology ... ok
+test integration_tests::integration::p1018_counter_string_figure_nao_colide_com_selector_figure ... ok
+test integration_tests::integration::p204f_corpus_figure_ref_compila ... ok
+test integration_tests::integration::pipeline_figure_com_ref_gera_pdf ... ok
+test integration_tests::integration::pipeline_figure_sem_ref_nao_causa_panico ... ok
+test measurements::tests::p204g_counts_figure_number_for_label_invocado_3x ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_callback_sees_actual_body_morphology ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_empty_sequence_and_strong_empty_morphology ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_none_prunes_body_before_effects ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_original_root_preserves_actual_heading_membership ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_own_figure_replacement_has_no_artificial_block ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_preserves_original_location_reference_and_page ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_reached_context_and_nested_figure_are_indexed ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_html_explicit_filtered_read_keeps_actual_target ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_explicit_and_implicit_effects_in_one_candidate_sink ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_only_accepted_implicit_warning_generation ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_retains_same_warning_at_each_distinct_source_origin ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_pipeline_terminal_failed_demand_retains_prior_sourced_warning ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_reference_layout_diagnostics_keep_exact_lexical_source ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_reference_phase_callback_supplement_reaches_nested_preparation ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_reference_phase_cycles_are_bounded_and_finite_chain_compiles ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_reference_phase_explicit_supplement_reaches_nested_preparation ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_reference_phase_generic_grid_does_not_admit_dormant_template ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_reference_phase_html_does_not_execute_implicit_selected_children ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_reference_phase_transport_keeps_source_label_and_context_membership ... ok
+test pipeline::context_stabilization::ordered_blocks_tests::figure_context_caption_uses_actual_supplement_order_and_duplicate_policy ... ok
+test pipeline::context_stabilization::ordered_blocks_tests::figure_context_template_is_not_an_unrendered_producer_or_substitution ... ok
+test query_helpers::tests::p1285_query_elements_recupera_metadata_e_figure_na_ordem ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 1373 filtered out; finished in 0.53s
+

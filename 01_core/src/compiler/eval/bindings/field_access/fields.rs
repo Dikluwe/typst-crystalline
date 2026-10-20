@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md
-//! @prompt-hash 449b856f
+//! @prompt-hash 8d534ae8
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -152,6 +152,13 @@ pub(in crate::compiler::eval) fn eval_field_access_with_target(
     // um parâmetro de estilo, ler da StyleChain activa.
     if let Value::Func(ref f) = target {
         if f.name() == Some("text") {
+            if matches!(field, "size" | "lang") && !ctx.in_context {
+                return Err(vec![SourceDiagnostic::error(
+                    access.field().span(),
+                    "can only be used when context is known",
+                )
+                .with_hint("try wrapping this in a `context` expression")]);
+            }
             match field {
                 "size" => {
                     return Ok(Value::Length(crate::entities::layout_types::Length::pt(
@@ -984,6 +991,20 @@ mod builtin_module_identity_tests {
             source: Source::detached(text),
             library: Library::new(),
             book: FontBook::new(),
+        }
+    }
+
+    #[test]
+    fn figure_counter_context_none_rejects_contextual_text_fields() {
+        let world = world("");
+        for expression in ["text.size", "text.lang"] {
+            let (result, warnings) =
+                eval_expression_with_features(&world, expression, Features::empty());
+            let errors = result.expect_err(expression);
+            assert_eq!(errors.len(), 1);
+            assert_eq!(errors[0].message, "can only be used when context is known");
+            assert_eq!(errors[0].hints, ["try wrapping this in a `context` expression"]);
+            assert!(warnings.is_empty());
         }
     }
 

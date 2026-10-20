@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/figure` — `FigureElem`
-Hash do Código: 4c05df80
+Hash do Código: c8036146
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
@@ -70,3 +70,40 @@ identity. Reflection does not close FG1 or authorize synthesized fields.
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/figure.md` preserves the original evidence and chronology.
+
+
+## Approved Figure/Grid occurrence amendment (2026-10-19)
+
+### Evidence before specification
+
+Baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` preserves the measured proposal in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, semantic partition, independent audit and counter receipts. The fixed oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Constructor string kind loses function identity; constructor inference precedes occurrence styles; separated Grid fields lose source order. Typed identity, lexical presence, field traversal and counter results are language semantics/morphology. The chosen Rust carriers are implementation mechanics. The owner explicitly approved the linked public fields, contracts, phases and compatibility changes on 2026-10-19 under ADR-0127; this amendment materializes that bounded decision.
+
+### Exclusive contract
+
+The approved public declarations are:
+```rust
+#[derive(Debug, Clone)]
+pub enum FigureKind { Element(crate::entities::func::Func), Name(ecow::EcoString) }
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub enum FigureSupplement {
+    Auto, None, Content(crate::entities::content::Content),
+    Func { function: crate::entities::func::Func, span: crate::entities::span::Span },
+}
+pub struct FigureElem {
+    pub body: Content,
+    pub caption: Option<Content>,
+    pub kind: Option<Option<FigureKind>>,
+    pub resolved_kind: Option<FigureKind>,
+    pub supplement: Option<FigureSupplement>,
+    pub resolved_supplement: Option<Option<Content>>,
+}
+```
+FigureKind has manual PartialEq/Eq/Hash: Element and Name remain nominally distinct. Native uses typed native call pointer identity; Format uses its FormatElementKind and typed pointer; NativeWithEngine uses its distinct typed ABI pointer. Dynamic Element uses constructor Arc identity. Synthetic invalid Closure/Plugin/With inputs retain their representation and Arc identity, are never executed for identity, and remain invalid language kind arguments. No name/Debug/hash/pointer-ordering fallback is semantic identity; global Func equality is unchanged.
+
+Outer kind None means omission, Some(None) explicit auto, Some(Some(k)) explicit kind. Resolved fields belong to one prepared occurrence; resolved supplement Some(None) means prepared explicit-none. No numbering field is restored. Preserve plain_text/is_empty and existing body/caption reflection. Project known typed lexical or resolved kind and supplement, but omitted raw fields remain unknown. Kind Element projects Value::Func, Name projects Value::Str; explicit auto projects Value::Auto. Supplement Auto/None/Content/Func projects its exact lexical value, while prepared supplement projects its resolved Content/None. Caption omission versus explicit-none and caption synthesis remain incomplete.
+
+Both maps recurse body, caption, and one selected supplement Content in that order. When resolved_supplement is Some, map only its Content, keeping lexical supplement immutable as origin; otherwise map lexical FigureSupplement::Content. Preserve every presence bit, function/span, resolved kind, and alias metadata; never execute functions or transform lexical/resolved aliases twice. Structural identity includes all six fields. to_payload carries resolved kind (lexical explicit kind only for synthetic unprepared input), resolved supplement, CounterUpdate::step and initial is_counted=true. Effective numbering alone gates counting in the specialized consumer, independent of caption. These clauses supersede old three-field/Option<String>/constructor-inference/caption-count clauses only.
+
+### Acceptance and limits
+
+Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.

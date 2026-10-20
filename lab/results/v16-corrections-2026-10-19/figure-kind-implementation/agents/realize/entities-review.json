@@ -1,0 +1,47 @@
+{
+  "utc": "2026-10-19T23:27:56.819138+00:00",
+  "baseline": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "mode": "read-only source review; no Cargo and no A-file edits",
+  "input_sha256": {
+    "01_core/src/entities/elements/figure.rs": "e22398506b5f693f5c90646b590b2bf6f5dc48048fbf27973c6d1c266fed1648",
+    "01_core/src/entities/elements/grid.rs": "6166498f4ddf861aa04ad2821e1582885ddb52d197d8493dd871576e952e953c",
+    "01_core/src/entities/content/traversal.rs": "dbcd9e4004ba24b666f207856197b549c743a29e3bbea3651a3ef03b7f2a16fb",
+    "01_core/src/entities/content/construction.rs": "028f2c2ead9cb2d0ac4b2d14b7d1109e2909ad60c9e6a5cc77673451d8cee956",
+    "01_core/src/entities/element_payload.rs": "bde26c1812e75ce97845fad3988b3c6d2b9cf34c3ea2c993f15a198b855a9e8a",
+    "01_core/src/compiler/eval/observation/elements.rs": "bde28fc6a7d6ffc788b5d1894ed65f895b6ae0d856a6c690b1ea08528451c7de",
+    "01_core/src/compiler/stdlib/figure_image.rs": "a19a9300cbe4c7bc90fc71cd0f5de4399e8ed1829c6b10d39ca4b5a81a15b165",
+    "01_core/src/compiler/stdlib/layout/grid.rs": "66808f42cdc0ce5bfabda77f005cd5d3379104dc7c4c872f7cb974cd2a054375",
+    "01_core/src/compiler/introspect/materialize_time.rs": "0f53c44b6d2129187c58782796fd8274e9e337b4eef3a678827e3ddd31d10e4d",
+    "02_shell/src/cli.rs": "176eb3a8be599bea4062ad3aa292a5ff668ea8f28959785d672e4689fa73d397",
+    "01_core/src/entities/func.rs": "6ad351d724f603ed5bfa363526ee6e2eb0d4a8810e9cd8cfe49e166c67dd0536"
+  },
+  "findings": [
+    {
+      "file": "01_core/src/compiler/introspect/materialize_time.rs",
+      "line": 292,
+      "status": "sent to owner for correction",
+      "issue": "Grid temporal reconstruction clears hlines/vlines while copying source_order, invalidating HLine/VLine descriptors. Preserve line vectors and test descriptor validity after temporal reconstruction."
+    }
+  ],
+  "refuted_hypotheses": [
+    {
+      "issue": "Content Figure alias Eq/Hash mismatch via Func names in Debug",
+      "refutation": "entities/func.rs392\u2013395 Debug prints literal <function>; aliases therefore have identical Debug/hash. Collisions for unequal functions are allowed. No hashing/Debug change justified."
+    }
+  ],
+  "verified": [
+    "FigureKind Eq/Hash uses exact approved native/Format/engine pointer and Element constructor Arc partitions; nominal Name versus Element preserved.",
+    "FigureSupplement and FigureElem fields match approved public declarations.",
+    "Prepared maps transform only selected resolved supplement, preserving lexical origin; unprepared maps transform lexical Content supplement, body/caption order unchanged.",
+    "Native constructor preserves omitted/auto/explicit kind, exact Type/Symbol diagnostic behavior and body/caption/kind/supplement/numbering/excess ordering.",
+    "Grid constructor records accepted positional order before extraction and retains Source-wrapped header/footer content.",
+    "Grid maps preserve source_order while transforming current actual children once in historical map order.",
+    "Figure getters prioritize resolved occurrence values and preserve raw omission/auto/explicit supplement none.",
+    "ObservationEq includes every new field; exact kind relation is combined with conservative function observation.",
+    "CLI reads L1 kind/supplement getters and removes name-based auto inference; unrelated preexisting defaults remain explicit debt."
+  ],
+  "limits": [
+    "Review is source-based; root owns compiled test, frozen replay, structural mutation and lint evidence.",
+    "The unchanged Grid temporal arm defect only becomes a new invariant violation when source_order contains line descriptors."
+  ]
+}

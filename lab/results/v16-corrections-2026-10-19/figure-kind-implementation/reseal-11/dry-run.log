@@ -1,0 +1,2 @@
+Would fix ./01_core/src/compiler/eval/tests.rs prompt=00_nucleo/prompts/core/compiler/eval/tests.md old=1e23c1aa hash-a=0f4305c4 hash-b=bf067b09
+Would fix ./03_infra/src/integration_tests.rs prompt=00_nucleo/prompts/infra/integration_tests.md old=556862a9 hash-a=b47b21f7 hash-b=ddd4bcd5

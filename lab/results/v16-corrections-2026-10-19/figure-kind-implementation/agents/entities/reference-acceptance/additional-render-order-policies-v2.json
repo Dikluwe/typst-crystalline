@@ -1,0 +1,37 @@
+{
+  "cases": {
+    "ordinary-heading-numbered": {
+      "class": "required-language",
+      "criterion": "exact language query values and actual successful source assertions",
+      "render_text_whitespace_normalized": "1. HEADING Section 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "page-reference-numbered": {
+      "class": "required-language",
+      "criterion": "exact language query values and actual successful source assertions",
+      "render_text_whitespace_normalized": "OUTER page 1 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "context-language-pt-fr-captured-sites": {
+      "class": "required-language",
+      "criterion": "exact language query values and actual successful source assertions",
+      "render_text_whitespace_normalized": "PT FR",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "label-on-reference-morphology": {
+      "class": "required-language",
+      "criterion": "exact language query values and actual successful source assertions",
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    }
+  },
+  "versioned_render_evidence": {
+    "utc": "2026-10-20T01:18:04.768881+00:00",
+    "base_policy_sha256": "cf2a7f1a9d17fb2fc2cd422660af773d5b63626871a94264ac4a6d8a21529382",
+    "oracle_receipt": "additional-oracle/receipt.json",
+    "oracle_receipt_sha256": "d428806c3a6d5bab6a1fed3e340fb002dba4c3fd325ebc78b90905f1e2c26edd",
+    "normalization": "Unicode whitespace runs collapse to one ASCII space; preserve all nonwhitespace characters, word/number order and exact occurrences.",
+    "pdf_render_cases": 4,
+    "limits": "HTML row does not gain PDF text certification; original policy classifications/gaps/errors and every immutable source/oracle receipt remain unchanged."
+  }
+}

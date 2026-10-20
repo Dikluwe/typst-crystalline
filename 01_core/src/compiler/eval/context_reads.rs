@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/context_reads.md
-//! @prompt-hash 27728bba
+//! @prompt-hash 26931f3f
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -62,6 +62,9 @@ pub(crate) enum ContextReadRequest {
     },
     Query {
         selector: crate::entities::selector::Selector,
+    },
+    ReferenceTargetEligibility {
+        label: crate::entities::label::Label,
     },
     Locate {
         selector: crate::entities::selector::Selector,
@@ -143,6 +146,81 @@ impl ContextReads {
             reads: Vec::new(),
         }
     }
+}
+
+// A private proof only for the generated producer's exact eligibility payload.
+// Generic Func/Counter observation deliberately remains unchanged.
+fn reference_eligibility_relation(
+    left: &SourceResult<Value>,
+    right: &SourceResult<Value>,
+) -> ObservationRelation {
+    fn figure_kind(
+        value: &Value,
+    ) -> Option<(
+        crate::entities::elements::figure::FigureKind,
+        &crate::entities::func::Func,
+    )> {
+        let Value::Counter(counter) = value else {
+            return None;
+        };
+        let crate::entities::counter::CounterKey::Selector(
+            crate::entities::selector::Selector::Element { function, fields },
+        ) = &counter.key
+        else {
+            return None;
+        };
+        let crate::entities::func::FuncRepr::Native(native) = function.repr() else {
+            return None;
+        };
+        let expected: fn(
+            &mut EvalContext,
+            &crate::entities::args::Args,
+            &dyn World,
+            FileId,
+        ) -> SourceResult<Value> = crate::compiler::stdlib::native_figure;
+        if !std::ptr::fn_addr_eq(native.call, expected)
+            || fields.len() != 1
+            || fields[0].0 != "kind"
+        {
+            return None;
+        }
+        let kind = crate::compiler::realize::figure_kind::kind_from_value(
+            &fields[0].1,
+            Span::detached(),
+        )
+        .ok()
+        .flatten()?;
+        Some((kind, function))
+    }
+    if let (Ok(Value::Array(a)), Ok(Value::Array(b))) = (left, right) {
+        if let ([al, ak, ab], [bl, bk, bb]) = (a.as_slice(), b.as_slice()) {
+            let exact_slots = matches!(al, Value::None | Value::Location(_))
+                && matches!(bl, Value::None | Value::Location(_))
+                && matches!(ab, Value::Bool(_))
+                && matches!(bb, Value::Bool(_));
+            if exact_slots {
+                if let (Some((ak, af)), Some((bk, bf))) =
+                    (figure_kind(ak), figure_kind(bk))
+                {
+                    let comparisons = [
+                        al.observation_relation(bl),
+                        ab.observation_relation(bb),
+                        ak.observation_relation(&bk),
+                        af.observation_relation(bf),
+                        af.diagnostic_span().observation_relation(&bf.diagnostic_span()),
+                    ];
+                    if comparisons.contains(&ObservationRelation::Different) {
+                        return ObservationRelation::Different;
+                    }
+                    if comparisons.contains(&ObservationRelation::Unproven) {
+                        return ObservationRelation::Unproven;
+                    }
+                    return ObservationRelation::Same;
+                }
+            }
+        }
+    }
+    left.observation_relation(right)
 }
 
 impl EvalContext {
@@ -305,6 +383,11 @@ impl EvalContext {
                     read.span,
                 )
             }
+            ReferenceTargetEligibility { label } => {
+                crate::compiler::realize::reference_supplements::observe_target_eligibility(
+                    &ctx, label, read.span,
+                )
+            }
             Query { selector } | Locate { selector } => {
                 let mut args = crate::entities::args::Args::positional(Vec::new());
                 args.span = read.span;
@@ -381,7 +464,15 @@ impl EvalContext {
         let mut valid = true;
         for read in &reads {
             let result = self.replay_context_read(read, candidate, engine);
-            if read.result.observation_relation(&result) != ObservationRelation::Same {
+            let relation = if matches!(
+                &read.request,
+                ContextReadRequest::ReferenceTargetEligibility { .. }
+            ) {
+                reference_eligibility_relation(&read.result, &result)
+            } else {
+                read.result.observation_relation(&result)
+            };
+            if relation != ObservationRelation::Same {
                 valid = false;
                 break;
             }
@@ -437,6 +528,7 @@ impl EvalContext {
                 | ContextReadRequest::StateResolveLabel { .. }
                 | ContextReadRequest::StateLegacyAt { .. }
                 | ContextReadRequest::StateLegacyFinal { .. }
+                | ContextReadRequest::ReferenceTargetEligibility { .. }
                 | ContextReadRequest::Query { .. }
                 | ContextReadRequest::Locate { .. }
                 | ContextReadRequest::Here
@@ -497,6 +589,198 @@ mod smoke {
 #[cfg(test)]
 mod storage_budget_tests {
     use super::*;
+
+    fn eligibility_key(
+        kind: crate::entities::func::Func,
+        function: crate::entities::func::Func,
+    ) -> SourceResult<Value> {
+        use crate::entities::{
+            counter::{Counter, CounterKey},
+            selector::Selector,
+        };
+        Ok(Value::Array(vec![
+            Value::None,
+            Value::Counter(Counter {
+                key: CounterKey::Selector(Selector::Element {
+                    function,
+                    fields: vec![("kind".into(), Value::Func(kind))].into(),
+                }),
+            }),
+            Value::Bool(false),
+        ]))
+    }
+
+    fn eligibility_span() -> Span {
+        Span::from_range(FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()), 9..12)
+    }
+
+    #[test]
+    fn figure_reference_eligibility_retains_kind_diagnostic_origin() {
+        use crate::entities::func::Func;
+        let kind = Func::element("raw.line", Arc::new(|_| Ok(Content::Empty)));
+        let changed = kind.clone().with_diagnostic_span(eligibility_span());
+        let function = Func::native("figure", crate::compiler::stdlib::native_figure);
+        let original = eligibility_key(kind, function.clone());
+        let changed = eligibility_key(changed, function);
+        assert_eq!(
+            reference_eligibility_relation(&original, &changed),
+            ObservationRelation::Different
+        );
+    }
+
+    #[test]
+    fn figure_reference_eligibility_retains_native_kind_name_and_namespace() {
+        use crate::entities::func::Func;
+        let kind = Func::native("raw", crate::compiler::stdlib::native_raw);
+        let function = Func::native("figure", crate::compiler::stdlib::native_figure);
+        let original = eligibility_key(kind, function.clone());
+        let renamed = eligibility_key(
+            Func::native("alias", crate::compiler::stdlib::native_raw),
+            function.clone(),
+        );
+        assert_eq!(
+            reference_eligibility_relation(&original, &renamed),
+            ObservationRelation::Different
+        );
+        let namespaced = eligibility_key(
+            Func::native_with_namespace(
+                "raw",
+                crate::compiler::stdlib::native_raw,
+                Arc::new(crate::entities::scope::Scope::new()),
+            ),
+            function,
+        );
+        assert_eq!(
+            reference_eligibility_relation(&original, &namespaced),
+            ObservationRelation::Different
+        );
+    }
+
+    #[test]
+    fn figure_reference_eligibility_retains_selector_function_metadata() {
+        use crate::entities::func::Func;
+        let kind = Func::element("raw.line", Arc::new(|_| Ok(Content::Empty)));
+        let function = Func::native("figure", crate::compiler::stdlib::native_figure);
+        let original = eligibility_key(kind.clone(), function.clone());
+        let changed = [
+            Func::native("alias", crate::compiler::stdlib::native_figure),
+            Func::native_with_namespace(
+                "figure",
+                crate::compiler::stdlib::native_figure,
+                Arc::new(crate::entities::scope::Scope::new()),
+            ),
+            function.with_diagnostic_span(eligibility_span()),
+        ];
+        for function in changed {
+            assert_eq!(
+                reference_eligibility_relation(
+                    &original,
+                    &eligibility_key(kind.clone(), function)
+                ),
+                ObservationRelation::Different
+            );
+        }
+    }
+
+    #[test]
+    fn figure_reference_eligibility_rejects_malformed_projection_slot_proofs() {
+        use crate::entities::func::Func;
+        let kind = Func::element("raw.line", Arc::new(|_| Ok(Content::Empty)));
+        let original = eligibility_key(
+            kind,
+            Func::native("figure", crate::compiler::stdlib::native_figure),
+        );
+        let Ok(Value::Array(fields)) = original else { unreachable!() };
+        for malformed in [
+            vec![Value::Int(0), fields[1].clone(), fields[2].clone()],
+            vec![fields[0].clone(), fields[1].clone(), Value::Int(0)],
+        ] {
+            let malformed = Ok(Value::Array(malformed));
+            assert_eq!(
+                malformed.observation_relation(&malformed),
+                ObservationRelation::Unproven
+            );
+            assert_eq!(
+                reference_eligibility_relation(&malformed, &malformed),
+                ObservationRelation::Unproven
+            );
+        }
+    }
+
+    #[test]
+    fn figure_reference_eligibility_proves_only_exact_typed_kind_keys() {
+        use crate::entities::{
+            counter::{Counter, CounterKey},
+            elements::figure::FigureKind,
+            func::Func,
+            selector::Selector,
+        };
+        fn projection(key: Value) -> SourceResult<Value> {
+            Ok(Value::Array(vec![Value::None, key, Value::Bool(false)]))
+        }
+        let kind = Func::element("raw.line", Arc::new(|_| Ok(Content::Empty)));
+        let key = Value::Counter(Counter {
+            key: crate::compiler::introspect::figure_counters::figure_counter_key(
+                &FigureKind::Element(kind.clone()),
+            ),
+        });
+        let a = projection(key.clone());
+        assert_eq!(a.observation_relation(&a), ObservationRelation::Unproven);
+        assert_eq!(
+            reference_eligibility_relation(&a, &projection(key.clone())),
+            ObservationRelation::Same
+        );
+        let homonym = Func::element("raw.line", Arc::new(|_| Ok(Content::Empty)));
+        let different = projection(Value::Counter(Counter {
+            key: crate::compiler::introspect::figure_counters::figure_counter_key(
+                &FigureKind::Element(homonym),
+            ),
+        }));
+        assert_eq!(
+            reference_eligibility_relation(&a, &different),
+            ObservationRelation::Different
+        );
+        let none = projection(Value::None);
+        assert_eq!(
+            reference_eligibility_relation(&a, &none),
+            ObservationRelation::Different
+        );
+        assert_eq!(
+            reference_eligibility_relation(&none, &a),
+            ObservationRelation::Different
+        );
+        let changed_bib =
+            Ok(Value::Array(vec![Value::None, key.clone(), Value::Bool(true)]));
+        assert_eq!(
+            reference_eligibility_relation(&a, &changed_bib),
+            ObservationRelation::Different
+        );
+        let mut locator = crate::entities::locator::Locator::new();
+        let changed_location = Ok(Value::Array(vec![
+            Value::Location(locator.next()),
+            key.clone(),
+            Value::Bool(false),
+        ]));
+        assert_eq!(
+            reference_eligibility_relation(&a, &changed_location),
+            ObservationRelation::Different
+        );
+        let opaque = projection(Value::Counter(Counter {
+            key: CounterKey::Selector(Selector::Element {
+                function: kind,
+                fields: vec![("kind".into(), Value::Str("raw".into()))].into(),
+            }),
+        }));
+        assert_eq!(
+            reference_eligibility_relation(&opaque, &opaque),
+            ObservationRelation::Unproven
+        );
+        let malformed = Ok(Value::Array(vec![key]));
+        assert_eq!(
+            reference_eligibility_relation(&malformed, &malformed),
+            ObservationRelation::Unproven
+        );
+    }
 
     #[test]
     fn context_read_request_fits_common_value_budget() {

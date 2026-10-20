@@ -1,0 +1,21 @@
+{
+  "status": "Separate isolated show source-origin controls, label selector avoids unrestricted ref reapplication; all prior frozen matrices unchanged.",
+  "cases": [
+    {
+      "name": "show-origin-new-label-selected",
+      "source": "#show <trigger>: it => {\n  ref(<newmissing>)\n}\n\n@oldmissing <trigger>\n",
+      "goal": "label-selected show constructs fresh Ref once; source must be its own constructor",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "show-origin-other-label-selected",
+      "source": "#let other = ref(<aliasmissing>)\n#show <trigger>: it => {\n  other\n}\n\n@oldmissing <trigger>\n",
+      "goal": "label-selected show returns prior distinct Ref; origin must be prior constructor",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    }
+  ]
+}

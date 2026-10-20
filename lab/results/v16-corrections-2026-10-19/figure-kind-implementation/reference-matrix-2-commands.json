@@ -1,0 +1,41 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/run_product.py",
+        "--product",
+        "lab/target/product/debug/typst",
+        "--build-receipt",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-build-2/receipt.json",
+        "--out",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main"
+      ],
+      "utc_start": "2026-10-20T00:59:05.996030+00:00",
+      "utc_end": "2026-10-20T00:59:37.884474+00:00",
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/run_product.py",
+        "--product",
+        "lab/target/product/debug/typst",
+        "--build-receipt",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-build-2/receipt.json",
+        "--out",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-additional",
+        "--matrix",
+        "additional-matrix.json",
+        "--oracle-receipt",
+        "additional-oracle/receipt.json",
+        "--policies",
+        "additional-policies.json"
+      ],
+      "utc_start": "2026-10-20T00:59:37.884569+00:00",
+      "utc_end": "2026-10-20T00:59:42.672449+00:00",
+      "exit": 0
+    }
+  ],
+  "changed_inputs": []
+}

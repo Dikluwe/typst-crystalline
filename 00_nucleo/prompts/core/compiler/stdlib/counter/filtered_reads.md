@@ -1,5 +1,5 @@
 # L0 — Filtered counter reads and replay
-Hash do Código: 7691b231
+Hash do Código: c210c7a2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
@@ -78,3 +78,74 @@ the existing causal fallback without mixing partial input and another generation
 total. CounterAt/CounterFinal/CounterTotal replay uses that same resolution,
 including errors and empty state. Other keys remain unchanged. The older logical
 PageStore view cannot repair absent snapshots by inferring the final PDF.
+
+
+## Modern final requires a contextual Location
+
+### Measurement before decision
+
+Pinned `lab/typst-original/crates/typst-library/src/introspection/counter.rs:471–478`
+requires `context.location()` before `CounterFinalIntrospection`. In contrast,
+`lab/typst-original/crates/typst-library/src/foundations/context.rs:38–49`
+distinguishes location access from generic introspection: known styles alone
+satisfy the latter, but do not provide the former. This is an observable language
+capability boundary, not a requirement to copy upstream implementation mechanics.
+
+The source-bound current-pin oracle and product measurements are preserved in
+`lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-capability-oracle/receipt.json`
+and
+`lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-capability-product-source14/receipt.json`.
+The product's math callback has known styles and no Location; modern
+`counter("x").final()` nevertheless succeeds with a default zero after an inserted
+update7, while vanilla rejects unknown context. Source
+`01_core/src/compiler/stdlib/counter/filtered_reads.rs:194–225` delegates
+unfiltered keys before checking context and checks only in_context for filtered
+keys. The public materialized helper then falls back to zero in the absence of
+an actual final snapshot. That fallback cannot establish language permission to
+read a document at an unavailable contextual Location. Exact pre-repair source,
+owner bytes, hashes, HEAD and dirty-file provenance are preserved in
+`lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/counter-final-capability/before.json`.
+
+### Owning private correction
+
+Within `counter_final_owned` only, classify the key once, mark filtered demand if
+and only if the key is filtered, then require both in_context and an actual
+current_location. If either is absent, return one Error at the actual call span
+with `can only be used when context is known`, followed in order by the measured
+hints ``try wrapping this in a `context` expression`` and
+``the `context` expression should wrap everything that depends on this function``.
+Do not synthesize a trace at this private read boundary. The same pinned
+counter-final oracle receipt preserves the exact message, source range and both
+hints. Marking remains before this error, preserving existing demand-selection
+and causal ordering. Do not resolve
+or execute a fold, callback or update on a rejected read. After this guard,
+unfiltered keys delegate to the existing public materialized helper; filtered
+keys use the existing complete history and final projection. Bound and static
+modern language calls share this owned path, including replay with its recorded
+context and Location.
+
+The public Rust no-Engine `counter_final` signature, materialized behavior and
+fallback remain unchanged. Keep legacy string-native routes unchanged. Do not
+change get/at/query/state/display guards, construct a Location, install a snapshot,
+force zero, broaden any public contract, add a context capability field, or add a
+phase. This bounded correction follows ADR-0127 continuous language-parity flow;
+the pinned page-counter-snapshot and realization-order Nuclei remain unchanged.
+Known styles alone remain sufficient for the separately specified style reads;
+this clause does not decide other introspection capabilities.
+
+### Acceptance
+
+Require an actual focused functional RED before implementation and GREEN after
+it. Preserve the source-bound math counter-final rejection independently of
+known-style text.size acceptance and here/get rejection without Location. Test
+modern Str, Page and native Element keys with known context but no Location,
+including populated materialized snapshots: all reject with that single sourced
+Error, ordered pair of hints and no fabricated trace.
+A filtered key with an available Func update must reject before executing that
+Func; demand selection is still marked. Both bound and static calls retain the
+same capability boundary. A real located context returns its correct final value;
+noncontext execution remains rejected even with an assigned Location. Preserve
+an explicit public no-Engine materialized-helper success control. Existing Page
+snapshot, causal order, replay, never-touched contextual zero, diagnostics and
+full counter acceptance remain required. Do not weaken tests, suppress alerts or
+claim complete query/at/state/math parity from this correction.

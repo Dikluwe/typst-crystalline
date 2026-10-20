@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/measurement.md
-//! @prompt-hash 519d275c
+//! @prompt-hash 46031639
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -313,7 +313,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 if e.caption.is_none() {
                     self.measure_content_constrained(&e.body, max_width)
                 } else {
-                    // Caption prefixes and numbering depend on emitting progress.
+                    // Caption prefixes require a prepared Location snapshot; synthetic data uses compatibility progress.
                     (0.0, 0.0)
                 }
             }
@@ -913,6 +913,9 @@ mod v16_d_tests {
                 body: shape(),
                 caption: None,
                 kind: None,
+                resolved_kind: None,
+                supplement: None,
+                resolved_supplement: None,
             })),
             math,
         ] {

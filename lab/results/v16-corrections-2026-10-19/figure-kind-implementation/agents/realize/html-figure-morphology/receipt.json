@@ -1,0 +1,392 @@
+{
+  "utc_start": "2026-10-20T00:09:07.477996+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "state": "uncommitted working tree",
+  "diffstat": " .../core/compiler/eval/bindings/field_access.md    |  15 +\n .../eval/bindings/field_access/content_methods.md  |  15 +\n .../compiler/eval/bindings/field_access/fields.md  |  19 +\n 00_nucleo/prompts/core/compiler/eval/mod.md        |  21 +\n .../core/compiler/eval/observation/elements.md     |  45 +\n .../core/compiler/eval/operators/equality.md       |  15 +\n .../prompts/core/compiler/eval/rules/apply.md      |  36 +\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  17 +\n .../core/compiler/eval/selector_matching.md        |  17 +\n 00_nucleo/prompts/core/compiler/eval/tests.md      |  24 +\n 00_nucleo/prompts/core/compiler/introspect.md      |  20 +\n .../core/compiler/introspect/convergence.md        |  24 +\n .../core/compiler/introspect/entrypoints.md        |  15 +\n .../core/compiler/introspect/extract_payload.md    |  15 +\n .../prompts/core/compiler/introspect/fixpoint.md   |  15 +\n .../prompts/core/compiler/introspect/labelled.md   |  15 +\n .../prompts/core/compiler/introspect/locatable.md  |  15 +\n .../core/compiler/introspect/materialize_time.md   |  26 +\n .../prompts/core/compiler/introspect/populate.md   |  20 +\n .../prompts/core/compiler/introspect/queries.md    |  15 +\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  37 +\n .../prompts/core/compiler/layout/checkpoint.md     |  17 +\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  27 +\n .../prompts/core/compiler/layout/measurement.md    |  15 +\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  23 +\n .../prompts/core/compiler/layout/placement.md      |  15 +\n .../prompts/core/compiler/layout/references.md     |  20 +\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  26 +\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  15 +\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  25 +\n .../prompts/core/compiler/stdlib/figure_image.md   |  17 +\n .../prompts/core/compiler/stdlib/layout/grid.md    |  15 +\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  15 +\n .../core/compiler/stdlib/tests/figure_image.md     |  14 +\n .../prompts/core/entities/content/construction.md  |  15 +\n .../core/entities/content/tests/representation.md  |  15 +\n .../core/entities/content/tests/traversal.md       |  15 +\n .../prompts/core/entities/content/traversal.md     |  15 +\n 00_nucleo/prompts/core/entities/element_payload.md |  29 +\n 00_nucleo/prompts/core/entities/elements/figure.md |  37 +\n 00_nucleo/prompts/core/entities/elements/grid.md   |  20 +\n 00_nucleo/prompts/core/entities/introspector.md    |  22 +\n 00_nucleo/prompts/infra/export/tests/mod.md        |  15 +\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  15 +\n .../infra/pipeline/context_stabilization.md        |  15 +\n 00_nucleo/prompts/shell/cli.md                     |  15 +\n 01_core/src/compiler/eval/bindings/field_access.rs |  43 +\n .../eval/bindings/field_access/content_methods.rs  |  26 +-\n .../compiler/eval/bindings/field_access/fields.rs  |  21 +\n 01_core/src/compiler/eval/mod.rs                   |   1 +\n 01_core/src/compiler/eval/observation/elements.rs  | 228 ++++-\n 01_core/src/compiler/eval/operators/equality.rs    | 126 ++-\n 01_core/src/compiler/eval/rules/apply.rs           | 182 ++--\n 01_core/src/compiler/eval/rules/set.rs             |  57 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 122 ++-\n 01_core/src/compiler/eval/tests.rs                 |  56 ++\n 01_core/src/compiler/introspect.rs                 | 960 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  81 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  38 +\n 01_core/src/compiler/introspect/extract_payload.rs |   7 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  30 +\n 01_core/src/compiler/introspect/labelled.rs        |  20 +-\n .../src/compiler/introspect/materialize_time.rs    |  88 +-\n 01_core/src/compiler/introspect/populate.rs        |  59 +-\n 01_core/src/compiler/introspect/queries.rs         |  43 +-\n 01_core/src/compiler/introspect/walk.rs            |  43 +-\n 01_core/src/compiler/layout/checkpoint.rs          |   6 +\n 01_core/src/compiler/layout/figure.rs              | 336 +++++++-\n 01_core/src/compiler/layout/measurement.rs         |   5 +-\n 01_core/src/compiler/layout/mod.rs                 |  33 +\n 01_core/src/compiler/layout/placement.rs           |   1 +\n 01_core/src/compiler/layout/references.rs          | 140 +++\n 01_core/src/compiler/layout/tests.rs               | 370 +++++++-\n 01_core/src/compiler/realize/mod.rs                |   2 +\n 01_core/src/compiler/realize/recipes.rs            |  37 +-\n 01_core/src/compiler/stdlib/figure_image.rs        | 324 +++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  14 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 112 ++-\n 01_core/src/entities/content/construction.rs       |  11 +-\n .../src/entities/content/tests/representation.rs   |   6 +\n 01_core/src/entities/content/tests/traversal.rs    |  34 +\n 01_core/src/entities/content/traversal.rs          |  11 +\n 01_core/src/entities/element_payload.rs            |  44 +-\n 01_core/src/entities/elements/figure.rs            | 537 +++++++++++-\n 01_core/src/entities/elements/grid.rs              |  59 ++\n 01_core/src/entities/introspector.rs               |   9 +\n 02_shell/src/cli.rs                                |  87 +-\n 03_infra/src/export/tests/mod.rs                   |  27 +-\n 03_infra/src/pipeline/bundle.rs                    |  11 +-\n 03_infra/src/pipeline/context_stabilization.rs     |  13 +-\n 91 files changed, 4829 insertions(+), 547 deletions(-)\n",
+  "binaries": {
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+    "candidate2": "12265c0a05442725b28274a3d11f89ee8c93578d4dc308bcd224178249e0396a"
+  },
+  "candidate_receipt_sha256": "f816ea573a1de3ee50779a52f452e81ad6eace1b0a6216ee9b5f68667c3313bf",
+  "cases": [
+    {
+      "case": "figure-inline-neighbors",
+      "binary": "oracle",
+      "source_sha256": "75715fdb4434ee2157b271e2acfadbf8d437748fca4ad1e12ff45c361de05165",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-inline-neighbors.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-inline-neighbors-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:07.603855+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p><p>X</p><p>B</p><p>X</p><p>C</p></body></html>"
+    },
+    {
+      "case": "figure-inline-neighbors",
+      "binary": "candidate2",
+      "source_sha256": "75715fdb4434ee2157b271e2acfadbf8d437748fca4ad1e12ff45c361de05165",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-inline-neighbors.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-inline-neighbors-candidate2.html"
+      ],
+      "utc": "2026-10-20T00:09:07.611828+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A X B X C</p></body></html>"
+    },
+    {
+      "case": "figure-adjacent",
+      "binary": "oracle",
+      "source_sha256": "386d506025248b657ac839c5c3a66b7d5c33aaa12fc54720767de7852431bb20",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-adjacent.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-adjacent-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:07.627341+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>X</p><p>X</p></body></html>"
+    },
+    {
+      "case": "figure-adjacent",
+      "binary": "candidate2",
+      "source_sha256": "386d506025248b657ac839c5c3a66b7d5c33aaa12fc54720767de7852431bb20",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-adjacent.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-adjacent-candidate2.html"
+      ],
+      "utc": "2026-10-20T00:09:07.633910+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>XX</p></body></html>"
+    },
+    {
+      "case": "figure-identity-style",
+      "binary": "oracle",
+      "source_sha256": "9d98a9824bc5a348d71e9d5e2ee9907d20821a1aae58fa88b13c083d68ede562",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-identity-style.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-identity-style-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:07.648156+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>X</p><p>X</p></body></html>"
+    },
+    {
+      "case": "figure-identity-style",
+      "binary": "candidate2",
+      "source_sha256": "9d98a9824bc5a348d71e9d5e2ee9907d20821a1aae58fa88b13c083d68ede562",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-identity-style.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-identity-style-candidate2.html"
+      ],
+      "utc": "2026-10-20T00:09:07.654903+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\nwarning: set: target 'align' ainda n\u00e3o suportado\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-identity-style.typ:2:5\n  \u2502\n2 \u2502 #set align(left)\n  \u2502      ^^^^^\n  \u2502\n  = hint: targets suportados: heading, page, figure, text, par, table, smartquote\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>X X</p></body></html>"
+    },
+    {
+      "case": "heading-neighbors",
+      "binary": "oracle",
+      "source_sha256": "f2da0edf33c20ddca204be5c6d75da42f13965c42d1d47d8b8dee7de66d6a389",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/heading-neighbors.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/heading-neighbors-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:07.669641+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A X B X C</p></body></html>"
+    },
+    {
+      "case": "heading-neighbors",
+      "binary": "candidate2",
+      "source_sha256": "f2da0edf33c20ddca204be5c6d75da42f13965c42d1d47d8b8dee7de66d6a389",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/heading-neighbors.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/heading-neighbors-candidate2.html"
+      ],
+      "utc": "2026-10-20T00:09:07.676461+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A X B X C</p></body></html>"
+    },
+    {
+      "case": "text-neighbors",
+      "binary": "oracle",
+      "source_sha256": "b51169d1008e33d5b35134027eaad4a90b5f71c2c2d6be1d3c5b51f7d9d234e8",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/text-neighbors.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/text-neighbors-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:07.690988+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A X B X C</p></body></html>"
+    },
+    {
+      "case": "text-neighbors",
+      "binary": "candidate2",
+      "source_sha256": "b51169d1008e33d5b35134027eaad4a90b5f71c2c2d6be1d3c5b51f7d9d234e8",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/text-neighbors.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/text-neighbors-candidate2.html"
+      ],
+      "utc": "2026-10-20T00:09:07.697235+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A X B X C</p></body></html>"
+    },
+    {
+      "case": "figure-string",
+      "binary": "oracle",
+      "source_sha256": "b641fa05d4fd5790bc0189d405d4c95e3e8ca52aff5efd27e09df4cf3aa61156",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-string.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-string-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:07.710481+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>X</p><p>X</p></body></html>"
+    },
+    {
+      "case": "figure-string",
+      "binary": "candidate2",
+      "source_sha256": "b641fa05d4fd5790bc0189d405d4c95e3e8ca52aff5efd27e09df4cf3aa61156",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-string.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-string-candidate2.html"
+      ],
+      "utc": "2026-10-20T00:09:07.717242+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>X X</p></body></html>"
+    },
+    {
+      "case": "figure-show-align-left",
+      "binary": "oracle",
+      "source_sha256": "735a59697805405bfa1564d99843b029eb7837ebadad75ef713488044bee4e39",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-align-left.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-align-left-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:19.490064+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p><p>X</p><p>B</p><p>X</p><p>C</p></body></html>"
+    },
+    {
+      "case": "figure-outer-align-center",
+      "binary": "oracle",
+      "source_sha256": "b931874bcafd793e1ef3f4548a12a985780e8d75e725178fbe781ba08af098b6",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-outer-align-center.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-outer-align-center-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:19.496680+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p><p>X</p><p>B</p><p>X</p><p>C</p></body></html>"
+    },
+    {
+      "case": "figure-show-align-left-center-outer",
+      "binary": "oracle",
+      "source_sha256": "11910063554181db9cd138e5bac2beaf710ea8ce14af8ca43eaa59f94703d457",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-align-left-center-outer.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-align-left-center-outer-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:19.502707+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p><p>X</p><p>B</p><p>X</p><p>C</p></body></html>"
+    },
+    {
+      "case": "figure-show-strong",
+      "binary": "oracle",
+      "source_sha256": "a8b41714a653e46c6596541b6a522f5c5e6297a4482ee2d55c92b8a1d76c430e",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-strong.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-strong-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:19.508726+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p><p><strong>X</strong></p><p>B</p><p><strong>X</strong></p><p>C</p></body></html>"
+    },
+    {
+      "case": "figure-show-none",
+      "binary": "oracle",
+      "source_sha256": "c235cea98b6ddaa5c6bd5332833856bae3351ceda109a29f8fe06ae929326ad4",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-none.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-none-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:43.290064+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p><p>B</p></body></html>"
+    },
+    {
+      "case": "figure-show-callback-none",
+      "binary": "oracle",
+      "source_sha256": "4498b57e9e3942af42a79d27c8cb94b1e3eb3177f22516a4e8a064f3b6a7e8ce",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-callback-none.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-callback-none-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:43.295937+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p><p>B</p></body></html>"
+    },
+    {
+      "case": "figure-show-div",
+      "binary": "oracle",
+      "source_sha256": "d9ced8220857c7913b0ab73c708d4db84d2be0c800f1141c0ce7d5d3eca0654d",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-div.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-div-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:43.301936+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p><div>X</div><p>B</p></body></html>"
+    },
+    {
+      "case": "figure-show-empty",
+      "binary": "oracle",
+      "source_sha256": "2965d6f6d6003667f04f9f938baa2c57457b04abdd70356533c66e36805ce3e2",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-empty.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-empty-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:43.308114+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p><p>B</p></body></html>"
+    },
+    {
+      "case": "figure-show-two-pars",
+      "binary": "oracle",
+      "source_sha256": "a0b273522d9b356cdc8d98bdf671ba98baa2564f76deedff200eadc389828776",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-two-pars.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/figure-show-two-pars-oracle.html"
+      ],
+      "utc": "2026-10-20T00:09:43.313964+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p><p>X</p><p>Y</p><p>B</p></body></html>"
+    }
+  ],
+  "utc_end": "2026-10-20T00:09:43.314019+00:00"
+}

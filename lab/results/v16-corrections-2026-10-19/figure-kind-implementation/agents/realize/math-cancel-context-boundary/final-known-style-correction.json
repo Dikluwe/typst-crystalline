@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-20T02:59:27.082875+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "state": "uncommitted working tree; exact dirty-file stat remains recorded in refuted-outer-false-hypothesis.json; current touched pair pinned below",
+  "inputs": {
+    "03_infra/src/pipeline/paged.rs": "550f17a300ea480da129fe3de0569ed39f9741fb51eff53afcc0edd526faa62c",
+    "00_nucleo/prompts/infra/pipeline/paged.md": "9997b4e3463a00119d60dfb41fbd176f8641827bdf2126fd37d7f989d91f2dfa",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-language-review.json": "c774e8d8fa9feebf8ca3f56c30bd92a1cb1157cf8ff762ce5790fa127cf52523",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/receipt.json": "039e5abb3e8afe2a0ba5b0ab7e687aba33e4c55a683039d8c55bc603d49da796"
+  },
+  "prior_full_suite_source": {
+    "path": "lab/scratch/figure-kind-structural-candidate-final3/03_infra/src/pipeline/paged.rs",
+    "sha256": "36bc2f4f247ef1bd98916e1e25602269c6f7fa736105d22bf4910e89efac46f0"
+  },
+  "productive_delta_verified": "The complete paged.rs source equals frozen structural-candidate-final3 paged.rs plus only helper-local ctx.in_context=true immediately after EvalContext::new in realize_math_cancel_requests.",
+  "classification": "Known styles/no Location for outer callback follows pinned Context::new(None,Some(styles)); existing Tekt deferred ContextBlock unwrap retained. Global guards and style snapshots unchanged.",
+  "script_qualification": "Pinned valid code-inserted script observes lexical20pt; existing Tekt14pt assertion stays unchanged and remains unresolved parity debt/separate decision, not newly ratified intentional divergence.",
+  "validation": "Actual focused RED preserved; focused GREEN not yet claimed. Invalid raw math context spelling certifies no vanilla syntax parity."
+}

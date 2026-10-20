@@ -1,0 +1,86 @@
+{
+  "utc_start": "2026-10-19T23:38:57.414326+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "diff_head_stat": " .../core/compiler/eval/bindings/field_access.md    |  15 +\n .../eval/bindings/field_access/content_methods.md  |  15 +\n .../core/compiler/eval/observation/elements.md     |  15 +\n .../core/compiler/eval/operators/equality.md       |  15 +\n .../prompts/core/compiler/eval/rules/apply.md      |  17 +\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  17 +\n .../core/compiler/eval/selector_matching.md        |  17 +\n 00_nucleo/prompts/core/compiler/introspect.md      |  15 +\n .../core/compiler/introspect/convergence.md        |  24 +\n .../core/compiler/introspect/entrypoints.md        |  15 +\n .../core/compiler/introspect/extract_payload.md    |  15 +\n .../prompts/core/compiler/introspect/fixpoint.md   |  15 +\n .../prompts/core/compiler/introspect/labelled.md   |  15 +\n .../prompts/core/compiler/introspect/locatable.md  |  15 +\n .../core/compiler/introspect/materialize_time.md   |  26 +\n .../prompts/core/compiler/introspect/populate.md   |  15 +\n .../prompts/core/compiler/introspect/queries.md    |  15 +\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  27 +\n .../prompts/core/compiler/layout/checkpoint.md     |  17 +\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  20 +\n .../prompts/core/compiler/layout/measurement.md    |  15 +\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  23 +\n .../prompts/core/compiler/layout/placement.md      |  15 +\n .../prompts/core/compiler/layout/references.md     |  20 +\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  21 +\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  15 +\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  15 +\n .../prompts/core/compiler/stdlib/figure_image.md   |  17 +\n .../prompts/core/compiler/stdlib/layout/grid.md    |  15 +\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  15 +\n .../core/compiler/stdlib/tests/figure_image.md     |  14 +\n .../prompts/core/entities/content/construction.md  |  15 +\n .../core/entities/content/tests/representation.md  |  15 +\n .../core/entities/content/tests/traversal.md       |  15 +\n .../prompts/core/entities/content/traversal.md     |  15 +\n 00_nucleo/prompts/core/entities/element_payload.md |  29 +\n 00_nucleo/prompts/core/entities/elements/figure.md |  37 +\n 00_nucleo/prompts/core/entities/elements/grid.md   |  20 +\n 00_nucleo/prompts/core/entities/introspector.md    |  17 +\n 00_nucleo/prompts/infra/export/tests/mod.md        |  15 +\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  15 +\n .../infra/pipeline/context_stabilization.md        |  15 +\n 00_nucleo/prompts/shell/cli.md                     |  15 +\n 01_core/src/compiler/eval/bindings/field_access.rs |  43 ++\n .../eval/bindings/field_access/content_methods.rs  |  26 +-\n 01_core/src/compiler/eval/observation/elements.rs  | 105 ++-\n 01_core/src/compiler/eval/operators/equality.rs    | 126 +++-\n 01_core/src/compiler/eval/rules/apply.rs           | 182 +++--\n 01_core/src/compiler/eval/rules/set.rs             |  57 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 122 +++-\n 01_core/src/compiler/introspect.rs                 | 808 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  81 ++-\n 01_core/src/compiler/introspect/entrypoints.rs     |  38 +\n 01_core/src/compiler/introspect/extract_payload.rs |   7 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  30 +\n 01_core/src/compiler/introspect/labelled.rs        |  20 +-\n .../src/compiler/introspect/materialize_time.rs    |  88 ++-\n 01_core/src/compiler/introspect/populate.rs        |  43 +-\n 01_core/src/compiler/introspect/queries.rs         |  43 +-\n 01_core/src/compiler/introspect/walk.rs            |  29 +-\n 01_core/src/compiler/layout/checkpoint.rs          |   6 +\n 01_core/src/compiler/layout/figure.rs              | 261 ++++++-\n 01_core/src/compiler/layout/measurement.rs         |   5 +-\n 01_core/src/compiler/layout/mod.rs                 |  31 +\n 01_core/src/compiler/layout/placement.rs           |   1 +\n 01_core/src/compiler/layout/references.rs          | 140 ++++\n 01_core/src/compiler/layout/tests.rs               | 123 ++++\n 01_core/src/compiler/realize/mod.rs                |   2 +\n 01_core/src/compiler/realize/recipes.rs            |  33 +-\n 01_core/src/compiler/stdlib/figure_image.rs        | 324 +++++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  14 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 112 ++-\n 01_core/src/entities/content/construction.rs       |  11 +-\n .../src/entities/content/tests/representation.rs   |   6 +\n 01_core/src/entities/content/tests/traversal.rs    |  34 +\n 01_core/src/entities/content/traversal.rs          |  11 +\n 01_core/src/entities/element_payload.rs            |  33 +-\n 01_core/src/entities/elements/figure.rs            | 537 +++++++++++++-\n 01_core/src/entities/elements/grid.rs              |  59 ++\n 01_core/src/entities/introspector.rs               |   8 +\n 02_shell/src/cli.rs                                |  87 ++-\n 03_infra/src/export/tests/mod.rs                   |  27 +-\n 03_infra/src/pipeline/bundle.rs                    |  11 +-\n 03_infra/src/pipeline/context_stabilization.rs     |  13 +-\n 85 files changed, 3982 insertions(+), 511 deletions(-)\n",
+  "product": "lab/typst-original/target/release/typst",
+  "product_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "cases": [
+    {
+      "name": "ancestor-hidden",
+      "source": "#show block:none\n#block(figure([A],kind:raw,supplement:[Listing]))\n#context metadata((query(figure).len(),counter(figure).final(),counter(figure.where(kind:raw)).final())) <probe>\n",
+      "source_sha256": "e147835f808d4446a6a27319df0d3d9d7a7af3467e831118736aa77c917727f8",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "query",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-oracle/ancestor-hidden.typ",
+        "<probe>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "utc_start": "2026-10-19T23:38:57.575624+00:00",
+      "utc_end": "2026-10-19T23:38:57.582553+00:00",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: no such field found for element\n"
+    },
+    {
+      "name": "own-hidden",
+      "source": "#show figure:none\n#figure([A],kind:raw,supplement:[Listing])\n#context metadata((query(figure).len(),counter(figure).final(),counter(figure.where(kind:raw)).final())) <probe>\n",
+      "source_sha256": "145d89938abd5e7b976337693473a22f10b2d5bd2d7296181db04b33580b5d66",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "query",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-oracle/own-hidden.typ",
+        "<probe>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "utc_start": "2026-10-19T23:38:57.582684+00:00",
+      "utc_end": "2026-10-19T23:38:57.588705+00:00",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: no such field found for element\n"
+    },
+    {
+      "name": "duplicate-kind-first",
+      "source": "#figure([A],kind:table,caption:[ONE]) <same>\n#figure([B],kind:raw,caption:[TWO]) <same>\n#context metadata((query(<same>).first().kind,counter(figure.where(kind:table)).final(),counter(figure.where(kind:raw)).final())) <probe>\n",
+      "source_sha256": "b0febcc49a58fff5a38d99ed5272abc8ed6ff9a82f52149d1fbf9532dfb6459d",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "query",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-oracle/duplicate-kind-first.typ",
+        "<probe>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "utc_start": "2026-10-19T23:38:57.588845+00:00",
+      "utc_end": "2026-10-19T23:38:57.713285+00:00",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: no such field found for element\n"
+    },
+    {
+      "name": "duplicate-numbering-first",
+      "source": "#figure([A],kind:table,caption:[ONE],numbering:none) <same>\n#figure([B],kind:raw,caption:[TWO]) <same>\n#context metadata((query(<same>).first().kind,counter(figure.where(kind:table)).final(),counter(figure.where(kind:raw)).final())) <probe>\n",
+      "source_sha256": "deb47af38c7f31369ab9926ef660677903d85f21bf519f829c26a83ed63f2805",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "query",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-oracle/duplicate-numbering-first.typ",
+        "<probe>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "utc_start": "2026-10-19T23:38:57.713438+00:00",
+      "utc_end": "2026-10-19T23:38:57.836409+00:00",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: no such field found for element\n"
+    }
+  ],
+  "utc_end": "2026-10-19T23:38:57.836427+00:00"
+}

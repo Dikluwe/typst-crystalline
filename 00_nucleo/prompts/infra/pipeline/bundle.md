@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/bundle
-Hash do Código: e6f4d3a6
+Hash do Código: 62d659d7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -138,3 +138,18 @@ no new warning/unfulfilled errors, 11correction arities visible; build/fmt/stric
 reverse lineage/Tekt/existing Counter-coverage tests under12GiB/swap0/job1. Prior
 full suite is same-executable evidence, not fresh validation; no attribute-mirror/
 performance test. No scope expansion to pending bundle standard CLI override.
+
+
+## Approved Figure/Grid occurrence counter correction
+
+### Evidence before decision
+
+Baseline HEAD `731f0ffdf4c7c152f590551e72ff63f7bd85ef85`; the reviewed current-pin measurements and exact source anchors are retained in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, `agents/counter/design.md` and `agents/counter/counter-probes.json`. In that evidence, captionless/numbered Figures count; manual Set/Func actions make caption ordinal indexing incorrect; typed element kinds and custom names require distinct keys. These are language values/errors, not Rust or rendering-byte equality. The human explicitly approved the complete Figure/Grid contracts, phases and compatibility changes in the current implementation session. This approval satisfies ADR-0127 for this exact scope. Historical conflicting caption-only or productive string-projection clauses are superseded only as described here; unrelated contracts remain.
+
+### Exclusive responsibility
+
+Extend only private introspect_bundle_with_runtime_for_pipeline with actual html_targets metadata and invocation Features. Convert booleans to EvalTarget and call approved additive L1 facade. Own a fresh Sink and return candidate diagnostics; no fold/key/selector logic in L3, no syntax guesses or HTML eager postprocessors.
+
+### Acceptance and limits
+
+L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.

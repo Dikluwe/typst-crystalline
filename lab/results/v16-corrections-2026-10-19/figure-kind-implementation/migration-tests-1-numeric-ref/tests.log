@@ -1,0 +1,58 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0599]: no function or associated item named `default` found for struct `args::Args` in the current scope
+     --> 01_core/src/compiler/eval/tests.rs:23794:50
+      |
+23794 |                     crate::entities::args::Args::default(),
+      |                                                  ^^^^^^^ function or associated item not found in `args::Args`
+      |
+     ::: 01_core/src/entities/args.rs:25:1
+      |
+   25 | pub struct Args {
+      | --------------- function or associated item `default` not found for this struct
+      |
+note: if you're trying to build a new `args::Args` consider using one of the following associated functions:
+      args::Args::positional
+      args::Args::from_parts
+      args::Args::from_occurrences
+     --> 01_core/src/entities/args.rs:41:5
+      |
+   41 |       pub fn positional(items: Vec<Value>) -> Self {
+      |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+   45 | /     pub fn from_parts(
+   46 | |         items: Vec<Value>,
+   47 | |         named: IndexMap<EcoString, Value, FxBuildHasher>,
+   48 | |         span: Span,
+   49 | |     ) -> Self {
+      | |_____________^
+...
+   53 |       pub fn from_occurrences(span: Span, occurrences: Vec<ArgOccurrence>) -> Self {
+      |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      = help: items from traits can only be used if the trait is implemented and in scope
+      = note: the following traits define an item `default`, perhaps you need to implement one of them:
+              candidate #1: `Default`
+              candidate #2: `tinyvec::array::Array`
+
+error[E0308]: mismatched types
+   --> 01_core/src/compiler/realize/reference_supplements.rs:282:60
+    |
+281 |     let target = match target {
+    |                        ------ this expression has type `entities::value::Value`
+282 |         Value::LocatedContent(content, _) | Value::Content(content) => content,
+    |                               -------                      ^^^^^^^ expected `IntrospectedContent`, found `Content`
+    |                               |
+    |                               first introduced with type `entities::value::IntrospectedContent` here
+    |
+    = note: in the same arm, a binding must have the same type in all alternatives
+
+error[E0599]: no method named `source_body` found for struct `entities::value::IntrospectedContent` in the current scope
+   --> 01_core/src/compiler/realize/reference_supplements.rs:285:42
+    |
+285 |     let Content::Figure(figure) = target.source_body() else {
+    |                                          ^^^^^^^^^^^ method not found in `entities::value::IntrospectedContent`
+    |
+   ::: 01_core/src/entities/value.rs:26:1
+    |
+ 26 | pub struct IntrospectedContent {
+    | ------------------------------ method `source_body` not found for this struct
+

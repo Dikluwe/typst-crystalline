@@ -1,0 +1,37 @@
+{
+  "status": "Independent source-origin distinctions; all prior matrices/policies/oracles unchanged. New exact oracle expectations measured before candidate replay.",
+  "cases": [
+    {
+      "name": "show-origin-identity-multiline",
+      "source": "#show ref: it => {\n  it\n}\n\n@oldmissing\n",
+      "goal": "identity show return preserves original missing Ref origin, not callback identifier",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "show-origin-new-native-multiline",
+      "source": "#show ref: it => {\n  ref(<newmissing>)\n}\n\n@oldmissing\n",
+      "goal": "new Ref constructed inside callback retains its own constructor origin and new label",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "show-origin-original-alias-multiline",
+      "source": "#let old = ref(<oldmissing>)\n#show ref: it => {\n  it\n}\n\n#old\n",
+      "goal": "identity return of an existing Ref alias preserves original constructor origin",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "show-origin-other-alias-multiline",
+      "source": "#let other = ref(<aliasmissing>)\n#show ref: it => {\n  other\n}\n\n@oldmissing\n",
+      "goal": "callback returning a distinct stored Ref retains its own prior source, not input source",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "cases": {
+    "raw-namespace-kind-reference": {
+      "class": "required-language",
+      "criterion": "actual success, exact typed language counts/distinct Location cardinality and retained rendered content",
+      "render_token_counts": {
+        "OUTER": 1
+      }
+    },
+    "two-fresh-captions-raw-context-template": {
+      "class": "required-language",
+      "criterion": "actual success, exact typed language counts/distinct Location cardinality and retained rendered content",
+      "render_token_counts": {
+        "INNER": 2,
+        "OUTER": 2,
+        "INNER-CAP": 2,
+        "OUTER-CAP": 2
+      }
+    }
+  }
+}

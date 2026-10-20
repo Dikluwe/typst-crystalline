@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/fields
-Hash do Código: 3ff7f4bf
+Hash do Código: 96fcb2fb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -12,6 +12,32 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 - 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d
 
+
+## Contextual text fields required by Figure counter callbacks
+
+Measurement precedes this internal correction: the frozen `callback-context-none`
+case in `lab/results/v16-corrections-2026-10-19/figure-kind-implementation/cases.json`
+returns the unknown-context error on pinned vanilla, while candidate-build-1
+incorrectly returns a Length and reports a counter result-type error. Direct
+`text.size` and `text.lang` bilateral observations, exact sources, binary hashes,
+UTC, HEAD and dirty-file stat are retained in `text-context-before/receipt.json`
+under that implementation evidence directory. The cause is the style-field
+lookup at `fields.rs:154–174`, which bypasses the existing context admission gate.
+
+The focused `migration-tests-2-language` run exposes a second actual RED:
+the outside-context diagnostic spans bytes 35..44 (the whole `text.lang`)
+instead of the pinned oracle's 40..44 (the field identifier). Its frozen state,
+log and the independent oracle fixture retain the source and provenance.
+`fields.rs:157` currently uses `access.span()`; the existing AST field span
+provides the proven identifier origin without guessing text offsets.
+
+Reading `text.size` or `text.lang` requires `ctx.in_context`; without it, report
+`can only be used when context is known` at `access.field().span()` with the
+existing context-expression hint. Known-context reads keep the effective style
+and default value. Do not change counter callback execution context or infer
+styles from a callback's creation site. This is continuous ADR-0127 language
+parity correction, with functional RED before the guard, no public API or phase
+change and no linter suppression. All prior field/reflection contracts remain.
 
 ## Ownership and extraction evidence
 

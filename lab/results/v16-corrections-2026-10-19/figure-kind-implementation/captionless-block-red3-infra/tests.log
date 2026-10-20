@@ -1,0 +1,34 @@
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `test` profile [unoptimized] target(s) in 16.10s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 5 tests
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_callback_sees_actual_body_morphology ... FAILED
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_none_prunes_body_before_effects ... FAILED
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_own_figure_replacement_has_no_artificial_block ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_preserves_original_location_reference_and_page ... ok
+test pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_reached_context_and_nested_figure_are_indexed ... ok
+
+failures:
+
+---- pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_callback_sees_actual_body_morphology stdout ----
+
+thread 'pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_callback_sees_actual_body_morphology' (2157677) panicked at 03_infra/src/pipeline/context_stabilization.rs:2092:9:
+assertion `left == right` failed
+  left: "BODY"
+ right: "BLOCKBODYVALID"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_none_prunes_body_before_effects stdout ----
+
+thread 'pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_none_prunes_body_before_effects' (2157678) panicked at 03_infra/src/pipeline/context_stabilization.rs:2044:42:
+[SourceDiagnostic { severity: Error, span: Span(292711985546518), message: "panicked with: BODY_CONTEXT_PREPARATION", hints: [], trace: [] }]
+
+
+failures:
+    pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_callback_sees_actual_body_morphology
+    pipeline::context_stabilization::figure_pipeline_transaction_tests::figure_captionless_default_block_none_prunes_body_before_effects
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 1395 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `-p typst-infra --lib`

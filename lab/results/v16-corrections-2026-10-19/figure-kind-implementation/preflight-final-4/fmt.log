@@ -1,0 +1,14 @@
+Diff in /repos/Antigravity/typst-crystalline/01_core/src/compiler/realize/figure_kind.rs:658:
+ 
+     #[test]
+     fn figure_kind_metadata_arrays_and_authoritative_snapshot_fields() {
+-        let nested = Content::metadata(Value::Array(
+-            vec![Value::Int(9), Value::Array(vec![Value::Content(table())])],
+-        ));
++        let nested = Content::metadata(Value::Array(vec![
++            Value::Int(9),
++            Value::Array(vec![Value::Content(table())]),
++        ]));
+         assert_eq!(infer(&nested).unwrap(), table_kind());
+         let mut dictionary = indexmap::IndexMap::default();
+         dictionary.insert("body".into(), Value::Content(table()));

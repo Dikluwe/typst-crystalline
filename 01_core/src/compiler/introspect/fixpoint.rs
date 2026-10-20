@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/fixpoint.md
-//! @prompt-hash cf1e327f
+//! @prompt-hash 2d80e942
 //! @layer L1
 //! @updated 2026-04-29
 //!
@@ -128,8 +128,38 @@ where
             .map_err(FixpointError::Eval)?;
         realize_equation_elements(&tags, &mut introspector);
 
+        let mut figure_sink = crate::entities::sink::Sink::new();
+        {
+            use comemo::Track;
+            let mut tracked = figure_sink.track_mut();
+            let mut local_sink = comemo::TrackedMut::reborrow_mut(&mut tracked);
+            let mut styles = engine.styles.clone();
+            let mut rules = engine.show_rules.clone();
+            let mut guards = engine.active_guards.clone();
+            let mut local = Engine {
+                world: engine.world,
+                font_metrics: engine.font_metrics,
+                route: engine.route,
+                styles: &mut styles,
+                show_rules: &mut rules,
+                active_guards: &mut guards,
+                current_file: engine.current_file,
+                sink: &mut local_sink,
+            };
+            super::figure_counters::prepare_figure_counters(
+                &content,
+                &mut introspector,
+                &mut local,
+                ctx,
+            )
+            .map_err(FixpointError::Eval)?;
+        }
+
         if let Some(prev_hash) = prev_tags_hash {
             if prev_hash == curr_hash {
+                for diagnostic in figure_sink.into_diagnostics() {
+                    engine.sink.warn_diagnostic(diagnostic);
+                }
                 return Ok(introspector);
             }
         }

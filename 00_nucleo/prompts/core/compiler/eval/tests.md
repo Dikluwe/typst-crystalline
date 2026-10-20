@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: ee31092b
+Hash do Código: bf067b09
 
 
 
@@ -536,3 +536,125 @@ build is not RED. Retain both runtime receipts and exact source hashes; include
 this additional test owner in restricted resealing, full tests, path and
 direct/reverse lineage validation. Circle/Figure and dimensional debts remain
 outside this regression correction.
+
+## Figure output realization gate
+
+Integrated target controls found plain Figure output bypassed occurrence
+preparation while show-driven Figure tests passed. Add direct evaluated Module
+regressions: bare explicit table Figure has resolved typed kind/supplement and
+a published realization index; a supplement error propagates even without any
+show rule or caption. An unused let-bound Figure callback must remain inert and
+ordinary actual output must retain the no-recipe/no-Figure fast path with absent
+realization index. Existing single-evaluation and bare-math controls remain.
+These tests target observable preparation/effects and actual Module state; they
+do not authorize a constructor flag hack or weaker layout inference fallback.
+
+## Retained own-hidden Figure query reflexivity
+
+Candidate-two full CLI duplicate-label controls pass after typed-kind capability
+repair, but own-hidden Figure queries still fail contextual stability. Diagnose
+using an actual evaluated module with `show figure:none`, a prepared raw-kind
+Figure and explicit supplement. Query must retain exactly one original Figure;
+compare the complete LocatedContent result to its retained clone while reporting
+actual field/body/kind relations. Preserve strict membership and all body/caption,
+recipe, snapshot order/presence and capability facts. This test does not authorize
+repairing a guessed snapshot path, stringify normalization or an unconditional
+global shared-Arc shortcut; identify the actual failing carrier first.
+
+## Contextual language regression migration after the Figure admission repair
+
+The full workspace run after GREEN9 identifies p792_text_lang_dynamic reading
+text.lang outside context (tests.rs:23643), contradicting the pinned oracle
+text-context-before/receipt.json: #text.lang rejects at 2026-10-19T23:45:36.117092Z
+with `can only be used when context is known`. Preserve its dynamic pt→fr value
+assertion by constructing two actual source `context text.lang` closures after the two
+lexical set declarations and executing them through existing apply_func with
+context known and each surrounding emitted style snapshot. Assert exact
+Array(Str(pt),Str(fr)),
+not deferred content existence. Add the original outside-context read as a negative
+with exact error/hint and field source range. Do not relax the productive admission
+guard or change any evaluator/helper contract.
+
+## Approved reference supplement template identity regression
+
+reference-phase-approval.json ratifies frozen proposal SHA-256
+1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2
+and its separate no-child clarification. Add an independent actual-module query
+regression: a captioned outer Figure's indexed resolved supplement retains the raw
+nested Figure template before caption realization, with omitted resolved fields
+and no allocated Location. Its actual emitted inner Figure is indexed exactly
+once at a distinct Location with resolved typed kind. These existing-API assertions
+must expose the preimplementation loss of template/raw identity; no new public
+transport facade is needed by this test. Full reference stabilization and real
+CLI matrix remain with the pipeline owners and recorded independent probes.
+
+The independent reference-acceptance/oracle/receipt.json rejects the first proposed
+single-context fixture: local set declarations inside one context do not replace
+that context's captured style snapshot (oracle observes en,en). Preserve this
+refutation and use separate context insertion sites after each lexical set; do
+not certify immediate mutation of a known contextual style snapshot.
+
+## Retained original versus actual visual supplement regression
+
+The actual build2 CLI raw-context-two-references fails contextual stability, while
+its one-caption plus two references control succeeds. Source review finds L3's
+generic map discovering a dormant raw template in the visual no-caption Figure;
+canonical actual walk has no emitted Context Location for that retained template.
+Prepared original query data and actual emitted data are distinct approved carriers.
+
+Independently test an actual evaluated labelled Figure with a raw Context supplement
+under no caption, numbering:none plus caption, Func numbering plus caption, and
+an admitted ordinary numbered caption. The queried original must always retain
+its resolved raw supplement field for later use. The actual visual Figure retains
+a resolved selected child only in the admitted prefix case; captioned None/Func
+visual paths contain prepared known-none instead of dormant template child. Require
+known-none versus unknown outer Option distinction for those Figure carriers.
+The measured `captionless-block-red` and its classification receipt establish the
+later no-caption visual contract: the existing recipe phase emits one actual Block
+whose body is the explicit two-child Sequence of OUTER and Parbreak, while the
+canonical original remains the queried Figure. Independently require no actual
+visual Figure or dormant ContextBlock in this no-caption branch. Do not require
+the nonlocatable Block to borrow the original Figure Location; original Realized
+provenance already retains that identity. Captioned branches keep their preceding
+selected-child assertions unchanged. Do not erase the original
+query field, remove callback errors during final preparation, or claim support for
+Func prefix rendering from its explicit existing debt. Use actual Module visual
+and introspection index, not a parallel production algorithm or a weakened generic
+Content visitor. Source/L0 snapshots before this test are retained in
+agents/entities/visual-template-test-before.json.gz under the implementation record.
+
+The actual reference-eight core run fails the older
+`eval_figure_sem_caption_via_stdlib` assertion because its actual output is now
+the measured captionless default Block, while it still expects visual Figure.
+Preserve its exact `#figure([Diagrama])` input. The existing ordinary legacy eval
+helper replaces Module content through set_content, which correctly clears its
+realization index (entities/module.rs:122–125). Use the existing unflattened
+eval_for_test_keep_sink helper without modifying either helper. Require one
+canonical indexed Figure with caption None and body Diagrama, then require
+the actual output Block with an explicit two-child Sequence of Diagrama and
+Parbreak. This preserves and strengthens the original no-caption constructor
+intent without undoing the independently measured default-product contract or
+changing test helpers, identities, production code or input.
+
+## Exact raw-reference fixture after approved contextual admission
+
+The actual full workspace run in figure-kind-implementation/validation-final
+fails eval_ref_gera_content_ref at its visual raw-Ref assertion. Source
+tests.rs:9035 preserves exactly `@meu_label`; the legacy eval helper intentionally
+maps Realized to visual and Located to body, so its result is now the approved
+private reference producer rather than an immediate terminal Ref. The capture
+owner retains the semantic Ref in Realized.original and delays target lookup
+until the retained contextual phase. This is a test-phase representation
+migration, not a language change or authorization to execute Context in layout.
+
+Keep the exact source and use existing eval_for_test_keep_sink without changing
+either helper. Assert the canonical original is Located Ref with name
+meu_label, Normal form and no supplement. Assert its actual visual is a Located
+ContextBlock recognized by the exact approved producer classifier, at the same
+Location, and require the bound raw Ref argument to retain the same name/form,
+absence of supplement and original lexical Source span. Do not invent a target
+for this intentionally target-free eval-only source, execute a missing-label
+producer, accept arbitrary ContextBlocks or replace the semantic assertion with
+Debug/string output. Real non-Figure passthrough and rendered numbering belong
+to actual contextual integration controls. Require the preserved full-suite RED
+and focused GREEN, with before/after source hashes and UTC provenance.

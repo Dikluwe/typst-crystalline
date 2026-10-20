@@ -1,12 +1,31 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/observation/style.md
-//! @prompt-hash 257ce91b
+//! @prompt-hash 008c08de
 //! @layer L1
 //! @updated 2026-09-26
 //!
 //! Relação observacional causal — família `style`.
 
 use super::*;
+
+impl ObservationEq for crate::entities::style_chain::StyleChain {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let mut left = self.raw_deltas();
+        let mut right = other.raw_deltas();
+        let mut relation = ObservationRelation::Same;
+        loop {
+            match (left.next(), right.next()) {
+                (Some(left), Some(right)) => {
+                    relation = relation.and(left.observation_relation(right));
+                }
+                (None, None) => return relation,
+                (Some(_), None) | (None, Some(_)) => {
+                    return ObservationRelation::Different;
+                }
+            }
+        }
+    }
+}
 
 impl ObservationEq for crate::entities::style_chain::StyleDelta {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
@@ -168,6 +187,63 @@ mod tests {
         assert_eq!(
             Dir::LTR.observation_relation(&Dir::RTL),
             ObservationRelation::Different
+        );
+    }
+}
+
+#[cfg(test)]
+mod figure_recipe_style_tests {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::elements::strong::StrongElem;
+    use crate::entities::style_chain::{StyleChain, StyleDelta};
+    use crate::entities::value::Value;
+    use std::sync::Arc;
+
+    #[test]
+    fn figure_v16_raw_chain_observation_preserves_order_presence_and_shadowed_values() {
+        let make = || {
+            StyleChain::empty()
+                .push_custom("key", Value::Int(1))
+                .push_custom("key", Value::Int(2))
+        };
+        let original = make();
+        assert_eq!(original.observation_relation(&make()), ObservationRelation::Same);
+        let reversed = StyleChain::empty()
+            .push_custom("key", Value::Int(2))
+            .push_custom("key", Value::Int(1));
+        let shadowed = StyleChain::empty()
+            .push_custom("key", Value::Int(9))
+            .push_custom("key", Value::Int(2));
+        for changed in [reversed, shadowed, original.push(StyleDelta::empty())] {
+            assert_eq!(
+                original.observation_relation(&changed),
+                ObservationRelation::Different
+            );
+            assert_eq!(
+                changed.observation_relation(&original),
+                ObservationRelation::Different
+            );
+        }
+        assert_eq!(
+            StyleChain::empty().observation_relation(&StyleChain::empty()),
+            ObservationRelation::Same
+        );
+        assert_eq!(
+            StyleChain::empty().observation_relation(&StyleChain::default_chain()),
+            ObservationRelation::Different
+        );
+    }
+
+    #[test]
+    fn figure_v16_raw_chain_shared_shadowed_opaque_slot_remains_unproven() {
+        let opaque = Content::Dynamic(Arc::new(StrongElem::new(Content::text("opaque"))));
+        let chain = StyleChain::empty()
+            .push_custom("key", Value::Content(opaque))
+            .push_custom("key", Value::Int(2));
+        assert_eq!(
+            chain.observation_relation(&chain.clone()),
+            ObservationRelation::Unproven
         );
     }
 }

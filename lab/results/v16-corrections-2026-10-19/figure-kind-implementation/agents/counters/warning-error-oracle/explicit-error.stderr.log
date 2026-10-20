@@ -1,0 +1,19 @@
+error: panicked with: AFTER_WARNING
+  ┌─ lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/warning-error-oracle/explicit-error.typ:1:75
+  │
+1 │ #counter(figure.where(kind:table)).update(n=>{let ignored=numbering("א",0);panic("AFTER_WARNING")})
+  │                                                                            ^^^^^^^^^^^^^^^^^^^^^^
+
+  while calling `final` at lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/warning-error-oracle/explicit-error.typ:3:14
+    counter(figure.where(kind:table)).final()
+  while evaluating contextual content at lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/warning-error-oracle/explicit-error.typ:3:9
+    repr(counter(figure.where(kind:table)).final())
+
+warning: the numeral system `hebrew` cannot represent zero
+  ┌─ lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/warning-error-oracle/explicit-error.typ:1:58
+  │
+1 │ #counter(figure.where(kind:table)).update(n=>{let ignored=numbering("א",0);panic("AFTER_WARNING")})
+  │                                                           ^^^^^^^^^^^^^^^^
+  │
+  = hint: this will become a hard error in the future
+

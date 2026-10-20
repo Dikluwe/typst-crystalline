@@ -1,0 +1,46 @@
+[
+  {
+    "name": "preflight",
+    "argv": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--start-at",
+      "fmt",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/preflight-final-6"
+    ],
+    "utc_start": "2026-10-20T03:01:40.386327+00:00",
+    "utc_end": "2026-10-20T03:03:01.850580+00:00",
+    "exit": 0
+  },
+  {
+    "name": "structural",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/structural.py",
+      "candidate",
+      "final4"
+    ],
+    "utc_start": "2026-10-20T03:03:02.212948+00:00",
+    "utc_end": "2026-10-20T03:03:15.174836+00:00",
+    "exit": 0
+  },
+  {
+    "name": "clean-product-packages",
+    "argv": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ],
+    "utc_start": "2026-10-20T03:03:15.538391+00:00",
+    "utc_end": "2026-10-20T03:03:16.199000+00:00",
+    "exit": 0
+  }
+]

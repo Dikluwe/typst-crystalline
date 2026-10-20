@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-20T01:06:59.942272+00:00",
+  "status": "ready frozen; no Cargo run by agent",
+  "cause_evidence": "reference-matrix-product-2-main/receipt.json prepared-alias-two-references actual [[4,[3],[1],4]] versus immutable oracle [[2,[1],[1],2]]",
+  "owner": "00_nucleo/prompts/core/compiler/stdlib/figure_image.md",
+  "source": "01_core/src/compiler/stdlib/figure_image.rs",
+  "contract": "Existing LocatedContent supplement cast retains unchanged prepared content and actual supplied Location inside existing Content::Located. No new public API or generic field reification; measured Figure snapshot has fields=None.",
+  "tests_first": "Added native constructor alias control before changing helper; actual fullCLI semantic RED already recorded by root. Test verifies exact retained Location, complete inner entity state and reflected resolved supplement; outer remains lexical.",
+  "source_sha256": "f5c29c538e5bb0663621ed539674f80992cd44523e7c565741ffb49c516c7c7b",
+  "owner_sha256": "0fb4551db17185200268f2069015a399ea8d4997243123e10a8ded80c31cacf5",
+  "coordination": "Realization agent owns identical fix in supplement_from_value; source frozen awaiting root integration."
+}

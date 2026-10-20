@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md
-//! @prompt-hash b6132a6c
+//! @prompt-hash a99d5890
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -47,6 +47,7 @@ pub(super) fn invoke_resolved_call(
             let result = trace_call(result, func.name(), call.span(), engine)?;
             // Intercepção eager — show rules aplicadas após apply_func (Passo 68).
             if let Value::Content(c) = result {
+                let c = reference_call_origin(c, call.span());
                 if matches!(c.source_body(), Content::Empty | Content::Sequence(_))
                     && crate::compiler::realize::sequences::snapshot(engine).is_some()
                 {
@@ -194,6 +195,15 @@ pub(super) fn invoke_resolved_call(
     }
 }
 
+// Keep a constructor's proven source inside a deferred recipe, before capture.
+fn reference_call_origin(content: Content, span: crate::entities::span::Span) -> Content {
+    if matches!(content.source_body(), Content::Ref(_)) {
+        content.with_source_span(span)
+    } else {
+        content
+    }
+}
+
 fn prepare_call_args(
     callee: &Value,
     resolved_args: Option<Args>,
@@ -251,4 +261,35 @@ fn prepare_call_args(
     }
 
     Ok((args, p1293_html_spans))
+}
+
+#[cfg(test)]
+mod reference_origin_tests {
+    use super::*;
+    use crate::entities::{file_id::FileId, span::Span};
+
+    #[test]
+    fn figure_reference_invocation_retains_construction_origin_before_recipe_capture() {
+        let file = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let original = Span::from_range(file, 1..8);
+        let callsite = Span::from_range(file, 25..40);
+        let synthetic = Content::reference("missing");
+        assert!(synthetic.source_span().is_detached());
+        let constructed = reference_call_origin(synthetic.clone(), callsite);
+        assert_eq!(constructed.source_span(), callsite);
+        assert!(
+            matches!(constructed.source_body(), Content::Ref(reference) if reference.name == "missing")
+        );
+        let alias = synthetic.clone().with_source_span(original);
+        assert_eq!(reference_call_origin(alias, callsite).source_span(), original);
+        assert!(reference_call_origin(synthetic.clone(), Span::detached())
+            .source_span()
+            .is_detached());
+        assert!(
+            synthetic.source_span().is_detached(),
+            "lexical invocation must not change the synthetic constructor"
+        );
+        let unrelated = Content::strong(Content::text("X"));
+        assert!(reference_call_origin(unrelated, callsite).source_span().is_detached());
+    }
 }

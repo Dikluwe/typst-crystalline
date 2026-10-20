@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash bca3633d
+//! @prompt-hash 4dfbf129
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -399,11 +399,28 @@ fn collect_context_blocks(
     map
 }
 
+fn figure_context_supplement<'a>(
+    figure: &'a typst_core::entities::elements::figure::FigureElem,
+    chain: &StyleChain,
+) -> Option<&'a Content> {
+    if figure.caption.is_some()
+        && matches!(chain.custom("figure.numbering"), None | Some(Value::Str(_)))
+    {
+        figure.resolved_supplement.as_ref().and_then(Option::as_ref)
+    } else {
+        None
+    }
+}
+
 fn collect_context_blocks_into(
     content: &Content,
     chain: &StyleChain,
     map: &mut HashMap<u64, (Arc<ContextBlockElem>, StyleChain)>,
 ) {
+    if let Some(child) = typst_core::compiler::realize::reference_supplements::prepared_reference_supplement(content) {
+        collect_context_blocks_into(child, chain, map);
+        return;
+    }
     match content {
         Content::Located(e) => collect_context_blocks_into(&e.body, chain, map),
         Content::Realized(e) => collect_context_blocks_into(&e.visual, chain, map),
@@ -424,6 +441,33 @@ fn collect_context_blocks_into(
             for item in items.iter() {
                 collect_context_blocks_into(item, chain, map);
             }
+        }
+        Content::Figure(figure) => {
+            collect_context_blocks_into(&figure.body, chain, map);
+            if let Some(supplement) = figure_context_supplement(figure, chain) {
+                collect_context_blocks_into(supplement, chain, map);
+            }
+            if let Some(caption) = &figure.caption {
+                collect_context_blocks_into(caption, chain, map);
+            }
+        }
+        Content::Strong(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Emph(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Block(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Boxed(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Heading(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Title(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::ListItem(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::EnumItem(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Link(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Columns(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Align(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Place(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Repeat(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Transform(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Label(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::SmallCaps { body } | Content::Par { body } => {
+            collect_context_blocks_into(body, chain, map)
         }
         Content::Table(table) => {
             if let Some(resolved) = &table.resolved {
@@ -466,6 +510,10 @@ fn collect_context_blocks_into(
             // cadeia correcta — o `insert` posterior sobrepõe-se, que é o
             // resultado pretendido.
             let _ = other.map_content(&mut |node| {
+                if let Some(child) = typst_core::compiler::realize::reference_supplements::prepared_reference_supplement(node) {
+                    collect_context_blocks_into(child, chain, map);
+                    return Ok(None);
+                }
                 match node {
                     Content::Located(e) => {
                         collect_context_blocks_into(&e.body, chain, map)
@@ -504,8 +552,224 @@ fn substitute_context_blocks(
     content: Content,
     resolved: &HashMap<u64, Content>,
 ) -> Content {
+    substitute_context_blocks_in_chain(content, resolved, &StyleChain::default_chain())
+}
+
+fn substitute_context_blocks_in_chain(
+    content: Content,
+    resolved: &HashMap<u64, Content>,
+    chain: &StyleChain,
+) -> Content {
+    macro_rules! body {
+        ($variant:ident, $elem:expr) => {{
+            let mut elem = (**$elem).clone();
+            elem.body = substitute_context_blocks_in_chain(elem.body, resolved, chain);
+            return Content::$variant(Arc::new(elem));
+        }};
+    }
+    match &content {
+        Content::Source(e) => {
+            let mut elem = (**e).clone();
+            elem.body = substitute_context_blocks_in_chain(elem.body, resolved, chain);
+            return Content::Source(Arc::new(elem));
+        }
+        Content::Located(e) if !matches!(e.body, Content::ContextBlock(_)) => {
+            let mut elem = (**e).clone();
+            elem.body = substitute_context_blocks_in_chain(elem.body, resolved, chain);
+            return Content::Located(Arc::new(elem));
+        }
+        Content::Realized(e) => {
+            let mut elem = (**e).clone();
+            elem.visual =
+                substitute_context_blocks_in_chain(elem.visual, resolved, chain);
+            return Content::Realized(Arc::new(elem));
+        }
+        Content::ShowRecipe(e) => {
+            let mut elem = (**e).clone();
+            elem.body =
+                substitute_context_blocks_in_chain(elem.body, resolved, &elem.styles);
+            return Content::ShowRecipe(Arc::new(elem));
+        }
+        Content::Styled(e) => {
+            if let Ok(Some(rebuilt)) = typst_core::compiler::realize::reference_supplements::map_prepared_reference_supplement(&content, |child| {
+                Ok(substitute_context_blocks_in_chain(child.clone(), resolved, chain))
+            }) { return rebuilt; }
+            let mut elem = (**e).clone();
+            elem.body = substitute_context_blocks_in_chain(
+                elem.body,
+                resolved,
+                &chain.push_styles(&elem.styles),
+            );
+            return Content::Styled(Arc::new(elem));
+        }
+        Content::Sequence(parts) | Content::MathSequence(parts) => {
+            let parts = parts
+                .iter()
+                .cloned()
+                .map(|part| substitute_context_blocks_in_chain(part, resolved, chain))
+                .collect::<Vec<_>>()
+                .into();
+            return if matches!(content, Content::Sequence(_)) {
+                Content::Sequence(parts)
+            } else {
+                Content::MathSequence(parts)
+            };
+        }
+        Content::Figure(e) => {
+            let mut elem = (**e).clone();
+            elem.body = substitute_context_blocks_in_chain(elem.body, resolved, chain);
+            if let Some(supplement) = figure_context_supplement(e, chain) {
+                elem.resolved_supplement =
+                    Some(Some(substitute_context_blocks_in_chain(
+                        supplement.clone(),
+                        resolved,
+                        chain,
+                    )));
+            }
+            elem.caption = elem.caption.map(|caption| {
+                substitute_context_blocks_in_chain(caption, resolved, chain)
+            });
+            return Content::Figure(Arc::new(elem));
+        }
+        Content::Strong(e) => body!(Strong, e),
+        Content::Emph(e) => body!(Emph, e),
+        Content::Block(e) => body!(Block, e),
+        Content::Boxed(e) => body!(Boxed, e),
+        Content::Heading(e) => body!(Heading, e),
+        Content::Title(e) => body!(Title, e),
+        Content::ListItem(e) => body!(ListItem, e),
+        Content::EnumItem(e) => body!(EnumItem, e),
+        Content::Link(e) => body!(Link, e),
+        Content::Columns(e) => body!(Columns, e),
+        Content::Align(e) => body!(Align, e),
+        Content::Place(e) => body!(Place, e),
+        Content::Repeat(e) => body!(Repeat, e),
+        Content::Transform(e) => body!(Transform, e),
+        Content::Label(e) => body!(Label, e),
+        Content::Par { body } => {
+            return Content::Par {
+                body: Box::new(substitute_context_blocks_in_chain(
+                    (**body).clone(),
+                    resolved,
+                    chain,
+                )),
+            };
+        }
+        Content::SmallCaps { body } => {
+            return Content::SmallCaps {
+                body: Box::new(substitute_context_blocks_in_chain(
+                    (**body).clone(),
+                    resolved,
+                    chain,
+                )),
+            };
+        }
+        // These nodes delegate descendant substitution to the existing
+        // generic mapper. Located(ContextBlock) deliberately retains its marker.
+        Content::Located(..)
+        | Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Raw(..)
+        | Content::Equation(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => {}
+    }
     content
         .map_content(&mut |node| {
+            if let Some(rebuilt) = typst_core::compiler::realize::reference_supplements::map_prepared_reference_supplement(node, |child| {
+                Ok(substitute_context_blocks_in_chain(child.clone(), resolved, chain))
+            })? {
+                return Ok(Some(rebuilt));
+            }
             Ok(match node {
                 Content::Located(e) => {
                     if let Content::ContextBlock(elem) = &e.body {
@@ -526,7 +790,126 @@ fn substitute_context_blocks(
                         vec![Content::ContextBlock(elem.clone()), result].into(),
                     ))
                 }
-                _ => None,
+                // Children have already been mapped. No node replacement is
+                // needed outside the two contextual-marker forms above.
+                Content::Source(..)
+                | Content::ShowRecipe(..)
+                | Content::Realized(..)
+                | Content::Empty
+                | Content::Text(..)
+                | Content::Space
+                | Content::SpaceFromNewline
+                | Content::Parbreak
+                | Content::Sequence(..)
+                | Content::HtmlElem(..)
+                | Content::HtmlFrame(..)
+                | Content::Par { .. }
+                | Content::Heading(..)
+                | Content::Title(..)
+                | Content::Strong(..)
+                | Content::Emph(..)
+                | Content::Raw(..)
+                | Content::ListItem(..)
+                | Content::EnumItem(..)
+                | Content::Link(..)
+                | Content::Equation(..)
+                | Content::MathSequence(..)
+                | Content::MathIdent(..)
+                | Content::MathText(..)
+                | Content::MathFrac(..)
+                | Content::MathAttach(..)
+                | Content::MathPrimes(..)
+                | Content::MathRoot(..)
+                | Content::MathStretch(..)
+                | Content::MathDelimited(..)
+                | Content::MathLr(..)
+                | Content::MathMid(..)
+                | Content::MathOverbrace(..)
+                | Content::MathUnderbrace(..)
+                | Content::MathUnderbracket(..)
+                | Content::MathUnderparen(..)
+                | Content::MathUndershell(..)
+                | Content::MathOverbracket(..)
+                | Content::MathOverparen(..)
+                | Content::MathOvershell(..)
+                | Content::MathAlignPoint(..)
+                | Content::Linebreak(..)
+                | Content::MathMatrix(..)
+                | Content::MathCases(..)
+                | Content::MathAccent(..)
+                | Content::MathCancel(..)
+                | Content::MathUnderline(..)
+                | Content::MathOverline(..)
+                | Content::MathVec(..)
+                | Content::MathClassOverride(..)
+                | Content::MathLimitsOverride(..)
+                | Content::MathUnderover(..)
+                | Content::MathOp(..)
+                | Content::MathStyled(..)
+                | Content::Label(..)
+                | Content::Ref(..)
+                | Content::CounterDisplay(..)
+                | Content::CounterUpdate(..)
+                | Content::Outline(..)
+                | Content::OutlineEntry(..)
+                | Content::Figure(..)
+                | Content::FigureCaption(..)
+                | Content::Image(..)
+                | Content::Shape(..)
+                | Content::Curve(..)
+                | Content::Transform(..)
+                | Content::Grid(..)
+                | Content::GridHeader(..)
+                | Content::GridFooter(..)
+                | Content::GridCell(..)
+                | Content::SetPage(..)
+                | Content::PageRun(..)
+                | Content::Align(..)
+                | Content::Place(..)
+                | Content::Flush(..)
+                | Content::Styled(..)
+                | Content::Divider(..)
+                | Content::Terms(..)
+                | Content::TermItem(..)
+                | Content::Quote(..)
+                | Content::Document { .. }
+                | Content::Asset { .. }
+                | Content::SmartQuote(..)
+                | Content::PdfAttach(..)
+                | Content::PdfArtifact(..)
+                | Content::Underline(..)
+                | Content::Strike(..)
+                | Content::Overline(..)
+                | Content::SmallCaps { .. }
+                | Content::Pad(..)
+                | Content::Hide(..)
+                | Content::HSpace(..)
+                | Content::VSpace(..)
+                | Content::Pagebreak(..)
+                | Content::Colbreak(..)
+                | Content::Stack(..)
+                | Content::Boxed(..)
+                | Content::Block(..)
+                | Content::TableCell(..)
+                | Content::Bibliography(..)
+                | Content::Cite(..)
+                | Content::Footnote(..)
+                | Content::FootnoteEntry(..)
+                | Content::TableHeader(..)
+                | Content::TableFooter(..)
+                | Content::GridHLine(..)
+                | Content::GridVLine(..)
+                | Content::TableHLine(..)
+                | Content::TableVLine(..)
+                | Content::Table(..)
+                | Content::Repeat(..)
+                | Content::Columns(..)
+                | Content::Metadata(..)
+                | Content::State(..)
+                | Content::StateUpdate(..)
+                | Content::StateDisplay(..)
+                | Content::CounterDisplayCallback(..)
+                | Content::Dynamic(..) => None,
             })
         })
         .unwrap_or(content)

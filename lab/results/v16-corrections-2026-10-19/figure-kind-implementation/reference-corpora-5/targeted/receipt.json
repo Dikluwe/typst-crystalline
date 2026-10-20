@@ -1,0 +1,130 @@
+{
+  "utc_start": "2026-10-20T01:24:32.994731+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "product": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+  "product_sha256": "39b9ef9bb5b445d366416f5053f3ea004a2e7459e425ea1bd81ff2645c711591",
+  "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-build-5/receipt.json",
+  "build_receipt_sha256": "6a04bc1bd83ec59861dac56bec7b10a37b95a236df22cbe4bf2f592e7b33024c",
+  "historical_baseline": false,
+  "oracle_receipt_sha256": "80095b055cf494be2d1c8de7750e380a1926524e8ad6bcf523f1d11be38a69dc",
+  "matrix_sha256": "ad29f6adc99c1c10337e206fe7eff6dab090d935bd3e41f656d49df12793db19",
+  "policies_sha256": "331e503d1121d712564266ce591b46634c1213db9046b7eb69f4de92e9096c8f",
+  "runner_sha256": "afcfd5ff5dd20312494f2b2ff64d4ef866de8ae186fcfdbdc3d3b2e99d7aee5e",
+  "cases": [
+    {
+      "name": "raw-namespace-kind-reference",
+      "policy": {
+        "class": "required-language",
+        "criterion": "actual success, exact typed language counts/distinct Location cardinality and retained rendered content",
+        "render_token_counts": {
+          "OUTER": 1
+        },
+        "render_text_whitespace_normalized": "OUTER Listing 1",
+        "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:24:33.135831+00:00",
+          "utc_end": "2026-10-20T01:24:33.743419+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-namespace-kind-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-5/targeted/raw-namespace-kind-reference.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T01:24:33.743434+00:00",
+          "utc_end": "2026-10-20T01:24:34.355183+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-namespace-kind-reference.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-namespace-kind-reference.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "704f46147b9729d296ea5c966ef803183e96d5b07c4741e4527053f4b84cead7",
+      "rendered_text": "OUTER\nListing 1\n\f",
+      "actual_render_whitespace_normalized": "OUTER Listing 1",
+      "expected_render_whitespace_normalized": "OUTER Listing 1",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_word_number_order": true,
+        "render_OUTER": true
+      },
+      "pass": true
+    },
+    {
+      "name": "two-fresh-captions-raw-context-template",
+      "policy": {
+        "class": "required-language",
+        "criterion": "actual success, exact typed language counts/distinct Location cardinality and retained rendered content",
+        "render_token_counts": {
+          "INNER": 2,
+          "OUTER": 2,
+          "INNER-CAP": 2,
+          "OUTER-CAP": 2
+        },
+        "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1: OUTER-CAP OUTER INNER Inner 2: INNER-CAP 2: OUTER-CAP",
+        "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:24:34.366952+00:00",
+          "utc_end": "2026-10-20T01:24:34.976947+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-fresh-captions-raw-context-template.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-5/targeted/two-fresh-captions-raw-context-template.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T01:24:34.976962+00:00",
+          "utc_end": "2026-10-20T01:24:35.586993+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-fresh-captions-raw-context-template.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[4,[2],[2],4]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-fresh-captions-raw-context-template.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "dca360e08be270dfcf6c7792bbd2951bfc05751526d51c50741cccedacf39297",
+      "rendered_text": "OUTER\nINNER\nInner 1: INNER-CAP\n1: OUTER-CAP\nOUTER\nINNER\nInner 2: INNER-CAP\n2: OUTER-CAP\n\f",
+      "actual_render_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1: OUTER-CAP OUTER INNER Inner 2: INNER-CAP 2: OUTER-CAP",
+      "expected_render_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1: OUTER-CAP OUTER INNER Inner 2: INNER-CAP 2: OUTER-CAP",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_word_number_order": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true,
+        "render_OUTER-CAP": true
+      },
+      "pass": true
+    }
+  ],
+  "utc_end": "2026-10-20T01:24:35.598947+00:00",
+  "oracle_comparison_failures": [],
+  "required_failures": []
+}

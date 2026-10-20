@@ -1,0 +1,1560 @@
+{
+  "utc_start": "2026-10-20T00:43:50.382825+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "product": "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+  "product_sha256": "629472632241751b2dfb987f07a5173d0b24af77ddf774d1b9a220dadd886660",
+  "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/pre-reference-build.json",
+  "build_receipt_sha256": "95f6305e3b4497117354c2ceb771f56136fd47b5209d34faac6aac2815bcaf65",
+  "historical_baseline": true,
+  "oracle_receipt_sha256": "cba1b85cc4de91e88a3bb9ce9aa1eb07a6fc1b41d97b1ee97f645384568c1e58",
+  "matrix_sha256": "ab87dfc9639d7c6e9727f561366fe4169e3537ff33538c6a036b01dee02ef9cb",
+  "policies_sha256": "c934cda2e07cb9411b4ec66c5e5c0e45189cc5579398ba6031f23907549a7088",
+  "runner_sha256": "2a76db6a9db46fcba6d10335272c8dd7d1f2498542184bb9f7ededdea7cc394f",
+  "cases": [
+    {
+      "name": "backward-explicit",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:50.509341+00:00",
+          "utc_end": "2026-10-20T00:43:50.514300+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-explicit.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/backward-explicit.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:50.514311+00:00",
+          "utc_end": "2026-10-20T00:43:51.094257+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-explicit.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-explicit.typ:1:0\n  \u2502  \n1 \u2502 \u256d #figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n2 \u2502 \u2502 @outer\n3 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n4 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-explicit.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "forward-explicit",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:51.094824+00:00",
+          "utc_end": "2026-10-20T00:43:51.100163+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/forward-explicit.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/forward-explicit.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:51.100176+00:00",
+          "utc_end": "2026-10-20T00:43:51.695053+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/forward-explicit.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/forward-explicit.typ:1:0\n  \u2502  \n1 \u2502 \u256d @outer\n2 \u2502 \u2502 #figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n3 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n4 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/forward-explicit.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "backward-callback",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:51.695268+00:00",
+          "utc_end": "2026-10-20T00:43:51.700344+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-callback.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/backward-callback.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:51.700357+00:00",
+          "utc_end": "2026-10-20T00:43:52.286360+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-callback.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-callback.typ:1:0\n  \u2502  \n1 \u2502 \u256d #figure([OUTER],kind:image,supplement:it=>figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n2 \u2502 \u2502 @outer\n3 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n4 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-callback.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "two-raw-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 2,
+          "OUTER": 1,
+          "INNER-CAP": 2
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:52.286614+00:00",
+          "utc_end": "2026-10-20T00:43:52.292135+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-raw-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/two-raw-references.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:52.292146+00:00",
+          "utc_end": "2026-10-20T00:43:52.881666+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-raw-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-raw-references.typ:1:0\n  \u2502  \n1 \u2502 \u256d #figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n2 \u2502 \u2502 @outer\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n5 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-raw-references.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "caption-and-two-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 3,
+          "OUTER": 1,
+          "INNER-CAP": 3,
+          "OUTER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:52.881899+00:00",
+          "utc_end": "2026-10-20T00:43:52.887164+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/caption-and-two-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/caption-and-two-references.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:52.887175+00:00",
+          "utc_end": "2026-10-20T00:43:53.484405+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/caption-and-two-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[2,[1],[1],2]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/caption-and-two-references.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false,
+        "render_OUTER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "raw-context-two-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 2,
+          "OUTER": 1,
+          "INNER-CAP": 2
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:53.484770+00:00",
+          "utc_end": "2026-10-20T00:43:53.490345+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-two-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/raw-context-two-references.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:53.490358+00:00",
+          "utc_end": "2026-10-20T00:43:53.504183+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-two-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-two-references.typ:1:0\n  \u2502  \n1 \u2502 \u256d #let inner=context figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])\n2 \u2502 \u2502 #figure([OUTER],kind:image,supplement:inner)<outer>\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 @outer\n5 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n6 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-two-references.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "raw-context-caption-two-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 3,
+          "OUTER": 1,
+          "INNER-CAP": 3
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:53.504397+00:00",
+          "utc_end": "2026-10-20T00:43:53.509529+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-caption-two-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/raw-context-caption-two-references.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:53.509567+00:00",
+          "utc_end": "2026-10-20T00:43:54.120778+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-caption-two-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[2,[1],[1],2]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-caption-two-references.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "prepared-alias-two-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:54.121008+00:00",
+          "utc_end": "2026-10-20T00:43:54.126218+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/prepared-alias-two-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/prepared-alias-two-references.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:54.126227+00:00",
+          "utc_end": "2026-10-20T00:43:54.716814+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/prepared-alias-two-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/prepared-alias-two-references.typ:1:0\n  \u2502  \n1 \u2502 \u256d #figure([PREEXISTING],kind:table)<inner>\n2 \u2502 \u2502 #context { let prepared=query(<inner>).first(); [#figure([OUTER],kind:image,supplement:prepared)<outer>] }\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 @outer\n5 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n6 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/prepared-alias-two-references.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_OUTER": false
+      },
+      "pass": false
+    },
+    {
+      "name": "show-reference-identity",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:54.717034+00:00",
+          "utc_end": "2026-10-20T00:43:54.722280+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-identity.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/show-reference-identity.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:54.722292+00:00",
+          "utc_end": "2026-10-20T00:43:55.303589+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-identity.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-identity.typ:1:0\n  \u2502  \n1 \u2502 \u256d #show ref:it=>it\n2 \u2502 \u2502 #figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n5 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-identity.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "show-reference-two-aliases",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 2,
+          "OUTER": 1,
+          "INNER-CAP": 2
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:55.303861+00:00",
+          "utc_end": "2026-10-20T00:43:55.309085+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-two-aliases.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/show-reference-two-aliases.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:55.309098+00:00",
+          "utc_end": "2026-10-20T00:43:55.906013+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-two-aliases.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-two-aliases.typ:1:0\n  \u2502  \n1 \u2502 \u256d #show ref:it=>[#it #it]\n2 \u2502 \u2502 #figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n5 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-two-aliases.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "show-reference-none",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:55.906256+00:00",
+          "utc_end": "2026-10-20T00:43:55.911569+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-none.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/show-reference-none.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:55.911581+00:00",
+          "utc_end": "2026-10-20T00:43:56.489692+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-none.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-none.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": true,
+        "render_OUTER": false
+      },
+      "pass": false
+    },
+    {
+      "name": "show-reference-replaced",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1,
+          "REPLACED": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:56.489916+00:00",
+          "utc_end": "2026-10-20T00:43:56.495302+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-replaced.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/show-reference-replaced.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:56.495317+00:00",
+          "utc_end": "2026-10-20T00:43:57.082803+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-replaced.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-replaced.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": true,
+        "render_OUTER": false,
+        "render_REPLACED": false
+      },
+      "pass": false
+    },
+    {
+      "name": "hidden-reference-parent",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {}
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:57.083147+00:00",
+          "utc_end": "2026-10-20T00:43:57.088579+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/hidden-reference-parent.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/hidden-reference-parent.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:57.088597+00:00",
+          "utc_end": "2026-10-20T00:43:57.669671+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/hidden-reference-parent.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/hidden-reference-parent.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": true
+      },
+      "pass": false
+    },
+    {
+      "name": "own-hidden-outer",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:57.669874+00:00",
+          "utc_end": "2026-10-20T00:43:57.675135+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/own-hidden-outer.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/own-hidden-outer.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:57.675147+00:00",
+          "utc_end": "2026-10-20T00:43:58.256977+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/own-hidden-outer.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/own-hidden-outer.typ:1:0\n  \u2502  \n1 \u2502 \u256d #show figure.where(kind:image):none\n2 \u2502 \u2502 #figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n5 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/own-hidden-outer.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "no-reference-no-caption",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:58.257209+00:00",
+          "utc_end": "2026-10-20T00:43:58.262864+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/no-reference-no-caption.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/no-reference-no-caption.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:58.262876+00:00",
+          "utc_end": "2026-10-20T00:43:58.845150+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/no-reference-no-caption.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/no-reference-no-caption.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": true,
+        "render_OUTER": false
+      },
+      "pass": false
+    },
+    {
+      "name": "explicit-reference-override",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1,
+          "OVERRIDE": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:58.845366+00:00",
+          "utc_end": "2026-10-20T00:43:58.850554+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-override.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/explicit-reference-override.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:58.850563+00:00",
+          "utc_end": "2026-10-20T00:43:59.432066+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-override.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-override.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": true,
+        "render_OUTER": false,
+        "render_OVERRIDE": false
+      },
+      "pass": false
+    },
+    {
+      "name": "explicit-reference-none",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:43:59.432406+00:00",
+          "utc_end": "2026-10-20T00:43:59.437909+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-none.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/explicit-reference-none.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:43:59.437921+00:00",
+          "utc_end": "2026-10-20T00:44:00.020567+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-none.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-none.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": true,
+        "render_OUTER": false
+      },
+      "pass": false
+    },
+    {
+      "name": "label-on-reference",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        },
+        "secondary_query": {
+          "selector": "<reference-probe>",
+          "field": "value",
+          "criterion": "exact [query cardinality, func()==ref] language values from fresh oracle measurement"
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:00.020787+00:00",
+          "utc_end": "2026-10-20T00:44:00.026205+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/label-on-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/label-on-reference.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:44:00.026217+00:00",
+          "utc_end": "2026-10-20T00:44:00.616495+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/label-on-reference.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: array is empty and no default value was specified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/label-on-reference.typ:3:83\n  \u2502\n3 \u2502 #context [#metadata((query(<reference-label>).len(), query(<reference-label>).first().func()==ref)) <reference-probe>]\n  \u2502                                                                                    ^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/label-on-reference.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "ordinary-heading",
+      "policy": {
+        "class": "required-error",
+        "message": "cannot reference heading without numbering",
+        "origin": [
+          2,
+          0
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:00.616737+00:00",
+          "utc_end": "2026-10-20T00:44:00.621906+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/ordinary-heading.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/ordinary-heading.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:44:00.621920+00:00",
+          "utc_end": "2026-10-20T00:44:01.186332+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/ordinary-heading.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot reference heading without numbering\n = hint: you can enable heading numbering with `#set heading(numbering: \"1.\")`\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/ordinary-heading.typ` instead\n\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        2,
+        0
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": false,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "page-reference",
+      "policy": {
+        "class": "required-error",
+        "message": "cannot reference without page numbering",
+        "origin": [
+          2,
+          1
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:01.186745+00:00",
+          "utc_end": "2026-10-20T00:44:01.192078+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/page-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/page-reference.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:44:01.192090+00:00",
+          "utc_end": "2026-10-20T00:44:01.768155+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/page-reference.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot reference without page numbering\n = hint: you can enable page numbering with `#set page(numbering: \"1\")`\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/page-reference.typ` instead\n\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        2,
+        1
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": false,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "stable-missing-target",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<missing>` does not exist in the document",
+        "origin": [
+          1,
+          0
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:01.768490+00:00",
+          "utc_end": "2026-10-20T00:44:01.773917+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/stable-missing-target.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/stable-missing-target.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        1,
+        0
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": false,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "missing-rich-override",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<missing>` does not exist in the document",
+        "origin": [
+          1,
+          1
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:01.774242+00:00",
+          "utc_end": "2026-10-20T00:44:01.779206+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/missing-rich-override.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/missing-rich-override.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        1,
+        1
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": false,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "unnumbered-target",
+      "policy": {
+        "class": "required-error",
+        "message": "cannot reference figure without numbering",
+        "origin": [
+          2,
+          0
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:01.779506+00:00",
+          "utc_end": "2026-10-20T00:44:01.785074+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/unnumbered-target.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/unnumbered-target.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        2,
+        0
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": false,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "duplicate-label-first",
+      "policy": {
+        "class": "open-bilateral-gap",
+        "criterion": "Pinned oracle rejects duplicate labels; approved existing Tekt first-label behavior requires baseline proof, generic ambiguity remains an open bilateral gap."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:01.785355+00:00",
+          "utc_end": "2026-10-20T00:44:01.790374+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/duplicate-label-first.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/duplicate-label-first.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:44:01.790383+00:00",
+          "utc_end": "2026-10-20T00:44:02.374724+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/duplicate-label-first.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/duplicate-label-first.typ:1:0\n  \u2502  \n1 \u2502 \u256d #figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n2 \u2502 \u2502 #figure([SECOND],kind:image,supplement:[SECOND-SUPPLEMENT])<outer>\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n5 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/duplicate-label-first.typ` instead\n\n"
+        }
+      ],
+      "comparison_note": "Measured control/debt; no green certification from this row. See explicit policy and immutable oracle result.",
+      "checks": {
+        "oracle_success_class": true,
+        "oracle_error_message": false
+      },
+      "pass": false
+    },
+    {
+      "name": "inner-panic-reference",
+      "policy": {
+        "class": "required-error",
+        "message": "panicked with: REF_INNER",
+        "origin": [
+          1,
+          79
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:02.374917+00:00",
+          "utc_end": "2026-10-20T00:44:02.380633+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/inner-panic-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/inner-panic-reference.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        1,
+        79
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": false,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "inner-panic-hidden-reference",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:02.380952+00:00",
+          "utc_end": "2026-10-20T00:44:02.385841+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/inner-panic-hidden-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/inner-panic-hidden-reference.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:44:02.385851+00:00",
+          "utc_end": "2026-10-20T00:44:02.964250+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/inner-panic-hidden-reference.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/inner-panic-hidden-reference.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": true,
+        "render_OUTER": false
+      },
+      "pass": false
+    },
+    {
+      "name": "nested-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:02.964482+00:00",
+          "utc_end": "2026-10-20T00:44:02.970074+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/nested-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/nested-references.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:44:02.970087+00:00",
+          "utc_end": "2026-10-20T00:44:03.550126+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/nested-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/nested-references.typ:1:0\n  \u2502  \n1 \u2502 \u256d #figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <nested>\n2 \u2502 \u2502 #figure([ROOT],kind:image,supplement:[@nested])<outer>\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n5 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/nested-references.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "self-reference-cycle",
+      "policy": {
+        "class": "required-termination",
+        "message": "maximum show rule depth exceeded",
+        "origin": [
+          1,
+          39
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:03.550351+00:00",
+          "utc_end": "2026-10-20T00:44:03.556390+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/self-reference-cycle.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/self-reference-cycle.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        }
+      ],
+      "checks": {
+        "terminates_with_error": true
+      },
+      "pass": true
+    },
+    {
+      "name": "bibliography-precedence",
+      "policy": {
+        "class": "open-bilateral-gap",
+        "criterion": "Pinned oracle rejects document/bibliography collision; existing precedence behavior requires baseline proof, generic ambiguity remains an open bilateral gap."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:03.556609+00:00",
+          "utc_end": "2026-10-20T00:44:03.561914+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/bibliography-precedence.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/bibliography-precedence.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:44:03.561924+00:00",
+          "utc_end": "2026-10-20T00:44:04.901042+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/bibliography-precedence.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/bibliography-precedence.typ:1:0\n  \u2502  \n1 \u2502 \u256d #bibliography(\"refs.yml\")\n2 \u2502 \u2502 #figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n5 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/bibliography-precedence.typ` instead\n\n"
+        }
+      ],
+      "comparison_note": "Measured control/debt; no green certification from this row. See explicit policy and immutable oracle result.",
+      "checks": {
+        "oracle_success_class": true,
+        "oracle_error_message": false
+      },
+      "pass": false
+    },
+    {
+      "name": "html-explicit-counter-reads",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:04.901238+00:00",
+          "utc_end": "2026-10-20T00:44:04.906659+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/html-explicit-counter-reads.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/html-explicit-counter-reads.html",
+            "--features",
+            "html"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:44:04.906671+00:00",
+          "utc_end": "2026-10-20T00:44:05.478133+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/html-explicit-counter-reads.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/html-explicit-counter-reads.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": true
+      },
+      "pass": false
+    },
+    {
+      "name": "context-language-pt-fr",
+      "policy": {
+        "class": "refuted-fixture",
+        "criterion": "Single context snapshot does not change on local set; oracle en,en refutes this attempted p792 test. Preserved immutable; corrected separate source required."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:44:05.478343+00:00",
+          "utc_end": "2026-10-20T00:44:05.483892+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/scratch/figure-kind-pre-reference-typst",
+            "compile",
+            "-j",
+            "1",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/context-language-pt-fr.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/pre-reference-product/context-language-pt-fr.pdf"
+          ],
+          "exit": 2,
+          "stdout": "",
+          "stderr": "error: unexpected argument '-j' found\n\n  tip: to pass '-j' as a value, use '-- -j'\n\nUsage: figure-kind-pre-reference-typst compile [OPTIONS] [INPUT] [OUTPUT]\n\nFor more information, try '--help'.\n"
+        }
+      ],
+      "comparison_note": "Measured control/debt; no green certification from this row. See explicit policy and immutable oracle result.",
+      "checks": {
+        "oracle_success_class": true,
+        "oracle_error_message": false
+      },
+      "pass": false
+    }
+  ],
+  "utc_end": "2026-10-20T00:44:05.483957+00:00",
+  "oracle_comparison_failures": [
+    "backward-explicit",
+    "forward-explicit",
+    "backward-callback",
+    "two-raw-references",
+    "caption-and-two-references",
+    "raw-context-two-references",
+    "raw-context-caption-two-references",
+    "prepared-alias-two-references",
+    "show-reference-identity",
+    "show-reference-two-aliases",
+    "show-reference-none",
+    "show-reference-replaced",
+    "hidden-reference-parent",
+    "own-hidden-outer",
+    "no-reference-no-caption",
+    "explicit-reference-override",
+    "explicit-reference-none",
+    "label-on-reference",
+    "ordinary-heading",
+    "page-reference",
+    "stable-missing-target",
+    "missing-rich-override",
+    "unnumbered-target",
+    "duplicate-label-first",
+    "inner-panic-reference",
+    "inner-panic-hidden-reference",
+    "nested-references",
+    "bibliography-precedence",
+    "html-explicit-counter-reads",
+    "context-language-pt-fr"
+  ],
+  "required_failures": [
+    "backward-explicit",
+    "forward-explicit",
+    "backward-callback",
+    "two-raw-references",
+    "caption-and-two-references",
+    "raw-context-two-references",
+    "raw-context-caption-two-references",
+    "prepared-alias-two-references",
+    "show-reference-identity",
+    "show-reference-two-aliases",
+    "show-reference-none",
+    "show-reference-replaced",
+    "hidden-reference-parent",
+    "own-hidden-outer",
+    "no-reference-no-caption",
+    "explicit-reference-override",
+    "explicit-reference-none",
+    "label-on-reference",
+    "ordinary-heading",
+    "page-reference",
+    "stable-missing-target",
+    "missing-rich-override",
+    "unnumbered-target",
+    "inner-panic-reference",
+    "inner-panic-hidden-reference",
+    "nested-references",
+    "html-explicit-counter-reads"
+  ]
+}

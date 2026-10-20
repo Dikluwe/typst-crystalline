@@ -1,0 +1,5 @@
+outer:
+  type: Book
+  title: Reference Work
+  author: Example
+  date: 2020

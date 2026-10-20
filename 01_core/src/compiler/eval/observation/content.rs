@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/observation/content.md
-//! @prompt-hash 1d71a686
+//! @prompt-hash 5f083ff9
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -35,7 +35,27 @@ impl ObservationEq for crate::entities::content::Content {
                     .and(a.visual.observation_relation(&b.visual)),
                 _ => ObservationRelation::Different,
             },
-            Self::ShowRecipe(_) => ObservationRelation::Unproven,
+            Self::ShowRecipe(a) => match other {
+                Self::ShowRecipe(b) => {
+                    let crate::entities::content::ShowRecipeContent {
+                        body,
+                        textual,
+                        context_id_floor,
+                        rules,
+                        styles,
+                        guards,
+                        file,
+                    } = a.as_ref();
+                    body.observation_relation(&b.body)
+                        .and(textual.observation_relation(&b.textual))
+                        .and(context_id_floor.observation_relation(&b.context_id_floor))
+                        .and(rules.observation_relation(&b.rules))
+                        .and(styles.observation_relation(&b.styles))
+                        .and(guards.observation_relation(&b.guards))
+                        .and(file.observation_relation(&b.file))
+                }
+                _ => ObservationRelation::Different,
+            },
 
             Self::Empty => match other {
                 Self::Empty => ObservationRelation::Same,
@@ -785,5 +805,154 @@ mod tests {
             Content::Space.observation_relation(&Content::Empty),
             ObservationRelation::Different
         );
+    }
+}
+
+#[cfg(test)]
+mod figure_recipe_observation_tests {
+    use super::*;
+    use crate::entities::content::{Content, ShowRecipeContent};
+    use crate::entities::elements::strong::StrongElem;
+    use crate::entities::file_id::FileId;
+    use crate::entities::func::Func;
+    use crate::entities::show::{Selector, ShowRule, Transformation};
+    use crate::entities::style_chain::{StyleChain, StyleDelta};
+    use crate::entities::value::Value;
+    use std::num::NonZeroU16;
+    use std::sync::Arc;
+
+    fn file(raw: u16) -> FileId {
+        FileId::from_raw(NonZeroU16::new(raw).unwrap())
+    }
+
+    fn recipe() -> ShowRecipeContent {
+        ShowRecipeContent {
+            body: Content::text("body"),
+            textual: false,
+            context_id_floor: 11,
+            rules: vec![
+                ShowRule {
+                    id: 1,
+                    selector: Selector::Text("a".into()),
+                    transform: Transformation::Str("b".into()),
+                },
+                ShowRule {
+                    id: 2,
+                    selector: Selector::Text("c".into()),
+                    transform: Transformation::Content(Content::text("d")),
+                },
+            ]
+            .into(),
+            styles: StyleChain::empty().push_custom("captured", Value::Int(1)),
+            guards: vec![1, 2],
+            file: file(1),
+        }
+    }
+
+    fn content(recipe: ShowRecipeContent) -> Content {
+        Content::ShowRecipe(Arc::new(recipe))
+    }
+
+    #[test]
+    fn figure_v16_recipe_observation_compares_every_causal_field_and_order() {
+        let original = recipe();
+        let baseline = content(original.clone());
+        assert_eq!(
+            baseline.observation_relation(&content(recipe())),
+            ObservationRelation::Same
+        );
+        let mut changes = Vec::new();
+        let mut changed = original.clone();
+        changed.body = Content::text("changed");
+        changes.push(("body", changed));
+        let mut changed = original.clone();
+        changed.textual = true;
+        changes.push(("textual", changed));
+        let mut changed = original.clone();
+        changed.context_id_floor += 1;
+        changes.push(("floor", changed));
+        let mut changed = original.clone();
+        let mut rules = changed.rules.to_vec();
+        rules[0].id += 1;
+        changed.rules = rules.into();
+        changes.push(("rule id", changed));
+        let mut changed = original.clone();
+        let mut rules = changed.rules.to_vec();
+        rules[0].selector = Selector::Text("changed".into());
+        changed.rules = rules.into();
+        changes.push(("rule selector", changed));
+        let mut changed = original.clone();
+        let mut rules = changed.rules.to_vec();
+        rules[0].transform = Transformation::Str("changed".into());
+        changed.rules = rules.into();
+        changes.push(("rule transform", changed));
+        let mut changed = original.clone();
+        let mut rules = changed.rules.to_vec();
+        rules.reverse();
+        changed.rules = rules.into();
+        changes.push(("rule order", changed));
+        let mut changed = original.clone();
+        changed.styles = changed.styles.push(StyleDelta::empty());
+        changes.push(("style presence", changed));
+        let mut changed = original.clone();
+        changed.styles = StyleChain::empty().push_custom("captured", Value::Int(2));
+        changes.push(("style value", changed));
+        let mut changed = original.clone();
+        changed.guards.reverse();
+        changes.push(("guard order", changed));
+        let mut changed = original.clone();
+        changed.guards.push(3);
+        changes.push(("guard presence", changed));
+        let mut changed = original;
+        changed.file = file(2);
+        changes.push(("file", changed));
+        for (field, changed) in changes {
+            let changed = content(changed);
+            assert_eq!(
+                baseline.observation_relation(&changed),
+                ObservationRelation::Different,
+                "{field}"
+            );
+            assert_eq!(
+                changed.observation_relation(&baseline),
+                ObservationRelation::Different,
+                "{field}, reverse"
+            );
+        }
+        assert_eq!(
+            baseline.observation_relation(&Content::Empty),
+            ObservationRelation::Different
+        );
+        assert_eq!(
+            Content::Empty.observation_relation(&baseline),
+            ObservationRelation::Different
+        );
+    }
+
+    #[test]
+    fn figure_v16_recipe_observation_preserves_opaque_body_styles_and_rule_capabilities()
+    {
+        let opaque = Content::Dynamic(Arc::new(StrongElem::new(Content::text("opaque"))));
+        let mut body = recipe();
+        body.body = opaque.clone();
+        let mut styles = recipe();
+        styles.styles = styles.styles.push_custom("opaque", Value::Content(opaque));
+        let mut rules = recipe();
+        rules.rules = vec![ShowRule {
+            id: 1,
+            selector: Selector::Text("a".into()),
+            transform: Transformation::Func(Func::element(
+                "opaque",
+                Arc::new(|_| panic!("observation must not execute callbacks")),
+            )),
+        }]
+        .into();
+        for recipe in [body, styles, rules] {
+            let original = content(recipe);
+            assert_eq!(
+                original.observation_relation(&original.clone()),
+                ObservationRelation::Unproven
+            );
+        }
     }
 }

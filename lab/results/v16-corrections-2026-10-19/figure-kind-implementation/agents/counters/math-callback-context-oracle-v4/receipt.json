@@ -1,0 +1,255 @@
+{
+  "utc": "2026-10-20T02:56:42.276570+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "state": "uncommitted working tree",
+  "diff_head_stat": " .../core/compiler/eval/bindings/field_access.md    |  17 +-\n .../eval/bindings/field_access/content_methods.md  |  17 +-\n .../compiler/eval/bindings/field_access/fields.md  |  28 +-\n .../core/compiler/eval/call_dispatch/invoke.md     |  29 +-\n .../prompts/core/compiler/eval/context_reads.md    |  43 +-\n .../core/compiler/eval/expression_dispatch.md      |  20 +-\n .../prompts/core/compiler/eval/markup_stream.md    |  12 +-\n 00_nucleo/prompts/core/compiler/eval/mod.md        |  32 +-\n .../core/compiler/eval/observation/content.md      |  28 +-\n .../core/compiler/eval/observation/elements.md     |  47 +-\n .../core/compiler/eval/observation/style.md        |  20 +-\n .../core/compiler/eval/operators/equality.md       |  17 +-\n .../prompts/core/compiler/eval/rules/apply.md      |  52 +-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  19 +-\n .../core/compiler/eval/selector_matching.md        |  19 +-\n 00_nucleo/prompts/core/compiler/eval/tests.md      | 124 ++-\n 00_nucleo/prompts/core/compiler/introspect.md      |  27 +-\n .../core/compiler/introspect/convergence.md        |  26 +-\n .../core/compiler/introspect/entrypoints.md        |  17 +-\n .../core/compiler/introspect/extract_payload.md    |  28 +-\n .../prompts/core/compiler/introspect/fixpoint.md   |  17 +-\n .../prompts/core/compiler/introspect/labelled.md   |  24 +-\n .../prompts/core/compiler/introspect/locatable.md  |  28 +-\n .../core/compiler/introspect/materialize_time.md   |  28 +-\n .../prompts/core/compiler/introspect/populate.md   |  22 +-\n .../prompts/core/compiler/introspect/queries.md    |  17 +-\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  61 +-\n .../prompts/core/compiler/layout/checkpoint.md     |  19 +-\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  17 +-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  25 +-\n .../prompts/core/compiler/layout/placement.md      |  17 +-\n .../prompts/core/compiler/layout/references.md     |  40 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  79 +-\n .../core/compiler/realize/context_occurrences.md   |  20 +-\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  29 +-\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  65 +-\n .../prompts/core/compiler/stdlib/figure_image.md   |  48 +-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  17 +-\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  17 +-\n .../core/compiler/stdlib/tests/figure_image.md     |  16 +-\n .../prompts/core/entities/content/construction.md  |  17 +-\n .../core/entities/content/tests/representation.md  |  17 +-\n .../core/entities/content/tests/traversal.md       |  17 +-\n .../prompts/core/entities/content/traversal.md     |  33 +-\n 00_nucleo/prompts/core/entities/element_payload.md |  31 +-\n 00_nucleo/prompts/core/entities/elements/figure.md |  39 +-\n 00_nucleo/prompts/core/entities/elements/grid.md   |  22 +-\n 00_nucleo/prompts/core/entities/introspector.md    |  24 +-\n 00_nucleo/prompts/core/entities/style_chain.md     |  21 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  62 +-\n 00_nucleo/prompts/infra/export/tests/mod.md        |  17 +-\n 00_nucleo/prompts/infra/integration_tests.md       |  34 +-\n 00_nucleo/prompts/infra/pipeline.md                |  31 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  17 +-\n .../infra/pipeline/context_stabilization.md        |  86 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |  47 +-\n 00_nucleo/prompts/shell/cli.md                     |  17 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |  45 +-\n .../eval/bindings/field_access/content_methods.rs  |  28 +-\n .../compiler/eval/bindings/field_access/fields.rs  |  23 +-\n 01_core/src/compiler/eval/call_dispatch/invoke.rs  |  43 +-\n 01_core/src/compiler/eval/context_reads.rs         | 288 +++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |  12 +-\n 01_core/src/compiler/eval/markup_stream.rs         |   5 +-\n 01_core/src/compiler/eval/mod.rs                   |   7 +-\n 01_core/src/compiler/eval/observation/content.rs   | 173 +++-\n 01_core/src/compiler/eval/observation/elements.rs  | 230 ++++-\n 01_core/src/compiler/eval/observation/style.rs     |  78 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 128 ++-\n 01_core/src/compiler/eval/rules/apply.rs           | 186 ++--\n 01_core/src/compiler/eval/rules/set.rs             |  59 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 124 ++-\n 01_core/src/compiler/eval/tests.rs                 | 673 ++++++++++++--\n 01_core/src/compiler/introspect.rs                 | 979 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  87 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  40 +-\n 01_core/src/compiler/introspect/extract_payload.rs |  13 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  32 +-\n 01_core/src/compiler/introspect/labelled.rs        |  63 +-\n 01_core/src/compiler/introspect/locatable.rs       |   4 +-\n .../src/compiler/introspect/materialize_time.rs    |  90 +-\n 01_core/src/compiler/introspect/populate.rs        |  61 +-\n 01_core/src/compiler/introspect/queries.rs         |  45 +-\n 01_core/src/compiler/introspect/walk.rs            | 143 ++-\n 01_core/src/compiler/layout/checkpoint.rs          |   8 +-\n 01_core/src/compiler/layout/figure.rs              | 338 ++++++-\n 01_core/src/compiler/layout/measurement.rs         |   7 +-\n 01_core/src/compiler/layout/mod.rs                 |  35 +-\n 01_core/src/compiler/layout/placement.rs           |   3 +-\n 01_core/src/compiler/layout/references.rs          | 201 ++++-\n 01_core/src/compiler/layout/tests.rs               | 878 ++++++++++++++----\n .../src/compiler/realize/context_occurrences.rs    |  91 +-\n 01_core/src/compiler/realize/mod.rs                |   5 +-\n 01_core/src/compiler/realize/recipes.rs            | 391 ++++----\n 01_core/src/compiler/stdlib/figure_image.rs        | 412 +++++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  16 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   5 +-\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 114 ++-\n 01_core/src/entities/content/construction.rs       |  13 +-\n .../src/entities/content/tests/representation.rs   |   8 +-\n 01_core/src/entities/content/tests/traversal.rs    |  36 +-\n 01_core/src/entities/content/traversal.rs          | 353 +++++---\n 01_core/src/entities/element_payload.rs            |  46 +-\n 01_core/src/entities/elements/figure.rs            | 539 +++++++++++-\n 01_core/src/entities/elements/grid.rs              |  61 +-\n 01_core/src/entities/introspector.rs               |  11 +-\n 01_core/src/entities/style_chain.rs                |  33 +-\n 02_shell/src/cli.rs                                |  89 +-\n 03_infra/src/export/html/document.rs               | 139 ++-\n 03_infra/src/export/tests/mod.rs                   |  29 +-\n 03_infra/src/integration_tests.rs                  | 104 ++-\n 03_infra/src/pipeline.rs                           | 387 +++++++-\n 03_infra/src/pipeline/bundle.rs                    |  15 +-\n 03_infra/src/pipeline/context_stabilization.rs     | 944 +++++++++++++++++++-\n 03_infra/src/pipeline/paged.rs                     | 352 ++++----\n 116 files changed, 9701 insertions(+), 1410 deletions(-)\n",
+  "oracle": {
+    "binary": "lab/typst-original/target/release/typst",
+    "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+    "commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+    "tree": "cac836c07e4dec2a89219370428292393a3216b5"
+  },
+  "prior_invalid_numeric_control_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v3/receipt.json",
+  "cases": [
+    {
+      "name": "plain-style-callback",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/plain-style-callback.typ",
+      "source_sha256": "3fd795b6eab1a8731baa806902e54841915ac6d2481eb24388519c3b87a84bcf",
+      "command": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/plain-style-callback.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/plain-style-callback.svg"
+      ],
+      "utc_start": "2026-10-20T02:56:41.336190+00:00",
+      "utc_end": "2026-10-20T02:56:41.470099+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "output_exists": true,
+      "output_sha256": "e3bdbef643263cdf8cd79a8fe4bb78c31567513ac8e08a333c443702cc236177",
+      "actual_stroked_path_geometry": [
+        {
+          "fill": "none",
+          "stroke": "#000000",
+          "stroke-width": "0.95",
+          "stroke-linecap": "butt",
+          "stroke-linejoin": "miter",
+          "stroke-miterlimit": "4",
+          "transform": "translate(15.434 28.664200242)",
+          "d": "M 0 0v -19.563400485"
+        }
+      ]
+    },
+    {
+      "name": "plain-style-zero",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/plain-style-zero.typ",
+      "source_sha256": "e09be16fd18dd18258c2efdd363d43934c6f1047fb664a1ccac287f0503e520e",
+      "command": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/plain-style-zero.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/plain-style-zero.svg"
+      ],
+      "utc_start": "2026-10-20T02:56:41.470350+00:00",
+      "utc_end": "2026-10-20T02:56:41.603984+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "output_exists": true,
+      "output_sha256": "e3bdbef643263cdf8cd79a8fe4bb78c31567513ac8e08a333c443702cc236177",
+      "actual_stroked_path_geometry": [
+        {
+          "fill": "none",
+          "stroke": "#000000",
+          "stroke-width": "0.95",
+          "stroke-linecap": "butt",
+          "stroke-linejoin": "miter",
+          "stroke-miterlimit": "4",
+          "transform": "translate(15.434 28.664200242)",
+          "d": "M 0 0v -19.563400485"
+        }
+      ]
+    },
+    {
+      "name": "plain-style-ninety",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/plain-style-ninety.typ",
+      "source_sha256": "b0c7dce6ec499b96df5a67294e7c5ae1e4ba6232f5972d12bdb1ca0314f92f52",
+      "command": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/plain-style-ninety.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/plain-style-ninety.svg"
+      ],
+      "utc_start": "2026-10-20T02:56:41.604324+00:00",
+      "utc_end": "2026-10-20T02:56:41.738127+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "output_exists": true,
+      "output_sha256": "81ac41f7cebce7ed9c49cf42a458355e098f58fcb8d39f4dcf2c4d581c703c07",
+      "actual_stroked_path_geometry": [
+        {
+          "fill": "none",
+          "stroke": "#000000",
+          "stroke-width": "0.95",
+          "stroke-linecap": "butt",
+          "stroke-linejoin": "miter",
+          "stroke-miterlimit": "4",
+          "transform": "matrix(0 1 -1 0 5.652299758 18.8825)",
+          "d": "M 0 0v -19.563400485"
+        }
+      ]
+    },
+    {
+      "name": "script-style-callback",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-callback.typ",
+      "source_sha256": "fffb176a8998e2f204c9d9b94fad67170638673ad5352e874912e125b4b1aa3f",
+      "command": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-callback.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-callback.svg"
+      ],
+      "utc_start": "2026-10-20T02:56:41.738373+00:00",
+      "utc_end": "2026-10-20T02:56:41.871904+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "output_exists": true,
+      "output_sha256": "bb18eb75f34d38621160ba9086890ea3dd4fce0d6acdaf0c6404308e74a0ed71",
+      "actual_stroked_path_geometry": [
+        {
+          "fill": "none",
+          "stroke": "#000000",
+          "stroke-width": "0.7",
+          "stroke-linecap": "butt",
+          "stroke-linejoin": "miter",
+          "stroke-miterlimit": "4",
+          "transform": "matrix(0 1 -1 0 17.346443469 26.941)",
+          "d": "M 0 0v -16.419113061"
+        }
+      ]
+    },
+    {
+      "name": "script-style-zero",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-zero.typ",
+      "source_sha256": "b2cdf973c11a61222d3615e18592d1a8589347e970264f190992541f3cb3a7b4",
+      "command": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-zero.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-zero.svg"
+      ],
+      "utc_start": "2026-10-20T02:56:41.872155+00:00",
+      "utc_end": "2026-10-20T02:56:42.006116+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "output_exists": true,
+      "output_sha256": "d0c57770f45653b63dbe29751f03ee66e26395490330d7b69df2ce09011ec2a1",
+      "actual_stroked_path_geometry": [
+        {
+          "fill": "none",
+          "stroke": "#000000",
+          "stroke-width": "0.7",
+          "stroke-linecap": "butt",
+          "stroke-linejoin": "miter",
+          "stroke-miterlimit": "4",
+          "transform": "translate(25.556 35.150556531)",
+          "d": "M 0 0v -16.419113061"
+        }
+      ]
+    },
+    {
+      "name": "script-style-ninety",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-ninety.typ",
+      "source_sha256": "5bc1b47da2b8b62210ead242b51f0966b7a573c7762b2fa4c8fd1ca43ef46b4a",
+      "command": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-ninety.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-ninety.svg"
+      ],
+      "utc_start": "2026-10-20T02:56:42.006367+00:00",
+      "utc_end": "2026-10-20T02:56:42.139377+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "output_exists": true,
+      "output_sha256": "bb18eb75f34d38621160ba9086890ea3dd4fce0d6acdaf0c6404308e74a0ed71",
+      "actual_stroked_path_geometry": [
+        {
+          "fill": "none",
+          "stroke": "#000000",
+          "stroke-width": "0.7",
+          "stroke-linecap": "butt",
+          "stroke-linejoin": "miter",
+          "stroke-miterlimit": "4",
+          "transform": "matrix(0 1 -1 0 17.346443469 26.941)",
+          "d": "M 0 0v -16.419113061"
+        }
+      ]
+    },
+    {
+      "name": "script-style-fortyfive",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-fortyfive.typ",
+      "source_sha256": "6f36b14babd8dae3c2960034d360a8f5a14669b7fc7d1b8685d0af2261262a19",
+      "command": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-fortyfive.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/script-style-fortyfive.svg"
+      ],
+      "utc_start": "2026-10-20T02:56:42.139644+00:00",
+      "utc_end": "2026-10-20T02:56:42.269201+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "output_exists": true,
+      "output_sha256": "13f037582a3ad018f1e78dca5bdbe2f27abd96fcc9bf4e4e9ab7299dd16076ce",
+      "actual_stroked_path_geometry": [
+        {
+          "fill": "none",
+          "stroke": "#000000",
+          "stroke-width": "0.7",
+          "stroke-linecap": "butt",
+          "stroke-linejoin": "miter",
+          "stroke-miterlimit": "4",
+          "transform": "matrix(0.707106781 0.707106781 -0.707106781 0.707106781 19.750966907 32.746033093)",
+          "d": "M 0 0v -16.419113061"
+        }
+      ]
+    },
+    {
+      "name": "ordinary-outside-context",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/ordinary-outside-context.typ",
+      "source_sha256": "ff6c13ee07701565daae40d73b186daeb87b0409b7ef16081e21b2c4a061f702",
+      "command": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/ordinary-outside-context.typ",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/ordinary-outside-context.svg"
+      ],
+      "utc_start": "2026-10-20T02:56:42.269438+00:00",
+      "utc_end": "2026-10-20T02:56:42.276501+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: can only be used when context is known\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/ordinary-outside-context.typ:3:6\n  \u2502\n3 \u2502 #text.size\n  \u2502       ^^^^\n  \u2502\n  = hint: try wrapping this in a `context` expression\n  = hint: the `context` expression should wrap everything that depends on this function\n\n",
+      "output_exists": false,
+      "output_sha256": null,
+      "actual_stroked_path_geometry": []
+    }
+  ],
+  "checks": {
+    "plain_style_callback_compiles": true,
+    "plain_style_geometry_matches_zero": true,
+    "plain_style_geometry_differs_ninety": true,
+    "script_callback_compiles": true,
+    "script_geometry_matches_effective_zero": false,
+    "script_geometry_differs_lexical_ninety": false,
+    "script_geometry_differs_default_fortyfive": true,
+    "ordinary_outside_context_rejected": true
+  },
+  "passed": false
+}

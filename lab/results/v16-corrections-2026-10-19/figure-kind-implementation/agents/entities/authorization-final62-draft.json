@@ -1,0 +1,80 @@
+{
+  "review_utc": "2026-10-20T01:21:07.897985+00:00",
+  "status": "DRAFT: authorization/public-surface inventory checked at current frozen review bytes; final source hash certification and running gates pending root",
+  "historical55_review_preserved_sha256": "cfc5f5f4447666a079f6d9f4510200b482870273714cf88bfa993ab4078e3561",
+  "approval": {
+    "original_receipt_sha256": "6118f3466eadc931da5d1abfbf9f79b228688158e2a6ca88156d87d505333be7",
+    "frozen_review_sha256": "e8cabe3a7ab236e9c81303ffa9e8732198cbdb4e83a1aa4b557708dd167b433c",
+    "frozen_package_manifest_sha256": "0c2b16dea5bd5d98488089c198cf99f336b455066fe5f416aad9d3cef4952c31",
+    "all_original_package_files_intact": 145,
+    "reference_receipt_sha256": "9ddeb35a39e84ac51006b51b26125f193a23e7824f615575a7c7255d8896d39b",
+    "exact_reference_proposal_sha256": "1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2",
+    "no_child_refinement_sha256": "0f79a1bbb62172eff3e361b3508d68244d85e155e1ae1826c712af51b7f0d43b"
+  },
+  "scope": {
+    "count": 62,
+    "scope_sha256": "3fc4b04474189933bb4e3a62291c5b4bc8690e272f4adcda96a32a7693ceaddd",
+    "changed_productive_source_set_equals_scope": true,
+    "new_since55": [
+      "01_core/src/compiler/eval/context_reads.rs",
+      "01_core/src/compiler/eval/expression_dispatch.rs",
+      "01_core/src/compiler/eval/markup_stream.rs",
+      "01_core/src/compiler/realize/context_occurrences.rs",
+      "01_core/src/compiler/realize/reference_supplements.rs",
+      "03_infra/src/integration_tests.rs",
+      "03_infra/src/pipeline.rs"
+    ],
+    "canonical_owners": true
+  },
+  "public_surface": {
+    "new_external_functions": [
+      {
+        "source": "01_core/src/compiler/introspect/entrypoints.rs",
+        "name": "introspect_bundle_documents_with_runtime_targets_and_starts",
+        "before": null,
+        "now": "pub fn introspect_bundle_documents_with_runtime_targets_and_starts( bodies: &[Content], targets: &[crate::compiler::eval::EvalTarget], features: crate::entities::compiler_features::Features, engine: &mut Engine<'_>, ctx: &mut EvalContext, ) -> SourceResult<(TagIntrospector, Vec<LocatorSeed>)>"
+      },
+      {
+        "source": "01_core/src/compiler/realize/reference_supplements.rs",
+        "name": "is_reference_supplement_producer",
+        "before": null,
+        "now": "pub fn is_reference_supplement_producer(block: &ContextBlockElem) -> bool"
+      },
+      {
+        "source": "01_core/src/compiler/realize/reference_supplements.rs",
+        "name": "prepared_reference_supplement",
+        "before": null,
+        "now": "pub fn prepared_reference_supplement(content: &Content) -> Option<&Content>"
+      },
+      {
+        "source": "01_core/src/compiler/realize/reference_supplements.rs",
+        "name": "map_prepared_reference_supplement",
+        "before": null,
+        "now": "pub fn map_prepared_reference_supplement<F>( content: &Content, transform: F, ) -> SourceResult<Option<Content>> where F: FnOnce(&Content) -> SourceResult<Content>,"
+      }
+    ],
+    "existing_external_function_signatures_changed": [],
+    "reference_module": "compiler::realize::reference_supplements; only exact three approved functions public, all other helpers compiler-private/private",
+    "entities": "Only original approved FigureKind/FigureSupplement/FigureElem/payload/GridChildOrder/source_order public changes; no Ref entity/Content variant/trait extension",
+    "arena": "Existing public Arena/Frame methods/signatures retained; Context ID slots/cursor/instantiation flag are private"
+  },
+  "phase_and_internal_corrections": [
+    "Only actually emitted normal Paged Ref admitted after own root decision through exact typed producer; HTML/page/bib passthrough gates retained.",
+    "Original Figure retains complete prepared raw template; actual visual carrier omits dormant supplement, admits actual caption contribution and retains existing Located aliases.",
+    "Raw Context IDs are fresh per actual template insertion and retained per-frame across retry; shared allocation arena unchanged.",
+    "Private eligibility request records real label Location/key-presence/bib facts; scoped proof now compares exact typed slots, kind capability and selector Func metadata/diagnostic spans. Global Func/Counter/Value observers unchanged.",
+    "Private source-origin frame transport restores inherited frame on return and keeps lexical Ref spans; source-origin edge oracle controls are separately frozen.",
+    "No new CLI flag/default path/target/dependency, generic Ref map relaxation, source Context query payload, counter shadow namespace, result cache or warning-text suppression is authorized."
+  ],
+  "whitespace_review": {
+    "p462": "Unicode whitespace collapse preserves every nonwhitespace token/number/order; exact caption once + final reference1 + count2 + empty errors excludes Figure10 false positive.",
+    "versioned_render_policies": "Exact whole extracted PDF text after whitespace collapse retains all characters, words, number order and multiplicity. Old policies/sources/oracle receipts unchanged.",
+    "limits": "This normalization does not certify whitespace-sensitive morphology, paragraph boundaries or PDF bytes. HTML remains separate and original HTML query command is Paged."
+  },
+  "pending_finalization": [
+    "Root reference-five/strict proof result and all remaining executable gates.",
+    "Final sealed62 source/L0 hashes before final authorization-final62-review.json is issued.",
+    "Report remaining matrix ambiguity/source-origin/target limitations as actual failures or measured preexisting gaps; no broad parity claim."
+  ],
+  "no_agent_build_or_source_changes_in_this_audit": true
+}

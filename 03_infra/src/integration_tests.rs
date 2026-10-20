@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash c7e8d7cc
+//! @prompt-hash b47b21f7
 //! @layer L3
 //! @updated 2026-10-06
 
@@ -1531,14 +1531,80 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        // P190H: state.figure_numbers eliminado; verificação via intr.
-        let intr = introspect_with_introspector(content);
-
-        use typst_core::entities::introspector::Introspector;
-        assert_eq!(intr.figure_number_at_index("image", 0), Some(1),
-            "Uma figura de imagem deve produzir intr.figure_number_at_index(image, 0) = 1");
-
-        let doc = layout(content);
+        use comemo::Track;
+        use std::sync::Arc;
+        use typst_core::{
+            compiler::{
+                eval::EvalContext,
+                introspect::introspect_with_runtime,
+                layout::{layout_with_introspector, FixedMetrics},
+            },
+            entities::{
+                counter::CounterKey,
+                engine::Engine,
+                func::Func,
+                selector::Selector,
+                show::ShowRule,
+                style_chain::StyleChain,
+                value::Value,
+                world_types::{Route, Sink},
+            },
+        };
+        let mut ctx = EvalContext::new();
+        let mut styles = StyleChain::default_chain();
+        let mut rules: Arc<[ShowRule]> = Arc::from([]);
+        let mut guards = Vec::new();
+        let mut sink = Sink::new();
+        let route = Route::root().with_id(source.id());
+        let intr = {
+            let mut tracked = sink.track_mut();
+            let mut engine = Engine {
+                world: &world,
+                font_metrics: &FixedMetrics,
+                route: route.track(),
+                styles: &mut styles,
+                show_rules: &mut rules,
+                active_guards: &mut guards,
+                current_file: source.id(),
+                sink: &mut tracked,
+            };
+            introspect_with_runtime(content, &mut engine, &mut ctx)
+                .expect("prepared Figure runtime snapshot")
+        };
+        let key = CounterKey::Selector(Selector::Element {
+            function: Func::native("figure", typst_core::compiler::stdlib::native_figure),
+            fields: vec![(
+                "kind".into(),
+                Value::Func(Func::native(
+                    "image",
+                    typst_core::compiler::stdlib::native_image,
+                )),
+            )]
+            .into(),
+        });
+        let CounterKey::Selector(selector) = &key else { unreachable!() };
+        let locations = intr.query(selector);
+        assert_eq!(locations.len(), 1, "one actual image-kind Figure occurrence");
+        assert_eq!(
+            intr.counter_values_at(&key, locations[0]),
+            Some(&[1][..]),
+            "image Figure numeric prefix is one at its own Location"
+        );
+        assert_eq!(
+            intr.figure_number_at_index("image", 0),
+            None,
+            "productive typed Figures do not write the legacy user-string namespace"
+        );
+        let doc = layout_with_introspector(content, intr);
+        assert!(
+            doc.plain_text()
+                .split_whitespace()
+                .collect::<Vec<_>>()
+                .join(" ")
+                .contains("Figure 1: A foto"),
+            "{}",
+            doc.plain_text()
+        );
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty(), "PDF não pode estar vazio");
     }
@@ -4762,7 +4828,15 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("content");
-        let doc = layout(content);
+        let intr = introspect_with_introspector(content);
+        let (expanded, intr) = crate::pipeline::expand_context_blocks_and_reintrospect(
+            content.clone(),
+            &intr,
+            &world,
+            &source,
+        )
+        .expect("ordinary reference must complete its retained contextual phase");
+        let doc = typst_core::compiler::layout::layout_with_introspector(&expanded, intr);
         let text = doc.plain_text().replace('\u{a0}', " ");
         assert!(
             text.contains("Section 1") && !text.contains("Secção"),
@@ -4779,7 +4853,15 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("content");
-        let doc = layout(content);
+        let intr = introspect_with_introspector(content);
+        let (expanded, intr) = crate::pipeline::expand_context_blocks_and_reintrospect(
+            content.clone(),
+            &intr,
+            &world,
+            &source,
+        )
+        .expect("explicit reference must complete its retained contextual phase");
+        let doc = typst_core::compiler::layout::layout_with_introspector(&expanded, intr);
         let text = doc.plain_text().replace('\u{a0}', " ");
         assert!(text.contains("Cap 1"), "suplemento explícito esperado: {text:?}");
     }

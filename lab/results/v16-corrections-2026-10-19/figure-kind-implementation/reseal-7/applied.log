@@ -1,0 +1,8 @@
+Applied ./01_core/src/compiler/eval/call_dispatch/invoke.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md hash-a=a99d5890 hash-b=01e31fb6
+Applied ./01_core/src/compiler/eval/tests.rs prompt=00_nucleo/prompts/core/compiler/eval/tests.md hash-a=1e23c1aa hash-b=e7d543df
+Applied ./01_core/src/compiler/introspect/walk.rs prompt=00_nucleo/prompts/core/compiler/introspect/walk.md hash-a=94e72597 hash-b=1cac886d
+Applied ./01_core/src/compiler/layout/references.rs prompt=00_nucleo/prompts/core/compiler/layout/references.md hash-a=e941b9a4 hash-b=9faa66ca
+Applied ./01_core/src/compiler/realize/recipes.rs prompt=00_nucleo/prompts/core/compiler/realize/recipes.md hash-a=57dc9644 hash-b=993c0bac
+Applied ./03_infra/src/pipeline/context_stabilization.rs prompt=00_nucleo/prompts/infra/pipeline/context_stabilization.md hash-a=d6ab9409 hash-b=29a19e1e
+
+Re-running analysis... ✅ 0 drift warnings remaining

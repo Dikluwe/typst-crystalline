@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/tests/traversal.md
-//! @prompt-hash 78f5f107
+//! @prompt-hash be4a6985
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -514,6 +514,7 @@ fn p228_grid_map_content_preserva_fill() {
     let fill_orig = Color::rgb(50, 50, 50);
     let g =
         Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
             cells: vec![Content::text("a")],
@@ -549,6 +550,7 @@ fn p227_grid_map_content_preserva_stroke() {
     };
     let g =
         Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
             cells: vec![Content::text("a")],
@@ -778,3 +780,35 @@ fn table_footer_map_text_recurse_e_preserva_repeat() {
 }
 
 // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ──
+
+#[test]
+fn figure_v16_preorder_map_preserves_prepared_supplement_origin_and_presence() {
+    use crate::entities::elements::figure::{FigureElem, FigureKind, FigureSupplement};
+    let element = FigureElem {
+        body: Content::text("body"),
+        caption: Some(Content::text("caption")),
+        kind: Some(None),
+        resolved_kind: Some(FigureKind::Name("custom".into())),
+        supplement: Some(FigureSupplement::Content(Content::text("lexical-origin"))),
+        resolved_supplement: Some(Some(Content::text("resolved"))),
+    };
+    let content = Content::Figure(std::sync::Arc::new(element.clone()));
+    let mut seen = Vec::new();
+    let result = content
+        .map_content_pre(&mut |content| {
+            if let Content::Text(text) = content {
+                seen.push(text.to_string());
+                return Ok(Some(Content::text(text.to_uppercase())));
+            }
+            Ok(None)
+        })
+        .unwrap();
+    let Content::Figure(mapped) = result else { panic!("missing Figure") };
+    assert_eq!(seen, ["body", "caption", "resolved"]);
+    assert_eq!(mapped.body.plain_text(), "BODY");
+    assert_eq!(mapped.caption.as_ref().unwrap().plain_text(), "CAPTION");
+    assert_eq!(mapped.kind, element.kind);
+    assert_eq!(mapped.resolved_kind, element.resolved_kind);
+    assert_eq!(mapped.supplement, element.supplement);
+    assert_eq!(mapped.resolved_supplement, Some(Some(Content::text("RESOLVED"))));
+}

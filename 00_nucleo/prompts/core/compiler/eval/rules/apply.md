@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/apply — Show rule application
-Hash do Código: 85d29d98
+Hash do Código: 31e2bc1c
 
 
 Layer: L1
@@ -595,3 +595,53 @@ Require acceptance.json/R2-S-R3/single-evaluation RED→GREEN/separate PDF-HTML/
 build-workspace-doctests/strict Clippy-Rustdoc/fmt/V1/V5/V15/V26/reverse/differential
 SARIF without new error-warning.12GiB/High 8 GiB/swap0/jobs1/heavy sequential.
 No RAM claim without paired trial/suppression clearing gate/commit/push/release.
+
+
+## Approved Figure/Grid kind repair (2026-10-19)
+
+### Measurement and classification before decision
+
+The frozen proposal at baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, `agents/contracts/semantic-partition.json`, and `agents/counter/design.md` bind measurements and full source/oracle provenance. Current-pin oracle is `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Constructor inference loses typed identity and lexical occurrence styles; semantic inspection and final supplement need separate phases. These are language semantics and causal effects, not a requirement for upstream Rust mechanics. The human explicitly approved the exact public carriers, phase changes and compatibility migration in the current session under ADR-0127.
+
+### Exclusive responsibility
+
+Only reached Figure occurrences select rules against the immutable kind preview. Fold matched show-set styles with existing precedence, resolve final kind/supplement before the selected function or Content replacement, and store that prepared Located occurrence as Realized.original. Pass the final prepared occurrence to the callback. Restore effective style frame on success and error; preserve all Location/RuleId guards, cached alias results, depth and diagnostic ownership. Do not rematch against final kind or execute child effects first.
+
+### Acceptance and boundaries
+
+Require functional RED→GREEN, frozen kind/set/show-set/supplement/hidden-parent cases, alias/homonym and field snapshots, full build/tests, paths, strict forward/reverse lineage, V15/V26 and differential lint. No suppressions, opaque catchall, fake neutral child or weakened assertion. Caption omission/none, complete caption synthesis, supplement-dependent preview selection, complete function-number formatting, HTML implicit captions/references, Dynamic field enumeration, and mixed Table header/ordinary-cell supplemental target order remain explicit bounded debts.
+
+For Figure provenance retain matched show-set delta inside the final original Located body as Styled(prepared Figure, delta), preserving outer Location. Callback receives the bare prepared Located argument under effective Engine styles; emitted replacement receives delta exactly once through the existing visual wrapper. Introspection must carry forced root Location through Styled. No extra automatic count or repeated callback is introduced.
+
+## Conditional Figure replacement returning None
+
+The current-pin frozen target control caption-hidden-original.typ returns None
+from a Figure show function only when `it.body == [H]`. Candidate-build-2's
+verified CLI errors at the first Figure with `show rule deve retornar Content ou
+String, recebeu none`; the same source succeeds in the pinned oracle and keeps
+the second numbered caption. The successful conditional proves body language
+equality reached the intended hidden branch; the causal gap is the occurrence
+function-return conversion. Evidence remains in figure-kind-implementation/
+{target-controls-oracle,candidate-target-controls-2}/receipt.json with exact state,
+UTC, sources, argv and executable identities.
+
+Accept precisely Value::None as Content::Empty from an occurrence's show callback,
+while retaining the prepared original Figure snapshot and existing guards/style
+restoration. Preserve Content/String paths and existing errors for nondisplay
+invalid returns; do not broaden callback casting or alter selector/body equality.
+Add a functional figure_ RED before changing that arm. Verify conditional hidden
+Figure plus retained visible caption and invalid-return diagnostic control.
+
+## Ref identity-show input preserves its lexical source
+
+Actual build7 show-alias-missing-reference-origin reports lambda identifier1:15
+instead of original source Ref2:0. recipes' origin-aware traversal intentionally
+never calls Source wrappers; Ref is nonlocatable, so apply.rs:217–223 passed a raw
+Ref clone into the legacy root show callback. eval_expr(Ident it) then correctly
+assigns its first available source, but that origin was already lost upstream.
+Before invoking this callback, retain the proven input Ref origin supplied by
+reference_supplements' private source carrier in the callback Content argument.
+Source remains language-transparent; with_source_span preserves prior origins.
+Do not override callback output: a truly constructed replacement Ref must keep
+its own construction callsite. Ordinary nonRef arguments stay unchanged. No
+public contract or global expression-source/argument-merge changes.

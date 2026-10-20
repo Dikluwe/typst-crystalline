@@ -1,0 +1,19 @@
+{
+  "utc_recorded": "2026-10-20T02:39:13.567754+00:00",
+  "first_attempt": {
+    "process_created": false,
+    "outcome": "automatic permission review expired before deadline; not an unsafe-action finding",
+    "tool_error": "CreateProcess Rejected: The automatic permission approval review did not finish before its deadline. You may retry once."
+  },
+  "retry": {
+    "identical_command": true,
+    "started": "2026-10-20T02:39:03.325157+00:00",
+    "unit": "tekt-figure-final-gates-3.service",
+    "invocation_id": "5bc33ac0024e4573b11c191dfa40d55b",
+    "MemoryMax": "12G",
+    "MemoryHigh": "8G",
+    "MemorySwapMax": "0",
+    "worker": "final_gates_3.py"
+  },
+  "no_remaining_launch_block": true
+}

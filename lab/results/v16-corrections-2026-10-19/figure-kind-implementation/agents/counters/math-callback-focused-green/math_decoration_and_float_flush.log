@@ -1,0 +1,19 @@
+   Compiling typst-wiring v0.1.0 (/repos/Antigravity/typst-crystalline/04_wiring)
+    Finished `test` profile [unoptimized] target(s) in 0.74s
+     Running tests/math_decoration_and_float_flush.rs (lab/target/product/debug/deps/math_decoration_and_float_flush-dc7ff988b287e365)
+
+running 11 tests
+test p1292_a_cancel_callback_cross_context_span_and_background ... ok
+test p1292_a_cancel_surface_repr_and_errors ... ok
+test p1292_b_italic_f_preserves_frame_and_shortens_only_rule ... ok
+test p1292_b_math_underline_math_constants_styles_and_italic_correction ... ok
+test p1292_b_math_underline_surface_identity_and_errors ... ok
+test p1292_b_plain_mixed_baselines_and_following_line_advance ... ok
+test p1292_b_underbar_fallback_constants_are_not_generic_line_defaults ... ok
+test p1292_c_vec_cardinality_defaults_repr_and_errors ... ok
+test p1292_c_vec_gap_finite_auto_absolute_and_mixed ... ok
+test p1292_d_flush_prefix_suffix_clearance_nested_and_noop ... ok
+test p1292_d_place_flush_namespace_repr_and_errors ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.06s
+

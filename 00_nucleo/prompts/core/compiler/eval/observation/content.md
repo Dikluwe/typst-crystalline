@@ -1,5 +1,5 @@
 # L0 — compiler/eval/observation/content
-Hash do Código: 18356a47
+Hash do Código: 49064824
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -56,3 +56,29 @@ span must not authorize caching, regardless of language equality.
 Preserve exclusive ownership and static dispatch, without I/O, new
 signature/trait/flag or eval↔layout phase change. C2/C/macro tests and
 collections, builds and lineage are required before certification.
+
+## Complete captured recipe proof
+
+Measured 2026-10-19: content.rs:38 unconditionally classifies ShowRecipe as
+Unproven; entities/content.rs:202 declares body, textual, context_id_floor,
+rules, styles, guards, and file. Integrated RED8's actual module query records
+fields=None, kind=Same, body=Unproven, supplement=Unproven. The failing full
+LocatedContent reflexivity control identifies captured recipes, without any
+authoritative-field fallback or weakened query-length contract.
+
+Matching ShowRecipe variants compare all seven stored fields with complete
+ShowRecipeContent destructuring. Compare body recursively, textual and floor
+exactly, rules in stored order through existing ShowRule observers (including
+selector and transformation capabilities), raw StyleChain through its complete
+observer, guards in order, and source file identity. Distinct Content variants
+remain Different. This is a causal representation proof, never execution or
+public language equality. Recipes with opaque body, rules, or captured style
+values remain Unproven, including shared opaque allocations. No recipe erasure,
+global Func relaxation, cascade resolution, or query-membership shortcut.
+
+Test reflexivity for fully comparable captured recipes and perturb body,
+textual, context_id_floor, rules (including selector/transformation), styles,
+guards, and file individually. Preserve rule/guard order, raw empty-node
+presence and shadowed values. Opaque body/rule/style controls must stay
+Unproven. The actual own-hidden Figure query RED8 test remains unchanged and
+must become Same through this proof.

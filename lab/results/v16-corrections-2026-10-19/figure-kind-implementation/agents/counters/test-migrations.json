@@ -1,0 +1,24 @@
+{
+  "migrated_semantic_tests": [
+    "introspect_resolve_label_de_figura",
+    "introspect_duas_figuras_contadores_independentes",
+    "introspect_figura_sem_caption_nao_incrementa_contador",
+    "figuras_kind_diferente_contadores_independentes",
+    "figure_label_default_no_lang_set_devolve_figure",
+    "figure_label_lang_pt_image_devolve_figura",
+    "figure_label_lang_en_table_devolve_table",
+    "figure_label_lang_de_raw_devolve_listing",
+    "figure_label_lang_unknown_fallback_en",
+    "figure_label_kind_custom_devolve_capitalizado",
+    "figure_counters_independentes_por_kind_continuam_a_funcionar_apos_p158b",
+    "introspect_figure_kind_none_resolve_para_image_no_counter",
+    "figures_capturadas_em_paralelo",
+    "introspector_consistencia_figure",
+    "figure_walk_caminho_introspector_ja_activo",
+    "figure_walk_intr_counters_populated_correctamente",
+    "figure_paridade_introspector_pos_p190h",
+    "figure_numbering_inactivo_nao_popula_intr",
+    "figure_compute_labelled_p195d_continua_funcional"
+  ],
+  "reason": "Explicit approved identity and runtime compatibility migration; raw adapter/tag tests retain Name; no automatic string shadow."
+}

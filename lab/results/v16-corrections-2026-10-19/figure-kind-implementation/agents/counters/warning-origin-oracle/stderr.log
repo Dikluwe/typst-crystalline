@@ -1,0 +1,16 @@
+warning: the numeral system `hebrew` cannot represent zero
+  ┌─ lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/warning-origin-oracle/distinct-spans.typ:1:58
+  │
+1 │ #counter(figure.where(kind:table)).update(n=>{let ignored=numbering("א",0);n})
+  │                                                           ^^^^^^^^^^^^^^^^
+  │
+  = hint: this will become a hard error in the future
+
+warning: the numeral system `hebrew` cannot represent zero
+  ┌─ lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/warning-origin-oracle/distinct-spans.typ:2:58
+  │
+2 │ #counter(figure.where(kind:table)).update(n=>{let ignored=numbering("א",0);n})
+  │                                                           ^^^^^^^^^^^^^^^^
+  │
+  = hint: this will become a hard error in the future
+

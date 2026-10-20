@@ -1,0 +1,86 @@
+{
+  "utc_start": "2026-10-19T23:44:03.959919+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "diff_head_stat": " .../core/compiler/eval/bindings/field_access.md    |  15 +\n .../eval/bindings/field_access/content_methods.md  |  15 +\n .../core/compiler/eval/observation/elements.md     |  15 +\n .../core/compiler/eval/operators/equality.md       |  15 +\n .../prompts/core/compiler/eval/rules/apply.md      |  17 +\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  17 +\n .../core/compiler/eval/selector_matching.md        |  17 +\n 00_nucleo/prompts/core/compiler/introspect.md      |  20 +\n .../core/compiler/introspect/convergence.md        |  24 +\n .../core/compiler/introspect/entrypoints.md        |  15 +\n .../core/compiler/introspect/extract_payload.md    |  15 +\n .../prompts/core/compiler/introspect/fixpoint.md   |  15 +\n .../prompts/core/compiler/introspect/labelled.md   |  15 +\n .../prompts/core/compiler/introspect/locatable.md  |  15 +\n .../core/compiler/introspect/materialize_time.md   |  26 +\n .../prompts/core/compiler/introspect/populate.md   |  15 +\n .../prompts/core/compiler/introspect/queries.md    |  15 +\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  27 +\n .../prompts/core/compiler/layout/checkpoint.md     |  17 +\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  20 +\n .../prompts/core/compiler/layout/measurement.md    |  15 +\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  23 +\n .../prompts/core/compiler/layout/placement.md      |  15 +\n .../prompts/core/compiler/layout/references.md     |  20 +\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  26 +\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  15 +\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  15 +\n .../prompts/core/compiler/stdlib/figure_image.md   |  17 +\n .../prompts/core/compiler/stdlib/layout/grid.md    |  15 +\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  15 +\n .../core/compiler/stdlib/tests/figure_image.md     |  14 +\n .../prompts/core/entities/content/construction.md  |  15 +\n .../core/entities/content/tests/representation.md  |  15 +\n .../core/entities/content/tests/traversal.md       |  15 +\n .../prompts/core/entities/content/traversal.md     |  15 +\n 00_nucleo/prompts/core/entities/element_payload.md |  29 +\n 00_nucleo/prompts/core/entities/elements/figure.md |  37 +\n 00_nucleo/prompts/core/entities/elements/grid.md   |  20 +\n 00_nucleo/prompts/core/entities/introspector.md    |  17 +\n 00_nucleo/prompts/infra/export/tests/mod.md        |  15 +\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  15 +\n .../infra/pipeline/context_stabilization.md        |  15 +\n 00_nucleo/prompts/shell/cli.md                     |  15 +\n 01_core/src/compiler/eval/bindings/field_access.rs |  43 +\n .../eval/bindings/field_access/content_methods.rs  |  26 +-\n 01_core/src/compiler/eval/observation/elements.rs  | 105 ++-\n 01_core/src/compiler/eval/operators/equality.rs    | 126 ++-\n 01_core/src/compiler/eval/rules/apply.rs           | 182 ++--\n 01_core/src/compiler/eval/rules/set.rs             |  57 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 122 ++-\n 01_core/src/compiler/introspect.rs                 | 923 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  81 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  38 +\n 01_core/src/compiler/introspect/extract_payload.rs |   7 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  30 +\n 01_core/src/compiler/introspect/labelled.rs        |  20 +-\n .../src/compiler/introspect/materialize_time.rs    |  88 +-\n 01_core/src/compiler/introspect/populate.rs        |  43 +-\n 01_core/src/compiler/introspect/queries.rs         |  43 +-\n 01_core/src/compiler/introspect/walk.rs            |  29 +-\n 01_core/src/compiler/layout/checkpoint.rs          |   6 +\n 01_core/src/compiler/layout/figure.rs              | 261 +++++-\n 01_core/src/compiler/layout/measurement.rs         |   5 +-\n 01_core/src/compiler/layout/mod.rs                 |  33 +\n 01_core/src/compiler/layout/placement.rs           |   1 +\n 01_core/src/compiler/layout/references.rs          | 140 ++++\n 01_core/src/compiler/layout/tests.rs               | 370 ++++++++-\n 01_core/src/compiler/realize/mod.rs                |   2 +\n 01_core/src/compiler/realize/recipes.rs            |  33 +-\n 01_core/src/compiler/stdlib/figure_image.rs        | 324 ++++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  14 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 112 ++-\n 01_core/src/entities/content/construction.rs       |  11 +-\n .../src/entities/content/tests/representation.rs   |   6 +\n 01_core/src/entities/content/tests/traversal.rs    |  34 +\n 01_core/src/entities/content/traversal.rs          |  11 +\n 01_core/src/entities/element_payload.rs            |  44 +-\n 01_core/src/entities/elements/figure.rs            | 537 +++++++++++-\n 01_core/src/entities/elements/grid.rs              |  59 ++\n 01_core/src/entities/introspector.rs               |   8 +\n 02_shell/src/cli.rs                                |  87 +-\n 03_infra/src/export/tests/mod.rs                   |  27 +-\n 03_infra/src/pipeline/bundle.rs                    |  11 +-\n 03_infra/src/pipeline/context_stabilization.rs     |  13 +-\n 85 files changed, 4338 insertions(+), 540 deletions(-)\n",
+  "product": "lab/target/product/debug/typst",
+  "product_sha256": "6b32fca3e862203abfe832ba4bb32a9286f68fd9699c96e3bfd1e4a1d3659241",
+  "cases": [
+    {
+      "name": "ancestor-hidden",
+      "source": "#show block:none\n#block(figure([A],kind:raw,supplement:[Listing]))\n#context [#metadata((query(figure).len(),counter(figure).final(),counter(figure.where(kind:raw)).final())) <probe>]\n",
+      "source_sha256": "f15bc57ab663e4f49c56ee3d70d03a833499ac7b9f3d595bf65efdace6825b3f",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "query",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/ancestor-hidden.typ",
+        "<probe>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "utc_start": "2026-10-19T23:44:04.194885+00:00",
+      "utc_end": "2026-10-19T23:44:04.214945+00:00",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/ancestor-hidden.typ:1:0\n  \u2502  \n1 \u2502 \u256d #show block:none\n2 \u2502 \u2502 #block(figure([A],kind:raw,supplement:[Listing]))\n3 \u2502 \u2502 #context [#metadata((query(figure).len(),counter(figure).final(),counter(figure.where(kind:raw)).final())) <probe>]\n4 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).first().value' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/ancestor-hidden.typ` instead\n\n"
+    },
+    {
+      "name": "own-hidden",
+      "source": "#show figure:none\n#figure([A],kind:raw,supplement:[Listing])\n#context [#metadata((query(figure).len(),counter(figure).final(),counter(figure.where(kind:raw)).final())) <probe>]\n",
+      "source_sha256": "f9724115003766987784e33e2bc5ef0d4189d02c8ca4e3b2de5129491b012440",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "query",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/own-hidden.typ",
+        "<probe>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "utc_start": "2026-10-19T23:44:04.215118+00:00",
+      "utc_end": "2026-10-19T23:44:04.234073+00:00",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/own-hidden.typ:1:0\n  \u2502  \n1 \u2502 \u256d #show figure:none\n2 \u2502 \u2502 #figure([A],kind:raw,supplement:[Listing])\n3 \u2502 \u2502 #context [#metadata((query(figure).len(),counter(figure).final(),counter(figure.where(kind:raw)).final())) <probe>]\n4 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).first().value' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/own-hidden.typ` instead\n\n"
+    },
+    {
+      "name": "duplicate-kind-first",
+      "source": "#figure([A],kind:table,caption:[ONE]) <same>\n#figure([B],kind:raw,caption:[TWO]) <same>\n#context [#metadata((query(<same>).first().kind,counter(figure.where(kind:table)).final(),counter(figure.where(kind:raw)).final())) <probe>]\n",
+      "source_sha256": "24dd03ea58c9dfbf26669ab6a4eb8db371b40a06eec13a6f241664237b99d2a5",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "query",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/duplicate-kind-first.typ",
+        "<probe>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "utc_start": "2026-10-19T23:44:04.234229+00:00",
+      "utc_end": "2026-10-19T23:44:04.823215+00:00",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/duplicate-kind-first.typ:1:0\n  \u2502  \n1 \u2502 \u256d #figure([A],kind:table,caption:[ONE]) <same>\n2 \u2502 \u2502 #figure([B],kind:raw,caption:[TWO]) <same>\n3 \u2502 \u2502 #context [#metadata((query(<same>).first().kind,counter(figure.where(kind:table)).final(),counter(figure.where(kind:raw)).final())) <probe>]\n4 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).first().value' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/duplicate-kind-first.typ` instead\n\n"
+    },
+    {
+      "name": "duplicate-numbering-first",
+      "source": "#figure([A],kind:table,caption:[ONE],numbering:none) <same>\n#figure([B],kind:raw,caption:[TWO]) <same>\n#context [#metadata((query(<same>).first().kind,counter(figure.where(kind:table)).final(),counter(figure.where(kind:raw)).final())) <probe>]\n",
+      "source_sha256": "99c2790569a682aea14186eddaca8df85fdb00160e91ff57545fc697a341cfa4",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "query",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/duplicate-numbering-first.typ",
+        "<probe>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "utc_start": "2026-10-19T23:44:04.823380+00:00",
+      "utc_end": "2026-10-19T23:44:05.407820+00:00",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/duplicate-numbering-first.typ:1:0\n  \u2502  \n1 \u2502 \u256d #figure([A],kind:table,caption:[ONE],numbering:none) <same>\n2 \u2502 \u2502 #figure([B],kind:raw,caption:[TWO]) <same>\n3 \u2502 \u2502 #context [#metadata((query(<same>).first().kind,counter(figure.where(kind:table)).final(),counter(figure.where(kind:raw)).final())) <probe>]\n4 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).first().value' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership-candidate-1/duplicate-numbering-first.typ` instead\n\n"
+    }
+  ],
+  "utc_end": "2026-10-19T23:44:05.407842+00:00"
+}

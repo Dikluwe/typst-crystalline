@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-20T03:14:49.192053+00:00",
+  "status": "productive fix written after focused frozen RED; GREEN not yet claimed",
+  "before_function_sha256": "d3659da16d396d6860e4d11d97d7bc32de2726d3f07d0a5bb5f0b522cf932732",
+  "after_function_sha256": "0330a2b5c7dd6c32aefe3314fdfcd90831e09fc9e8ef741764aeaec5bc111768",
+  "complete_tests_sha256_unchanged": "2765fcccf2c82f0e3c85ffe8a1a4a38d99b640f169d7462983341207fa723a13",
+  "unchanged_prefix_sha256": "c09764bdbe2cfcd321ecc550958fe377af7a2121dc1bf70201ae3359f9620cd4",
+  "unchanged_suffix_sha256": "3bb0fde9a333cd635ae5f7d2cdc43f64d309c07af3592c93aeff918e719a8076",
+  "source_sha256": "5b206293d14fdb9e3d85260e129bbc34d33e41f40f127bf02b2986ac6f22c532",
+  "delta": "Only counter_final_owned body changed. Key classified once, filtered mark remains before guard, modern all keys require known context plus actual Location; measured sourced Error and two ordered hints; existing unfiltered public delegation and filtered fold unchanged.",
+  "public_legacy_helpers": "No source edits in counter.rs or native string legacy routes; no get/at/query/state/fields changes."
+}

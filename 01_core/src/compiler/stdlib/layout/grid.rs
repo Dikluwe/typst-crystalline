@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/grid.md
-//! @prompt-hash 98f972ca
+//! @prompt-hash c561d849
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -243,6 +243,7 @@ pub fn native_grid(
     let mut header: Option<Content> = None;
     let mut footer: Option<Content> = None;
 
+    let mut source_order = Vec::new();
     let mut cells: Vec<Content> = Vec::new();
     let mut hlines: Vec<crate::entities::elements::grid_hline::GridHLineElem> =
         Vec::new();
@@ -255,7 +256,8 @@ pub fn native_grid(
     let mut col = 0usize;
     for v in args.items.iter() {
         if let Value::Content(c) = v {
-            match c {
+            use crate::entities::elements::grid::GridChildOrder;
+            match c.source_body() {
                 Content::GridHLine(e) => {
                     let mut h = (**e).clone();
                     if h.position == "auto" {
@@ -266,6 +268,7 @@ pub fn native_grid(
                         };
                     }
                     h.row = row;
+                    source_order.push(GridChildOrder::HLine(hlines.len()));
                     hlines.push(h);
                 }
                 Content::GridVLine(e) => {
@@ -274,6 +277,7 @@ pub fn native_grid(
                         vline.position = EcoString::from("left");
                     }
                     vline.col = col;
+                    source_order.push(GridChildOrder::VLine(vlines.len()));
                     vlines.push(vline);
                 }
                 // P772i — GridHeader/GridFooter não são células normais:
@@ -286,6 +290,7 @@ pub fn native_grid(
                             "grid: não pode haver mais do que um header (scope-out — múltiplos headers por `level` não suportados)".to_string(),
                         )]);
                     }
+                    source_order.push(GridChildOrder::Header);
                     header = Some(c.clone());
                 }
                 Content::GridFooter(_) => {
@@ -295,9 +300,10 @@ pub fn native_grid(
                             "grid: não pode haver mais do que um footer".to_string(),
                         )]);
                     }
+                    source_order.push(GridChildOrder::Footer);
                     footer = Some(c.clone());
                 }
-                other => {
+                _ => {
                     // P822 — paridade vanilla `resolve.rs:1889`: o footer
                     // tem de terminar na última linha; qualquer célula do
                     // corpo depois do footer é erro (mensagem verbatim).
@@ -309,7 +315,8 @@ pub fn native_grid(
                             "footer must end at the last row".to_string(),
                         )]);
                     }
-                    cells.push(other.clone());
+                    source_order.push(GridChildOrder::Cell(cells.len()));
+                    cells.push(c.clone());
                     col += 1;
                     if col >= num_cols {
                         col = 0;
@@ -341,6 +348,7 @@ pub fn native_grid(
 
     Ok(Value::Content(Content::Grid(std::sync::Arc::new(
         crate::entities::elements::grid::GridElem {
+            source_order: Some(source_order),
             columns,
             rows,
             cells,

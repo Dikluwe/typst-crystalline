@@ -1,0 +1,54 @@
+{
+  "utc": "2026-10-19T23:28:30.284478+00:00",
+  "mode": "independent read-only review; no Cargo",
+  "source_sha256": {
+    "01_core/src/compiler/realize/figure_kind.rs": "01e2c412e7bae42092c8d300c1d3cfabf4855f9f6c8636c79da937c5d2df1de8",
+    "01_core/src/compiler/realize/figure.rs": "7be3a9e3deda2579e986602c7b6b4ad9b261265382108e6694d6e34428bbb7f7",
+    "01_core/src/compiler/realize/recipes.rs": "c32ebe02999179282468fadf5dd7387e069aa33bbe530d16a6d6400cbe0acd65",
+    "01_core/src/compiler/eval/rules/apply.rs": "3e6dc5750b97d20092a677017316224aba6cf95886934f39c805a1ab1be6d6bd",
+    "01_core/src/compiler/eval/rules/set.rs": "cd7dcc97aaf075a6274c516c668412546b5474162c4f7786d30eb8230ad3fad5",
+    "01_core/src/compiler/eval/selector_matching.rs": "fd6082b31e9a77522ce0b46aafe099d8cc81e0d1a7d22db3b83423897d14e2fd"
+  },
+  "findings": [
+    {
+      "id": "grid-line-targets",
+      "status": "confirmed source omission; sent root and realization agent",
+      "evidence": "figure_kind.rs Grid source-order HLine/VLine descriptors are ignored; frozen semantic-partition requires all descriptor kinds resolved in order.",
+      "refutation": "find Grid with actual line descriptor against exact native_grid_hline/vline must return that line.",
+      "followup": "Realization agent reports scoped fixes and tests; root integration must validate GREEN."
+    },
+    {
+      "id": "native-target-coverage",
+      "status": "confirmed source helper coverage gap; sent root and realization agent",
+      "evidence": "matching_root delegates native_element_matches which returns false for FigureCaption and FootnoteEntry, and all Shape including distinguishable Circle origin.",
+      "refutation": "find Sequence containing FigureCaption against native_figure_caption must return that caption, rather than None/body fallback.",
+      "followup": "Realization agent reports scoped fixes and tests; root integration must validate GREEN."
+    },
+    {
+      "id": "invalid-order-explicit-kinds",
+      "status": "requires contract classification; sent root and realization agent",
+      "evidence": "find(Name) returns body directly and explicit resolve_kind skips inspection; malformed Grid metadata may bypass invariant validation.",
+      "refutation": "Exercise malformed Grid with Name+Func supplement and explicit Element(grid)+None supplement; compare with approved rejected-invariant statement.",
+      "followup": "Realization agent reports scoped fixes and tests; root integration must validate GREEN."
+    },
+    {
+      "id": "hash-name-mismatch",
+      "status": "refuted and withdrawn by reporting agent",
+      "evidence": "Func Debug in entities/func.rs:392-395 writes constant <function>, so aliases do not alter FigureKind or Content Debug strings. No hash implementation expansion justified."
+    },
+    {
+      "id": "typed-kind-convergence",
+      "status": "confirmed source-observable hash input collapse; sent root",
+      "evidence": "ElementPayload::Hash formats Debug; Func::Debug is constant. Figure Element(table) versus Element(raw), with all other fields equal, emits identical Hash input. Tag derives Hash; compute_tags_hash cannot detect the change.",
+      "refutation": "Same Location, same Figure fields, typed kind table versus raw must change convergence hash; native-pointer aliases must retain equal hashes.",
+      "scope": "Special-case exact FigureKind hashing in existing Figure payload Hash; no global Content hash change required."
+    }
+  ],
+  "verified_properties": [
+    "Semantic Content/Value catalogues preserve explicit opacity for Dictionaries, StateUpdate internal value, Context callbacks and external Dynamic enumeration.",
+    "Prepared supplement resolves before own selected show replacement; no-rule path also prepares before child traversal.",
+    "Callback call uses effective styles, in_context true and no current_location, restores both after success/error, then existing value_to_display_content operation.",
+    "Realized semantic traversal follows original; semantic Figure traversal chooses resolved supplement or lexical content exactly once."
+  ],
+  "followup_utc": "2026-10-19T23:30:41.413210+00:00"
+}

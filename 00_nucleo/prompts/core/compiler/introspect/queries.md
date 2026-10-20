@@ -1,5 +1,5 @@
 # L0 — introspect/queries
-Hash do Código: 90dbb102
+Hash do Código: ea7e0edc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/realization-order.toml sha256:958649ea9ebdd471f101874ff8cf94feb995ee037c43eb6e2f1d1ad19a151ef3
@@ -143,3 +143,18 @@ lookup and current composition/boundary behavior. Re-run the unchanged frozen
 Circle replay, including both occurrence-font measurements, plus introspection
 and full suites, paths, direct/reverse lineage and exact lint delta. Never change
 the frozen replay policy to accept the lost second occurrence.
+
+
+## Approved Figure/Grid occurrence counter correction
+
+### Evidence before decision
+
+Baseline HEAD `731f0ffdf4c7c152f590551e72ff63f7bd85ef85`; the reviewed current-pin measurements and exact source anchors are retained in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, `agents/counter/design.md` and `agents/counter/counter-probes.json`. In that evidence, captionless/numbered Figures count; manual Set/Func actions make caption ordinal indexing incorrect; typed element kinds and custom names require distinct keys. These are language values/errors, not Rust or rendering-byte equality. The human explicitly approved the complete Figure/Grid contracts, phases and compatibility changes in the current implementation session. This approval satisfies ADR-0127 for this exact scope. Historical conflicting caption-only or productive string-projection clauses are superseded only as described here; unrelated contracts remain.
+
+### Exclusive responsibility
+
+Find prepared Figure histories by counter_keys_eq before registry fallback. counter_values_at, counter_final_values, flat_counter_at and formatted_counter_at agree and project by recorded causal order. A matching present empty Vec stays Some(&[]) for borrowed reads; absence is distinct. Never execute callbacks. Preserve figure_number_at_index implementation exactly; productive snapshots no longer promise automatic string history. Explicit filtered readers continue their independent full fold; no diagnostic cache.
+
+### Acceptance and limits
+
+L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.

@@ -1,0 +1,640 @@
+{
+  "utc_start": "2026-10-19T23:41:46.667441+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "diff_head_stat": " .../core/compiler/eval/bindings/field_access.md    |  15 +\n .../eval/bindings/field_access/content_methods.md  |  15 +\n .../core/compiler/eval/observation/elements.md     |  15 +\n .../core/compiler/eval/operators/equality.md       |  15 +\n .../prompts/core/compiler/eval/rules/apply.md      |  17 +\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  17 +\n .../core/compiler/eval/selector_matching.md        |  17 +\n 00_nucleo/prompts/core/compiler/introspect.md      |  20 +\n .../core/compiler/introspect/convergence.md        |  24 +\n .../core/compiler/introspect/entrypoints.md        |  15 +\n .../core/compiler/introspect/extract_payload.md    |  15 +\n .../prompts/core/compiler/introspect/fixpoint.md   |  15 +\n .../prompts/core/compiler/introspect/labelled.md   |  15 +\n .../prompts/core/compiler/introspect/locatable.md  |  15 +\n .../core/compiler/introspect/materialize_time.md   |  26 +\n .../prompts/core/compiler/introspect/populate.md   |  15 +\n .../prompts/core/compiler/introspect/queries.md    |  15 +\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  27 +\n .../prompts/core/compiler/layout/checkpoint.md     |  17 +\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  20 +\n .../prompts/core/compiler/layout/measurement.md    |  15 +\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  23 +\n .../prompts/core/compiler/layout/placement.md      |  15 +\n .../prompts/core/compiler/layout/references.md     |  20 +\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  26 +\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  15 +\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  15 +\n .../prompts/core/compiler/stdlib/figure_image.md   |  17 +\n .../prompts/core/compiler/stdlib/layout/grid.md    |  15 +\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  15 +\n .../core/compiler/stdlib/tests/figure_image.md     |  14 +\n .../prompts/core/entities/content/construction.md  |  15 +\n .../core/entities/content/tests/representation.md  |  15 +\n .../core/entities/content/tests/traversal.md       |  15 +\n .../prompts/core/entities/content/traversal.md     |  15 +\n 00_nucleo/prompts/core/entities/element_payload.md |  29 +\n 00_nucleo/prompts/core/entities/elements/figure.md |  37 +\n 00_nucleo/prompts/core/entities/elements/grid.md   |  20 +\n 00_nucleo/prompts/core/entities/introspector.md    |  17 +\n 00_nucleo/prompts/infra/export/tests/mod.md        |  15 +\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  15 +\n .../infra/pipeline/context_stabilization.md        |  15 +\n 00_nucleo/prompts/shell/cli.md                     |  15 +\n 01_core/src/compiler/eval/bindings/field_access.rs |  43 +\n .../eval/bindings/field_access/content_methods.rs  |  26 +-\n 01_core/src/compiler/eval/observation/elements.rs  | 105 ++-\n 01_core/src/compiler/eval/operators/equality.rs    | 126 ++-\n 01_core/src/compiler/eval/rules/apply.rs           | 182 ++--\n 01_core/src/compiler/eval/rules/set.rs             |  57 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 122 ++-\n 01_core/src/compiler/introspect.rs                 | 923 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  81 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  38 +\n 01_core/src/compiler/introspect/extract_payload.rs |   7 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  30 +\n 01_core/src/compiler/introspect/labelled.rs        |  20 +-\n .../src/compiler/introspect/materialize_time.rs    |  88 +-\n 01_core/src/compiler/introspect/populate.rs        |  43 +-\n 01_core/src/compiler/introspect/queries.rs         |  43 +-\n 01_core/src/compiler/introspect/walk.rs            |  29 +-\n 01_core/src/compiler/layout/checkpoint.rs          |   6 +\n 01_core/src/compiler/layout/figure.rs              | 261 +++++-\n 01_core/src/compiler/layout/measurement.rs         |   5 +-\n 01_core/src/compiler/layout/mod.rs                 |  33 +\n 01_core/src/compiler/layout/placement.rs           |   1 +\n 01_core/src/compiler/layout/references.rs          | 140 ++++\n 01_core/src/compiler/layout/tests.rs               | 370 ++++++++-\n 01_core/src/compiler/realize/mod.rs                |   2 +\n 01_core/src/compiler/realize/recipes.rs            |  33 +-\n 01_core/src/compiler/stdlib/figure_image.rs        | 324 ++++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  14 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 112 ++-\n 01_core/src/entities/content/construction.rs       |  11 +-\n .../src/entities/content/tests/representation.rs   |   6 +\n 01_core/src/entities/content/tests/traversal.rs    |  34 +\n 01_core/src/entities/content/traversal.rs          |  11 +\n 01_core/src/entities/element_payload.rs            |  44 +-\n 01_core/src/entities/elements/figure.rs            | 537 +++++++++++-\n 01_core/src/entities/elements/grid.rs              |  59 ++\n 01_core/src/entities/introspector.rs               |   8 +\n 02_shell/src/cli.rs                                |  87 +-\n 03_infra/src/export/tests/mod.rs                   |  27 +-\n 03_infra/src/pipeline/bundle.rs                    |  11 +-\n 03_infra/src/pipeline/context_stabilization.rs     |  13 +-\n 85 files changed, 4338 insertions(+), 540 deletions(-)\n",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "runner_sha256": "19e5161a9f3bdc079fda6f909e74e202a4dc3f12c6354ad487deddb410d329d7",
+  "cases": [
+    {
+      "name": "explicit-caption",
+      "source": "#figure([OUTER], caption:[OUTER-CAP], supplement:figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))\n#context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n",
+      "source_sha256": "9989e5d9025d6e7446a57e0ef09ee2a76fc067f08f5bcd6b60cd4d7d2fc40a33",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:46.832073+00:00",
+          "utc_end": "2026-10-19T23:41:46.839194+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption.typ:2:128\n  \u2502\n2 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:46.839208+00:00",
+          "utc_end": "2026-10-19T23:41:46.845491+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption.typ:2:128\n  \u2502\n2 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "callback-caption",
+      "source": "#figure([OUTER], caption:[OUTER-CAP], supplement:it=>figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))\n#context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n",
+      "source_sha256": "8e1b9e5ddb2bc82230e54fc07bd511ccde5159a09407fb0b21b74d48577153aa",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:46.845773+00:00",
+          "utc_end": "2026-10-19T23:41:46.852075+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption.typ:2:128\n  \u2502\n2 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:46.852088+00:00",
+          "utc_end": "2026-10-19T23:41:46.858243+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption.typ:2:128\n  \u2502\n2 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "explicit-no-caption",
+      "source": "#figure([OUTER], supplement:figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))\n#context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n",
+      "source_sha256": "fe542995a0274afc2328a61aa60413e3b0cf6c84d3a084a949c5c2cc1249f3b8",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:46.858470+00:00",
+          "utc_end": "2026-10-19T23:41:46.864372+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption.typ:2:128\n  \u2502\n2 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:46.864385+00:00",
+          "utc_end": "2026-10-19T23:41:46.871054+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption.typ:2:128\n  \u2502\n2 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "callback-no-caption",
+      "source": "#figure([OUTER], supplement:it=>figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))\n#context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n",
+      "source_sha256": "e4581e64ca4498cc85b796bc6a66ecd191d880fd1c5271f86682ba65bdb10020",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:46.871269+00:00",
+          "utc_end": "2026-10-19T23:41:46.877631+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption.typ:2:128\n  \u2502\n2 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:46.877643+00:00",
+          "utc_end": "2026-10-19T23:41:46.883669+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption.typ:2:128\n  \u2502\n2 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "explicit-reference",
+      "source": "#figure([OUTER], supplement:figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner])) <outer>\n@outer\n#context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n",
+      "source_sha256": "ec13d66360a89a8d950b41db2835c1bd1b218cfc8fdd67858f3baa8c60dbc2d8",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:46.883880+00:00",
+          "utc_end": "2026-10-19T23:41:46.889863+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference.typ:3:128\n  \u2502\n3 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:46.889875+00:00",
+          "utc_end": "2026-10-19T23:41:46.895982+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference.typ:3:128\n  \u2502\n3 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "callback-reference",
+      "source": "#figure([OUTER], supplement:it=>figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner])) <outer>\n@outer\n#context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n",
+      "source_sha256": "5b2cfd758b34dfb9a51471af830b6ba646539b9f3e0f61230f48280cede2f9f9",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:46.896191+00:00",
+          "utc_end": "2026-10-19T23:41:46.902385+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference.typ:3:128\n  \u2502\n3 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:46.902398+00:00",
+          "utc_end": "2026-10-19T23:41:46.908354+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference.typ:3:128\n  \u2502\n3 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "explicit-unused",
+      "source": "#let unused=figure([OUTER], caption:[OUTER-CAP], supplement:figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))\n[VISIBLE]\n#context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n",
+      "source_sha256": "c28fac548e1ccdc6d3dafa488e5a96a7685a5940051889068aacf93e1f78ce84",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:46.908619+00:00",
+          "utc_end": "2026-10-19T23:41:46.914545+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused.typ:3:128\n  \u2502\n3 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:46.914561+00:00",
+          "utc_end": "2026-10-19T23:41:46.920370+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused.typ:3:128\n  \u2502\n3 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "callback-unused",
+      "source": "#let unused=figure([OUTER], caption:[OUTER-CAP], supplement:it=>figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))\n[VISIBLE]\n#context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n",
+      "source_sha256": "50c7f24732b7a8d3f60e0ca167529db248cb4a3ce70f7a3add515f2b5799b4c1",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:46.920629+00:00",
+          "utc_end": "2026-10-19T23:41:46.926493+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused.typ:3:128\n  \u2502\n3 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:46.926507+00:00",
+          "utc_end": "2026-10-19T23:41:46.932627+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused.typ:3:128\n  \u2502\n3 \u2502 #context { metadata((query(figure).len(),counter(figure.where(kind: table)).final(),counter(figure.where(kind: image)).final())) <probe> }\n  \u2502                                                                                                                                 ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "explicit-caption-implicit-demand-panic",
+      "source": "#counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n#figure([OUTER], caption:[OUTER-CAP], supplement:figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))",
+      "source_sha256": "ad9a5fc71164536ad470fa8f3db1550b4f5421519d3bcc94f9fc28b95fabe131",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:46.932886+00:00",
+          "utc_end": "2026-10-19T23:41:47.067553+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption-implicit-demand-panic.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption-implicit-demand-panic.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: NESTED_IMPLICIT_DEMAND\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption-implicit-demand-panic.typ:1:45\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n  \u2502                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:47.067569+00:00",
+          "utc_end": "2026-10-19T23:41:47.196480+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption-implicit-demand-panic.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: NESTED_IMPLICIT_DEMAND\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption-implicit-demand-panic.typ:1:45\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n  \u2502                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-caption-implicit-demand-panic.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "explicit-no-caption-no-implicit-demand",
+      "source": "#counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n#figure([OUTER], supplement:figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))",
+      "source_sha256": "f75d790dbbeeb100459907f266f27faf0ea71debbbec96d1ef216873e43a7efa",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:47.196795+00:00",
+          "utc_end": "2026-10-19T23:41:47.323125+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption-no-implicit-demand.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption-no-implicit-demand.pdf"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "pdf_sha256": "0252634e256925e60c383b7d7556f9405521eedaa202c58280d94538e51f66f8",
+          "text_argv": [
+            "pdftotext",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption-no-implicit-demand.pdf",
+            "-"
+          ],
+          "text_returncode": 0,
+          "text": "OUTER\n\n\f",
+          "text_stderr": ""
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:47.334911+00:00",
+          "utc_end": "2026-10-19T23:41:47.462717+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption-no-implicit-demand.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-no-caption-no-implicit-demand.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "explicit-reference-implicit-demand-panic",
+      "source": "#counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n#figure([OUTER], supplement:figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner])) <outer>\n@outer",
+      "source_sha256": "ad69ec012fd4bfcaf0dfa09201af5c8d349626dfe597ebb4e9a8f02ddb8fd432",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:47.463037+00:00",
+          "utc_end": "2026-10-19T23:41:47.593582+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference-implicit-demand-panic.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference-implicit-demand-panic.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: NESTED_IMPLICIT_DEMAND\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference-implicit-demand-panic.typ:1:45\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n  \u2502                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:47.593597+00:00",
+          "utc_end": "2026-10-19T23:41:47.724280+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference-implicit-demand-panic.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: NESTED_IMPLICIT_DEMAND\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference-implicit-demand-panic.typ:1:45\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n  \u2502                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-reference-implicit-demand-panic.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "explicit-unused-no-implicit-demand",
+      "source": "#counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n#let unused=figure([OUTER], caption:[OUTER-CAP], supplement:figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))\n[VISIBLE]",
+      "source_sha256": "fe9ea8a5b25435bd2234308c8889c66b3462dde581df4633ce2ae55ce63f3d33",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:47.724551+00:00",
+          "utc_end": "2026-10-19T23:41:47.851244+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused-no-implicit-demand.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused-no-implicit-demand.pdf"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "pdf_sha256": "7164a34179c5eccb3fb2e90842397f20021fed61afba057833b3047c3ba63193",
+          "text_argv": [
+            "pdftotext",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused-no-implicit-demand.pdf",
+            "-"
+          ],
+          "text_returncode": 0,
+          "text": "[VISIBLE]\n\n\f",
+          "text_stderr": ""
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:47.862611+00:00",
+          "utc_end": "2026-10-19T23:41:47.991560+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused-no-implicit-demand.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/explicit-unused-no-implicit-demand.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "callback-caption-implicit-demand-panic",
+      "source": "#counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n#figure([OUTER], caption:[OUTER-CAP], supplement:it=>figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))",
+      "source_sha256": "8be8977d1eca89ae236c810507dbc22b14aa548bf2bb860d5be4bc60603f991b",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:47.991844+00:00",
+          "utc_end": "2026-10-19T23:41:48.121023+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption-implicit-demand-panic.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption-implicit-demand-panic.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: NESTED_IMPLICIT_DEMAND\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption-implicit-demand-panic.typ:1:45\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n  \u2502                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:48.121037+00:00",
+          "utc_end": "2026-10-19T23:41:48.250122+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption-implicit-demand-panic.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: NESTED_IMPLICIT_DEMAND\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption-implicit-demand-panic.typ:1:45\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n  \u2502                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-caption-implicit-demand-panic.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "callback-no-caption-no-implicit-demand",
+      "source": "#counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n#figure([OUTER], supplement:it=>figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))",
+      "source_sha256": "e936cb6286d843b4bd6cc9766d2dbffd3eee09b074e324ad444a3b51d9c638d3",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:48.250396+00:00",
+          "utc_end": "2026-10-19T23:41:48.380689+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption-no-implicit-demand.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption-no-implicit-demand.pdf"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "pdf_sha256": "c550548bab481892735d025695a4fd83c885044d951b67f1fa33cec15817ffd1",
+          "text_argv": [
+            "pdftotext",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption-no-implicit-demand.pdf",
+            "-"
+          ],
+          "text_returncode": 0,
+          "text": "OUTER\n\n\f",
+          "text_stderr": ""
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:48.391777+00:00",
+          "utc_end": "2026-10-19T23:41:48.519827+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption-no-implicit-demand.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-no-caption-no-implicit-demand.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "callback-reference-implicit-demand-panic",
+      "source": "#counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n#figure([OUTER], supplement:it=>figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner])) <outer>\n@outer",
+      "source_sha256": "11b255feba5b3b5cb2b765d83bac0db144b66f4b30addfa764e7d28868e2b94f",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:48.520106+00:00",
+          "utc_end": "2026-10-19T23:41:48.648195+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference-implicit-demand-panic.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference-implicit-demand-panic.pdf"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: NESTED_IMPLICIT_DEMAND\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference-implicit-demand-panic.typ:1:45\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n  \u2502                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:48.648210+00:00",
+          "utc_end": "2026-10-19T23:41:48.778714+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference-implicit-demand-panic.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: NESTED_IMPLICIT_DEMAND\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference-implicit-demand-panic.typ:1:45\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n  \u2502                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-reference-implicit-demand-panic.typ` instead\n\n"
+        }
+      ]
+    },
+    {
+      "name": "callback-unused-no-implicit-demand",
+      "source": "#counter(figure.where(kind:table)).update(n=>panic(\"NESTED_IMPLICIT_DEMAND\"))\n#let unused=figure([OUTER], caption:[OUTER-CAP], supplement:it=>figure([INNER], kind: table, caption: [INNER-CAP], supplement: [Inner]))\n[VISIBLE]",
+      "source_sha256": "05e113bc991245bf565247d4917c5ee99118d6c856704c647ce46b1fca3cf017",
+      "runs": [
+        {
+          "command": "compile",
+          "utc_start": "2026-10-19T23:41:48.778975+00:00",
+          "utc_end": "2026-10-19T23:41:48.910673+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused-no-implicit-demand.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused-no-implicit-demand.pdf"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "pdf_sha256": "bb37240acf690f1974f3af56bfb208a0b40ab6a4a36ad8b05134033de86a102f",
+          "text_argv": [
+            "pdftotext",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused-no-implicit-demand.pdf",
+            "-"
+          ],
+          "text_returncode": 0,
+          "text": "[VISIBLE]\n\n\f",
+          "text_stderr": ""
+        },
+        {
+          "command": "query",
+          "utc_start": "2026-10-19T23:41:48.921769+00:00",
+          "utc_end": "2026-10-19T23:41:49.051675+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused-no-implicit-demand.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/nested-supplement-oracle-v2/callback-unused-no-implicit-demand.typ` instead\n\n"
+        }
+      ]
+    }
+  ],
+  "utc_end": "2026-10-19T23:41:49.051703+00:00"
+}

@@ -1,5 +1,5 @@
 # L0 — placement
-Hash do Código: eca8fdf5
+Hash do Código: 6ac30df8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -57,3 +57,18 @@ The paint-root change in this owner affects only its test observer: use the tree
 Require L0 first, meaningful RED→GREEN and unchanged negative controls, bilateral SVG/PDF positions and morphology, full core/workspace suite, all targets, build, rustdoc, fmt, Clippy, lineage and warning inventories with restricted resealing when separately authorized. No suppression, unsafe, new public field/trait/signature/default/mode/compatibility/pipeline phase or performance claim is authorized. Preserve text, styles, pages, errors, clips, images, fixup paths, markers, selection differential controls and rollback. Check simple/double Align with Place, text/non-text/mixed bodies, cells, Box, nested Align, explicit Block width, finite/Auto pages, Bottom/Horizon, gaps, scoping after Align, pending/committed lines, initial strong VSpace and page transitions. Check actual X/POST positions and inner coordinates, not only final page height; regressions demand measurement, not rewritten expectations.
 
 Committed-flow anchoring covers certified line/Shape/Block/Align/Grid/Raw/VSpace producers only. Invalid witnesses use the legacy route and remain pending. Block local region/clipping is bounded to the surviving region; fragmentation, Auto backing/height, outset, deferred external decoration, fractional sizing, textual/mathematical Auto alignment, Place horizontal behavior and full metadata/decorator integration retain separate owner criteria. Late pending-line settlement with inline Box/Transform and audit of Heading/List/Stack/Equation/Columns are still required before universal Place certification. Align containing only Place and the horizontal Source-certificate gap remain open; no RTL expansion is implied. Tiling transport approval exists, but production rendering is certified only by integrated owner gates, never carrier-only tests. Do not declare the whole Place/Block/Tiling objective complete from these bounded corrections.
+
+
+## Approved Figure/Grid occurrence amendment (2026-10-19)
+
+### Evidence before specification
+
+Baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` preserves the measured proposal in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, semantic partition, independent audit and counter receipts. The fixed oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Constructor string kind loses function identity; constructor inference precedes occurrence styles; separated Grid fields lose source order. Typed identity, lexical presence, field traversal and counter results are language semantics/morphology. The chosen Rust carriers are implementation mechanics. The owner explicitly approved the linked public fields, contracts, phases and compatibility changes on 2026-10-19 under ADR-0127; this amendment materializes that bounded decision.
+
+### Exclusive contract
+
+Transient Grid placement reconstruction copies source_order exactly. Preserve cells/header/footer/line placement, geometry, source provenance, and existing layout behavior. No order inference from separated storage.
+
+### Acceptance and limits
+
+Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.

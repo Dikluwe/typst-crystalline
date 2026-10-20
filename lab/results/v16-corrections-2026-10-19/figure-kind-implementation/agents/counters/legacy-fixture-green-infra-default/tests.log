@@ -1,0 +1,27 @@
+   Compiling bytemuck_derive v1.11.0
+   Compiling bytemuck v1.25.0
+   Compiling ring v0.17.14
+   Compiling font-types v0.11.3
+   Compiling read-fonts v0.39.2
+   Compiling rustls v0.23.42
+   Compiling syntect v5.3.0
+   Compiling rustls-webpki v0.103.13
+   Compiling tiny-skia-path v0.12.0
+   Compiling write-fonts v0.48.1
+   Compiling two-face v0.4.5
+   Compiling skrifa v0.42.1
+   Compiling image v0.24.9
+   Compiling rustybuzz v0.20.1
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling tiny-skia v0.12.0
+   Compiling subsetter v0.2.6
+   Compiling ureq v2.12.1
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `test` profile [unoptimized] target(s) in 1m 11s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 1 test
+test integration_tests::integration::p788_ref_happy_path_section_en ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1402 filtered out; finished in 0.01s
+

@@ -1,0 +1,54 @@
+{
+  "utc_start": "2026-10-20T00:54:51.008221+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "state": "uncommitted working tree; evidence-only source corpus outside frozen productive inputs",
+  "diff_head_stat": " .../core/compiler/eval/bindings/field_access.md    |  17 +-\n .../eval/bindings/field_access/content_methods.md  |  17 +-\n .../compiler/eval/bindings/field_access/fields.md  |  21 +-\n .../prompts/core/compiler/eval/context_reads.md    |  15 +\n 00_nucleo/prompts/core/compiler/eval/mod.md        |  32 +-\n .../core/compiler/eval/observation/content.md      |  28 +-\n .../core/compiler/eval/observation/elements.md     |  47 +-\n .../core/compiler/eval/observation/style.md        |  20 +-\n .../core/compiler/eval/operators/equality.md       |  17 +-\n .../prompts/core/compiler/eval/rules/apply.md      |  38 +-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  19 +-\n .../core/compiler/eval/selector_matching.md        |  19 +-\n 00_nucleo/prompts/core/compiler/eval/tests.md      |  59 +-\n 00_nucleo/prompts/core/compiler/introspect.md      |  22 +-\n .../core/compiler/introspect/convergence.md        |  26 +-\n .../core/compiler/introspect/entrypoints.md        |  17 +-\n .../core/compiler/introspect/extract_payload.md    |  28 +-\n .../prompts/core/compiler/introspect/fixpoint.md   |  17 +-\n .../prompts/core/compiler/introspect/labelled.md   |  24 +-\n .../prompts/core/compiler/introspect/locatable.md  |  26 +\n .../core/compiler/introspect/materialize_time.md   |  28 +-\n .../prompts/core/compiler/introspect/populate.md   |  22 +-\n .../prompts/core/compiler/introspect/queries.md    |  17 +-\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  52 +-\n .../prompts/core/compiler/layout/checkpoint.md     |  19 +-\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  17 +-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  25 +-\n .../prompts/core/compiler/layout/placement.md      |  17 +-\n .../prompts/core/compiler/layout/references.md     |  33 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  40 +-\n .../core/compiler/realize/context_occurrences.md   |  18 +\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  29 +-\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  51 +-\n .../prompts/core/compiler/stdlib/figure_image.md   |  19 +-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  17 +-\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  17 +-\n .../core/compiler/stdlib/tests/figure_image.md     |  16 +-\n .../prompts/core/entities/content/construction.md  |  17 +-\n .../core/entities/content/tests/representation.md  |  17 +-\n .../core/entities/content/tests/traversal.md       |  17 +-\n .../prompts/core/entities/content/traversal.md     |  17 +-\n 00_nucleo/prompts/core/entities/element_payload.md |  31 +-\n 00_nucleo/prompts/core/entities/elements/figure.md |  39 +-\n 00_nucleo/prompts/core/entities/elements/grid.md   |  22 +-\n 00_nucleo/prompts/core/entities/introspector.md    |  24 +-\n 00_nucleo/prompts/core/entities/style_chain.md     |  21 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  62 +-\n 00_nucleo/prompts/infra/export/tests/mod.md        |  17 +-\n 00_nucleo/prompts/infra/integration_tests.md       |  11 +\n 00_nucleo/prompts/infra/pipeline.md                |  11 +\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  17 +-\n .../infra/pipeline/context_stabilization.md        |  57 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |   9 +-\n 00_nucleo/prompts/shell/cli.md                     |  17 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |  45 +-\n .../eval/bindings/field_access/content_methods.rs  |  28 +-\n .../compiler/eval/bindings/field_access/fields.rs  |  23 +-\n 01_core/src/compiler/eval/context_reads.rs         |   9 +\n 01_core/src/compiler/eval/mod.rs                   |   7 +-\n 01_core/src/compiler/eval/observation/content.rs   | 173 +++-\n 01_core/src/compiler/eval/observation/elements.rs  | 230 ++++-\n 01_core/src/compiler/eval/observation/style.rs     |  78 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 128 ++-\n 01_core/src/compiler/eval/rules/apply.rs           | 185 ++--\n 01_core/src/compiler/eval/rules/set.rs             |  59 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 124 ++-\n 01_core/src/compiler/eval/tests.rs                 | 478 ++++++++--\n 01_core/src/compiler/introspect.rs                 | 962 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  83 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  40 +-\n 01_core/src/compiler/introspect/extract_payload.rs |  13 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  32 +-\n 01_core/src/compiler/introspect/labelled.rs        |  63 +-\n 01_core/src/compiler/introspect/locatable.rs       |   4 +-\n .../src/compiler/introspect/materialize_time.rs    |  90 +-\n 01_core/src/compiler/introspect/populate.rs        |  61 +-\n 01_core/src/compiler/introspect/queries.rs         |  45 +-\n 01_core/src/compiler/introspect/walk.rs            | 130 ++-\n 01_core/src/compiler/layout/checkpoint.rs          |   8 +-\n 01_core/src/compiler/layout/figure.rs              | 338 +++++++-\n 01_core/src/compiler/layout/measurement.rs         |   7 +-\n 01_core/src/compiler/layout/mod.rs                 |  35 +-\n 01_core/src/compiler/layout/placement.rs           |   3 +-\n 01_core/src/compiler/layout/references.rs          | 142 ++-\n 01_core/src/compiler/layout/tests.rs               | 857 +++++++++++++++---\n .../src/compiler/realize/context_occurrences.rs    |  89 ++\n 01_core/src/compiler/realize/mod.rs                |   5 +-\n 01_core/src/compiler/realize/recipes.rs            |  88 +-\n 01_core/src/compiler/stdlib/figure_image.rs        | 326 +++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  16 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   5 +-\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 114 ++-\n 01_core/src/entities/content/construction.rs       |  13 +-\n .../src/entities/content/tests/representation.rs   |   8 +-\n 01_core/src/entities/content/tests/traversal.rs    |  36 +-\n 01_core/src/entities/content/traversal.rs          |  13 +-\n 01_core/src/entities/element_payload.rs            |  46 +-\n 01_core/src/entities/elements/figure.rs            | 539 +++++++++++-\n 01_core/src/entities/elements/grid.rs              |  61 +-\n 01_core/src/entities/introspector.rs               |  11 +-\n 01_core/src/entities/style_chain.rs                |  33 +-\n 02_shell/src/cli.rs                                |  89 +-\n 03_infra/src/export/html/document.rs               | 139 ++-\n 03_infra/src/export/tests/mod.rs                   |  29 +-\n 03_infra/src/integration_tests.rs                  |  82 +-\n 03_infra/src/pipeline.rs                           |  13 +\n 03_infra/src/pipeline/bundle.rs                    |  13 +-\n 03_infra/src/pipeline/context_stabilization.rs     | 469 +++++++++-\n 03_infra/src/pipeline/paged.rs                     | 335 +++----\n 110 files changed, 7373 insertions(+), 1060 deletions(-)\n",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "binary": "lab/typst-original/target/release/typst",
+  "binary_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "extra_files": {
+    "refs.yml": "d9c5ef74cc49254ed72c619d19b64a8876c3ad90f94345dba8a6db848cd0b822"
+  },
+  "cases": [
+    {
+      "name": "plain-bibliography-reference",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/plain-bibliography-reference.typ",
+      "source_sha256": "030376897dbb60c7d6f0b101298a2447deed8e613fcd6c84b750d7e0dec41ad0",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "-j",
+        "1",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/plain-bibliography-reference.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/plain-bibliography-reference.oracle.pdf"
+      ],
+      "utc_start": "2026-10-20T00:54:51.214075+00:00",
+      "utc_end": "2026-10-20T00:54:52.089675+00:00",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "normalized_text": "Bibliography [1] Example, Reference Work. 2020. [1]"
+    },
+    {
+      "name": "dynamic-nonfigure-forward-reference",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/dynamic-nonfigure-forward-reference.typ",
+      "source_sha256": "6ff6cd285f2f78d70b5932af1466a45684bd1e4bc98a22943c09ea3563dcba0a",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "-j",
+        "1",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/dynamic-nonfigure-forward-reference.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/dynamic-nonfigure-forward-reference.oracle.pdf"
+      ],
+      "utc_start": "2026-10-20T00:54:52.089909+00:00",
+      "utc_end": "2026-10-20T00:54:52.236580+00:00",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "normalized_text": "Section 1 1. DYNAMIC"
+    }
+  ],
+  "utc_end": "2026-10-20T00:54:52.236636+00:00"
+}

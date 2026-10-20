@@ -1,0 +1,9 @@
+{
+  "utc_recorded": "2026-10-19T23:13:57.629404+00:00",
+  "baseline_head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "branch": "codex/tekt-mature-layout",
+  "approved_message": "Aprovo a proposta Figure/Grid, incluindo as mudan\u00e7as de contratos, fases e compatibilidade descritas. Pode implementar com os agentes na mesma branch, sem enfraquecer os contratos Tekt, validando testes, caminhos e linhagem antes de fechar F.",
+  "review_sha256": "e8cabe3a7ab236e9c81303ffa9e8732198cbdb4e83a1aa4b557708dd167b433c",
+  "package_sha256": "0c2b16dea5bd5d98488089c198cf99f336b455066fe5f416aad9d3cef4952c31",
+  "gate": "ADR-0127 public entities, phases, additive bundle facade and semantic compatibility changes approved"
+}

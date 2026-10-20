@@ -1,0 +1,21 @@
+{
+  "status": "Two independent source-derived risk controls, frozen before candidate proof; original31+additional4 remain unchanged.",
+  "cases": [
+    {
+      "name": "raw-namespace-kind-reference",
+      "source": "#figure([OUTER],kind:raw)<outer>\n@outer\n#context [#metadata((query(figure).len(),counter(figure.where(kind:raw)).final(),query(figure).map(it=>it.location()).dedup().len())) <probe>]\n",
+      "goal": "actual stdlib raw namespace typed eligibility read remains strictly stable",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "two-fresh-captions-raw-context-template",
+      "source": "#let inner=context figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])\n#let outer=figure([OUTER],kind:image,caption:[OUTER-CAP],supplement:inner)\n#outer\n#outer\n#context [#metadata((query(figure).len(),counter(figure.where(kind:table)).final(),counter(figure.where(kind:image)).final(),query(figure).map(it=>it.location()).dedup().len())) <probe>]\n",
+      "goal": "same raw ContextBlock supplement instantiated at two fresh caption insertion sites has distinct IDs/Locations",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    }
+  ]
+}

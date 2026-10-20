@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set — Set rule evaluation
-Hash do Código: 31d1a2fe
+Hash do Código: 8fe48b50
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -534,3 +534,20 @@ strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARI
 without new errors or warnings outside the selected repairs. Heavy checks are
 serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
 parity claims and unresolved scope exclusions above remain bounded.
+
+
+## Approved Figure/Grid kind repair (2026-10-19)
+
+### Measurement and classification before decision
+
+The frozen proposal at baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, `agents/contracts/semantic-partition.json`, and `agents/counter/design.md` bind measurements and full source/oracle provenance. Current-pin oracle is `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Constructor inference loses typed identity and lexical occurrence styles; semantic inspection and final supplement need separate phases. These are language semantics and causal effects, not a requirement for upstream Rust mechanics. The human explicitly approved the exact public carriers, phase changes and compatibility migration in the current session under ADR-0127.
+
+### Exclusive responsibility
+
+Figure set/show-set transport kind and supplement plus numbering in lexical StyleChain custom keys figure.kind, figure.supplement, figure.numbering. Validate kind by exact registered native function identity or actual FuncRepr::Element, never name; accept custom Str and explicit Auto. Supplement accepts Auto/None/Content/LocatedContent/Str/Symbol/Func, retaining callback span through transport; numbering accepts Str/None/Func. Evaluate each expression once and preserve existing ordering and unrelated set behavior. Explicit constructor properties beat inherited settings.
+
+### Acceptance and boundaries
+
+Require functional RED→GREEN, frozen kind/set/show-set/supplement/hidden-parent cases, alias/homonym and field snapshots, full build/tests, paths, strict forward/reverse lineage, V15/V26 and differential lint. No suppressions, opaque catchall, fake neutral child or weakened assertion. Caption omission/none, complete caption synthesis, supplement-dependent preview selection, complete function-number formatting, HTML implicit captions/references, Dynamic field enumeration, and mixed Table header/ordinary-cell supplemental target order remain explicit bounded debts.
+
+Private source-span transport: each Figure set supplement stores its original value under figure.supplement and a companion figure.supplement-origin Value::Args with empty items/named and its exact last named value span. This carrier transports only span metadata, never arguments, entities, callbacks or user fields. Func diagnostic origin alone is insufficient because it preserves the first definition origin. Preparation reads the companion span without executing anything.

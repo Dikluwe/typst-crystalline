@@ -1,0 +1,19 @@
+    Finished `test` profile [unoptimized] target(s) in 0.13s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 12 tests
+test compiler::layout::tests::p462_ref_numeric::external_link_still_uses_url_target ... ok
+test compiler::layout::tests::p462_ref_numeric::labelled_path_not_resolved_numerically ... ok
+test compiler::layout::tests::p462_ref_numeric::p1073_ref_supplements_pt ... ok
+test compiler::layout::tests::p462_ref_numeric::p1073_ref_table_supplements_en_e_pt ... ok
+test compiler::layout::tests::p462_ref_numeric::p1078_ref_heading_supplement_pt_secao ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_renders_as_frame_item_link_with_destination ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_resolves_equation_number ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_resolves_figure_number ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_resolves_heading_number ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_resolves_table_number ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_supplement_explicit_overrides_default ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_unknown_label_renders_question_mark ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 7701 filtered out; finished in 0.01s
+

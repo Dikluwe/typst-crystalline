@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set.md
-//! @prompt-hash 69484fcc
+//! @prompt-hash 5f03cf9c
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -1078,37 +1078,42 @@ pub(crate) fn eval_set_rule(
     }
 
     if target == "figure" {
-        // #set figure(numbering: "1") — activa numeração automática de figuras.
-        // Lote F-2 S3 (P335): empurra para a chain léxica (`custom`), como
-        // heading/equation, em vez de mutar o campo global `engine.figure_numbering`.
-        // `native_figure` assa o valor lendo a chain (`closures.rs`). Escopo
-        // léxico de graça (fecha o DEBT 99.E para figure).
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
-                if named.name().as_str() == "numbering" {
-                    let val = eval_expr(named.expr(), scopes, ctx, engine)?;
-                    let span = named.expr().span();
-                    match val {
-                        Value::Str(s) => {
-                            *engine.styles = engine
-                                .styles
-                                .push_custom("figure.numbering", Value::Str(s));
-                        }
-                        Value::None => {
-                            // Limpa a numeração no escopo (Value::None = ausente).
-                            *engine.styles = engine
-                                .styles
-                                .push_custom("figure.numbering", Value::None);
-                        }
-                        other => {
-                            return Err(vec![type_mismatch(
-                                "string or none",
-                                &other,
-                                span,
-                            )]);
+                let name = named.name();
+                let name = name.as_str();
+                if !matches!(name, "kind" | "supplement" | "numbering") {
+                    continue;
+                }
+                let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                let span = named.expr().span();
+                match name {
+                    "kind" => {
+                        crate::compiler::realize::figure_kind::kind_from_value(
+                            &value, span,
+                        )?;
+                    }
+                    "supplement" => {
+                        crate::compiler::realize::figure::supplement_from_value(
+                            &value, span,
+                        )?;
+                        let mut origin =
+                            crate::entities::args::Args::positional(Vec::new());
+                        origin.span = span;
+                        *engine.styles = engine
+                            .styles
+                            .push_custom("figure.supplement-origin", Value::Args(origin));
+                    }
+                    "numbering" => {
+                        if !matches!(value, Value::Str(_) | Value::Func(_) | Value::None)
+                        {
+                            return Err(vec![SourceDiagnostic::error(span, format!("expected string, function, or none, found {}", crate::compiler::eval::operators::error_formatting::vanilla_type_name(&value)))]);
                         }
                     }
+                    _ => unreachable!("Figure property filter is closed"),
                 }
+                *engine.styles =
+                    engine.styles.push_custom(format!("figure.{name}"), value);
             }
         }
         return Ok(Value::None);

@@ -1,0 +1,47 @@
+[
+  {
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/run_tests.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/legacy-fixture-green-core",
+      "--filter",
+      "eval_ref_gera_content_ref",
+      "--package",
+      "typst-core"
+    ],
+    "utc_start": "2026-10-20T02:29:54.143364+00:00",
+    "utc_end": "2026-10-20T02:31:58.558101+00:00",
+    "exit": 0
+  },
+  {
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/run_tests.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/legacy-fixture-green-infra-default",
+      "--filter",
+      "p788_ref_happy_path_section_en",
+      "--package",
+      "typst-infra"
+    ],
+    "utc_start": "2026-10-20T02:31:58.558555+00:00",
+    "utc_end": "2026-10-20T02:33:10.540036+00:00",
+    "exit": 0
+  },
+  {
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/run_tests.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/legacy-fixture-green-infra-explicit",
+      "--filter",
+      "p788_ref_suplemento_explicito",
+      "--package",
+      "typst-infra"
+    ],
+    "utc_start": "2026-10-20T02:33:10.540366+00:00",
+    "utc_end": "2026-10-20T02:33:11.311040+00:00",
+    "exit": 0
+  }
+]

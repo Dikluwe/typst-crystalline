@@ -1,0 +1,38 @@
+{
+  "utc": "2026-10-20T03:35:28.004969+00:00",
+  "reviewer": "figure_realize_impl",
+  "mode": "read-only prepared report review; scripts not executed and no source/L0/report mutation",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "inputs": {
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/final_report.py": "40a2b1301ac422813bd9c969e9a4a507e70e1359fd000530a68fba1164751b72",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/update_progress.py": "b0a6edf04cbfdd3f0481ba8dc84b08f51458b75bf7397875d1556fed8665973e",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/final_acceptance.py": "8beb0c8ff584b4c90a5761dd9c768ca5424076280616aaeb354f39eba0f73c3f",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/ownership_controls.py": "78eb30bd959d79edaf2c19cdc4f382ce96606ebc09ffedcc59d77c279ccc3b31",
+    "00_nucleo/prompts/core/compiler/realize/figure.md": "c2713d2fa45482321f70940470f99727be710091e76d819eed381db744d5e8ef",
+    "00_nucleo/prompts/core/compiler/realize/reference_supplements.md": "a5d5b7c3337731320c4cc517b70464dc2de3b1b1d6fc50b3e7d4dc855ba7fa5b",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/ref-phase-proposal.md": "1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2"
+  },
+  "status": "Wording scope accepted subject to final receipts; two concrete report-gate corrections requested",
+  "accurate": [
+    "Bounded F/V16-055 closure rather than full Figure/Grid/Typst parity;18V16 still active.",
+    "Exact approved Ref3facades and delayed phase respected; no claim that all contexts/introspection capabilities are fixed.",
+    "Math knownstyle/noLocation repair, public legacy final boundary and unresolved Tekt14vsoracle20/returnedContext conflict retained.",
+    "SetPage vsnativePageRun, Block labels, unrestrictedRefshowtermination, ambiguity,refutedlocalecontrol and fullcaption/style/HTML/preview/Dynamic/Grid debts preserved.",
+    "Historical baselineinputequivalence and unsuccessful checkpoints distinguished from final sourcebound evidence.",
+    "Current diagnostic archives complete prior bytes/hash before consolidation and keeps earlier perbatch obligations binding."
+  ],
+  "requested_corrections": [
+    {
+      "id": "explicit-binary-binding",
+      "priority": "needed before executing final report",
+      "detail": "Assert replay.binaries.product.sha256,controls.product.sha256,nativePageRun.product_sha256 and native build_receipt_sha256 against finalbuild4; available changed_inputs stay empty. Workers already check sourcebinding, but writer currently validates these only indirectly."
+    },
+    {
+      "id": "ownership-policy-proof",
+      "priority": "needed if reporting ownership4/4",
+      "detail": "ownership_controls.py only records and exits0; final_acceptance prints4/4 from that exit but does not assert observations. Assert productsha and the four exact approved policy tuples from current ownershipcandidate4, then pin receipt in ledger and expose scoped policy evidence. These first-result duplicate controls are not vanillaambiguity parity."
+    }
+  ],
+  "optional_summary_improvement": "Current diagnostic could mention the private moderncounterfinal Location guard in the math paragraph so both discovered root causes remain visible without reading README; full report already explains it.",
+  "unvalidated_yet": "No final twelve-gate/currentbinary/corpus success is claimed by this review; those receipts remain pending root driver."
+}

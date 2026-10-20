@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/tests.md
-//! @prompt-hash 55e228dd
+//! @prompt-hash 0f4305c4
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -6599,7 +6599,7 @@ mod regressions {
                 other => panic!("unexpected content in style fixture: {other:?}"),
             }
         }
-        let input="#let result={[A];set text(size:14pt);[B];{set text(size:18pt);[C]};[D];set text(size:22pt);[E]};#let outside=[F];";
+        let input = "#let result={[A];set text(size:14pt);[B];{set text(size:18pt);[C]};[D];set text(size:22pt);[E]};#let outside=[F];";
         let world = MockWorld::new(input);
         let module = eval_for_test(&world, &world.source).unwrap();
         let mut actual = Vec::new();
@@ -6642,7 +6642,9 @@ mod regressions {
 
     #[test]
     fn codeblock_set_effects_execute_once_and_tail_errors_remain_causal() {
-        let world=MockWorld::new("#let n=0;#let result={set text(size:{n=n*10+2;12pt}) if {n=n*10+1;true};{n=n*10+3;1}};#let is-content=type(result)==content;");
+        let world = MockWorld::new(
+            "#let n=0;#let result={set text(size:{n=n*10+2;12pt}) if {n=n*10+1;true};{n=n*10+3;1}};#let is-content=type(result)==content;",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(module.scope().get("n"), Some(&Value::Int(123)));
         assert_eq!(module.scope().get("is-content"), Some(&Value::Bool(true)));
@@ -6671,7 +6673,9 @@ mod regressions {
     #[test]
     fn codeblock_set_math_and_cell_remain_lexically_styled() {
         for body in ["table.cell[x]", "$x$"] {
-            let input=format!("#let result={{set text(size:20pt);{body}}};#let kind=repr(result.func());");
+            let input = format!(
+                "#let result={{set text(size:20pt);{body}}};#let kind=repr(result.func());"
+            );
             let world = MockWorld::new(&input);
             let module = eval_for_test(&world, &world.source).unwrap();
             assert_eq!(
@@ -6711,7 +6715,9 @@ mod regressions {
             ("alias", "fill", "red"),
         ] {
             for (condition, expected) in [("true", 12), ("false", 1)] {
-                let input = format!("#let n=0;#let alias=table.cell;#set {target}({parameter}:{{n=n*10+2;{value}}}) if {{n=n*10+1;{condition}}};OK");
+                let input = format!(
+                    "#let n=0;#let alias=table.cell;#set {target}({parameter}:{{n=n*10+2;{value}}}) if {{n=n*10+1;{condition}}};OK"
+                );
                 let world = MockWorld::new(&input);
                 let module = eval_for_test(&world, &world.source).unwrap();
                 assert_eq!(
@@ -6766,7 +6772,9 @@ mod regressions {
         for (initial, conditional, expected) in
             [("none", "\"1\"", false), ("\"1\"", "none", true)]
         {
-            let world=MockWorld::new(&format!("#set heading(numbering:{initial});#set heading(numbering:{conditional}) if false;#heading[OK]"));
+            let world = MockWorld::new(&format!(
+                "#set heading(numbering:{initial});#set heading(numbering:{conditional}) if false;#heading[OK]"
+            ));
             let module = eval_for_test(&world, &world.source).unwrap();
             assert_eq!(find_heading_numbered(module.content().unwrap()), Some(expected));
         }
@@ -6785,7 +6793,9 @@ mod regressions {
                 .plain_text(),
             "OK"
         );
-        let world=MockWorld::new("#let n=0;#show heading: set text(size:{n=n*10+2;12pt}) if {n=n*10+1;true};#heading[OK]");
+        let world = MockWorld::new(
+            "#let n=0;#show heading: set text(size:{n=n*10+2;12pt}) if {n=n*10+1;true};#heading[OK]",
+        );
         assert_eq!(
             eval_for_test(&world, &world.source).unwrap().scope().get("n"),
             Some(&Value::Int(12))
@@ -9023,15 +9033,51 @@ mod regressions {
 
     #[test]
     fn eval_ref_gera_content_ref() {
+        use crate::entities::elements::r#ref::RefForm;
+        use crate::entities::func::FuncRepr;
+
         let world = MockWorld::new("@meu_label");
         let src = World::source(&world, World::main(&world)).unwrap();
-        let module = eval_for_test(&world, &src).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        let module = result.unwrap();
         let content = module.content().expect("deve ter content");
-        assert!(
-            matches!(&content, Content::Ref(e) if e.name == "meu_label"),
-            "esperado Ref(meu_label), obtido: {:?}",
-            content
+        let Content::Realized(realized) = content.source_body() else {
+            panic!("expected retained semantic Ref and deferred producer: {content:?}");
+        };
+        let Content::Located(original) = realized.original.source_body() else {
+            panic!("expected canonical Ref Location: {:?}", realized.original);
+        };
+        let Content::Ref(reference) = original.body.source_body() else {
+            panic!("expected canonical Ref(meu_label): {:?}", original.body);
+        };
+        assert_eq!(reference.name, "meu_label");
+        assert_eq!(reference.form, RefForm::Normal);
+        assert!(reference.supplement.is_none());
+        let Content::Located(actual) = realized.visual.source_body() else {
+            panic!("expected actual producer Location: {:?}", realized.visual);
+        };
+        assert_eq!(actual.location, original.location);
+        let Content::ContextBlock(producer) = actual.body.source_body() else {
+            panic!("expected deferred reference producer: {:?}", actual.body);
+        };
+        assert!(crate::compiler::realize::reference_supplements::is_reference_supplement_producer(producer));
+        let FuncRepr::With(bound) = producer.closure.repr() else {
+            panic!("classified producer must retain its bound raw Ref");
+        };
+        let [Value::Content(captured)] = bound.1.items.as_slice() else {
+            panic!("classified producer must bind exactly one raw Ref");
+        };
+        let Content::Ref(captured_reference) = captured.source_body() else {
+            panic!("expected original raw Ref argument: {captured:?}");
+        };
+        assert_eq!(captured_reference.name, "meu_label");
+        assert_eq!(captured_reference.form, RefForm::Normal);
+        assert!(captured_reference.supplement.is_none());
+        assert_eq!(
+            src.span_byte_range(captured.source_span()),
+            Some(0.."@meu_label".len())
         );
+        assert!(sink.into_diagnostics().is_empty());
     }
 
     // ── P802 — warning de label órfã (paridade vanilla markup.rs) ─────────
@@ -9355,16 +9401,49 @@ mod regressions {
 
     #[test]
     fn eval_figure_sem_caption_via_stdlib() {
-        // figure() sem caption deve produzir Content::Figure com caption: None.
         let world = MockWorld::new("#figure([Diagrama])");
         let src = world.source(world.main()).unwrap();
-        let module = eval_for_test(&world, &src).unwrap();
-        let content = module.content().unwrap();
-        assert!(
-            matches!(content, Content::Figure(_e)),
-            "figure() sem caption deve ter caption None: {:?}",
-            content
-        );
+        let module = eval_for_test_keep_sink(&world, &src).0.unwrap();
+        let index = module.realization_introspector().expect("prepared Figure index");
+        let locations =
+            index.query_by_kind(crate::entities::element_kind::ElementKind::Figure);
+        assert_eq!(locations.len(), 1, "one canonical Figure");
+        let mut originals = Vec::new();
+        index
+            .elements
+            .get(&locations[0])
+            .unwrap()
+            .content()
+            .visit_content_static(&mut |node| {
+                if let Content::Figure(figure) = node {
+                    originals.push(figure.clone());
+                }
+                true
+            });
+        assert_eq!(originals.len(), 1, "one indexed original Figure");
+        assert!(originals[0].caption.is_none());
+        assert_eq!(originals[0].body.plain_text(), "Diagrama");
+        let mut blocks = Vec::new();
+        let mut actual_figures = 0;
+        module.content().unwrap().visit_content_static(&mut |node| {
+            if let Content::Block(block) = node {
+                blocks.push(block.clone());
+            }
+            if matches!(node, Content::Figure(_)) {
+                actual_figures += 1;
+            }
+            true
+        });
+        assert_eq!(actual_figures, 0, "Figure remains only in original provenance");
+        assert_eq!(blocks.len(), 1, "one actual default Block");
+        let Content::Sequence(parts) = blocks[0].body.source_body() else {
+            panic!("default Block must preserve body plus paragraph boundary");
+        };
+        let [body, separator] = parts.as_ref() else {
+            panic!("default Block must contain exactly body and Parbreak");
+        };
+        assert_eq!(body.plain_text(), "Diagrama");
+        assert!(matches!(separator.source_body(), Content::Parbreak));
     }
 
     // ── Passo 66 — assert() via eval (prova de fogo de named args) ───────────
@@ -19573,7 +19652,9 @@ mod regressions {
 
     #[test]
     fn memoized_realization_index_keeps_originals_and_generated_after_columns() {
-        let world = MockWorld::new("#set page(columns: 2)\n#show heading.where(level: 1): it => heading(level: 2)[Generated]\n= First <first>\n= Second");
+        let world = MockWorld::new(
+            "#set page(columns: 2)\n#show heading.where(level: 1): it => heading(level: 2)[Generated]\n= First <first>\n= Second",
+        );
         let (result, _) = eval_for_test_keep_sink(&world, &world.source);
         let module = result.unwrap();
         let stored = module
@@ -19599,6 +19680,263 @@ mod regressions {
                 fresh.counters.value_at(&key, location)
             );
         }
+    }
+
+    #[test]
+    fn figure_v16_own_hidden_actual_query_result_preserves_full_reflexivity() {
+        use crate::compiler::eval::observation::{ObservationEq, ObservationRelation};
+        use crate::entities::introspector::Introspector;
+        use crate::entities::selector::Selector;
+        let world = MockWorld::new(
+            "#show figure:none\n#figure([A],kind:raw,supplement:[Listing])",
+        );
+        let module = eval_for_test_keep_sink(&world, &world.source).0.unwrap();
+        let index = module.realization_introspector().unwrap();
+        let locations = index.query(&Selector::NativeElement(Func::native(
+            "figure",
+            crate::compiler::stdlib::native_figure,
+        )));
+        assert_eq!(
+            locations.len(),
+            1,
+            "a Figure's own replacement retains its original query membership"
+        );
+        let entry = index.elements.get(&locations[0]).unwrap();
+        let mut figure = None;
+        entry.content().visit_content_static(&mut |content| {
+            if let Content::Figure(found) = content {
+                figure = Some(found.clone());
+                return false;
+            }
+            true
+        });
+        let figure = figure.expect("indexed Figure root must be preserved");
+        let result = Value::LocatedContent(entry.clone(), locations[0]);
+        assert_eq!(
+            result.observation_relation(&result.clone()),
+            ObservationRelation::Same,
+            "actual fields={:?}, body relation={:?}, kind relation={:?}, supplement relation={:?}",
+            entry.fields(),
+            figure.body.observation_relation(&figure.body),
+            figure.resolved_kind.observation_relation(&figure.resolved_kind),
+            figure
+                .resolved_supplement
+                .observation_relation(&figure.resolved_supplement)
+        );
+    }
+
+    #[test]
+    fn figure_reference_template_keeps_raw_nested_identity_before_caption_realization() {
+        use crate::entities::{
+            elements::figure::FigureKind, label::Label, selector::Selector,
+        };
+        let world = MockWorld::new(
+            "#let inner = figure([INNER], kind: table)\n#figure([OUTER], caption: [CAPTION], supplement: inner)<outer>",
+        );
+        let module = eval_for_test_keep_sink(&world, &world.source).0.unwrap();
+        let index = module.realization_introspector().expect("actual realization index");
+        let outer_location =
+            index.query_by_label(&Label("outer".into())).expect("outer label");
+        let entry = index.elements.get(&outer_location).unwrap();
+        let mut outer = None;
+        entry.content().visit_content_static(&mut |content| {
+            if let Content::Figure(figure) = content {
+                outer = Some(figure.clone());
+                return false;
+            }
+            true
+        });
+        let outer = outer.expect("original outer Figure language object");
+        let template = outer
+            .resolved_supplement
+            .as_ref()
+            .and_then(Option::as_ref)
+            .expect("selected immutable template");
+        let Content::Figure(raw) = template.source_body() else {
+            panic!(
+                "raw template must not acquire Located or Realized transport from caption use: {template:?}"
+            );
+        };
+        assert_eq!(
+            raw.kind,
+            Some(Some(FigureKind::Element(Func::native(
+                "table",
+                crate::compiler::stdlib::native_table
+            ))))
+        );
+        assert!(
+            raw.resolved_kind.is_none(),
+            "template must retain its unprepared inner Figure"
+        );
+        assert!(raw.resolved_supplement.is_none());
+        let figures = index.query(&Selector::NativeElement(Func::native(
+            "figure",
+            crate::compiler::stdlib::native_figure,
+        )));
+        assert_eq!(
+            figures.len(),
+            2,
+            "original root plus exactly one actual caption insertion"
+        );
+        let inner_locations = index.query(&Selector::Element {
+            function: Func::native("figure", crate::compiler::stdlib::native_figure),
+            fields: vec![(
+                "kind".into(),
+                Value::Func(Func::native("table", crate::compiler::stdlib::native_table)),
+            )]
+            .into(),
+        });
+        assert_eq!(inner_locations.len(), 1);
+        assert_ne!(inner_locations[0], outer_location);
+    }
+
+    #[test]
+    fn figure_reference_visual_projection_keeps_dormant_template_only_in_queried_original(
+    ) {
+        use crate::entities::label::Label;
+        fn outer(
+            content: &Content,
+        ) -> Arc<crate::entities::elements::figure::FigureElem> {
+            let mut found = None;
+            content.visit_content_static(&mut |node| {
+                if let Content::Figure(figure) = node {
+                    if figure.body.plain_text() == "OUTER" {
+                        found = Some(figure.clone());
+                        return false;
+                    }
+                }
+                true
+            });
+            found.expect("actual outer Figure")
+        }
+        for (arguments, emitted) in [
+            ("", false),
+            (", caption:[CAP], numbering:none", false),
+            (", caption:[CAP], numbering:n=>str(n)", false),
+            (", caption:[CAP]", true),
+        ] {
+            let source = format!(
+                "#figure([OUTER], supplement:context [TEMPLATE]{arguments})<outer>"
+            );
+            let world = MockWorld::new(&source);
+            let module = eval_for_test_keep_sink(&world, &world.source).0.unwrap();
+            let index = module.realization_introspector().unwrap();
+            let location = index.query_by_label(&Label("outer".into())).unwrap();
+            let original = outer(index.elements.get(&location).unwrap().content());
+            let template = original
+                .resolved_supplement
+                .as_ref()
+                .and_then(Option::as_ref)
+                .expect("queried original retains its selected raw template");
+            assert!(
+                matches!(template.source_body(), Content::ContextBlock(_)),
+                "{arguments}: original template was lost"
+            );
+            assert!(
+                matches!(
+                    Content::Figure(original.clone()).get_field("supplement"),
+                    Some(Value::Content(_))
+                ),
+                "{arguments}: known query field was lost"
+            );
+            if arguments.is_empty() {
+                let mut blocks = Vec::new();
+                let mut visual_figures = 0;
+                let mut actual_contexts = 0;
+                module.content().unwrap().visit_content_static(&mut |node| {
+                    if let Content::Block(block) = node {
+                        blocks.push(block.clone());
+                    }
+                    if matches!(node, Content::Figure(_)) {
+                        visual_figures += 1;
+                    }
+                    if matches!(node, Content::ContextBlock(_)) {
+                        actual_contexts += 1;
+                    }
+                    true
+                });
+                assert_eq!(visual_figures, 0, "no-caption visual is the actual Block");
+                assert_eq!(blocks.len(), 1, "one actual no-caption Block");
+                let Content::Sequence(parts) = blocks[0].body.source_body() else {
+                    panic!("no-caption Block must retain body plus paragraph boundary");
+                };
+                let [body, separator] = parts.as_ref() else {
+                    panic!("no-caption Block must contain exactly body and Parbreak");
+                };
+                assert_eq!(body.plain_text(), "OUTER");
+                assert!(matches!(separator.source_body(), Content::Parbreak));
+                assert_eq!(
+                    actual_contexts, 0,
+                    "dormant supplement must not become an actual visual child"
+                );
+            } else if emitted {
+                let visual = outer(module.content().unwrap());
+                assert!(
+                    visual
+                        .resolved_supplement
+                        .as_ref()
+                        .and_then(Option::as_ref)
+                        .is_some(),
+                    "admitted caption must retain its actual selected child"
+                );
+            } else {
+                let visual = outer(module.content().unwrap());
+                assert_eq!(
+                    visual.resolved_supplement,
+                    Some(None),
+                    "{arguments}: dormant template must not become actual visual content"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn figure_v16_plain_output_module_resolves_typed_kind_without_show_recipes() {
+        use crate::entities::elements::figure::FigureKind;
+        let world = MockWorld::new("#figure([A],kind:table,caption:[CAP])");
+        let module = eval_for_test_keep_sink(&world, &world.source).0.unwrap();
+        let mut figures = Vec::new();
+        module.content().unwrap().visit_content_static(&mut |content| {
+            if let Content::Figure(figure) = content {
+                figures.push(figure.clone());
+            }
+            true
+        });
+        assert_eq!(figures.len(), 1);
+        assert_eq!(
+            figures[0].resolved_kind,
+            Some(FigureKind::Element(Func::native(
+                "table",
+                crate::compiler::stdlib::native_table
+            )))
+        );
+        assert_eq!(
+            figures[0]
+                .resolved_supplement
+                .as_ref()
+                .and_then(|content| content.as_ref())
+                .unwrap()
+                .plain_text(),
+            "Table"
+        );
+        assert!(module.realization_introspector().is_some());
+    }
+
+    #[test]
+    fn figure_v16_plain_output_supplement_error_precedes_caption_demand() {
+        let world = MockWorld::new("#figure([A],supplement:it=>panic(\"prepare-me\"))");
+        let errors = eval_for_test_keep_sink(&world, &world.source).0.unwrap_err();
+        assert!(errors.iter().any(|error| error.message.contains("prepare-me")));
+    }
+
+    #[test]
+    fn figure_v16_unused_figure_keeps_no_figure_fast_path_and_callback_inert() {
+        let world = MockWorld::new(
+            "#let unused=figure([HIDDEN],kind:\"custom\",supplement:it=>panic(\"must-stay-inert\"))\nOrdinary",
+        );
+        let module = eval_for_test_keep_sink(&world, &world.source).0.unwrap();
+        assert_eq!(module.content().unwrap().plain_text().trim(), "Ordinary");
+        assert!(module.realization_introspector().is_none());
     }
 
     #[test]
@@ -19652,7 +19990,9 @@ mod regressions {
 
     #[test]
     fn occurrence_show_aliases_share_earlier_rule_result() {
-        let world = MockWorld::new("#show heading: it => upper(it.body)\n#show heading: it => [#it #it]\n= Original");
+        let world = MockWorld::new(
+            "#show heading: it => upper(it.body)\n#show heading: it => [#it #it]\n= Original",
+        );
         let module = eval_for_test_keep_sink(&world, &world.source).0.unwrap();
         assert_eq!(module.content().unwrap().plain_text().matches("ORIGINAL").count(), 2);
     }
@@ -19685,7 +20025,9 @@ mod regressions {
 
     #[test]
     fn occurrence_show_keeps_alias_effects_and_finite_children() {
-        let mut world = MockWorld::new("#show heading.where(level: 1): it => { let x = read(\"once.txt\"); assert(x == \"once\"); [#it #it #heading(level: 2)[Generated]] }\n= Original");
+        let mut world = MockWorld::new(
+            "#show heading.where(level: 1): it => { let x = read(\"once.txt\"); assert(x == \"once\"); [#it #it #heading(level: 2)[Generated]] }\n= Original",
+        );
         world.add_file("once.txt", b"once".to_vec());
         let module = eval_for_test_keep_sink(&world, &world.source).0.unwrap();
         assert_eq!(world.reads.load(std::sync::atomic::Ordering::Relaxed), 1);
@@ -19716,7 +20058,9 @@ mod regressions {
 
     #[test]
     fn single_evaluation_keeps_original_and_generated_headings() {
-        let world = MockWorld::new("#show heading.where(level: 1): it => [#heading(level: 2)[Generated A] #heading(level: 2)[Generated B]]\n= Original");
+        let world = MockWorld::new(
+            "#show heading.where(level: 1): it => [#heading(level: 2)[Generated A] #heading(level: 2)[Generated B]]\n= Original",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         let intr = crate::compiler::introspect::introspect_with_introspector(
             module
@@ -19732,7 +20076,9 @@ mod regressions {
 
     #[test]
     fn single_evaluation_reads_once_with_show() {
-        let mut world = MockWorld::new("#show heading: it => upper(it.body)\n#let value = read(\"counter.txt\")\n= Original\n#assert(value == \"once\")");
+        let mut world = MockWorld::new(
+            "#show heading: it => upper(it.body)\n#let value = read(\"counter.txt\")\n= Original\n#assert(value == \"once\")",
+        );
         world.add_file("counter.txt", b"once".to_vec());
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(world.reads.load(std::sync::atomic::Ordering::Relaxed), 1);
@@ -19749,7 +20095,9 @@ mod regressions {
 
     #[test]
     fn single_evaluation_recipe_observes_original_location_and_fields() {
-        let world = MockWorld::new("#show heading: it => { assert(it.location() != none); assert(it.has(\"level\")); assert(it.fields().at(\"level\") == 1); it }\n#heading(level: 1)[Original]");
+        let world = MockWorld::new(
+            "#show heading: it => { assert(it.location() != none); assert(it.has(\"level\")); assert(it.fields().at(\"level\") == 1); it }\n#heading(level: 1)[Original]",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         let intr = crate::compiler::introspect::introspect_with_introspector(
             module.introspection_content().unwrap(),
@@ -19763,7 +20111,9 @@ mod regressions {
 
     #[test]
     fn single_evaluation_counter_follows_causal_order() {
-        let world = MockWorld::new("#set heading(numbering: \"1.\")\n#show heading.where(level: 1): it => heading(level: 2)[Generated]\n= First\n= Second");
+        let world = MockWorld::new(
+            "#set heading(numbering: \"1.\")\n#show heading.where(level: 1): it => heading(level: 2)[Generated]\n= First\n= Second",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         let intr = crate::compiler::introspect::introspect_with_introspector(
             module.introspection_content().unwrap(),
@@ -19811,7 +20161,9 @@ mod regressions {
 
     #[test]
     fn single_evaluation_equal_generated_headings_are_distinct() {
-        let world = MockWorld::new("#show heading.where(level: 1): it => [#heading(level: 2)[Equal] #heading(level: 2)[Equal]]\n= Original");
+        let world = MockWorld::new(
+            "#show heading.where(level: 1): it => [#heading(level: 2)[Equal] #heading(level: 2)[Equal]]\n= Original",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         let intr = crate::compiler::introspect::introspect_with_introspector(
             module.introspection_content().unwrap(),
@@ -23557,16 +23909,81 @@ mod regressions {
 
     #[test]
     fn p792_text_lang_dynamic() {
+        use comemo::Track;
+        fn contexts(
+            content: &Content,
+            chain: &StyleChain,
+            out: &mut Vec<(Func, StyleChain)>,
+        ) {
+            if let Content::Styled(styled) = content.source_body() {
+                contexts(&styled.body, &chain.push_styles(&styled.styles), out);
+            } else if let Content::Sequence(parts) = content.source_body() {
+                for child in parts.iter() {
+                    contexts(child, chain, out);
+                }
+            } else if let Content::ContextBlock(block) = content.source_body() {
+                out.push((block.closure.clone(), chain.clone()));
+            }
+        }
         let world = MockWorld::new(
-            "#set text(lang: \"pt\")\n\
-             #let lang1 = text.lang\n\
-             #set text(lang: \"fr\")\n\
-             #let lang2 = text.lang",
+            "#set text(lang: \"pt\")\n#context text.lang\n#set text(lang: \"fr\")\n#context text.lang",
         );
-        let src = World::source(&world, World::main(&world)).unwrap();
-        let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(m.scope().get("lang1"), Some(&Value::Str("pt".into())));
-        assert_eq!(m.scope().get("lang2"), Some(&Value::Str("fr".into())));
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let mut captured = Vec::new();
+        contexts(module.content().unwrap(), &StyleChain::default_chain(), &mut captured);
+        assert_eq!(
+            captured.len(),
+            2,
+            "both actual source context insertion sites are required"
+        );
+        let mut values = Vec::new();
+        let mut sink = Sink::new();
+        for (closure, mut styles) in captured {
+            let mut ctx = EvalContext::new();
+            ctx.in_context = true;
+            let route = Route::root().with_id(world.main());
+            let mut rules: Arc<[ShowRule]> = Arc::from([]);
+            let mut guards = Vec::new();
+            let metrics = FixedMetrics;
+            let mut scopes = Scopes::new(None);
+            let mut tracked = sink.track_mut();
+            let mut engine = Engine {
+                world: &world,
+                font_metrics: &metrics,
+                route: route.track(),
+                styles: &mut styles,
+                show_rules: &mut rules,
+                active_guards: &mut guards,
+                current_file: world.main(),
+                sink: &mut tracked,
+            };
+            values.push(
+                apply_func(
+                    closure,
+                    crate::entities::args::Args::positional(vec![]),
+                    &mut scopes,
+                    &mut ctx,
+                    &mut engine,
+                )
+                .unwrap(),
+            );
+        }
+        assert_eq!(values, vec![Value::Str("pt".into()), Value::Str("fr".into())]);
+        assert!(sink.into_diagnostics().is_empty());
+    }
+
+    #[test]
+    fn p792_text_lang_outside_context_rejects_the_original_dynamic_read() {
+        let world = MockWorld::new("#set text(lang: \"pt\")\n#let lang1 = text.lang");
+        let errors = eval_for_test(&world, &world.source).unwrap_err();
+        assert_eq!(errors.len(), 1);
+        assert_eq!(errors[0].message, "can only be used when context is known");
+        assert_eq!(errors[0].hints, ["try wrapping this in a `context` expression"]);
+        let start = world.source.text().find("text.lang").unwrap() + "text.".len();
+        assert_eq!(
+            world.source.span_byte_range(errors[0].span),
+            Some(start..start + "lang".len())
+        );
     }
 
     #[test]
@@ -31056,11 +31473,17 @@ mod regressions {
 
     #[test]
     fn custom_costs_set_rejects_invalid_dictionary_and_ratio() {
-        for (value,expected) in [("1","expected dictionary, found integer"),
-            ("(runt:1,hyphenation:false)","expected ratio, found boolean"),
-            ("(other:100%)","unexpected key \"other\", valid keys are \"hyphenation\", \"runt\", \"widow\", and \"orphan\"")] {
-            let (result,_)=break_policy_eval(&format!("#set text(costs:{value})\nx"));
-            let err=result.unwrap_err();assert_eq!(err[0].message,expected);
+        for (value, expected) in [
+            ("1", "expected dictionary, found integer"),
+            ("(runt:1,hyphenation:false)", "expected ratio, found boolean"),
+            (
+                "(other:100%)",
+                "unexpected key \"other\", valid keys are \"hyphenation\", \"runt\", \"widow\", and \"orphan\"",
+            ),
+        ] {
+            let (result, _) = break_policy_eval(&format!("#set text(costs:{value})\nx"));
+            let err = result.unwrap_err();
+            assert_eq!(err[0].message, expected);
             assert!(!err[0].span.is_detached());
         }
         let (result, sink) =
@@ -31572,7 +31995,9 @@ mod regressions {
 
     #[test]
     fn equation_where_literal_show_captures_alias_and_preserves_inline() {
-        let world = MockWorld::new("#let eq = math.equation\n#show eq.where(block: true): it => [DISPLAY]\n$a$\n$ b $");
+        let world = MockWorld::new(
+            "#let eq = math.equation\n#show eq.where(block: true): it => [DISPLAY]\n$a$\n$ b $",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         let content = module.content().unwrap();
         assert!(content.plain_text().contains("DISPLAY"), "{content:?}");
@@ -31669,14 +32094,18 @@ mod regressions {
 
     #[test]
     fn d08b3_table_native_rule_precedes_cells() {
-        let world = MockWorld::new("#let t=table\n#show t: it=>[REPLACED]\n#show table.cell: it=>panic(\"hidden cell\")\n#t(columns:1,[a])");
+        let world = MockWorld::new(
+            "#let t=table\n#show t: it=>[REPLACED]\n#show table.cell: it=>panic(\"hidden cell\")\n#t(columns:1,[a])",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(module.content().unwrap().plain_text().trim(), "REPLACED");
     }
 
     #[test]
     fn d08b3_table_cell_alias_uses_insertion_scope() {
-        let world = MockWorld::new("#show table.cell: it=>[OLD #it.body]\n#let c=table.cell([a])\n#show table.cell: it=>[NEW #it.body]\n#table(columns:1,c)");
+        let world = MockWorld::new(
+            "#show table.cell: it=>[OLD #it.body]\n#let c=table.cell([a])\n#show table.cell: it=>[NEW #it.body]\n#table(columns:1,c)",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(module.content().unwrap().plain_text().trim(), "NEW a");
     }
@@ -31720,7 +32149,9 @@ mod regressions {
 
     #[test]
     fn d08b3_reused_table_snapshot_uses_cell_rules() {
-        let world=MockWorld::new("#show table: it=>[ #it #it ]\n#show table.cell: it=>{metadata(it.fields());it}\n#table(columns:1,[a])");
+        let world = MockWorld::new(
+            "#show table: it=>[ #it #it ]\n#show table.cell: it=>{metadata(it.fields());it}\n#table(columns:1,[a])",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         let c = module.content().unwrap();
         let mut n = 0;
@@ -31736,14 +32167,18 @@ mod regressions {
 
     #[test]
     fn d08b3_nested_cells_have_their_own_recipe_occurrence() {
-        let world=MockWorld::new("#show table.cell: it=>[CELL #it.body]\n#table(columns:1,table(columns:1,[a]))");
+        let world = MockWorld::new(
+            "#show table.cell: it=>[CELL #it.body]\n#table(columns:1,table(columns:1,[a]))",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(module.content().unwrap().plain_text().matches("CELL").count(), 2);
     }
 
     #[test]
     fn d08b3_reused_table_indexes_emitted_metadata() {
-        let world=MockWorld::new("#show table: it=>[ #it #it ]\n#show table.cell: it=>{metadata(it.fields());it}\n#table(columns:1,[a])");
+        let world = MockWorld::new(
+            "#show table: it=>[ #it #it ]\n#show table.cell: it=>{metadata(it.fields());it}\n#table(columns:1,[a])",
+        );
         let (module, _) = eval_for_test_keep_sink(&world, &world.source);
         let module = module.unwrap();
         let intr = crate::compiler::introspect::introspect_with_introspector(
@@ -31760,7 +32195,9 @@ mod regressions {
 
     #[test]
     fn d08b3_local_join_preserves_styled_body_observation() {
-        let world=MockWorld::new("#let c={show table.cell: it=>[LOCAL #it.body]; table.cell([a])}\n#show table.cell: it=>[FUNC#repr(it.body.func())]\n#table(columns:1,c)");
+        let world = MockWorld::new(
+            "#let c={show table.cell: it=>[LOCAL #it.body]; table.cell([a])}\n#show table.cell: it=>[FUNC#repr(it.body.func())]\n#table(columns:1,c)",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(module.content().unwrap().plain_text().trim(), "FUNCstyled");
     }
@@ -31787,7 +32224,9 @@ mod regressions {
 
     #[test]
     fn d08b3b_isolated_defaults_are_known_only_after_insertion() {
-        let world=MockWorld::new("#show table.cell: it=>[X#it.x Y#it.y C#it.colspan R#it.rowspan]\n#table.cell[a]");
+        let world = MockWorld::new(
+            "#show table.cell: it=>[X#it.x Y#it.y C#it.colspan R#it.rowspan]\n#table.cell[a]",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(module.content().unwrap().plain_text().trim(), "Xauto Yauto C1 R1");
     }
@@ -31815,7 +32254,9 @@ mod regressions {
     #[test]
     fn d08b3b_returned_alias_allows_unconsumed_earlier_rule() {
         for body in ["#table.cell[a]", "#table(columns:1,[a])"] {
-            let world=MockWorld::new(&format!("#show table.cell: it=>[A #it.body]\n#show table.cell: it=>{{let alias=it;alias}}\n{body}"));
+            let world = MockWorld::new(&format!(
+                "#show table.cell: it=>[A #it.body]\n#show table.cell: it=>{{let alias=it;alias}}\n{body}"
+            ));
             let module = eval_for_test(&world, &world.source).unwrap();
             assert_eq!(module.content().unwrap().plain_text().trim(), "A a");
         }
@@ -31838,7 +32279,9 @@ mod regressions {
 
     #[test]
     fn d08b3b_hidden_body_and_fresh_product_do_not_execute() {
-        let world=MockWorld::new("#show heading: it=>panic(\"hidden body\")\n#show table.cell: it=>{let fresh=table.cell(it.body);[HIDDEN]}\n#table.cell[= a]");
+        let world = MockWorld::new(
+            "#show heading: it=>panic(\"hidden body\")\n#show table.cell: it=>{let fresh=table.cell(it.body);[HIDDEN]}\n#table.cell[= a]",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(module.content().unwrap().plain_text().trim(), "HIDDEN");
     }
@@ -31893,7 +32336,9 @@ mod regressions {
 
     #[test]
     fn d08b3c_cell_set_defaults_are_known_at_insertion() {
-        let world=MockWorld::new("#set table.cell(fill:red,inset:3pt,breakable:false)\n#show table.cell: it=>[F#repr(it.fill) I#repr(it.inset) B#it.breakable]\n#table.cell[a]");
+        let world = MockWorld::new(
+            "#set table.cell(fill:red,inset:3pt,breakable:false)\n#show table.cell: it=>[F#repr(it.fill) I#repr(it.inset) B#it.breakable]\n#table.cell[a]",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(
             module.content().unwrap().plain_text().trim(),
@@ -31903,14 +32348,18 @@ mod regressions {
 
     #[test]
     fn d08b3c_cell_defaults_drive_placement_but_not_padding_spans() {
-        let world=MockWorld::new("#set table.cell(colspan:2)\n#show table.cell: it=>[X#it.x C#it.colspan]\n#table(columns:3,[a])");
+        let world = MockWorld::new(
+            "#set table.cell(colspan:2)\n#show table.cell: it=>[X#it.x C#it.colspan]\n#table(columns:3,[a])",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(module.content().unwrap().plain_text().trim(), "X0 C2 X2 C1");
     }
 
     #[test]
     fn d08b3c_conditional_skips_args_and_spread_alias_works() {
-        let world=MockWorld::new("#set table.cell(fill:panic(\"skipped\")) if false\n#let c=table.cell\n#set c(..(breakable:false,))\n#show table.cell: it=>[B#it.breakable]\n#c[a]");
+        let world = MockWorld::new(
+            "#set table.cell(fill:panic(\"skipped\")) if false\n#let c=table.cell\n#set c(..(breakable:false,))\n#show table.cell: it=>[B#it.breakable]\n#c[a]",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(module.content().unwrap().plain_text().trim(), "Bfalse");
     }
@@ -31933,7 +32382,9 @@ mod regressions {
 
     #[test]
     fn d08b3c_self_set_spans_are_observed_after_fixed_placement() {
-        let world=MockWorld::new("#show table.cell: set table.cell(colspan:2)\n#show table.cell: it=>[X#it.x C#it.colspan]\n#table(columns:3,[a])");
+        let world = MockWorld::new(
+            "#show table.cell: set table.cell(colspan:2)\n#show table.cell: it=>[X#it.x C#it.colspan]\n#table(columns:3,[a])",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(module.content().unwrap().plain_text().trim(), "X0 C2 X1 C1 X2 C1");
     }
@@ -31958,7 +32409,9 @@ mod regressions {
 
     #[test]
     fn d08b3c_successive_stroke_sets_fold_components() {
-        let world=MockWorld::new("#set table.cell(stroke:red)\n#set table.cell(stroke:2pt)\n#show table.cell: it=>[S#repr(it.stroke)]\n#table.cell[a]");
+        let world = MockWorld::new(
+            "#set table.cell(stroke:red)\n#set table.cell(stroke:2pt)\n#show table.cell: it=>[S#repr(it.stroke)]\n#table.cell[a]",
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         assert_eq!(
             module.content().unwrap().plain_text().trim(),
@@ -31975,7 +32428,9 @@ mod regressions {
                 "S2pt + rgb(\"#ff4136\")",
             ),
         ] {
-            let world=MockWorld::new(&format!("#set table.cell(stroke:red)\n#show table.cell: it=>[S#repr(it.stroke)]\n{body}"));
+            let world = MockWorld::new(&format!(
+                "#set table.cell(stroke:red)\n#show table.cell: it=>[S#repr(it.stroke)]\n{body}"
+            ));
             let module = eval_for_test(&world, &world.source).unwrap();
             assert_eq!(module.content().unwrap().plain_text().trim(), expected);
         }
@@ -31987,7 +32442,9 @@ mod regressions {
         for (target, body) in
             [("table.cell", "#table.cell[a]"), ("table", "#table(columns:1,[a])")]
         {
-            let world=MockWorld::new(&format!("#show {target}: set table.cell(stroke:red)\n#show {target}: set table.cell(stroke:2pt)\n#show table.cell: it=>[S#repr(it.stroke)]\n{body}"));
+            let world = MockWorld::new(&format!(
+                "#show {target}: set table.cell(stroke:red)\n#show {target}: set table.cell(stroke:2pt)\n#show table.cell: it=>[S#repr(it.stroke)]\n{body}"
+            ));
             let module = eval_for_test(&world, &world.source).unwrap();
             outputs.push(module.content().unwrap().plain_text().trim().to_owned());
         }
@@ -31998,7 +32455,9 @@ mod regressions {
     fn d08b3c_color_length_stroke_keeps_both_supplied_components() {
         let mut outputs = Vec::new();
         for stroke in ["red+2pt", "2pt+red"] {
-            let world=MockWorld::new(&format!("#set table.cell(stroke:{stroke})\n#show table.cell: it=>[S#repr(it.stroke)]\n#table(columns:1,[a])"));
+            let world = MockWorld::new(&format!(
+                "#set table.cell(stroke:{stroke})\n#show table.cell: it=>[S#repr(it.stroke)]\n#table(columns:1,[a])"
+            ));
             let module = eval_for_test(&world, &world.source).unwrap();
             outputs.push(module.content().unwrap().plain_text().trim().to_owned());
         }
@@ -32073,9 +32532,18 @@ mod regressions {
     #[test]
     fn raw_presence_unknown_field_errors_are_specific() {
         for (field, expected) in [
-            ("block", "field \"block\" in raw is not known at this point and no default was specified"),
-            ("lang", "field \"lang\" in raw is not known at this point and no default was specified"),
-            ("missing", "raw does not have field \"missing\" and no default was specified"),
+            (
+                "block",
+                "field \"block\" in raw is not known at this point and no default was specified",
+            ),
+            (
+                "lang",
+                "field \"lang\" in raw is not known at this point and no default was specified",
+            ),
+            (
+                "missing",
+                "raw does not have field \"missing\" and no default was specified",
+            ),
         ] {
             let world = MockWorld::new(&format!("#raw(\"x\").at(\"{field}\")"));
             let errors = eval_for_test(&world, &world.source).unwrap_err();
@@ -32123,14 +32591,17 @@ mod regressions {
         #[test]
         fn sequence_reflection_unknown_field_uses_language_identity() {
             for (source, message) in [
-            (r#"#[].missing"#, "sequence does not have field \"missing\""),
-            (r#"#[].at("missing")"#, "sequence does not have field \"missing\" and no default was specified"),
-            (r#"#[X].children"#, "text does not have field \"children\""),
-        ] {
-            let world = MockWorld::new(source);
-            let errors = eval_for_test(&world, &world.source).unwrap_err();
-            assert!(errors.iter().any(|e| e.message == message), "{errors:?}");
-        }
+                (r#"#[].missing"#, "sequence does not have field \"missing\""),
+                (
+                    r#"#[].at("missing")"#,
+                    "sequence does not have field \"missing\" and no default was specified",
+                ),
+                (r#"#[X].children"#, "text does not have field \"children\""),
+            ] {
+                let world = MockWorld::new(source);
+                let errors = eval_for_test(&world, &world.source).unwrap_err();
+                assert!(errors.iter().any(|e| e.message == message), "{errors:?}");
+            }
         }
 
         #[test]
@@ -32259,17 +32730,27 @@ mod regressions {
 
         #[test]
         fn sequence_constructor_show_bare_filter_empty_and_styled() {
-            for (source,expected) in [
-                ("#let f=[].func()\n#show f:it=>[Y]\n#([A]+[B])","Y"),
-                ("#let f=[].func()\n#show f.where(children:([A],[B])):it=>[Y]\n#([A]+[B])","Y"),
-                ("#let f=[].func()\n#show f.where(children:([C],)):it=>[Y]\n#([A]+[B])","AB"),
-                ("#let f=[].func()\n#show f:it=>[Y]\n#[]","Y"),
-                ("#let f=[].func()\n#show f:it=>[Y]\n#f(([A],))","Y"),
-                ("#let f=[].func()\n#show f:it=>[Y]\n#text(fill:red)[A B]\n","Y"),
+            for (source, expected) in [
+                ("#let f=[].func()\n#show f:it=>[Y]\n#([A]+[B])", "Y"),
+                (
+                    "#let f=[].func()\n#show f.where(children:([A],[B])):it=>[Y]\n#([A]+[B])",
+                    "Y",
+                ),
+                (
+                    "#let f=[].func()\n#show f.where(children:([C],)):it=>[Y]\n#([A]+[B])",
+                    "AB",
+                ),
+                ("#let f=[].func()\n#show f:it=>[Y]\n#[]", "Y"),
+                ("#let f=[].func()\n#show f:it=>[Y]\n#f(([A],))", "Y"),
+                ("#let f=[].func()\n#show f:it=>[Y]\n#text(fill:red)[A B]\n", "Y"),
             ] {
-                let world=MockWorld::new(source);
-                let module=eval_for_test(&world,&world.source).unwrap();
-                assert_eq!(module.content().unwrap().plain_text().trim(),expected,"{source}");
+                let world = MockWorld::new(source);
+                let module = eval_for_test(&world, &world.source).unwrap();
+                assert_eq!(
+                    module.content().unwrap().plain_text().trim(),
+                    expected,
+                    "{source}"
+                );
             }
         }
 
@@ -32294,14 +32775,27 @@ mod regressions {
                 ("#show regex(\"A\"):it=>[AA]\n#([A]+[B])", "AAB"),
                 ("#show \"A\":it=>[AA]\n#[A]", "AA"),
                 ("#show \"A\":it=>[AA]\n#let c=[A]\n#c", "AA"),
-                ("#let f=[].func()\n#show \"A\":it=>[AA]\n#show f:it=>it\n#([A]+[B])", "AAB"),
-                ("#let f=[].func()\n#show \"A\":it=>[AA]\n#show f:it=>{it}\n#([A]+[B])", "AAB"),
+                (
+                    "#let f=[].func()\n#show \"A\":it=>[AA]\n#show f:it=>it\n#([A]+[B])",
+                    "AAB",
+                ),
+                (
+                    "#let f=[].func()\n#show \"A\":it=>[AA]\n#show f:it=>{it}\n#([A]+[B])",
+                    "AAB",
+                ),
                 ("#show \"AB\":it=>[X]\n#([A]+[B])", "X"),
-                ("#let f=[].func()\n#show \"A\":it=>panic(\"HIDDEN\")\n#show f:it=>[Y]\n#([A]+[B])", "Y"),
+                (
+                    "#let f=[].func()\n#show \"A\":it=>panic(\"HIDDEN\")\n#show f:it=>[Y]\n#([A]+[B])",
+                    "Y",
+                ),
             ] {
                 let world = MockWorld::new(source);
                 let module = eval_for_test(&world, &world.source).unwrap();
-                assert_eq!(module.content().unwrap().plain_text().trim(), expected, "{source}");
+                assert_eq!(
+                    module.content().unwrap().plain_text().trim(),
+                    expected,
+                    "{source}"
+                );
             }
         }
 
@@ -32353,7 +32847,11 @@ mod regressions {
             ] {
                 let world = MockWorld::new(source);
                 let module = eval_for_test(&world, &world.source).unwrap();
-                assert_eq!(module.content().unwrap().plain_text().trim(), "AA", "{source}");
+                assert_eq!(
+                    module.content().unwrap().plain_text().trim(),
+                    "AA",
+                    "{source}"
+                );
             }
         }
 
@@ -32363,7 +32861,10 @@ mod regressions {
                 "#let f=[].func()\n#let n=0\n#show f:it=>{n+=1;[Y]}\n#([A]+[B])",
             );
             let errors = eval_for_test(&world, &world.source).unwrap_err();
-            assert_eq!(errors[0].message,"variables from outside the function are read-only and cannot be modified");
+            assert_eq!(
+                errors[0].message,
+                "variables from outside the function are read-only and cannot be modified"
+            );
             assert!(!errors[0].span.is_detached());
             let world = MockWorld::new(
                 "#let f=[].func()\n#show f:it=>f(it.children)\n#([A]+[B])",

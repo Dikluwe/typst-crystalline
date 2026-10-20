@@ -1,0 +1,9 @@
+# Draft final authorization review: 62 owners
+
+The current public surface matches the two explicit approvals: original Figure/Grid carriers and target-aware bundle facade, plus the exact three doc-hidden reference-supplement functions and their public module. Existing public function signatures, public ContextOccurrenceArena/Frame contracts, generic Ref entity/maps and global Func/Value observation remain unchanged. The 62 changed productive sources exactly match scope.json and their canonical owner headers. The original 145-file proposal package and the separately approved Ref proposal retain their pinned hashes.
+
+The added reference phase and internal corrections remain bounded to actual emitted Paged references, retained original templates versus actual visual children, shared occurrence allocation, exact prepared aliases, strict scoped eligibility observation and lexical source origin. There is no authorization for new targets/defaults, generic query weakening, source Context fabrication, hidden caches or warning suppression.
+
+Whitespace collapse in the p462 fixture preserves every nonwhitespace character and number. Exact caption, exact final reference number and two required occurrences exclude both missing-reference and Figure10 false positives. Separately versioned oracle-derived policies retain whole visible word/number order; old sources, policies and receipts remain intact. These checks do not certify whitespace-sensitive morphology or HTML/PDF byte equivalence.
+
+This is a draft inventory, not final executable validation or parity certification. Final sealed source/L0 hashes and root's remaining gate results are required before issuing the separate final62 review. The historical55 review is preserved unchanged. No source edits or Cargo were performed for this audit.

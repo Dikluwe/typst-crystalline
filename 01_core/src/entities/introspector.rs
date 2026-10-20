@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/introspector.md
-//! @prompt-hash 84aeabf6
+//! @prompt-hash b0892dd8
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -371,8 +371,17 @@ pub trait Introspector: Send + Sync {
 /// Sub-stores são `pub` para composição visível e acesso directo em
 /// testes e consumers M4+. Mutação só durante fase de construção
 /// via métodos `pub(crate)` dos próprios sub-stores.
+/// Complete immutable Figure history owned by one candidate transaction.
+#[derive(Debug, Clone)]
+pub(crate) struct FigureCounterSnapshot {
+    pub(crate) key: CounterKey,
+    pub(crate) history: Vec<(Location, Vec<usize>)>,
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct TagIntrospector {
+    pub(crate) original_walk_depth: usize,
+    pub(crate) figure_counter_snapshots: Vec<FigureCounterSnapshot>,
     pub labels: LabelRegistry,
     pub counters: CounterRegistry,
     pub kind_index: HashMap<ElementKind, Vec<Location>>,

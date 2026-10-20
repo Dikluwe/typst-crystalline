@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/expression_dispatch.md
-//! @prompt-hash 9a61fb14
+//! @prompt-hash 0b9929a7
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -63,8 +63,14 @@ pub(crate) fn eval_expr(
                 || (ctx.defer_show_rules && !engine.show_rules.is_empty());
         match value {
             Value::Func(func) => Value::Func(func.with_diagnostic_span(span)),
-            Value::Content(content) if content_origin_required => {
-                Value::Content(content.with_source_span(span))
+            Value::Content(content) => {
+                if content_origin_required
+                    || matches!(content.source_body(), Content::Ref(_))
+                {
+                    Value::Content(content.with_source_span(span))
+                } else {
+                    Value::Content(content)
+                }
             }
             other => other,
         }

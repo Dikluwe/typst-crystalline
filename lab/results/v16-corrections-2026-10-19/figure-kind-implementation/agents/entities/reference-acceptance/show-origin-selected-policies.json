@@ -1,0 +1,26 @@
+{
+  "oracle_receipt_sha256": "9ae5b125bf8c2133506f936d7e707de559f7ff3890242a97885c93fbb621789e",
+  "matrix_sha256": "e2c6110ce60b6c02cb37326482469029ee3cdadffb957a86e9f1bd1d50b10baa",
+  "cases": {
+    "show-origin-new-label-selected": {
+      "class": "required-error",
+      "message": "label `<newmissing>` does not exist in the document",
+      "origin": [
+        2,
+        2
+      ],
+      "criterion": "label-selected show constructs fresh Ref once; source must be its own constructor",
+      "oracle_note": "Actual isolated label-selected show origin; no inferred expected span."
+    },
+    "show-origin-other-label-selected": {
+      "class": "required-error",
+      "message": "label `<aliasmissing>` does not exist in the document",
+      "origin": [
+        1,
+        13
+      ],
+      "criterion": "label-selected show returns prior distinct Ref; origin must be prior constructor",
+      "oracle_note": "Actual isolated label-selected show origin; no inferred expected span."
+    }
+  }
+}

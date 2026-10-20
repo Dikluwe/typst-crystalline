@@ -1,5 +1,5 @@
 # L0 — compiler/eval/selector_matching
-Hash do Código: 13d5d87d
+Hash do Código: 38cfa7dd
 
 
 
@@ -463,3 +463,20 @@ or compatibility change is introduced. L0 first, parent-controlled RED on actual
 producer fixtures, then producer-owner implementation and all existing selector,
 query, field, serialization and full-suite gates. The selector owner changes only
 tests unless further measured evidence independently authorizes algorithm work.
+
+
+## Approved Figure/Grid kind repair (2026-10-19)
+
+### Measurement and classification before decision
+
+The frozen proposal at baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, `agents/contracts/semantic-partition.json`, and `agents/counter/design.md` bind measurements and full source/oracle provenance. Current-pin oracle is `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Constructor inference loses typed identity and lexical occurrence styles; semantic inspection and final supplement need separate phases. These are language semantics and causal effects, not a requirement for upstream Rust mechanics. The human explicitly approved the exact public carriers, phase changes and compatibility migration in the current session under ADR-0127.
+
+### Exclusive responsibility
+
+Figure kind Where field comparison uses nominal FigureKind equality: Element versus Name remain distinct; native aliases compare typed function pointers and homonyms do not merge. Preserve recursion through Where/And/Or, authoritative Some(empty) fields snapshots, and all unrelated selector/value semantics. Kind-only preview is supplied by realization, never synthesized by selector matching.
+
+### Acceptance and boundaries
+
+Require functional RED→GREEN, frozen kind/set/show-set/supplement/hidden-parent cases, alias/homonym and field snapshots, full build/tests, paths, strict forward/reverse lineage, V15/V26 and differential lint. No suppressions, opaque catchall, fake neutral child or weakened assertion. Caption omission/none, complete caption synthesis, supplement-dependent preview selection, complete function-number formatting, HTML implicit captions/references, Dynamic field enumeration, and mixed Table header/ordinary-cell supplemental target order remain explicit bounded debts.
+
+Exact supplement targets use represented constructor identity, including FigureCaption, FootnoteEntry, Title, HtmlElem/HtmlFrame, PdfArtifact/PdfAttach, Document, list/enum/term item, Flush/Divider/Asset, Curve segment nominal alternatives, and Circle only when ShapeOrigin::Circle. Native function pointers are authoritative; native homonyms never match. ShapeOrigin::Geometry does not reconstruct erased rect/square/ellipse/line/polygon/curve constructor identity from ShapeKind, dimensions or baked path data. Dynamic extension fields remain opaque under the reviewed limitation. Add direct Sequence target tests so a whole-body fallback cannot mask a missing represented root.

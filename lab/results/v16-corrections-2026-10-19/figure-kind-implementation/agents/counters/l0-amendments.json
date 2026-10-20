@@ -1,0 +1,73 @@
+{
+  "utc": "2026-10-19T23:14:54.270934+00:00",
+  "owners": {
+    "00_nucleo/prompts/core/entities/introspector.md": {
+      "before_sha256": "1f6b53d53d061240ddbcc614836409fd492ad575ea1429a881f04929407e437a",
+      "after_sha256": "a568d38c69b976e06e48fe8f8af3c633162fcd8780000e47555b3df4c8447634"
+    },
+    "00_nucleo/prompts/core/compiler/introspect.md": {
+      "before_sha256": "7227e91fab350cda912d8c1f1bd6c1abd4794b87d08f60bf82b12b1eddb74626",
+      "after_sha256": "2f1460306fd7dc3918d27460f0d766572e253b77ef5aaf67e04b393b4fdbff04"
+    },
+    "00_nucleo/prompts/core/compiler/introspect/entrypoints.md": {
+      "before_sha256": "0aba9ba24a91e6c49178792fc664cc470532b4e505bcd2ef64d4b990a42324aa",
+      "after_sha256": "71f26485439e77f9057bbc3d925dc1afa2134893eecefa93a24ad640fa1792b2"
+    },
+    "00_nucleo/prompts/core/compiler/introspect/fixpoint.md": {
+      "before_sha256": "317a74cbf7ba8ec2fbe190d953004e2d1ddb3eff28392fececd91f30d6158d13",
+      "after_sha256": "57fa51413ccbe4e49fa1170af801efed16339c193776dddf42947326ad0886ff"
+    },
+    "00_nucleo/prompts/core/compiler/introspect/labelled.md": {
+      "before_sha256": "52181daaddda31d2728e90bd3cb5b240d382a0862c1e2cf138bbc47ec2a04900",
+      "after_sha256": "66b1c2f398a5ca23eb6004cdc9a026bba096670f3d0c7771228ce90e80c59dca"
+    },
+    "00_nucleo/prompts/core/compiler/introspect/populate.md": {
+      "before_sha256": "6afbfcc79c5626d3482090e3ea008d4b519712b065e2a9c3cf1b15d516b60a18",
+      "after_sha256": "3eccca2cdf157015320fcda443e4efc3c8b76981d8ebffc3a8c55dd81d5ec712"
+    },
+    "00_nucleo/prompts/core/compiler/introspect/queries.md": {
+      "before_sha256": "c36be9d18d02bae48f2cc660992c93845db38bbe8aaa98e7647a6eb04e67e53f",
+      "after_sha256": "f1661afdc4865928607c1edca9168388e8133bf6994bcc7443a3217fca1e46b5"
+    },
+    "00_nucleo/prompts/core/compiler/introspect/walk.md": {
+      "before_sha256": "499710498b29d97e67875db8991e7f544969011ec25fc13e30f44177a141b406",
+      "after_sha256": "0ff6cf8f51c0838c1a3a221805ad5fbc5158b3edacedce6aaae8d6dda9d1991d"
+    },
+    "00_nucleo/prompts/core/compiler/layout/figure.md": {
+      "before_sha256": "686be4e94d851472c00638523dc8f279dd613d92d62a92f359b0396d0de6b093",
+      "after_sha256": "c959021b37c695dcd5c7398ffea61dbedc810da82359b7078bd025cff694604a"
+    },
+    "00_nucleo/prompts/core/compiler/layout/mod.md": {
+      "before_sha256": "611d51e002a593584e1132e0e86299436581e9bdd67e4ca3cf467b66211df0b8",
+      "after_sha256": "2df169dd01d0cc501a116c0e0b1cc6a612cde551a044e6767f84c5140dc6aec2"
+    },
+    "00_nucleo/prompts/core/compiler/layout/checkpoint.md": {
+      "before_sha256": "2b1328e0b8c3340d321bbefe6a3de88c365157103b413393b76cf23bd0fabe88",
+      "after_sha256": "519739386d78df6a08710e2f6f9a2e0f344b129856052e53e21054832d347202"
+    },
+    "00_nucleo/prompts/core/compiler/layout/measurement.md": {
+      "before_sha256": "87aa1aed7a79c2026412d828299b747fa60d9b5f8829bf0ec3d0fd7bb0a39b37",
+      "after_sha256": "d7b31c871940f32431aafa29e9330b7bbf93927847f19725cdcab46deaf810cb"
+    },
+    "00_nucleo/prompts/core/compiler/layout/references.md": {
+      "before_sha256": "eb7adaa0f3b24e914142ba235a494bd66d4fe42ba8c4abcb6b776a7d9fdd3f0e",
+      "after_sha256": "56a272c9ecbce77cd7896eb7d7eacb1dd5b300253e77dc81beb1b9a758b3f919"
+    },
+    "00_nucleo/prompts/infra/pipeline/bundle.md": {
+      "before_sha256": "dee2909c7512d1da97bf9c3370f1b8894e3af991f3abf0e72d9177821f5d30f5",
+      "after_sha256": "faddb4f8f8867a42e34ae52cca54b4700aef45154c36ac76de91901077b6f604"
+    },
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md": {
+      "before_sha256": "a7aa969c374eec487ad51f42027b121a2d1b3a385c6a8064266bd8e13d60b4d6",
+      "after_sha256": "cb91b729bc2654f7da747ca2f791544a27594c054b45473fe20884a10d7f8c58"
+    },
+    "00_nucleo/prompts/core/compiler/introspect/figure_counters.md": {
+      "before_sha256": null,
+      "after_sha256": "5011ec0967c9d3a57e3f0b770e7ef5d4c2fd7110d7f5745501106e255910335a"
+    },
+    "00_nucleo/prompts/core/compiler/introspect/figure_demands.md": {
+      "before_sha256": null,
+      "after_sha256": "5ce55a3cd6667ea19aecfa0fe4342571df6543932109da2150029094b684c2ff"
+    }
+  }
+}

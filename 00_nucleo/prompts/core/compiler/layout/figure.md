@@ -1,5 +1,5 @@
 # L0 — figure
-Hash do Código: cc2da569
+Hash do Código: b8d09974
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/figure.rs`
@@ -20,3 +20,30 @@ Read `figure.numbering` from the active chain: absence selects `1`, String suppl
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+
+## Approved Figure/Grid occurrence counter correction
+
+### Evidence before decision
+
+Baseline HEAD `731f0ffdf4c7c152f590551e72ff63f7bd85ef85`; the reviewed current-pin measurements and exact source anchors are retained in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, `agents/counter/design.md` and `agents/counter/counter-probes.json`. In that evidence, captionless/numbered Figures count; manual Set/Func actions make caption ordinal indexing incorrect; typed element kinds and custom names require distinct keys. These are language values/errors, not Rust or rendering-byte equality. The human explicitly approved the complete Figure/Grid contracts, phases and compatibility changes in the current implementation session. This approval satisfies ADR-0127 for this exact scope. Historical conflicting caption-only or productive string-projection clauses are superseded only as described here; unrelated contracts remain.
+
+### Exclusive responsibility
+
+Capture current_location before children. Prepared resolved_kind Figures with present numbered visual caption use typed key and that Location prefix from prepared snapshot, never event index or figure_progress. Missing productive Location/history appends `figure counter snapshot could not be verified` at nearest Source span and returns without fabricated prefix; a present empty state is not missing and can yield an empty formatted number. Use prepared resolved supplement including explicit empty/None. Retain figure_progress/index-plus-one fallback only for unprepared synthetic resolved_kind=None, including historical numbering-enabled/no-caption increments. Func numbering counts/demands; existing missing visual formatting remains explicit debt, no fabricated decimal parity. Rendering still delegates body/caption.
+
+### Acceptance and limits
+
+L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.
+
+
+### Rich prepared caption supplement
+
+The approved resolved supplement is Content. Flattening it with plain_text before emission loses language morphology (for example Strong text), violating ADR-0107. Preserve that Content in the private caption prefix and compose it with a plain numeric/separator Content node; existing synthetic String prefixes become Content::text. The private sole-caller layout_figure prefix changes Option<String> to Option<Content>, with no public gate. Require bold supplement morphology and ordinary number/caption preservation. Function number formatting remains separate debt.
+
+
+### Figure block paragraph boundaries
+
+Root's frozen target caption control reports pinned oracle `A B Figure 2` versus candidate `AB Figure 2`: consecutive Figure bodies were merged into one paragraph. Figure is a block language object independently of whether it has a caption. Add a rendered text and baseline-order RED control for two prepared captionless Figures followed by ordinary text before changing dispatch. The bounded correction must end the preceding paragraph before each body and finish the Figure's emitted paragraph before following content, preserving numbering/action/snapshot identity and existing body/caption order. No public API, new mode or eval/layout transfer; this is an internal morphology correction at the owning renderer.
+
+Functional RED was observed by the orchestrator in `lab/results/v16-corrections-2026-10-19/figure-kind-implementation/integration-tests-6/tests.log`: `figure_blocks_keep_adjacent_bodies_and_following_text_in_separate_paragraphs` emitted ALPHA, BETA and TAIL at the same baseline. Use the existing paragraph owner before the Figure body and after its final emitted body/caption; perform no paragraph mutation before a missing productive snapshot has been rejected.

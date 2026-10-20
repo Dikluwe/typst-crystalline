@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/recipes.md
-//! @prompt-hash 4df1799c
+//! @prompt-hash 57dc9644
 //! @layer L1
 //! @updated 2026-10-18
 
@@ -18,18 +18,44 @@ pub(in crate::compiler) fn realize(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
     if let Content::Source(source) = content {
-        return realize(&source.body, ctx, engine)
-            .map(|body| body.with_source_span(source.span))
-            .map_err(|mut errors| {
+        let previous = std::mem::replace(
+            engine.styles,
+            super::reference_supplements::source_styles(engine.styles, source.span),
+        );
+        let result = realize(&source.body, ctx, engine);
+        *engine.styles = previous;
+        return result.map(|body| body.with_source_span(source.span)).map_err(
+            |mut errors| {
                 for error in &mut errors {
                     if error.span.is_detached() {
                         error.span = source.span;
                     }
                 }
                 errors
-            });
+            },
+        );
     }
-    content.map_content_pre(&mut |node| visit(node, ctx, engine))
+    content.map_content_pre_with_origin(&mut |node, origin| {
+        with_origin(origin, ctx, engine, |ctx, engine| visit(node, ctx, engine))
+    })
+}
+
+fn with_origin<T>(
+    origin: crate::entities::span::Span,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    action: impl FnOnce(&mut EvalContext, &mut Engine<'_>) -> SourceResult<T>,
+) -> SourceResult<T> {
+    if origin.is_detached() {
+        return action(ctx, engine);
+    }
+    let previous = std::mem::replace(
+        engine.styles,
+        super::reference_supplements::source_styles(engine.styles, origin),
+    );
+    let result = action(ctx, engine);
+    *engine.styles = previous;
+    result
 }
 
 /// Rebuild only emitted children. This skips the already-decided root and
@@ -41,144 +67,162 @@ pub(super) fn realize_children(
 ) -> SourceResult<Content> {
     let old_math = ctx.recipe_math_depth;
     let mut first = true;
-    let result = content.map_content_pre(&mut |node| {
-        if std::mem::replace(&mut first, false) {
-            match node {
-                Content::Located(located) => {
-                    return realize_children(&located.body, ctx, engine).map(|body| {
-                        Some(Content::Located(Arc::new(LocatedContent {
-                            body,
-                            location: located.location,
-                        })))
-                    })
+    let result = content.map_content_pre_with_origin(&mut |node, origin| {
+        with_origin(origin, ctx, engine, |ctx, engine| {
+            if std::mem::replace(&mut first, false) {
+                match node {
+                    Content::Located(located) => {
+                        if ctx.target == crate::compiler::eval::EvalTarget::Paged
+                            && super::figure::is_captionless(&located.body)
+                        {
+                            // The surrounding Realized keeps the canonical Figure
+                            // Location; an actual Block/replacement keeps its own.
+                            return realize_children(&located.body, ctx, engine)
+                                .map(Some);
+                        }
+                        return realize_children(&located.body, ctx, engine).map(
+                            |body| {
+                                Some(Content::Located(Arc::new(LocatedContent {
+                                    body,
+                                    location: located.location,
+                                })))
+                            },
+                        );
+                    }
+                    Content::Sequence(parts) => {
+                        return realize_parts(parts.to_vec(), ctx, engine).map(Some)
+                    }
+                    Content::Styled(styled) => {
+                        return styled_body(styled, ctx, engine).map(Some)
+                    }
+                    Content::Ref(_) => {
+                        return super::reference_supplements::capture(node, ctx, engine)
+                            .map(Some)
+                    }
+                    Content::Figure(figure) => {
+                        return super::figure::realize_children(figure, ctx, engine)
+                            .map(Some)
+                    }
+                    Content::Equation(_) => ctx.recipe_math_depth += 1,
+                    Content::Source(_)
+                    | Content::ShowRecipe(_)
+                    | Content::Realized(_)
+                    | Content::Empty
+                    | Content::Text(_)
+                    | Content::Space
+                    | Content::SpaceFromNewline
+                    | Content::Parbreak
+                    | Content::HtmlElem(_)
+                    | Content::HtmlFrame(_)
+                    | Content::Par { .. }
+                    | Content::Heading(_)
+                    | Content::Title(_)
+                    | Content::Strong(_)
+                    | Content::Emph(_)
+                    | Content::Raw(_)
+                    | Content::ListItem(_)
+                    | Content::EnumItem(_)
+                    | Content::Link(_)
+                    | Content::MathSequence(_)
+                    | Content::MathIdent(_)
+                    | Content::MathText(_)
+                    | Content::MathFrac(_)
+                    | Content::MathAttach(_)
+                    | Content::MathPrimes(_)
+                    | Content::MathRoot(_)
+                    | Content::MathStretch(_)
+                    | Content::MathDelimited(_)
+                    | Content::MathLr(_)
+                    | Content::MathMid(_)
+                    | Content::MathOverbrace(_)
+                    | Content::MathUnderbrace(_)
+                    | Content::MathUnderbracket(_)
+                    | Content::MathUnderparen(_)
+                    | Content::MathUndershell(_)
+                    | Content::MathOverbracket(_)
+                    | Content::MathOverparen(_)
+                    | Content::MathOvershell(_)
+                    | Content::MathAlignPoint(_)
+                    | Content::Linebreak(_)
+                    | Content::MathMatrix(_)
+                    | Content::MathCases(_)
+                    | Content::MathAccent(_)
+                    | Content::MathCancel(_)
+                    | Content::MathUnderline(_)
+                    | Content::MathOverline(_)
+                    | Content::MathVec(_)
+                    | Content::MathClassOverride(_)
+                    | Content::MathLimitsOverride(_)
+                    | Content::MathUnderover(_)
+                    | Content::MathOp(_)
+                    | Content::MathStyled(_)
+                    | Content::Label(_)
+                    | Content::CounterDisplay(_)
+                    | Content::CounterUpdate(_)
+                    | Content::Outline(_)
+                    | Content::OutlineEntry(_)
+                    | Content::FigureCaption(_)
+                    | Content::Image(_)
+                    | Content::Shape(_)
+                    | Content::Curve(_)
+                    | Content::Transform(_)
+                    | Content::Grid(_)
+                    | Content::GridHeader(_)
+                    | Content::GridFooter(_)
+                    | Content::GridCell(_)
+                    | Content::SetPage(_)
+                    | Content::PageRun(_)
+                    | Content::Align(_)
+                    | Content::Place(_)
+                    | Content::Flush(_)
+                    | Content::Divider(_)
+                    | Content::Terms(_)
+                    | Content::TermItem(_)
+                    | Content::Quote(_)
+                    | Content::Document { .. }
+                    | Content::Asset { .. }
+                    | Content::SmartQuote(_)
+                    | Content::PdfAttach(_)
+                    | Content::PdfArtifact(_)
+                    | Content::Underline(_)
+                    | Content::Strike(_)
+                    | Content::Overline(_)
+                    | Content::SmallCaps { .. }
+                    | Content::Pad(_)
+                    | Content::Hide(_)
+                    | Content::HSpace(_)
+                    | Content::VSpace(_)
+                    | Content::Pagebreak(_)
+                    | Content::Colbreak(_)
+                    | Content::Stack(_)
+                    | Content::Boxed(_)
+                    | Content::Block(_)
+                    | Content::TableCell(_)
+                    | Content::Bibliography(_)
+                    | Content::Cite(_)
+                    | Content::Footnote(_)
+                    | Content::FootnoteEntry(_)
+                    | Content::TableHeader(_)
+                    | Content::TableFooter(_)
+                    | Content::GridHLine(_)
+                    | Content::GridVLine(_)
+                    | Content::TableHLine(_)
+                    | Content::TableVLine(_)
+                    | Content::Table(_)
+                    | Content::Repeat(_)
+                    | Content::Columns(_)
+                    | Content::Metadata(_)
+                    | Content::State(_)
+                    | Content::StateUpdate(_)
+                    | Content::StateDisplay(_)
+                    | Content::CounterDisplayCallback(_)
+                    | Content::ContextBlock(_)
+                    | Content::Dynamic(_) => {}
                 }
-                Content::Sequence(parts) => {
-                    return realize_parts(parts.to_vec(), ctx, engine).map(Some)
-                }
-                Content::Styled(styled) => {
-                    return styled_body(styled, ctx, engine).map(Some)
-                }
-                Content::Equation(_) => ctx.recipe_math_depth += 1,
-                Content::Source(_)
-                | Content::ShowRecipe(_)
-                | Content::Realized(_)
-                | Content::Empty
-                | Content::Text(_)
-                | Content::Space
-                | Content::SpaceFromNewline
-                | Content::Parbreak
-                | Content::HtmlElem(_)
-                | Content::HtmlFrame(_)
-                | Content::Par { .. }
-                | Content::Heading(_)
-                | Content::Title(_)
-                | Content::Strong(_)
-                | Content::Emph(_)
-                | Content::Raw(_)
-                | Content::ListItem(_)
-                | Content::EnumItem(_)
-                | Content::Link(_)
-                | Content::MathSequence(_)
-                | Content::MathIdent(_)
-                | Content::MathText(_)
-                | Content::MathFrac(_)
-                | Content::MathAttach(_)
-                | Content::MathPrimes(_)
-                | Content::MathRoot(_)
-                | Content::MathStretch(_)
-                | Content::MathDelimited(_)
-                | Content::MathLr(_)
-                | Content::MathMid(_)
-                | Content::MathOverbrace(_)
-                | Content::MathUnderbrace(_)
-                | Content::MathUnderbracket(_)
-                | Content::MathUnderparen(_)
-                | Content::MathUndershell(_)
-                | Content::MathOverbracket(_)
-                | Content::MathOverparen(_)
-                | Content::MathOvershell(_)
-                | Content::MathAlignPoint(_)
-                | Content::Linebreak(_)
-                | Content::MathMatrix(_)
-                | Content::MathCases(_)
-                | Content::MathAccent(_)
-                | Content::MathCancel(_)
-                | Content::MathUnderline(_)
-                | Content::MathOverline(_)
-                | Content::MathVec(_)
-                | Content::MathClassOverride(_)
-                | Content::MathLimitsOverride(_)
-                | Content::MathUnderover(_)
-                | Content::MathOp(_)
-                | Content::MathStyled(_)
-                | Content::Label(_)
-                | Content::Ref(_)
-                | Content::CounterDisplay(_)
-                | Content::CounterUpdate(_)
-                | Content::Outline(_)
-                | Content::OutlineEntry(_)
-                | Content::Figure(_)
-                | Content::FigureCaption(_)
-                | Content::Image(_)
-                | Content::Shape(_)
-                | Content::Curve(_)
-                | Content::Transform(_)
-                | Content::Grid(_)
-                | Content::GridHeader(_)
-                | Content::GridFooter(_)
-                | Content::GridCell(_)
-                | Content::SetPage(_)
-                | Content::PageRun(_)
-                | Content::Align(_)
-                | Content::Place(_)
-                | Content::Flush(_)
-                | Content::Divider(_)
-                | Content::Terms(_)
-                | Content::TermItem(_)
-                | Content::Quote(_)
-                | Content::Document { .. }
-                | Content::Asset { .. }
-                | Content::SmartQuote(_)
-                | Content::PdfAttach(_)
-                | Content::PdfArtifact(_)
-                | Content::Underline(_)
-                | Content::Strike(_)
-                | Content::Overline(_)
-                | Content::SmallCaps { .. }
-                | Content::Pad(_)
-                | Content::Hide(_)
-                | Content::HSpace(_)
-                | Content::VSpace(_)
-                | Content::Pagebreak(_)
-                | Content::Colbreak(_)
-                | Content::Stack(_)
-                | Content::Boxed(_)
-                | Content::Block(_)
-                | Content::TableCell(_)
-                | Content::Bibliography(_)
-                | Content::Cite(_)
-                | Content::Footnote(_)
-                | Content::FootnoteEntry(_)
-                | Content::TableHeader(_)
-                | Content::TableFooter(_)
-                | Content::GridHLine(_)
-                | Content::GridVLine(_)
-                | Content::TableHLine(_)
-                | Content::TableVLine(_)
-                | Content::Table(_)
-                | Content::Repeat(_)
-                | Content::Columns(_)
-                | Content::Metadata(_)
-                | Content::State(_)
-                | Content::StateUpdate(_)
-                | Content::StateDisplay(_)
-                | Content::CounterDisplayCallback(_)
-                | Content::ContextBlock(_)
-                | Content::Dynamic(_) => {}
+                return Ok(None);
             }
-            return Ok(None);
-        }
-        visit(node, ctx, engine)
+            visit(node, ctx, engine)
+        })
     });
     ctx.recipe_math_depth = old_math;
     result
@@ -190,14 +234,31 @@ fn visit(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Option<Content>> {
     match node {
-        Content::ContextBlock(_) => {
-            return Ok(Some(super::prepare_context_recipe(node.clone(), ctx, engine)));
+        Content::ContextBlock(block) => {
+            let content = if super::context_occurrences::instantiating_template(ctx)
+                && !super::reference_supplements::is_reference_supplement_producer(block)
+            {
+                Content::ContextBlock(Arc::new(
+                    crate::entities::elements::context_block::ContextBlockElem {
+                        id: super::context_occurrences::next_context_id(ctx),
+                        closure: block.closure.clone(),
+                    },
+                ))
+            } else {
+                node.clone()
+            };
+            return Ok(Some(super::prepare_context_recipe(content, ctx, engine)));
         }
         Content::ShowRecipe(recipe) => {
             return realize_pending(recipe, ctx, engine).map(Some)
         }
         Content::Realized(done) => return realize_completed(done, ctx, engine).map(Some),
-        Content::Styled(styled) => return styled_body(styled, ctx, engine).map(Some),
+        Content::Styled(styled) => {
+            if super::reference_supplements::already_prepared(node) {
+                return Ok(Some(node.clone()));
+            }
+            return styled_body(styled, ctx, engine).map(Some);
+        }
         Content::Located(located) if table_root(&located.body) => {
             return super::realize_table_insertions(node.clone(), ctx, engine)
                 .and_then(|prepared| realize_children(&prepared, ctx, engine))
@@ -226,7 +287,7 @@ fn visit(
                 let captured = super::sequences::capture(node.clone(), ctx, engine);
                 return realize(&captured, ctx, engine).map(Some);
             }
-            if has_root_effect(node, engine, ctx) {
+            if has_root_effect(node, engine, ctx)? {
                 return realize_root(node, ctx, engine).map(Some);
             }
             return realize_parts(parts.to_vec(), ctx, engine).map(Some);
@@ -350,8 +411,11 @@ fn visit(
             return realize(&equation, ctx, engine).map(Some);
         }
     }
-    if has_root_effect(node, engine, ctx) || extract_payload(node).is_some() {
+    if has_root_effect(node, engine, ctx)? || extract_payload(node).is_some() {
         return realize_root(node, ctx, engine).map(Some);
+    }
+    if matches!(node, Content::Ref(_)) {
+        return super::reference_supplements::capture(node, ctx, engine).map(Some);
     }
     if textual::can_group(node) {
         return textual::realize_captured_text(node.clone(), ctx, engine).map(Some);
@@ -400,11 +464,12 @@ pub(in crate::compiler) fn has_root_effect(
     node: &Content,
     engine: &Engine<'_>,
     ctx: &EvalContext,
-) -> bool {
-    engine.show_rules.iter().any(|rule| {
-        eligible_root_rule(node, rule, engine, ctx)
-            && selector_matching::selector_matches(node, &rule.selector)
-    })
+) -> SourceResult<bool> {
+    let preview = super::figure::preview(node, engine.styles)?;
+    Ok(engine.show_rules.iter().any(|rule| {
+        eligible_root_rule(&preview, rule, engine, ctx)
+            && selector_matching::selector_matches(&preview, &rule.selector)
+    }))
 }
 
 fn realize_root(
@@ -412,12 +477,13 @@ fn realize_root(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
+    let preview = super::figure::preview(node, engine.styles)?;
     let rules: Vec<_> = engine
         .show_rules
         .iter()
         .filter(|rule| {
-            eligible_root_rule(node, rule, engine, ctx)
-                && selector_matching::selector_matches(node, &rule.selector)
+            eligible_root_rule(&preview, rule, engine, ctx)
+                && selector_matching::selector_matches(&preview, &rule.selector)
         })
         .cloned()
         .collect();
@@ -425,15 +491,24 @@ fn realize_root(
         .iter()
         .filter(|rule| {
             matches!(rule.transform, Transformation::Style(_))
-                && selector_matching::selector_matches(node, &rule.selector)
+                && selector_matching::selector_matches(&preview, &rule.selector)
         })
         .map(|rule| rule.id)
         .collect();
     if let Some(rule) = rules.iter().rev().find(|rule| {
         !matches!(rule.transform, Transformation::Style(_))
-            && selector_matching::selector_matches(node, &rule.selector)
+            && selector_matching::selector_matches(&preview, &rule.selector)
     }) {
         guards.push(rule.id);
+    }
+    if rules.is_empty() && super::figure::is_figure(node) {
+        let prepared = super::figure::prepare(node, ctx, engine)?;
+        let located = super::locate(prepared, ctx);
+        let visual = realize_children(&located, ctx, engine)?;
+        return Ok(Content::Realized(Arc::new(RealizedContent {
+            original: located,
+            visual,
+        })));
     }
     let result = apply::apply_show_rules_root(node.clone(), &rules, ctx, engine)?;
     if guards.is_empty() {
@@ -503,11 +578,11 @@ fn realize_parts(
     let mut output = Vec::new();
     let mut start = 0;
     while start < parts.len() {
-        if groupable(&parts[start]) && !has_root_effect(&parts[start], engine, ctx) {
+        if groupable(&parts[start]) && !has_root_effect(&parts[start], engine, ctx)? {
             let mut end = start + 1;
             while end < parts.len()
                 && groupable(&parts[end])
-                && !has_root_effect(&parts[end], engine, ctx)
+                && !has_root_effect(&parts[end], engine, ctx)?
             {
                 end += 1;
             }

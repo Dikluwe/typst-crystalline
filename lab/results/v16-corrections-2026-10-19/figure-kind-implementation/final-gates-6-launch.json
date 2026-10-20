@@ -1,0 +1,19 @@
+{
+  "utc_recorded": "2026-10-20T03:22:19.466140+00:00",
+  "first_attempt": {
+    "process_created": false,
+    "outcome": "automatic review deadline expired, not unsafe-action finding",
+    "retry_once_explicitly_allowed": true
+  },
+  "retry": {
+    "identical_command": true,
+    "started": "2026-10-20T03:21:58.600490+00:00",
+    "unit": "tekt-figure-final-gates-6.service",
+    "invocation_id": "5dc90736558d4c61a556173a0f1f21e6",
+    "MemoryMax": "12G",
+    "MemoryHigh": "8G",
+    "MemorySwapMax": "0",
+    "worker": "final_gates_6.py"
+  },
+  "no_remaining_launch_block": true
+}

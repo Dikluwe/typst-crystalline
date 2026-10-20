@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/convergence.md
-//! @prompt-hash db2c14c9
+//! @prompt-hash 9870343e
 //! @layer L1
 //! @updated 2026-04-29
 //!
@@ -78,7 +78,10 @@ mod tests {
         let tags1 =
             vec![Tag::Start(loc(1), Box::new(ElementInfo::new(heading_payload())))];
         let figure_payload = ElementPayload::Figure {
-            kind: Some("image".into()),
+            kind: Some(crate::entities::elements::figure::FigureKind::Name(
+                "image".into(),
+            )),
+            supplement: None,
             counter_update: CounterUpdate::step(),
             is_counted: true,
             caption_text: None,
@@ -107,5 +110,85 @@ mod tests {
             compute_tags_hash(&tags_ordem_b),
             "Vec<Tag>::hash deve ser sensível à ordem (slice hash inclui length + items in order)"
         );
+    }
+
+    fn typed_figure(
+        function: crate::entities::func::Func,
+    ) -> crate::entities::content::Content {
+        use crate::entities::content::Content;
+        use crate::entities::elements::figure::{FigureElem, FigureKind};
+        Content::Figure(std::sync::Arc::new(FigureElem {
+            body: Content::text("same body"),
+            caption: Some(Content::text("same caption")),
+            kind: None,
+            resolved_kind: Some(FigureKind::Element(function)),
+            supplement: None,
+            resolved_supplement: Some(Some(Content::text("same supplement"))),
+        }))
+    }
+
+    fn figure_tags(content: &crate::entities::content::Content) -> Vec<Tag> {
+        use crate::entities::elements::Element;
+        let crate::entities::content::Content::Figure(figure) = content else {
+            panic!("missing Figure")
+        };
+        vec![Tag::Start(
+            loc(55),
+            Box::new(ElementInfo::new(figure.to_payload().unwrap())),
+        )]
+    }
+
+    #[test]
+    fn figure_v16_typed_kind_changes_reflection_and_same_location_convergence() {
+        use crate::entities::func::Func;
+        use crate::entities::value::Value;
+        let table =
+            typed_figure(Func::native("table", crate::compiler::stdlib::native_table));
+        let raw = typed_figure(Func::native("raw", crate::compiler::stdlib::native_raw));
+        let Some(Value::Func(table_kind)) = table.get_field("kind") else {
+            panic!("missing table kind")
+        };
+        let Some(Value::Func(raw_kind)) = raw.get_field("kind") else {
+            panic!("missing raw kind")
+        };
+        assert!(std::ptr::fn_addr_eq(
+            table_kind.native_fn_addr().unwrap(),
+            crate::compiler::stdlib::native_table as fn(_, _, _, _) -> _
+        ));
+        assert!(std::ptr::fn_addr_eq(
+            raw_kind.native_fn_addr().unwrap(),
+            crate::compiler::stdlib::native_raw as fn(_, _, _, _) -> _
+        ));
+        assert!(!std::ptr::fn_addr_eq(
+            table_kind.native_fn_addr().unwrap(),
+            raw_kind.native_fn_addr().unwrap()
+        ));
+        assert_ne!(
+            compute_tags_hash(&figure_tags(&table)),
+            compute_tags_hash(&figure_tags(&raw)),
+            "a typed Figure kind changes query and counter semantics at the same occurrence"
+        );
+    }
+
+    #[test]
+    fn figure_v16_native_kind_alias_preserves_payload_and_content_hashes() {
+        use crate::entities::func::Func;
+        let table =
+            typed_figure(Func::native("table", crate::compiler::stdlib::native_table));
+        let alias = typed_figure(Func::native(
+            "different diagnostic name",
+            crate::compiler::stdlib::native_table,
+        ));
+        assert_eq!(table, alias);
+        assert_eq!(
+            compute_tags_hash(&figure_tags(&table)),
+            compute_tags_hash(&figure_tags(&alias))
+        );
+        let hash = |content: &crate::entities::content::Content| {
+            let mut state = DefaultHasher::new();
+            content.hash(&mut state);
+            state.finish()
+        };
+        assert_eq!(hash(&table), hash(&alias));
     }
 }

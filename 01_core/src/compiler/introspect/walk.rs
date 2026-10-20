@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/walk.md
-//! @prompt-hash 1eacf93e
+//! @prompt-hash 94e72597
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -25,6 +25,14 @@ use super::*;
 /// Labelled per P191C Opção β). Net signature: 7 parameters
 /// (mantém-se).
 pub(crate) fn reserve_locations(content: &Content, locator: &mut Locator) {
+    if let Some(child) =
+        crate::compiler::realize::reference_supplements::prepared_reference_supplement(
+            content,
+        )
+    {
+        reserve_locations(child, locator);
+        return;
+    }
     match content {
         Content::Source(e) => return reserve_locations(&e.body, locator),
         Content::Located(e) => {
@@ -345,13 +353,20 @@ pub(crate) fn walk(
         chain,
         label_from_parent,
         None,
-        false,
+        RootVisit::Full,
     );
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum RootVisit {
+    Full,
+    OriginalOnly,
+    ChildrenOnly,
 }
 
 #[expect(
     clippy::too_many_arguments,
-    reason = "C008: A recursão adiciona forced_location e shallow_table à mesma travessia"
+    reason = "C008: A recursão adiciona forced_location e root traversal à mesma travessia"
 )]
 fn walk_at(
     content: &Content,
@@ -369,11 +384,43 @@ fn walk_at(
     chain: &StyleChain,
     label_from_parent: Option<&Label>,
     forced_location: Option<Location>,
-    shallow_table: bool,
+    root_visit: RootVisit,
 ) {
+    if let Some(child) =
+        crate::compiler::realize::reference_supplements::prepared_reference_supplement(
+            content,
+        )
+    {
+        walk(child, locator, tags, intr, auto_label_counter, lang, chain, None);
+        return;
+    }
+    if let Content::ContextBlock(block) = content {
+        if crate::compiler::realize::reference_supplements::is_reference_supplement_producer(block) {
+            let location = forced_location.unwrap_or_else(|| locator.next());
+            locator.observe(location);
+            intr.counters.observe_location(location);
+            intr.state.observe_location(location);
+            intr.context_block_locations.insert(block.id, location);
+            return;
+        }
+    }
+    if intr.original_walk_depth > 0 {
+        if let Content::Figure(figure) = content.source_body() {
+            if figure.resolved_kind.is_none() {
+                return;
+            }
+        }
+    }
     match content {
         Content::Located(e) => {
             locator.observe(e.location);
+            if let Content::ContextBlock(block) = e.body.source_body() {
+                if crate::compiler::realize::reference_supplements::is_reference_supplement_producer(block) {
+                    walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain,
+                        None, Some(e.location), root_visit);
+                    return;
+                }
+            }
             if !intr.elements.contains_key(&e.location) {
                 walk_at(
                     &e.body,
@@ -385,10 +432,10 @@ fn walk_at(
                     chain,
                     label_from_parent,
                     Some(e.location),
-                    shallow_table,
+                    root_visit,
                 );
             } else if let Content::Table(t) = &e.body {
-                if t.resolved.is_some() && !shallow_table {
+                if t.resolved.is_some() && root_visit != RootVisit::OriginalOnly {
                     walk_table_visual(
                         t,
                         locator,
@@ -399,15 +446,34 @@ fn walk_at(
                         chain,
                     );
                 }
+            } else if root_visit != RootVisit::OriginalOnly
+                && (crate::compiler::realize::figure::is_figure(&e.body)
+                    || (matches!(e.body.source_body(), Content::Block(_))
+                        && intr.element_at(e.location).is_some_and(|original| {
+                            matches!(original.source_body(), Content::Block(_))
+                        })))
+            {
+                walk_at(
+                    &e.body,
+                    locator,
+                    tags,
+                    intr,
+                    auto_label_counter,
+                    lang,
+                    chain,
+                    label_from_parent,
+                    Some(e.location),
+                    RootVisit::ChildrenOnly,
+                );
             }
             return;
         }
         Content::Realized(e) => {
-            fn table_root(c: &Content) -> bool {
+            fn root_only_original(c: &Content) -> bool {
                 match c.source_body() {
-                    Content::Table(_) => true,
-                    Content::Located(c) => table_root(&c.body),
-                    Content::ShowRecipe(c) => table_root(&c.body),
+                    Content::Table(_) | Content::Block(_) => true,
+                    Content::Located(c) => root_only_original(&c.body),
+                    Content::ShowRecipe(c) => root_only_original(&c.body),
                     Content::Source(_)
                     | Content::Realized(_)
                     | Content::Empty
@@ -504,7 +570,6 @@ fn walk_at(
                     | Content::Colbreak(_)
                     | Content::Stack(_)
                     | Content::Boxed(_)
-                    | Content::Block(_)
                     | Content::TableCell(_)
                     | Content::Bibliography(_)
                     | Content::Cite(_)
@@ -527,7 +592,10 @@ fn walk_at(
                     | Content::Dynamic(_) => false,
                 }
             }
-            if table_root(&e.original) {
+            intr.original_walk_depth += 1;
+            if root_only_original(&e.original)
+                || crate::compiler::realize::figure::is_figure(&e.original)
+            {
                 walk_at(
                     &e.original,
                     locator,
@@ -538,7 +606,7 @@ fn walk_at(
                     chain,
                     label_from_parent,
                     None,
-                    true,
+                    RootVisit::OriginalOnly,
                 );
             } else {
                 walk(
@@ -552,6 +620,7 @@ fn walk_at(
                     label_from_parent,
                 );
             }
+            intr.original_walk_depth -= 1;
             walk(
                 &e.visual,
                 locator,
@@ -575,7 +644,7 @@ fn walk_at(
                 chain,
                 label_from_parent,
                 forced_location,
-                shallow_table,
+                root_visit,
             );
             return;
         }
@@ -590,7 +659,7 @@ fn walk_at(
                 chain,
                 label_from_parent,
                 forced_location,
-                shallow_table,
+                root_visit,
             );
             return;
         }
@@ -714,7 +783,9 @@ fn walk_at(
     // P162 .E + P191B: emissão Tag::Start em paralelo, antes da mutação
     // de estado. populate_intr_from_tag_start popula sub-stores intr no
     // momento da emissão (ADR-0071).
-    let emitted_loc = if let Some(mut payload) = do_extract_payload(content) {
+    let emitted_loc = if root_visit == RootVisit::ChildrenOnly {
+        None
+    } else if let Some(mut payload) = do_extract_payload(content) {
         let loc = forced_location.unwrap_or_else(|| locator.next());
         // F-5a de-bake (P364, §3a.9): a equação **não baka** mais o gate. O
         // payload tira `numbering_active` da **chain** aqui (introspect-chain
@@ -773,7 +844,7 @@ fn walk_at(
         // do padrão lido da chain aqui. **P1034** — default da linguagem é "1",
         // logo ausente conta; só `Some(Value::None)` desactiva explicitamente.
         if let ElementPayload::Figure { is_counted, .. } = &mut payload {
-            *is_counted &= !matches!(chain.custom("figure.numbering"), Some(Value::None));
+            *is_counted = !matches!(chain.custom("figure.numbering"), Some(Value::None));
         }
         // P461: a table não baka o padrão. `is_counted` placeholder
         // (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
@@ -943,7 +1014,9 @@ fn walk_at(
         None
     };
 
-    if shallow_table && matches!(content, Content::Table(_)) {
+    if root_visit == RootVisit::OriginalOnly
+        && matches!(content, Content::Table(_) | Content::Figure(_) | Content::Block(_))
+    {
         if let Some(loc) = emitted_loc {
             tags.push(Tag::End(loc, hash_content(content)));
         }
@@ -971,16 +1044,21 @@ fn walk_at(
             chain,
             label_from_parent,
         ),
-        Content::PageRun(e) => walk(
-            &e.body,
-            locator,
-            tags,
-            intr,
-            auto_label_counter,
-            lang,
-            chain,
-            label_from_parent,
-        ),
+        Content::PageRun(e) => {
+            if let Some(Some(body)) = &e.background {
+                walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
+            }
+            if let Some(crate::entities::page_running::PageMarginal::Content(body)) = &e.header {
+                walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
+            }
+            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent);
+            if let Some(crate::entities::page_running::PageMarginal::Content(body)) = &e.footer {
+                walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
+            }
+            if let Some(Some(body)) = &e.foreground {
+                walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
+            }
+        }
         Content::HtmlFrame(e) => walk(
             &e.body,
             locator,
@@ -1057,6 +1135,11 @@ fn walk_at(
             // body + caption.
             walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
             if let Some(cap) = caption {
+                if e.resolved_kind.is_some() && matches!(chain.custom("figure.numbering"), None | Some(Value::Str(_))) {
+                    if let Some(Some(supplement)) = &e.resolved_supplement {
+                        walk(supplement, locator, tags, intr, auto_label_counter, lang, chain, None);
+                    }
+                }
                 walk(cap, locator, tags, intr, auto_label_counter, lang, chain, None);
             }
         }
@@ -1336,7 +1419,7 @@ fn walk_at(
                 }
             }
             let pushed = chain.push_styles(styles);
-            walk(body, locator, tags, intr, auto_label_counter, lang, &pushed, label_from_parent);
+            walk_at(body, locator, tags, intr, auto_label_counter, lang, &pushed, label_from_parent, forced_location, root_visit);
         }
 
         Content::Outline(outline) => {
@@ -1747,7 +1830,7 @@ mod v16_walk_source_context_tests {
             &StyleChain::default_chain(),
             None,
             Some(forced),
-            true,
+            RootVisit::OriginalOnly,
         );
         assert_eq!(tags.len(), 2);
         assert!(matches!(&tags[0], Tag::Start(location, _) if *location == forced));

@@ -1,0 +1,2 @@
+Would fix ./01_core/src/compiler/realize/reference_supplements.rs prompt=00_nucleo/prompts/core/compiler/realize/reference_supplements.md old=8d2730c8 hash-a=8d2730c8 hash-b=89318571
+Would fix ./03_infra/src/pipeline/context_stabilization.rs prompt=00_nucleo/prompts/infra/pipeline/context_stabilization.md old=eddfb819 hash-a=b726dd74 hash-b=820c9375

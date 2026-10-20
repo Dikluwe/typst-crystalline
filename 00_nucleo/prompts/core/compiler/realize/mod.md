@@ -1,5 +1,5 @@
 # L0 — compiler/realize/mod
-Hash do Código: da9bcfda
+Hash do Código: 43b82123
 
 **Layer:** L1.
 **Exclusive productive consumer:** `01_core/src/compiler/realize/mod.rs`.
@@ -301,3 +301,30 @@ dated decision history, is preserved in
 All approval receipts, scope splits, current refinements and pending fixes above
 retain their original authority. Historical vanilla measurements do not certify
 the current pin without remeasurement.
+
+
+## Approved Figure/Grid kind repair (2026-10-19)
+
+### Measurement and classification before decision
+
+The frozen proposal at baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, `agents/contracts/semantic-partition.json`, and `agents/counter/design.md` bind measurements and full source/oracle provenance. Current-pin oracle is `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Constructor inference loses typed identity and lexical occurrence styles; semantic inspection and final supplement need separate phases. These are language semantics and causal effects, not a requirement for upstream Rust mechanics. The human explicitly approved the exact public carriers, phase changes and compatibility migration in the current session under ADR-0127.
+
+### Exclusive responsibility
+
+Register the private feature owners figure and figure_kind. Preserve all existing public realization facades, causal Engine, allocation namespace and source/recipe restoration. No prewalk may prepare hidden descendants.
+
+### Acceptance and boundaries
+
+Require functional RED→GREEN, frozen kind/set/show-set/supplement/hidden-parent cases, alias/homonym and field snapshots, full build/tests, paths, strict forward/reverse lineage, V15/V26 and differential lint. No suppressions, opaque catchall, fake neutral child or weakened assertion. Caption omission/none, complete caption synthesis, supplement-dependent preview selection, complete function-number formatting, HTML implicit captions/references, Dynamic field enumeration, and mixed Table header/ordinary-cell supplemental target order remain explicit bounded debts.
+
+## Approved reference supplement phase
+
+Human approval is bound by reference-phase-approval.json and frozen Ref proposal
+SHA1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2
+under figure-kind-implementation. Expose public reference_supplements module,
+owned by its exact canonical L0, with only the approved three doc-hidden facade
+functions. Coordinate existing context recipe capture and shared occurrence
+allocation; no fourth public signature or new entity field. Preserve unrelated
+facades and error/warning/target/features behavior. Internal selected-template
+instantiation may reconstruct raw ContextBlock IDs only under approved stable
+producer/frame insertion contract, preserving preexisting Located aliases.

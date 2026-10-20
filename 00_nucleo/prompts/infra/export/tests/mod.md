@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/mod
-Hash do Código: 99722711
+Hash do Código: ec135bb6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -165,3 +165,18 @@ clippy-aridade-interna-2026-10-16/first-validation/validation-clippy.log records
 ## Owned test module declarations
 
 Separately owned: pdfa_core_metadata_tests, pdfa_associated_files_tests, pdfa_icc_version_and_cidset_tests, pdfa4f_empty_embedded_files_tests, pdfua_identification_tests, pdfua_structure_tests, pdf_spot_colors_tests, pdf_page_labels_tests. Delegate bodies; no absorbed ownership.
+
+
+## Approved Figure/Grid occurrence amendment (2026-10-19)
+
+### Evidence before specification
+
+Baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` preserves the measured proposal in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, semantic partition, independent audit and counter receipts. The fixed oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Constructor string kind loses function identity; constructor inference precedes occurrence styles; separated Grid fields lose source order. Typed identity, lexical presence, field traversal and counter results are language semantics/morphology. The chosen Rust carriers are implementation mechanics. The owner explicitly approved the linked public fields, contracts, phases and compatibility changes on 2026-10-19 under ADR-0127; this amendment materializes that bounded decision.
+
+### Exclusive contract
+
+Migrate legacy Figure fixtures that intend native element kinds to explicit typed Element data; preserve actual PDF/export geometry/text assertions and all other test inputs. String custom-name controls remain Name. This fixture migration is not full Figure rendering parity.
+
+### Acceptance and limits
+
+Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.

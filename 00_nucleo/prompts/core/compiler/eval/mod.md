@@ -1,5 +1,5 @@
 # L0 — core/compiler/eval/mod
-Hash do Código: 1de535f3
+Hash do Código: a1a8f0c7
 
 
 **Layer:** L1
@@ -321,3 +321,33 @@ Store crate-private Option<OccurrenceSlots>, default None, beside existing Locat
 ## Owned test module declarations
 
 Separately owned: math_limits_override_observation_tests, math_root_evaluation_tests, math_frac_evaluation_tests, math_accent_observation_tests, math_cases_evaluation_tests, math_matrix_evaluation_tests. Declare/delegate bodies without absorbing their owners.
+
+## Approved Figure occurrence realization selection
+
+The 2026-10-19 integrated target controls preserve exact dirty source and binary
+provenance under `lab/results/v16-corrections-2026-10-19/figure-kind-implementation/`.
+`mod.rs:919–940` only selected realization for captured recipes or bare math.
+Plain Figure output therefore bypassed the approved occurrence preparation:
+explicit table kind rendered the old Figure prefix and typed counter reads missed
+its unprepared kind. Show-driven tests happened to enter the correct boundary.
+This is measured language behavior and a missing call path, not a reason to infer
+kind again during layout or publish a constructor-time synthetic recipe.
+
+After single common evaluation, also select existing realize_document when the
+feature-owned pure `figure::needs_preparation` predicate finds a reached Figure
+in actual output. Keep has_recipes/bare-math short-circuit behavior, all scopes,
+metadata, diagnostics and Module index publication. Unused let-bound Figures do
+not force realization or execute supplement callbacks. Figure-free recipe-free
+content retains the existing direct wrap_page_columns path and absent realization
+index. This bounded route implements the already approved Figure occurrence
+phase; it supersedes old text excluding every exception beyond bare math, without
+adding public signatures, source reevaluation or layout-time inference.
+
+## Ratified Paged reference supplement admission
+
+After human approval of the exact Ref phase extension SHA1578cbea...7e38ff2,
+include actual normal Ref output in the existing realization gate through the
+feature-owned borrowed needs_preparation predicate, only when target is Paged.
+It performs no query/callback/preparation and never admits unused variables.
+HTML implicit Ref rendering remains explicitly outside this phase. Preserve the
+single run_pass/realization call, warnings, returned content/index and public APIs.

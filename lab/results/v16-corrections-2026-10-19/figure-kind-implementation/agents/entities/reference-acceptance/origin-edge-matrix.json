@@ -1,0 +1,29 @@
+{
+  "status": "Additional independent inherited-style/show/native-constructor origin controls; original31+4+2+1 unchanged.",
+  "cases": [
+    {
+      "name": "styled-nested-missing-reference-origin",
+      "source": "#set text(fill:red)\n#block[@missing]\n",
+      "goal": "retained inherited style frame must preserve nested lexical Ref source origin",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "show-alias-missing-reference-origin",
+      "source": "#show ref: it=>it\n@missing\n",
+      "goal": "identity show alias preserves original Ref source span through replacement guards",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "constructor-missing-reference-origin",
+      "source": "#ref(<missing>)\n",
+      "goal": "native ref constructor retains its own call source span through contextual producer",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/style_chain.md
-//! @prompt-hash 2370754f
+//! @prompt-hash be6fefe5
 //! @layer L1
 //! @updated 2026-10-10
 //!
@@ -291,6 +291,17 @@ struct StyleNode {
 pub struct StyleChain(Option<Arc<StyleNode>>);
 
 impl StyleChain {
+    /// Borrow every stored delta from the head toward its parent, without resolution.
+    pub(crate) fn raw_deltas(&self) -> impl Iterator<Item = &StyleDelta> {
+        let Self(head) = self;
+        let mut node = head.as_deref();
+        std::iter::from_fn(move || {
+            let StyleNode { delta, parent } = node?;
+            node = parent.as_deref();
+            Some(delta)
+        })
+    }
+
     /// Cadeia vazia — resolve para os defaults codificados em cada accessor.
     pub const fn empty() -> Self {
         StyleChain(None)
@@ -1485,5 +1496,25 @@ mod ts1_tests {
             ..StyleDelta::empty()
         });
         assert_eq!(snapshot.size(), 39.0);
+    }
+}
+
+#[cfg(test)]
+mod figure_recipe_raw_storage_tests {
+    use super::*;
+
+    #[test]
+    fn figure_v16_raw_style_deltas_borrow_every_node_in_head_parent_order() {
+        let chain = StyleChain::empty()
+            .push_custom("outer", Value::Int(1))
+            .push(StyleDelta::empty())
+            .push_custom("inner", Value::Int(2));
+        let deltas: Vec<_> = chain.raw_deltas().collect();
+        assert_eq!(deltas.len(), 3);
+        assert_eq!(deltas[0].custom, vec![("inner".into(), Value::Int(2))]);
+        assert!(deltas[1].is_empty());
+        assert_eq!(deltas[2].custom, vec![("outer".into(), Value::Int(1))]);
+        assert!(std::ptr::eq(deltas[0], &chain.0.as_ref().unwrap().delta));
+        assert!(StyleChain::empty().raw_deltas().next().is_none());
     }
 }

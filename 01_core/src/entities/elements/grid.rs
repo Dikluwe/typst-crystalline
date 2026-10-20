@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/grid.md
-//! @prompt-hash 64bb5fc5
+//! @prompt-hash ce629622
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -16,11 +16,22 @@ use crate::entities::layout_types::{Align2D, Color, Length, TrackSizing};
 use crate::entities::sides::Sides;
 use crate::entities::source_result::SourceResult;
 
+/// Original accepted positional child order, independent of separated storage.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum GridChildOrder {
+    Cell(usize),
+    Header,
+    Footer,
+    HLine(usize),
+    VLine(usize),
+}
+
 /// Grade: `cells` distribuídas em `columns`×`rows`; `header`/`footer` opcionais;
 /// `gutter`/`align`/`inset`/`stroke`/`fill` cosméticos.
 /// **P512**: `hlines`/`vlines` são renderizadas pelo layout_grid.
 #[derive(Debug, Clone, PartialEq)]
 pub struct GridElem {
+    pub source_order: Option<Vec<GridChildOrder>>,
     pub columns: Vec<TrackSizing>,
     pub rows: Vec<TrackSizing>,
     pub cells: Vec<Content>,
@@ -63,6 +74,7 @@ impl Element for GridElem {
         let new_cells: SourceResult<Vec<Content>> =
             self.cells.iter().map(|c| c.map_content(transform)).collect();
         Ok(Content::Grid(Arc::new(GridElem {
+            source_order: self.source_order.clone(),
             columns: self.columns.clone(),
             rows: self.rows.clone(),
             cells: new_cells?,
@@ -83,6 +95,7 @@ impl Element for GridElem {
         F: FnMut(&str) -> String,
     {
         Content::Grid(Arc::new(GridElem {
+            source_order: self.source_order.clone(),
             columns: self.columns.clone(),
             rows: self.rows.clone(),
             cells: self.cells.iter().map(|c| c.map_text(transform)).collect(),
@@ -107,6 +120,7 @@ mod tests {
 
     fn ex() -> GridElem {
         GridElem {
+            source_order: None,
             columns: vec![],
             rows: vec![],
             cells: vec![Content::text("a"), Content::text("b")],
@@ -167,5 +181,50 @@ mod tests {
         let mut v = ex();
         v.cells = vec![];
         assert_ne!(h(&ex()), h(&v));
+    }
+
+    #[test]
+    fn figure_v16_grid_maps_preserve_source_descriptors_without_revisiting_children() {
+        let mut element = ex();
+        element.header = Some(Content::text("header"));
+        element.footer = Some(Content::text("footer"));
+        element.source_order = Some(vec![
+            GridChildOrder::Header,
+            GridChildOrder::Cell(0),
+            GridChildOrder::Cell(1),
+            GridChildOrder::Footer,
+        ]);
+        let mut seen = Vec::new();
+        let Content::Grid(mapped) = element
+            .map_content(&mut |content| {
+                if let Content::Text(text) = content {
+                    seen.push(text.to_string());
+                }
+                Ok(None)
+            })
+            .unwrap()
+        else {
+            panic!("missing Grid")
+        };
+        assert_eq!(seen, ["a", "b", "header", "footer"]);
+        assert_eq!(mapped.source_order, element.source_order);
+        let mut seen_text = Vec::new();
+        let Content::Grid(mapped_text) = element.map_text(&mut |text| {
+            seen_text.push(text.to_string());
+            text.to_uppercase()
+        }) else {
+            panic!("missing Grid")
+        };
+        assert_eq!(seen_text, seen);
+        assert_eq!(mapped_text.source_order, element.source_order);
+        assert_eq!(mapped_text.cells[0].plain_text(), "A");
+        let mut reordered = element.clone();
+        reordered.source_order = Some(vec![
+            GridChildOrder::Cell(0),
+            GridChildOrder::Header,
+            GridChildOrder::Cell(1),
+            GridChildOrder::Footer,
+        ]);
+        assert_ne!(reordered, element);
     }
 }

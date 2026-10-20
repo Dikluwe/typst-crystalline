@@ -1,0 +1,38 @@
+{
+  "status": "Fresh measured supplementary sources; original 31 cases and oracle receipt remain immutable.",
+  "cases": [
+    {
+      "name": "ordinary-heading-numbered",
+      "source": "#set heading(numbering:\"1.\")\n= HEADING <heading>\n@heading\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "non-Figure passthrough retains ordinary reference default",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "page-reference-numbered",
+      "source": "#set page(numbering:\"1\")\n#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n#ref(<outer>,form:\"page\")\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "Page reference does not admit Figure supplement",
+      "query": true,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "context-language-pt-fr-captured-sites",
+      "source": "#set text(lang:\"pt\")\n#context { assert.eq(text.lang,\"pt\"); [PT] }\n#set text(lang:\"fr\")\n#context { assert.eq(text.lang,\"fr\"); [FR] }\n",
+      "goal": "corrected p792 lexical declarations precede distinct contextual insertion snapshots",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    },
+    {
+      "name": "label-on-reference-morphology",
+      "source": "#figure([OUTER],kind:image,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])) <outer>\n@outer <reference-label>\n#context [#metadata((query(<reference-label>).len(), query(<reference-label>).first().func()==ref)) <reference-probe>]\n#context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n",
+      "goal": "label preserves original Ref morphology; no producer/inner retarget",
+      "query": true,
+      "target": "pdf",
+      "extras": {},
+      "query_selector": "<reference-probe>"
+    }
+  ]
+}

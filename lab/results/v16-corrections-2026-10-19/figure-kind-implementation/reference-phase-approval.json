@@ -1,0 +1,9 @@
+{
+  "utc_recorded": "2026-10-20T00:32:04.230053+00:00",
+  "baseline_head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "proposal": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/ref-phase-proposal.md",
+  "proposal_sha256": "1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2",
+  "approved_answer": "Aprovar a extens\u00e3o de refer\u00eancias",
+  "approved_scope": "Exact three public functions and contextual reference-supplement phase of frozen proposal; separate explanatory no-child refinement retained",
+  "gate": "ADR-0127 section2 items1and3 approved before new L0/code"
+}

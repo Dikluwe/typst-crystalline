@@ -1,0 +1,49 @@
+{
+  "utc": "2026-10-20T02:57:17.206642+00:00",
+  "receipts": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle/receipt.json",
+      "sha256": "d287d9a5e1d27c201ce818fd2e28d8c3de341f4eb536dad1fedfd3570bbe3106"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v2/receipt.json",
+      "sha256": "087782b8186b01d438e98c415df06f8d0d37dae87f8256ebd376001e504a93bc"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v3/receipt.json",
+      "sha256": "d45f5e551f2d65d5117847f0921cd67e34f5fd4776b6e3875e0cbc026ad710ff"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/receipt.json",
+      "sha256": "039e5abb3e8afe2a0ba5b0ab7e687aba33e4c55a683039d8c55bc603d49da796"
+    }
+  ],
+  "refuted_hypotheses": [
+    {
+      "hypothesis": "The pinned target should reject a plain angle callback reading text.size without an explicit context expression.",
+      "status": "refuted",
+      "evidence": "Valid #(a=>if text.size...) callback compiles; captured Context::new(None,Some(styles)) source corroborates known styles with no Location."
+    },
+    {
+      "hypothesis": "The existing raw math closure sources used by the wiring tests are valid pinned-oracle parity sources.",
+      "status": "refuted",
+      "evidence": "Raw context name parses as math variable and errors; preserve original Tekt tests as compatibility controls, with independent valid code-inserted sources for parity."
+    },
+    {
+      "hypothesis": "A script callback text.size observes14pt derived math size from lexical20pt on the current pin.",
+      "status": "refuted",
+      "evidence": "Actual script callback stroke geometry equals explicit90deg lexical20 branch, differs explicit0deg rendered14 branch and45deg fallback."
+    }
+  ],
+  "observed_language_controls": {
+    "plain_style_known": true,
+    "plain19_callback_stroke_equals_explicit0": true,
+    "plain19_callback_stroke_differs_explicit90": true,
+    "script20_callback_stroke_equals_explicit90": true,
+    "script20_callback_stroke_differs_explicit0": true,
+    "script20_callback_stroke_differs_explicit45": true,
+    "ordinary_outside_context_style_read_rejected": true
+  },
+  "invalid_controls_preserved": "v1 raw math context closure syntax and v3 unescaped numeric math arguments are retained with failures; they certify no callback execution. v2/v4 use valid code insertion.",
+  "contract_boundary": "No production or tests edited by this review. The established Tekt explicit Context unwrapping and derived script-size14 expectations remain unchanged by instruction, but are not certified vanilla parity. Root owns classification of this pre-existing divergence; no assertion should be silently weakened to make the current target appear matched."
+}

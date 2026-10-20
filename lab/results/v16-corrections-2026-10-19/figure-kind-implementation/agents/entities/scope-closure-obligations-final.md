@@ -1,0 +1,13 @@
+# Final bounded scope and policy-integrity review
+
+The approved F/V16-055 causal repair satisfies its bounded closure gates at exact final build4. All six driver commands and twelve integrated gates passed with unchanged inputs. Current 128 source/L0 hashes match reseal15 and the64-owner authorization. The75 effective Nuclei, immutable145-file proposal and exact approvals remain bound. Actual compiler extension probes produced all8 selected E0004 witnesses, independently checked; full lint retains18 V16, with V16-055 and incidental V16-100 removed and no new errors/warnings or suppressions.
+
+All78 original source/disposition/expected policies remain unchanged. The84 declared outcomes pass, including77 required cases; five declared debts and two negative controls are not vanilla parity wins. Forty required reference policies across six exact matrices pass. The two ambiguity comparisons and refuted single-Context locale fixture remain visible failures, with a separate correct locale source passing. Extra target controls remain10/11: configured SetPage header admission fails, while the separate native PageRun source passes.
+
+Fresh broad4 replay used this exact final binary before/after. All4 executions return1, terminate with error and match source origins. Identity/original alias pass; fresh/distinct unrestricted shows retain2 error-message mismatches: missing-label versus vanilla maximum-show-depth. This is a diagnostic comparison gap, not a timeout, nontermination or abort.
+
+The final counter-agent aggregate is independently pinned to the same build. Captionless10, reference-extra3 and ancillary4/5 yield17/18 fixed checks; own Block-label membership still fails. Modern4 controls and math-style4 required predicates pass separately. Math callback exit classes match, but here/get messages and compared primary source origins differ. Existing script14pt versus vanilla lexical20pt and returned-Context unwrap remain unresolved contract boundaries. These results are not combined into a misleading whole-parity score.
+
+Full captions/default alignment/floats/caption positions/separators/locale/figure_location, function-number formatting, supplement preview, implicit HTML, Dynamic fields, Grid footer timing, StateUpdate fields, mixed Table target order, Block style/breakability/labels, physical page-running timing and the other measured diagnostic gaps remain open. The final test logs also retain preexisting ignored entries; none was introduced to turn a failure green.
+
+The evidence supports bounded F closure, not complete Figure/Grid/Typst parity or global zero-lint. Reports of failed/interrupted attempts and all prior audits remain preserved. This review changed no productive source, L0, test, existing policy or root report.

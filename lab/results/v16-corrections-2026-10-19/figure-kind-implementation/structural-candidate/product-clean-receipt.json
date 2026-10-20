@@ -1,0 +1,29 @@
+{
+  "utc_recorded": "2026-10-20T00:26:21.732152+00:00",
+  "command": [
+    "cargo",
+    "clean",
+    "-p",
+    "typst-core",
+    "-p",
+    "typst-shell",
+    "-p",
+    "typst-infra",
+    "-p",
+    "typst-wiring"
+  ],
+  "exit": 0,
+  "environment": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_INCREMENTAL": "0"
+  },
+  "resource_limits": {
+    "MemoryMax": "12G",
+    "MemoryHigh": "8G",
+    "MemorySwapMax": "0"
+  },
+  "log": "product-clean.log",
+  "purpose": "Separate copied-workspace probe artifacts from real-checkout validation. Completed before HTML ShowRecipe RED rebuild."
+}

@@ -1,0 +1,1 @@
+#ref(<missing>,supplement:figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner]))

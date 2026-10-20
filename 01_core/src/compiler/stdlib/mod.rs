@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/mod.md
-//! @prompt-hash 7ee5c4bb
+//! @prompt-hash b12c60d5
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -32,6 +32,9 @@ mod panic;
 mod r#ref;
 mod shapes;
 mod structural;
+
+// Internal cast bridges preserve the single structural classifier owner.
+pub(crate) use structural::{is_callable_lr_symbol, is_known_math_accent};
 mod text;
 mod transforms;
 // P262 — Gradient stdlib (Linear only per ADR-0087).

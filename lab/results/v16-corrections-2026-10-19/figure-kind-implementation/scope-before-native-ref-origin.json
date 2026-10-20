@@ -1,0 +1,385 @@
+{
+  "utc": "2026-10-20T01:02:32.345108+00:00",
+  "baseline_head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "pairs": [
+    {
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/observation/elements.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/rules/apply.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/apply.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/rules/set.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/set.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/selector_matching.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/selector_matching.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/convergence.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/convergence.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/entrypoints.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/entrypoints.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/extract_payload.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/extract_payload.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/figure_counters.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/figure_counters.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/figure_demands.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/figure_demands.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/fixpoint.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/fixpoint.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/labelled.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/locatable.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/locatable.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/materialize_time.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/populate.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/populate.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/queries.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/queries.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/walk.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/walk.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/checkpoint.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/checkpoint.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/figure.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/measurement.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/measurement.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/mod.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/placement.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/placement.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/references.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/references.md"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/tests.md"
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/figure.md"
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/figure_kind.md"
+    },
+    {
+      "source": "01_core/src/compiler/realize/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md"
+    },
+    {
+      "source": "01_core/src/compiler/realize/recipes.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/recipes.md"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/figure_image.md"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/layout/grid.rs",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md"
+    },
+    {
+      "source": "01_core/src/entities/content/construction.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/construction.md"
+    },
+    {
+      "source": "01_core/src/entities/content/tests/representation.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/tests/representation.md"
+    },
+    {
+      "source": "01_core/src/entities/content/tests/traversal.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/tests/traversal.md"
+    },
+    {
+      "source": "01_core/src/entities/content/traversal.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/traversal.md"
+    },
+    {
+      "source": "01_core/src/entities/element_payload.rs",
+      "owner": "00_nucleo/prompts/core/entities/element_payload.md"
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "owner": "00_nucleo/prompts/core/entities/elements/figure.md"
+    },
+    {
+      "source": "01_core/src/entities/elements/grid.rs",
+      "owner": "00_nucleo/prompts/core/entities/elements/grid.md"
+    },
+    {
+      "source": "01_core/src/entities/introspector.rs",
+      "owner": "00_nucleo/prompts/core/entities/introspector.md"
+    },
+    {
+      "source": "02_shell/src/cli.rs",
+      "owner": "00_nucleo/prompts/shell/cli.md"
+    },
+    {
+      "source": "03_infra/src/export/tests/mod.rs",
+      "owner": "00_nucleo/prompts/infra/export/tests/mod.md"
+    },
+    {
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/bundle.md"
+    },
+    {
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/mod.md"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/tests/figure_image.rs",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/tests/figure_image.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/bindings/field_access.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/bindings/field_access.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/mod.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/tests.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/tests.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md"
+    },
+    {
+      "source": "03_infra/src/export/html/document.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/document.md"
+    },
+    {
+      "source": "03_infra/src/pipeline/paged.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/paged.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/observation/content.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/observation/content.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/observation/style.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/observation/style.md"
+    },
+    {
+      "source": "01_core/src/entities/style_chain.rs",
+      "owner": "00_nucleo/prompts/core/entities/style_chain.md"
+    },
+    {
+      "source": "01_core/src/compiler/realize/reference_supplements.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/reference_supplements.md"
+    },
+    {
+      "source": "01_core/src/compiler/realize/context_occurrences.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/context_occurrences.md"
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline.md"
+    },
+    {
+      "source": "03_infra/src/integration_tests.rs",
+      "owner": "00_nucleo/prompts/infra/integration_tests.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/context_reads.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/context_reads.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md"
+    },
+    {
+      "source": "01_core/src/compiler/eval/markup_stream.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/markup_stream.md"
+    }
+  ],
+  "sources": [
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "01_core/src/compiler/eval/observation/elements.rs",
+    "01_core/src/compiler/eval/operators/equality.rs",
+    "01_core/src/compiler/eval/rules/apply.rs",
+    "01_core/src/compiler/eval/rules/set.rs",
+    "01_core/src/compiler/eval/selector_matching.rs",
+    "01_core/src/compiler/introspect.rs",
+    "01_core/src/compiler/introspect/convergence.rs",
+    "01_core/src/compiler/introspect/entrypoints.rs",
+    "01_core/src/compiler/introspect/extract_payload.rs",
+    "01_core/src/compiler/introspect/figure_counters.rs",
+    "01_core/src/compiler/introspect/figure_demands.rs",
+    "01_core/src/compiler/introspect/fixpoint.rs",
+    "01_core/src/compiler/introspect/labelled.rs",
+    "01_core/src/compiler/introspect/locatable.rs",
+    "01_core/src/compiler/introspect/materialize_time.rs",
+    "01_core/src/compiler/introspect/populate.rs",
+    "01_core/src/compiler/introspect/queries.rs",
+    "01_core/src/compiler/introspect/walk.rs",
+    "01_core/src/compiler/layout/checkpoint.rs",
+    "01_core/src/compiler/layout/figure.rs",
+    "01_core/src/compiler/layout/measurement.rs",
+    "01_core/src/compiler/layout/mod.rs",
+    "01_core/src/compiler/layout/placement.rs",
+    "01_core/src/compiler/layout/references.rs",
+    "01_core/src/compiler/layout/tests.rs",
+    "01_core/src/compiler/realize/figure.rs",
+    "01_core/src/compiler/realize/figure_kind.rs",
+    "01_core/src/compiler/realize/mod.rs",
+    "01_core/src/compiler/realize/recipes.rs",
+    "01_core/src/compiler/stdlib/figure_image.rs",
+    "01_core/src/compiler/stdlib/layout/grid.rs",
+    "01_core/src/entities/content/construction.rs",
+    "01_core/src/entities/content/tests/representation.rs",
+    "01_core/src/entities/content/tests/traversal.rs",
+    "01_core/src/entities/content/traversal.rs",
+    "01_core/src/entities/element_payload.rs",
+    "01_core/src/entities/elements/figure.rs",
+    "01_core/src/entities/elements/grid.rs",
+    "01_core/src/entities/introspector.rs",
+    "02_shell/src/cli.rs",
+    "03_infra/src/export/tests/mod.rs",
+    "03_infra/src/pipeline/bundle.rs",
+    "03_infra/src/pipeline/context_stabilization.rs",
+    "01_core/src/compiler/stdlib/mod.rs",
+    "01_core/src/compiler/stdlib/tests/figure_image.rs",
+    "01_core/src/compiler/eval/bindings/field_access.rs",
+    "01_core/src/compiler/eval/mod.rs",
+    "01_core/src/compiler/eval/tests.rs",
+    "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+    "03_infra/src/export/html/document.rs",
+    "03_infra/src/pipeline/paged.rs",
+    "01_core/src/compiler/eval/observation/content.rs",
+    "01_core/src/compiler/eval/observation/style.rs",
+    "01_core/src/entities/style_chain.rs",
+    "01_core/src/compiler/realize/reference_supplements.rs",
+    "01_core/src/compiler/realize/context_occurrences.rs",
+    "03_infra/src/pipeline.rs",
+    "03_infra/src/integration_tests.rs",
+    "01_core/src/compiler/eval/context_reads.rs",
+    "01_core/src/compiler/eval/expression_dispatch.rs",
+    "01_core/src/compiler/eval/markup_stream.rs"
+  ],
+  "owners": [
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+    "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+    "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+    "00_nucleo/prompts/core/compiler/eval/rules/apply.md",
+    "00_nucleo/prompts/core/compiler/eval/rules/set.md",
+    "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+    "00_nucleo/prompts/core/compiler/introspect.md",
+    "00_nucleo/prompts/core/compiler/introspect/convergence.md",
+    "00_nucleo/prompts/core/compiler/introspect/entrypoints.md",
+    "00_nucleo/prompts/core/compiler/introspect/extract_payload.md",
+    "00_nucleo/prompts/core/compiler/introspect/figure_counters.md",
+    "00_nucleo/prompts/core/compiler/introspect/figure_demands.md",
+    "00_nucleo/prompts/core/compiler/introspect/fixpoint.md",
+    "00_nucleo/prompts/core/compiler/introspect/labelled.md",
+    "00_nucleo/prompts/core/compiler/introspect/locatable.md",
+    "00_nucleo/prompts/core/compiler/introspect/materialize_time.md",
+    "00_nucleo/prompts/core/compiler/introspect/populate.md",
+    "00_nucleo/prompts/core/compiler/introspect/queries.md",
+    "00_nucleo/prompts/core/compiler/introspect/walk.md",
+    "00_nucleo/prompts/core/compiler/layout/checkpoint.md",
+    "00_nucleo/prompts/core/compiler/layout/figure.md",
+    "00_nucleo/prompts/core/compiler/layout/measurement.md",
+    "00_nucleo/prompts/core/compiler/layout/mod.md",
+    "00_nucleo/prompts/core/compiler/layout/placement.md",
+    "00_nucleo/prompts/core/compiler/layout/references.md",
+    "00_nucleo/prompts/core/compiler/layout/tests.md",
+    "00_nucleo/prompts/core/compiler/realize/figure.md",
+    "00_nucleo/prompts/core/compiler/realize/figure_kind.md",
+    "00_nucleo/prompts/core/compiler/realize/mod.md",
+    "00_nucleo/prompts/core/compiler/realize/recipes.md",
+    "00_nucleo/prompts/core/compiler/stdlib/figure_image.md",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md",
+    "00_nucleo/prompts/core/entities/content/construction.md",
+    "00_nucleo/prompts/core/entities/content/tests/representation.md",
+    "00_nucleo/prompts/core/entities/content/tests/traversal.md",
+    "00_nucleo/prompts/core/entities/content/traversal.md",
+    "00_nucleo/prompts/core/entities/element_payload.md",
+    "00_nucleo/prompts/core/entities/elements/figure.md",
+    "00_nucleo/prompts/core/entities/elements/grid.md",
+    "00_nucleo/prompts/core/entities/introspector.md",
+    "00_nucleo/prompts/shell/cli.md",
+    "00_nucleo/prompts/infra/export/tests/mod.md",
+    "00_nucleo/prompts/infra/pipeline/bundle.md",
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+    "00_nucleo/prompts/core/compiler/stdlib/mod.md",
+    "00_nucleo/prompts/core/compiler/stdlib/tests/figure_image.md",
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access.md",
+    "00_nucleo/prompts/core/compiler/eval/mod.md",
+    "00_nucleo/prompts/core/compiler/eval/tests.md",
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md",
+    "00_nucleo/prompts/infra/export/html/document.md",
+    "00_nucleo/prompts/infra/pipeline/paged.md",
+    "00_nucleo/prompts/core/compiler/eval/observation/content.md",
+    "00_nucleo/prompts/core/compiler/eval/observation/style.md",
+    "00_nucleo/prompts/core/entities/style_chain.md",
+    "00_nucleo/prompts/core/compiler/realize/reference_supplements.md",
+    "00_nucleo/prompts/core/compiler/realize/context_occurrences.md",
+    "00_nucleo/prompts/infra/pipeline.md",
+    "00_nucleo/prompts/infra/integration_tests.md",
+    "00_nucleo/prompts/core/compiler/eval/context_reads.md",
+    "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+    "00_nucleo/prompts/core/compiler/eval/markup_stream.md"
+  ],
+  "internal_scope_addition": "stdlib/mod crate-private reexports of two existing Symbol classifiers; L0 first, E0603 evidence in initial integration log; no new external API; existing stdlib Figure tests require raw/pure-preview migration after intentional inference phase change, with L0 first and preserved oracle intent.; field_access coordinator gets direct raw/prepared field regression only, no routing/API behavior change. eval/mod and eval/tests: required plain-Figure preparation was bypassed by existing recipe/math gate; exact approved phase needs feature predicate, no added phase/API. fields.rs: required callback-context-none corpus exposed missing existing contextual admission on text.size/lang; L0 first, bilateral direct source, new RED before guard; existing counter fold unchanged. HTML document serializer: retain actual Figure-origin show-product paragraph morphology, L0/test first. Paged coordinator: replace generation-owned runtime warnings with their candidate snapshot, publish accepted effects through existing Sink semantics; no dedupe/cache/suppression. Complete ShowRecipe causal comparison exposed by real own-hidden query RED: raw borrowed StyleChain delta iteration and structural observation of all seven recipe fields; no cascade resolution, no opaque-value shortcut, no public API/phase, existing observation nucleus unchanged.",
+  "reference_extension_approval": "reference-phase-approval.json",
+  "reference_scope_addition": "Exact approved contextual Ref producer/facade owner; existing arena private retained ContextBlock ID slots; L3 actual-view collect/substitute; test-only migration of obsolete automatic string-counter assertion. No extra public API. Internal actual ReferenceTargetEligibility causal-read replay is necessary because query Content omits effective numbering/key eligibility; ContextReadRequest is crate-private and existing public APIs unchanged. Explicit regression must preserve strict observation. Exact missing-label source-origin RED requires attaching and preserving existing transparent Source for Ref @ syntax/native aliases at eval-expression and markup insertion; public signatures/fields unchanged. Existing private Source-transparent map remains unchanged; an internal origin-metadata traversal may share its owner/enumeration without Source callbacks."
+}

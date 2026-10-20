@@ -1,0 +1,9 @@
+   Compiling syn v3.0.6
+   Compiling clap_derive v4.6.4
+   Compiling clap v4.6.6
+   Compiling clap_complete v4.6.9
+   Compiling clap_complete_nushell v4.6.2
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+   Compiling typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+   Compiling typst-wiring v0.1.0 (/repos/Antigravity/typst-crystalline/04_wiring)
+    Finished `dev` profile [unoptimized] target(s) in 13.93s

@@ -1,0 +1,65 @@
+{
+  "utc": "2026-10-19T23:23:30.982800+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "state": "uncommitted working tree; root integrates all agents",
+  "sources": {
+    "01_core/src/entities/elements/figure.rs": "ed70252b2c71310ee365f57587cb0db2977323d4c6e1c67c42880f8e43163b9b",
+    "01_core/src/entities/elements/grid.rs": "6166498f4ddf861aa04ad2821e1582885ddb52d197d8493dd871576e952e953c",
+    "01_core/src/entities/element_payload.rs": "bde26c1812e75ce97845fad3988b3c6d2b9cf34c3ea2c993f15a198b855a9e8a",
+    "01_core/src/entities/content/construction.rs": "028f2c2ead9cb2d0ac4b2d14b7d1109e2909ad60c9e6a5cc77673451d8cee956",
+    "01_core/src/entities/content/traversal.rs": "ad2c1e18b5090a48c5bd613343a421c2f3801c92f043cfb4b0dcfda37a31bf32",
+    "01_core/src/entities/content/tests/representation.rs": "d68ff31ca61bb50a4d83367ee264ed87e24fd4c622e95f1e1ff303ddb9856661",
+    "01_core/src/entities/content/tests/traversal.rs": "e128a2a73a00967d77dac22a2557d0e11db0b48e539efcce16eb23cf294eec44",
+    "01_core/src/compiler/stdlib/figure_image.rs": "a19a9300cbe4c7bc90fc71cd0f5de4399e8ed1829c6b10d39ca4b5a81a15b165",
+    "01_core/src/compiler/stdlib/layout/grid.rs": "66808f42cdc0ce5bfabda77f005cd5d3379104dc7c4c872f7cb974cd2a054375",
+    "01_core/src/compiler/eval/observation/elements.rs": "bde28fc6a7d6ffc788b5d1894ed65f895b6ae0d856a6c690b1ea08528451c7de",
+    "01_core/src/compiler/introspect/materialize_time.rs": "1b69e9495e7ecb5ef92f8c2079b8b03b49863c62741c64d083e3907879de77f5",
+    "01_core/src/compiler/introspect/convergence.rs": "b461e60e2fead864aac1560ba7bac38bede0845466db06c383e7c1f3b18b608a",
+    "01_core/src/compiler/introspect/extract_payload.rs": "0bb845236d95821cfc0350e1ec18a805761627eb21466a0b60cb2ae32a0e6f36",
+    "01_core/src/compiler/introspect/locatable.rs": "82029ac438cf81a76a97154d0861479cd7f670e48906c4359f63bf8fa16a12b7",
+    "01_core/src/compiler/layout/placement.rs": "d58df2572d7253363370560976bbec4cde8c7bc9d3c2ca4d9bc7392c3baca236",
+    "01_core/src/compiler/layout/tests.rs": "da6541d31d5314519c276efba14b0326082a53f2ff8665d0eca9834aef06a69d",
+    "02_shell/src/cli.rs": "176eb3a8be599bea4062ad3aa292a5ff668ea8f28959785d672e4689fa73d397",
+    "03_infra/src/export/tests/mod.rs": "1da4c0d3b4390f64e2a70e1850ec80e89dc9fb8edfc459d5086579c1a7491905"
+  },
+  "notes": [
+    "All 17 owning L0s updated before source implementation; human approval covers exact public carrier and phase contracts.",
+    "Initial no-caption payload eligibility regression observed RED by root before CODE GO.",
+    "Added nominal function identity/hash aliases and asymmetric invalid-function controls, lexical/prepared field projection, selected-supplement map controls, preorder preservation and Grid descriptor map regression.",
+    "Mechanically migrated 48 Grid literals in layout/tests.rs with source_order None; root semantic regression module unchanged.",
+    "Legacy string adapter deliberately projects FigureKind::Name. Pure extraction fixture retains custom-name intent; shell/export native-image fixtures now construct typed intent explicitly.",
+    "CLI obtains kind/supplement from L1 getters; unrelated caption-tree defaults remain preexisting debt.",
+    "Grid classification uses source_body while preserving original header/footer/cell Content; line entity metadata retains existing extraction behavior.",
+    "No Cargo or global formatting run; root owns integrated validation/resealing/commit.",
+    "All nested FigureKind FuncRepr identity matches explicitly enumerate current nonmatching representations; invalid Closure/Plugin/With controls test symmetry, Arc nominality and zero plugin effects.",
+    "Added constructor supplement-before-numbering-before-excess validation and last named value/occurrence span regression; unknown and excess errors retain original causal sequence after known fields validate.",
+    "Scoped git diff --check passed; no further code changes planned before root validation freeze.",
+    "The withdrawn alias-name hash mismatch was refuted by constant Func Debug; subsequent actual kind-change convergence collision received distinct source evidence and two focused old-hash tests. No global Content hashing change made."
+  ],
+  "new_tests": 13,
+  "integration_fixes": [
+    {
+      "utc": "2026-10-19T23:23:52.425088+00:00",
+      "changes": [
+        "Removed accidental source_order field from TableElem preorder reconstruction only; Grid source_order remains.",
+        "Removed redundant local std::hash::Hash import in FigureKind hash implementation."
+      ],
+      "validation": "No Cargo; root owns integration check."
+    },
+    {
+      "utc": "2026-10-19T23:38:08.718817+00:00",
+      "red_receipt": "integration-tests-2/tests.log; root reported both observed failures",
+      "changes": [
+        "Grid temporal reconstruction no longer erases hlines/vlines; struct-update preserves vectors together with source_order. Table branch unchanged.",
+        "Figure payload Hash retains inherited Debug input and additionally hashes exact typed FigureKind, allowing same-Location table\u2192raw change detection. Other payloads and global Content Hash unchanged."
+      ],
+      "validation": "Production fixes applied after root observed semantic RED; no Cargo by agent."
+    }
+  ],
+  "additional_test_owner": {
+    "source": "01_core/src/compiler/stdlib/tests/figure_image.rs",
+    "owner": "00_nucleo/prompts/core/compiler/stdlib/tests/figure_image.md",
+    "reason": "Existing native constructor inference assertions migrated to separately observed lexical omission plus exact typed occurrence preview; independent image tests unchanged."
+  },
+  "pending_red_fixes": []
+}

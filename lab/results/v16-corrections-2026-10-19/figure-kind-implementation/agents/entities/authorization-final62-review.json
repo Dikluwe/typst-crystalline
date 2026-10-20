@@ -1,0 +1,743 @@
+{
+  "review_utc": "2026-10-20T01:31:31.682234+00:00",
+  "status": "AUTHORIZATION REVIEW COMPLETE for exact sealed reference-seven snapshot; executable validation and parity closure remain pending",
+  "historical55_review_preserved_sha256": "cfc5f5f4447666a079f6d9f4510200b482870273714cf88bfa993ab4078e3561",
+  "approval": {
+    "original_receipt_sha256": "6118f3466eadc931da5d1abfbf9f79b228688158e2a6ca88156d87d505333be7",
+    "frozen_review_sha256": "e8cabe3a7ab236e9c81303ffa9e8732198cbdb4e83a1aa4b557708dd167b433c",
+    "frozen_package_manifest_sha256": "0c2b16dea5bd5d98488089c198cf99f336b455066fe5f416aad9d3cef4952c31",
+    "all_original_package_files_intact": 145,
+    "reference_receipt_sha256": "9ddeb35a39e84ac51006b51b26125f193a23e7824f615575a7c7255d8896d39b",
+    "exact_reference_proposal_sha256": "1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2",
+    "no_child_refinement_sha256": "0f79a1bbb62172eff3e361b3508d68244d85e155e1ae1826c712af51b7f0d43b"
+  },
+  "scope": {
+    "count": 62,
+    "scope_sha256": "3fc4b04474189933bb4e3a62291c5b4bc8690e272f4adcda96a32a7693ceaddd",
+    "changed_productive_source_set_equals_scope": true,
+    "new_since55": [
+      "01_core/src/compiler/eval/context_reads.rs",
+      "01_core/src/compiler/eval/expression_dispatch.rs",
+      "01_core/src/compiler/eval/markup_stream.rs",
+      "01_core/src/compiler/realize/context_occurrences.rs",
+      "01_core/src/compiler/realize/reference_supplements.rs",
+      "03_infra/src/integration_tests.rs",
+      "03_infra/src/pipeline.rs"
+    ],
+    "canonical_owners": true
+  },
+  "public_surface": {
+    "new_external_functions": [
+      {
+        "source": "01_core/src/compiler/introspect/entrypoints.rs",
+        "name": "introspect_bundle_documents_with_runtime_targets_and_starts",
+        "before": null,
+        "now": "pub fn introspect_bundle_documents_with_runtime_targets_and_starts( bodies: &[Content], targets: &[crate::compiler::eval::EvalTarget], features: crate::entities::compiler_features::Features, engine: &mut Engine<'_>, ctx: &mut EvalContext, ) -> SourceResult<(TagIntrospector, Vec<LocatorSeed>)>"
+      },
+      {
+        "source": "01_core/src/compiler/realize/reference_supplements.rs",
+        "name": "is_reference_supplement_producer",
+        "before": null,
+        "now": "pub fn is_reference_supplement_producer(block: &ContextBlockElem) -> bool"
+      },
+      {
+        "source": "01_core/src/compiler/realize/reference_supplements.rs",
+        "name": "prepared_reference_supplement",
+        "before": null,
+        "now": "pub fn prepared_reference_supplement(content: &Content) -> Option<&Content>"
+      },
+      {
+        "source": "01_core/src/compiler/realize/reference_supplements.rs",
+        "name": "map_prepared_reference_supplement",
+        "before": null,
+        "now": "pub fn map_prepared_reference_supplement<F>( content: &Content, transform: F, ) -> SourceResult<Option<Content>> where F: FnOnce(&Content) -> SourceResult<Content>,"
+      }
+    ],
+    "existing_external_function_signatures_changed": [],
+    "reference_module": "compiler::realize::reference_supplements; only exact three approved functions public, all other helpers compiler-private/private",
+    "entities": "Only original approved FigureKind/FigureSupplement/FigureElem/payload/GridChildOrder/source_order public changes; no Ref entity/Content variant/trait extension",
+    "arena": "Existing public Arena/Frame methods/signatures retained; Context ID slots/cursor/instantiation flag are private"
+  },
+  "phase_and_internal_corrections": [
+    "Only actually emitted normal Paged Ref admitted after own root decision through exact typed producer; HTML/page/bib passthrough gates retained.",
+    "Original Figure retains complete prepared raw template; actual visual carrier omits dormant supplement, admits actual caption contribution and retains existing Located aliases.",
+    "Raw Context IDs are fresh per actual template insertion and retained per-frame across retry; shared allocation arena unchanged.",
+    "Private eligibility request records real label Location/key-presence/bib facts; scoped proof now compares exact typed slots, kind capability and selector Func metadata/diagnostic spans. Global Func/Counter/Value observers unchanged.",
+    "Private source-origin frame transport restores inherited frame on return and keeps lexical Ref spans; source-origin edge oracle controls are separately frozen.",
+    "No new CLI flag/default path/target/dependency, generic Ref map relaxation, source Context query payload, counter shadow namespace, result cache or warning-text suppression is authorized."
+  ],
+  "whitespace_review": {
+    "p462": "Unicode whitespace collapse only; exact Figure 1: legenda once and terminal Figure 1/Figura 1 retain all nonwhitespace characters, numbers and order. Default test additionally requires exactly two Figure 1 occurrences. No dropped token or 10-to-1 coercion.",
+    "versioned_policies": "Whole extracted visible text after whitespace collapse is compared to separately immutable oracle receipts; old sources/policies/receipts preserved.",
+    "limits": "Does not certify whitespace-sensitive morphology, layout positions or PDF bytes. Hidden-reference-parent OUTER discrepancy remains a policy failure; it is not normalized away."
+  },
+  "pending_finalization": [
+    "Root reference-seven build/tests, full linter differential and remaining acceptance gates are running/pending. This document authorizes no closure claim.",
+    "Actual matrix ambiguity, hidden-parent render and target/source-origin limits must retain original failed comparisons and measured classifications; no universal or 31/31 parity claim.",
+    "Any later source/L0 change invalidates this snapshot binding and requires a separately versioned follow-up audit."
+  ],
+  "no_agent_build_or_source_changes_in_this_audit": true,
+  "baseline_head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "branch": "codex/tekt-mature-layout",
+  "diff_head_stat": " .../core/compiler/eval/bindings/field_access.md    |  17 +-\n .../eval/bindings/field_access/content_methods.md  |  17 +-\n .../compiler/eval/bindings/field_access/fields.md  |  28 +-\n .../prompts/core/compiler/eval/context_reads.md    |  43 +-\n .../core/compiler/eval/expression_dispatch.md      |  20 +-\n .../prompts/core/compiler/eval/markup_stream.md    |  12 +-\n 00_nucleo/prompts/core/compiler/eval/mod.md        |  32 +-\n .../core/compiler/eval/observation/content.md      |  28 +-\n .../core/compiler/eval/observation/elements.md     |  47 +-\n .../core/compiler/eval/observation/style.md        |  20 +-\n .../core/compiler/eval/operators/equality.md       |  17 +-\n .../prompts/core/compiler/eval/rules/apply.md      |  38 +-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  19 +-\n .../core/compiler/eval/selector_matching.md        |  19 +-\n 00_nucleo/prompts/core/compiler/eval/tests.md      |  80 +-\n 00_nucleo/prompts/core/compiler/introspect.md      |  27 +-\n .../core/compiler/introspect/convergence.md        |  26 +-\n .../core/compiler/introspect/entrypoints.md        |  17 +-\n .../core/compiler/introspect/extract_payload.md    |  28 +-\n .../prompts/core/compiler/introspect/fixpoint.md   |  17 +-\n .../prompts/core/compiler/introspect/labelled.md   |  24 +-\n .../prompts/core/compiler/introspect/locatable.md  |  28 +-\n .../core/compiler/introspect/materialize_time.md   |  28 +-\n .../prompts/core/compiler/introspect/populate.md   |  22 +-\n .../prompts/core/compiler/introspect/queries.md    |  17 +-\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  52 +-\n .../prompts/core/compiler/layout/checkpoint.md     |  19 +-\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  17 +-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  25 +-\n .../prompts/core/compiler/layout/placement.md      |  17 +-\n .../prompts/core/compiler/layout/references.md     |  33 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  79 +-\n .../core/compiler/realize/context_occurrences.md   |  20 +-\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  29 +-\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  58 +-\n .../prompts/core/compiler/stdlib/figure_image.md   |  48 +-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  17 +-\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  17 +-\n .../core/compiler/stdlib/tests/figure_image.md     |  16 +-\n .../prompts/core/entities/content/construction.md  |  17 +-\n .../core/entities/content/tests/representation.md  |  17 +-\n .../core/entities/content/tests/traversal.md       |  17 +-\n .../prompts/core/entities/content/traversal.md     |  33 +-\n 00_nucleo/prompts/core/entities/element_payload.md |  31 +-\n 00_nucleo/prompts/core/entities/elements/figure.md |  39 +-\n 00_nucleo/prompts/core/entities/elements/grid.md   |  22 +-\n 00_nucleo/prompts/core/entities/introspector.md    |  24 +-\n 00_nucleo/prompts/core/entities/style_chain.md     |  21 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  62 +-\n 00_nucleo/prompts/infra/export/tests/mod.md        |  17 +-\n 00_nucleo/prompts/infra/integration_tests.md       |  13 +-\n 00_nucleo/prompts/infra/pipeline.md                |  31 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  17 +-\n .../infra/pipeline/context_stabilization.md        |  73 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |   9 +-\n 00_nucleo/prompts/shell/cli.md                     |  17 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |  45 +-\n .../eval/bindings/field_access/content_methods.rs  |  28 +-\n .../compiler/eval/bindings/field_access/fields.rs  |  23 +-\n 01_core/src/compiler/eval/context_reads.rs         | 288 +++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |  12 +-\n 01_core/src/compiler/eval/markup_stream.rs         |   5 +-\n 01_core/src/compiler/eval/mod.rs                   |   7 +-\n 01_core/src/compiler/eval/observation/content.rs   | 173 +++-\n 01_core/src/compiler/eval/observation/elements.rs  | 230 ++++-\n 01_core/src/compiler/eval/observation/style.rs     |  78 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 128 ++-\n 01_core/src/compiler/eval/rules/apply.rs           | 185 ++--\n 01_core/src/compiler/eval/rules/set.rs             |  59 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 124 ++-\n 01_core/src/compiler/eval/tests.rs                 | 547 ++++++++++--\n 01_core/src/compiler/introspect.rs                 | 979 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  87 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  40 +-\n 01_core/src/compiler/introspect/extract_payload.rs |  13 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  32 +-\n 01_core/src/compiler/introspect/labelled.rs        |  63 +-\n 01_core/src/compiler/introspect/locatable.rs       |   4 +-\n .../src/compiler/introspect/materialize_time.rs    |  90 +-\n 01_core/src/compiler/introspect/populate.rs        |  61 +-\n 01_core/src/compiler/introspect/queries.rs         |  45 +-\n 01_core/src/compiler/introspect/walk.rs            | 130 ++-\n 01_core/src/compiler/layout/checkpoint.rs          |   8 +-\n 01_core/src/compiler/layout/figure.rs              | 338 ++++++-\n 01_core/src/compiler/layout/measurement.rs         |   7 +-\n 01_core/src/compiler/layout/mod.rs                 |  35 +-\n 01_core/src/compiler/layout/placement.rs           |   3 +-\n 01_core/src/compiler/layout/references.rs          | 142 ++-\n 01_core/src/compiler/layout/tests.rs               | 878 ++++++++++++++----\n .../src/compiler/realize/context_occurrences.rs    |  91 +-\n 01_core/src/compiler/realize/mod.rs                |   5 +-\n 01_core/src/compiler/realize/recipes.rs            | 381 ++++----\n 01_core/src/compiler/stdlib/figure_image.rs        | 412 +++++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  16 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   5 +-\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 114 ++-\n 01_core/src/entities/content/construction.rs       |  13 +-\n .../src/entities/content/tests/representation.rs   |   8 +-\n 01_core/src/entities/content/tests/traversal.rs    |  36 +-\n 01_core/src/entities/content/traversal.rs          | 353 +++++---\n 01_core/src/entities/element_payload.rs            |  46 +-\n 01_core/src/entities/elements/figure.rs            | 539 +++++++++++-\n 01_core/src/entities/elements/grid.rs              |  61 +-\n 01_core/src/entities/introspector.rs               |  11 +-\n 01_core/src/entities/style_chain.rs                |  33 +-\n 02_shell/src/cli.rs                                |  89 +-\n 03_infra/src/export/html/document.rs               | 139 ++-\n 03_infra/src/export/tests/mod.rs                   |  29 +-\n 03_infra/src/integration_tests.rs                  |  84 +-\n 03_infra/src/pipeline.rs                           | 387 +++++++-\n 03_infra/src/pipeline/bundle.rs                    |  15 +-\n 03_infra/src/pipeline/context_stabilization.rs     | 715 ++++++++++++++-\n 03_infra/src/pipeline/paged.rs                     | 346 ++++----\n 114 files changed, 9049 insertions(+), 1373 deletions(-)\n",
+  "draft_preserved_sha256": "35f7b7b0ad7f312c635b020f0148d000ce466b56d3cf2c0acbe6f00d8e0a5f66",
+  "seal_precheck_sha256": "14eefe53b052a4b47a8b6ddfd0c4d7bde3153940c595a1ad328bb5c4af6f497b",
+  "sealed_snapshot": {
+    "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reseal-4/receipt.json.gz",
+    "receipt_sha256": "da49c6196b6fcd2776451925d6b9edc0efc345c8bf20c19b2c20fc4cb7c4c369",
+    "current_equals_receipt_after_for_all124": true,
+    "effective_forward_and_reverse_seals_checked": 62,
+    "effective_nuclei_checked": 75,
+    "pairs": [
+      {
+        "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+        "source_sha256": "927d9fa51b61c1fe8f50fd9f55ab0e00c70069950ea04e9398805913dd2a025e",
+        "owner_sha256": "3d6fac50721bbf3a32663a44523ffae0383f3384ae770164d1febff66b8880aa",
+        "forward_seal": "23b3110d",
+        "computed_effective_owner_seal": "23b3110d",
+        "reverse_seal": "73d74e24",
+        "computed_source_seal": "73d74e24"
+      },
+      {
+        "source": "01_core/src/compiler/eval/observation/elements.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+        "source_sha256": "01a35fb92455d7d980e396c6441d6a0ffd19dfb7543724f5d74b9a1261ac72b5",
+        "owner_sha256": "493bba7cec853187c11da24f952f4d2f981c0e9b3303ae2b94a4c01a7f6ebf44",
+        "forward_seal": "c28a62e6",
+        "computed_effective_owner_seal": "c28a62e6",
+        "reverse_seal": "42e78abb",
+        "computed_source_seal": "42e78abb"
+      },
+      {
+        "source": "01_core/src/compiler/eval/operators/equality.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+        "source_sha256": "7c364ec89a0c12fc96dd718aaffddd4f4d9fbda26a119ec5e1c302e55626053a",
+        "owner_sha256": "8617b9e902e5290a24cb7589b1c0c26359edc6c53dd1a2eced7159ad3d0bcd33",
+        "forward_seal": "6eed4c3a",
+        "computed_effective_owner_seal": "6eed4c3a",
+        "reverse_seal": "af116c9e",
+        "computed_source_seal": "af116c9e"
+      },
+      {
+        "source": "01_core/src/compiler/eval/rules/apply.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/rules/apply.md",
+        "source_sha256": "e61c85b98c16d70020059541d21f6d5ade4fb4c1a4ddff919cca50ae2543ae38",
+        "owner_sha256": "3436ed40544e6b742e2ef9bd99b52b2e198b73e5cd6b5424e7fb7a2b3ade4918",
+        "forward_seal": "4089415d",
+        "computed_effective_owner_seal": "4089415d",
+        "reverse_seal": "969b1f36",
+        "computed_source_seal": "969b1f36"
+      },
+      {
+        "source": "01_core/src/compiler/eval/rules/set.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/rules/set.md",
+        "source_sha256": "7554439ce672ec0f019f4275c740af87060e06e4baf1c4dd7e716e7f70acb5c0",
+        "owner_sha256": "e08b3703490f16a80bbce0ff9c7ab3772c6c6a4d84ff66127b55356a5a6933ed",
+        "forward_seal": "5f03cf9c",
+        "computed_effective_owner_seal": "5f03cf9c",
+        "reverse_seal": "8fe48b50",
+        "computed_source_seal": "8fe48b50"
+      },
+      {
+        "source": "01_core/src/compiler/eval/selector_matching.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+        "source_sha256": "ea357af98f03738fba84ccfab163bbc0d0fb594247f5e1622cbaa1fb3ffbe139",
+        "owner_sha256": "ecfb20ab7999e135e7dd3db11d27dce0dbb923609dbe2001f5a7b2a6a45caa47",
+        "forward_seal": "5a2116d3",
+        "computed_effective_owner_seal": "5a2116d3",
+        "reverse_seal": "38cfa7dd",
+        "computed_source_seal": "38cfa7dd"
+      },
+      {
+        "source": "01_core/src/compiler/introspect.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect.md",
+        "source_sha256": "8797ecef131f271a73b939778a6be0d4f16f95ebf3d3f4f6b12e8bfca977c965",
+        "owner_sha256": "c028daccf348fbef063a0d712a3c32c29cd9634924c0e09d298b0ff11cd55ecf",
+        "forward_seal": "a634f9a8",
+        "computed_effective_owner_seal": "a634f9a8",
+        "reverse_seal": "533b8a8c",
+        "computed_source_seal": "533b8a8c"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/convergence.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/convergence.md",
+        "source_sha256": "fd562d34a44ec36902015b7a648f97d62846379b27ed097d0e30706d7a601c6c",
+        "owner_sha256": "ce265b010f55aecf285fa499e17035ec9f84ef18e41aee023dc05a22ff4d5417",
+        "forward_seal": "9870343e",
+        "computed_effective_owner_seal": "9870343e",
+        "reverse_seal": "02a01ba6",
+        "computed_source_seal": "02a01ba6"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/entrypoints.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/entrypoints.md",
+        "source_sha256": "9ed7d322d1747a045b11ea23a09f31b19fc9b093f23b64147026e12c3ccced41",
+        "owner_sha256": "c90cce7cbf101add872d4d4851e6f31eba1d30e777739fc2d68ba06638875bb1",
+        "forward_seal": "34c5b898",
+        "computed_effective_owner_seal": "34c5b898",
+        "reverse_seal": "df115401",
+        "computed_source_seal": "df115401"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/extract_payload.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/extract_payload.md",
+        "source_sha256": "08876cec97b1caf8c73292ad228ab8074d74985e912ac3963b9b644794b47278",
+        "owner_sha256": "d5539043f83cbba6e79753252bf71c51d92bc8526f9cd71879a86b5de23cb7cc",
+        "forward_seal": "ed27bd64",
+        "computed_effective_owner_seal": "ed27bd64",
+        "reverse_seal": "63b2541f",
+        "computed_source_seal": "63b2541f"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/figure_counters.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/figure_counters.md",
+        "source_sha256": "eee604e2c489fae61ac5d7689e005870c378dc7950b01d0b1d99b946ee5257b6",
+        "owner_sha256": "2d2f8e96e6402adfcc1632601d88d6a88bd7f0be232d3fdc7fea924ca3b6a79c",
+        "forward_seal": "04b2040e",
+        "computed_effective_owner_seal": "04b2040e",
+        "reverse_seal": "dc9011e3",
+        "computed_source_seal": "dc9011e3"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/figure_demands.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/figure_demands.md",
+        "source_sha256": "6e012d74f5204bd8f6290cc62d302d27cd21012c76c7325d34a31ac6398b3938",
+        "owner_sha256": "c0f9a28490ce7a8fc5d692e9aa23d99c1302f1bb69140d229df26df0cd09fa10",
+        "forward_seal": "6da6484a",
+        "computed_effective_owner_seal": "6da6484a",
+        "reverse_seal": "0882b6d7",
+        "computed_source_seal": "0882b6d7"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/fixpoint.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/fixpoint.md",
+        "source_sha256": "2d7540b7dca50a85dc1f2b384017a392d2e29306f316f55c112db5ecdbf12c9b",
+        "owner_sha256": "ec67e872baf57fac6b2b4ebcecb7de18fd243119293cbb23d89bd92a5bc41537",
+        "forward_seal": "2d80e942",
+        "computed_effective_owner_seal": "2d80e942",
+        "reverse_seal": "312d6fdc",
+        "computed_source_seal": "312d6fdc"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/labelled.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/labelled.md",
+        "source_sha256": "dd1757e3cd6ec39f603d811dcb5415720a874b45c050979109334f8d0a449164",
+        "owner_sha256": "b0f51076527cb5a6590353f90192a8d94976ddfffdd69a49bc75f51d6ca6e724",
+        "forward_seal": "e1686ee9",
+        "computed_effective_owner_seal": "e1686ee9",
+        "reverse_seal": "ff62dce8",
+        "computed_source_seal": "ff62dce8"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/locatable.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/locatable.md",
+        "source_sha256": "eae47b0d3c50f5caf71d515cc04333a986d020a9a204cc9af49f9a2d82b3f78f",
+        "owner_sha256": "96f57da618c2b001d7af1bc89d1851dff0d27cc7236cbd82b27a459c2e40754e",
+        "forward_seal": "6fd8a9da",
+        "computed_effective_owner_seal": "6fd8a9da",
+        "reverse_seal": "75e75fd9",
+        "computed_source_seal": "75e75fd9"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/materialize_time.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/materialize_time.md",
+        "source_sha256": "e30b1bc1ef96a0776df733d1bfd3349fd8f0ff97fb7f5361cc99569048119752",
+        "owner_sha256": "ec188db3a4415a0742cdd19b5df88436b75f5a882f3a5172322ec65b49e7cd5d",
+        "forward_seal": "51b66794",
+        "computed_effective_owner_seal": "51b66794",
+        "reverse_seal": "578b1008",
+        "computed_source_seal": "578b1008"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/populate.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/populate.md",
+        "source_sha256": "74fcc538f3944839ba9bd1bb4c6d598b38abcfe510b9f0e4bc09c188d62d6d3c",
+        "owner_sha256": "eb4f707bcec0a6930724b6e94b2a311e6391d3503f60aefc6ee257578da92bb3",
+        "forward_seal": "f1ab504f",
+        "computed_effective_owner_seal": "f1ab504f",
+        "reverse_seal": "915bc53e",
+        "computed_source_seal": "915bc53e"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/queries.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+        "source_sha256": "996fe554fb8801ba46887072679f144aa9b33c5fceaefa716c105d3b3c517ea8",
+        "owner_sha256": "e565de29cd7176f93d86d6bab3e373f0709b3fd71b06f7063a34324847f80fc7",
+        "forward_seal": "16af5578",
+        "computed_effective_owner_seal": "16af5578",
+        "reverse_seal": "ea7e0edc",
+        "computed_source_seal": "ea7e0edc"
+      },
+      {
+        "source": "01_core/src/compiler/introspect/walk.rs",
+        "owner": "00_nucleo/prompts/core/compiler/introspect/walk.md",
+        "source_sha256": "7556963fb5e254a5826f4755e010feaa198db6209ca1d48c1574891ed28fe3f1",
+        "owner_sha256": "c51551697c5bc79f7e0795a0a59050104974325654c2948d3ec84b6676180ddb",
+        "forward_seal": "c298cdfd",
+        "computed_effective_owner_seal": "c298cdfd",
+        "reverse_seal": "1ea09d57",
+        "computed_source_seal": "1ea09d57"
+      },
+      {
+        "source": "01_core/src/compiler/layout/checkpoint.rs",
+        "owner": "00_nucleo/prompts/core/compiler/layout/checkpoint.md",
+        "source_sha256": "ec9084063c82722ebe647eb39ebe76a890672c24483f3b534fd5822f28f9727c",
+        "owner_sha256": "2daa00dd2d3b9e3abede3615e26ffc4ab3dc3b2698493fb9dff5e470cfdffeff",
+        "forward_seal": "9736871c",
+        "computed_effective_owner_seal": "9736871c",
+        "reverse_seal": "0e8d050d",
+        "computed_source_seal": "0e8d050d"
+      },
+      {
+        "source": "01_core/src/compiler/layout/figure.rs",
+        "owner": "00_nucleo/prompts/core/compiler/layout/figure.md",
+        "source_sha256": "bda5de5bade7ca79c1107df4d527f786d3fbd7dde4e02cd274bbb0c7e03819f8",
+        "owner_sha256": "ffa7c119481e015e7336f2039776c0925b92afa7fa6a628a5e653dc2d071adfe",
+        "forward_seal": "b5f83fac",
+        "computed_effective_owner_seal": "b5f83fac",
+        "reverse_seal": "b8d09974",
+        "computed_source_seal": "b8d09974"
+      },
+      {
+        "source": "01_core/src/compiler/layout/measurement.rs",
+        "owner": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+        "source_sha256": "51f4833167ff43b951744ff00000043058215943d54e6efa34b1451541f9580e",
+        "owner_sha256": "e59105765c35f3db418da36ace1f20d9954897e1aa2dce9fc3d4084453adbbcc",
+        "forward_seal": "46031639",
+        "computed_effective_owner_seal": "46031639",
+        "reverse_seal": "55e35b53",
+        "computed_source_seal": "55e35b53"
+      },
+      {
+        "source": "01_core/src/compiler/layout/mod.rs",
+        "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+        "source_sha256": "698a2763e0ec689e6b71e34fc90e9f5867488c6d1fb4ea0168fc3b7b7b17c905",
+        "owner_sha256": "41107f1afdf9146d40dbe4c6fef1609247c554823e6ced9e944303d521a781a2",
+        "forward_seal": "fef99b61",
+        "computed_effective_owner_seal": "fef99b61",
+        "reverse_seal": "20ab61b0",
+        "computed_source_seal": "20ab61b0"
+      },
+      {
+        "source": "01_core/src/compiler/layout/placement.rs",
+        "owner": "00_nucleo/prompts/core/compiler/layout/placement.md",
+        "source_sha256": "44904858e50e3712272b07c089ccd3ecab7ff7015209403d535b9842eb12349f",
+        "owner_sha256": "d9cf90e061909a93141a7b76383789db678b02ef81de4fee71005e37957dec05",
+        "forward_seal": "fcb9dbf9",
+        "computed_effective_owner_seal": "fcb9dbf9",
+        "reverse_seal": "6ac30df8",
+        "computed_source_seal": "6ac30df8"
+      },
+      {
+        "source": "01_core/src/compiler/layout/references.rs",
+        "owner": "00_nucleo/prompts/core/compiler/layout/references.md",
+        "source_sha256": "9520c283c525c9ba5688eebf1deda97b8974ddb518fe6dd0fe33db887074ead3",
+        "owner_sha256": "120cd763528054d48490dad396aec93b660eca0b096025a107e9cb69bdfc6ac6",
+        "forward_seal": "3b12441e",
+        "computed_effective_owner_seal": "3b12441e",
+        "reverse_seal": "ec64300c",
+        "computed_source_seal": "ec64300c"
+      },
+      {
+        "source": "01_core/src/compiler/layout/tests.rs",
+        "owner": "00_nucleo/prompts/core/compiler/layout/tests.md",
+        "source_sha256": "fc183af8975e830571c9c38a12504cd07b6a188fe5d270875104c6d1e7762334",
+        "owner_sha256": "a73a794863e11a3579ab003bfe05a5650ec4024404504a6b30a3c029b89972e8",
+        "forward_seal": "d443061c",
+        "computed_effective_owner_seal": "d443061c",
+        "reverse_seal": "be7de2de",
+        "computed_source_seal": "be7de2de"
+      },
+      {
+        "source": "01_core/src/compiler/realize/figure.rs",
+        "owner": "00_nucleo/prompts/core/compiler/realize/figure.md",
+        "source_sha256": "5ce9e2881c5ffea36d1d9c6cf9cad65a482cb5aa7da6c48ff5b90f69ee321750",
+        "owner_sha256": "7715ad742d73eddabe73719b06f13b54805fb6f14c11f3bb7775a3fd70da7eae",
+        "forward_seal": "07cbbad6",
+        "computed_effective_owner_seal": "07cbbad6",
+        "reverse_seal": "61100b5d",
+        "computed_source_seal": "61100b5d"
+      },
+      {
+        "source": "01_core/src/compiler/realize/figure_kind.rs",
+        "owner": "00_nucleo/prompts/core/compiler/realize/figure_kind.md",
+        "source_sha256": "63547103e55214506d9404b8e45daa547168fae50e37568f497cde9df9311028",
+        "owner_sha256": "5c00c5e07a092505c1070ecd91892cfe444cdea03dc5e18136a3f3aaaabf4d80",
+        "forward_seal": "2d74b509",
+        "computed_effective_owner_seal": "2d74b509",
+        "reverse_seal": "67c4337f",
+        "computed_source_seal": "67c4337f"
+      },
+      {
+        "source": "01_core/src/compiler/realize/mod.rs",
+        "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+        "source_sha256": "4649c525f1fbdafb36b54345a71ca6b05d303b8484f63b2f25b3ea0b3f293e81",
+        "owner_sha256": "e38224626741ca49a58849b8cdea1bcd5093e826c6f84b992a1c33cdee2d3a4b",
+        "forward_seal": "38f6e4e6",
+        "computed_effective_owner_seal": "38f6e4e6",
+        "reverse_seal": "43b82123",
+        "computed_source_seal": "43b82123"
+      },
+      {
+        "source": "01_core/src/compiler/realize/recipes.rs",
+        "owner": "00_nucleo/prompts/core/compiler/realize/recipes.md",
+        "source_sha256": "d76fd781d1ba2a3c02b301d419c309b2e1df29ca84080d599cd7fe872750e358",
+        "owner_sha256": "c6d24e6ffde11d55114a8b4a39e88808c04d02391f151307d7d7b93b5b2a41a6",
+        "forward_seal": "06b9528f",
+        "computed_effective_owner_seal": "06b9528f",
+        "reverse_seal": "613de8c6",
+        "computed_source_seal": "613de8c6"
+      },
+      {
+        "source": "01_core/src/compiler/stdlib/figure_image.rs",
+        "owner": "00_nucleo/prompts/core/compiler/stdlib/figure_image.md",
+        "source_sha256": "110d590e2e4e169efa7bb7140974bcd70418e5de8096b12a10448504909c7463",
+        "owner_sha256": "400d0d5628126975d24bbe7bd5074b98c09f14c9c6ca69e9e8fc3e0a4d67a9a8",
+        "forward_seal": "ad7423e0",
+        "computed_effective_owner_seal": "ad7423e0",
+        "reverse_seal": "c3a8e6b7",
+        "computed_source_seal": "c3a8e6b7"
+      },
+      {
+        "source": "01_core/src/compiler/stdlib/layout/grid.rs",
+        "owner": "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md",
+        "source_sha256": "f088f2429c69afab6bb8e02623e22121db51d1948c90d12300ea4c247be4d275",
+        "owner_sha256": "46f1944e625ec1d9828feb4266a6d39ee3c20d4fcf53f49dfa1d8576d74a56ff",
+        "forward_seal": "c561d849",
+        "computed_effective_owner_seal": "c561d849",
+        "reverse_seal": "78463430",
+        "computed_source_seal": "78463430"
+      },
+      {
+        "source": "01_core/src/entities/content/construction.rs",
+        "owner": "00_nucleo/prompts/core/entities/content/construction.md",
+        "source_sha256": "39e44aeb7c0a4d83cf3dab82a8bcd2c243774e38103543cef2f479148f39e219",
+        "owner_sha256": "777d4a3067fa2d3739a6ec0043f58f793d8f32c1f82b5f8ca678c8149df5dcc9",
+        "forward_seal": "2261741c",
+        "computed_effective_owner_seal": "2261741c",
+        "reverse_seal": "68508250",
+        "computed_source_seal": "68508250"
+      },
+      {
+        "source": "01_core/src/entities/content/tests/representation.rs",
+        "owner": "00_nucleo/prompts/core/entities/content/tests/representation.md",
+        "source_sha256": "d44c315696d06c92c1ff2e770b5fae91ff301acd5dbcb0e070f3b4cd38aeb9ee",
+        "owner_sha256": "395b7c5cc6f8a63b5b369839f4b0646d3a0f8b2584a86014341c46cbe2f7170e",
+        "forward_seal": "8b92da04",
+        "computed_effective_owner_seal": "8b92da04",
+        "reverse_seal": "faf4b690",
+        "computed_source_seal": "faf4b690"
+      },
+      {
+        "source": "01_core/src/entities/content/tests/traversal.rs",
+        "owner": "00_nucleo/prompts/core/entities/content/tests/traversal.md",
+        "source_sha256": "4e65f7d6b89de2cda478e05c2f504ca8b007d2f3575a30cf2eff3ed528346626",
+        "owner_sha256": "aaf5b5e39ced61f584bf084780353837126389af2ba5da61438b699044c7eaba",
+        "forward_seal": "be4a6985",
+        "computed_effective_owner_seal": "be4a6985",
+        "reverse_seal": "6fc94ec2",
+        "computed_source_seal": "6fc94ec2"
+      },
+      {
+        "source": "01_core/src/entities/content/traversal.rs",
+        "owner": "00_nucleo/prompts/core/entities/content/traversal.md",
+        "source_sha256": "2526cf4359a14caf278609c95ddd865c092feefe5bc27e31256f9a5c14c84f9c",
+        "owner_sha256": "e9dc9896f1284d38df3ed7e756d8be8181c9247663243eef9f527c3d2b6c9aaf",
+        "forward_seal": "3e75afab",
+        "computed_effective_owner_seal": "3e75afab",
+        "reverse_seal": "3909498f",
+        "computed_source_seal": "3909498f"
+      },
+      {
+        "source": "01_core/src/entities/element_payload.rs",
+        "owner": "00_nucleo/prompts/core/entities/element_payload.md",
+        "source_sha256": "1fbda4696716867af7beafda10d423e679d43578b44f4bc1496400a6003a1852",
+        "owner_sha256": "27b85786fbb08d899834497b9884f3411cc39d6ba702c54d0fd1e78b2c1f593f",
+        "forward_seal": "db1bce73",
+        "computed_effective_owner_seal": "db1bce73",
+        "reverse_seal": "aaa67a95",
+        "computed_source_seal": "aaa67a95"
+      },
+      {
+        "source": "01_core/src/entities/elements/figure.rs",
+        "owner": "00_nucleo/prompts/core/entities/elements/figure.md",
+        "source_sha256": "3191ab5c358285626a31da63cce97442140094469b18df0d851f1639c8b3b222",
+        "owner_sha256": "c25ecd941e6a8a038a61dc7158346b8d278b022bdea9787d1578067e955dea81",
+        "forward_seal": "5b63362a",
+        "computed_effective_owner_seal": "5b63362a",
+        "reverse_seal": "c8036146",
+        "computed_source_seal": "c8036146"
+      },
+      {
+        "source": "01_core/src/entities/elements/grid.rs",
+        "owner": "00_nucleo/prompts/core/entities/elements/grid.md",
+        "source_sha256": "0daf1d3c8d83a0418f2283291fad0b328a53a4b20abf37b72ba1cb669f5ba067",
+        "owner_sha256": "e6ebfce691974dbb78442856443ba039e542326073876248678800c09708adb1",
+        "forward_seal": "ce629622",
+        "computed_effective_owner_seal": "ce629622",
+        "reverse_seal": "d032e282",
+        "computed_source_seal": "d032e282"
+      },
+      {
+        "source": "01_core/src/entities/introspector.rs",
+        "owner": "00_nucleo/prompts/core/entities/introspector.md",
+        "source_sha256": "8f632b36baca2082b5322636a5edef3d8872762da472e074303da1b4d39e1c1e",
+        "owner_sha256": "ac84351ac2d4ae23536b3661180f64d292a38137079d11b050bcd62d6c9e9410",
+        "forward_seal": "b0892dd8",
+        "computed_effective_owner_seal": "b0892dd8",
+        "reverse_seal": "d1de9ec4",
+        "computed_source_seal": "d1de9ec4"
+      },
+      {
+        "source": "02_shell/src/cli.rs",
+        "owner": "00_nucleo/prompts/shell/cli.md",
+        "source_sha256": "2141b10e5c1a4094c31ad7546b7664786cff10d153860b47463fe2898494f933",
+        "owner_sha256": "69e35167688ace9d67064e07b4bc7e274514b3b013f000f3865f82cf291679e4",
+        "forward_seal": "83398942",
+        "computed_effective_owner_seal": "83398942",
+        "reverse_seal": "a0a86112",
+        "computed_source_seal": "a0a86112"
+      },
+      {
+        "source": "03_infra/src/export/tests/mod.rs",
+        "owner": "00_nucleo/prompts/infra/export/tests/mod.md",
+        "source_sha256": "cf7104ad758d652f131da1f5b1591305ad537a1cf2186d67f9c66d5edded86d4",
+        "owner_sha256": "870600b5ee51ea533542e966b7bf9125553bf27cacffd43a77b5b98a319ccb1b",
+        "forward_seal": "a241fb00",
+        "computed_effective_owner_seal": "a241fb00",
+        "reverse_seal": "ec135bb6",
+        "computed_source_seal": "ec135bb6"
+      },
+      {
+        "source": "03_infra/src/pipeline/bundle.rs",
+        "owner": "00_nucleo/prompts/infra/pipeline/bundle.md",
+        "source_sha256": "41f01ae2077ec6f4c6c6130bc7fa2d26c3cfba8e0f43e9e53223eeefa61be8d6",
+        "owner_sha256": "1bfb74e834fdc6d4b8333e124559a62248b1a36728fe2e189e526a73cca7f7d8",
+        "forward_seal": "2544b914",
+        "computed_effective_owner_seal": "2544b914",
+        "reverse_seal": "62d659d7",
+        "computed_source_seal": "62d659d7"
+      },
+      {
+        "source": "03_infra/src/pipeline/context_stabilization.rs",
+        "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+        "source_sha256": "a7a8c8e46df9e41a025dfe1cf426d2c0a72997c5b72d99987209aae2231b538b",
+        "owner_sha256": "259851eaa0b9fe6c054b4d0e9a250d52fe64401e953fbf4eca5a9136aba7110b",
+        "forward_seal": "b726dd74",
+        "computed_effective_owner_seal": "b726dd74",
+        "reverse_seal": "820c9375",
+        "computed_source_seal": "820c9375"
+      },
+      {
+        "source": "01_core/src/compiler/stdlib/mod.rs",
+        "owner": "00_nucleo/prompts/core/compiler/stdlib/mod.md",
+        "source_sha256": "505607e40ae9a1b2b7039f1479dd89439e49977a6c098f0409f8e392690436ea",
+        "owner_sha256": "87bdc69ef956b2c54dc3c13e348c4b70f92343792e909bacf2056e309e8235f7",
+        "forward_seal": "b12c60d5",
+        "computed_effective_owner_seal": "b12c60d5",
+        "reverse_seal": "c83d648e",
+        "computed_source_seal": "c83d648e"
+      },
+      {
+        "source": "01_core/src/compiler/stdlib/tests/figure_image.rs",
+        "owner": "00_nucleo/prompts/core/compiler/stdlib/tests/figure_image.md",
+        "source_sha256": "c2409b052811ccc7f114fbb9ca0548a87f58c461a1ac413f4b1f73c0b8c63ee6",
+        "owner_sha256": "d64df9c8bada04afa71eee959d568dc4588ed51ae86841f32aeb163b9fe1d59a",
+        "forward_seal": "7931e164",
+        "computed_effective_owner_seal": "7931e164",
+        "reverse_seal": "d94182f5",
+        "computed_source_seal": "d94182f5"
+      },
+      {
+        "source": "01_core/src/compiler/eval/bindings/field_access.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/bindings/field_access.md",
+        "source_sha256": "aeced4edbd00c1baa1e39a34c8981dd9bb9a16811995efe37a0046a6fd57b15d",
+        "owner_sha256": "681fa2a436db371b3c832a14166e434f48c706550a8477d71f0696c3c9b5f1f2",
+        "forward_seal": "5db1a3d1",
+        "computed_effective_owner_seal": "5db1a3d1",
+        "reverse_seal": "bae2d93c",
+        "computed_source_seal": "bae2d93c"
+      },
+      {
+        "source": "01_core/src/compiler/eval/mod.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/mod.md",
+        "source_sha256": "d6cc47d7bc24bee7d7f01aa96ba7bca94468ceb552018afe5df9919f7c61f0ad",
+        "owner_sha256": "da611ee22c712ee5a88474f16711c4390b17fb0b09c3ec6ba568fed71b8afffd",
+        "forward_seal": "db761ae7",
+        "computed_effective_owner_seal": "db761ae7",
+        "reverse_seal": "a1a8f0c7",
+        "computed_source_seal": "a1a8f0c7"
+      },
+      {
+        "source": "01_core/src/compiler/eval/tests.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/tests.md",
+        "source_sha256": "88501f361800e5a4aa4397ccd047d9ec20fe5b26b06cff46b4c4b395b397ba5b",
+        "owner_sha256": "48593477b94564ed703106b50465c75d93c6848efe1cda0719a88567583b874d",
+        "forward_seal": "e5db0966",
+        "computed_effective_owner_seal": "e5db0966",
+        "reverse_seal": "ce73c582",
+        "computed_source_seal": "ce73c582"
+      },
+      {
+        "source": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md",
+        "source_sha256": "78011abff9077ef5cbbef6a47ad2e4ffece69630373577df1f2fa3c715734aef",
+        "owner_sha256": "732356918fe0beba3d16a48e7d7061476a18ed0cec7a321a21c29c7721244b02",
+        "forward_seal": "8d534ae8",
+        "computed_effective_owner_seal": "8d534ae8",
+        "reverse_seal": "96fcb2fb",
+        "computed_source_seal": "96fcb2fb"
+      },
+      {
+        "source": "03_infra/src/export/html/document.rs",
+        "owner": "00_nucleo/prompts/infra/export/html/document.md",
+        "source_sha256": "b842efe75472126d39017485aa18756654a253ae23ce6445ff40c1fbf19453ab",
+        "owner_sha256": "409336c8c0511540ba80c43be810f63630131006403dbea981f83a15f249cc89",
+        "forward_seal": "a861e2f2",
+        "computed_effective_owner_seal": "a861e2f2",
+        "reverse_seal": "2f602cb5",
+        "computed_source_seal": "2f602cb5"
+      },
+      {
+        "source": "03_infra/src/pipeline/paged.rs",
+        "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+        "source_sha256": "e6eab01ba992f2247587ef63b4f81510ad0c4989a09a913af97b067394793849",
+        "owner_sha256": "45b4a4d32a8730a9125fae4a1364ccd84c2f8de1e20f24a79e7fe9062b0e9048",
+        "forward_seal": "0767b0e4",
+        "computed_effective_owner_seal": "0767b0e4",
+        "reverse_seal": "0008bec4",
+        "computed_source_seal": "0008bec4"
+      },
+      {
+        "source": "01_core/src/compiler/eval/observation/content.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/observation/content.md",
+        "source_sha256": "6e9b9e15449baef44528e536e9fabef7f2be0094af9f654b508a405d14bee624",
+        "owner_sha256": "3a1838c5fb31d5ac662bbd2597039e3c8980a3f62cfb97b2b972fa1016c51d3d",
+        "forward_seal": "5f083ff9",
+        "computed_effective_owner_seal": "5f083ff9",
+        "reverse_seal": "49064824",
+        "computed_source_seal": "49064824"
+      },
+      {
+        "source": "01_core/src/compiler/eval/observation/style.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/observation/style.md",
+        "source_sha256": "10e5d9821dc7159874386d6755d2a94675702f2584aab004bcc4c319c3973291",
+        "owner_sha256": "bdae098f985023a44e340c62f7bab70f4690563df155b85fce6fb578feadcadd",
+        "forward_seal": "008c08de",
+        "computed_effective_owner_seal": "008c08de",
+        "reverse_seal": "8dac7d35",
+        "computed_source_seal": "8dac7d35"
+      },
+      {
+        "source": "01_core/src/entities/style_chain.rs",
+        "owner": "00_nucleo/prompts/core/entities/style_chain.md",
+        "source_sha256": "8aba5e406eb18b64467be93192f20cc0b50f07781be48c0476573e2f7f54aadf",
+        "owner_sha256": "845460aba182e4b21c295ddc2e7841a8e55c8fd5ad804dcbe2c0afe030f0e8c7",
+        "forward_seal": "be6fefe5",
+        "computed_effective_owner_seal": "be6fefe5",
+        "reverse_seal": "073e809d",
+        "computed_source_seal": "073e809d"
+      },
+      {
+        "source": "01_core/src/compiler/realize/reference_supplements.rs",
+        "owner": "00_nucleo/prompts/core/compiler/realize/reference_supplements.md",
+        "source_sha256": "e1973e0d45ac34c86aa11f03ce74bb706281bc9088db7dec5d082324db1b95ca",
+        "owner_sha256": "50e25044078d62272ef52d14cfe15e840fdfc3f1022b58886c4414304f15f680",
+        "forward_seal": "8d2730c8",
+        "computed_effective_owner_seal": "8d2730c8",
+        "reverse_seal": "89318571",
+        "computed_source_seal": "89318571"
+      },
+      {
+        "source": "01_core/src/compiler/realize/context_occurrences.rs",
+        "owner": "00_nucleo/prompts/core/compiler/realize/context_occurrences.md",
+        "source_sha256": "6552a173b5352293def6803bf747083a576dea36b3edb20bec4b0ed2f687c548",
+        "owner_sha256": "c1ebdbc6b5b0e84eddcdbeab8e42dc8ad878fca264ad5fe1d0c3a1bfbc1b1824",
+        "forward_seal": "5e12e958",
+        "computed_effective_owner_seal": "5e12e958",
+        "reverse_seal": "ed023763",
+        "computed_source_seal": "ed023763"
+      },
+      {
+        "source": "03_infra/src/pipeline.rs",
+        "owner": "00_nucleo/prompts/infra/pipeline.md",
+        "source_sha256": "2bfdcc544bfaaab8a9a1cfe17b698fb5c96052bac684c0948efa8f24e6c8739a",
+        "owner_sha256": "4c7d7b3bc13a850c5cc10985817871b1bc14c6baee75c4a8a89407c87294684f",
+        "forward_seal": "4dfbf129",
+        "computed_effective_owner_seal": "4dfbf129",
+        "reverse_seal": "dde3a132",
+        "computed_source_seal": "dde3a132"
+      },
+      {
+        "source": "03_infra/src/integration_tests.rs",
+        "owner": "00_nucleo/prompts/infra/integration_tests.md",
+        "source_sha256": "c43eac1a310dd5fc4541a293e0f20ab86dd8141347e7d4ae69a50301b3f6a393",
+        "owner_sha256": "286356f79b830571ab1990138cab42386476641ea6bbcfc3602bba6c8bc4e431",
+        "forward_seal": "556862a9",
+        "computed_effective_owner_seal": "556862a9",
+        "reverse_seal": "0b1b51d0",
+        "computed_source_seal": "0b1b51d0"
+      },
+      {
+        "source": "01_core/src/compiler/eval/context_reads.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/context_reads.md",
+        "source_sha256": "123ccebf799acb72480e58e3ca542a091f265e6518a87980d3abd684646e421d",
+        "owner_sha256": "49a6767556349695727ae2de1948b5d5f5cd20cf0e85665a3f956194b7f21fd7",
+        "forward_seal": "26931f3f",
+        "computed_effective_owner_seal": "26931f3f",
+        "reverse_seal": "4553a1e9",
+        "computed_source_seal": "4553a1e9"
+      },
+      {
+        "source": "01_core/src/compiler/eval/expression_dispatch.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+        "source_sha256": "63782d8546aaf03e6eab345936051a69816f281a2928ca8b07dfc52b9f2ba1a5",
+        "owner_sha256": "0cc1eaf18f0ec4cdffa3979137ba0d8e03911f6ff01d1cc065ae58d1e971bbd1",
+        "forward_seal": "0b9929a7",
+        "computed_effective_owner_seal": "0b9929a7",
+        "reverse_seal": "38506014",
+        "computed_source_seal": "38506014"
+      },
+      {
+        "source": "01_core/src/compiler/eval/markup_stream.rs",
+        "owner": "00_nucleo/prompts/core/compiler/eval/markup_stream.md",
+        "source_sha256": "3040b69f046c928a2a23926cce0bfe289adcdae6be204bd06caffdc033674bb9",
+        "owner_sha256": "96c34aaeb0a6d52b80b762ceb529194be556e1508a05f612df49e3acad9e4c9f",
+        "forward_seal": "32fd9b29",
+        "computed_effective_owner_seal": "32fd9b29",
+        "reverse_seal": "16f4e8e2",
+        "computed_source_seal": "16f4e8e2"
+      }
+    ]
+  },
+  "strict_observation_review": {
+    "source": "01_core/src/compiler/eval/context_reads.rs:150-228",
+    "admission": "Only private ReferenceTargetEligibility and exact 3-slot [None|Location, exact Figure Counter key, Bool] payload. Other values use unchanged generic observation.",
+    "kind_proof": "Exact native_figure typed pointer and one kind field; FigureKind capability observation retains immutable representation, metadata, namespace, and diagnostic span distinctions. No nominal-only equality proof.",
+    "selector_proof": "Generic function observation plus explicit outer diagnostic Span comparison; Changed metadata is Different and opaque independent capability remains Unproven.",
+    "read_causality": "Real label Location, actual counter-key presence/value and bibliography membership recorded; no fake CounterAt, cache or omitted read."
+  },
+  "lexical_origin_review": {
+    "producer": "01_core/src/compiler/realize/reference_supplements.rs:108-120,193-203,251-277",
+    "proof": "Original Ref source Span is stored inside immutable bound Value::Content(Source(Ref)), not merely invocation Args.span, which the With call replaces. Exact raw marker recognizes Ref or single Source(Ref); detached synthetic fallback retains Args.span.",
+    "evaluation": "Expression dispatch retains lexical Ref Source; markup sequence retains Source(Ref). Existing source_styles transport carries lexical origin through inherited styles and show callbacks.",
+    "layout": "Private current_source_span enters/restores source wrappers and is checkpointed/restored; no new public field or API.",
+    "limits": "This review checks stored source contracts and shape; actual error-origin and state-restoration gates are root validation evidence, not inferred completed results."
+  },
+  "internal_proof_and_corrections": {
+    "scoped_only": true,
+    "generic_Func_Value_Counter_observers_unchanged": true,
+    "root_only_reference_transport": true,
+    "ContextBlock_source_query_not_fabricated": true,
+    "public_Ref_entity_and_generic_maps_unchanged": true,
+    "actual_template_sites_fresh_retry_slots_stable": true,
+    "Located_aliases_retain_actual_Location": true,
+    "dormant_visual_supplement_omitted_original_template_retained": true,
+    "source_catalogues_exhaustive": "Causal new pipeline ordered_blocks catch-all replaced by closed Content catalogue in reseal4; this does not authorize ignoring preexisting V16.",
+    "new_allow_expect_attributes": [],
+    "new_ignored_tests": [],
+    "linter_config_cargo_manifest_lockfile_unchanged": true
+  },
+  "conclusion": "No unapproved external API, entity, default mode, target, dependency, generic observer merge, or alert suppression found in these exact 62 source/L0 pairs. The Ref phase is implemented under the later explicit approval; the historical55 audit still accurately predates that extension."
+}

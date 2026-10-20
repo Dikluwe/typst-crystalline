@@ -1,0 +1,144 @@
+{
+  "utc": "2026-10-20T01:36:54.473093+00:00",
+  "historical_build_receipt_sha256": "1b2908f17b94f276ef1d0b6ade5c92a38744f53152d026fc2a495d194a5cab8e",
+  "historical_binary_sha256": "9d441003a1fb8cc1b0ba27c254563a0a89d06ae08f4112ffd094e53cb0465021",
+  "current_source_claim": false,
+  "production_fix_already_present_before_independent_sources_froze": true,
+  "matrices": [
+    {
+      "matrix": "show-origin-matrix.json",
+      "matrix_sha256": "c7291503fd713f31aa77c78f30e88e507089c79b1d3bdcd45219ba1cb8208fb5",
+      "oracle_receipt": "show-origin-oracle/receipt.json",
+      "oracle_receipt_sha256": "2a7fc19864a6eb38c69ee76a46bc0016df4917965a23de4c8e2f7e7810813a7d",
+      "product_receipt": "show-origin-product-7/receipt.json",
+      "product_receipt_sha256": "d939805916b5c0f16e791b58cb66bd939b4988ed6fb2ff15a4b12ec18750ec31",
+      "policy": "show-origin-policies.json",
+      "policy_sha256": "f6c6e8500700e269e26dffa21de51474f36bac7dd1ca3536025317387fd28a3a",
+      "cases": [
+        {
+          "name": "show-origin-identity-multiline",
+          "expected_message": "label `<oldmissing>` does not exist in the document",
+          "actual_message": "label `<oldmissing>` does not exist in the document",
+          "expected_origin": [
+            5,
+            0
+          ],
+          "actual_origin": [
+            2,
+            2
+          ],
+          "checks": {
+            "termination": true,
+            "message": true,
+            "origin": false
+          },
+          "pass": false
+        },
+        {
+          "name": "show-origin-new-native-multiline",
+          "expected_message": "maximum show rule depth exceeded",
+          "actual_message": "label `<newmissing>` does not exist in the document",
+          "expected_origin": [
+            2,
+            2
+          ],
+          "actual_origin": [
+            5,
+            0
+          ],
+          "checks": {
+            "termination": true,
+            "message": false,
+            "origin": false
+          },
+          "pass": false
+        },
+        {
+          "name": "show-origin-original-alias-multiline",
+          "expected_message": "label `<oldmissing>` does not exist in the document",
+          "actual_message": "label `<oldmissing>` does not exist in the document",
+          "expected_origin": [
+            1,
+            11
+          ],
+          "actual_origin": [
+            3,
+            2
+          ],
+          "checks": {
+            "termination": true,
+            "message": true,
+            "origin": false
+          },
+          "pass": false
+        },
+        {
+          "name": "show-origin-other-alias-multiline",
+          "expected_message": "maximum show rule depth exceeded",
+          "actual_message": "label `<aliasmissing>` does not exist in the document",
+          "expected_origin": [
+            1,
+            13
+          ],
+          "actual_origin": [
+            1,
+            13
+          ],
+          "checks": {
+            "termination": true,
+            "message": false,
+            "origin": true
+          },
+          "pass": false
+        }
+      ]
+    },
+    {
+      "matrix": "show-origin-selected-matrix.json",
+      "matrix_sha256": "e2c6110ce60b6c02cb37326482469029ee3cdadffb957a86e9f1bd1d50b10baa",
+      "oracle_receipt": "show-origin-selected-oracle/receipt.json",
+      "oracle_receipt_sha256": "9ae5b125bf8c2133506f936d7e707de559f7ff3890242a97885c93fbb621789e",
+      "product_receipt": "show-origin-selected-product-7/receipt.json",
+      "product_receipt_sha256": "8d72a29e389fb91bab1becb39d7cba3a6538a6c14d9c317e63f68155496375c8",
+      "policy": "show-origin-selected-policies.json",
+      "policy_sha256": "18fea3abef03e237787b2ae458db12c36cf513479c68f9af713703167ab99a53",
+      "cases": [
+        {
+          "name": "show-origin-new-label-selected",
+          "expected_message": "label `<newmissing>` does not exist in the document",
+          "actual_message": "label `<newmissing>` does not exist in the document",
+          "expected_origin": [
+            2,
+            2
+          ],
+          "actual_origin": null,
+          "checks": {
+            "termination": true,
+            "message": true,
+            "origin": false
+          },
+          "pass": false
+        },
+        {
+          "name": "show-origin-other-label-selected",
+          "expected_message": "label `<aliasmissing>` does not exist in the document",
+          "actual_message": "label `<aliasmissing>` does not exist in the document",
+          "expected_origin": [
+            1,
+            13
+          ],
+          "actual_origin": [
+            1,
+            13
+          ],
+          "checks": {
+            "termination": true,
+            "message": true,
+            "origin": true
+          },
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

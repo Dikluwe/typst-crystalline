@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/populate.md
-//! @prompt-hash 32419973
+//! @prompt-hash f1ab504f
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -23,6 +23,10 @@ pub(super) fn populate_intr_from_tag_start(
     if let Some(label) = &info.label {
         intr.labels.add(label.clone(), loc);
     }
+    let first_label = info
+        .label
+        .as_ref()
+        .filter(|label| intr.labels.lookup(label) == Some(loc));
     // Guardar a ação efetiva, antes de materializar snapshots. Escritas
     // auxiliares (figure:kind) não são novas ocorrências automáticas.
     let automatic = match &info.payload {
@@ -82,46 +86,43 @@ pub(super) fn populate_intr_from_tag_start(
             // P788 — flag de numbering por Location (alimenta o erro
             // vanilla `cannot reference heading without numbering`).
             intr.heading_numbering.insert(loc, *numbering_active);
-            if let Some(label) = &info.label {
+            if let Some(label) = first_label {
                 intr.label_to_counter_key.insert(
                     label.clone(),
                     CounterKey::Selector(Selector::Kind(ElementKind::Heading)),
                 );
             }
         }
-        ElementPayload::Figure { kind, counter_update, is_counted, caption_text } => {
+        ElementPayload::Figure {
+            kind, counter_update, is_counted, caption_text, ..
+        } => {
             intr.kind_index.entry(ElementKind::Figure).or_default().push(loc);
-            // P191C (ADR-0071 ACEITE): counter populated apenas quando
-            // `is_counted` (numbering+caption). Alinha com legacy
-            // `state.figure_numbers` que só regista figuras counted
-            // (introspect.rs walk arm Figure pre-P191C). Pre-P191C
-            // populate era unconditional — divergência latente
-            // ocultada porque `compute_labelled` Figure arm lia
-            // `state.figure_numbers`. Após P191C `compute_labelled`
-            // usa Introspector path; gate restaurado por paridade
-            // semântica.
             if *is_counted {
-                let kind_key = kind.as_deref().unwrap_or("image");
-                let counter_key = CounterKey::Str(format!("figure:{}", kind_key).into());
                 let figure_key =
                     CounterKey::Selector(Selector::Kind(ElementKind::Figure));
                 intr.counters
-                    .apply_at(counter_key.clone(), counter_update.clone(), loc);
-                intr.counters
                     .apply_at(figure_key.clone(), counter_update.clone(), loc);
-                // **P472** — popular figures_for_lof com (número, caption).
-                let num = intr
-                    .counters
-                    .value_at(&figure_key, loc)
-                    .and_then(|v| v.last().copied())
-                    .unwrap_or(0);
                 if let Some(cap) = caption_text {
+                    let num = intr
+                        .counters
+                        .value_at(&figure_key, loc)
+                        .and_then(|v| v.last().copied())
+                        .unwrap_or(0);
                     intr.figures_for_lof.push((num, cap.clone()));
                 }
-                if let Some(label) = &info.label {
-                    let next_num = intr.figure_label_numbers.len() + 1;
-                    intr.figure_label_numbers.entry(label.clone()).or_insert(next_num);
-                    intr.label_to_counter_key.insert(label.clone(), counter_key);
+                if let Some(label) = first_label {
+                    let resolved = kind.clone().unwrap_or_else(|| {
+                        crate::entities::elements::figure::FigureKind::Element(
+                            crate::entities::func::Func::native(
+                                "image",
+                                crate::compiler::stdlib::native_image,
+                            ),
+                        )
+                    });
+                    intr.label_to_counter_key.insert(
+                        label.clone(),
+                        super::figure_counters::figure_counter_key(&resolved),
+                    );
                 }
             }
         }
@@ -224,7 +225,7 @@ pub(super) fn populate_intr_from_tag_start(
                     counter_update.clone(),
                     loc,
                 );
-                if let Some(label) = &info.label {
+                if let Some(label) = first_label {
                     intr.label_to_counter_key.insert(
                         label.clone(),
                         CounterKey::Selector(Selector::Kind(ElementKind::Equation)),
@@ -234,7 +235,7 @@ pub(super) fn populate_intr_from_tag_start(
             // P856 — equation com label mas sem numbering: regista como não
             // referenciável para emitir erro paridade vanilla.
             if *block && !*numbering_active {
-                if let Some(label) = &info.label {
+                if let Some(label) = first_label {
                     intr.unreferencable_labels.insert(
                         label.clone(),
                         UnreferencableKind::EquationWithoutNumbering,
@@ -269,7 +270,7 @@ pub(super) fn populate_intr_from_tag_start(
                 if let Some(cap) = caption_text {
                     intr.tables_for_lot.push((num, cap.clone()));
                 }
-                if let Some(label) = &info.label {
+                if let Some(label) = first_label {
                     intr.label_to_counter_key.insert(label.clone(), table_key);
                 }
             }
@@ -281,7 +282,7 @@ pub(super) fn populate_intr_from_tag_start(
                 CounterKey::Selector(Selector::Kind(ElementKind::Footnote));
             intr.counters
                 .apply_at(footnote_key.clone(), counter_update.clone(), loc);
-            if let Some(label) = &info.label {
+            if let Some(label) = first_label {
                 intr.label_to_counter_key.insert(label.clone(), footnote_key);
             }
         }

@@ -1,0 +1,118 @@
+{
+  "utc": "2026-10-20T02:33:51.644587+00:00",
+  "classification": "Approved contextual Ref phase fixture migration only; no productive change, target invention, public API or helper change.",
+  "before_state": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-legacy-fixture-before.json.gz",
+  "before_sha256": "db6027c96210316c68b1b57e4f5925c652dcb9952ec35175282537323c57a007",
+  "after_format_state": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-legacy-fixture-after-format.json",
+  "after_format_sha256": "c5d6ac05dc0c07039d24614d8404496649b890ec4e8765a237d54275644ad0f0",
+  "red": {
+    "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/validation-final/tests-domain-infra.log",
+    "sha256": "b1cebf8c9ddeac5bf8459412d80667986081fe0f6a2f33474eee968ce8f0375b",
+    "core_failure_lines": [
+      754,
+      7728,
+      7730
+    ],
+    "infra_default_failure_lines": [
+      8567,
+      9164,
+      9166
+    ],
+    "infra_explicit_failure_lines": [
+      8570,
+      9169,
+      9171
+    ],
+    "erratum": "The before archive mentions a separate tests-domain-core.log; both actual core and infra REDs reside in this single full workspace log."
+  },
+  "green": [
+    {
+      "case": "core",
+      "state": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/legacy-fixture-green-core/state.json.gz",
+      "state_sha256": "df409d1187561a2423ca9edc7c98da4b309f67c974e8a88557ec9846ce7754dd",
+      "log": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/legacy-fixture-green-core/tests.log",
+      "log_sha256": "90c233b3e16c01948c32fcf00042b54579f671c4063eb9c95229fbb264d7156b",
+      "utc_start": "2026-10-20T02:29:54.353382+00:00",
+      "utc_end": "2026-10-20T02:31:58.539284+00:00",
+      "passed": 1,
+      "failed": 0,
+      "changed_inputs": [],
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-core",
+        "--lib",
+        "eval_ref_gera_content_ref",
+        "--",
+        "--test-threads=1"
+      ]
+    },
+    {
+      "case": "infra-default",
+      "state": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/legacy-fixture-green-infra-default/state.json.gz",
+      "state_sha256": "01ca8b15ae2b34e601eee069c110c0d61311265bea368aa471639ade9ddec6ad",
+      "log": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/legacy-fixture-green-infra-default/tests.log",
+      "log_sha256": "11be139323692616ab338a75b6627d8294c91f2d9f0a5f9054bb962d66707b55",
+      "utc_start": "2026-10-20T02:31:58.764694+00:00",
+      "utc_end": "2026-10-20T02:33:10.519373+00:00",
+      "passed": 1,
+      "failed": 0,
+      "changed_inputs": [],
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-infra",
+        "--lib",
+        "p788_ref_happy_path_section_en",
+        "--",
+        "--test-threads=1"
+      ]
+    },
+    {
+      "case": "infra-explicit",
+      "state": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/legacy-fixture-green-infra-explicit/state.json.gz",
+      "state_sha256": "8e5d883042d6290d6fc5d1b1eecd2c77f070886bf4b14e94cdd10834fd6ad282",
+      "log": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/legacy-fixture-green-infra-explicit/tests.log",
+      "log_sha256": "a7645ab29a393647bc2332e1838ab54080cab18d488ca328c5f1d29ed8c199f2",
+      "utc_start": "2026-10-20T02:33:10.759592+00:00",
+      "utc_end": "2026-10-20T02:33:11.290068+00:00",
+      "passed": 1,
+      "failed": 0,
+      "changed_inputs": [],
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-infra",
+        "--lib",
+        "p788_ref_suplemento_explicito",
+        "--",
+        "--test-threads=1"
+      ]
+    }
+  ],
+  "preserved": {
+    "core_source": "@meu_label",
+    "core_fields": [
+      "Normal Ref",
+      "name meu_label",
+      "no supplement",
+      "canonical Location equals actual classified producer Location",
+      "bound raw Ref lexical source range0..10",
+      "no diagnostics"
+    ],
+    "infra_default_source": "#set heading(numbering: \"1.\")\n= Título <sec1>\nVer @sec1 no texto.",
+    "infra_default_predicate": "contains Section 1 and does not contain Secção",
+    "infra_explicit_source": "#set heading(numbering: \"1.\")\n= Título <sec1>\nVer @sec1[Cap] no texto.",
+    "infra_explicit_predicate": "contains Cap 1"
+  },
+  "limits": "Focused GREEN only; no assertion that full12, global parity or F closure is complete."
+}

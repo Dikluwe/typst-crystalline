@@ -1,0 +1,13 @@
+{
+  "status": "Independent source-origin hypothesis control; previous31+4+2 immutable.",
+  "cases": [
+    {
+      "name": "nested-missing-reference-origin",
+      "source": "#block[@missing]\n",
+      "goal": "missing reference nested in a generic container retains its own lexical Ref source origin",
+      "query": false,
+      "target": "pdf",
+      "extras": {}
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/expression_dispatch
-Hash do Código: 4864ea2d
+Hash do Código: 38506014
 
 
 
@@ -508,3 +508,21 @@ public fields/has/at/func behavior. Source tests cover numbering-only inheritanc
 explicit none, explicit update, callback opacity and the original positive case.
 The supplementary positive RED already captured before this producer change is
 still required to turn GREEN; the inheritance controls must remain negative.
+
+## Exact Ref creation origin for delayed selected supplements
+
+Measured reference-origin-product-2 reports nested #block[@missing] with correct
+error text but no source origin, while pinned oracle reports line1 column7.
+expression_dispatch.rs:524–535 creates raw Ref; eval_expr's source wrapper only
+covered blocks or deferred show-bearing content. Retain first actual expression
+span for Value::Content with Ref source root using existing transparent Source
+carrier, including native ref calls/aliases. with_source_span preserves an existing
+first origin. No public field, runtime phase or guessed container-span substitute.
+Owning markup insertion preserves this carrier through flattening. Actual lexical
+origin control, fields/morphology and single occurrence remain acceptance.
+
+Measured stage3 linter reports V17 at expression_dispatch.rs:66 for the compound
+Value::Content guard. Keep the same proven Ref/block/deferred admission inside
+the explicit Content arm body; unadmitted Content passes unchanged. This removes
+the guarded multi-condition decision without suppressing the alert or changing
+which source spans are retained. Stage3 compilation failed before semantic tests.

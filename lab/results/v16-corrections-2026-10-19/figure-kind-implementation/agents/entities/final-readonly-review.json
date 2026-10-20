@@ -1,0 +1,57 @@
+{
+  "utc": "2026-10-19T23:39:47.282851+00:00",
+  "mode": "read-only source audit; no Cargo",
+  "inputs": {
+    "01_core/src/compiler/realize/figure_kind.rs": "6455891cee98475739ab15f28d4dddfd6c57ceec7bce613b328df0bc7840ded3",
+    "01_core/src/compiler/realize/figure.rs": "ff401308f9d4fff7c3e45ce9b3c8a2984daa7594f8d7785ce063e808fc79e1e5",
+    "01_core/src/compiler/realize/recipes.rs": "c32ebe02999179282468fadf5dd7387e069aa33bbe530d16a6d6400cbe0acd65",
+    "01_core/src/compiler/eval/rules/apply.rs": "3e6dc5750b97d20092a677017316224aba6cf95886934f39c805a1ab1be6d6bd",
+    "01_core/src/compiler/eval/rules/set.rs": "cd7dcc97aaf075a6274c516c668412546b5474162c4f7786d30eb8230ad3fad5",
+    "01_core/src/compiler/eval/operators/equality.rs": "93207bb46eace4131238d93a2a7290fea4da93bdf42fdb94be70379baf02a4a3",
+    "01_core/src/compiler/eval/selector_matching.rs": "8bc18741bbd6b9e7d924078d986e7d4aba2be0540eba4f94e3733a388378be65",
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs": "0ecd4adabfb771aa369951f24a4b371321cd1ac478780fd2295ffe1b1ed1bfc4",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/structural.py": "c7ef95251b66e4c64f7c56ea4c8f07825e97eabd7238540a5306a11f29ce06e3",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/structural-targets.json": "5fc84de98873a2a7083d432f33e6a4b71f53458445df1aac172384feb986c893"
+  },
+  "conclusion": "No additional concrete implementation defect identified in the reviewed Figure typed-kind, semantic traversal, identity and phase routes after the reported corrections. Runtime and structural execution gates remain root-owned.",
+  "confirmed_fixes": [
+    "Grid HLine/VLine descriptors now contribute nodes in original accepted order.",
+    "Known represented native roots, including FigureCaption/FootnoteEntry and Circle origin, are eligible exact targets; generic Geometry is not guessed.",
+    "Grid invariant validation applies to explicit kind/name paths without entering opaque Dictionary/Context/Dynamic content.",
+    "All eight annotation fields require annotation_explicit before contributing semantic children.",
+    "Kind preview is immutable, final preparation uses folded show-set styles, and callback receives final prepared occurrence before own replacement.",
+    "Returned prepared aliases retain resolved state; reusable raw occurrences derive effective styles independently.",
+    "Supplement callbacks use known styles/no location and existing display conversion, with context restoration on success/error.",
+    "Figure kind filter and content-field equality use nominal typed identity while generic Func equality retains its prior behavior."
+  ],
+  "structural_target_audit": {
+    "expected_targets": 9,
+    "anchors": [
+      "semantic_children Content match",
+      "inspect_value Value match",
+      "kind_value FigureKind match",
+      "semantic_children GridChildOrder match",
+      "validate_grid GridChildOrder match",
+      "figure_demands visit Content match",
+      "figure_counter_key FigureKind match",
+      "FigureKind Eq outer match",
+      "FigureKind Hash outer match"
+    ],
+    "method": "Worker mutates real Content/Value/FigureKind/GridChildOrder enums in complete copied workspaces. Each selected witness requires E0004 primary exact file/line/byte. Unrelated errors cannot satisfy targets; non-E0004 errors reject run.",
+    "baseline_limit": "Old infer_kind wildcard expects zero selected E0004 while unrelated exhaustive source matches can still reject the enum extension.",
+    "scope_limit": "These are structural witnesses of nine actual decisions, not evidence that every current variant executes in runtime tests or that every nested match has its own selected probe."
+  },
+  "explicit_retained_limits": [
+    "Supplement-dependent selector preview is not certified.",
+    "Caption omission/explicit-none and complete caption synthesis remain incomplete.",
+    "External Dynamic field enumeration is opaque; generic Geometry does not invent erased square/rect/ellipse identity.",
+    "Mixed native Table header/ordinary-cell supplemental target order remains bounded debt.",
+    "Standalone HTML implicit caption/reference formatting and complete numbering-function visual prefixes remain outside full parity certification."
+  ],
+  "structural_followup": {
+    "utc": "2026-10-19T23:40:14.027605+00:00",
+    "productive_targets": 8,
+    "target_sha256": "5fc84de98873a2a7083d432f33e6a4b71f53458445df1aac172384feb986c893",
+    "correction": "The kind_value helper was unused and removed before execution. Its match cannot certify productive behavior. The remaining eight anchors are unchanged real decisions; prior nine-target source audit is retained as chronology, not a final execution claim."
+  }
+}

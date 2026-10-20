@@ -1,0 +1,32 @@
+    Finished `test` profile [unoptimized] target(s) in 0.14s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 12 tests
+test compiler::layout::tests::p462_ref_numeric::external_link_still_uses_url_target ... ok
+test compiler::layout::tests::p462_ref_numeric::labelled_path_not_resolved_numerically ... ok
+test compiler::layout::tests::p462_ref_numeric::p1073_ref_supplements_pt ... ok
+test compiler::layout::tests::p462_ref_numeric::p1073_ref_table_supplements_en_e_pt ... ok
+test compiler::layout::tests::p462_ref_numeric::p1078_ref_heading_supplement_pt_secao ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_renders_as_frame_item_link_with_destination ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_resolves_equation_number ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_resolves_figure_number ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_resolves_heading_number ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_resolves_table_number ... ok
+test compiler::layout::tests::p462_ref_numeric::ref_supplement_explicit_overrides_default ... FAILED
+test compiler::layout::tests::p462_ref_numeric::ref_unknown_label_renders_question_mark ... ok
+
+failures:
+
+---- compiler::layout::tests::p462_ref_numeric::ref_supplement_explicit_overrides_default stdout ----
+
+thread 'compiler::layout::tests::p462_ref_numeric::ref_supplement_explicit_overrides_default' (2134191) panicked at 01_core/src/compiler/layout/tests.rs:21147:9:
+supplement explicito deve sobrescrever default: [img]  Figure 1: legenda  Figura   1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    compiler::layout::tests::p462_ref_numeric::ref_supplement_explicit_overrides_default
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 7700 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p typst-core --lib`

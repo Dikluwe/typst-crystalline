@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/document.md
-//! @prompt-hash 70e739df
+//! @prompt-hash a861e2f2
 //! @layer L3
 //! @updated 2026-10-07
 
@@ -28,7 +28,14 @@ pub(super) fn export_html_with_frame_resolver(
         .map_content(&mut |node| {
             Ok(match node {
                 Content::Located(e) => Some(e.body.clone()),
-                Content::Realized(e) => Some(e.visual.clone()),
+                Content::Realized(e) => Some(if figure_origin(&e.original) {
+                    Content::Sequence(
+                        vec![Content::Parbreak, e.visual.clone(), Content::Parbreak]
+                            .into(),
+                    )
+                } else {
+                    e.visual.clone()
+                }),
                 Content::ShowRecipe(e) => Some(e.body.clone()),
                 Content::Label(e) => Some(e.body.clone()),
                 Content::State(_) | Content::StateUpdate(_) | Content::Metadata(_) => {
@@ -58,6 +65,23 @@ pub(super) fn export_html_with_frame_resolver(
         };
 
     compact.map(|html| if pretty { pretty_html(&html) } else { html })
+}
+
+// Keep only the measured Figure show-product boundary, never its consumed body.
+fn figure_origin(mut content: &Content) -> bool {
+    loop {
+        if let Content::Source(source) = content {
+            content = &source.body;
+        } else if let Content::ShowRecipe(recipe) = content {
+            content = &recipe.body;
+        } else if let Content::Located(located) = content {
+            content = &located.body;
+        } else if let Content::Styled(styled) = content {
+            content = &styled.body;
+        } else {
+            return matches!(content, Content::Figure(_));
+        }
+    }
 }
 
 fn explicit_document_root<'a>(
@@ -444,5 +468,116 @@ mod a1_introspection_projection {
             None,
         )
         .is_err());
+    }
+}
+
+#[cfg(test)]
+mod figure_product_morphology {
+    use super::*;
+    use std::sync::Arc;
+    use typst_core::entities::{
+        content::{LocatedContent, RealizedContent},
+        locator::Locator,
+        style::Styles,
+    };
+
+    fn product(visual: Content, figure: bool) -> Content {
+        let original = if figure {
+            Content::figure(Content::text("unrendered"), None, None, None)
+        } else {
+            Content::heading(1, Content::text("unrendered"))
+        };
+        Content::Realized(Arc::new(RealizedContent {
+            original: Content::Located(Arc::new(LocatedContent {
+                body: Content::styled(Box::new(original), Styles::default()),
+                location: Locator::new().next(),
+            })),
+            visual,
+        }))
+    }
+    fn paragraph_payloads(content: &Content) -> Vec<String> {
+        let html = export_html_with_frame_resolver(
+            content,
+            HtmlSerializationMode::Vanilla,
+            false,
+            None,
+        )
+        .unwrap();
+        regex::Regex::new(r"<p>(.*?)</p>")
+            .unwrap()
+            .captures_iter(&html)
+            .map(|capture| capture[1].to_string())
+            .collect()
+    }
+
+    #[test]
+    fn figure_html_show_products_keep_paragraphs_and_rich_inline_morphology() {
+        let content = Content::sequence(vec![
+            Content::text("A "),
+            product(Content::text("X"), true),
+            Content::text(" B "),
+            product(Content::strong(Content::text("Y")), true),
+            Content::text(" C"),
+        ]);
+        assert_eq!(
+            paragraph_payloads(&content),
+            ["A", "X", "B", "<strong>Y</strong>", "C"]
+        );
+        let adjacent = Content::sequence(vec![
+            product(Content::text("X"), true),
+            product(Content::text("Y"), true),
+        ]);
+        assert_eq!(paragraph_payloads(&adjacent), ["X", "Y"]);
+    }
+
+    #[test]
+    fn figure_html_captured_showrecipe_original_keeps_real_source_paragraphs() {
+        use typst_core::entities::{
+            content::ShowRecipeContent, source::Source, style_chain::StyleChain,
+        };
+        let captured = |visual| {
+            let base = product(visual, true);
+            let Content::Realized(done) = base else { unreachable!() };
+            Content::Realized(Arc::new(RealizedContent {
+                original: Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                    body: done.original.clone(),
+                    textual: true,
+                    context_id_floor: 0,
+                    rules: Arc::from([]),
+                    styles: StyleChain::default_chain(),
+                    guards: vec![],
+                    file: Source::detached("").id(),
+                })),
+                visual: done.visual.clone(),
+            }))
+        };
+        let content = Content::sequence(vec![
+            captured(Content::text("raw")),
+            Content::SpaceFromNewline,
+            captured(Content::text("table")),
+        ]);
+        assert_eq!(paragraph_payloads(&content), ["raw", "table"]);
+        let rich = Content::sequence(vec![
+            Content::text("A "),
+            captured(Content::strong(Content::text("X"))),
+            Content::text(" B"),
+        ]);
+        assert_eq!(paragraph_payloads(&rich), ["A", "<strong>X</strong>", "B"]);
+    }
+
+    #[test]
+    fn figure_html_empty_product_keeps_boundary_and_nonfigure_product_stays_inline() {
+        let hidden = Content::sequence(vec![
+            Content::text("A "),
+            product(Content::Empty, true),
+            Content::text(" B"),
+        ]);
+        assert_eq!(paragraph_payloads(&hidden), ["A", "B"]);
+        let heading = Content::sequence(vec![
+            Content::text("A "),
+            product(Content::text("X"), false),
+            Content::text(" B"),
+        ]);
+        assert_eq!(paragraph_payloads(&heading), ["A X B"]);
     }
 }

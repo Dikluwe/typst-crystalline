@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/mod.md
-//! @prompt-hash c4584ce9
+//! @prompt-hash a241fb00
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -9334,11 +9334,28 @@ fn pdf_label_posicao_y_up_no_dests() {
 fn pdf_label_auto_e_user_geram_dests() {
     // P464: figure auto-labelled (ex-sintaxe `<fig>`) + user label
     // (`#label(...)`) devem ambos produzir entradas em /Dests.
-    let fig = Content::figure(
-        Content::text("Corpo"),
-        Some(Content::text("Legenda")),
-        Some("image".to_string()),
-        Some("1".to_string()),
+    let fig = Content::styled(
+        Box::new(Content::Figure(std::sync::Arc::new(
+            typst_core::entities::elements::figure::FigureElem {
+                body: Content::text("Corpo"),
+                caption: Some(Content::text("Legenda")),
+                kind: Some(Some(
+                    typst_core::entities::elements::figure::FigureKind::Element(
+                        typst_core::entities::func::Func::native(
+                            "image",
+                            typst_core::compiler::stdlib::native_image,
+                        ),
+                    ),
+                )),
+                resolved_kind: None,
+                supplement: None,
+                resolved_supplement: None,
+            },
+        ))),
+        typst_core::entities::style::Styles::new().push_custom(
+            "figure.numbering",
+            typst_core::entities::value::Value::Str("1".into()),
+        ),
     );
     let content = Content::Sequence(
         vec![

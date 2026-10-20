@@ -1,0 +1,31 @@
+{
+  "cases": {
+    "styled-nested-missing-reference-origin": {
+      "class": "required-error",
+      "message": "label `<missing>` does not exist in the document",
+      "origin": [
+        2,
+        7
+      ],
+      "criterion": "retained inherited style frame must preserve nested lexical Ref source origin"
+    },
+    "show-alias-missing-reference-origin": {
+      "class": "required-error",
+      "message": "label `<missing>` does not exist in the document",
+      "origin": [
+        2,
+        0
+      ],
+      "criterion": "identity show alias preserves original Ref source span through replacement guards"
+    },
+    "constructor-missing-reference-origin": {
+      "class": "required-error",
+      "message": "label `<missing>` does not exist in the document",
+      "origin": [
+        1,
+        1
+      ],
+      "criterion": "native ref constructor retains its own call source span through contextual producer"
+    }
+  }
+}

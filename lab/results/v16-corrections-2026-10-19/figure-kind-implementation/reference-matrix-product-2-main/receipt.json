@@ -1,0 +1,1509 @@
+{
+  "utc_start": "2026-10-20T00:59:06.314916+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "product": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+  "product_sha256": "c955314ccfe08a7ae0ff1a1ba3235355020a5962dda07f956f469de0401ac855",
+  "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-build-2/receipt.json",
+  "build_receipt_sha256": "05f73bd08f3920d103d969c42211746d8741d3ba93d5beb2c042802d9d700d73",
+  "historical_baseline": false,
+  "oracle_receipt_sha256": "cba1b85cc4de91e88a3bb9ce9aa1eb07a6fc1b41d97b1ee97f645384568c1e58",
+  "matrix_sha256": "ab87dfc9639d7c6e9727f561366fe4169e3537ff33538c6a036b01dee02ef9cb",
+  "policies_sha256": "c934cda2e07cb9411b4ec66c5e5c0e45189cc5579398ba6031f23907549a7088",
+  "runner_sha256": "6cbe77837955541eb6f94cf8dc3dc756aad5b8a04e67f827d1294fcc6e5d8a67",
+  "cases": [
+    {
+      "name": "backward-explicit",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:06.445315+00:00",
+          "utc_end": "2026-10-20T00:59:07.037485+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-explicit.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/backward-explicit.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:07.037499+00:00",
+          "utc_end": "2026-10-20T00:59:07.632510+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-explicit.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[2,[1],[1],2]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-explicit.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "cc485a8ed8736954bcbe8f771632a292cde691d1053b67a4e716a741070e5a7f",
+      "rendered_text": "OUTER\nINNER\nInner 1: INNER-CAP\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "forward-explicit",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:07.644374+00:00",
+          "utc_end": "2026-10-20T00:59:08.258475+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/forward-explicit.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/forward-explicit.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:08.258490+00:00",
+          "utc_end": "2026-10-20T00:59:08.841662+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/forward-explicit.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[2,[1],[1],2]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/forward-explicit.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "bfb6313f5565af3cc97b9ba104bfbfff0f3ddf16337869edb8d6d4f597837111",
+      "rendered_text": "INNER\nInner 1: INNER-CAP\n1\nOUTER\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "backward-callback",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:08.853104+00:00",
+          "utc_end": "2026-10-20T00:59:09.438305+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-callback.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/backward-callback.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:09.438321+00:00",
+          "utc_end": "2026-10-20T00:59:10.017371+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-callback.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[2,[1],[1],2]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/backward-callback.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "9732ce00f2064389aaf8d1952b2d04544c1cd3c6d17d07a9c73b08853ad095a2",
+      "rendered_text": "OUTER\nINNER\nInner 1: INNER-CAP\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "two-raw-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 2,
+          "OUTER": 1,
+          "INNER-CAP": 2
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:10.029262+00:00",
+          "utc_end": "2026-10-20T00:59:10.619599+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-raw-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/two-raw-references.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:10.619615+00:00",
+          "utc_end": "2026-10-20T00:59:11.208168+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-raw-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[3,[2],[1],3]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-raw-references.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "de03241d5030452daebec2ee1517289172e32e6f37fcd7b219f7990c55c9a6a9",
+      "rendered_text": "OUTER\nINNER\nInner 1: INNER-CAP\n1\nINNER\nInner 2: INNER-CAP\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "caption-and-two-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 3,
+          "OUTER": 1,
+          "INNER-CAP": 3,
+          "OUTER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:11.219949+00:00",
+          "utc_end": "2026-10-20T00:59:11.819748+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/caption-and-two-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/caption-and-two-references.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:11.819761+00:00",
+          "utc_end": "2026-10-20T00:59:12.418978+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/caption-and-two-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[4,[3],[1],4]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/caption-and-two-references.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "010fcd6be0af05f0553b6ef3f72b8a75ad084c2f50d9ca451ef6cd3637ca76de",
+      "rendered_text": "OUTER\nINNER\nInner 1: INNER-CAP\n1: OUTER-CAP\nINNER\nInner 2: INNER-CAP\n1\nINNER\nInner 3: INNER-CAP\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true,
+        "render_OUTER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "raw-context-two-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 2,
+          "OUTER": 1,
+          "INNER-CAP": 2
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:12.430621+00:00",
+          "utc_end": "2026-10-20T00:59:12.447639+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-two-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/raw-context-two-references.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-two-references.typ:1:0\n  \u2502  \n1 \u2502 \u256d #let inner=context figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])\n2 \u2502 \u2502 #figure([OUTER],kind:image,supplement:inner)<outer>\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 @outer\n5 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n6 \u2502 \u2502 \n  \u2502 \u2570^\n\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:59:12.447655+00:00",
+          "utc_end": "2026-10-20T00:59:12.464342+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-two-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-two-references.typ:1:0\n  \u2502  \n1 \u2502 \u256d #let inner=context figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])\n2 \u2502 \u2502 #figure([OUTER],kind:image,supplement:inner)<outer>\n3 \u2502 \u2502 @outer\n4 \u2502 \u2502 @outer\n5 \u2502 \u2502 #context [#metadata((query(figure).len(), counter(figure.where(kind:table)).final(), counter(figure.where(kind:image)).final(), query(figure).map(it => it.location()).dedup().len())) <probe>]\n6 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-two-references.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false
+      },
+      "pass": false
+    },
+    {
+      "name": "raw-context-caption-two-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 3,
+          "OUTER": 1,
+          "INNER-CAP": 3
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:12.464605+00:00",
+          "utc_end": "2026-10-20T00:59:13.080780+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-caption-two-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/raw-context-caption-two-references.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:13.080794+00:00",
+          "utc_end": "2026-10-20T00:59:13.705924+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-caption-two-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[4,[3],[1],4]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-context-caption-two-references.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "b9feb7f9a3c3bf5208cfba90f3bf1d8ade1a34f34332958541f62849bd5aa8aa",
+      "rendered_text": "OUTER\nINNER\nInner 1: INNER-CAP\n1: CAP\nINNER\nInner 2: INNER-CAP\n1\nINNER\nInner 3: INNER-CAP\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "prepared-alias-two-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:13.718203+00:00",
+          "utc_end": "2026-10-20T00:59:14.321249+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/prepared-alias-two-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/prepared-alias-two-references.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:14.321268+00:00",
+          "utc_end": "2026-10-20T00:59:14.910508+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/prepared-alias-two-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[4,[3],[1],4]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/prepared-alias-two-references.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "a52f3185ef12cb6f266d0d843d853978bf69c178038546a82a907a57aa776d96",
+      "rendered_text": "PREEXISTING\nOUTER\nPREEXISTING\n1\nPREEXISTING\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": false,
+        "render_OUTER": true
+      },
+      "pass": false
+    },
+    {
+      "name": "show-reference-identity",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:14.921781+00:00",
+          "utc_end": "2026-10-20T00:59:15.504359+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-identity.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/show-reference-identity.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:15.504375+00:00",
+          "utc_end": "2026-10-20T00:59:16.083408+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-identity.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[2,[1],[1],2]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-identity.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "e1f514370997f8ea43b65e1bc8b1c9dffd0c4c8ceac4911beb6e0071692f4589",
+      "rendered_text": "OUTER\nINNER\nInner 1: INNER-CAP\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "show-reference-two-aliases",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 2,
+          "OUTER": 1,
+          "INNER-CAP": 2
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:16.095278+00:00",
+          "utc_end": "2026-10-20T00:59:16.716895+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-two-aliases.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/show-reference-two-aliases.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:16.716910+00:00",
+          "utc_end": "2026-10-20T00:59:17.305486+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-two-aliases.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[3,[2],[1],3]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-two-aliases.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "45ea144a756889913f260c8f79fa76ac0aeca66ad00feb7c01685660cbcfbd93",
+      "rendered_text": "OUTER\nINNER\nInner 1: INNER-CAP\n1\nINNER\nInner 2: INNER-CAP\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "show-reference-none",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:17.317127+00:00",
+          "utc_end": "2026-10-20T00:59:17.890446+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-none.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/show-reference-none.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:17.890461+00:00",
+          "utc_end": "2026-10-20T00:59:18.466449+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-none.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-none.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "c27754ea3c70b64094bde80200b65cd03a64899acb488b92ea5fedc1b33bb123",
+      "rendered_text": "OUTER\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_OUTER": true
+      },
+      "pass": true
+    },
+    {
+      "name": "show-reference-replaced",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1,
+          "REPLACED": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:18.478380+00:00",
+          "utc_end": "2026-10-20T00:59:19.054579+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-replaced.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/show-reference-replaced.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:19.054596+00:00",
+          "utc_end": "2026-10-20T00:59:19.633436+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-replaced.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-reference-replaced.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "36212e07bbb1c5a4ad11bd3d3550739843af5c3dfee4e4984ffebfa1bfa0a85a",
+      "rendered_text": "OUTER\nREPLACED\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_OUTER": true,
+        "render_REPLACED": true
+      },
+      "pass": true
+    },
+    {
+      "name": "hidden-reference-parent",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {}
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:19.645061+00:00",
+          "utc_end": "2026-10-20T00:59:20.218937+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/hidden-reference-parent.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/hidden-reference-parent.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:20.218952+00:00",
+          "utc_end": "2026-10-20T00:59:20.784777+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/hidden-reference-parent.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/hidden-reference-parent.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "bc20d7da54f59a4b3c212ab081ced69b849707a4c601d81e62f462ed41549a94",
+      "rendered_text": "OUTER\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true
+      },
+      "pass": true
+    },
+    {
+      "name": "own-hidden-outer",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:20.795928+00:00",
+          "utc_end": "2026-10-20T00:59:21.372526+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/own-hidden-outer.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/own-hidden-outer.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:21.372759+00:00",
+          "utc_end": "2026-10-20T00:59:21.965087+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/own-hidden-outer.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[2,[1],[1],2]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/own-hidden-outer.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "04ecf592a71c7d0580f5d0a035d000013902bc96220e624a338674ecdfa2e4c2",
+      "rendered_text": "INNER\nInner 1: INNER-CAP\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_INNER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "no-reference-no-caption",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:21.976425+00:00",
+          "utc_end": "2026-10-20T00:59:22.546312+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/no-reference-no-caption.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/no-reference-no-caption.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:22.546327+00:00",
+          "utc_end": "2026-10-20T00:59:23.127731+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/no-reference-no-caption.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/no-reference-no-caption.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "c12a3724fdb2112cb100c7f56d8e2d76768d767f2fb89159a50bb0d622dbf271",
+      "rendered_text": "OUTER\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_OUTER": true
+      },
+      "pass": true
+    },
+    {
+      "name": "explicit-reference-override",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1,
+          "OVERRIDE": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:23.139190+00:00",
+          "utc_end": "2026-10-20T00:59:23.714914+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-override.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/explicit-reference-override.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:23.714930+00:00",
+          "utc_end": "2026-10-20T00:59:24.285369+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-override.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-override.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "fdd97efb1bed7aec37a452c0201e2e49437a16656c181a11b00bc2c803286e75",
+      "rendered_text": "OUTER\nOVERRIDE 1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_OUTER": true,
+        "render_OVERRIDE": true
+      },
+      "pass": true
+    },
+    {
+      "name": "explicit-reference-none",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:24.296701+00:00",
+          "utc_end": "2026-10-20T00:59:24.877736+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-none.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/explicit-reference-none.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:24.877751+00:00",
+          "utc_end": "2026-10-20T00:59:25.449491+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-none.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/explicit-reference-none.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "170d1e97da8d7b2b34225b7b2f3761fd87f0c927fe595e869441e6c7db4d42d3",
+      "rendered_text": "OUTER\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_OUTER": true
+      },
+      "pass": true
+    },
+    {
+      "name": "label-on-reference",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        },
+        "secondary_query": {
+          "selector": "<reference-probe>",
+          "field": "value",
+          "criterion": "exact [query cardinality, func()==ref] language values from fresh oracle measurement"
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:25.460902+00:00",
+          "utc_end": "2026-10-20T00:59:26.046015+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/label-on-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/label-on-reference.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:26.046031+00:00",
+          "utc_end": "2026-10-20T00:59:26.639183+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/label-on-reference.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[2,[1],[1],2]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/label-on-reference.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "70911fc97d4c57503c4aa65a14ace286a664834075fc605c51775b0246009db5",
+      "rendered_text": "OUTER\nINNER\nInner 1: INNER-CAP\n1\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "ordinary-heading",
+      "policy": {
+        "class": "required-error",
+        "message": "cannot reference heading without numbering",
+        "origin": [
+          2,
+          0
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:26.650942+00:00",
+          "utc_end": "2026-10-20T00:59:27.216414+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/ordinary-heading.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/ordinary-heading.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot reference heading without numbering\n = hint: you can enable heading numbering with `#set heading(numbering: \"1.\")`\n\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:59:27.216429+00:00",
+          "utc_end": "2026-10-20T00:59:27.788022+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/ordinary-heading.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot reference heading without numbering\n = hint: you can enable heading numbering with `#set heading(numbering: \"1.\")`\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/ordinary-heading.typ` instead\n\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        2,
+        0
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "page-reference",
+      "policy": {
+        "class": "required-error",
+        "message": "cannot reference without page numbering",
+        "origin": [
+          2,
+          1
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:27.788323+00:00",
+          "utc_end": "2026-10-20T00:59:28.360002+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/page-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/page-reference.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot reference without page numbering\n = hint: you can enable page numbering with `#set page(numbering: \"1\")`\n\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:59:28.360017+00:00",
+          "utc_end": "2026-10-20T00:59:28.920103+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/page-reference.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot reference without page numbering\n = hint: you can enable page numbering with `#set page(numbering: \"1\")`\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/page-reference.typ` instead\n\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        2,
+        1
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "stable-missing-target",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<missing>` does not exist in the document",
+        "origin": [
+          1,
+          0
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:28.920443+00:00",
+          "utc_end": "2026-10-20T00:59:28.934429+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/stable-missing-target.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/stable-missing-target.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<missing>` does not exist in the document\n\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        1,
+        0
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "missing-rich-override",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<missing>` does not exist in the document",
+        "origin": [
+          1,
+          1
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:28.934755+00:00",
+          "utc_end": "2026-10-20T00:59:28.949044+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/missing-rich-override.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/missing-rich-override.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<missing>` does not exist in the document\n\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        1,
+        1
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "unnumbered-target",
+      "policy": {
+        "class": "required-error",
+        "message": "cannot reference figure without numbering",
+        "origin": [
+          2,
+          0
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:28.949394+00:00",
+          "utc_end": "2026-10-20T00:59:29.504989+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/unnumbered-target.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/unnumbered-target.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot reference figure without numbering\n\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        2,
+        0
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "duplicate-label-first",
+      "policy": {
+        "class": "open-bilateral-gap",
+        "criterion": "Pinned oracle rejects duplicate labels; approved existing Tekt first-label behavior requires baseline proof, generic ambiguity remains an open bilateral gap."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:29.505313+00:00",
+          "utc_end": "2026-10-20T00:59:30.100226+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/duplicate-label-first.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/duplicate-label-first.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:30.100241+00:00",
+          "utc_end": "2026-10-20T00:59:30.694995+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/duplicate-label-first.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[3,[1],[2],3]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/duplicate-label-first.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "f5b9150cf6e441a6008b8911ec373ccceb5c714e0a5c113e73726fba360ca491",
+      "rendered_text": "OUTER\nSECOND\nINNER\nInner 1: INNER-CAP\n1\n\f",
+      "comparison_note": "Measured control/debt; no green certification from this row. See explicit policy and immutable oracle result.",
+      "checks": {
+        "oracle_success_class": false,
+        "oracle_error_message": false
+      },
+      "pass": false
+    },
+    {
+      "name": "inner-panic-reference",
+      "policy": {
+        "class": "required-error",
+        "message": "panicked with: REF_INNER",
+        "origin": [
+          1,
+          79
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:30.706723+00:00",
+          "utc_end": "2026-10-20T00:59:31.272656+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/inner-panic-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/inner-panic-reference.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: REF_INNER\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/inner-panic-reference.typ:1:79\n  \u2502\n1 \u2502 #figure([OUTER],kind:image,supplement:figure([INNER],kind:table,supplement:it=>panic(\"REF_INNER\")))<outer>\n  \u2502                                                                                ^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      ],
+      "observed_error_origin": [
+        1,
+        79
+      ],
+      "expected_error_origin": [
+        1,
+        79
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": true
+      },
+      "pass": true
+    },
+    {
+      "name": "inner-panic-hidden-reference",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:31.272987+00:00",
+          "utc_end": "2026-10-20T00:59:31.846266+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/inner-panic-hidden-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/inner-panic-hidden-reference.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:31.846280+00:00",
+          "utc_end": "2026-10-20T00:59:32.413426+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/inner-panic-hidden-reference.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/inner-panic-hidden-reference.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "723cd8754e46f931b2df8e31d9e32a53f0d023a2c69d72e14e7eb32a21b8cffe",
+      "rendered_text": "OUTER\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_OUTER": true
+      },
+      "pass": true
+    },
+    {
+      "name": "nested-references",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality",
+        "render_token_counts": {
+          "INNER": 1,
+          "OUTER": 1,
+          "INNER-CAP": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:32.424808+00:00",
+          "utc_end": "2026-10-20T00:59:33.017874+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/nested-references.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/nested-references.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:33.017890+00:00",
+          "utc_end": "2026-10-20T00:59:33.616204+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/nested-references.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[3,[1],[2],3]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/nested-references.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "9eec4e05340b47c1a6ec869ffb905b170394f53d8ca40cbe220116d652138364",
+      "rendered_text": "OUTER\nROOT\nINNER\nInner 1: INNER-CAP\n12\n\f",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_INNER": true,
+        "render_OUTER": true,
+        "render_INNER-CAP": true
+      },
+      "pass": true
+    },
+    {
+      "name": "self-reference-cycle",
+      "policy": {
+        "class": "required-termination",
+        "message": "maximum show rule depth exceeded",
+        "origin": [
+          1,
+          39
+        ],
+        "criterion": "existing source diagnostic and lexical origin; cycle acceptance requires bounded error termination without threshold/iteration equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:33.628071+00:00",
+          "utc_end": "2026-10-20T00:59:34.347060+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/self-reference-cycle.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/self-reference-cycle.pdf"
+          ],
+          "exit": -6,
+          "stdout": "",
+          "stderr": "\nthread 'main' (76) has overflowed its stack\nfatal runtime error: stack overflow, aborting\n"
+        }
+      ],
+      "checks": {
+        "terminates_with_error": false
+      },
+      "pass": false
+    },
+    {
+      "name": "bibliography-precedence",
+      "policy": {
+        "class": "open-bilateral-gap",
+        "criterion": "Pinned oracle rejects document/bibliography collision; existing precedence behavior requires baseline proof, generic ambiguity remains an open bilateral gap."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:34.347289+00:00",
+          "utc_end": "2026-10-20T00:59:35.393444+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/bibliography-precedence.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/bibliography-precedence.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T00:59:35.393458+00:00",
+          "utc_end": "2026-10-20T00:59:36.435497+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/bibliography-precedence.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/bibliography-precedence.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "f6cb3d78decb8da9d96ddd8597352adffecdc290d99ccdead96dc24270a366bc",
+      "rendered_text": "Bibliography\n[1] Example, Reference Work. 2020.\nOUTER\n[1]\n\f",
+      "comparison_note": "Measured control/debt; no green certification from this row. See explicit policy and immutable oracle result.",
+      "checks": {
+        "oracle_success_class": false,
+        "oracle_error_message": false
+      },
+      "pass": false
+    },
+    {
+      "name": "html-explicit-counter-reads",
+      "policy": {
+        "class": "required-language",
+        "criterion": "compile result, exact query language values and actual render token multiplicities; no byte/callback-count/algorithm equality"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:36.447178+00:00",
+          "utc_end": "2026-10-20T00:59:36.464324+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/html-explicit-counter-reads.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/html-explicit-counter-reads.html",
+            "--features",
+            "html"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:59:36.464339+00:00",
+          "utc_end": "2026-10-20T00:59:37.077407+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/html-explicit-counter-reads.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/html-explicit-counter-reads.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "3f11e5f9a391d4554a6871d4d43c3b3729352933d53b5910da94806c8b127b87",
+      "rendered_html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>OUTER</p><p><span style=\"white-space: pre-wrap\">&#x20;</span></p></body></html>",
+      "checks": {
+        "compile_success": true,
+        "language_values": true
+      },
+      "pass": true
+    },
+    {
+      "name": "context-language-pt-fr",
+      "policy": {
+        "class": "refuted-fixture",
+        "criterion": "Single context snapshot does not change on local set; oracle en,en refutes this attempted p792 test. Preserved immutable; corrected separate source required."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:37.077679+00:00",
+          "utc_end": "2026-10-20T00:59:37.863874+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/context-language-pt-fr.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-matrix-product-2-main/context-language-pt-fr.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "output_sha256": "4d943cbdea586da0ca7075f6005bf8af89d4d333f1d95fcb46eccf10978d7528",
+      "rendered_text": "LANG-OK\n\f",
+      "comparison_note": "Measured control/debt; no green certification from this row. See explicit policy and immutable oracle result.",
+      "checks": {
+        "oracle_success_class": false,
+        "oracle_error_message": false
+      },
+      "pass": false
+    }
+  ],
+  "utc_end": "2026-10-20T00:59:37.876428+00:00",
+  "oracle_comparison_failures": [
+    "raw-context-two-references",
+    "prepared-alias-two-references",
+    "ordinary-heading",
+    "page-reference",
+    "stable-missing-target",
+    "missing-rich-override",
+    "unnumbered-target",
+    "duplicate-label-first",
+    "self-reference-cycle",
+    "bibliography-precedence",
+    "context-language-pt-fr"
+  ],
+  "required_failures": [
+    "raw-context-two-references",
+    "prepared-alias-two-references",
+    "ordinary-heading",
+    "page-reference",
+    "stable-missing-target",
+    "missing-rich-override",
+    "unnumbered-target",
+    "self-reference-cycle"
+  ]
+}

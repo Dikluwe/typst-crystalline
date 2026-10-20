@@ -1,0 +1,55 @@
+{
+  "utc": "2026-10-20T03:46:04.647218+00:00",
+  "no_complete_parity_claim": true,
+  "gaps": [
+    {
+      "id": "set-page-header",
+      "status": "observed failing",
+      "evidence": "candidate-target-controls-4/receipt.json",
+      "scope": "SetPage operational marker; native PageRun independently passes, no repeated-physical-page certification"
+    },
+    {
+      "id": "block-own-label",
+      "status": "observed failing",
+      "evidence": "agents/counters/final-ancillary-controls/receipt.json",
+      "historical_evidence": "agents/counters/ancillary-product-9/receipt.json",
+      "scope": "actual child traversal repaired; own Block label projection remains absent"
+    },
+    {
+      "id": "unrestricted-ref-show-termination",
+      "status": "observed failing",
+      "evidence": "agents/entities/reference-acceptance/show-origin-product-final/receipt.json",
+      "historical_evidence": "agents/entities/reference-acceptance/show-origin-product-9/receipt.json",
+      "scope": "All four shows terminate with an error and matching source origins. Fresh/distinct unrestricted Ref shows retain two error-message mismatches against the oracle termination diagnostic."
+    },
+    {
+      "id": "ambiguous-label-and-bibliography",
+      "status": "observed failing",
+      "evidence": "reference-corpora-final/main/receipt.json",
+      "scope": "existing first-result/bibliography precedence differs from oracle ambiguity diagnostics"
+    },
+    {
+      "id": "single-context-locale-fixture",
+      "status": "refuted control preserved",
+      "evidence": "reference-corpora-final/main/receipt.json",
+      "scope": "same raw Context plus intervening language sets did not establish distinct lexical insertions; separate actual insertion-site controls pass"
+    },
+    {
+      "id": "math-cancel-context-contract",
+      "status": "existing contract conflict requires separate decision",
+      "evidence": "agents/counters/math-callback-context-language-review.json",
+      "scope": "Pinned plain outer callback has styles/no Location. Tekt keeps rendered script14pt and delayed Context result extension; pinned oracle observes lexical20pt and rejects returned Content. No new divergence ratified; old tests unchanged."
+    },
+    {
+      "id": "math-context-diagnostic-origin",
+      "status": "observed diagnostic mismatch",
+      "evidence": "agents/counters/final-extra-controls-review.json",
+      "scope": "Modern counter.final now rejects styles-only/no-Location contexts instead of returning a false zero. All six compared error sources retain some diagnostic difference: ordinary outside-context text.size lacks the second oracle hint; here/get differ in messages/hints/trace; five callback cases anchor at cancel instead of the inner call. Modern final message and both hints match, but full diagnostic parity is not certified."
+    },
+    {
+      "id": "declared-figure-grid-boundaries",
+      "status": "open",
+      "scope": "supplement-dependent preview; full caption/default alignment/floats and caption position/separator/locale/figure_location; complete function-number synthesis; HTML implicit rendering; external Dynamic fields; Grid footer validation; StateUpdate key reflection; mixed Table header/ordinary-cell supplemental order; Block style/breakability and complete physical page-running timing"
+    }
+  ]
+}

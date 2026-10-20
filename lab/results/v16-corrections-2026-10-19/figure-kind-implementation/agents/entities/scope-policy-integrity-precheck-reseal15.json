@@ -1,0 +1,115 @@
+{
+  "utc": "2026-10-20T03:34:54.069606+00:00",
+  "status": "Policy/source integrity precheck only; final executable validation and current final binary pending.",
+  "authorization_receipt_sha256": "0dbc37698983e7ce5bd3989e3e54dbf7237624c2d30c10fc5ad59769c4f9e4f1",
+  "all128_sources_match_reseal15_audit": true,
+  "original_classification_sha256": "b1bdb766f6c51d23eb1ccaf9bf32a755ff7f5da2d760682861b7d92f0becdb40",
+  "current_case_manifest_sha256": "86417bca1bd3753ac58fdc1f60db27265a6e083d87fd7c25f0b68f6ba1b12979",
+  "all_original78_sources_dispositions_expected_unchanged": true,
+  "original_counts": {
+    "negative-control-only": 2,
+    "preserved-known-debt": 5,
+    "required-closure": 71
+  },
+  "current_counts": {
+    "required-closure": 77,
+    "negative-control-only": 2,
+    "preserved-known-debt": 5
+  },
+  "additional_cases": [
+    "counter-uncaptioned-then-caption",
+    "counter-uncaptioned-only-explicit-demand",
+    "counter-disabled-then-caption",
+    "counter-hidden-then-caption",
+    "counter-manual-interleave",
+    "counter-uncaptioned-reference"
+  ],
+  "frozen_reference_sources": [
+    {
+      "matrix": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/matrix.json",
+      "matrix_sha256": "ab87dfc9639d7c6e9727f561366fe4169e3537ff33538c6a036b01dee02ef9cb",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/oracle/receipt.json",
+      "oracle_receipt_sha256": "cba1b85cc4de91e88a3bb9ce9aa1eb07a6fc1b41d97b1ee97f645384568c1e58",
+      "source_count": 31
+    },
+    {
+      "matrix": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/additional-matrix.json",
+      "matrix_sha256": "fa952d021b75e669bbeb3bd404cf293dbd87f85eb7c40cda743899ba45cd5a18",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/additional-oracle/receipt.json",
+      "oracle_receipt_sha256": "d428806c3a6d5bab6a1fed3e340fb002dba4c3fd325ebc78b90905f1e2c26edd",
+      "source_count": 4
+    },
+    {
+      "matrix": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/targeted-matrix.json",
+      "matrix_sha256": "ad29f6adc99c1c10337e206fe7eff6dab090d935bd3e41f656d49df12793db19",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/targeted-oracle/receipt.json",
+      "oracle_receipt_sha256": "80095b055cf494be2d1c8de7750e380a1926524e8ad6bcf523f1d11be38a69dc",
+      "source_count": 2
+    },
+    {
+      "matrix": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-matrix.json",
+      "matrix_sha256": "14b097bc87257762d1e5bc317644be901e005ef35ca833b7958443d28a41ebd7",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-oracle/receipt.json",
+      "oracle_receipt_sha256": "b28aa7aadca9b3db3abae3ac8610eed42b7631757d04b77fdd4ce53fd956c909",
+      "source_count": 1
+    },
+    {
+      "matrix": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-edge-matrix.json",
+      "matrix_sha256": "5779c4b25407b07ad91cbee7d80267882985cac2956ae34010e93e9726f4e6e3",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-edge-oracle/receipt.json",
+      "oracle_receipt_sha256": "96f530127ec4fa9c62f6ed2a1cf576472c43a261d1d64cdaf0bc7033c0d91487",
+      "source_count": 3
+    },
+    {
+      "matrix": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-matrix.json",
+      "matrix_sha256": "c7291503fd713f31aa77c78f30e88e507089c79b1d3bdcd45219ba1cb8208fb5",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-oracle/receipt.json",
+      "oracle_receipt_sha256": "2a7fc19864a6eb38c69ee76a46bc0016df4917965a23de4c8e2f7e7810813a7d",
+      "source_count": 4
+    },
+    {
+      "matrix": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-selected-matrix.json",
+      "matrix_sha256": "e2c6110ce60b6c02cb37326482469029ee3cdadffb957a86e9f1bd1d50b10baa",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-selected-oracle/receipt.json",
+      "oracle_receipt_sha256": "9ae5b125bf8c2133506f936d7e707de559f7ff3890242a97885c93fbb621789e",
+      "source_count": 2
+    }
+  ],
+  "versioned_policies": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/render-order-policies-v2.json",
+      "sha256": "5e4426b96413c273d99a0f11e3a40ee98bbfce95b3b4b41f2960e73de80e9fc0",
+      "unchanged_since_build9_corpus": true
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/additional-render-order-policies-v2.json",
+      "sha256": "3d78ed91320ddc15c0895ff7bc487458fbabe04b9cff272776b705e5db4607d2",
+      "unchanged_since_build9_corpus": true
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/targeted-render-order-policies-v2.json",
+      "sha256": "331e503d1121d712564266ce591b46634c1213db9046b7eb69f4de92e9096c8f",
+      "unchanged_since_build9_corpus": true
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-policies.json",
+      "sha256": "4ad90fb0f2a9e4444f3e5035b37d5e545753bd31b45710e88468f219ffa9927d",
+      "unchanged_since_build9_corpus": true
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-edge-policies.json",
+      "sha256": "5d61dcd44dc93541bb1cf9063bd93723554c7f6fe90fb3dadf1bcd860cdbb799",
+      "unchanged_since_build9_corpus": true
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-selected-policies.json",
+      "sha256": "18fea3abef03e237787b2ae458db12c36cf513479c68f9af713703167ab99a53",
+      "unchanged_since_build9_corpus": true
+    }
+  ],
+  "broad4_policy_sha256": "f6c6e8500700e269e26dffa21de51474f36bac7dd1ca3536025317387fd28a3a",
+  "broad4_policy_unchanged_since_product9": true,
+  "strict_render_meaning": "Whitespace-only normalization preserves every nonwhitespace character/token/number and its order/multiplicity; does not certify whitespace-sensitive morphology or PDF bytes. Old policies remain separate.",
+  "pending": "Successful source-bound candidate-build-4, final driver and corpora receipts, final broad4 replay, final closure assessment.",
+  "no_source_l0_test_policy_or_root_report_changes": true
+}

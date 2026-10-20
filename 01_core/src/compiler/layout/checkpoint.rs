@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/checkpoint.md
-//! @prompt-hash 80b5b5fd
+//! @prompt-hash 9736871c
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -37,6 +37,8 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     cell_align: Option<crate::entities::layout_types::Align2D>,
     locator_seed: LocatorSeed,
     current_location: Option<Location>,
+    current_source_span: crate::entities::span::Span,
+    transported_root_location: Option<Location>,
     runtime: crate::entities::layouter_runtime_state::LayouterRuntimeState,
     pub(in crate::compiler::layout) floats_pending_len: usize,
     cursor_y_top_reserve: f64,
@@ -198,6 +200,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             parent_bbox: self.parent_bbox,
             cell_align: self.cell_align,
             current_location: self.current_location,
+            current_source_span: self.current_source_span,
+            transported_root_location: self.transported_root_location,
             runtime: self.runtime.clone(),
             locator_seed: self.locator.checkpoint(),
             floats_pending_len: self.floats_pending.len(),
@@ -324,6 +328,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.parent_bbox = checkpoint.parent_bbox;
         self.cell_align = checkpoint.cell_align;
         self.current_location = checkpoint.current_location;
+        self.current_source_span = checkpoint.current_source_span;
+        self.transported_root_location = checkpoint.transported_root_location;
         self.locator = Locator::from_seed(checkpoint.locator_seed);
         self.runtime = checkpoint.runtime;
         self.floats_pending.truncate(checkpoint.floats_pending_len);

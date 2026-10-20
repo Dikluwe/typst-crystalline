@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/materialize_time.md
-//! @prompt-hash 6195cd5d
+//! @prompt-hash 51b66794
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -106,16 +106,24 @@ pub(super) fn materialize_time(
                 Content::label(e.name.clone(), body)
             }
         }
-        // Modelo D (Lote 13 P328): Figure — recurse body+caption via construtor.
-        // F-5a de-bake (P365): a figura não tem mais campo `numbering` — o gate
-        // vive na chain (no `Content::Styled` que envolve a figura, preservado pelo
-        // arm Styled de `materialize_time`). Reconstrói com numbering=None.
-        Content::Figure(e) => Content::figure(
-            materialize_time(&e.body, intr, location),
-            e.caption.as_ref().map(|c| materialize_time(c, intr, location)),
-            e.kind.clone(),
-            None,
-        ),
+        // Keep lexical origins and the prepared occurrence snapshot intact.
+        Content::Figure(e) => Content::Figure(std::sync::Arc::new(
+            crate::entities::elements::figure::FigureElem {
+                body: materialize_time(&e.body, intr, location),
+                caption: e.caption.as_ref().map(|c| materialize_time(c, intr, location)),
+                kind: e.kind.clone(),
+                resolved_kind: e.resolved_kind.clone(),
+                supplement: if e.resolved_supplement.is_some() {
+                    e.supplement.clone()
+                } else {
+                    match &e.supplement {
+                        Some(crate::entities::elements::figure::FigureSupplement::Content(content)) => Some(crate::entities::elements::figure::FigureSupplement::Content(materialize_time(content, intr, location))),
+                        Some(crate::entities::elements::figure::FigureSupplement::Auto | crate::entities::elements::figure::FigureSupplement::None | crate::entities::elements::figure::FigureSupplement::Func { .. }) | None => e.supplement.clone(),
+                    }
+                },
+                resolved_supplement: e.resolved_supplement.as_ref().map(|content| content.as_ref().map(|c| materialize_time(c, intr, location))),
+            },
+        )),
 
         // P1473 — figure.caption (escopo reduzido): recurse body+separator.
         Content::FigureCaption(e) => Content::figure_caption(
@@ -284,8 +292,6 @@ pub(super) fn materialize_time(
         Content::Grid(e) => Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
                 cells:  e.cells.iter().map(|c| materialize_time(c, intr, location)).collect(),
-                    hlines: vec![],
-                    vlines: vec![],
                 header: e.header.as_ref().map(|h| materialize_time(h, intr, location)),
                 footer: e.footer.as_ref().map(|f| materialize_time(f, intr, location)),
                 ..(**e).clone()
@@ -422,3 +428,61 @@ pub(super) fn materialize_time(
 // `intr.counters["figure:{kind}"]` directamente. Consumers
 // (`compute_labelled` Figure arm via `intr.flat_counter_at`,
 // Layouter C3 via `figure_number_at_index`) consomem do intr.
+
+#[cfg(test)]
+mod figure_grid_carrier_tests {
+    use super::*;
+    use crate::entities::elements::grid::{GridChildOrder, GridElem};
+    use crate::entities::elements::grid_hline::GridHLineElem;
+    use crate::entities::elements::grid_vline::GridVLineElem;
+    use crate::entities::layout_types::Length;
+    use crate::entities::sides::Sides;
+
+    #[test]
+    fn figure_v16_temporal_grid_preserves_line_vectors_and_source_descriptors() {
+        let horizontal = GridHLineElem {
+            start: 0,
+            end: Some(2),
+            row: 0,
+            stroke: None,
+            position: "top".into(),
+        };
+        let vertical = GridVLineElem {
+            start: 0,
+            end: Some(1),
+            col: 0,
+            stroke: None,
+            position: "left".into(),
+        };
+        let grid = GridElem {
+            columns: vec![],
+            rows: vec![],
+            cells: vec![Content::text("cell")],
+            hlines: vec![horizontal.clone()],
+            vlines: vec![vertical.clone()],
+            gutter: None,
+            align: None,
+            inset: Sides::uniform(Length::ZERO),
+            header: None,
+            footer: None,
+            stroke: None,
+            fill: None,
+            source_order: Some(vec![
+                GridChildOrder::HLine(0),
+                GridChildOrder::Cell(0),
+                GridChildOrder::VLine(0),
+            ]),
+        };
+        let content = Content::Grid(Arc::new(grid.clone()));
+        let result = materialize_time(
+            &content,
+            &TagIntrospector::default(),
+            Location::from_raw(1),
+        );
+        let Content::Grid(result) = result else { panic!("missing Grid") };
+        assert_eq!(result.hlines, [horizontal]);
+        assert_eq!(result.vlines, [vertical]);
+        assert_eq!(result.source_order, grid.source_order);
+        assert_eq!(result.cells[0].plain_text(), "cell");
+    }
+}

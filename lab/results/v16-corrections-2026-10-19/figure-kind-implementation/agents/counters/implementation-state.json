@@ -1,0 +1,108 @@
+{
+  "utc": "2026-10-19T23:37:42.733724+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "diff_head_stat": " .../core/compiler/eval/bindings/field_access.md    |  15 +\n .../eval/bindings/field_access/content_methods.md  |  15 +\n .../core/compiler/eval/observation/elements.md     |  15 +\n .../core/compiler/eval/operators/equality.md       |  15 +\n .../prompts/core/compiler/eval/rules/apply.md      |  17 +\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  17 +\n .../core/compiler/eval/selector_matching.md        |  17 +\n 00_nucleo/prompts/core/compiler/introspect.md      |  15 +\n .../core/compiler/introspect/convergence.md        |  24 +\n .../core/compiler/introspect/entrypoints.md        |  15 +\n .../core/compiler/introspect/extract_payload.md    |  15 +\n .../prompts/core/compiler/introspect/fixpoint.md   |  15 +\n .../prompts/core/compiler/introspect/labelled.md   |  15 +\n .../prompts/core/compiler/introspect/locatable.md  |  15 +\n .../core/compiler/introspect/materialize_time.md   |  26 +\n .../prompts/core/compiler/introspect/populate.md   |  15 +\n .../prompts/core/compiler/introspect/queries.md    |  15 +\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  27 +\n .../prompts/core/compiler/layout/checkpoint.md     |  15 +\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  20 +\n .../prompts/core/compiler/layout/measurement.md    |  15 +\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  18 +\n .../prompts/core/compiler/layout/placement.md      |  15 +\n .../prompts/core/compiler/layout/references.md     |  20 +\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  21 +\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  15 +\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  15 +\n .../prompts/core/compiler/stdlib/figure_image.md   |  17 +\n .../prompts/core/compiler/stdlib/layout/grid.md    |  15 +\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  15 +\n .../core/compiler/stdlib/tests/figure_image.md     |  14 +\n .../prompts/core/entities/content/construction.md  |  15 +\n .../core/entities/content/tests/representation.md  |  15 +\n .../core/entities/content/tests/traversal.md       |  15 +\n .../prompts/core/entities/content/traversal.md     |  15 +\n 00_nucleo/prompts/core/entities/element_payload.md |  29 +\n 00_nucleo/prompts/core/entities/elements/figure.md |  37 +\n 00_nucleo/prompts/core/entities/elements/grid.md   |  20 +\n 00_nucleo/prompts/core/entities/introspector.md    |  17 +\n 00_nucleo/prompts/infra/export/tests/mod.md        |  15 +\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  15 +\n .../infra/pipeline/context_stabilization.md        |  15 +\n 00_nucleo/prompts/shell/cli.md                     |  15 +\n 01_core/src/compiler/eval/bindings/field_access.rs |  43 ++\n .../eval/bindings/field_access/content_methods.rs  |  26 +-\n 01_core/src/compiler/eval/observation/elements.rs  | 105 ++-\n 01_core/src/compiler/eval/operators/equality.rs    | 126 +++-\n 01_core/src/compiler/eval/rules/apply.rs           | 182 +++--\n 01_core/src/compiler/eval/rules/set.rs             |  57 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 122 +++-\n 01_core/src/compiler/introspect.rs                 | 808 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  81 ++-\n 01_core/src/compiler/introspect/entrypoints.rs     |  38 +\n 01_core/src/compiler/introspect/extract_payload.rs |   7 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  30 +\n 01_core/src/compiler/introspect/labelled.rs        |  20 +-\n .../src/compiler/introspect/materialize_time.rs    |  86 ++-\n 01_core/src/compiler/introspect/populate.rs        |  43 +-\n 01_core/src/compiler/introspect/queries.rs         |  43 +-\n 01_core/src/compiler/introspect/walk.rs            |  29 +-\n 01_core/src/compiler/layout/checkpoint.rs          |   3 +\n 01_core/src/compiler/layout/figure.rs              | 261 ++++++-\n 01_core/src/compiler/layout/measurement.rs         |   5 +-\n 01_core/src/compiler/layout/mod.rs                 |  17 +\n 01_core/src/compiler/layout/placement.rs           |   1 +\n 01_core/src/compiler/layout/references.rs          | 140 ++++\n 01_core/src/compiler/layout/tests.rs               | 123 ++++\n 01_core/src/compiler/realize/mod.rs                |   2 +\n 01_core/src/compiler/realize/recipes.rs            |  33 +-\n 01_core/src/compiler/stdlib/figure_image.rs        | 324 +++++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  14 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 112 ++-\n 01_core/src/entities/content/construction.rs       |  11 +-\n .../src/entities/content/tests/representation.rs   |   6 +\n 01_core/src/entities/content/tests/traversal.rs    |  34 +\n 01_core/src/entities/content/traversal.rs          |  11 +\n 01_core/src/entities/element_payload.rs            |  28 +-\n 01_core/src/entities/elements/figure.rs            | 537 +++++++++++++-\n 01_core/src/entities/elements/grid.rs              |  59 ++\n 01_core/src/entities/introspector.rs               |   8 +\n 02_shell/src/cli.rs                                |  87 ++-\n 03_infra/src/export/tests/mod.rs                   |  27 +-\n 03_infra/src/pipeline/bundle.rs                    |  11 +-\n 03_infra/src/pipeline/context_stabilization.rs     |  13 +-\n 85 files changed, 3953 insertions(+), 509 deletions(-)\n",
+  "status": "sources frozen for root-owned tests; no Cargo executed by this agent",
+  "scope": {
+    "01_core/src/entities/introspector.rs": {
+      "source_sha256": "e0ac3b83f97123668bfdf7049e35f4929a29da25b1d3b35c467bba8fd2d08a6f",
+      "owner": "00_nucleo/prompts/core/entities/introspector.md",
+      "owner_sha256": "df319ff37cafc66d0fd2c522ae014587d71b6bd7934e85aa705ff88cb2792321"
+    },
+    "01_core/src/compiler/introspect.rs": {
+      "source_sha256": "55b48d021897bf2438679f44cdb0820948d83b83fa06d2435fba74f094ee404d",
+      "owner": "00_nucleo/prompts/core/compiler/introspect.md",
+      "owner_sha256": "2f1460306fd7dc3918d27460f0d766572e253b77ef5aaf67e04b393b4fdbff04"
+    },
+    "01_core/src/compiler/introspect/entrypoints.rs": {
+      "source_sha256": "b0384733f1195f477e9c994d1f79f3f5117c625054dc74e5c72479d38a55cbb0",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/entrypoints.md",
+      "owner_sha256": "71f26485439e77f9057bbc3d925dc1afa2134893eecefa93a24ad640fa1792b2"
+    },
+    "01_core/src/compiler/introspect/figure_counters.rs": {
+      "source_sha256": "a1f964fbf8c87d04f94f4fed7737b49baf302d299c7828381e7ad9019c76c7e4",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/figure_counters.md",
+      "owner_sha256": "91d975ee2551cef56a36eb686caab9d2517f452769875df1dc57c19a1d6d17f1"
+    },
+    "01_core/src/compiler/introspect/figure_demands.rs": {
+      "source_sha256": "961814dfa06991ef6c98cf838127575336f23031ca2a9d589d4e441bce4e956b",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/figure_demands.md",
+      "owner_sha256": "598d7a461e88397640ec9b1ba19cea7f3f176681cfa7622f729af65fd4b9bead"
+    },
+    "01_core/src/compiler/introspect/fixpoint.rs": {
+      "source_sha256": "9908c3605281ce745a0dc48d34c0122f55eb0f27232f9cd8004b5a80f4447f53",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/fixpoint.md",
+      "owner_sha256": "57fa51413ccbe4e49fa1170af801efed16339c193776dddf42947326ad0886ff"
+    },
+    "01_core/src/compiler/introspect/labelled.rs": {
+      "source_sha256": "19a51dba109caadc68cf8dbaa3ac221f74550c34565b1e1bb4d0da93360a28f3",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/labelled.md",
+      "owner_sha256": "66b1c2f398a5ca23eb6004cdc9a026bba096670f3d0c7771228ce90e80c59dca"
+    },
+    "01_core/src/compiler/introspect/populate.rs": {
+      "source_sha256": "c37591f4084621075583b5c273e9ffa0c6ebd0787bf231b0296807bb261ccc97",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/populate.md",
+      "owner_sha256": "f924513571c3abea2dd629c0e7412a7b19a62ec4e4d29bdeb339afd21d3075c0"
+    },
+    "01_core/src/compiler/introspect/queries.rs": {
+      "source_sha256": "b0759326c236f638408f75edc5af3b2ecaa3a3b4442cbda7d2ef63a22afe7a06",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+      "owner_sha256": "f1661afdc4865928607c1edca9168388e8133bf6994bcc7443a3217fca1e46b5"
+    },
+    "01_core/src/compiler/introspect/walk.rs": {
+      "source_sha256": "de1256052a56382c5242c014828f23f3583e367fd0cfdeb46beaf4e13fa0c419",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/walk.md",
+      "owner_sha256": "01ea107ed8908e55c045754824d9f20cc155505cf7b2ba6b47245695eec09fc3"
+    },
+    "01_core/src/compiler/layout/checkpoint.rs": {
+      "source_sha256": "6edc39c49c40a031861aa7dd7b95552177f759db17c983accfef240605e08599",
+      "owner": "00_nucleo/prompts/core/compiler/layout/checkpoint.md",
+      "owner_sha256": "519739386d78df6a08710e2f6f9a2e0f344b129856052e53e21054832d347202"
+    },
+    "01_core/src/compiler/layout/figure.rs": {
+      "source_sha256": "3e7e5a7758151a58ae16bcdbc6cb70883f2c5dc8672287eb5d66dacdc5d78e5d",
+      "owner": "00_nucleo/prompts/core/compiler/layout/figure.md",
+      "owner_sha256": "7f5a65d1178dba471381cc594d4ea11c9704b35f9fff3eed33f26f1b7a07d81f"
+    },
+    "01_core/src/compiler/layout/measurement.rs": {
+      "source_sha256": "ad3bf17d708687f87163418b711471a7e87d57b0c727fc2fafaca55cb5457066",
+      "owner": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+      "owner_sha256": "d7b31c871940f32431aafa29e9330b7bbf93927847f19725cdcab46deaf810cb"
+    },
+    "01_core/src/compiler/layout/mod.rs": {
+      "source_sha256": "d58b8b5f9c2eed4d1d108b6222cc12f84d2bf113d9b8cf7edf663fdc5ecacb5e",
+      "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+      "owner_sha256": "f546106247c699f2425bfcfaa5a8b1ee57b8df158a10e28ad790721e9d7a5c9c"
+    },
+    "01_core/src/compiler/layout/references.rs": {
+      "source_sha256": "f00900dc2c4161b1ab6e6c20c85b0efa2a67522db936892a934ad45e5d144801",
+      "owner": "00_nucleo/prompts/core/compiler/layout/references.md",
+      "owner_sha256": "f26fc8491faca55b588ae3ab9ed8452040d7ea5b5be6a1c62ddb96f0c497161e"
+    },
+    "03_infra/src/pipeline/bundle.rs": {
+      "source_sha256": "5776ab2803ce95d474fd5a3afbd61bce38ad98f4756ff4816be52a2d6ed12648",
+      "owner": "00_nucleo/prompts/infra/pipeline/bundle.md",
+      "owner_sha256": "faddb4f8f8867a42e34ae52cca54b4700aef45154c36ac76de91901077b6f604"
+    },
+    "03_infra/src/pipeline/context_stabilization.rs": {
+      "source_sha256": "50f8fea13ca87f22fae3b3f2541f546dc26c3a81fc69be3be8365a033515d273",
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "owner_sha256": "cb91b729bc2654f7da747ca2f791544a27594c054b45473fe20884a10d7f8c58"
+    }
+  },
+  "implementation": [
+    "Typed selector keys and numbering-only automatic actions without user-string aliases",
+    "Complete independent demanded histories with atomic snapshot publication and location validation",
+    "Actual visual demand visitor with Source/Style/Located transport, Realized.visual and explicit metadata boundaries",
+    "Paged-only implicit demand and strict mixed-bundle target facade; explicit reads retain independent folding",
+    "Location caption/reference reads preserve rich supplement Content; synthetic progress remains separate",
+    "Iteration-local finalizer diagnostics; scalar label observer refreshed only from demanded materialized histories",
+    "Static running-content actions/demand order background/header/body/footer/foreground"
+  ],
+  "known_pending": [
+    "Root must observe the new Located(Styled(Figure)) exact-identity regression RED before correction",
+    "Read-only hidden ancestor raw-unprepared Figure action-membership risk sent to root for extra probe",
+    "Read-only duplicate first-label key overwrite risk sent to root for scoped control",
+    "Root owns all runtime tests, full gates, lineage resealing and final lint"
+  ]
+}

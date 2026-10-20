@@ -1,0 +1,46 @@
+{
+  "oracle_receipt_sha256": "2a7fc19864a6eb38c69ee76a46bc0016df4917965a23de4c8e2f7e7810813a7d",
+  "matrix_sha256": "c7291503fd713f31aa77c78f30e88e507089c79b1d3bdcd45219ba1cb8208fb5",
+  "cases": {
+    "show-origin-identity-multiline": {
+      "class": "required-error",
+      "message": "label `<oldmissing>` does not exist in the document",
+      "origin": [
+        5,
+        0
+      ],
+      "criterion": "identity show return preserves original missing Ref origin, not callback identifier",
+      "oracle_note": "Actual pinned oracle error and origin; unrestricted new/distinct Ref shows retrigger and must not be relabeled a missing-label oracle."
+    },
+    "show-origin-new-native-multiline": {
+      "class": "required-error",
+      "message": "maximum show rule depth exceeded",
+      "origin": [
+        2,
+        2
+      ],
+      "criterion": "new Ref constructed inside callback retains its own constructor origin and new label",
+      "oracle_note": "Actual pinned oracle error and origin; unrestricted new/distinct Ref shows retrigger and must not be relabeled a missing-label oracle."
+    },
+    "show-origin-original-alias-multiline": {
+      "class": "required-error",
+      "message": "label `<oldmissing>` does not exist in the document",
+      "origin": [
+        1,
+        11
+      ],
+      "criterion": "identity return of an existing Ref alias preserves original constructor origin",
+      "oracle_note": "Actual pinned oracle error and origin; unrestricted new/distinct Ref shows retrigger and must not be relabeled a missing-label oracle."
+    },
+    "show-origin-other-alias-multiline": {
+      "class": "required-error",
+      "message": "maximum show rule depth exceeded",
+      "origin": [
+        1,
+        13
+      ],
+      "criterion": "callback returning a distinct stored Ref retains its own prior source, not input source",
+      "oracle_note": "Actual pinned oracle error and origin; unrestricted new/distinct Ref shows retrigger and must not be relabeled a missing-label oracle."
+    }
+  }
+}

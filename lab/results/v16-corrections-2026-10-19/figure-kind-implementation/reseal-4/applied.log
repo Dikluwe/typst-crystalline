@@ -1,0 +1,4 @@
+Applied ./01_core/src/compiler/realize/reference_supplements.rs prompt=00_nucleo/prompts/core/compiler/realize/reference_supplements.md hash-a=8d2730c8 hash-b=89318571
+Applied ./03_infra/src/pipeline/context_stabilization.rs prompt=00_nucleo/prompts/infra/pipeline/context_stabilization.md hash-a=b726dd74 hash-b=820c9375
+
+Re-running analysis... ✅ 0 drift warnings remaining

@@ -1,0 +1,6 @@
+{
+  "restored_only_unowned_formatter_drift": true,
+  "productive_outside_scope": [],
+  "required_cargo_fmt_check_all_exit": 0,
+  "scope_pairs": 62
+}

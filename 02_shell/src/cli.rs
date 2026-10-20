@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 5d3d710e
+//! @prompt-hash 83398942
 //! @layer L2
 //! @updated 2026-10-17
 //!
@@ -1511,25 +1511,42 @@ fn content_to_semantic(
             fields.push(("alt".into(), SemanticValue::Null));
             fields.push(("placement".into(), SemanticValue::Null));
             fields.push(("scope".into(), SemanticValue::String("column".into())));
-            let kind = figure.kind.as_deref().unwrap_or("image");
-            let supplement = Content::text(figure_supplement(kind));
-            let counter = format!("counter(figure.where(kind: {kind}))");
+            let kind = content.get_field("kind");
+            let supplement = content.get_field("supplement");
+            let counter = match &kind {
+                Some(value @ (Value::Func(_) | Value::Str(_))) => Some(format!(
+                    "counter(figure.where(kind: {}))",
+                    typst_core::compiler::eval::repr_value_for_serialization(value)
+                )),
+                _ => None,
+            };
             fields.push((
                 "caption".into(),
                 figure
                     .caption
                     .as_ref()
                     .map(|caption| {
-                        figure_caption_to_semantic(caption, kind, &supplement, &counter)
+                        figure_caption_to_semantic(
+                            caption,
+                            kind.as_ref(),
+                            supplement.as_ref(),
+                            counter.as_deref(),
+                        )
                     })
                     .unwrap_or(SemanticValue::Null),
             ));
-            fields.push(("kind".into(), SemanticValue::String(kind.into())));
-            fields.push(("supplement".into(), content_to_semantic(&supplement)));
+            if let Some(value) = kind {
+                fields.push(("kind".into(), value_to_semantic(&value)));
+            }
+            if let Some(value) = supplement {
+                fields.push(("supplement".into(), value_to_semantic(&value)));
+            }
             fields.push(("numbering".into(), SemanticValue::String("1".into())));
             fields.push(("gap".into(), SemanticValue::String("0.65em".into())));
             fields.push(("outlined".into(), SemanticValue::Bool(true)));
-            fields.push(("counter".into(), SemanticValue::String(counter)));
+            if let Some(counter) = counter {
+                fields.push(("counter".into(), SemanticValue::String(counter)));
+            }
         }
         Content::TableCell(_) => {
             for name in [
@@ -1914,30 +1931,29 @@ fn content_semantic_func_name(
 
 fn figure_caption_to_semantic(
     body: &typst_core::entities::content::Content,
-    kind: &str,
-    supplement: &typst_core::entities::content::Content,
-    counter: &str,
+    kind: Option<&Value>,
+    supplement: Option<&Value>,
+    counter: Option<&str>,
 ) -> SemanticValue {
-    SemanticValue::Object(vec![
+    let mut fields = vec![
         ("func".into(), SemanticValue::String("caption".into())),
         (
             "separator".into(),
             content_to_semantic(&typst_core::entities::content::Content::text(": ")),
         ),
         ("body".into(), content_to_semantic(body)),
-        ("kind".into(), SemanticValue::String(kind.into())),
-        ("supplement".into(), content_to_semantic(supplement)),
-        ("numbering".into(), SemanticValue::String("1".into())),
-        ("counter".into(), SemanticValue::String(counter.into())),
-    ])
-}
-
-fn figure_supplement(kind: &str) -> &'static str {
-    match kind {
-        "table" => "Table",
-        "raw" => "Listing",
-        _ => "Figure",
+    ];
+    if let Some(value) = kind {
+        fields.push(("kind".into(), value_to_semantic(value)));
     }
+    if let Some(value) = supplement {
+        fields.push(("supplement".into(), value_to_semantic(value)));
+    }
+    fields.push(("numbering".into(), SemanticValue::String("1".into())));
+    if let Some(counter) = counter {
+        fields.push(("counter".into(), SemanticValue::String(counter.into())));
+    }
+    SemanticValue::Object(fields)
 }
 
 fn paint_to_semantic(paint: &typst_core::entities::paint::Paint) -> SemanticValue {
@@ -3052,7 +3068,30 @@ mod tests {
         );
         let figure = Content::label(
             "fig",
-            Content::figure(rect, Some(Content::text("Cap")), Some("image".into()), None),
+            Content::Figure(std::sync::Arc::new(
+                typst_core::entities::elements::figure::FigureElem {
+                    body: rect,
+                    caption: Some(Content::text("Cap")),
+                    kind: Some(Some(
+                        typst_core::entities::elements::figure::FigureKind::Element(
+                            typst_core::entities::func::Func::native(
+                                "image",
+                                typst_core::compiler::stdlib::native_image,
+                            ),
+                        ),
+                    )),
+                    resolved_kind: Some(
+                        typst_core::entities::elements::figure::FigureKind::Element(
+                            typst_core::entities::func::Func::native(
+                                "image",
+                                typst_core::compiler::stdlib::native_image,
+                            ),
+                        ),
+                    ),
+                    supplement: None,
+                    resolved_supplement: Some(Some(Content::text("Figure"))),
+                },
+            )),
         );
         let equation = Content::equation(
             Content::math_attach(

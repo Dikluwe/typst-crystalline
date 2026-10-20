@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/figure_image.md
-//! @prompt-hash 0de4787b
+//! @prompt-hash ad7423e0
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -36,7 +36,12 @@ fn figure_argument_value_span(args: &Args, name: Option<&str>) -> Span {
 fn caption_content_value(value: &Value, span: Span) -> SourceResult<Content> {
     match value {
         Value::Content(body) => Ok(body.clone()),
-        Value::LocatedContent(body, _) => Ok(body.content().clone()),
+        Value::LocatedContent(body, location) => Ok(Content::Located(
+            std::sync::Arc::new(crate::entities::content::LocatedContent {
+                body: body.content().clone(),
+                location: *location,
+            }),
+        )),
         Value::Str(text) => Ok(Content::text(text.as_str())),
         Value::Symbol(symbol) => Ok(Content::text(symbol.value.clone())),
         Value::None => Ok(Content::Empty),
@@ -47,41 +52,7 @@ fn caption_content_value(value: &Value, span: Span) -> SourceResult<Content> {
     }
 }
 
-/// Auto-detecção de `kind` baseada no body — Passo 158A
-/// (Model figure-kinds sub-passo 1).
-///
-/// Inferência: `Image → "image"`, `Table → "table"`, `Raw → "raw"`.
-/// **Recursão limitada a `Content::Sequence`** per diagnóstico
-/// P158A §8 (paridade vanilla parcial; outros containers
-/// scope-out per ADR-0054 graded).
-///
-/// Devolve `None` se nenhum descendant detectável encontrado;
-/// caller aplica default `"image"` em fallback chain.
-fn infer_kind_from_body(body: &Content) -> Option<String> {
-    match body {
-        Content::Image(_) => Some("image".to_string()),
-        Content::Table { .. } => Some("table".to_string()),
-        Content::Raw(_) => Some("raw".to_string()),
-        // Sequence: recurse no primeiro child detectável (paridade
-        // vanilla `query_first_naive` simplificada — limitada a
-        // Sequence per decisão P158A §8).
-        Content::Sequence(seq) => seq.iter().find_map(infer_kind_from_body),
-        _ => None, // neutro: N16[β] — Content sem tipo inferível retorna None
-    }
-}
-
-/// `figure(body, caption: content)` → `Content::Figure`.
-///
-/// Migrada do interceptador em `eval.rs` para `stdlib.rs` — o avaliador deixa
-/// de conhecer o nome "figure" (DEBT-16 encerrado).
-///
-/// - `body`: argumento posicional obrigatório.
-/// - `caption:`: argumento nomeado opcional; `none` → sem legenda.
-/// - `kind:` (Passo 158A): se ausente, **auto-detectado** do body
-///   via `infer_kind_from_body` (Image/Table/Raw + Sequence
-///   recursivo); se inferência falha, **`None` directo** (default
-///   `"image"` resolvido em uso por callers — Passo 158C ADR-0064
-///   Caso A estrito).
+/// Construct lexical Figure arguments; occurrence preparation resolves kind/styles.
 pub fn native_figure(
     ctx: &mut EvalContext,
     args: &Args,
@@ -100,13 +71,13 @@ pub fn native_figure(
             return Err(vec![SourceDiagnostic::error(
                 value_span(None),
                 format!("expected content, found {}", vanilla_type_name(other)),
-            )])
+            )]);
         }
         None => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 "missing argument: body",
-            )])
+            )]);
         }
     };
 
@@ -122,14 +93,16 @@ pub fn native_figure(
             return Err(vec![SourceDiagnostic::error(
                 value_span(Some("caption")),
                 format!("expected content or none, found {}", vanilla_type_name(other)),
-            )])
+            )]);
         }
     };
 
     let kind = match args.named.get("kind") {
-        Some(Value::Str(s)) => Some(s.to_string()),
-        None => infer_kind_from_body(&body),
-        Some(Value::Auto) => None,
+        Some(Value::Str(s)) => {
+            Some(Some(crate::entities::elements::figure::FigureKind::Name(s.clone())))
+        }
+        None => None,
+        Some(Value::Auto) => Some(None),
         Some(Value::Func(function)) => {
             let is_element = function.element_name().is_some()
                 || crate::compiler::eval::bindings::native_element_fields(function)
@@ -140,9 +113,9 @@ pub fn native_figure(
                     "expected element",
                 )]);
             }
-            // Typed element identity needs the separate public FigureKind contract.
-            // Preserve the historical path until that contract is approved.
-            infer_kind_from_body(&body)
+            Some(Some(crate::entities::elements::figure::FigureKind::Element(
+                function.clone(),
+            )))
         }
         Some(Value::Type(ty)) => {
             let message = match ty {
@@ -207,23 +180,208 @@ pub fn native_figure(
             };
             return Err(vec![SourceDiagnostic::error(value_span(Some("kind")), message)]);
         }
-        Some(other) => {
+        Some(
+            other @ (Value::None
+            | Value::Bool(..)
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::SpotColorant(..)),
+        ) => {
             return Err(vec![SourceDiagnostic::error(
                 value_span(Some("kind")),
                 format!(
                     "expected function, string, or auto, found {}",
                     vanilla_type_name(other)
                 ),
-            )])
+            )]);
         }
     };
 
-    // F-5a de-bake (P365, `f_fronteira_e1.md` §3a.9): `native_figure` **não baka**
-    // mais o padrão de numeração. O `#set figure(numbering:)` vive **só na chain**
-    // (`custom("figure.numbering")` no `Content::Styled` da fatia-1); a produção cria
-    // a figura **simples** (numbering=None). Consumidor lê o gate da chain. Fonte
-    // única. (`_figure_numbering` colapsa da assinatura no mesmo lote — abaixo.)
-    Ok(Value::Content(Content::figure(body, caption, kind, None)))
+    use crate::entities::elements::figure::{FigureElem, FigureSupplement};
+    let supplement = match args.named.get("supplement") {
+        None => None,
+        Some(Value::Auto) => Some(FigureSupplement::Auto),
+        Some(Value::None) => Some(FigureSupplement::None),
+        Some(Value::Func(function)) => Some(FigureSupplement::Func {
+            function: function.clone(),
+            span: value_span(Some("supplement")),
+        }),
+        Some(
+            value @ (Value::Content(_)
+            | Value::LocatedContent(_, _)
+            | Value::Str(_)
+            | Value::Symbol(_)),
+        ) => Some(FigureSupplement::Content(caption_content_value(
+            value,
+            value_span(Some("supplement")),
+        )?)),
+        Some(
+            value @ (Value::Bool(..)
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..)),
+        ) => {
+            return Err(vec![SourceDiagnostic::error(
+                value_span(Some("supplement")),
+                format!(
+                    "expected content, function, none, or auto, found {}",
+                    vanilla_type_name(value)
+                ),
+            )]);
+        }
+    };
+    let numbering = match args.named.get("numbering") {
+        None => None,
+        Some(value @ (Value::Str(_) | Value::Func(_) | Value::None)) => {
+            Some(value.clone())
+        }
+        Some(
+            value @ (Value::Bool(..)
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Auto
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..)),
+        ) => {
+            return Err(vec![SourceDiagnostic::error(
+                value_span(Some("numbering")),
+                format!(
+                    "expected string, function, or none, found {}",
+                    vanilla_type_name(value)
+                ),
+            )]);
+        }
+    };
+    let mut positional = 0usize;
+    for occurrence in args.occurrence_sequence() {
+        if let Some(name) = occurrence.name {
+            if !matches!(name.as_str(), "caption" | "kind" | "supplement" | "numbering") {
+                let diagnostic = if name.as_str() == "body" {
+                    SourceDiagnostic::error(
+                        occurrence.span.or(args.span),
+                        "the argument `body` is positional",
+                    )
+                    .with_hint("try removing `body:`")
+                } else {
+                    SourceDiagnostic::error(
+                        occurrence.span.or(args.span),
+                        "unexpected argument",
+                    )
+                };
+                return Err(vec![diagnostic]);
+            }
+        } else {
+            positional += 1;
+            if positional > 1 {
+                return Err(vec![SourceDiagnostic::error(
+                    occurrence.span.or(args.span),
+                    "unexpected argument",
+                )]);
+            }
+        }
+    }
+    let figure = Content::Figure(std::sync::Arc::new(FigureElem {
+        body,
+        caption,
+        kind,
+        resolved_kind: None,
+        supplement,
+        resolved_supplement: None,
+    }));
+    Ok(Value::Content(match numbering {
+        Some(value) => Content::styled(
+            Box::new(figure),
+            crate::entities::style::Styles::new().push_custom("figure.numbering", value),
+        ),
+        None => figure,
+    }))
 }
 
 // ── P1473 — `figure.caption(body, position?, separator?)` ───────────────────
@@ -346,7 +504,7 @@ pub fn native_image(
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
                     "number must be positive".to_string(),
-                )])
+                )]);
             }
             other => {
                 return Err(vec![SourceDiagnostic::error(
@@ -357,7 +515,7 @@ pub fn native_image(
                         other
                     )
                 ),
-                )])
+                )]);
             }
         }
     }
@@ -368,13 +526,13 @@ pub fn native_image(
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("image() requer path ou string, recebeu {}", other.type_name()),
-            )])
+            )]);
         }
         None => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 "image() requer 1 argumento posicional (caminho do ficheiro)".to_string(),
-            )])
+            )]);
         }
     };
 
@@ -385,7 +543,7 @@ pub fn native_image(
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
                     format!("image(): não foi possível ler: {}", msg),
-                )])
+                )]);
             }
         };
 
@@ -443,7 +601,10 @@ pub fn native_image(
     if !matches!(fit.as_str(), "contain" | "cover" | "stretch") {
         return Err(vec![SourceDiagnostic::error(
             args.span,
-            format!("image(fit:): valor '{}' inválido; esperado 'contain', 'cover' ou 'stretch'", fit),
+            format!(
+                "image(fit:): valor '{}' inválido; esperado 'contain', 'cover' ou 'stretch'",
+                fit
+            ),
         )]);
     }
 
@@ -453,7 +614,7 @@ pub fn native_image(
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("expected string, found {}", vanilla_type_name(other)),
-            )])
+            )]);
         }
         None => None,
     };
@@ -812,7 +973,12 @@ mod p1473_tests {
         else {
             panic!("figure expected")
         };
-        assert_eq!(f.kind.as_deref(), Some("custom"));
+        assert_eq!(
+            f.kind,
+            Some(Some(crate::entities::elements::figure::FigureKind::Name(
+                "custom".into()
+            )))
+        );
         assert_eq!(f.body.plain_text(), "A");
     }
 
@@ -915,5 +1081,127 @@ mod p1473_tests {
             .unwrap_err();
         assert_eq!(errors[0].message, "expected content, found integer");
         assert_eq!(errors[0].span, anchor);
+    }
+
+    #[test]
+    fn figure_v16_constructor_validates_supplement_before_numbering_and_excess() {
+        for expression in [
+            "figure([A], numbering: true, supplement: 3)",
+            "figure([A], surprise: 9, supplement: 3, numbering: true)",
+        ] {
+            assert_eq!(
+                expect_err_message(expression),
+                "expected content, function, none, or auto, found integer"
+            );
+        }
+        assert_eq!(
+            expect_err_message("figure([A], numbering: true, supplement: none)"),
+            "expected string, function, or none, found boolean"
+        );
+        assert_eq!(
+            expect_err_message("figure([A], numbering: none, surprise: 9)"),
+            "unexpected argument"
+        );
+    }
+
+    #[test]
+    fn figure_v16_constructor_last_supplement_and_numbering_origins_are_causal() {
+        use crate::entities::args::ArgOccurrence;
+        let world = NullWorld::default();
+        let file = crate::contracts::world::World::main(&world);
+        for (name, message) in [
+            ("supplement", "expected content, function, none, or auto, found integer"),
+            ("numbering", "expected string, function, or none, found integer"),
+        ] {
+            let anchor = Span::from_range(file, 31..32);
+            let args = Args::from_occurrences(
+                Span::from_range(file, 1..50),
+                vec![
+                    ArgOccurrence {
+                        name: None,
+                        value: Value::Content(Content::text("A")),
+                        span: Span::detached(),
+                        value_span: Span::detached(),
+                    },
+                    ArgOccurrence {
+                        name: Some(name.into()),
+                        value: Value::None,
+                        span: Span::detached(),
+                        value_span: Span::detached(),
+                    },
+                    ArgOccurrence {
+                        name: Some(name.into()),
+                        value: Value::Int(3),
+                        span: Span::from_range(file, 25..32),
+                        value_span: anchor,
+                    },
+                ],
+            );
+            let errors =
+                native_figure(&mut EvalContext::new(), &args, &world, file).unwrap_err();
+            assert_eq!(errors.len(), 1);
+            assert_eq!(errors[0].message, message);
+            assert_eq!(errors[0].span, anchor);
+            let mut fallback = args.clone();
+            fallback.occurrences.as_mut().unwrap().last_mut().unwrap().value_span =
+                Span::detached();
+            let errors = native_figure(&mut EvalContext::new(), &fallback, &world, file)
+                .unwrap_err();
+            assert_eq!(errors[0].span, Span::from_range(file, 25..32));
+        }
+    }
+    #[test]
+    fn figure_reference_constructor_retains_existing_prepared_supplement_alias() {
+        use crate::entities::{
+            content::LocatedContent,
+            elements::figure::{FigureElem, FigureKind, FigureSupplement},
+            func::Func,
+            locator::Locator,
+            value::IntrospectedContent,
+        };
+        use std::sync::Arc;
+        let world = NullWorld::default();
+        let file = crate::contracts::world::World::main(&world);
+        let kind = FigureKind::Element(Func::native(
+            "table",
+            crate::compiler::stdlib::native_table,
+        ));
+        let inner = Content::Figure(Arc::new(FigureElem {
+            body: Content::strong(Content::text("BODY")),
+            caption: Some(Content::text("CAPTION")),
+            kind: Some(Some(kind.clone())),
+            resolved_kind: Some(kind),
+            supplement: Some(FigureSupplement::Content(Content::text("LEXICAL"))),
+            resolved_supplement: Some(Some(Content::text("RESOLVED"))),
+        }));
+        let location = Locator::new().next();
+        let snapshot = IntrospectedContent::new(inner.clone(), None);
+        let mut args = Args::positional(vec![Value::Content(Content::text("OUTER"))]);
+        args.named
+            .insert("supplement".into(), Value::LocatedContent(snapshot, location));
+        let Value::Content(Content::Figure(outer)) =
+            native_figure(&mut EvalContext::new(), &args, &world, file).unwrap()
+        else {
+            panic!("expected outer Figure");
+        };
+        let Some(FigureSupplement::Content(Content::Located(alias))) = &outer.supplement
+        else {
+            panic!(
+                "an already prepared supplement must retain its actual Located identity"
+            );
+        };
+        let LocatedContent { body, location: retained } = alias.as_ref();
+        assert_eq!(*retained, location);
+        assert_eq!(body, &inner, "all prepared language fields must survive the cast");
+        assert_eq!(
+            body.get_field("body").unwrap(),
+            Value::Content(Content::strong(Content::text("BODY")))
+        );
+        assert_eq!(
+            body.get_field("supplement").unwrap(),
+            Value::Content(Content::text("RESOLVED"))
+        );
+        assert!(outer.resolved_kind.is_none(), "outer remains lexical construction");
+        assert!(outer.resolved_supplement.is_none());
     }
 }

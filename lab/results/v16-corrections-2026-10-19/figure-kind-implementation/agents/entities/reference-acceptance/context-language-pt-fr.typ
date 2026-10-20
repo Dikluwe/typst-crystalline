@@ -1,0 +1,1 @@
+#context { set text(lang:"pt"); let lang1=text.lang; set text(lang:"fr"); let lang2=text.lang; assert.eq((lang1,lang2),("pt","fr")); [LANG-OK] }

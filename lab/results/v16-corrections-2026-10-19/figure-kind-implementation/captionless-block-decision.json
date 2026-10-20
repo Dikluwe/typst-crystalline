@@ -1,0 +1,31 @@
+{
+  "utc": "2026-10-20T01:47:37.768215+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "classification": "ADR-0127 continuous parity correction: no public API/entity/compatibility change; default captionless Paged product constructed in existing Figure child realization phase; caption numeric formatting remains in existing layout phase.",
+  "scope": "Paged captionless Figure only. Retain canonical prepared original; build ordinary Block through existing content join and normal root recipes before visiting children. Omit only redundant Figure-location visual wrapper; preserve arbitrary replacement identity. HTML and captioned Figure paths unchanged.",
+  "gate": [
+    {
+      "state": "captionless-block-red3-infra/state.json.gz",
+      "sha256": "7d6425725d6340c4246ddbb2682f8f5021a60342280f4b0d7f05e49351794fc3",
+      "passes": 3,
+      "semantic_failures": 2
+    },
+    {
+      "state": "captionless-block-red2-core/state.json.gz",
+      "sha256": "43ecf4325452ec7f8adb39d8e2f44fa2c9f7b8a55e95a36008a00c7e3f126693",
+      "passes": 0,
+      "semantic_failures": 1
+    }
+  ],
+  "source_evidence": [
+    "agents/counters/default-figure-block-proposal.md",
+    "agents/counters/default-figure-block-oracle-v2/receipt.json",
+    "agents/counters/captionless-block-controls-v2/oracle-receipt.json"
+  ],
+  "retained_limits": [
+    "complete captioned Figure default product",
+    "Block style reflection/breakable support",
+    "SetPage physical running content"
+  ],
+  "no_new_human_decision_required": "Explicit vanilla-parity exception; bounded construction remains in existing realization phase and uses existing public data/contracts."
+}

@@ -1,0 +1,5 @@
+{
+  "utc": "2026-10-20T00:44:35.802385+00:00",
+  "status": "INVALID INVOCATION: product CLI does not accept oracle-only -j. These 31 rows are not semantic RED, not baseline parity evidence.",
+  "repair": "Product runner omits -j; compilation remains sequential. Rerun preserved separately in pre-reference-product-2."
+}

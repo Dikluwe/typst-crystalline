@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/observation/elements.md
-//! @prompt-hash 6acf3a4f
+//! @prompt-hash c28a62e6
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -123,9 +123,51 @@ impl ObservationEq for crate::entities::elements::shape::ShapeElem {
             .and(self.fill_rule.observation_relation(&other.fill_rule))
     }
 }
+impl ObservationEq for crate::entities::elements::grid::GridChildOrder {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        match self {
+            Self::Cell(a) => match other {
+                Self::Cell(b) => a.observation_relation(b),
+                Self::Header => ObservationRelation::Different,
+                Self::Footer => ObservationRelation::Different,
+                Self::HLine(_) => ObservationRelation::Different,
+                Self::VLine(_) => ObservationRelation::Different,
+            },
+            Self::Header => match other {
+                Self::Cell(_) => ObservationRelation::Different,
+                Self::Header => ObservationRelation::Same,
+                Self::Footer => ObservationRelation::Different,
+                Self::HLine(_) => ObservationRelation::Different,
+                Self::VLine(_) => ObservationRelation::Different,
+            },
+            Self::Footer => match other {
+                Self::Cell(_) => ObservationRelation::Different,
+                Self::Header => ObservationRelation::Different,
+                Self::Footer => ObservationRelation::Same,
+                Self::HLine(_) => ObservationRelation::Different,
+                Self::VLine(_) => ObservationRelation::Different,
+            },
+            Self::HLine(a) => match other {
+                Self::Cell(_) => ObservationRelation::Different,
+                Self::Header => ObservationRelation::Different,
+                Self::Footer => ObservationRelation::Different,
+                Self::HLine(b) => a.observation_relation(b),
+                Self::VLine(_) => ObservationRelation::Different,
+            },
+            Self::VLine(a) => match other {
+                Self::Cell(_) => ObservationRelation::Different,
+                Self::Header => ObservationRelation::Different,
+                Self::Footer => ObservationRelation::Different,
+                Self::HLine(_) => ObservationRelation::Different,
+                Self::VLine(b) => a.observation_relation(b),
+            },
+        }
+    }
+}
 impl ObservationEq for crate::entities::elements::grid::GridElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            source_order: _,
             columns: _,
             rows: _,
             cells: _,
@@ -140,6 +182,7 @@ impl ObservationEq for crate::entities::elements::grid::GridElem {
             fill: _,
         } = self;
         ObservationRelation::Same
+            .and(self.source_order.observation_relation(&other.source_order))
             .and(self.columns.observation_relation(&other.columns))
             .and(self.rows.observation_relation(&other.rows))
             .and(self.cells.observation_relation(&other.cells))
@@ -858,13 +901,86 @@ impl ObservationEq for crate::entities::elements::state::StateElem {
             .and(self.init.observation_relation(&other.init))
     }
 }
+impl ObservationEq for crate::entities::elements::figure::FigureKind {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        match self {
+            Self::Element(a) => match other {
+                Self::Element(b) => {
+                    // A shared immutable representation proves stored namespace
+                    // identity, not the behavior of executing its capabilities.
+                    let representation = if std::sync::Arc::ptr_eq(&a.0, &b.0) {
+                        ObservationRelation::Same
+                    } else {
+                        a.observation_relation(b)
+                    };
+                    ObservationRelation::exact(self == other)
+                        .and(
+                            a.diagnostic_span()
+                                .observation_relation(&b.diagnostic_span()),
+                        )
+                        .and(representation)
+                }
+                Self::Name(_) => ObservationRelation::Different,
+            },
+            Self::Name(a) => match other {
+                Self::Name(b) => a.observation_relation(b),
+                Self::Element(_) => ObservationRelation::Different,
+            },
+        }
+    }
+}
+impl ObservationEq for crate::entities::elements::figure::FigureSupplement {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        match self {
+            Self::Auto => match other {
+                Self::Auto => ObservationRelation::Same,
+                Self::None | Self::Content(_) | Self::Func { .. } => {
+                    ObservationRelation::Different
+                }
+            },
+            Self::None => match other {
+                Self::None => ObservationRelation::Same,
+                Self::Auto | Self::Content(_) | Self::Func { .. } => {
+                    ObservationRelation::Different
+                }
+            },
+            Self::Content(a) => match other {
+                Self::Content(b) => a.observation_relation(b),
+                Self::Auto | Self::None | Self::Func { .. } => {
+                    ObservationRelation::Different
+                }
+            },
+            Self::Func { function: a, span: a_span } => match other {
+                Self::Func { function: b, span: b_span } => {
+                    a.observation_relation(b).and(a_span.observation_relation(b_span))
+                }
+                Self::Auto | Self::None | Self::Content(_) => {
+                    ObservationRelation::Different
+                }
+            },
+        }
+    }
+}
 impl ObservationEq for crate::entities::elements::figure::FigureElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { body: _, caption: _, kind: _ } = self;
+        let Self {
+            body: _,
+            caption: _,
+            kind: _,
+            resolved_kind: _,
+            supplement: _,
+            resolved_supplement: _,
+        } = self;
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
             .and(self.caption.observation_relation(&other.caption))
             .and(self.kind.observation_relation(&other.kind))
+            .and(self.resolved_kind.observation_relation(&other.resolved_kind))
+            .and(self.supplement.observation_relation(&other.supplement))
+            .and(
+                self.resolved_supplement
+                    .observation_relation(&other.resolved_supplement),
+            )
     }
 }
 // P1473 — `figure.caption(...)`, escopo reduzido (construção sem síntese).
@@ -1399,6 +1515,116 @@ mod circle_origin_tests {
         assert_eq!(
             circle.observation_relation(&different_radius),
             ObservationRelation::Different
+        );
+    }
+}
+
+#[cfg(test)]
+mod figure_kind_capability_observation_tests {
+    use super::*;
+    use crate::entities::elements::figure::FigureKind;
+    use crate::entities::func::{Func, FuncRepr};
+    use crate::entities::scope::Scope;
+    use crate::entities::value::Value;
+    use std::sync::Arc;
+
+    fn standard(name: &str) -> Func {
+        let scope = crate::compiler::stdlib::make_stdlib_with_features(
+            &crate::contracts::world::SysInputs::default(),
+            crate::entities::compiler_features::Features::empty(),
+        );
+        let Some(Value::Func(function)) = scope.get(name) else {
+            panic!("missing native element")
+        };
+        function.clone()
+    }
+
+    #[test]
+    fn figure_v16_actual_raw_kind_clone_proves_complete_capability_reflexivity() {
+        let raw = standard("raw");
+        let Some(Value::Func(line)) = raw.namespace().unwrap().get("line") else {
+            panic!("raw namespace lost line")
+        };
+        assert!(matches!(line.repr(), FuncRepr::Element(_)));
+        assert_eq!(line.element_name(), Some("raw.line"));
+        let kind = FigureKind::Element(raw);
+        assert_eq!(kind.observation_relation(&kind.clone()), ObservationRelation::Same);
+    }
+
+    #[test]
+    fn figure_v16_kind_observation_retains_namespace_and_independent_capability_boundaries(
+    ) {
+        let raw = standard("raw");
+        let independent = standard("raw");
+        let kind = FigureKind::Element(raw.clone());
+        let independent_kind = FigureKind::Element(independent);
+        assert_eq!(
+            kind, independent_kind,
+            "nominal kind alone deliberately ignores capability metadata"
+        );
+        assert_eq!(
+            kind.observation_relation(&independent_kind),
+            ObservationRelation::Unproven
+        );
+        let with_marker = |value| {
+            let mut namespace: Scope = raw.namespace().unwrap().clone();
+            namespace.define("marker", Value::Int(value));
+            Func::native_with_namespace(
+                "raw",
+                crate::compiler::stdlib::native_raw,
+                Arc::new(namespace),
+            )
+        };
+        let one = with_marker(1);
+        let two = with_marker(2);
+        assert_eq!(one.namespace().unwrap().get("marker"), Some(&Value::Int(1)));
+        assert_eq!(two.namespace().unwrap().get("marker"), Some(&Value::Int(2)));
+        assert_eq!(
+            FigureKind::Element(one).observation_relation(&FigureKind::Element(two)),
+            ObservationRelation::Different
+        );
+        let table = FigureKind::Element(standard("table"));
+        assert_eq!(kind.observation_relation(&table), ObservationRelation::Different);
+        let alias = FigureKind::Element(Func::native_with_namespace(
+            "renamed",
+            crate::compiler::stdlib::native_raw,
+            Arc::new(raw.namespace().unwrap().clone()),
+        ));
+        assert_eq!(
+            kind.observation_relation(&alias),
+            ObservationRelation::Different,
+            "observable native metadata must remain compared"
+        );
+    }
+
+    #[test]
+    fn figure_v16_shared_kind_representation_retains_outer_diagnostic_origin() {
+        let raw = standard("raw");
+        let file = crate::entities::file_id::FileId::from_raw(
+            std::num::NonZeroU16::new(17).unwrap(),
+        );
+        let changed_origin = raw
+            .clone()
+            .with_diagnostic_span(crate::entities::span::Span::from_range(file, 44..45));
+        assert!(Arc::ptr_eq(&raw.0, &changed_origin.0));
+        assert_ne!(raw.diagnostic_span(), changed_origin.diagnostic_span());
+        let original = FigureKind::Element(raw);
+        let changed = FigureKind::Element(changed_origin);
+        assert_eq!(
+            original, changed,
+            "diagnostic origin does not alter nominal kind identity"
+        );
+        assert_eq!(
+            original.observation_relation(&changed),
+            ObservationRelation::Different
+        );
+        assert_eq!(
+            changed.observation_relation(&original),
+            ObservationRelation::Different
+        );
+        assert_eq!(
+            changed.observation_relation(&changed.clone()),
+            ObservationRelation::Same
         );
     }
 }

@@ -1,5 +1,5 @@
 # L0 — introspect/populate
-Hash do Código: 50b7a567
+Hash do Código: 915bc53e
 
 ## Ownership and evidence
 
@@ -113,3 +113,23 @@ contracts. Validate build/workspace/doctests, strict Clippy/Rustdoc, fmt,
 V1/V5/V15/V26 and reverse lineage; no increase in V16. Limits:
 MemoryMax 12 GiB/High 8 GiB/swap0/jobs1; heavy tasks sequentially. Measure consumption
 without inferring global benefit from representation alone.
+
+
+## Approved Figure/Grid occurrence counter correction
+
+### Evidence before decision
+
+Baseline HEAD `731f0ffdf4c7c152f590551e72ff63f7bd85ef85`; the reviewed current-pin measurements and exact source anchors are retained in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, `agents/counter/design.md` and `agents/counter/counter-probes.json`. In that evidence, captionless/numbered Figures count; manual Set/Func actions make caption ordinal indexing incorrect; typed element kinds and custom names require distinct keys. These are language values/errors, not Rust or rendering-byte equality. The human explicitly approved the complete Figure/Grid contracts, phases and compatibility changes in the current implementation session. This approval satisfies ADR-0127 for this exact scope. Historical conflicting caption-only or productive string-projection clauses are superseded only as described here; unrelated contracts remain.
+
+### Exclusive responsibility
+
+Every numbered Figure contributes one canonical automatic action independent of caption; retain the global Figure aggregate, remove automatic user-string figure:<kind> writes. Every numbered Figure label receives typed figure_counter_key from resolved kind, including captionless figures. Caption inventories remain separate; numbered labels never use event index as a Figure ordinal. No automatic compatibility shadow state is added for unprepared inputs; only explicitly registry-populated synthetic string histories remain supported by the unchanged legacy reader.
+
+### Acceptance and limits
+
+L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.
+
+
+### First labelled counter identity
+
+Actual RED integration-tests-4 returns [false,false] for first typed key/unnumbered absence; ownership-oracle-2 fixes the first registry Location independently of later differently typed labels. After registering raw labels unchanged, insert per-label counter identity and numbering error classification only when labels.lookup(label)==the current Location. Apply the same first-target gate to existing Figure/Heading/Equation/Table/Footnote key insertions, so a later different kind cannot replace the first target or turn an unnumbered first Figure into numbered. Preserve all per-Location counts/indexes/actions, raw duplicate label registry, and existing scalar/error observers. This is a scoped internal causal-map repair, with no new public API or weakened ambiguity policy.

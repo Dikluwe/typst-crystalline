@@ -1,0 +1,2215 @@
+{
+  "review_utc": "2026-10-20T02:41:51.745230+00:00",
+  "review_state": "Evidence-only exact diagnostic comparison; no source/L0 writes, lint execution, Cargo or suppression.",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "state": "uncommitted working tree",
+  "diff_head_stat_at_review": " .../core/compiler/eval/bindings/field_access.md    |  17 +-\n .../eval/bindings/field_access/content_methods.md  |  17 +-\n .../compiler/eval/bindings/field_access/fields.md  |  28 +-\n .../core/compiler/eval/call_dispatch/invoke.md     |  29 +-\n .../prompts/core/compiler/eval/context_reads.md    |  43 +-\n .../core/compiler/eval/expression_dispatch.md      |  20 +-\n .../prompts/core/compiler/eval/markup_stream.md    |  12 +-\n 00_nucleo/prompts/core/compiler/eval/mod.md        |  32 +-\n .../core/compiler/eval/observation/content.md      |  28 +-\n .../core/compiler/eval/observation/elements.md     |  47 +-\n .../core/compiler/eval/observation/style.md        |  20 +-\n .../core/compiler/eval/operators/equality.md       |  17 +-\n .../prompts/core/compiler/eval/rules/apply.md      |  52 +-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  19 +-\n .../core/compiler/eval/selector_matching.md        |  19 +-\n 00_nucleo/prompts/core/compiler/eval/tests.md      | 124 ++-\n 00_nucleo/prompts/core/compiler/introspect.md      |  27 +-\n .../core/compiler/introspect/convergence.md        |  26 +-\n .../core/compiler/introspect/entrypoints.md        |  17 +-\n .../core/compiler/introspect/extract_payload.md    |  28 +-\n .../prompts/core/compiler/introspect/fixpoint.md   |  17 +-\n .../prompts/core/compiler/introspect/labelled.md   |  24 +-\n .../prompts/core/compiler/introspect/locatable.md  |  28 +-\n .../core/compiler/introspect/materialize_time.md   |  28 +-\n .../prompts/core/compiler/introspect/populate.md   |  22 +-\n .../prompts/core/compiler/introspect/queries.md    |  17 +-\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  61 +-\n .../prompts/core/compiler/layout/checkpoint.md     |  19 +-\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  17 +-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  25 +-\n .../prompts/core/compiler/layout/placement.md      |  17 +-\n .../prompts/core/compiler/layout/references.md     |  40 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  79 +-\n .../core/compiler/realize/context_occurrences.md   |  20 +-\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  29 +-\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  65 +-\n .../prompts/core/compiler/stdlib/figure_image.md   |  48 +-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  17 +-\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  17 +-\n .../core/compiler/stdlib/tests/figure_image.md     |  16 +-\n .../prompts/core/entities/content/construction.md  |  17 +-\n .../core/entities/content/tests/representation.md  |  17 +-\n .../core/entities/content/tests/traversal.md       |  17 +-\n .../prompts/core/entities/content/traversal.md     |  33 +-\n 00_nucleo/prompts/core/entities/element_payload.md |  31 +-\n 00_nucleo/prompts/core/entities/elements/figure.md |  39 +-\n 00_nucleo/prompts/core/entities/elements/grid.md   |  22 +-\n 00_nucleo/prompts/core/entities/introspector.md    |  24 +-\n 00_nucleo/prompts/core/entities/style_chain.md     |  21 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  62 +-\n 00_nucleo/prompts/infra/export/tests/mod.md        |  17 +-\n 00_nucleo/prompts/infra/integration_tests.md       |  34 +-\n 00_nucleo/prompts/infra/pipeline.md                |  31 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  17 +-\n .../infra/pipeline/context_stabilization.md        |  86 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |   9 +-\n 00_nucleo/prompts/shell/cli.md                     |  17 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |  45 +-\n .../eval/bindings/field_access/content_methods.rs  |  28 +-\n .../compiler/eval/bindings/field_access/fields.rs  |  23 +-\n 01_core/src/compiler/eval/call_dispatch/invoke.rs  |  43 +-\n 01_core/src/compiler/eval/context_reads.rs         | 288 +++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |  12 +-\n 01_core/src/compiler/eval/markup_stream.rs         |   5 +-\n 01_core/src/compiler/eval/mod.rs                   |   7 +-\n 01_core/src/compiler/eval/observation/content.rs   | 173 +++-\n 01_core/src/compiler/eval/observation/elements.rs  | 230 ++++-\n 01_core/src/compiler/eval/observation/style.rs     |  78 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 128 ++-\n 01_core/src/compiler/eval/rules/apply.rs           | 186 ++--\n 01_core/src/compiler/eval/rules/set.rs             |  59 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 124 ++-\n 01_core/src/compiler/eval/tests.rs                 | 673 ++++++++++++--\n 01_core/src/compiler/introspect.rs                 | 979 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  87 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  40 +-\n 01_core/src/compiler/introspect/extract_payload.rs |  13 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  32 +-\n 01_core/src/compiler/introspect/labelled.rs        |  63 +-\n 01_core/src/compiler/introspect/locatable.rs       |   4 +-\n .../src/compiler/introspect/materialize_time.rs    |  90 +-\n 01_core/src/compiler/introspect/populate.rs        |  61 +-\n 01_core/src/compiler/introspect/queries.rs         |  45 +-\n 01_core/src/compiler/introspect/walk.rs            | 143 ++-\n 01_core/src/compiler/layout/checkpoint.rs          |   8 +-\n 01_core/src/compiler/layout/figure.rs              | 338 ++++++-\n 01_core/src/compiler/layout/measurement.rs         |   7 +-\n 01_core/src/compiler/layout/mod.rs                 |  35 +-\n 01_core/src/compiler/layout/placement.rs           |   3 +-\n 01_core/src/compiler/layout/references.rs          | 201 ++++-\n 01_core/src/compiler/layout/tests.rs               | 878 ++++++++++++++----\n .../src/compiler/realize/context_occurrences.rs    |  91 +-\n 01_core/src/compiler/realize/mod.rs                |   5 +-\n 01_core/src/compiler/realize/recipes.rs            | 391 ++++----\n 01_core/src/compiler/stdlib/figure_image.rs        | 412 +++++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  16 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   5 +-\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 114 ++-\n 01_core/src/entities/content/construction.rs       |  13 +-\n .../src/entities/content/tests/representation.rs   |   8 +-\n 01_core/src/entities/content/tests/traversal.rs    |  36 +-\n 01_core/src/entities/content/traversal.rs          | 353 +++++---\n 01_core/src/entities/element_payload.rs            |  46 +-\n 01_core/src/entities/elements/figure.rs            | 539 +++++++++++-\n 01_core/src/entities/elements/grid.rs              |  61 +-\n 01_core/src/entities/introspector.rs               |  11 +-\n 01_core/src/entities/style_chain.rs                |  33 +-\n 02_shell/src/cli.rs                                |  89 +-\n 03_infra/src/export/html/document.rs               | 139 ++-\n 03_infra/src/export/tests/mod.rs                   |  29 +-\n 03_infra/src/integration_tests.rs                  | 104 ++-\n 03_infra/src/pipeline.rs                           | 387 +++++++-\n 03_infra/src/pipeline/bundle.rs                    |  15 +-\n 03_infra/src/pipeline/context_stabilization.rs     | 944 +++++++++++++++++++-\n 03_infra/src/pipeline/paged.rs                     | 344 ++++----\n 116 files changed, 9658 insertions(+), 1407 deletions(-)\n",
+  "scope": {
+    "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/scope.json",
+    "sha256": "5993b152d72b0b8553d90625cacfd2c68924fd874afbf5dc574f0d817dbaea25",
+    "pairs": 63
+  },
+  "baseline": {
+    "path": "lab/results/v16-corrections-2026-10-19/figure-kind/validation/full-lint.sarif.gz",
+    "sha256": "cf4bf5515a3c479d044d2c9d580002387e3f7f72fb68c87835c8f6173e88a569",
+    "counts": {
+      "V16:error": 20,
+      "V19:note": 1262,
+      "V20:note": 877
+    }
+  },
+  "candidate": {
+    "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/lint-final-10/after.sarif.gz",
+    "sha256": "b17838861a4c3192595192abb68b0509c3e201597c13891ed1b392ca2a0bcfb5",
+    "counts": {
+      "V16:error": 18,
+      "V19:note": 1315,
+      "V20:note": 905
+    },
+    "state_path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/lint-final-10/lint-state.json.gz",
+    "state_sha256": "64801cb09c88bb5f47a4f914936444489cd7d614829b89456e049d475cef52a0",
+    "utc_start": "2026-10-20T02:41:39.407016+00:00",
+    "utc_end": "2026-10-20T02:41:45.060939+00:00",
+    "changed_inputs_during_lint": [],
+    "linter_sha256": "421d0797e7ae1a5102e9c5bcd87b488fea70a1997394c38765a03239fe579121",
+    "command": [
+      "/repos/Antigravity/typst-crystalline/lab/target/linter/debug/crystalline-lint",
+      ".",
+      "--format",
+      "sarif"
+    ]
+  },
+  "outside_scope_complete_objects": {
+    "baseline_occurrences": 1606,
+    "final_occurrences": 1606,
+    "removed": [],
+    "added": [],
+    "baseline_multiset_sha256": "ca80bb66eff19a14dbcc7547aa4a21f0868086060914bc633e789031de7aefd5",
+    "final_multiset_sha256": "ca80bb66eff19a14dbcc7547aa4a21f0868086060914bc633e789031de7aefd5"
+  },
+  "inside_scope_comparison": "Exact source/rule/level/full-message multiset; locations retained separately; no loss of repeated multiplicity.",
+  "removed": [
+    {
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 98; guard: ausente; padrão: `other @ (Content::Empty\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Sequence(..)\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathSequence(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::Figure(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..))`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/bindings/field_access/content_methods.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 239
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `other @ (Content::Empty\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Sequence(..)\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathSequence(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::Figure(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/bindings/field_access/content_methods.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 239
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/context_reads.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 14; guard: ausente; padrão: `ContextReadRequest::CounterFold { .. }\n                | ContextReadRequest::CounterResolve { .. }\n                | ContextReadRequest::CounterLegacyAt { .. }\n                | ContextReadRequest::CounterLegacyFinal { .. }\n                | ContextReadRequest::StateResolveLabel { .. }\n                | ContextReadRequest::StateLegacyAt { .. }\n                | ContextReadRequest::StateLegacyFinal { .. }\n                | ContextReadRequest::Query { .. }\n                | ContextReadRequest::Locate { .. }\n                | ContextReadRequest::Here\n                | ContextReadRequest::LocationPage { .. }\n                | ContextReadRequest::LocationPosition { .. }\n                | ContextReadRequest::LocationPageNumbering { .. }\n                | ContextReadRequest::OutlineEntryPage { .. }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/context_reads.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 433
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/selector_matching.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 47; guard: ausente; padrão: `Content::Space\n        | Content::SpaceFromNewline\n        | Content::HtmlElem(_)\n        | Content::HtmlFrame(_)\n        | Content::Par { .. }\n        | Content::Heading(_)\n        | Content::Title(_)\n        | Content::Strong(_)\n        | Content::Emph(_)\n        | Content::Raw(_)\n        | Content::ListItem(_)\n        | Content::EnumItem(_)\n        | Content::Link(_)\n        | Content::MathSequence(_)\n        | Content::MathIdent(_)\n        | Content::MathText(_)\n        | Content::MathDelimited(_)\n        | Content::MathAlignPoint(_)\n        | Content::MathUnderover(_)\n        | Content::MathStyled(_)\n        | Content::Label(_)\n        | Content::CounterDisplay(_)\n        | Content::CounterUpdate(_)\n        | Content::Figure(_)\n        | Content::FigureCaption(_)\n        | Content::Curve(_)\n        | Content::SetPage(_)\n        | Content::Flush(_)\n        | Content::Divider(_)\n        | Content::TermItem(_)\n        | Content::Quote(_)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::PdfAttach(_)\n        | Content::PdfArtifact(_)\n        | Content::Underline(_)\n        | Content::Strike(_)\n        | Content::Overline(_)\n        | Content::SmallCaps { .. }\n        | Content::Footnote(_)\n        | Content::FootnoteEntry(_)\n        | Content::State(_)\n        | Content::StateUpdate(_)\n        | Content::StateDisplay(_)\n        | Content::CounterDisplayCallback(_)\n        | Content::ContextBlock(_)\n        | Content::Dynamic(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/selector_matching.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 449
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/walk.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 117; guard: ausente; padrão: `Content::Source(_)\n                    | Content::Realized(_)\n                    | Content::Empty\n                    | Content::Text(_)\n                    | Content::Space\n                    | Content::SpaceFromNewline\n                    | Content::Parbreak\n                    | Content::Sequence(_)\n                    | Content::HtmlElem(_)\n                    | Content::HtmlFrame(_)\n                    | Content::Par { .. }\n                    | Content::Heading(_)\n                    | Content::Title(_)\n                    | Content::Strong(_)\n                    | Content::Emph(_)\n                    | Content::Raw(_)\n                    | Content::ListItem(_)\n                    | Content::EnumItem(_)\n                    | Content::Link(_)\n                    | Content::Equation(_)\n                    | Content::MathSequence(_)\n                    | Content::MathIdent(_)\n                    | Content::MathText(_)\n                    | Content::MathFrac(_)\n                    | Content::MathAttach(_)\n                    | Content::MathPrimes(_)\n                    | Content::MathRoot(_)\n                    | Content::MathStretch(_)\n                    | Content::MathDelimited(_)\n                    | Content::MathLr(_)\n                    | Content::MathMid(_)\n                    | Content::MathOverbrace(_)\n                    | Content::MathUnderbrace(_)\n                    | Content::MathUnderbracket(_)\n                    | Content::MathUnderparen(_)\n                    | Content::MathUndershell(_)\n                    | Content::MathOverbracket(_)\n                    | Content::MathOverparen(_)\n                    | Content::MathOvershell(_)\n                    | Content::MathAlignPoint(_)\n                    | Content::Linebreak(_)\n                    | Content::MathMatrix(_)\n                    | Content::MathCases(_)\n                    | Content::MathAccent(_)\n                    | Content::MathCancel(_)\n                    | Content::MathUnderline(_)\n                    | Content::MathOverline(_)\n                    | Content::MathVec(_)\n                    | Content::MathClassOverride(_)\n                    | Content::MathLimitsOverride(_)\n                    | Content::MathUnderover(_)\n                    | Content::MathOp(_)\n                    | Content::MathStyled(_)\n                    | Content::Label(_)\n                    | Content::Ref(_)\n                    | Content::CounterDisplay(_)\n                    | Content::CounterUpdate(_)\n                    | Content::Outline(_)\n                    | Content::OutlineEntry(_)\n                    | Content::Figure(_)\n                    | Content::FigureCaption(_)\n                    | Content::Image(_)\n                    | Content::Shape(_)\n                    | Content::Curve(_)\n                    | Content::Transform(_)\n                    | Content::Grid(_)\n                    | Content::GridHeader(_)\n                    | Content::GridFooter(_)\n                    | Content::GridCell(_)\n                    | Content::SetPage(_)\n                    | Content::PageRun(_)\n                    | Content::Align(_)\n                    | Content::Place(_)\n                    | Content::Flush(_)\n                    | Content::Styled(_)\n                    | Content::Divider(_)\n                    | Content::Terms(_)\n                    | Content::TermItem(_)\n                    | Content::Quote(_)\n                    | Content::Document { .. }\n                    | Content::Asset { .. }\n                    | Content::SmartQuote(_)\n                    | Content::PdfAttach(_)\n                    | Content::PdfArtifact(_)\n                    | Content::Underline(_)\n                    | Content::Strike(_)\n                    | Content::Overline(_)\n                    | Content::SmallCaps { .. }\n                    | Content::Pad(_)\n                    | Content::Hide(_)\n                    | Content::HSpace(_)\n                    | Content::VSpace(_)\n                    | Content::Pagebreak(_)\n                    | Content::Colbreak(_)\n                    | Content::Stack(_)\n                    | Content::Boxed(_)\n                    | Content::Block(_)\n                    | Content::TableCell(_)\n                    | Content::Bibliography(_)\n                    | Content::Cite(_)\n                    | Content::Footnote(_)\n                    | Content::FootnoteEntry(_)\n                    | Content::TableHeader(_)\n                    | Content::TableFooter(_)\n                    | Content::GridHLine(_)\n                    | Content::GridVLine(_)\n                    | Content::TableHLine(_)\n                    | Content::TableVLine(_)\n                    | Content::Repeat(_)\n                    | Content::Columns(_)\n                    | Content::Metadata(_)\n                    | Content::State(_)\n                    | Content::StateUpdate(_)\n                    | Content::StateDisplay(_)\n                    | Content::CounterDisplayCallback(_)\n                    | Content::ContextBlock(_)\n                    | Content::Dynamic(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/walk.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 411
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/figure.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 30
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/recipes.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 116; guard: ausente; padrão: `Content::Source(_)\n                | Content::ShowRecipe(_)\n                | Content::Realized(_)\n                | Content::Empty\n                | Content::Text(_)\n                | Content::Space\n                | Content::SpaceFromNewline\n                | Content::Parbreak\n                | Content::HtmlElem(_)\n                | Content::HtmlFrame(_)\n                | Content::Par { .. }\n                | Content::Heading(_)\n                | Content::Title(_)\n                | Content::Strong(_)\n                | Content::Emph(_)\n                | Content::Raw(_)\n                | Content::ListItem(_)\n                | Content::EnumItem(_)\n                | Content::Link(_)\n                | Content::MathSequence(_)\n                | Content::MathIdent(_)\n                | Content::MathText(_)\n                | Content::MathFrac(_)\n                | Content::MathAttach(_)\n                | Content::MathPrimes(_)\n                | Content::MathRoot(_)\n                | Content::MathStretch(_)\n                | Content::MathDelimited(_)\n                | Content::MathLr(_)\n                | Content::MathMid(_)\n                | Content::MathOverbrace(_)\n                | Content::MathUnderbrace(_)\n                | Content::MathUnderbracket(_)\n                | Content::MathUnderparen(_)\n                | Content::MathUndershell(_)\n                | Content::MathOverbracket(_)\n                | Content::MathOverparen(_)\n                | Content::MathOvershell(_)\n                | Content::MathAlignPoint(_)\n                | Content::Linebreak(_)\n                | Content::MathMatrix(_)\n                | Content::MathCases(_)\n                | Content::MathAccent(_)\n                | Content::MathCancel(_)\n                | Content::MathUnderline(_)\n                | Content::MathOverline(_)\n                | Content::MathVec(_)\n                | Content::MathClassOverride(_)\n                | Content::MathLimitsOverride(_)\n                | Content::MathUnderover(_)\n                | Content::MathOp(_)\n                | Content::MathStyled(_)\n                | Content::Label(_)\n                | Content::Ref(_)\n                | Content::CounterDisplay(_)\n                | Content::CounterUpdate(_)\n                | Content::Outline(_)\n                | Content::OutlineEntry(_)\n                | Content::Figure(_)\n                | Content::FigureCaption(_)\n                | Content::Image(_)\n                | Content::Shape(_)\n                | Content::Curve(_)\n                | Content::Transform(_)\n                | Content::Grid(_)\n                | Content::GridHeader(_)\n                | Content::GridFooter(_)\n                | Content::GridCell(_)\n                | Content::SetPage(_)\n                | Content::PageRun(_)\n                | Content::Align(_)\n                | Content::Place(_)\n                | Content::Flush(_)\n                | Content::Divider(_)\n                | Content::Terms(_)\n                | Content::TermItem(_)\n                | Content::Quote(_)\n                | Content::Document { .. }\n                | Content::Asset { .. }\n                | Content::SmartQuote(_)\n                | Content::PdfAttach(_)\n                | Content::PdfArtifact(_)\n                | Content::Underline(_)\n                | Content::Strike(_)\n                | Content::Overline(_)\n                | Content::SmallCaps { .. }\n                | Content::Pad(_)\n                | Content::Hide(_)\n                | Content::HSpace(_)\n                | Content::VSpace(_)\n                | Content::Pagebreak(_)\n                | Content::Colbreak(_)\n                | Content::Stack(_)\n                | Content::Boxed(_)\n                | Content::Block(_)\n                | Content::TableCell(_)\n                | Content::Bibliography(_)\n                | Content::Cite(_)\n                | Content::Footnote(_)\n                | Content::FootnoteEntry(_)\n                | Content::TableHeader(_)\n                | Content::TableFooter(_)\n                | Content::GridHLine(_)\n                | Content::GridVLine(_)\n                | Content::TableHLine(_)\n                | Content::TableVLine(_)\n                | Content::Table(_)\n                | Content::Repeat(_)\n                | Content::Columns(_)\n                | Content::Metadata(_)\n                | Content::State(_)\n                | Content::StateUpdate(_)\n                | Content::StateDisplay(_)\n                | Content::CounterDisplayCallback(_)\n                | Content::ContextBlock(_)\n                | Content::Dynamic(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/recipes.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 62
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V16",
+      "level": "error",
+      "message": "wildcard `_ =>` descarta informação com default neutro `None` em enum de domínio",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 69
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "rule": "V16",
+      "level": "error",
+      "message": "wildcard `_ =>` descarta informação com default neutro `None` em enum de domínio",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./03_infra/src/pipeline.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 529
+              }
+            }
+          }
+        ]
+      ]
+    }
+  ],
+  "added": [
+    {
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padrão: `\"body\" | \"caption\" | \"kind\" | \"supplement\"`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/bindings/field_access/content_methods.rs"
+              },
+              "region": {
+                "startColumn": 13,
+                "startLine": 89
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 97; guard: ausente; padrão: `other @ (Content::Empty\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Sequence(..)\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathSequence(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..))`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/bindings/field_access/content_methods.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 249
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `other @ (Content::Empty\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Sequence(..)\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathSequence(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/bindings/field_access/content_methods.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 249
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/context_reads.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 15; guard: ausente; padrão: `ContextReadRequest::CounterFold { .. }\n                | ContextReadRequest::CounterResolve { .. }\n                | ContextReadRequest::CounterLegacyAt { .. }\n                | ContextReadRequest::CounterLegacyFinal { .. }\n                | ContextReadRequest::StateResolveLabel { .. }\n                | ContextReadRequest::StateLegacyAt { .. }\n                | ContextReadRequest::StateLegacyFinal { .. }\n                | ContextReadRequest::ReferenceTargetEligibility { .. }\n                | ContextReadRequest::Query { .. }\n                | ContextReadRequest::Locate { .. }\n                | ContextReadRequest::Here\n                | ContextReadRequest::LocationPage { .. }\n                | ContextReadRequest::LocationPosition { .. }\n                | ContextReadRequest::LocationPageNumbering { .. }\n                | ContextReadRequest::OutlineEntryPage { .. }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/context_reads.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 524
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padrão: `Self::Auto | Self::Content(_) | Self::Func { .. }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/observation/elements.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 943
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padrão: `Self::Auto | Self::None | Self::Content(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/observation/elements.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 957
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padrão: `Self::Auto | Self::None | Self::Func { .. }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/observation/elements.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 949
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padrão: `Self::None | Self::Content(_) | Self::Func { .. }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/observation/elements.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 937
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/observation/style.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `(Some(_), None) | (None, Some(_))`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/observation/style.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 22
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `(Value::Func(_), Value::Str(_)) | (Value::Str(_), Value::Func(_))`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/operators/equality.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 207
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Selector::And(selectors) | Selector::Or(selectors)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/operators/equality.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 233
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Selector::NativeElement(function) | Selector::Element { function, .. }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/operators/equality.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 226
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padrão: `Selector::Label(_) | Selector::Location(_) | Selector::Regex(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/operators/equality.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 236
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padrão: `Selector::Where { base, .. }\n        | Selector::Within { base, .. }\n        | Selector::Before { base, .. }\n        | Selector::After { base, .. }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/operators/equality.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 229
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/eval/selector_matching.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 32; guard: ausente; padrão: `Content::Space\n        | Content::SpaceFromNewline\n        | Content::Par { .. }\n        | Content::Heading(_)\n        | Content::Strong(_)\n        | Content::Emph(_)\n        | Content::Raw(_)\n        | Content::Link(_)\n        | Content::MathSequence(_)\n        | Content::MathIdent(_)\n        | Content::MathText(_)\n        | Content::MathDelimited(_)\n        | Content::MathAlignPoint(_)\n        | Content::MathUnderover(_)\n        | Content::MathStyled(_)\n        | Content::Label(_)\n        | Content::CounterDisplay(_)\n        | Content::CounterUpdate(_)\n        | Content::Figure(_)\n        | Content::SetPage(_)\n        | Content::Quote(_)\n        | Content::Underline(_)\n        | Content::Strike(_)\n        | Content::Overline(_)\n        | Content::SmallCaps { .. }\n        | Content::Footnote(_)\n        | Content::State(_)\n        | Content::StateUpdate(_)\n        | Content::StateDisplay(_)\n        | Content::CounterDisplayCallback(_)\n        | Content::ContextBlock(_)\n        | Content::Dynamic(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/eval/selector_matching.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 516
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 4 > 2 em `Some(Some(FigureKind::Name(ref name)))` fora de contexto-tabela",
+      "delta_occurrences": 3,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 1718
+              }
+            }
+          }
+        ],
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 1724
+              }
+            }
+          }
+        ],
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 1730
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/figure_demands.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Content::Par { body } | Content::SmallCaps { body }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/figure_demands.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 65
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/figure_demands.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Content::Sequence(parts) | Content::MathSequence(parts)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/figure_demands.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 60
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/figure_demands.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 38; guard: ausente; padrão: `Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Raw(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathPrimes(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::SetPage(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/figure_demands.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 369
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Some(crate::entities::elements::figure::FigureKind::Element(_))\n                | None`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/labelled.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 70
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(crate::entities::elements::figure::FigureKind::Element(_))\n                | None` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/labelled.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 70
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(crate::entities::elements::figure::FigureKind::Name(name))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/labelled.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 67
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 5; guard: ausente; padrão: `Some(crate::entities::elements::figure::FigureSupplement::Auto | crate::entities::elements::figure::FigureSupplement::None | crate::entities::elements::figure::FigureSupplement::Func { .. }) | None`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/materialize_time.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 121
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(crate::entities::elements::figure::FigureSupplement::Auto | crate::entities::elements::figure::FigureSupplement::None | crate::entities::elements::figure::FigureSupplement::Func { .. }) | None` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/materialize_time.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 121
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(crate::entities::elements::figure::FigureSupplement::Content(content))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/materialize_time.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 120
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/walk.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 116; guard: ausente; padrão: `Content::Source(_)\n                    | Content::Realized(_)\n                    | Content::Empty\n                    | Content::Text(_)\n                    | Content::Space\n                    | Content::SpaceFromNewline\n                    | Content::Parbreak\n                    | Content::Sequence(_)\n                    | Content::HtmlElem(_)\n                    | Content::HtmlFrame(_)\n                    | Content::Par { .. }\n                    | Content::Heading(_)\n                    | Content::Title(_)\n                    | Content::Strong(_)\n                    | Content::Emph(_)\n                    | Content::Raw(_)\n                    | Content::ListItem(_)\n                    | Content::EnumItem(_)\n                    | Content::Link(_)\n                    | Content::Equation(_)\n                    | Content::MathSequence(_)\n                    | Content::MathIdent(_)\n                    | Content::MathText(_)\n                    | Content::MathFrac(_)\n                    | Content::MathAttach(_)\n                    | Content::MathPrimes(_)\n                    | Content::MathRoot(_)\n                    | Content::MathStretch(_)\n                    | Content::MathDelimited(_)\n                    | Content::MathLr(_)\n                    | Content::MathMid(_)\n                    | Content::MathOverbrace(_)\n                    | Content::MathUnderbrace(_)\n                    | Content::MathUnderbracket(_)\n                    | Content::MathUnderparen(_)\n                    | Content::MathUndershell(_)\n                    | Content::MathOverbracket(_)\n                    | Content::MathOverparen(_)\n                    | Content::MathOvershell(_)\n                    | Content::MathAlignPoint(_)\n                    | Content::Linebreak(_)\n                    | Content::MathMatrix(_)\n                    | Content::MathCases(_)\n                    | Content::MathAccent(_)\n                    | Content::MathCancel(_)\n                    | Content::MathUnderline(_)\n                    | Content::MathOverline(_)\n                    | Content::MathVec(_)\n                    | Content::MathClassOverride(_)\n                    | Content::MathLimitsOverride(_)\n                    | Content::MathUnderover(_)\n                    | Content::MathOp(_)\n                    | Content::MathStyled(_)\n                    | Content::Label(_)\n                    | Content::Ref(_)\n                    | Content::CounterDisplay(_)\n                    | Content::CounterUpdate(_)\n                    | Content::Outline(_)\n                    | Content::OutlineEntry(_)\n                    | Content::Figure(_)\n                    | Content::FigureCaption(_)\n                    | Content::Image(_)\n                    | Content::Shape(_)\n                    | Content::Curve(_)\n                    | Content::Transform(_)\n                    | Content::Grid(_)\n                    | Content::GridHeader(_)\n                    | Content::GridFooter(_)\n                    | Content::GridCell(_)\n                    | Content::SetPage(_)\n                    | Content::PageRun(_)\n                    | Content::Align(_)\n                    | Content::Place(_)\n                    | Content::Flush(_)\n                    | Content::Styled(_)\n                    | Content::Divider(_)\n                    | Content::Terms(_)\n                    | Content::TermItem(_)\n                    | Content::Quote(_)\n                    | Content::Document { .. }\n                    | Content::Asset { .. }\n                    | Content::SmartQuote(_)\n                    | Content::PdfAttach(_)\n                    | Content::PdfArtifact(_)\n                    | Content::Underline(_)\n                    | Content::Strike(_)\n                    | Content::Overline(_)\n                    | Content::SmallCaps { .. }\n                    | Content::Pad(_)\n                    | Content::Hide(_)\n                    | Content::HSpace(_)\n                    | Content::VSpace(_)\n                    | Content::Pagebreak(_)\n                    | Content::Colbreak(_)\n                    | Content::Stack(_)\n                    | Content::Boxed(_)\n                    | Content::TableCell(_)\n                    | Content::Bibliography(_)\n                    | Content::Cite(_)\n                    | Content::Footnote(_)\n                    | Content::FootnoteEntry(_)\n                    | Content::TableHeader(_)\n                    | Content::TableFooter(_)\n                    | Content::GridHLine(_)\n                    | Content::GridVLine(_)\n                    | Content::TableHLine(_)\n                    | Content::TableVLine(_)\n                    | Content::Repeat(_)\n                    | Content::Columns(_)\n                    | Content::Metadata(_)\n                    | Content::State(_)\n                    | Content::StateUpdate(_)\n                    | Content::StateDisplay(_)\n                    | Content::CounterDisplayCallback(_)\n                    | Content::ContextBlock(_)\n                    | Content::Dynamic(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/walk.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 477
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/introspect/walk.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Content::Table(_) | Content::Block(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/introspect/walk.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 474
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Some(Value::None | Value::Func(_))`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/figure.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 29
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Some(_) | None`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/figure.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 68
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Some(crate::entities::elements::figure::FigureKind::Element(_)) | None`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/figure.rs"
+              },
+              "region": {
+                "startColumn": 13,
+                "startLine": 80
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(Value::None | Value::Func(_))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/figure.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 29
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(Value::Str(pattern))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/figure.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 27
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(crate::entities::elements::figure::FigureKind::Element(_)) | None` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/figure.rs"
+              },
+              "region": {
+                "startColumn": 13,
+                "startLine": 80
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(crate::entities::elements::figure::FigureKind::Name(name))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/figure.rs"
+              },
+              "region": {
+                "startColumn": 13,
+                "startLine": 77
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/references.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Some(_) | None`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/references.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 257
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 4 > 2 em `Some(Some(FigureKind::Name(ref name)))` fora de contexto-tabela",
+      "delta_occurrences": 2,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/tests.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 17225
+              }
+            }
+          }
+        ],
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/layout/tests.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 17231
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 14; guard: ausente; padrão: `crate::entities::value::Type::None\n            | crate::entities::value::Type::Auto\n            | crate::entities::value::Type::Module\n            | crate::entities::value::Type::Function\n            | crate::entities::value::Type::Content\n            | crate::entities::value::Type::Length\n            | crate::entities::value::Type::Ratio\n            | crate::entities::value::Type::Angle\n            | crate::entities::value::Type::Color\n            | crate::entities::value::Type::Fraction\n            | crate::entities::value::Type::Alignment\n            | crate::entities::value::Type::Gradient\n            | crate::entities::value::Type::Direction\n            | crate::entities::value::Type::Location`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/figure_kind.rs"
+              },
+              "region": {
+                "startColumn": 13,
+                "startLine": 65
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 22; guard: ausente; padrão: `crate::entities::value::Type::Int\n            | crate::entities::value::Type::Float\n            | crate::entities::value::Type::Str\n            | crate::entities::value::Type::Array\n            | crate::entities::value::Type::Dictionary\n            | crate::entities::value::Type::Datetime\n            | crate::entities::value::Type::Stroke\n            | crate::entities::value::Type::Regex\n            | crate::entities::value::Type::Tiling\n            | crate::entities::value::Type::Bytes\n            | crate::entities::value::Type::Decimal\n            | crate::entities::value::Type::Duration\n            | crate::entities::value::Type::Version\n            | crate::entities::value::Type::Selector\n            | crate::entities::value::Type::Symbol\n            | crate::entities::value::Type::Arguments\n            | crate::entities::value::Type::State\n            | crate::entities::value::Type::Counter\n            | crate::entities::value::Type::Label\n            | crate::entities::value::Type::Path\n            | crate::entities::value::Type::Type\n            | crate::entities::value::Type::SpotColorant`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/figure_kind.rs"
+              },
+              "region": {
+                "startColumn": 13,
+                "startLine": 35
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Content::Par { body } | Content::SmallCaps { body }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/figure_kind.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 352
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Content::Sequence(parts) | Content::MathSequence(parts)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/figure_kind.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 355
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `GridChildOrder::Header | GridChildOrder::Footer`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/figure_kind.rs"
+              },
+              "region": {
+                "startColumn": 13,
+                "startLine": 600
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 36; guard: ausente; padrão: `Content::Image(..)\n        | Content::Raw(..)\n        | Content::StateUpdate(..)\n        | Content::State(..)\n        | Content::ContextBlock(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::Dynamic(..)\n        | Content::SetPage(..)\n        | Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathPrimes(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/figure_kind.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 543
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 36; guard: ausente; padrão: `Value::None\n        | Value::Bool(..)\n        | Value::Int(..)\n        | Value::Float(..)\n        | Value::Str(..)\n        | Value::Dict(..)\n        | Value::Module(..)\n        | Value::Datetime(..)\n        | Value::Func(..)\n        | Value::Auto\n        | Value::Length(..)\n        | Value::Relative(..)\n        | Value::Ratio(..)\n        | Value::Angle(..)\n        | Value::Color(..)\n        | Value::Stroke(..)\n        | Value::Fraction(..)\n        | Value::Align(..)\n        | Value::Location(..)\n        | Value::Gradient(..)\n        | Value::Regex(..)\n        | Value::Tiling(..)\n        | Value::Bytes(..)\n        | Value::Decimal(..)\n        | Value::Duration(..)\n        | Value::Version(..)\n        | Value::Selector(..)\n        | Value::Symbol(..)\n        | Value::Args(..)\n        | Value::State(..)\n        | Value::Counter(..)\n        | Value::Label(..)\n        | Value::Dir(..)\n        | Value::Path(..)\n        | Value::Type(..)\n        | Value::SpotColorant(..)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/figure_kind.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 266
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/recipes.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 114; guard: ausente; padrão: `Content::Source(_)\n                    | Content::ShowRecipe(_)\n                    | Content::Realized(_)\n                    | Content::Empty\n                    | Content::Text(_)\n                    | Content::Space\n                    | Content::SpaceFromNewline\n                    | Content::Parbreak\n                    | Content::HtmlElem(_)\n                    | Content::HtmlFrame(_)\n                    | Content::Par { .. }\n                    | Content::Heading(_)\n                    | Content::Title(_)\n                    | Content::Strong(_)\n                    | Content::Emph(_)\n                    | Content::Raw(_)\n                    | Content::ListItem(_)\n                    | Content::EnumItem(_)\n                    | Content::Link(_)\n                    | Content::MathSequence(_)\n                    | Content::MathIdent(_)\n                    | Content::MathText(_)\n                    | Content::MathFrac(_)\n                    | Content::MathAttach(_)\n                    | Content::MathPrimes(_)\n                    | Content::MathRoot(_)\n                    | Content::MathStretch(_)\n                    | Content::MathDelimited(_)\n                    | Content::MathLr(_)\n                    | Content::MathMid(_)\n                    | Content::MathOverbrace(_)\n                    | Content::MathUnderbrace(_)\n                    | Content::MathUnderbracket(_)\n                    | Content::MathUnderparen(_)\n                    | Content::MathUndershell(_)\n                    | Content::MathOverbracket(_)\n                    | Content::MathOverparen(_)\n                    | Content::MathOvershell(_)\n                    | Content::MathAlignPoint(_)\n                    | Content::Linebreak(_)\n                    | Content::MathMatrix(_)\n                    | Content::MathCases(_)\n                    | Content::MathAccent(_)\n                    | Content::MathCancel(_)\n                    | Content::MathUnderline(_)\n                    | Content::MathOverline(_)\n                    | Content::MathVec(_)\n                    | Content::MathClassOverride(_)\n                    | Content::MathLimitsOverride(_)\n                    | Content::MathUnderover(_)\n                    | Content::MathOp(_)\n                    | Content::MathStyled(_)\n                    | Content::Label(_)\n                    | Content::CounterDisplay(_)\n                    | Content::CounterUpdate(_)\n                    | Content::Outline(_)\n                    | Content::OutlineEntry(_)\n                    | Content::FigureCaption(_)\n                    | Content::Image(_)\n                    | Content::Shape(_)\n                    | Content::Curve(_)\n                    | Content::Transform(_)\n                    | Content::Grid(_)\n                    | Content::GridHeader(_)\n                    | Content::GridFooter(_)\n                    | Content::GridCell(_)\n                    | Content::SetPage(_)\n                    | Content::PageRun(_)\n                    | Content::Align(_)\n                    | Content::Place(_)\n                    | Content::Flush(_)\n                    | Content::Divider(_)\n                    | Content::Terms(_)\n                    | Content::TermItem(_)\n                    | Content::Quote(_)\n                    | Content::Document { .. }\n                    | Content::Asset { .. }\n                    | Content::SmartQuote(_)\n                    | Content::PdfAttach(_)\n                    | Content::PdfArtifact(_)\n                    | Content::Underline(_)\n                    | Content::Strike(_)\n                    | Content::Overline(_)\n                    | Content::SmallCaps { .. }\n                    | Content::Pad(_)\n                    | Content::Hide(_)\n                    | Content::HSpace(_)\n                    | Content::VSpace(_)\n                    | Content::Pagebreak(_)\n                    | Content::Colbreak(_)\n                    | Content::Stack(_)\n                    | Content::Boxed(_)\n                    | Content::Block(_)\n                    | Content::TableCell(_)\n                    | Content::Bibliography(_)\n                    | Content::Cite(_)\n                    | Content::Footnote(_)\n                    | Content::FootnoteEntry(_)\n                    | Content::TableHeader(_)\n                    | Content::TableFooter(_)\n                    | Content::GridHLine(_)\n                    | Content::GridVLine(_)\n                    | Content::TableHLine(_)\n                    | Content::TableVLine(_)\n                    | Content::Table(_)\n                    | Content::Repeat(_)\n                    | Content::Columns(_)\n                    | Content::Metadata(_)\n                    | Content::State(_)\n                    | Content::StateUpdate(_)\n                    | Content::StateDisplay(_)\n                    | Content::CounterDisplayCallback(_)\n                    | Content::ContextBlock(_)\n                    | Content::Dynamic(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/recipes.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 107
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/reference_supplements.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padrão: `Value::None\n        | Value::Bool(..)\n        | Value::Int(..)\n        | Value::Float(..)\n        | Value::Str(..)\n        | Value::Array(..)\n        | Value::Dict(..)\n        | Value::Module(..)\n        | Value::Datetime(..)\n        | Value::Func(..)\n        | Value::Auto\n        | Value::Length(..)\n        | Value::Relative(..)\n        | Value::Ratio(..)\n        | Value::Angle(..)\n        | Value::Color(..)\n        | Value::Stroke(..)\n        | Value::Fraction(..)\n        | Value::Align(..)\n        | Value::Location(..)\n        | Value::Gradient(..)\n        | Value::Regex(..)\n        | Value::Tiling(..)\n        | Value::Bytes(..)\n        | Value::Decimal(..)\n        | Value::Duration(..)\n        | Value::Version(..)\n        | Value::Selector(..)\n        | Value::Symbol(..)\n        | Value::Args(..)\n        | Value::State(..)\n        | Value::Counter(..)\n        | Value::Label(..)\n        | Value::Dir(..)\n        | Value::Path(..)\n        | Value::Type(..)\n        | Value::SpotColorant(..)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/reference_supplements.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 315
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/realize/reference_supplements.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(Value::Args(origin))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/realize/reference_supplements.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 207
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 32; guard: ausente; padrão: `Some(\n            value @ (Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)),\n        )`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 247
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 34; guard: ausente; padrão: `Some(\n            other @ (Value::None\n            | Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::SpotColorant(..)),\n        )`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 183
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 36; guard: ausente; padrão: `Some(\n            value @ (Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)),\n        )`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 295
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padrão: `Some(value @ (Value::Str(_) | Value::Func(_) | Value::None))`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 292
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padrão: `Some(\n            value @ (Value::Content(_)\n            | Value::LocatedContent(_, _)\n            | Value::Str(_)\n            | Value::Symbol(_)),\n        )`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 238
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(Value::Func(function))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 106
+              }
+            }
+          }
+        ],
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 234
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 4 > 2 em `Some(\n            other @ (Value::None\n            | Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::SpotColorant(..)),\n        )` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 183
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 4 > 2 em `Some(\n            value @ (Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)),\n        )` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 295
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 4 > 2 em `Some(\n            value @ (Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)),\n        )` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 247
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 4 > 2 em `Some(\n            value @ (Value::Content(_)\n            | Value::LocatedContent(_, _)\n            | Value::Str(_)\n            | Value::Symbol(_)),\n        )` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 238
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 4 > 2 em `Some(value @ (Value::Str(_) | Value::Func(_) | Value::None))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/compiler/stdlib/figure_image.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 292
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/content/traversal.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 5; guard: ausente; padrão: `Some(crate::entities::elements::figure::FigureSupplement::Auto | crate::entities::elements::figure::FigureSupplement::None | crate::entities::elements::figure::FigureSupplement::Func { .. }) | None`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/content/traversal.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 924
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/content/traversal.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(crate::entities::elements::figure::FigureSupplement::Auto | crate::entities::elements::figure::FigureSupplement::None | crate::entities::elements::figure::FigureSupplement::Func { .. }) | None` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/content/traversal.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 924
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/content/traversal.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(crate::entities::elements::figure::FigureSupplement::Content(content))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/content/traversal.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 923
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padrão: `FuncRepr::Closure(_) | FuncRepr::Plugin(_) | FuncRepr::With(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 132
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 5; guard: ausente; padrão: `Some(\n                        FigureSupplement::Auto\n                        | FigureSupplement::None\n                        | FigureSupplement::Func { .. },\n                    )\n                    | None`.",
+      "delta_occurrences": 2,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 197
+              }
+            }
+          }
+        ],
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 231
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padrão: `FuncRepr::Format(_, _)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::Plugin(_)\n                        | FuncRepr::With(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 40
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padrão: `FuncRepr::Native(_)\n                        | FuncRepr::Format(_, _)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::Plugin(_)\n                        | FuncRepr::With(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 62
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padrão: `FuncRepr::Native(_)\n                        | FuncRepr::Format(_, _)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::Plugin(_)\n                        | FuncRepr::With(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 71
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padrão: `FuncRepr::Native(_)\n                        | FuncRepr::Format(_, _)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::Plugin(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 98
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padrão: `FuncRepr::Native(_)\n                        | FuncRepr::Format(_, _)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::With(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 89
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padrão: `FuncRepr::Native(_)\n                        | FuncRepr::Format(_, _)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Plugin(_)\n                        | FuncRepr::With(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 80
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padrão: `FuncRepr::Native(_)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::Plugin(_)\n                        | FuncRepr::With(_)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 25,
+                "startLine": 51
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(\n                        FigureSupplement::Auto\n                        | FigureSupplement::None\n                        | FigureSupplement::Func { .. },\n                    )\n                    | None` fora de contexto-tabela",
+      "delta_occurrences": 2,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 197
+              }
+            }
+          }
+        ],
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 231
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(FigureKind::Element(function))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 258
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(FigureKind::Name(name))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 259
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 3 > 2 em `Some(FigureSupplement::Content(content))` fora de contexto-tabela",
+      "delta_occurrences": 2,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 194
+              }
+            }
+          }
+        ],
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./01_core/src/entities/elements/figure.rs"
+              },
+              "region": {
+                "startColumn": 21,
+                "startLine": 228
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "02_shell/src/cli.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Some(value @ (Value::Func(_) | Value::Str(_)))`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./02_shell/src/cli.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 1517
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "02_shell/src/cli.rs",
+      "rule": "V20",
+      "level": "note",
+      "message": "Profundidade de padrão 4 > 2 em `Some(value @ (Value::Func(_) | Value::Str(_)))` fora de contexto-tabela",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./02_shell/src/cli.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 1517
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 118; guard: ausente; padrão: `Content::Source(..)\n                | Content::ShowRecipe(..)\n                | Content::Realized(..)\n                | Content::Empty\n                | Content::Text(..)\n                | Content::Space\n                | Content::SpaceFromNewline\n                | Content::Parbreak\n                | Content::Sequence(..)\n                | Content::HtmlElem(..)\n                | Content::HtmlFrame(..)\n                | Content::Par { .. }\n                | Content::Heading(..)\n                | Content::Title(..)\n                | Content::Strong(..)\n                | Content::Emph(..)\n                | Content::Raw(..)\n                | Content::ListItem(..)\n                | Content::EnumItem(..)\n                | Content::Link(..)\n                | Content::Equation(..)\n                | Content::MathSequence(..)\n                | Content::MathIdent(..)\n                | Content::MathText(..)\n                | Content::MathFrac(..)\n                | Content::MathAttach(..)\n                | Content::MathPrimes(..)\n                | Content::MathRoot(..)\n                | Content::MathStretch(..)\n                | Content::MathDelimited(..)\n                | Content::MathLr(..)\n                | Content::MathMid(..)\n                | Content::MathOverbrace(..)\n                | Content::MathUnderbrace(..)\n                | Content::MathUnderbracket(..)\n                | Content::MathUnderparen(..)\n                | Content::MathUndershell(..)\n                | Content::MathOverbracket(..)\n                | Content::MathOverparen(..)\n                | Content::MathOvershell(..)\n                | Content::MathAlignPoint(..)\n                | Content::Linebreak(..)\n                | Content::MathMatrix(..)\n                | Content::MathCases(..)\n                | Content::MathAccent(..)\n                | Content::MathCancel(..)\n                | Content::MathUnderline(..)\n                | Content::MathOverline(..)\n                | Content::MathVec(..)\n                | Content::MathClassOverride(..)\n                | Content::MathLimitsOverride(..)\n                | Content::MathUnderover(..)\n                | Content::MathOp(..)\n                | Content::MathStyled(..)\n                | Content::Label(..)\n                | Content::Ref(..)\n                | Content::CounterDisplay(..)\n                | Content::CounterUpdate(..)\n                | Content::Outline(..)\n                | Content::OutlineEntry(..)\n                | Content::Figure(..)\n                | Content::FigureCaption(..)\n                | Content::Image(..)\n                | Content::Shape(..)\n                | Content::Curve(..)\n                | Content::Transform(..)\n                | Content::Grid(..)\n                | Content::GridHeader(..)\n                | Content::GridFooter(..)\n                | Content::GridCell(..)\n                | Content::SetPage(..)\n                | Content::PageRun(..)\n                | Content::Align(..)\n                | Content::Place(..)\n                | Content::Flush(..)\n                | Content::Styled(..)\n                | Content::Divider(..)\n                | Content::Terms(..)\n                | Content::TermItem(..)\n                | Content::Quote(..)\n                | Content::Document { .. }\n                | Content::Asset { .. }\n                | Content::SmartQuote(..)\n                | Content::PdfAttach(..)\n                | Content::PdfArtifact(..)\n                | Content::Underline(..)\n                | Content::Strike(..)\n                | Content::Overline(..)\n                | Content::SmallCaps { .. }\n                | Content::Pad(..)\n                | Content::Hide(..)\n                | Content::HSpace(..)\n                | Content::VSpace(..)\n                | Content::Pagebreak(..)\n                | Content::Colbreak(..)\n                | Content::Stack(..)\n                | Content::Boxed(..)\n                | Content::Block(..)\n                | Content::TableCell(..)\n                | Content::Bibliography(..)\n                | Content::Cite(..)\n                | Content::Footnote(..)\n                | Content::FootnoteEntry(..)\n                | Content::TableHeader(..)\n                | Content::TableFooter(..)\n                | Content::GridHLine(..)\n                | Content::GridVLine(..)\n                | Content::TableHLine(..)\n                | Content::TableVLine(..)\n                | Content::Table(..)\n                | Content::Repeat(..)\n                | Content::Columns(..)\n                | Content::Metadata(..)\n                | Content::State(..)\n                | Content::StateUpdate(..)\n                | Content::StateDisplay(..)\n                | Content::CounterDisplayCallback(..)\n                | Content::Dynamic(..)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./03_infra/src/pipeline.rs"
+              },
+              "region": {
+                "startColumn": 17,
+                "startLine": 795
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Content::Sequence(parts) | Content::MathSequence(parts)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./03_infra/src/pipeline.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 605
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Content::SmallCaps { body } | Content::Par { body }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./03_infra/src/pipeline.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 469
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 96; guard: ausente; padrão: `Content::Located(..)\n        | Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Raw(..)\n        | Content::Equation(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::MathMatrix(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::OutlineEntry(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::TableCell(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./03_infra/src/pipeline.rs"
+              },
+              "region": {
+                "startColumn": 9,
+                "startLine": 669
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Content::Par { body } | Content::SmallCaps { body }`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./03_infra/src/pipeline/context_stabilization.rs"
+              },
+              "region": {
+                "startColumn": 13,
+                "startLine": 128
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padrão: `Content::Sequence(parts) | Content::MathSequence(parts)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./03_infra/src/pipeline/context_stabilization.rs"
+              },
+              "region": {
+                "startColumn": 13,
+                "startLine": 112
+              }
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "rule": "V19",
+      "level": "note",
+      "message": "Este braço agrupa alternativas. Executar o corpo não comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 95; guard: ausente; padrão: `Content::Empty\n            | Content::Text(..)\n            | Content::Space\n            | Content::SpaceFromNewline\n            | Content::Parbreak\n            | Content::HtmlElem(..)\n            | Content::HtmlFrame(..)\n            | Content::Raw(..)\n            | Content::Equation(..)\n            | Content::MathIdent(..)\n            | Content::MathText(..)\n            | Content::MathFrac(..)\n            | Content::MathAttach(..)\n            | Content::MathPrimes(..)\n            | Content::MathRoot(..)\n            | Content::MathStretch(..)\n            | Content::MathDelimited(..)\n            | Content::MathLr(..)\n            | Content::MathMid(..)\n            | Content::MathOverbrace(..)\n            | Content::MathUnderbrace(..)\n            | Content::MathUnderbracket(..)\n            | Content::MathUnderparen(..)\n            | Content::MathUndershell(..)\n            | Content::MathOverbracket(..)\n            | Content::MathOverparen(..)\n            | Content::MathOvershell(..)\n            | Content::MathAlignPoint(..)\n            | Content::Linebreak(..)\n            | Content::MathMatrix(..)\n            | Content::MathCases(..)\n            | Content::MathAccent(..)\n            | Content::MathCancel(..)\n            | Content::MathUnderline(..)\n            | Content::MathOverline(..)\n            | Content::MathVec(..)\n            | Content::MathClassOverride(..)\n            | Content::MathLimitsOverride(..)\n            | Content::MathUnderover(..)\n            | Content::MathOp(..)\n            | Content::MathStyled(..)\n            | Content::Ref(..)\n            | Content::CounterDisplay(..)\n            | Content::CounterUpdate(..)\n            | Content::Outline(..)\n            | Content::OutlineEntry(..)\n            | Content::FigureCaption(..)\n            | Content::Image(..)\n            | Content::Shape(..)\n            | Content::Curve(..)\n            | Content::Grid(..)\n            | Content::GridHeader(..)\n            | Content::GridFooter(..)\n            | Content::GridCell(..)\n            | Content::SetPage(..)\n            | Content::PageRun(..)\n            | Content::Flush(..)\n            | Content::Divider(..)\n            | Content::Terms(..)\n            | Content::TermItem(..)\n            | Content::Quote(..)\n            | Content::Document { .. }\n            | Content::Asset { .. }\n            | Content::SmartQuote(..)\n            | Content::PdfAttach(..)\n            | Content::PdfArtifact(..)\n            | Content::Underline(..)\n            | Content::Strike(..)\n            | Content::Overline(..)\n            | Content::Pad(..)\n            | Content::Hide(..)\n            | Content::HSpace(..)\n            | Content::VSpace(..)\n            | Content::Pagebreak(..)\n            | Content::Colbreak(..)\n            | Content::Stack(..)\n            | Content::TableCell(..)\n            | Content::Bibliography(..)\n            | Content::Cite(..)\n            | Content::Footnote(..)\n            | Content::FootnoteEntry(..)\n            | Content::TableHeader(..)\n            | Content::TableFooter(..)\n            | Content::GridHLine(..)\n            | Content::GridVLine(..)\n            | Content::TableHLine(..)\n            | Content::TableVLine(..)\n            | Content::Table(..)\n            | Content::Metadata(..)\n            | Content::State(..)\n            | Content::StateUpdate(..)\n            | Content::StateDisplay(..)\n            | Content::CounterDisplayCallback(..)\n            | Content::ContextBlock(..)\n            | Content::Dynamic(..)`.",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_locations": [
+        [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "./03_infra/src/pipeline/context_stabilization.rs"
+              },
+              "region": {
+                "startColumn": 13,
+                "startLine": 131
+              }
+            }
+          }
+        ]
+      ]
+    }
+  ],
+  "current_scope_inputs_differing_from_snapshot": [],
+  "manual_reconciliation_required": false,
+  "limits": "Grouped-alternative runtime completeness is not certified; structural probes and measured language controls remain separate. Notes are inventoried, not suppressed. No global zero-lint or F closure assertion.",
+  "previous_complete_objects": {
+    "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/lint-final-9/after.sarif.gz",
+    "sha256": "b1ee66387036b9e602f56c1162b272101aeab67950cd60c6e3d8456fa6151430",
+    "baseline_occurrences": 2238,
+    "final_occurrences": 2238,
+    "removed": [],
+    "added": [],
+    "baseline_multiset_sha256": "316a940479943fefaf38bb2ef273360466f84b902987ac0975dc05b3d0fc9c78",
+    "final_multiset_sha256": "316a940479943fefaf38bb2ef273360466f84b902987ac0975dc05b3d0fc9c78"
+  },
+  "previous_message_inventory": {
+    "removed": [],
+    "added": []
+  },
+  "manual_review": {
+    "outside_scope": "All1606 complete canonical diagnostic objects are exactly identical, including levels/messages/locations; scope now includes the already declared invoke source/owner pair, explaining the changed partition size.",
+    "error_identity_map": [
+      {
+        "baseline_source": "01_core/src/compiler/stdlib/figure_image.rs",
+        "baseline_line": 69,
+        "baseline_rule": "V16",
+        "baseline_message": "wildcard `_ =>` descarta informação com default neutro `None` em enum de domínio",
+        "final_status": "Removed: explicit approved Figure kind constructor inference/validation catalogue replaces neutral information loss.",
+        "original105_id": "V16-055"
+      },
+      {
+        "baseline_source": "03_infra/src/pipeline.rs",
+        "baseline_line": 529,
+        "baseline_rule": "V16",
+        "baseline_message": "wildcard `_ =>` descarta informação com default neutro `None` em enum de domínio",
+        "final_status": "Removed: original generic substitution callback site moved during actual-view repair and now explicitly lists118 Content node forms retaining unchanged already-mapped nodes. Ordinary descendant delegation unchanged. This is distinct from the still-open collector wildcard (former/current nearby line536/539), which remains a baseline diagnostic.",
+        "original105_id": "V16-100"
+      },
+      {
+        "introduced_source": "03_infra/src/pipeline/context_stabilization.rs",
+        "introduced_final3_line": 129,
+        "introduced_rule": "V16",
+        "final_status": "Final3 failed review found new wildcard-false delegation hidden by aggregate count; final4 exact closed complement removes this error and adds a visible grouped-alternative V19 note. No count compensation accepted."
+      }
+    ],
+    "notes": "Every58 added V19 and30 added V20 occurrence, and every5 removed V19 and2 removed V20 occurrence, remains inventoried in full. Relative final4, Block moves from the117-alternative ordinary-original remainder to explicit Table|Block root-only; the remaining116 still delegate old full-original behavior. The new two-alternative group remains visible as a note. Neither group proves runtime alternative completeness.",
+    "limits": "Global18 V16 remain, including V16-099. Narrow captionless default Block and actual-child controls are measured separately; full captioned default Block, ordinary Block own-label membership, SetPage and other bounded language debts remain. This diagnostic review does not certify runtime completeness, all parity, F closure or unfinished workspace gates.",
+    "original105_inventory_proof": {
+      "case_index": "lab/results/v16-cause-analysis-2026-10-19/case-index.md",
+      "index_sha256": "51a54eafd0bd53a56486b6c291ed4a50259d080f7d1719564e3b208f786125b2",
+      "callback_id": "V16-100",
+      "callback_index_line": 106,
+      "callback_batch": "G",
+      "analysis": "lab/results/v16-cause-analysis-2026-10-19/entities-boundaries-analysis.md",
+      "analysis_lines": "705–727",
+      "distinct_open_collector_id": "V16-099",
+      "collector_index_line": 105,
+      "collector_original_line": 488
+    },
+    "history": {
+      "previous_accepted_review": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/lint-reference-final-9-review.json",
+      "previous_review_sha256": "cab27c708895d9d83b5a3bb79850f4a4bc160cc615971b6c4384449b52d2ed36",
+      "failed_new_ordering_v16_review": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/lint-reference-final-review.json",
+      "all_historical_reviews_preserved": true
+    },
+    "latest_delta": "Final10 and final9 complete diagnostic-object multisets are exactly identical, including all messages/rules/levels/multiplicities/coordinates. Removing the redundant same-type Vec.into in the Figure-kind test and its formatter reflow introduces no diagnostic change. Final10 binds the exact reseal13 inputs; final9 remains historical.",
+    "fixture_scope": "Exactly @meu_label canonical original/strict producer source proof and two unchanged Heading-reference sources/Section1+Cap1 predicates use the admitted retained contextual phase. Focused3/3 GREEN is separately recorded; no productive behavior or helper changed."
+  },
+  "conclusion": "Accepted frozen final10 diagnostic integrity: exactly original V16-055 and incidental V16-100 removed versus original baseline, no new error/warning, all1606 outside-scope complete objects identical, every note addition/removal reconciled. Final10/final9 whole objects identical. V16-099 and17 other global V16 remain. No full-parity/F/workspace-closure assertion."
+}

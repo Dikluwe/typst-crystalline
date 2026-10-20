@@ -1,0 +1,42 @@
+[
+  {
+    "file": "01_core/src/compiler/realize/figure_kind.rs",
+    "after": "fn semantic_children(",
+    "anchor": "match content {"
+  },
+  {
+    "file": "01_core/src/compiler/realize/figure_kind.rs",
+    "after": "fn inspect_value(",
+    "anchor": "match value {"
+  },
+  {
+    "file": "01_core/src/compiler/realize/figure_kind.rs",
+    "after": "fn semantic_children(",
+    "anchor": "match descriptor {"
+  },
+  {
+    "file": "01_core/src/compiler/realize/figure_kind.rs",
+    "after": "fn validate_grid(",
+    "anchor": "match descriptor {"
+  },
+  {
+    "file": "01_core/src/compiler/introspect/figure_demands.rs",
+    "after": "fn visit(",
+    "anchor": "match content {"
+  },
+  {
+    "file": "01_core/src/compiler/introspect/figure_counters.rs",
+    "after": "pub(crate) fn figure_counter_key(",
+    "anchor": "match kind {"
+  },
+  {
+    "file": "01_core/src/entities/elements/figure.rs",
+    "after": "fn eq(",
+    "anchor": "match self {"
+  },
+  {
+    "file": "01_core/src/entities/elements/figure.rs",
+    "after": "fn hash<",
+    "anchor": "match self {"
+  }
+]

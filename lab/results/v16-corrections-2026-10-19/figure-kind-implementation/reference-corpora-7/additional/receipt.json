@@ -1,0 +1,198 @@
+{
+  "utc_start": "2026-10-20T01:32:30.405322+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "product": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+  "product_sha256": "9d441003a1fb8cc1b0ba27c254563a0a89d06ae08f4112ffd094e53cb0465021",
+  "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-build-7/receipt.json",
+  "build_receipt_sha256": "1b2908f17b94f276ef1d0b6ade5c92a38744f53152d026fc2a495d194a5cab8e",
+  "historical_baseline": false,
+  "oracle_receipt_sha256": "d428806c3a6d5bab6a1fed3e340fb002dba4c3fd325ebc78b90905f1e2c26edd",
+  "matrix_sha256": "fa952d021b75e669bbeb3bd404cf293dbd87f85eb7c40cda743899ba45cd5a18",
+  "policies_sha256": "3d78ed91320ddc15c0895ff7bc487458fbabe04b9cff272776b705e5db4607d2",
+  "runner_sha256": "afcfd5ff5dd20312494f2b2ff64d4ef866de8ae186fcfdbdc3d3b2e99d7aee5e",
+  "cases": [
+    {
+      "name": "ordinary-heading-numbered",
+      "policy": {
+        "class": "required-language",
+        "criterion": "exact language query values and actual successful source assertions",
+        "render_text_whitespace_normalized": "1. HEADING Section 1",
+        "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:32:30.543091+00:00",
+          "utc_end": "2026-10-20T01:32:31.171345+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/ordinary-heading-numbered.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-7/additional/ordinary-heading-numbered.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T01:32:31.171362+00:00",
+          "utc_end": "2026-10-20T01:32:31.798246+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/ordinary-heading-numbered.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[0,[0],[0],0]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/ordinary-heading-numbered.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "ec620678b99ec4cdd9eb2bf176c4c3b6d11549c4c4f3d05d050762db465692bb",
+      "rendered_text": "1. HEADING\nSection 1\n\f",
+      "actual_render_whitespace_normalized": "1. HEADING Section 1",
+      "expected_render_whitespace_normalized": "1. HEADING Section 1",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_word_number_order": true
+      },
+      "pass": true
+    },
+    {
+      "name": "page-reference-numbered",
+      "policy": {
+        "class": "required-language",
+        "criterion": "exact language query values and actual successful source assertions",
+        "render_text_whitespace_normalized": "OUTER page 1 1",
+        "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:32:31.810458+00:00",
+          "utc_end": "2026-10-20T01:32:32.426092+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/page-reference-numbered.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-7/additional/page-reference-numbered.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T01:32:32.426108+00:00",
+          "utc_end": "2026-10-20T01:32:33.038022+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/page-reference-numbered.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,[0],[1],1]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/page-reference-numbered.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "fe0051393c1052520bf111be02bed30a42894a377058a640c87f6f420c7a34e0",
+      "rendered_text": "OUTER\npage 1\n\n\n\n\n         1\n\f",
+      "actual_render_whitespace_normalized": "OUTER page 1 1",
+      "expected_render_whitespace_normalized": "OUTER page 1 1",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_word_number_order": true
+      },
+      "pass": true
+    },
+    {
+      "name": "context-language-pt-fr-captured-sites",
+      "policy": {
+        "class": "required-language",
+        "criterion": "exact language query values and actual successful source assertions",
+        "render_text_whitespace_normalized": "PT FR",
+        "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:32:33.050302+00:00",
+          "utc_end": "2026-10-20T01:32:33.652885+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/context-language-pt-fr-captured-sites.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-7/additional/context-language-pt-fr-captured-sites.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "output_sha256": "1f83e32e87bd39439875d7487835b941ae515a0f4b82d927797dd4d3496fa8ac",
+      "rendered_text": "PT FR\n\f",
+      "actual_render_whitespace_normalized": "PT FR",
+      "expected_render_whitespace_normalized": "PT FR",
+      "checks": {
+        "compile_success": true,
+        "render_word_number_order": true
+      },
+      "pass": true
+    },
+    {
+      "name": "label-on-reference-morphology",
+      "policy": {
+        "class": "required-language",
+        "criterion": "exact language query values and actual successful source assertions",
+        "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1",
+        "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:32:33.664573+00:00",
+          "utc_end": "2026-10-20T01:32:34.293969+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/label-on-reference-morphology.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-7/additional/label-on-reference-morphology.pdf"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "utc_start": "2026-10-20T01:32:34.293987+00:00",
+          "utc_end": "2026-10-20T01:32:34.912367+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/label-on-reference-morphology.typ",
+            "<reference-probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[1,true]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<reference-probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/label-on-reference-morphology.typ` instead\n\n"
+        }
+      ],
+      "output_sha256": "63e31ab8f833fb2ccb1f026aefabaa714c13b7a367edd32bf115dfdd9c7a8d4c",
+      "rendered_text": "OUTER\nINNER\nInner 1: INNER-CAP\n1\n\f",
+      "actual_render_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1",
+      "expected_render_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1",
+      "checks": {
+        "compile_success": true,
+        "language_values": true,
+        "render_word_number_order": true
+      },
+      "pass": true
+    }
+  ],
+  "utc_end": "2026-10-20T01:32:34.923912+00:00",
+  "oracle_comparison_failures": [],
+  "required_failures": []
+}

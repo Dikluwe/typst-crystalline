@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/apply.md
-//! @prompt-hash 9c4d4384
+//! @prompt-hash 9ec07652
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -219,6 +219,7 @@ fn apply_show_rules_inner(
                                 let argument=if let Content::TableCell(c)=work {
                                     if c.stage().is_some() {Content::TableCell(Arc::new(c.guarded(rule.id)))} else {work.clone()}
                                 } else {work.clone()};
+                                let argument = crate::compiler::realize::reference_supplements::preserve_origin(&argument, engine.styles);
                                 let args = Args::positional(vec![Value::Content(argument)]);
                                 engine.active_guards.push(rule.id);
                                 let old_defer=ctx.defer_show_rules;
@@ -602,10 +603,11 @@ fn realize_occurrence(
     let node = crate::compiler::realize::locate(node.clone(), ctx);
     let Content::Located(located) = &node else { unreachable!() };
     let location = located.location;
+    let preview = crate::compiler::realize::figure::preview(&node, engine.styles)?;
     let mut set_chain = StyleChain::empty();
     for rule in rules {
         if let Transformation::Style(styles) = &rule.transform {
-            if selector_matching::selector_matches(&node, &rule.selector)
+            if selector_matching::selector_matches(&preview, &rule.selector)
                 && !ctx.occurrence_show_results.contains_key(&(location, rule.id))
             {
                 ctx.occurrence_show_results.insert((location, rule.id), None);
@@ -613,49 +615,60 @@ fn realize_occurrence(
             }
         }
     }
-    let mut work = node.clone();
-    let mut applied = false;
-    for rule in rules.iter().rev() {
-        if matches!(rule.transform, Transformation::Style(_))
-            || !selector_matching::selector_matches(&node, &rule.selector)
-        {
-            continue;
-        }
-        let key = (location, rule.id);
-        if let Some(cached) = ctx.occurrence_show_results.get(&key) {
-            if let Some(product) = cached {
-                work = product.clone();
-                applied = true;
-                break;
+    let effective_styles = if crate::compiler::realize::figure::is_figure(&node) {
+        crate::entities::elements::table_cell::TableCellProperties::chain_styles(
+            engine.styles,
+            &Styles::from_delta(set_chain.collapse()),
+        )
+    } else {
+        engine.styles.clone()
+    };
+    let previous_styles = std::mem::replace(engine.styles, effective_styles);
+    let result = (|| {
+        let node = crate::compiler::realize::figure::prepare(&node, ctx, engine)?;
+        let mut work = node.clone();
+        let mut applied = false;
+        for rule in rules.iter().rev() {
+            if matches!(rule.transform, Transformation::Style(_))
+                || !selector_matching::selector_matches(&preview, &rule.selector)
+            {
+                continue;
             }
-            continue;
-        }
-        if ctx.occurrence_show_depth
-            >= crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH
-        {
-            let mut error = SourceDiagnostic::error(
-                Span::detached(),
-                "maximum show rule depth exceeded",
-            )
-            .with_hint("maybe a show rule matches its own output")
-            .with_hint("maybe there are too deeply nested elements");
-            if ctx.full_error {
-                let canon = node.morph_canon();
-                error = error.with_hint(if ctx.occurrence_show_path.contains(&canon) {
+            let key = (location, rule.id);
+            if let Some(cached) = ctx.occurrence_show_results.get(&key) {
+                if let Some(product) = cached {
+                    work = product.clone();
+                    applied = true;
+                    break;
+                }
+                continue;
+            }
+            if ctx.occurrence_show_depth
+                >= crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH
+            {
+                let mut error = SourceDiagnostic::error(
+                    Span::detached(),
+                    "maximum show rule depth exceeded",
+                )
+                .with_hint("maybe a show rule matches its own output")
+                .with_hint("maybe there are too deeply nested elements");
+                if ctx.full_error {
+                    let canon = node.morph_canon();
+                    error = error.with_hint(if ctx.occurrence_show_path.contains(&canon) {
                     "erro completo: recursão CÍCLICA — uma forma de conteúdo repetiu-se no caminho de revisitação (a regra de #show reescreve para algo que reaparece)"
                 } else {
                     "erro completo: recursão NÃO-CONVERGENTE — passou do limite sem repetir nem estabilizar (verifique se a regra termina, ou se é recursão legítima profunda)"
                 });
+                }
+                return Err(vec![error]);
             }
-            return Err(vec![error]);
-        }
-        ctx.occurrence_show_results.insert(key, None);
-        ctx.occurrence_show_depth += 1;
-        if ctx.full_error {
-            ctx.occurrence_show_path.push(node.morph_canon());
-        }
-        let result = (|| {
-            let produced = match &rule.transform {
+            ctx.occurrence_show_results.insert(key, None);
+            ctx.occurrence_show_depth += 1;
+            if ctx.full_error {
+                ctx.occurrence_show_path.push(node.morph_canon());
+            }
+            let result = (|| {
+                let produced = match &rule.transform {
                 Transformation::Func(func) => {
                     let mut scopes = Scopes::new(None);
                     let previous_defer = ctx.defer_show_rules;
@@ -671,6 +684,7 @@ fn realize_occurrence(
                     match result? {
                         Value::Content(content) => content,
                         Value::Str(text) => Content::text(text.as_str()),
+                        Value::None => Content::Empty,
                         other => {
                             return Err(vec![SourceDiagnostic::error(
                                 Span::detached(),
@@ -691,45 +705,67 @@ fn realize_occurrence(
                 }
                 Transformation::Style(_) => unreachable!(),
             };
-            if root_only {
-                Ok(produced)
-            } else {
-                realize_occurrences(&produced, rules, ctx, engine)
+                if root_only {
+                    Ok(produced)
+                } else {
+                    realize_occurrences(&produced, rules, ctx, engine)
+                }
+            })();
+            ctx.occurrence_show_depth -= 1;
+            if ctx.full_error {
+                ctx.occurrence_show_path.pop();
             }
-        })();
-        ctx.occurrence_show_depth -= 1;
-        if ctx.full_error {
-            ctx.occurrence_show_path.pop();
+            match result {
+                Ok(product) => {
+                    ctx.occurrence_show_results.insert(key, Some(product.clone()));
+                    work = product;
+                    applied = true;
+                }
+                Err(errors) => {
+                    ctx.occurrence_show_results.remove(&key);
+                    return Err(errors);
+                }
+            }
+            break;
         }
-        match result {
-            Ok(product) => {
-                ctx.occurrence_show_results.insert(key, Some(product.clone()));
-                work = product;
-                applied = true;
-            }
-            Err(errors) => {
-                ctx.occurrence_show_results.remove(&key);
-                return Err(errors);
-            }
+        let mut delta = set_chain.collapse();
+        mark_heading_show_set(&mut delta, &node, &work);
+        mark_bibliography_hanging(&mut delta, &node, &work);
+        let wrapped = !delta.is_empty();
+        if wrapped {
+            work = Content::styled(Box::new(work), Styles::from_delta(delta));
         }
-        break;
-    }
-    let mut delta = set_chain.collapse();
-    mark_heading_show_set(&mut delta, &node, &work);
-    mark_bibliography_hanging(&mut delta, &node, &work);
-    let wrapped = !delta.is_empty();
-    if wrapped {
-        work = Content::styled(Box::new(work), Styles::from_delta(delta));
-    }
-    if applied || wrapped {
-        Ok(Some(Content::Realized(Arc::new(crate::entities::content::RealizedContent {
-            original: node,
-            visual: work,
-        }))))
-    } else {
-        // Even an unmatched fresh product must keep its newly allocated identity.
-        Ok(Some(node))
-    }
+        if applied || wrapped {
+            Ok(Some(Content::Realized(Arc::new(
+                crate::entities::content::RealizedContent {
+                    original: if crate::compiler::realize::figure::is_figure(&node)
+                        && wrapped
+                    {
+                        let Content::Located(located) = &node else {
+                            unreachable!("occurrence root is located")
+                        };
+                        Content::Located(Arc::new(
+                            crate::entities::content::LocatedContent {
+                                location: located.location,
+                                body: Content::styled(
+                                    located.body.clone(),
+                                    Styles::from_delta(set_chain.collapse()),
+                                ),
+                            },
+                        ))
+                    } else {
+                        node
+                    },
+                    visual: work,
+                },
+            ))))
+        } else {
+            // Even an unmatched fresh product must keep its newly allocated identity.
+            Ok(Some(node))
+        }
+    })();
+    *engine.styles = previous_styles;
+    result
 }
 
 /// A completed visual already carries its recipe result. Visiting its aliases

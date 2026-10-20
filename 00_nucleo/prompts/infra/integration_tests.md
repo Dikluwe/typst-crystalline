@@ -1,5 +1,5 @@
 # L0 — Infrastructure end-to-end test harness
-Hash do Código: 55f100fc
+Hash do Código: ddd4bcd5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
@@ -256,3 +256,35 @@ function bodies. No productive enum mutation, suppression, threshold change,
 public API, product default or pipeline-phase change is authorized. This is
 ADR-0127 continuous internal flow with L0 first, restricted sealing, and final
 test/path/lineage validation.
+
+
+## Approved reference contribution integration
+
+Measured existing boundary before decision: `03_infra/src/integration_tests.rs:1521 and :1538` retains the old generic transport or legacy assertion behavior. Source inspection establishes ownership; the independently frozen actual L3 INNER_PREPARATION RED establishes the language omission.
+
+The human approved frozen proposal SHA1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2, recorded in `lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-phase-approval.json`, including the separate no-child clarification. Actual L3 explicit/callback INNER_PREPARATION regressions failed on the unchanged pre-implementation source (`reference-phase-red-frozen`), authorizing RED-to-GREEN for this exact phase. Existing unrelated obligations remain.
+
+Migrate only pipeline_figura_numerada_prefixo_no_pdf from the intentionally removed productive figure:<kind> string-shadow projection to the existing public runtime typed image counter/actual Location proof. Preserve its original source, image fixture and PDF nonempty guarantee; inject the runtime introspector into layout and require actual Figure 1 caption text. The unchanged full-suite failure None versus Some(1) is the functional migration evidence. Do not restore productive legacy strings, change synthetic API behavior or weaken numeric/render expectations.
+
+No additional public contract beyond the exact three approved transport functions, new target inference, second arena, shared result/effect cache, fake observation, weakened diagnostic or unrelated generic visitor change is authorized. Preserve five-attempt stabilization, canonical paths and scoped lineage; validate reached and hidden effects, forward/repeated references, aliases, missing/unnumbered/non-Figure/bibliography/page controls and mixed target behavior.
+
+### Ordinary Heading reference fixtures use the retained contextual phase
+
+The actual full12 run in figure-kind-implementation/validation-final fails
+p788_ref_happy_path_section_en and p788_ref_suplemento_explicito. The exact
+sources at integration_tests.rs:4822–4850 evaluate correctly but the tests send
+the newly admitted private Ref Context producer directly to pure layout. That
+layer correctly does not execute callbacks. Independent actual CLI non-Figure
+forward-reference controls already pass through the retained Paged phase.
+
+Preserve both source strings and their exact existing Section 1/not Secção and
+Cap 1 plain_text predicates. As in the neighboring p844_a8 integration control,
+index the evaluated content, invoke existing public
+expand_context_blocks_and_reintrospect with the real world/source, then use
+layout_with_introspector on its actual expanded content and returned index.
+This executes the required production contextual Session before observing the
+same paginated language text; it does not require PDF operator inspection or a
+new compiler facade. Change neither do_eval nor generic layout helpers, and do
+not manually invoke/unpack a reference producer or restore eager evaluation.
+Require preserved full-suite RED and focused GREEN with exact state/UTC and
+source hashes. No productive behavior, public API or phase contract is changed.

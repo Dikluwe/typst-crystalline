@@ -1,0 +1,20 @@
+{
+  "cases": {
+    "ordinary-heading-numbered": {
+      "class": "required-language",
+      "criterion": "exact language query values and actual successful source assertions"
+    },
+    "page-reference-numbered": {
+      "class": "required-language",
+      "criterion": "exact language query values and actual successful source assertions"
+    },
+    "context-language-pt-fr-captured-sites": {
+      "class": "required-language",
+      "criterion": "exact language query values and actual successful source assertions"
+    },
+    "label-on-reference-morphology": {
+      "class": "required-language",
+      "criterion": "exact language query values and actual successful source assertions"
+    }
+  }
+}

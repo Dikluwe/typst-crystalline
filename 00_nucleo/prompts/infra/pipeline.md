@@ -1,5 +1,5 @@
 # L0 — infra/pipeline
-Hash do Código: 7d2c0c47
+Hash do Código: dde3a132
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -97,3 +97,32 @@ pipeline.rs:39,85,101,127,148 and `lab/results/construction/diagnostics/infra-im
 pipeline.rs:163,212 and `lab/results/construction/diagnostics/type-complexity-2026-10-15/{before.json.gz,red-clippy.log}` preserve source/owner/hashes/HEAD/tree/UTC/diffstat and lint RED. Only adapt private PagedCompilation consumers: query projects named introspector, eval_source_with_document_features moves it. Preserve public signatures/single compile/Source identity/spans/warning append/final-snapshot eval, no extra compile/export. This Rust representation proves no AI benefit/bug/new parity. Aliases need identical expansion; new/incompatible public type another gate. Nominal type_complexity exceptions only three justified batch items, no module/impl/crate suppression/raised threshold/other repairs. Continuous flow/L0 first/scoped lineage, unchanged controls/denied expectations/selected RED→GREEN/full build/Clippy/workspace/fmt/Rustdoc/lineage; no alias/field-name tests.
 
 Heading evidence/ratified review is `lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md`, SHA `66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c`, supported by lote-a1-callbacks-reflexao-seletores-2026-10-17 final-freeze/target-controls at HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c/uncommitted/current bd5ebec285505889e8ff1d4f68804ab147a699f3. Transport Styled changes func, query sees causal wrappers, HTML ignores callback panic; walk.rs:930–945/paged.rs:419–427/html.rs:101–106 prove setup boundaries. Declare only mod runtime for causal Engine/ctx composition, no hub Heading semantics/export/API change. Require H1–H8/bilateral RED; only Heading facade approved, five State helpers separate, no other fields; Styled/callback boundaries stay. Workspace/doctests/build/Clippy/Rustdoc/fmt/V1/V5/V15/V26/reverse/no V16 increase, 12GiB/High8GiB/swap0/jobs1/sequential heavy work; RAM gain measured only.
+
+
+## Approved reference contribution integration
+
+Measured existing boundary before decision: `03_infra/src/pipeline.rs:402 and :503` retains the old generic transport or legacy assertion behavior. Source inspection establishes ownership; the independently frozen actual L3 INNER_PREPARATION RED establishes the language omission.
+
+The human approved frozen proposal SHA1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2, recorded in `lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-phase-approval.json`, including the separate no-child clarification. Actual L3 explicit/callback INNER_PREPARATION regressions failed on the unchanged pre-implementation source (`reference-phase-red-frozen`), authorizing RED-to-GREEN for this exact phase. Existing unrelated obligations remain.
+
+Collect and substitute only actual selected children of recognized prepared reference carriers through the approved pure borrowed/map facades. Keep generic Ref maps terminal. The marker-only Styled transport contributes no inherited style; exterior lexical styles, Source/Located/Realized visual and existing ShowRecipe captures remain authoritative. Nested generated/source contexts remain in causal order and substitutions rebuild only the selected child, preserving token, Ref morphology, original snapshots and numeric placeholder. Never inspect user marker strings or reimplement selector/Ref business logic in L3.
+
+No additional public contract beyond the exact three approved transport functions, new target inference, second arena, shared result/effect cache, fake observation, weakened diagnostic or unrelated generic visitor change is authorized. Preserve five-attempt stabilization, canonical paths and scoped lineage; validate reached and hidden effects, forward/repeated references, aliases, missing/unnumbered/non-Figure/bibliography/page controls and mixed target behavior.
+
+
+### Emitted Figure context topology
+
+Source measurement before decision: pipeline.rs:402–500 collects through generic bottom-up map_content without an explicit Figure arm; that mapper visits resolved_supplement even when caption=None. The frozen reference-build-2 raw-context-two-references replay records contextual instability from a template Context ID absent from canonical context_block_locations; the caption-plus-references control succeeds. Only emitted Figure children are producers: body, then resolved supplement when caption exists and numbering is default/Str, then caption. A raw unused selected template is not an execution root or a substitution site. Preserve source and semantic snapshots, normal ancestor styles and exact prepared-Ref facade boundaries.
+
+Use explicit actual Figure descent in collection and substitution, including ordinary visual wrappers, and preserve Realized.original without traversal as the existing L1 mapper already does. Ordering must mark duplicate IDs only for collected actual members; raw template metadata does not poison uniqueness, while two actual occurrences of the same ID still fail. Do not add phantom index entries, relax active topology or change generic L1 mapping/public contracts. Add a direct unused-template control, a rendered-caption positive control and distinct-actual duplicate preservation before implementation; real language repeated-reference acceptance remains mandatory.
+
+Explicit Figure/body-wrapper branches are bounded actual-view guards, not a complete container catalogue. The feature owner keeps raw selected templates in Realized.original and prunes dormant resolved supplement from the visual Figure before generic traversal. Preserve the exhaustive fallback and prove an unlisted generic Grid wrapper with the frozen nested-grid-dormant-template source; do not claim a common-wrapper list alone closes generic traversal.
+
+
+### Closed substitution decision catalogue
+
+Measurement before decision: the unsealed reference-three lint records two newly introduced V16 sites at pipeline.rs:666 and :695. The pre-existing collector wildcard at :536 remains the separately tracked baseline G obligation and is not repaired by this scope. The new top-down substitution decision delegates every current Content variant not explicitly reconstructed to the existing exhaustive generic L1 map; Located with a ContextBlock body is deliberately delegated to retain its existing marker semantics. The generic node callback replaces only actual ContextBlock or Located(ContextBlock) nodes; every other current Content variant keeps its already-mapped node unchanged. This is ordinary generic descendant delegation, not treating new content as semantically empty.
+
+Spell both complements against the closed Content catalogue at entities/content.rs:233–1309, preserving tuple/struct/unit forms. Each future variant must fail Rust exhaustiveness at these new decisions until classified. No wildcard, allow/expect, parser rewrite, fake leaf, new public facade or repair of the unrelated baseline collector decision is authorized. Existing actual Grid/dormant-template, emitted caption ordering and duplicate-member regressions remain required.
+
+Source transport correction: the frozen reference-four compile records E0624 at pipeline.rs:573 because Content::with_source_span is crate-private L1. Preserve the same existing Source carrier by cloning its public SourceContent fields and recursively replacing only body, retaining span exactly. Do not widen any method visibility or add a public API; this is representation-preserving L3 transport through the already approved public entity.

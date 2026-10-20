@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/invoke
-Hash do Código: c05d9dac
+Hash do Código: 01e31fb6
 
 
 Núcleos Tekt:
@@ -196,3 +196,30 @@ expectations for mechanical limits. Valid1:1/pinned graph before reseal; separat
 build/workspace/doctests/strict Clippy-Rustdoc/fmt/direct-reverse lineage/SARIF
 without new error-warning.12GiB/High 8 GiB/swap0/jobs1/heavy tasks sequential.
 No publication/release.
+
+## Ref construction source before deferred interception
+
+Actual pinned-oracle/product8 evidence in
+`agents/entities/reference-acceptance/show-origin-selected-product-8/receipt.json`
+under the Figure implementation diagnostics measures a label-selected callback
+constructing `ref(<newmissing>)`: identical missing-label error, oracle source2:2
+versus detached product origin. Identity/input alias controls preserve their
+prior source after the preceding bounded fixes.
+
+Measured invoke.rs:45–78 intercepts the returned raw native Ref before eval_expr
+can attach first Source. Under deferred show rules interception stores raw body
+in ShowRecipe; eval_expr later wraps only that recipe. recipes.rs:606–609 restores
+captured styles before raw body realization, so the external origin cannot prove
+its construction site. native_ref is intentionally a source-free constructor;
+actual FuncCallNode::span is already available at this owning invocation boundary.
+This is observable source correction under ADR-0107/0127 continuous flow, not a
+new callback/phase/default/API or generic Args-span policy.
+
+Before interception, preserve actual call.span in existing Source for a returned
+Ref source root only. Existing first Source wins, including aliases; no output
+span override after callbacks. NonRef roots stay unchanged and synthetic
+constructor calls outside this lexical invocation remain detached. Keep general
+argument transport, tracing, interception priority, recipe capture/restoration,
+Type/noncallable paths and all existing namespaces unchanged. Actual new-Ref
+source and distinct alias controls must pass; tests also preserve detached
+synthetic defaults, first origin and unrelated Content.

@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-20T01:41:34.741509+00:00",
+  "state_sha256": "c50dcd4f33df1f2798a6c7036ac38510b871ca1a2357357dc12dd99d8d2119fa",
+  "actual_semantic_failures": [
+    "callback misses actual generated Block",
+    "body Context executes before intended Block pruning"
+  ],
+  "confounded_preservation_controls": [
+    "underscore marker rendered with extra whitespace",
+    "raw numeric reference assertion ignores Unicode whitespace"
+  ],
+  "closure_gate_accepted": false,
+  "next": "Preserve source receipts; new plain-word marker and exact Unicode-normalized numeric suffix, plus reached child control, followed by independent frozen RED before implementation."
+}

@@ -1,0 +1,27 @@
+{
+  "utc": "2026-10-19T23:55:57.457299+00:00",
+  "mode": "read-only source diagnosis plus L0-first focused tests; no Cargo",
+  "source_sha256": {
+    "01_core/src/compiler/eval/observation/elements.rs": "6be840c0aa888506b0b04b1f291e286face98261afac6264b1c316fb57ce4c70",
+    "01_core/src/compiler/eval/observation/value.rs": "e23ef83466e897fd84b7a3e08dcbdf023c2b6a65a6b4bf65611ac50aa02d2b93",
+    "01_core/src/compiler/eval/context_reads.rs": "5589d056fd9fa8a7f40e44de568a2e477e9f184af089b1cff93b3df0a800c830",
+    "01_core/src/compiler/stdlib/registry/structural.rs": "bd4916103be510a01ae350e36299b20eeb4b14543acdb73e10b4dc24ea82a4a7",
+    "01_core/src/entities/func.rs": "6ad351d724f603ed5bfa363526ee6e2eb0d4a8810e9cd8cfe49e166c67dd0536"
+  },
+  "hypothesis": "Actual stdlib raw kind namespace carries raw.line Element capability; generic Func observation returns Unproven for this even for exact retained clone. FigureKind observer currently delegates it, preventing reflexive proof of complete query LocatedContent.",
+  "causal_path": [
+    "stdlib registry raw.namespace.line = Func::element",
+    "FigureKind observation exact nominal equality AND Func observation",
+    "Native Func observation recursively compares namespace",
+    "Func Element observation returns Unproven",
+    "Query records full LocatedContent result before caller uses len()",
+    "context_reads_valid_for requires Same, preserving strict membership guarantee"
+  ],
+  "focused_tests": [
+    "figure_v16_actual_raw_kind_clone_proves_complete_capability_reflexivity",
+    "figure_v16_kind_observation_retains_namespace_and_independent_capability_boundaries"
+  ],
+  "candidate_fix_bound": "Only FigureKind observation may use identical immutable Func representation as stored capability proof; retain namespace/name/origin differences and independent opaque capabilities Unproven. Do not claim callback behavior purity, omit namespaces, weaken query len/membership, stringify values or broaden global Element observer.",
+  "origin_nuance": "Func diagnostic_span is stored outside representation Arc and needs separate accounting if the shared-representation proof claims every stored origin.",
+  "production_change": "none; root executing RED6 before release"
+}

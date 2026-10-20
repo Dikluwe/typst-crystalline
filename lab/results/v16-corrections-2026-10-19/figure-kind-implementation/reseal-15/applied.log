@@ -1,0 +1,3 @@
+Applied ./01_core/src/compiler/stdlib/counter/filtered_reads.rs prompt=00_nucleo/prompts/core/compiler/stdlib/counter/filtered_reads.md hash-a=0432f3fc hash-b=c210c7a2
+
+Re-running analysis... ✅ 0 drift warnings remaining

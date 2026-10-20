@@ -1,5 +1,5 @@
 # L0 — references
-Hash do Código: 76cedf37
+Hash do Código: 9faa66ca
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
@@ -53,3 +53,41 @@ This is observed local source behavior, not a new bilateral result or inferred u
 Close default_supplement_for_key across CounterKey, Selector and ElementKind at the current decision. Heading delegates its language owner; Equation/Table preserve existing language choice; a Str starting figure: delegates figure_supplement_for_lang for its exact suffix, including empty/unknown suffixes. Str without that prefix and Page receive no implicit supplement. Kind(Figure, Citation, Metadata, State, StateUpdate, Outline, OutlineEntry, Bibliography, CounterUpdate, List, Enum, Par, Link, Raw, Quote, Footnote, StateDisplay, CounterDisplay, ContextBlock) receive none. NativeElement, Element, Label, Location, And, Or, Regex, Where, Within, Before and After selectors receive none regardless of their payload; even a filter around Heading is not an unfiltered Heading key. Keep the prefix guard and its false branch visible. Do not invent labels, add language tables, erase explicit-empty precedence or alter the one-NBSP join. New variants at any nested domain require a decision at this match.
 
 ADR-0127 classification: continuous-flow internal nominal coverage with no public signature, default, phase or compatibility change. Add behavior-preservation controls before implementation and require baseline/final controls plus disposable future-variant compile-negative evidence at the exact selected decision. Current runtime controls may already pass; the structural RED is failure to reject a future variant at that decision. No new suppression or open catchall is authorized.
+
+
+## Approved Figure/Grid occurrence counter correction
+
+### Evidence before decision
+
+Baseline HEAD `731f0ffdf4c7c152f590551e72ff63f7bd85ef85`; the reviewed current-pin measurements and exact source anchors are retained in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, `agents/counter/design.md` and `agents/counter/counter-probes.json`. In that evidence, captionless/numbered Figures count; manual Set/Func actions make caption ordinal indexing incorrect; typed element kinds and custom names require distinct keys. These are language values/errors, not Rust or rendering-byte equality. The human explicitly approved the complete Figure/Grid contracts, phases and compatibility changes in the current implementation session. This approval satisfies ADR-0127 for this exact scope. Historical conflicting caption-only or productive string-projection clauses are superseded only as described here; unrelated contracts remain.
+
+### Exclusive responsibility
+
+Numbered Figure labels use the same typed key and target Location snapshot as captions, including captionless targets. Unnumbered target after numbered target cannot inherit its earlier prefix. Resolved target supplement including empty/None takes precedence; custom Name(table) never gets Element(table) localization. Preserve bibliography, Page and explicit reference supplement precedence; pure walk cannot freeze incomplete Func histories. No implicit HTML rendering certification.
+
+### Acceptance and limits
+
+L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.
+
+
+### Rich productive Figure reference supplement
+
+The existing generic String resolver flattens Content supplements and cannot retain Strong morphology. For a prepared productive Figure only, render a Content sequence of explicit-or-resolved supplement, NBSP and the existing numeric Location projection through layout_link_capture. Preserve explicit empty/None precedence and exact target Location/history validation, without flattening the rich supplement. Heading/Equation/Page/bibliography/synthetic generic paths retain their existing owners. Add a bold Figure-reference emitted-text control. No new public signature, callback, string-key shadow or fabricated fallback.
+
+
+## Approved reference contribution integration
+
+Measured existing boundary before decision: `01_core/src/compiler/layout/references.rs:53 and :237` retains the old generic transport or legacy assertion behavior. Source inspection establishes ownership; the independently frozen actual L3 INNER_PREPARATION RED establishes the language omission.
+
+The human approved frozen proposal SHA1578cbea7378b739a7c1b0809d3437c0165c2de6d288e40b2db75c9ce7e38ff2, recorded in `lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-phase-approval.json`, including the separate no-child clarification. Actual L3 explicit/callback INNER_PREPARATION regressions failed on the unchanged pre-implementation source (`reference-phase-red-frozen`), authorizing RED-to-GREEN for this exact phase. Existing unrelated obligations remain.
+
+A produced canonical Ref carries its actually realized selected supplement in the existing supplement field (Some Empty for no content). Consume that field without callbacks or target-template reuse; preserve current numeric typed Location prefix, link target and rich morphology. Unprepared non-Figure/page/bibliography passthrough keeps its prior None/default/explicit semantics; no fallback may execute an unrealized Figure template. Existing lexical nearest-source errors remain intact.
+
+No additional public contract beyond the exact three approved transport functions, new target inference, second arena, shared result/effect cache, fake observation, weakened diagnostic or unrelated generic visitor change is authorized. Preserve five-attempt stabilization, canonical paths and scoped lineage; validate reached and hidden effects, forward/repeated references, aliases, missing/unnumbered/non-Figure/bibliography/page controls and mixed target behavior.
+
+
+### Nearest lexical source for all Ref layout diagnostics
+
+Measurement before decision: reference-layout-origin/receipt.json under agents/counters binds oracle and frozen build8 errors. Heading without numbering has the same original message/hint but oracle source2:0 versus detached product; Page without numbering is source2:1 versus detached product. Eight layout_ref diagnostics at references.rs:79/95/136/146/159/174/185/202 hardcode detached spans, while productive Figure diagnostics already use current_source_span. layout/mod.rs:1208–1230 and1247–1252 installs/restores nearest non-detached Source and checkpoint.rs retains it. Thus no new RefElem field or source inference is needed.
+
+Supersede only the historical detached-span limitation: use layouter.current_source_span for missing page/ordinary labels, absent page/heading/equation numbering, Raw/text rejection and both existing Figure snapshot errors. Preserve every original message, hint, precedence and error transaction; bibliography still delegates its own owner. Source-free synthetic layout keeps detached through the existing initialized default. Require actual source error line/column regression and synthetic nearest-Source/default control. This is continuous mapping correction with no API, phase or semantic target expansion.

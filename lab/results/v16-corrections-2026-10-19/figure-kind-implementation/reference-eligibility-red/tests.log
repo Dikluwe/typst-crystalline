@@ -1,0 +1,53 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 22s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 6 tests
+test compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_proves_only_exact_typed_kind_keys ... ok
+test compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_rejects_malformed_projection_slot_proofs ... FAILED
+test compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_kind_diagnostic_origin ... FAILED
+test compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_native_kind_name_and_namespace ... FAILED
+test compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_selector_function_metadata ... FAILED
+test compiler::realize::reference_supplements::tests::figure_reference_eligibility_distinguishes_numbering_and_first_target_with_equal_numeric_state ... ok
+
+failures:
+
+---- compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_rejects_malformed_projection_slot_proofs stdout ----
+
+thread 'compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_rejects_malformed_projection_slot_proofs' (2130599) panicked at 01_core/src/compiler/eval/context_reads.rs:638:13:
+assertion `left == right` failed
+  left: Same
+ right: Unproven
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_kind_diagnostic_origin stdout ----
+
+thread 'compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_kind_diagnostic_origin' (2130600) panicked at 01_core/src/compiler/eval/context_reads.rs:598:9:
+assertion `left == right` failed
+  left: Same
+ right: Different
+
+---- compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_native_kind_name_and_namespace stdout ----
+
+thread 'compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_native_kind_name_and_namespace' (2130601) panicked at 01_core/src/compiler/eval/context_reads.rs:608:9:
+assertion `left == right` failed
+  left: Same
+ right: Different
+
+---- compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_selector_function_metadata stdout ----
+
+thread 'compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_selector_function_metadata' (2130602) panicked at 01_core/src/compiler/eval/context_reads.rs:625:13:
+assertion `left == right` failed
+  left: Same
+ right: Different
+
+
+failures:
+    compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_rejects_malformed_projection_slot_proofs
+    compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_kind_diagnostic_origin
+    compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_native_kind_name_and_namespace
+    compiler::eval::context_reads::storage_budget_tests::figure_reference_eligibility_retains_selector_function_metadata
+
+test result: FAILED. 2 passed; 4 failed; 0 ignored; 0 measured; 7706 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p typst-core --lib`

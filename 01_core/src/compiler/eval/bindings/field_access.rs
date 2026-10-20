@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access.md
-//! @prompt-hash c185d50e
+//! @prompt-hash 5db1a3d1
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -1737,6 +1737,49 @@ mod p1471_tests {
             "cannot access field `table-summary` because the `a11y-extras` feature is not enabled",
             "eval_value_field_access pura não deve aplicar o gate a11y: {}",
             err[0].message
+        );
+    }
+}
+
+#[cfg(test)]
+mod figure_kind_field_projection_tests {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::elements::figure::{FigureElem, FigureKind, FigureSupplement};
+    use std::sync::Arc;
+
+    #[test]
+    fn figure_kind_direct_getter_distinguishes_raw_auto_and_prepared_empty_supplement() {
+        let mut figure = FigureElem {
+            body: Content::text("body"),
+            caption: None,
+            kind: Some(None),
+            resolved_kind: None,
+            supplement: Some(FigureSupplement::Auto),
+            resolved_supplement: None,
+        };
+        let raw = Value::Content(Content::Figure(Arc::new(figure.clone())));
+        assert_eq!(
+            eval_value_field_access(raw.clone(), "kind", Span::detached()).unwrap(),
+            Value::Auto
+        );
+        assert_eq!(
+            eval_value_field_access(raw, "supplement", Span::detached()).unwrap(),
+            Value::Auto
+        );
+        figure.resolved_kind = Some(FigureKind::Element(Func::native(
+            "table",
+            crate::compiler::stdlib::native_table,
+        )));
+        figure.resolved_supplement = Some(None);
+        let prepared = Value::Content(Content::Figure(Arc::new(figure)));
+        assert!(matches!(
+            eval_value_field_access(prepared.clone(), "kind", Span::detached()).unwrap(),
+            Value::Func(_)
+        ));
+        assert_eq!(
+            eval_value_field_access(prepared, "supplement", Span::detached()).unwrap(),
+            Value::None
         );
     }
 }

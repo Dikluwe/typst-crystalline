@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/locatable.md
-//! @prompt-hash a7c4c28e
+//! @prompt-hash 6fd8a9da
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -55,7 +55,7 @@ pub fn is_locatable(content: &Content) -> bool {
         // ── Locatable em P506 — ContextBlock (delayed evaluation via
         // `context { expr }`). Walk emite tag para capturar a Location
         // onde o bloco aparece; expansão pós-introspecção avalia o closure.
-        Content::ContextBlock(_) => true,
+        Content::ContextBlock(block) => !crate::compiler::realize::reference_supplements::is_reference_supplement_producer(block),
 
         // ── Locatable em P178 — Outline fecha lacuna #7 ────────────
         Content::Outline(_) => true,

@@ -1,5 +1,5 @@
 # L0 — compiler/realize/context_occurrences
-Hash do Código: 9882f3a5
+Hash do Código: ed023763
 
 **Layer:** L1. **Exclusive consumer:** `01_core/src/compiler/realize/context_occurrences.rs`.
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
@@ -49,3 +49,21 @@ Validate build, full suite, strict Clippy/Rustdoc, formatting, lineage, and SARI
 The pre-consolidation owner is preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/realize/context_occurrences.md`.
 The ratified API, current materialization status and acceptance remain authoritative.
+
+## Raw selected-template Context IDs
+
+Measured source context_stabilization.rs:execute initializes next_context_id from
+Session.next_id for every retry and stores the increased floor afterward. A
+scalar-only raw template clone would allocate different nested Context IDs on
+retained retries; equal contributions would fail stability or share unrelated
+producer IDs. The approved Ref proposal explicitly requires fresh insertion sites
+and stable retries. Extend only private OccurrenceSlots with retained Context ID
+slots/cursor and a scoped template-instantiation flag, alongside Location slots.
+Reset both cursors at frame replay; reused ID raises ctx floor to at least ID+1,
+fresh slot consumes actual ctx.next_context_id. Preserve public Arena/Frame APIs.
+A private with_template coordinator sets/restores only this flag in existing slots
+(or temporary slots using the caller's same existing Locator outside a frame),
+never a separate allocation arena. Only actually reached raw ContextBlock visits
+reconstruct their ID; preexisting Located aliases and generated Ref producers
+retain their own identities. Test separate sites, retained retry/growth/error
+restoration and aliases. No mutable globals/hash/offset IDs or second arena.

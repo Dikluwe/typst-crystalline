@@ -1,0 +1,95 @@
+{
+  "utc": "2026-10-19T23:15:12.949633+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "diff_head_stat": " .../core/compiler/eval/bindings/field_access.md    | 15 ++++++\n .../eval/bindings/field_access/content_methods.md  | 15 ++++++\n .../core/compiler/eval/observation/elements.md     | 15 ++++++\n .../core/compiler/eval/operators/equality.md       | 15 ++++++\n .../prompts/core/compiler/eval/rules/apply.md      | 15 ++++++\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  | 15 ++++++\n .../core/compiler/eval/selector_matching.md        | 15 ++++++\n 00_nucleo/prompts/core/compiler/introspect.md      | 15 ++++++\n .../core/compiler/introspect/convergence.md        | 15 ++++++\n .../core/compiler/introspect/entrypoints.md        | 15 ++++++\n .../core/compiler/introspect/extract_payload.md    | 15 ++++++\n .../prompts/core/compiler/introspect/fixpoint.md   | 15 ++++++\n .../prompts/core/compiler/introspect/labelled.md   | 15 ++++++\n .../prompts/core/compiler/introspect/locatable.md  | 15 ++++++\n .../core/compiler/introspect/materialize_time.md   | 15 ++++++\n .../prompts/core/compiler/introspect/populate.md   | 15 ++++++\n .../prompts/core/compiler/introspect/queries.md    | 15 ++++++\n 00_nucleo/prompts/core/compiler/introspect/walk.md | 15 ++++++\n .../prompts/core/compiler/layout/checkpoint.md     | 15 ++++++\n 00_nucleo/prompts/core/compiler/layout/figure.md   | 15 ++++++\n .../prompts/core/compiler/layout/measurement.md    | 15 ++++++\n 00_nucleo/prompts/core/compiler/layout/mod.md      | 15 ++++++\n .../prompts/core/compiler/layout/placement.md      | 15 ++++++\n .../prompts/core/compiler/layout/references.md     | 15 ++++++\n 00_nucleo/prompts/core/compiler/layout/tests.md    | 21 ++++++++\n 00_nucleo/prompts/core/compiler/realize/mod.md     | 15 ++++++\n 00_nucleo/prompts/core/compiler/realize/recipes.md | 15 ++++++\n .../prompts/core/compiler/stdlib/figure_image.md   | 17 ++++++\n .../prompts/core/compiler/stdlib/layout/grid.md    | 15 ++++++\n .../prompts/core/entities/content/construction.md  | 15 ++++++\n .../core/entities/content/tests/representation.md  | 15 ++++++\n .../core/entities/content/tests/traversal.md       | 15 ++++++\n .../prompts/core/entities/content/traversal.md     | 15 ++++++\n 00_nucleo/prompts/core/entities/element_payload.md | 15 ++++++\n 00_nucleo/prompts/core/entities/elements/figure.md | 37 +++++++++++++\n 00_nucleo/prompts/core/entities/elements/grid.md   | 20 +++++++\n 00_nucleo/prompts/core/entities/introspector.md    | 15 ++++++\n 00_nucleo/prompts/infra/export/tests/mod.md        | 15 ++++++\n 00_nucleo/prompts/infra/pipeline/bundle.md         | 15 ++++++\n .../infra/pipeline/context_stabilization.md        | 15 ++++++\n 00_nucleo/prompts/shell/cli.md                     | 15 ++++++\n 01_core/src/compiler/layout/tests.rs               | 63 ++++++++++++++++++++++\n 42 files changed, 713 insertions(+)\n",
+  "cases": [
+    {
+      "name": "figure_kind_explicit_element_retains_function_identity",
+      "source": "#show figure: it => repr((type(it.kind), it.kind))\n#figure([A], kind: table)",
+      "expected": "(function, table)",
+      "oracle_returncode": 0,
+      "oracle_text": "(function, table)",
+      "stderr": ""
+    },
+    {
+      "name": "figure_kind_custom_name_retains_string_identity",
+      "source": "#show figure: it => repr((type(it.kind), it.kind))\n#figure([A], kind: \"table\", supplement: [Custom])",
+      "expected": "(string, \"table\")",
+      "oracle_returncode": 0,
+      "oracle_text": "(str, \"table\")",
+      "stderr": ""
+    },
+    {
+      "name": "figure_kind_omission_inherits_but_explicit_auto_inspects_body",
+      "source": "#set figure(kind: raw)\n#show figure: it => repr(it.kind)\n#figure(table([A]))\n#figure(table([B]), kind: auto)",
+      "expected": "rawtable",
+      "oracle_returncode": 0,
+      "oracle_text": "raw\ntable",
+      "stderr": ""
+    },
+    {
+      "name": "figure_kind_filtered_show_set_previews_then_resolves",
+      "source": "#show figure.where(kind: table): set figure(kind: raw)\n#show figure: it => repr(it.kind)\n#figure(table([A]))",
+      "expected": "raw",
+      "oracle_returncode": 0,
+      "oracle_text": "raw",
+      "stderr": ""
+    },
+    {
+      "name": "figure_kind_metadata_content_is_semantic_descendant",
+      "source": "#show figure: it => repr(it.kind)\n#figure(metadata(table([A])))",
+      "expected": "table",
+      "oracle_returncode": 0,
+      "oracle_text": "table",
+      "stderr": ""
+    },
+    {
+      "name": "figure_kind_metadata_arrays_recurse_and_dictionaries_stay_opaque",
+      "source": "#show figure: it => repr(it.kind)\n#figure(metadata((1, (table([A]),))))\n#figure([#metadata((nested: table([A]),))#raw(\"x\")])",
+      "expected": "tableraw",
+      "oracle_returncode": 0,
+      "oracle_text": "table\nraw",
+      "stderr": ""
+    },
+    {
+      "name": "figure_kind_context_output_is_not_evaluated_during_inference",
+      "source": "#show figure: it => repr(it.kind)\n#figure(context table([A]))",
+      "expected": "image",
+      "oracle_returncode": 0,
+      "oracle_text": "image",
+      "stderr": ""
+    },
+    {
+      "name": "figure_kind_grid_header_order_precedes_or_follows_body",
+      "source": "#show figure: it => repr(it.kind)\n#figure(grid(columns: 1, grid.header(table([A])), raw(\"x\")))\n#figure(grid(columns: 1, raw(\"x\"), grid.header(table([A]))))",
+      "expected": "tableraw",
+      "oracle_returncode": 0,
+      "oracle_text": "table\nraw",
+      "stderr": ""
+    },
+    {
+      "name": "figure_kind_supplement_callback_targets_actual_element",
+      "source": "#show figure: it => it.supplement\n#figure([#raw(\"x\")#table([A])], kind: table, supplement: it => repr(it.func()))",
+      "expected": "table",
+      "oracle_returncode": 0,
+      "oracle_text": "table",
+      "stderr": ""
+    },
+    {
+      "name": "figure_kind_body_replacement_preserves_body_morphology",
+      "source": "#show figure: it => it.body\n#figure([BODY], caption: [CAPTION])",
+      "expected": "BODY",
+      "oracle_returncode": 0,
+      "oracle_text": "BODY",
+      "stderr": ""
+    },
+    {
+      "name": "figure_kind_hidden_parent_does_not_prepare_child",
+      "source": "#show block: none\n#block[#figure([A], supplement: it => panic(\"unreached\"))]\nDONE",
+      "expected": "DONE",
+      "oracle_returncode": 0,
+      "oracle_text": "DONE",
+      "stderr": ""
+    }
+  ]
+}

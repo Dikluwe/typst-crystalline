@@ -1,0 +1,28 @@
+{
+  "utc": "2026-10-19T23:47:30.629344+00:00",
+  "read_only_diagnosis": {
+    "plain_figure": "eval/mod.rs only gates realization on has_recipes or bare_math predicate. Explicit typed Figure fields remain unresolved on direct path, causing legacy layout fallback. Correct boundary is actual-output Figure preparation predicate, never constructor inference or ctx.hasrules mutation.",
+    "header": "SetPage stores static PageMarginal Content but recipes/introspection treat marker opaque; layout/page_running later renders raw header. wrap_page_columns only groups Columns and never creates PageRun; moving it cannot repair header admission.",
+    "measured_one_page_order": "Target receipt expects header Figure1, body Figure2, global final2. A reached static header must be prepared and indexed before following body.",
+    "bounds": "No change to global column-wrap timing or layout callback prohibition. Do not automatically place Footer before body or claim repeated-page admission parity from this one-page measurement."
+  },
+  "source_sha256": {
+    "01_core/src/compiler/eval/mod.rs": "623864ffcaf4376804814898c1f8430b2f746acf7811dd6086ec227f2cc04b08",
+    "01_core/src/compiler/realize/recipes.rs": "c32ebe02999179282468fadf5dd7387e069aa33bbe530d16a6d6400cbe0acd65",
+    "01_core/src/entities/content/page_structure.rs": "7cdad1977926b9dd8cabf1dd8fe1bf2a8d957bf1c2a309c4a8c898a30bfa76e2",
+    "01_core/src/compiler/introspect/walk.rs": "2a129735a205fbbacab8f768b95cc0a236f19e4bf184c6d58af8f815db0ea59a",
+    "01_core/src/compiler/layout/page_running.rs": "4120ff4e9b398e4ce2b25e2d8c37d3a612a01b19464708e0e26f34adbfe3edfa"
+  },
+  "pending_module_tests": [
+    "figure_v16_plain_output_module_resolves_typed_kind_without_show_recipes",
+    "figure_v16_plain_output_supplement_error_precedes_caption_demand",
+    "figure_v16_unused_figure_keeps_no_figure_fast_path_and_callback_inert"
+  ],
+  "production_gate_change": {
+    "utc": "2026-10-19T23:49:12.023668+00:00",
+    "red_receipt": "integration-tests-5; root confirmed both bare Figure failures and inert unused control pass",
+    "change": "Existing realization gate additionally checks feature-owned Figure output predicate, with old recipe and bare-math short circuits unchanged.",
+    "dependency": "Realization agent adds figure::needs_preparation; root orchestrates build.",
+    "header_boundary": "No static SetPage expansion or page timing change applied."
+  }
+}

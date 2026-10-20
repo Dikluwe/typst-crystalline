@@ -1,0 +1,57 @@
+{
+  "utc": "2026-10-19T23:23:10.952169+00:00",
+  "baseline": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "status": "implementation ready for root compilation; no agent Cargo commands",
+  "sources": {
+    "01_core/src/compiler/realize/mod.rs": {
+      "sha256": "22f8a9c75425aa61866a242ea979373d4bcea2e8c2db2fd55bcb8ac617ae5d3d",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+      "owner_sha256": "9caec966976e72ce39dfea85e27222da9f3490bc871ea169ba760cf211f8689d"
+    },
+    "01_core/src/compiler/realize/recipes.rs": {
+      "sha256": "c32ebe02999179282468fadf5dd7387e069aa33bbe530d16a6d6400cbe0acd65",
+      "owner": "00_nucleo/prompts/core/compiler/realize/recipes.md",
+      "owner_sha256": "221fcd898e3a7c5615dd9090121d5558e7af9214f90286deb984bdd46ad1711f"
+    },
+    "01_core/src/compiler/realize/figure.rs": {
+      "sha256": "a0cf36c7853917b6433766a6e05191e1c95a44500ef0caab67490bc8bd3a67a9",
+      "owner": "00_nucleo/prompts/core/compiler/realize/figure.md",
+      "owner_sha256": "1cfa7b46c94845d5823baf082771ab0c04794f638f0f37b6240daec3d25877db"
+    },
+    "01_core/src/compiler/realize/figure_kind.rs": {
+      "sha256": "7ea9c398654066230453d3426a190fbb83453e11fd25c28feaa47779e780df6b",
+      "owner": "00_nucleo/prompts/core/compiler/realize/figure_kind.md",
+      "owner_sha256": "dd1909d2b70ccb9c5c3ccd555b35240c92fcd9cb93cae18a902955be22f2e191"
+    },
+    "01_core/src/compiler/eval/rules/apply.rs": {
+      "sha256": "3e6dc5750b97d20092a677017316224aba6cf95886934f39c805a1ab1be6d6bd",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/apply.md",
+      "owner_sha256": "ebb7e2d3bfe070293cccf01740c97b6a47b97f8814d819dc4c21d2c722d70982"
+    },
+    "01_core/src/compiler/eval/rules/set.rs": {
+      "sha256": "cd7dcc97aaf075a6274c516c668412546b5474162c4f7786d30eb8230ad3fad5",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/set.md",
+      "owner_sha256": "001778365c1bde8c66e58826deb34fc3c3e00cabbfc9d76619253a01a789e6dd"
+    },
+    "01_core/src/compiler/eval/selector_matching.rs": {
+      "sha256": "2be4944eb5c60b64829bf5d6fcb765485e76ceb8bcecbc19feef028f8a20dab7",
+      "owner": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+      "owner_sha256": "530a6c1f47c2f1f027ba4db9109d6e4e63973d2ff96a18b47ed92fefd66e40e7"
+    },
+    "01_core/src/compiler/eval/operators/equality.rs": {
+      "sha256": "93207bb46eace4131238d93a2a7290fea4da93bdf42fdb94be70379baf02a4a3",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+      "owner_sha256": "97cac6d4fe8db3e69df348d3f71863856629f5a02eba29ba1bb14415cec3a523"
+    },
+    "01_core/src/compiler/eval/bindings/field_access.rs": {
+      "sha256": "404338faaece26f0deed8b908195f7260fc85c4a654e79a6fda99daa099ac6db",
+      "owner": "00_nucleo/prompts/core/compiler/eval/bindings/field_access.md",
+      "owner_sha256": "14a9022dfd988f7db247e881f9cf2022c8ee39a08317a8b4092f3edd38ae36e0"
+    },
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs": {
+      "sha256": "0ecd4adabfb771aa369951f24a4b371321cd1ac478780fd2295ffe1b1ed1bfc4",
+      "owner": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+      "owner_sha256": "09baf628d6d42bf58d8cca8dd60656d3d8f95b320399e107aed12d3e73163396"
+    }
+  }
+}

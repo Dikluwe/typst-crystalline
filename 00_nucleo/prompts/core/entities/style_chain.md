@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 6d2d31db
+Hash do Código: 073e809d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:c8570ec5f4f32c0805587230cafc796f35e5ee7c9f8e634e13d807db2afb6e00
@@ -70,3 +70,22 @@ For text.font custom Array,count Value::Str entries,reserve exactly that many Fo
 Test default11pt/boldfalse/italicfalse,push propagation/inherited None,O(1)clone,correct bridge/defaultfont,full13named resolver coverage and existing sub/super/highlight/baseline_offset transport. Historic coverage counts are archived evidence,not fixed modern acceptance totals. StyleChain exposes no allocation identity or p1339_observation-conditioned method;persistent storage/defaults/Arc/resolution/productive APIs remain telemetry-independent. No I/O or global mutable state. Font coverage discovery remains deferred to its owning layer;this owner does not certify all text/font equality/render behavior.
 
 Archive: `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/style_chain.md`.
+
+## Raw causal storage traversal
+
+Measured 2026-10-19 in the uncommitted Figure/Grid working tree: private
+`StyleNode` at style_chain.rs:275 stores exactly `delta` and `parent`;
+ShowRecipeContent captures a StyleChain, while observation/content.rs:38
+unconditionally returns Unproven for recipes. Integrated RED8 preserves the
+actual own-hidden Figure query failure and identifies both captured body and
+supplement as Unproven. Raw storage, rather than a resolved cascade, is needed
+to prove the complete causal representation.
+
+Provide only a crate-private borrowed `raw_deltas` iterator, head to parent,
+with complete StyleChain/StyleNode destructuring. Yield every stored delta,
+including empty and shadowed declarations, without allocation, flattening,
+resolution, callback execution, or Arc identity shortcuts. Empty chains yield
+no items. The iterator exposes no public allocation identity or telemetry API;
+ordinary style resolution and public contracts remain unchanged. Test borrowed
+order, empty-node presence, and empty-chain termination. The observation owner
+compares the returned deltas and retains opaque Unproven values.

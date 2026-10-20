@@ -1,5 +1,5 @@
 # L0 — html/document
-Hash do Código: 6f0012ea
+Hash do Código: 2f602cb5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -134,3 +134,63 @@ ContextBlock/StateDisplay. Preserve Label body/Heading boundaries/whitespace.
 Ref links/anchors and HTML math remain uncertified. Internal continuous ADR-0127,
 no public API/flag/phase/default: owner RED→GREEN/bilateral PDF-HTML; markers among
 text, labeled heading, metadata, legacy State and still-unsupported-content error.
+
+## Figure show-product paragraph morphology (2026-10-19)
+
+### Measurement before decision
+
+`lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/html-figure-morphology/receipt.json`
+binds baseline HEAD 731f0ffdf4c7c152f590551e72ff63f7bd85ef85, dirty-state diffstat,
+UTC, exact sources/argv, pinned oracle commit bd5ebec285505889e8ff1d4f68804ab147a699f3
+and executable SHA 9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9,
+and candidate-build-2 receipt SHA plus binary
+12265c0a05442725b28274a3d11f89ee8c93578d4dc308bcd224178249e0396a.
+Document.rs:31 projects every Realized directly to visual before paragraph
+classification. Oracle `A figure B figure C` with a Figure show returning X gives
+five paragraphs; candidate gives one. Adjacent Figures give two versus one.
+Strong replacement retains strong markup within separate paragraphs. Heading
+replacement stays inline in both. Alignment overrides do not remove Figure
+boundaries. None/empty Figure products still separate surrounding A/B into two
+paragraphs without an empty paragraph. A div replacement remains a div between
+neighbor paragraphs; two-paragraph replacement retains both. This is measured
+language morphology under ADR-0107, not a text-normalization or byte requirement.
+
+### Responsibility and acceptance
+
+Before discarding a Realized original Figure boundary, retain its measured actual
+paragraph separation around the emitted visual, through Source/Located/Styled
+original carriers. Serialize only visual content; do not render/index original
+Figure body or infer support for implicit Figure HTML body/caption rendering.
+Preserve rich inline products, adjacent products, surrounding inline paragraphs,
+empty replacement separation, existing block visual products and heading/nonFigure
+replacement inline behavior. Keep explicit roots, lexical styles, smart quotes,
+markers, encoding and existing unsupported-content errors. No new public API,
+phase, mode or generic entity change. Functional figure_ RED precedes sourcefix;
+tests observe paragraph/tag sequence and rich payload rather than flat text only.
+
+The observed RED8 paragraph failures authorize a bounded visual projection:
+recognize Figure originals through existing Source/Located/Styled wrappers and
+place existing Parbreak boundaries before/after that emitted visual contribution
+before ordinary document grouping. These boundaries encode the measured paragraph
+separation even for Empty; they are not new content fields, synthesized original
+body rendering or a text-space deletion. Existing block/div/multiparagraph visual
+contributions continue through existing block grouping without a forced p wrapper.
+NonFigure Realized visual projection stays unchanged.
+
+## Captured Figure product origin transport
+
+GREEN9 unit controls passed, but real candidate-target-controls-3 still merges
+html-kind-inherited-auto into one paragraph. Its exact source/HTML/argv and
+candidate identity remain in that receipt. Causal source evidence:
+compiler/realize/recipes.rs:486 delegates completed replacement to
+compiler/eval/rules/textual.rs:114–139, which wraps the prepared Located original
+in ShowRecipeContent.body for causal revisitation. document figure_origin only
+unwrapped Source/Located/Styled, so actual captured Figure originals failed the
+classifier while synthetic transport tests passed. ShowRecipe is data transport
+here; reading its body executes no rule and cannot render the consumed original.
+
+Add a separate functional figure_ RED with the actual ShowRecipe(original)
+carrier, retaining the existing passing direct-origin/heading controls. Recognize
+ShowRecipe.body in the same borrowed original-root classification. Preserve all
+capture styles/rules/guards/file metadata untouched, never execute its callback or
+collapse it to infer identity. No new owner/API/phase, no Ref/SetPage expansion.

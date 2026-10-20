@@ -1,0 +1,51 @@
+{
+  "utc": "2026-10-20T03:47:10.847647+00:00",
+  "reviewer": "figure_realize_impl",
+  "mode": "read-only independent generated-report audit; no source/L0/root-report edits, no Cargo",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "state": "validated uncommitted working tree; same final source64 freeze, generated diagnostic/report files added afterward",
+  "artifact_sha256": {
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/README.md": "b6b450999108726d66548d3712fa24a68a044adf4c8fd8c53cb8e3e4f38f6cad",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/closure-ledger.json": "cb0dd8c4c2e16c0c349adf23748e1454d83b7bc969749fa1ee3d4ac0f92de839",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/open-obligations.json": "3ba970b0a458cf2a47e1d289e47d890c3706a9e4dbae50713bbfa102fff5a1eb",
+    "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md": "b7d98542a049cfb698837c2c8633ab94a1a656c8d155d7dfcc9769013fbccab0"
+  },
+  "status": "PASS: no findings; generated wording and evidence accurately support bounded closure",
+  "findings": [],
+  "verified": {
+    "all_ledger_receipts_hashes_current": 36,
+    "source_owner_pairs_all128hashes_current": 64,
+    "current_frozen_build_inputs": 2142,
+    "final_product_sha256": "47773b808cf589b7e0f31602b2d791856196ae92ee49d0af24184ca4cfd90f76",
+    "integrated_gates_successful": 12,
+    "frozen_policies": {
+      "passed": 84,
+      "required": 77,
+      "scope": "Policy acceptance; original71required+five declared debts+two negative controls retained, six addedcounterrequired. Not84vanilla matches."
+    },
+    "reference_required": 40,
+    "target_control_outcomes": "10/11; exact SetPage header failure preserved",
+    "broad_ref_show_outcomes": "2/4 strict comparisons; all4terminate and origins match; fresh/distinct2missing-label vsmaxdepth remain failures",
+    "lint_counts": {
+      "V16:error": 18,
+      "V19:note": 1315,
+      "V20:note": 905
+    },
+    "original_progress_archive_sha256": "a0fe34ade72a6eae02fd838f55037a9c1f0d73f725d34ae76b852b102e11d6a8"
+  },
+  "authority_review": "Both frozen approvals remain binding; exact3Ref publicfacades and approved delayed phase preserved. Continuous private knownstyle and ownedfinal guard repairs do not expand public API or certify unrelated capabilities. A scope review and C full extra-controls review independently bind current final build.",
+  "historical_current_review": "Current final evidence uses final5/build4/finalcorp40/current6extras. Baseline input-equivalent historicalbinary qualification, previousfailed/interrupted validations, frozen proposal checkpoint wording and exact original diagnostic archive remain explicitly historical; nofailed strict comparison becomes a pass.",
+  "debt_review": [
+    "All18globalV16errors and separateV16-099 remain open; nozero-lint orcomplete Typst/Figure/Grid claim.",
+    "SetPage header/nativePageRun physicalrepeat distinction, Blockownlabel, ambiguity and refutedsingleContext control retained.",
+    "Math14vs20/returnedContext conflict remains separate decision; all6error-source differences preserved, including ordinarymissingsecondhint and5callbackinnercallanchor differences.",
+    "Fullcaption/defaultalignment/floats/position/separator/locale/figure_location/functionnumbering/preview/HTML/Dynamic/Gridfooter/Statekey/Tableorder/Blockstyle/breakability/physicalpage and allpriorbatchobligations retained."
+  ],
+  "cross_review_hashes": {
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-extra-controls-review.json": "79cdd018367c837a62467815702c0219730d6d731986690deb717ea243acdff3",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/scope-closure-obligations-final.json": "883a8c584738331c4dfa9c0b94e0503c48f9a6b3fbddd9a6de8714030b0662b0",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/structural-final5-review.json": "7a25745e2199c05972f227b7db3e070ab5f7f591b1cea314ac83972115b9d0c3",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/prepared-final-report-updated-review.json": "d8e3c063bf2a52cdc7a6e05e4dbf772dcc7ad67076410b3845a7761c2b2baffb"
+  },
+  "limits": "Root final_document_checks separately validates links,paths,lineage,reverse and diffcheck. This audit changes no acceptance policy and is not an independent full language-parity certificate."
+}

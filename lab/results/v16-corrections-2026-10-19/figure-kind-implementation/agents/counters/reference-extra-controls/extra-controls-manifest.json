@@ -1,0 +1,54 @@
+{
+  "utc": "2026-10-20T01:20:39.086562+00:00",
+  "state": "Evidence-only corpus and fixed assertions derived from actual pinned-oracle receipts; no baseline product fabricated.",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "oracle_binary": "lab/typst-original/target/release/typst",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "assets": {
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/refs.yml": "d9c5ef74cc49254ed72c619d19b64a8876c3ad90f94345dba8a6db848cd0b822"
+  },
+  "cases": [
+    {
+      "name": "plain-bibliography-reference",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/plain-bibliography-reference.typ",
+      "source_sha256": "030376897dbb60c7d6f0b101298a2447deed8e613fcd6c84b750d7e0dec41ad0",
+      "expected_returncode": 0,
+      "expected_normalized_text": "Bibliography [1] Example, Reference Work. 2020. [1]",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/oracle-receipt.json",
+      "oracle_receipt_sha256": "29cb6313efaeb0a1d3e2dc4e63546543eefa6c125f32bb07e35c9830409ac426"
+    },
+    {
+      "name": "dynamic-nonfigure-forward-reference",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/dynamic-nonfigure-forward-reference.typ",
+      "source_sha256": "6ff6cd285f2f78d70b5932af1466a45684bd1e4bc98a22943c09ea3563dcba0a",
+      "expected_returncode": 0,
+      "expected_normalized_text": "Section 1 1. DYNAMIC",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/oracle-receipt.json",
+      "oracle_receipt_sha256": "29cb6313efaeb0a1d3e2dc4e63546543eefa6c125f32bb07e35c9830409ac426"
+    },
+    {
+      "name": "nested-grid-dormant-template",
+      "source": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/nested-grid-dormant-template.typ",
+      "source_sha256": "da3a57da6da9957bae20aa1e194ac743a81e18748f3e56639932e1e1e9bb1d87",
+      "expected_returncode": 0,
+      "expected_normalized_text": "BODY (0,)",
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/nested-grid-dormant-template-receipt.json",
+      "oracle_receipt_sha256": "64e2a04e97789305c9f9437b507e73176530e4aff7a5ee11d8d8f99bf9f2dcc4",
+      "oracle_text_extraction_argv": [
+        "pdftotext",
+        "-layout",
+        "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/reference-extra-controls/nested-grid-dormant-template.oracle.pdf",
+        "-"
+      ],
+      "oracle_pdf_sha256": "863644df7ab00ec180cc19f39f7d3c8816e706da315021c77ac0485dae85a4f0"
+    }
+  ]
+}

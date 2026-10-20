@@ -1,0 +1,9 @@
+# Style-only callbacks and modern counter.final
+
+The actual source14 false-zero is a missing language capability guard. Pinned Counter::final_ requires context.location(), whereas general introspection may accept either styles or Location. Enabling known captured styles in MathCancel was necessary; it must not fabricate Location or admit final reads.
+
+The minimal correction belongs to the Engine-language counter_final_owned helper. Preserve the public no-Engine materialized helper and legacy string native unchanged. Bound/static modern calls and CounterFinal replay already use the owned path; replay restores the recorded in_context and Location. Compute filtered-key classification, mark filtered reads first, then reject absent context/Location before delegate/fold. This preserves selection on failed filtered reads and prevents callback/history effects or fallback0 from missing capability.
+
+This bounded option is ADR-0127 continuous parity correction: update its canonical L0 and manifested scope first, observe actual RED, repair and revalidate. It adds no public entity/signature/trait, mode or phase; separate human approval is unnecessary for this option. Changing the public helper contract or introducing a capability field would be a different decision. Query/explicit-at/get and existing public Rust behavior must remain outside the guard.
+
+Required controls distinguish valid actual contexts from style-only contexts across Str/Page/Element, bound/static calls, seeded values and replay; preserve public helper fallback, legacy natives, style19, source errors and selection-before-error. Existing returned-Context extension and script14/vanilla20 conflict remain unresolved separately. This review edited no source/L0/test and ran no Cargo; the false-zero remains a failed acceptance measurement until repaired replay.

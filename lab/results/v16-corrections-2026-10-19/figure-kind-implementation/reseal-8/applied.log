@@ -1,0 +1,3 @@
+Applied ./01_core/src/compiler/introspect/walk.rs prompt=00_nucleo/prompts/core/compiler/introspect/walk.md hash-a=94e72597 hash-b=84685146
+
+Re-running analysis... ✅ 0 drift warnings remaining

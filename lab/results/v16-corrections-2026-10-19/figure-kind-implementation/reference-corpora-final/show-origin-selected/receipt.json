@@ -1,0 +1,102 @@
+{
+  "utc_start": "2026-10-20T03:41:04.344616+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "product": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+  "product_sha256": "47773b808cf589b7e0f31602b2d791856196ae92ee49d0af24184ca4cfd90f76",
+  "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-build-4/receipt.json",
+  "build_receipt_sha256": "6015e9d8b3ab7836a199b321c9e41165bead3ffc44d1d90fc218570b0ce42602",
+  "historical_baseline": false,
+  "oracle_receipt_sha256": "9ae5b125bf8c2133506f936d7e707de559f7ff3890242a97885c93fbb621789e",
+  "matrix_sha256": "e2c6110ce60b6c02cb37326482469029ee3cdadffb957a86e9f1bd1d50b10baa",
+  "policies_sha256": "18fea3abef03e237787b2ae458db12c36cf513479c68f9af713703167ab99a53",
+  "runner_sha256": "afcfd5ff5dd20312494f2b2ff64d4ef866de8ae186fcfdbdc3d3b2e99d7aee5e",
+  "cases": [
+    {
+      "name": "show-origin-new-label-selected",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<newmissing>` does not exist in the document",
+        "origin": [
+          2,
+          2
+        ],
+        "criterion": "label-selected show constructs fresh Ref once; source must be its own constructor",
+        "oracle_note": "Actual isolated label-selected show origin; no inferred expected span."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T03:41:04.493256+00:00",
+          "utc_end": "2026-10-20T03:41:04.510985+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-new-label-selected.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-final/show-origin-selected/show-origin-new-label-selected.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<newmissing>` does not exist in the document\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-new-label-selected.typ:2:2\n  \u2502\n2 \u2502   ref(<newmissing>)\n  \u2502   ^^^^^^^^^^^^^^^^^\n\n"
+        }
+      ],
+      "observed_error_origin": [
+        2,
+        2
+      ],
+      "expected_error_origin": [
+        2,
+        2
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": true
+      },
+      "pass": true
+    },
+    {
+      "name": "show-origin-other-label-selected",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<aliasmissing>` does not exist in the document",
+        "origin": [
+          1,
+          13
+        ],
+        "criterion": "label-selected show returns prior distinct Ref; origin must be prior constructor",
+        "oracle_note": "Actual isolated label-selected show origin; no inferred expected span."
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T03:41:04.511497+00:00",
+          "utc_end": "2026-10-20T03:41:04.527926+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-other-label-selected.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-final/show-origin-selected/show-origin-other-label-selected.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<aliasmissing>` does not exist in the document\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-other-label-selected.typ:1:13\n  \u2502\n1 \u2502 #let other = ref(<aliasmissing>)\n  \u2502              ^^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      ],
+      "observed_error_origin": [
+        1,
+        13
+      ],
+      "expected_error_origin": [
+        1,
+        13
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": true
+      },
+      "pass": true
+    }
+  ],
+  "utc_end": "2026-10-20T03:41:04.528188+00:00",
+  "oracle_comparison_failures": [],
+  "required_failures": []
+}

@@ -1,0 +1,2 @@
+#figure([OUTER #context [CTX] #figure([INNER],kind:table,supplement:[Inner])<inner>],kind:image)<outer>
+#context [#metadata((counter(figure.where(kind:image)).final(),counter(figure.where(kind:table)).final()))<count>]

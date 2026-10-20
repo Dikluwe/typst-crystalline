@@ -1,0 +1,28 @@
+{
+  "recorded_utc": "2026-10-20T02:13:22.192932+00:00",
+  "successful_measurement_interval_end": "2026-10-20T02:09:11.653188+00:00",
+  "successful_cli_postfreeze_receipt_sha256": "3fef1320c348e4861611973096471430b47d88b2b9632edd5d53e688eb60dd7e",
+  "attempt": "Later closure-assessment current-input precondition failed; no new CLI/Cargo or acceptance measurement ran after this failure.",
+  "first_detected_mismatch": {
+    "path": "01_core/src/compiler/introspect/walk.rs",
+    "build9_sha256": "3bf7b43988009ae8058bbdab7564c5551a265c416f4b97f0862571f7caeab41e",
+    "then_sha256": "62a30c6939b52b7bf8b585c50532222c303be21febc30547e008df7172a42b61",
+    "precise_attempt_utc": "not independently persisted; bounded between successful postfreeze receipt and historical-report UTC"
+  },
+  "later_historical_review_utc": "2026-10-20T02:12:57.147953+00:00",
+  "later_detected_changes": [
+    {
+      "path": "00_nucleo/prompts/core/compiler/introspect/walk.md",
+      "build9_sha256": "2bdc5dc3268ddf43d7bdb70dc7e2009933e83883e44408e7c1a5c5a28dd892a0",
+      "now_sha256": "86cd06af88a1d243f2d4df93addd4abc018bd0a99033bb8d7013a25b2b0575a7"
+    },
+    {
+      "path": "01_core/src/compiler/introspect/walk.rs",
+      "build9_sha256": "3bf7b43988009ae8058bbdab7564c5551a265c416f4b97f0862571f7caeab41e",
+      "now_sha256": "62a30c6939b52b7bf8b585c50532222c303be21febc30547e008df7172a42b61"
+    }
+  ],
+  "historical_review_sha256": "49d890382bc908b90fc6ec12d4044a5382962d4aa5651020ee3715f90a163960",
+  "root_explanation": "Intended Clippy if_same_then_else factoring after all build9 CLI/postfreeze measurements; fresh format/reseal/preflight/build/replays follow.",
+  "classification": "Non-acceptance freshness precondition failure. Does not invalidate the earlier exact build9 measurement interval and does not certify changed current source."
+}

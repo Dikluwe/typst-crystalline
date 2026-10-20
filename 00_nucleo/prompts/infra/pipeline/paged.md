@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/paged
-Hash do Código: a56c9355
+Hash do Código: 16ce31b0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
@@ -150,3 +150,67 @@ These internal continuous-flow repairs add no public API/entity/field/dependency
 `lab/results/construction/diagnostics/lote-a1-callbacks-reflexao-seletores-2026-10-17/{final-freeze,target-controls}.json.gz` records HEAD `b1b486f3d42431f8ea360bc5712637ee1e3d4f6c`, uncommitted tree/UTC/diffstat/source/argv at current pin `bd5ebec285505889e8ff1d4f68804ab147a699f3`. heading-raw-constructor-func passes baseline/vanilla but fails candidate: transport Styled changes func; query sees temporary causal wrapper; HTML ignores callback panic. walk.rs:930–945, paged.rs:419–427, html.rs:101–106 use pure walk setup. These are language values/errors, not upstream algorithm/structure requirements. The owner approved `lab/history/construction/records/00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md`, SHA `66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c`.
 
 Compose setup through the private runtime helper; preserve the existing private Paged/empty-features facade and add a private explicit-target/features variant for the contextual session. On initial snapshots, including realization snapshots, call only L1 Heading before prepare(context), propagating errors/warnings. Do not advance other callbacks. Preserve later complete runtime pass, metrics/layout/version/options/pagination/public APIs. Require ratified H1–H8 and bilateral RED before code. No public contract beyond Heading is authorized; five State helpers are separately approved. No public fields. Ordinary Styled/other callbacks retain boundaries. Validate workspace/doctests/build/Clippy/Rustdoc/fmt, V1/V5/V15/V26/reverse, no V16 increase; 12GiB/High8GiB/swap0/jobs1, sequential heavy commands. RAM benefit requires measurement.
+
+
+## Figure runtime candidate diagnostic ownership
+
+Current Figure implementation evidence `candidate-target-controls-2/receipt.json` and functional `integration-tests-8` bind the same sourced Hebrew-zero warning published twice for one demanded caption. The ordinary coordinator appends runtime introspection warnings at paged.rs:474 and again at :599 while replacing the candidate introspector. These are separate executions, but only the accepted candidate's runtime contribution is retained. The orchestrator approved this private integration repair under ADR-0127 continuous flow; no public signature, phase, fold algorithm or diagnostic policy changes.
+
+Hold the complete runtime warning Vec beside the candidate snapshot. Each successful or failed replacement runtime computation replaces that generation's warning buffer; never append discarded validation-generation warnings. Publish the current buffer on ordinary branch success or its error exit, preserving original diagnostics and ordinary non-runtime warning contributions. Keep all runtime folds and callback execution, their source spans/traces/messages, five-attempt/page convergence, metrics lifetimes and selected-session path unchanged. No warning-text filtering, new dedup algorithm, result/effect cache or already-published flag. Require functional warning RED→GREEN, two independent compilations both warning, unread no-caption silence, and two same-text warnings at distinct real source spans both retained.
+
+## Math-cancel callbacks receive known styles without Location
+
+The unchanged full-suite failure log
+`lab/results/v16-corrections-2026-10-19/figure-kind-implementation/validation-final-3/tests-wiring.log`
+and focused frozen rerun
+`lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-focused-red/state.json.gz`
+expose three existing Tekt callback compatibility regressions at text.size's
+context-known guard. Their raw math `a => context ...` spelling is not vanilla
+syntax acceptance: pinned vanilla reports an unknown context variable. Preserve
+the established Tekt delayed-ContextBlock unwrap behavior without advertising
+that extension as vanilla compatibility.
+
+Independent valid code-inserted plain callbacks are measured in
+`lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v2/receipt.json`
+and `lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-language-review.json`.
+Pinned `lab/typst-original/crates/typst-layout/src/math/cancel.rs:100–105` invokes
+the outer callback with Context::new(None, Some(styles)). This establishes known
+styles and no Location for the outer callback itself. The separate valid-script
+measurement in
+`lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v4/receipt.json`
+observes lexical20pt in vanilla, while the established Tekt test requires reduced
+14pt. Preserve that existing Tekt requirement in this bounded guard correction;
+the conflict remains an unresolved parity debt requiring a separate decision,
+not a newly ratified intentional divergence. Valid explicit context returns
+Content and is rejected as an Angle by vanilla; keep that separate from Tekt's
+existing unwrap extension.
+
+Local source `03_infra/src/pipeline/paged.rs:941–988` constructs an EvalContext
+with unknown context and invokes both callbacks against captured request.styles.
+The context-known field guard is correct; the owning runtime caller omitted its
+known-style state. The former outer-noncontextual hypothesis and interim patch
+are preserved and refuted in
+`lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/realize/math-cancel-context-boundary/refuted-outer-false-hypothesis.json`.
+ADR-0127 continuous flow permits this internal parity restoration inside the
+existing request/Engine phase. The pinned math callback Nucleus remains unchanged.
+
+Initialize the helper-local EvalContext with in_context=true for outer Angle
+callbacks and the existing delayed ContextBlock unwrap. It has no caller context
+to restore and must not escape this helper. Keep current_location absent: do not
+invent a Location from Equation identity, a request span, counter history or
+introspector state. Preserve effective captured request.styles, request order,
+existing invocation count, span rewriting, Angle validation, complete-store and
+transcript checks, budgets and warning/error propagation. Preserve the existing
+Tekt Content::ContextBlock result path without broadening accepted result types.
+
+Do not change field guards, generic apply_func, Figure callback context-none,
+public requests/functions, pure layout or phase order. Require unchanged legacy
+Tekt compatibility tests to pass after their recorded RED. Independently validate
+the valid plain code-inserted top-level callback observing19pt, ordinary code
+outside-context text.size/lang rejection and Figure no-context rejection, with
+these language expectations measured against the pinned oracle. Retain the
+existing Tekt reduced-script14pt assertion unchanged without claiming that it
+matches the separately measured vanilla lexical20pt behavior. Do not change
+style snapshots or script sizing in this correction. Preserve all
+invalid-return, source-span, callback/store and prior validation controls; no
+suppression, fabricated negative or weakened assertion is authorized.

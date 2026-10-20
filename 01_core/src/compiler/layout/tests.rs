@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/tests.md
-//! @prompt-hash 0340e733
+//! @prompt-hash d443061c
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -96,7 +96,9 @@ mod prefix_nesting_regressions {
     fn prefix_nesting_suffix_collapses_only_automatic_block_margin() {
         for (below, expected) in [("", 98.4), (",below:0pt", 76.8), (",below:5pt", 81.8)]
         {
-            let doc = layout_test(&format!("#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:18pt)\nOUTER #text(size:8pt)[INNER\n#block(height:20pt{below})[BODY]]\nAFTER"));
+            let doc = layout_test(&format!(
+                "#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:18pt)\nOUTER #text(size:8pt)[INNER\n#block(height:20pt{below})[BODY]]\nAFTER"
+            ));
             let after = frame_items_recursive(&doc.pages[0].items)
                 .into_iter()
                 .find_map(|i| match i {
@@ -115,7 +117,9 @@ mod prefix_nesting_regressions {
 
     #[test]
     fn prefix_nesting_partial_scope_closes_under_outer_paragraph() {
-        let doc = layout_test("#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:18pt)\nOUTER #text(size:8pt)[INNER\n#block(height:20pt)[BODY]]");
+        let doc = layout_test(
+            "#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:18pt)\nOUTER #text(size:8pt)[INNER\n#block(height:20pt)[BODY]]",
+        );
         let y = |needle: &str| {
             frame_items_recursive(&doc.pages[0].items)
                 .into_iter()
@@ -136,7 +140,9 @@ mod prefix_nesting_regressions {
 mod scope_tail_regressions {
     use super::*;
     fn document(body: &str) -> PagedDocument {
-        layout_test(&format!("#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n{body}"))
+        layout_test(&format!(
+            "#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n{body}"
+        ))
     }
     fn y(doc: &PagedDocument, text: &str) -> f64 {
         frame_items_recursive(&doc.pages[0].items)
@@ -174,7 +180,9 @@ mod scope_tail_regressions {
     fn scope_tail_fractional_tail_at_exact_bottom_stays_on_page() {
         for spacing in ["0pt", "5pt", "2em"] {
             for tail in ["TAIL", "#text(size:18pt)[TAIL]"] {
-                let doc = document(&format!("#set page(height:100pt)\n#set par(spacing:{spacing})\n#block(height:1fr)[A]\n{tail}"));
+                let doc = document(&format!(
+                    "#set page(height:100pt)\n#set par(spacing:{spacing})\n#block(height:1fr)[A]\n{tail}"
+                ));
                 assert_eq!(doc.pages.len(), 1, "{spacing}: {tail}");
                 assert!(
                     (y(&doc, "TAIL") - 90.0).abs() < 1e-8,
@@ -194,7 +202,9 @@ mod scope_tail_regressions {
     #[test]
     fn scope_tail_overflow_reserves_first_fragment_with_widow_protection() {
         for spacing in ["5pt", "20pt"] {
-            let doc = document(&format!("#set page(width:60pt,height:100pt)\n#set par(spacing:{spacing})\n#block(height:1fr)[FR]\nAAAAAA BBBBBB CCCCCC DDDDDD EEEEEE"));
+            let doc = document(&format!(
+                "#set page(width:60pt,height:100pt)\n#set par(spacing:{spacing})\n#block(height:1fr)[FR]\nAAAAAA BBBBBB CCCCCC DDDDDD EEEEEE"
+            ));
             assert_eq!(doc.pages.len(), 2);
             assert!(
                 (y(&doc, "AAAAAA") - 57.0).abs() < 1e-8,
@@ -213,7 +223,9 @@ mod block_par_spacing_regressions {
     use super::*;
 
     fn document(spacing: &str, body: &str) -> PagedDocument {
-        layout_test(&format!("#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n#set par(spacing:{spacing})\n{body}"))
+        layout_test(&format!(
+            "#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n#set par(spacing:{spacing})\n{body}"
+        ))
     }
 
     fn baseline(doc: &PagedDocument, text: &str) -> f64 {
@@ -288,7 +300,9 @@ mod align_flow_frame_regressions {
     use super::*;
 
     fn document(body: &str) -> PagedDocument {
-        layout_test(&format!("#set page(width:150pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n{body}"))
+        layout_test(&format!(
+            "#set page(width:150pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n{body}"
+        ))
     }
 
     #[test]
@@ -379,7 +393,9 @@ mod block_height_frame_regressions {
     use super::*;
     const SHAPE: &str = "#rect(width:20pt,height:10pt,fill:red,stroke:none)";
     fn document(body: &str) -> PagedDocument {
-        layout_test(&format!("#set page(width:100pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n{body}"))
+        layout_test(&format!(
+            "#set page(width:100pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n{body}"
+        ))
     }
 
     #[test]
@@ -451,17 +467,26 @@ mod block_height_frame_regressions {
 
     #[test]
     fn block_height_frame_nested_and_successor_use_outer_end() {
-        for (body,expected) in [
-            (format!("#block(inset:3pt)[#block(inset:5pt)[{SHAPE}]]"),46.0),
-            (format!("#block(height:60pt,inset:3pt)[#block(height:40pt,inset:5pt)[{SHAPE}]]"),80.0),
-            (format!("#block(height:40pt,inset:5pt)[{SHAPE}]\n{SHAPE}"),82.0),
-            (format!("#block(height:40pt,inset:5pt)[{SHAPE}]\nY"),82.0),
-            (format!("{SHAPE}\n#block(inset:5pt)[{SHAPE}]"),62.0),
-            (format!("X\n#block(inset:5pt)[{SHAPE}]"),62.0),
+        for (body, expected) in [
+            (format!("#block(inset:3pt)[#block(inset:5pt)[{SHAPE}]]"), 46.0),
+            (
+                format!(
+                    "#block(height:60pt,inset:3pt)[#block(height:40pt,inset:5pt)[{SHAPE}]]"
+                ),
+                80.0,
+            ),
+            (format!("#block(height:40pt,inset:5pt)[{SHAPE}]\n{SHAPE}"), 82.0),
+            (format!("#block(height:40pt,inset:5pt)[{SHAPE}]\nY"), 82.0),
+            (format!("{SHAPE}\n#block(inset:5pt)[{SHAPE}]"), 62.0),
+            (format!("X\n#block(inset:5pt)[{SHAPE}]"), 62.0),
         ] {
-            let doc=document(&body);
-            assert_eq!(doc.pages.len(),1,"{body}");
-            assert!((doc.pages[0].height-expected).abs()<1e-8,"{body}: {} != {expected}",doc.pages[0].height);
+            let doc = document(&body);
+            assert_eq!(doc.pages.len(), 1, "{body}");
+            assert!(
+                (doc.pages[0].height - expected).abs() < 1e-8,
+                "{body}: {} != {expected}",
+                doc.pages[0].height
+            );
         }
     }
 
@@ -484,7 +509,9 @@ mod block_height_frame_regressions {
                 .unwrap();
             assert_eq!(backing, (5.0, 5.0, 30.0, 20.0));
         }
-        let doc=document(&format!("#set page(height:100pt)\n#v(40pt)#block(height:20pt,breakable:false,outset:30pt)[{SHAPE}]"));
+        let doc = document(&format!(
+            "#set page(height:100pt)\n#v(40pt)#block(height:20pt,breakable:false,outset:30pt)[{SHAPE}]"
+        ));
         assert_eq!(
             doc.pages.len(),
             1,
@@ -2234,7 +2261,9 @@ fn layout_list_item_respeita_indentacao() {
     use crate::entities::layout_types::Length;
     use crate::entities::list_marker::ListMarker;
 
-    let body = Content::text("Item com texto suficientemente longo para forçar uma quebra de linha no body do item");
+    let body = Content::text(
+        "Item com texto suficientemente longo para forçar uma quebra de linha no body do item",
+    );
     let item = Content::list_item_full(
         body,
         Some(ListMarker::Custom("→".into())),
@@ -5903,6 +5932,7 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
 
     let grid =
         Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            source_order: None,
             columns: vec![
                 crate::entities::layout_types::TrackSizing::Fixed(100.0),
                 crate::entities::layout_types::TrackSizing::Fixed(100.0),
@@ -7549,7 +7579,9 @@ Página três."#,
 
         #[test]
         fn ts1_heading_composed_show_sets_and_outer_styles_restore() {
-            let doc=layout_typst("#set text(size:12pt)\n#show heading: set text(size:2em)\n#show heading: set text(size:0.5em+3pt)\n= A\nZ");
+            let doc = layout_typst(
+                "#set text(size:12pt)\n#show heading: set text(size:2em)\n#show heading: set text(size:0.5em+3pt)\n= A\nZ",
+            );
             assert!(
                 (tamanho_de(&doc, "A") - 19.8).abs() < 1e-9,
                 "A={}",
@@ -7587,7 +7619,9 @@ Página três."#,
         #[test]
         fn ts1_heading_levels_keep_affine_absolute_part() {
             for (marks, expected) in [("==", 31.8), ("===", 27.0)] {
-                let doc=layout_typst(&format!("#set text(size:12pt)\n#show heading: set text(size:2em+3pt)\n{marks} A\nZ"));
+                let doc = layout_typst(&format!(
+                    "#set text(size:12pt)\n#show heading: set text(size:2em+3pt)\n{marks} A\nZ"
+                ));
                 assert!(
                     (tamanho_de(&doc, "A") - expected).abs() < 1e-9,
                     "A={} expected {expected}",
@@ -7978,8 +8012,10 @@ mod tests_show_rule_integration {
         // B deve estar à direita de A com pelo menos ~50pt de afastamento
         // adicional vs apenas a largura do glifo "A" + space natural.
         // Verificamos um threshold conservador.
-        assert!(pos_b - pos_a > 50.0,
-            "h(50pt) deve afastar B de A em pelo menos 50pt: pos_a={pos_a:.2} pos_b={pos_b:.2}");
+        assert!(
+            pos_b - pos_a > 50.0,
+            "h(50pt) deve afastar B de A em pelo menos 50pt: pos_a={pos_a:.2} pos_b={pos_b:.2}"
+        );
     }
 
     /// `Content::VSpace` força `flush_line` antes de avançar `cursor.y`.
@@ -8318,8 +8354,10 @@ mod tests_show_rule_integration {
         let pos_a_y = texts.iter().find(|(_, t)| t == "A").map(|(y, _)| *y).unwrap();
         let pos_m_y = texts.iter().find(|(_, t)| t == "M").map(|(y, _)| *y).unwrap();
         let pos_b_y = texts.iter().find(|(_, t)| t == "B").map(|(y, _)| *y).unwrap();
-        assert!((pos_a_y - pos_m_y).abs() < 0.001,
-            "A e M devem estar na mesma linha (box é inline): a={pos_a_y:.2} m={pos_m_y:.2}");
+        assert!(
+            (pos_a_y - pos_m_y).abs() < 0.001,
+            "A e M devem estar na mesma linha (box é inline): a={pos_a_y:.2} m={pos_m_y:.2}"
+        );
         assert!(
             (pos_m_y - pos_b_y).abs() < 0.001,
             "M e B devem estar na mesma linha: m={pos_m_y:.2} b={pos_b_y:.2}"
@@ -9219,8 +9257,10 @@ mod tests_show_rule_integration {
                 _ => None,
             })
             .collect();
-        assert!(texts.contains("p223clear"),
-            "Place com clearance renderiza body (semantic adiada preserva baseline P84.6)");
+        assert!(
+            texts.contains("p223clear"),
+            "Place com clearance renderiza body (semantic adiada preserva baseline P84.6)"
+        );
     }
 
     // ── Passo 224 (ADR-0061 Fase 4 candidata sub-3) — Grid refino + variants ──
@@ -9234,6 +9274,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("p224body")],
@@ -9325,6 +9366,7 @@ mod tests_show_rule_integration {
         ];
         let with_stroke = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: cells.clone(),
@@ -9392,6 +9434,7 @@ mod tests_show_rule_integration {
             .collect();
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(20.0); num_cols],
                 rows: vec![TrackSizing::Fixed(15.0); num_rows],
                 cells,
@@ -9481,6 +9524,7 @@ mod tests_show_rule_integration {
         }));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
                 cells: vec![cell_a, Content::text("B")],
@@ -9581,6 +9625,7 @@ mod tests_show_rule_integration {
         ];
         let with_stroke = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells,
@@ -9650,6 +9695,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g_no_stroke = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![Content::text("A"), Content::text("B")],
@@ -9759,6 +9805,7 @@ mod tests_show_rule_integration {
         ];
         let with_fill = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells,
@@ -9802,6 +9849,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g_no_fill = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![Content::text("A"), Content::text("B")],
@@ -9845,6 +9893,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![Content::text("ZorderTest")],
@@ -9895,6 +9944,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![Content::text("ZorderFull")],
@@ -10028,6 +10078,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![cell_a, cell_b],
@@ -10077,6 +10128,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![cell],
@@ -10097,9 +10149,9 @@ mod tests_show_rule_integration {
             "grid com colspan > num_cols deve produzir layout_errors"
         );
         assert!(
-            doc.layout_errors[0]
-                .message
-                .contains("cell's colspan would cause it to exceed the available column(s)"),
+            doc.layout_errors[0].message.contains(
+                "cell's colspan would cause it to exceed the available column(s)"
+            ),
             "mensagem deve indicar colspan a exceder as colunas (paridade vanilla, P822): {}",
             doc.layout_errors[0].message
         );
@@ -10136,6 +10188,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![cell_with_override],
@@ -10195,6 +10248,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![cell_with_fill],
@@ -10234,6 +10288,7 @@ mod tests_show_rule_integration {
         let cell_raw = Content::text("raw"); // Content raw sem stroke/fill
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![cell_raw],
@@ -10303,6 +10358,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![cell_with_stroke],
@@ -10367,6 +10423,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![cell],
@@ -10594,8 +10651,10 @@ mod tests_show_rule_integration {
                 }
             }
         }
-        assert!(found_rect_clip,
-            "P242 — clip=true + radius zero emite Group com clip_mask Rect (paridade DEBT-30)");
+        assert!(
+            found_rect_clip,
+            "P242 — clip=true + radius zero emite Group com clip_mask Rect (paridade DEBT-30)"
+        );
     }
 
     #[test]
@@ -10931,8 +10990,10 @@ mod tests_show_rule_integration {
                 }
             }
         }
-        assert!(found_shape_with_fill,
-            "P247 — Block com fill=Some(Color) emite FrameItem::Shape com fill correspondente");
+        assert!(
+            found_shape_with_fill,
+            "P247 — Block com fill=Some(Color) emite FrameItem::Shape com fill correspondente"
+        );
     }
 
     #[test]
@@ -11308,9 +11369,11 @@ mod tests_show_rule_integration {
         ]));
         let doc = layout(&seq);
         // Esperar 2 páginas: pre-VSpace na p1; Block na p2.
-        assert!(doc.pages.len() >= 2,
+        assert!(
+            doc.pages.len() >= 2,
             "P248 breakable=false + espaço insuficiente → new_page antecipado; obteve {} páginas",
-            doc.pages.len());
+            doc.pages.len()
+        );
     }
 
     #[test]
@@ -11428,8 +11491,10 @@ mod tests_show_rule_integration {
                 }
             }
         }
-        assert!(found_clip_group,
-            "P248 Boxed overflow + clip=true emite Group com clip_mask Rect inner_height=5pt");
+        assert!(
+            found_clip_group,
+            "P248 Boxed overflow + clip=true emite Group com clip_mask Rect inner_height=5pt"
+        );
     }
 
     #[test]
@@ -11671,8 +11736,10 @@ mod tests_show_rule_integration {
                 }
             }
         }
-        assert!(found_clip_group,
-            "P248 cell body overflow (Block height 100pt) + row Fixed(10pt) emite Group com clip_mask Rect inner_height<=10pt");
+        assert!(
+            found_clip_group,
+            "P248 cell body overflow (Block height 100pt) + row Fixed(10pt) emite Group com clip_mask Rect inner_height<=10pt"
+        );
     }
 
     #[test]
@@ -12603,8 +12670,11 @@ mod tests_show_rule_integration {
             b2,
         ]));
         let doc = layout(&seq);
-        assert!(doc.pages.len() >= 2,
-            "P250 — sticky lookahead força break antes do block actual; obteve {} páginas", doc.pages.len());
+        assert!(
+            doc.pages.len() >= 2,
+            "P250 — sticky lookahead força break antes do block actual; obteve {} páginas",
+            doc.pages.len()
+        );
     }
 
     #[test]
@@ -13278,8 +13348,10 @@ mod tests_show_rule_integration {
                 }
             }
         }
-        assert!(fill_shapes >= 1,
-            "P251 — cell fill emite ≥1 Shape (head); tail re-emit em flush se tail não-vazio");
+        assert!(
+            fill_shapes >= 1,
+            "P251 — cell fill emite ≥1 Shape (head); tail re-emit em flush se tail não-vazio"
+        );
     }
 
     #[test]
@@ -13513,8 +13585,11 @@ mod tests_show_rule_integration {
                 }
             }
         }
-        assert!((shape_w - 54.0).abs() < 0.5,
-            "P252 — overhang=true expande width por thickness=4; esperado 54pt, obtido {:.1}", shape_w);
+        assert!(
+            (shape_w - 54.0).abs() < 0.5,
+            "P252 — overhang=true expande width por thickness=4; esperado 54pt, obtido {:.1}",
+            shape_w
+        );
     }
 
     #[test]
@@ -13599,8 +13674,11 @@ mod tests_show_rule_integration {
                     found_shape = true;
                     // Posicionado na metade inferior da página
                     // (page height 595.276; bottom > 297).
-                    assert!(pos.y.0 > 297.0,
-                        "P245 — float bottom deve ficar na metade inferior; obteve y={:.1}", pos.y.0);
+                    assert!(
+                        pos.y.0 > 297.0,
+                        "P245 — float bottom deve ficar na metade inferior; obteve y={:.1}",
+                        pos.y.0
+                    );
                 }
             }
         }
@@ -13996,6 +14074,7 @@ mod tests_show_rule_integration {
         );
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![place_in_cell],
@@ -14046,6 +14125,7 @@ mod tests_show_rule_integration {
         );
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![place_empty],
@@ -14094,6 +14174,7 @@ mod tests_show_rule_integration {
         );
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![place_partial],
@@ -14142,6 +14223,7 @@ mod tests_show_rule_integration {
         );
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 cells: vec![place_full],
@@ -14177,6 +14259,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Auto, TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("AA"), Content::text("BB")],
@@ -14205,6 +14288,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Auto, TrackSizing::Fraction(1.0)],
                 rows: vec![],
                 cells: vec![Content::text("X"), Content::text("Y")],
@@ -14233,6 +14317,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![
                     TrackSizing::Auto,
                     TrackSizing::Auto,
@@ -14265,6 +14350,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![
                     TrackSizing::Fixed(50.0),
                     TrackSizing::Auto,
@@ -14297,6 +14383,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0), TrackSizing::Fixed(100.0)],
                 rows: vec![],
                 cells: vec![Content::text("F1"), Content::text("F2")],
@@ -14337,6 +14424,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(60.0), TrackSizing::Fixed(40.0)],
                 rows: vec![],
                 cells: vec![wide_cell],
@@ -14393,6 +14481,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![TrackSizing::Fixed(30.0), TrackSizing::Fixed(40.0)],
                 cells: vec![tall_cell, Content::text("b"), Content::text("c")],
@@ -14455,6 +14544,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(60.0), TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(30.0)],
                 cells: vec![wide_cell],
@@ -14517,6 +14607,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![TrackSizing::Fixed(30.0)],
                 cells: vec![wide_override],
@@ -14559,6 +14650,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(20.0), TrackSizing::Fixed(20.0)],
                 cells: vec![
@@ -14596,6 +14688,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
                 cells: vec![Content::text("a"), Content::text("b")],
@@ -14645,6 +14738,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
                 cells: vec![Content::text("a"), Content::text("b")],
@@ -14686,6 +14780,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Auto, TrackSizing::Fraction(1.0)],
                 rows: vec![],
                 cells: vec![Content::text("AA"), Content::text("BB")],
@@ -14728,6 +14823,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(30.0), TrackSizing::Fixed(30.0)],
                 rows: vec![TrackSizing::Fixed(15.0), TrackSizing::Fixed(15.0)],
                 cells: vec![
@@ -14774,6 +14870,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(60.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
                 cells: vec![wide_cell],
@@ -14830,6 +14927,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![
                     TrackSizing::Fixed(20.0),
                     TrackSizing::Fixed(30.0),
@@ -14897,6 +14995,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0)],
                 rows: vec![TrackSizing::Fixed(50.0)],
                 cells: vec![cell],
@@ -14941,6 +15040,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(80.0)],
                 rows: vec![TrackSizing::Fixed(30.0)],
                 cells: vec![cell],
@@ -14983,6 +15083,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
                 cells: vec![cell],
@@ -15028,6 +15129,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0)],
                 rows: vec![TrackSizing::Fixed(30.0)],
                 cells: vec![cell],
@@ -15072,6 +15174,7 @@ mod tests_show_rule_integration {
         ));
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0)],
                 rows: vec![TrackSizing::Fixed(30.0)],
                 cells: vec![cell],
@@ -15178,6 +15281,7 @@ mod tests_show_rule_integration {
         // Versão Grid.
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: columns.clone(),
                 rows: vec![],
                 cells: cells.clone(),
@@ -15223,8 +15327,10 @@ mod tests_show_rule_integration {
             .collect();
 
         // Posições idênticas (mesma delegação a `layout_grid`).
-        assert_eq!(positions_g, positions_t,
-            "Table e Grid com mesmos campos devem produzir as mesmas posições por delegação");
+        assert_eq!(
+            positions_g, positions_t,
+            "Table e Grid com mesmos campos devem produzir as mesmas posições por delegação"
+        );
     }
 
     // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ─────────────
@@ -15247,7 +15353,10 @@ mod tests_show_rule_integration {
         let count_x = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "X"))
             .count();
-        assert_eq!(count_x, 1, "table_cell renderiza body uma vez (single render); colspan/rowspan ignorados em layout per DEBT-34e");
+        assert_eq!(
+            count_x, 1,
+            "table_cell renderiza body uma vez (single render); colspan/rowspan ignorados em layout per DEBT-34e"
+        );
     }
 
     /// `Content::TableCell` dentro de `Content::Table` é tratado
@@ -15293,8 +15402,10 @@ mod tests_show_rule_integration {
         let count = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "HDR"))
             .count();
-        assert_eq!(count, 1,
-            "table_header renderiza body uma vez (single render); repeat ignorado per DEBT-56");
+        assert_eq!(
+            count, 1,
+            "table_header renderiza body uma vez (single render); repeat ignorado per DEBT-56"
+        );
     }
 
     /// Par simétrico — paridade absoluta com header.
@@ -15305,8 +15416,10 @@ mod tests_show_rule_integration {
         let count = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "FTR"))
             .count();
-        assert_eq!(count, 1,
-            "table_footer renderiza body uma vez (single render); repeat ignorado per DEBT-56");
+        assert_eq!(
+            count, 1,
+            "table_footer renderiza body uma vez (single render); repeat ignorado per DEBT-56"
+        );
     }
 
     /// Test integrativo — `Content::Table` contendo TableHeader +
@@ -15331,8 +15444,11 @@ mod tests_show_rule_integration {
             let count = doc.pages.iter().flat_map(|p| p.items.iter())
                 .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == label))
                 .count();
-            assert!(count >= 1,
-                "child '{}' (plain, table_header, table_cell ou table_footer) deve aparecer pelo menos uma vez", label);
+            assert!(
+                count >= 1,
+                "child '{}' (plain, table_header, table_cell ou table_footer) deve aparecer pelo menos uma vez",
+                label
+            );
         }
     }
 
@@ -17043,6 +17159,136 @@ mod p184e_figure_per_kind {
     use crate::entities::introspector::{Introspector, TagIntrospector};
     use std::sync::Arc;
 
+    /// Approved fixture migration: image/table strings in these historical
+    /// numeric tests intended actual elements, so state that identity explicitly.
+    pub(super) fn prepared_fixture(content: &Content) -> (Content, TagIntrospector) {
+        use crate::{
+            compiler::{eval::EvalContext, introspect::introspect_with_runtime},
+            contracts::world::World,
+            entities::{
+                content::Content,
+                elements::figure::FigureKind,
+                engine::Engine,
+                file_id::FileId,
+                font_book::FontBook,
+                func::Func,
+                show::ShowRule,
+                sink::Sink,
+                style_chain::StyleChain,
+                world_types::{
+                    Bytes, Datetime, FileError, FileResult, Font, Library, Route,
+                },
+            },
+        };
+        use comemo::Track;
+        struct FixtureWorld {
+            library: Library,
+            book: FontBook,
+            file: FileId,
+        }
+        impl World for FixtureWorld {
+            fn library(&self) -> &Library {
+                &self.library
+            }
+            fn book(&self) -> &FontBook {
+                &self.book
+            }
+            fn main(&self) -> FileId {
+                self.file
+            }
+            fn source(&self, _: FileId) -> FileResult<crate::entities::source::Source> {
+                Err(FileError::NotFound)
+            }
+            fn file(&self, _: FileId) -> FileResult<Bytes> {
+                Err(FileError::NotFound)
+            }
+            fn font(&self, _: usize) -> Option<Font> {
+                None
+            }
+            fn today(
+                &self,
+                _: Option<crate::entities::duration::Duration>,
+            ) -> Option<Datetime> {
+                None
+            }
+        }
+        let world = FixtureWorld {
+            library: Library::new(),
+            book: FontBook::new(),
+            file: FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+        };
+        let typed = content
+            .map_content(&mut |content| {
+                if let Content::Figure(figure) = content {
+                    let mut figure = (**figure).clone();
+                    figure.kind = match figure.kind {
+                        Some(Some(FigureKind::Name(ref name))) if name == "image" => {
+                            Some(Some(FigureKind::Element(Func::native(
+                                "image",
+                                crate::compiler::stdlib::native_image,
+                            ))))
+                        }
+                        Some(Some(FigureKind::Name(ref name))) if name == "table" => {
+                            Some(Some(FigureKind::Element(Func::native(
+                                "table",
+                                crate::compiler::stdlib::native_table,
+                            ))))
+                        }
+                        other => other,
+                    };
+                    return Ok(Some(Content::Figure(Arc::new(figure))));
+                }
+                Ok(None)
+            })
+            .unwrap();
+        let mut ctx = EvalContext::new();
+        let route = Route::root().with_id(world.file);
+        let mut styles = StyleChain::default_chain();
+        let mut rules: Arc<[ShowRule]> = Arc::from([]);
+        let mut guards = Vec::new();
+        let mut sink = Sink::new();
+        let metrics = FixedMetrics;
+        let mut tracked = sink.track_mut();
+        let mut engine = Engine {
+            world: &world,
+            font_metrics: &metrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut rules,
+            active_guards: &mut guards,
+            current_file: world.file,
+            sink: &mut tracked,
+        };
+        let content = crate::compiler::realize::realize_math_insertions(
+            typed,
+            &mut ctx,
+            &mut engine,
+        )
+        .unwrap();
+        let intr = introspect_with_runtime(&content, &mut engine, &mut ctx).unwrap();
+        (content, intr)
+    }
+
+    pub(super) fn number_at_figure_location(
+        intr: &TagIntrospector,
+        kind: &str,
+        index: usize,
+    ) -> Option<usize> {
+        use crate::entities::{elements::figure::FigureKind, func::Func};
+        let function = match kind {
+            "image" => Func::native("image", crate::compiler::stdlib::native_image),
+            "table" => Func::native("table", crate::compiler::stdlib::native_table),
+            other => panic!("unmigrated numeric fixture kind {other}"),
+        };
+        let key = crate::compiler::introspect::figure_counters::figure_counter_key(
+            &FigureKind::Element(function),
+        );
+        let CounterKey::Selector(selector) = &key else { unreachable!() };
+        intr.query(selector)
+            .get(index)
+            .and_then(|location| intr.flat_counter_at(&key, *location))
+    }
+
     /// Helper: figure numerada+captioned com kind dado.
     fn figure(kind: Option<&str>, caption_text: &str) -> Content {
         Content::figure(
@@ -17069,15 +17315,31 @@ mod p184e_figure_per_kind {
         // P184C `figure_number_at_index` retorna `Some(N)`; consumer C3
         // migrado em P184D usa esse valor (path Introspector activo).
         let content = doc_tres_figuras_image();
-        let intr = introspect_with_introspector(&content);
+        let (content, intr) = super::p184e_figure_per_kind::prepared_fixture(&content);
 
         // Introspector populado: chaves canónicas conhecidas.
-        assert_eq!(intr.figure_number_at_index("image", 0), Some(1));
-        assert_eq!(intr.figure_number_at_index("image", 1), Some(2));
-        assert_eq!(intr.figure_number_at_index("image", 2), Some(3));
-        assert_eq!(intr.figure_number_at_index("image", 3), None);
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "image", 0),
+            Some(1)
+        );
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "image", 1),
+            Some(2)
+        );
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "image", 2),
+            Some(3)
+        );
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "image", 3),
+            None
+        );
 
-        let txt = layout_with_introspector(&content, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr)
+            .plain_text()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
         assert!(txt.contains("Figure 1:"), "1ª figure: '{txt}'");
         assert!(txt.contains("Figure 2:"), "2ª figure: '{txt}'");
         assert!(txt.contains("Figure 3:"), "3ª figure: '{txt}'");
@@ -17141,16 +17403,38 @@ mod p184e_figure_per_kind {
             figure(Some("table"), "tb_b"),
         ]));
 
-        let intr = introspect_with_introspector(&content);
+        let (content, intr) = super::p184e_figure_per_kind::prepared_fixture(&content);
 
-        assert_eq!(intr.figure_number_at_index("image", 0), Some(1));
-        assert_eq!(intr.figure_number_at_index("image", 1), Some(2));
-        assert_eq!(intr.figure_number_at_index("image", 2), None);
-        assert_eq!(intr.figure_number_at_index("table", 0), Some(1));
-        assert_eq!(intr.figure_number_at_index("table", 1), Some(2));
-        assert_eq!(intr.figure_number_at_index("table", 2), None);
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "image", 0),
+            Some(1)
+        );
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "image", 1),
+            Some(2)
+        );
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "image", 2),
+            None
+        );
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "table", 0),
+            Some(1)
+        );
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "table", 1),
+            Some(2)
+        );
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "table", 2),
+            None
+        );
 
-        let txt = layout_with_introspector(&content, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr)
+            .plain_text()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
         assert!(txt.contains("im_a"));
         assert!(txt.contains("im_b"));
         assert!(txt.contains("tb_a"));
@@ -17180,13 +17464,23 @@ mod p184e_figure_per_kind {
             figure(Some("image"), "explicit_b"),
         ]));
 
-        let intr = introspect_with_introspector(&content);
+        let (content, intr) = super::p184e_figure_per_kind::prepared_fixture(&content);
 
         // Ambas figures aparecem em `figure:image` history.
-        assert_eq!(intr.figure_number_at_index("image", 0), Some(1));
-        assert_eq!(intr.figure_number_at_index("image", 1), Some(2));
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "image", 0),
+            Some(1)
+        );
+        assert_eq!(
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "image", 1),
+            Some(2)
+        );
 
-        let txt = layout_with_introspector(&content, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr)
+            .plain_text()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
         assert!(txt.contains("Figure 1:"));
         assert!(txt.contains("Figure 2:"));
         assert!(txt.contains("default_a"));
@@ -17707,9 +18001,9 @@ mod p189b_walk_puro_m5 {
             Some("image".into()),
             Some("1".into()),
         );
-        let intr = introspect_with_introspector(&content);
+        let (_content, intr) = super::p184e_figure_per_kind::prepared_fixture(&content);
         assert_eq!(
-            intr.figure_number_at_index("image", 0),
+            super::p184e_figure_per_kind::number_at_figure_location(&intr, "image", 0),
             Some(1),
             "E3: intr.figure_number_at_index(image, 0) = 1 via populate_intr"
         );
@@ -17969,6 +18263,7 @@ mod p195d_walk_labelled {
 
     #[test]
     fn labelled_figure_target_popula_figure_label_numbers() {
+        use crate::entities::introspector::Introspector;
         let content = Content::Sequence(Arc::from(vec![labelled_prod(
             Content::figure(
                 Content::text("body"),
@@ -17979,12 +18274,34 @@ mod p195d_walk_labelled {
             lbl("fig1"),
         )]));
 
-        let intr = introspect_with_introspector(&content);
+        let (content, intr) = super::p184e_figure_per_kind::prepared_fixture(&content);
 
         // figure_label_numbers populated (write paralelo P195D + P168).
         assert_eq!(intr.figure_label_numbers.get(&lbl("fig1")), Some(&1),);
-        // resolved_labels também populated via P195D Tag.
-        assert!(intr.resolved_labels.get(&lbl("fig1")).is_some());
+        // Productive references read the prepared target snapshot, not a pure-walk placeholder.
+        let location = intr.query_by_label(&lbl("fig1")).unwrap();
+        let target = intr.element_at(location).unwrap();
+        assert_eq!(
+            target.get_field("supplement"),
+            Some(Value::Content(Content::text("Figure")))
+        );
+        assert_eq!(
+            intr.figure_number_at_index("image", 0),
+            None,
+            "no automatic user-string shadow"
+        );
+        let rendered =
+            Content::Sequence(vec![content, Content::reference("fig1")].into());
+        let text = layout_with_introspector(&rendered, intr)
+            .plain_text()
+            .replace('\u{a0}', " ")
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
+        assert!(text.contains("Figure 1"));
+        assert!(text.contains("body"));
+        assert!(text.contains("caption"));
+        assert!(!text.contains("@fig1"));
     }
 
     #[test]
@@ -18222,9 +18539,11 @@ mod p273_7_boxed_parent_bbox {
         // Boxed.fill → emit Shape próprio com parent_bbox = outer (None
         // top-level). Save/restore garante restore antes do shape emit.
         let none_count = bboxes.iter().filter(|b| b.is_none()).count();
-        assert!(none_count >= 1,
+        assert!(
+            none_count >= 1,
             "Boxed's own shape emit deve usar parent_bbox outer (None top-level); got: {:?}",
-            bboxes);
+            bboxes
+        );
     }
 }
 
@@ -18299,6 +18618,7 @@ mod p273_9_containers_estendidos {
         let cell_content = rect_shape(20.0, 10.0);
         let grid = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0)],
                 rows: vec![],
                 cells: vec![cell_content],
@@ -18331,6 +18651,7 @@ mod p273_9_containers_estendidos {
     fn p273_9_grid_cell_lifo_restore() {
         let grid = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0)],
                 rows: vec![],
                 cells: vec![rect_shape(20.0, 10.0)],
@@ -18476,6 +18797,7 @@ mod p273_9_containers_estendidos {
         // uma FrameItem::Shape é emitida (consumption preserved).
         let grid = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
+                source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0), TrackSizing::Fixed(100.0)],
                 rows: vec![],
                 cells: vec![rect_shape(20.0, 10.0), rect_shape(30.0, 15.0)],
@@ -18579,9 +18901,12 @@ mod p284_decoration_tests {
         ));
         let (ds, _, _) = first_line(&default);
         let (os, _, _) = first_line(&with_offset);
-        assert!((os.y.val() - ds.y.val()).abs() > 0.5,
-                "override de offset deve mudar a coordenada Y da linha; default={} override={}",
-                ds.y.val(), os.y.val());
+        assert!(
+            (os.y.val() - ds.y.val()).abs() > 0.5,
+            "override de offset deve mudar a coordenada Y da linha; default={} override={}",
+            ds.y.val(),
+            os.y.val()
+        );
     }
 
     #[test]
@@ -18598,8 +18923,10 @@ mod p284_decoration_tests {
         let (es, ee, _) = first_line(&extended);
         let base_len = be.x.val() - bs.x.val();
         let ext_len = ee.x.val() - es.x.val();
-        assert!((ext_len - base_len - 6.0).abs() < 0.1,
-                "extent: 3pt adiciona 3pt em cada lado (+6pt total); base_len={base_len} ext_len={ext_len}");
+        assert!(
+            (ext_len - base_len - 6.0).abs() < 0.1,
+            "extent: 3pt adiciona 3pt em cada lado (+6pt total); base_len={base_len} ext_len={ext_len}"
+        );
     }
 
     // Nota: o teste de operadores PDF (`q ... S Q`) vive em 03_infra
@@ -19270,8 +19597,11 @@ mod p290_style_tracking_tests {
         let next =
             chain.push_styles(&Styles::from_iter([Style::Tracking(Length::pt(-0.5))]));
         let t = next.tracking().expect("Some(...)");
-        assert!(t.abs.to_pt() < 0.0,
-            "tracking negativo deve ser preservado como kerning artificial (vanilla paridade); got {}", t.abs.to_pt());
+        assert!(
+            t.abs.to_pt() < 0.0,
+            "tracking negativo deve ser preservado como kerning artificial (vanilla paridade); got {}",
+            t.abs.to_pt()
+        );
     }
 
     #[test]
@@ -20728,12 +21058,20 @@ mod p462_ref_numeric {
             None,
             Some("1".to_string()),
         );
-        let content = Content::Sequence(
-            vec![Content::label("f1", fig), Content::reference("f1")].into(),
+        // This direct consumer fixture prepares its Figure, then attaches the
+        // unchanged static Ref. Source Ref producers require the separate L3 Session.
+        let (figure, intr) =
+            super::p184e_figure_per_kind::prepared_fixture(&Content::label("f1", fig));
+        let content = Content::Sequence(vec![figure, Content::reference("f1")].into());
+        let doc = layout_with_introspector(&content, intr);
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        // P788: the supplement-number join remains NBSP.
+        let text = doc.plain_text().split_whitespace().collect::<Vec<_>>().join(" ");
+        assert_eq!(
+            text.matches("Figure 1").count(),
+            2,
+            "caption and actual reference must each render: {text}"
         );
-        let intr = introspect_with_introspector(&content);
-        // P788: o join suplemento↔número usa NBSP (paridade vanilla).
-        let text = doc_text_with_intr(&content, intr).replace('\u{a0}', " ");
         assert!(
             text.contains("Figure 1"),
             "figure ref deve renderizar 'Figure 1': {text}"
@@ -20779,15 +21117,20 @@ mod p462_ref_numeric {
             None,
             Some("1".to_string()),
         );
+        // This direct consumer fixture prepares its Figure, then attaches the
+        // unchanged static Ref. Source Ref producers require the separate L3 Session.
+        let (figure, intr) =
+            super::p184e_figure_per_kind::prepared_fixture(&Content::label("f1", fig));
         let content = Content::Sequence(
             vec![
-                Content::label("f1", fig),
+                figure,
                 Content::reference_with_supplement("f1", Some(Content::text("Figura "))),
             ]
             .into(),
         );
-        let intr = introspect_with_introspector(&content);
-        let text = doc_text_with_intr(&content, intr);
+        let doc = layout_with_introspector(&content, intr);
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        let text = doc.plain_text();
         // **P1034** — este teste passava antes por acidente: procurava
         // "Figura 1", que existia na *legenda* (o supplement por defeito era
         // PT), não na referência. Com o default corrigido para EN a legenda diz
@@ -20796,14 +21139,15 @@ mod p462_ref_numeric {
         // O separador entre supplement e número é um espaço **não-quebrável**
         // (U+00A0), não um espaço normal — por isso a asserção normaliza os
         // espaços em vez de fixar o caractere.
-        let normalizado = text.replace('\u{00A0}', " ");
-        assert!(
-            normalizado.contains("Figure 1: legenda"),
+        let normalizado = text.split_whitespace().collect::<Vec<_>>().join(" ");
+        assert_eq!(
+            normalizado.matches("Figure 1: legenda").count(),
+            1,
             "a legenda usa o supplement por defeito (EN): {text}"
         );
         assert!(
-            normalizado.contains("Figura  1") || normalizado.contains("Figura 1"),
-            "supplement explicito deve sobrescrever default: {text}"
+            normalizado.ends_with("Figura 1"),
+            "supplement explicito deve sobrescrever default com numero exato: {text}"
         );
     }
 
@@ -20966,7 +21310,9 @@ fn p488_extracted_table_page_numbers_default_vazio() {
 fn p756_cjk_segmenta_sem_espacos() {
     // Texto chinês sem espaços numa página estreita deve quebrar em várias
     // linhas em vez de fugir para a margem direita.
-    let doc = layout_test("#set page(width: 80pt, margin: 5pt)\n#set text(size: 12pt)\n测试文本测试引号的位置这是一段很长的中文文字用来测试换行的效果如何");
+    let doc = layout_test(
+        "#set page(width: 80pt, margin: 5pt)\n#set text(size: 12pt)\n测试文本测试引号的位置这是一段很长的中文文字用来测试换行的效果如何",
+    );
     let text = doc.plain_text().replace(' ', "");
     assert!(
         text.contains("测试文本") && text.contains("换行的效果"),
@@ -21017,7 +21363,9 @@ fn p756_thai_segmenta_sem_espacos() {
     // Página mais larga que o maior fragmento Thai reportado pelo
     // segmentador (≈101 pt em FixedMetrics), para que a verificação de
     // margem seja significativa sem exigir subdivisão abaixo do fragmento.
-    let doc = layout_test("#set page(width: 120pt, margin: 5pt)\n#set text(size: 12pt)\nสวัสดีครับผมชื่อจอห์นยินดีที่ได้รู้จักคุณ");
+    let doc = layout_test(
+        "#set page(width: 120pt, margin: 5pt)\n#set text(size: 12pt)\nสวัสดีครับผมชื่อจอห์นยินดีที่ได้รู้จักคุณ",
+    );
     let text = doc.plain_text().replace(' ', "");
     assert!(
         text.contains("สวัสดี") && text.contains("คุณ"),
@@ -21067,7 +21415,9 @@ fn p756_cjk_aspas_renderiza_sem_panic() {
     // completo deve estar presente. A posição exacta das aspas depende do
     // algoritmo greedy e do espaço disponível (limitação documentada em
     // lab/results/construction/diagnostics/paridade-producao-p756.md).
-    let doc = layout_test("#set page(width: 100pt, margin: 5pt)\n#set text(size: 12pt)\n测试文本，\"测试引号的位置\"。这是一段很长的中文文字用来测试换行的效果如何。");
+    let doc = layout_test(
+        "#set page(width: 100pt, margin: 5pt)\n#set text(size: 12pt)\n测试文本，\"测试引号的位置\"。这是一段很长的中文文字用来测试换行的效果如何。",
+    );
     let text = doc.plain_text().replace(' ', "");
     assert!(
         text.contains("测试文本")
@@ -21523,7 +21873,7 @@ fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
     // "usable == a largura/altura do próprio conteúdo, alinhamento degenera
     // a offset 0").
     assert!(
-        (y - margin - FixedMetrics.text_edges(style.size, &style).0 .0).abs() < 0.01,
+        (y - margin - FixedMetrics.text_edges(style.size, &style).0.0).abs() < 0.01,
         "topo do texto bottom-aligned deve ficar na margem; y mede a baseline: y={:.4} margin={:.4}",
         y,
         margin
@@ -21657,8 +22007,11 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
     // VAlign::Horizon degenera para a sua própria altura (nada sobra depois
     // dele), ficando após o bloco alto e sua margem de parágrafo.
     assert!(
-        (short_y - cursor_after_tall
-            - FixedMetrics.text_edges(short_style.size, short_style).0 .0).abs() < 0.01,
+        (short_y
+            - cursor_after_tall
+            - FixedMetrics.text_edges(short_style.size, short_style).0.0)
+            .abs()
+            < 0.01,
         "topo de 'short' deve seguir o bloco; y mede a baseline: y={:.4} topo esperado={:.4}",
         short_y,
         cursor_after_tall
@@ -21837,6 +22190,7 @@ fn p904_grid_fr_row_sob_height_auto_nao_produz_infinito_degenera_a_zero() {
     let margin = 28.35;
     let g =
         Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![
                 TrackSizing::Fixed(28.35),
@@ -23613,7 +23967,9 @@ mod p994_tests {
                 });
             assert!(
                 items.iter().any(|(_, y, t, s)| {
-                    t.as_str() == "2" && s.size.val() < base_style.size.val() && y < base_y
+                    t.as_str() == "2"
+                        && s.size.val() < base_style.size.val()
+                        && y < base_y
                 }),
                 "P994 ({src}): tem de existir sobrescrito real (\"2\" menor e acima da base): \
                  {items:?}"
@@ -24820,7 +25176,9 @@ mod c2r1_local_cell_tests {
     use super::*;
 
     fn cells(local: &str) -> PagedDocument {
-        layout_test(&format!("#set page(width:400pt,height:600pt,margin:24pt)\n#set text(size:10pt)\n#let c={{{local};table.cell[Local]}}\n#table(columns:2,c,c)"))
+        layout_test(&format!(
+            "#set page(width:400pt,height:600pt,margin:24pt)\n#set text(size:10pt)\n#let c={{{local};table.cell[Local]}}\n#table(columns:2,c,c)"
+        ))
     }
 
     #[test]
@@ -24932,12 +25290,30 @@ mod place_origin_regressions {
     fn place_origin_box_has_no_font_strut() {
         for size in [11, 20, 30] {
             for (wrapper, expected) in [
-                (format!("#box(width:60pt,height:40pt)[{PLACED}]"), (17.0,15.0)),
-                (format!("#box(width:60pt,height:40pt,inset:3pt)[{PLACED}]"), (20.0,18.0)),
-                (format!("#box()[{PLACED}]"), (17.0,15.0)),
-                (format!("#box(width:80pt,height:60pt,inset:4pt)[#box(width:60pt,height:40pt,inset:3pt)[{PLACED}]]"), (24.0,22.0)),
-                (format!("#place(dx:17pt,dy:13pt,box(width:60pt,height:40pt)[{PLACED}])"), (34.0,28.0)),
-            ] { expect_position(&format!("#set text(size:{size}pt)\n{wrapper}"),expected); }
+                (format!("#box(width:60pt,height:40pt)[{PLACED}]"), (17.0, 15.0)),
+                (
+                    format!("#box(width:60pt,height:40pt,inset:3pt)[{PLACED}]"),
+                    (20.0, 18.0),
+                ),
+                (format!("#box()[{PLACED}]"), (17.0, 15.0)),
+                (
+                    format!(
+                        "#box(width:80pt,height:60pt,inset:4pt)[#box(width:60pt,height:40pt,inset:3pt)[{PLACED}]]"
+                    ),
+                    (24.0, 22.0),
+                ),
+                (
+                    format!(
+                        "#place(dx:17pt,dy:13pt,box(width:60pt,height:40pt)[{PLACED}])"
+                    ),
+                    (34.0, 28.0),
+                ),
+            ] {
+                expect_position(
+                    &format!("#set text(size:{size}pt)\n{wrapper}"),
+                    expected,
+                );
+            }
         }
     }
 
@@ -24946,7 +25322,12 @@ mod place_origin_regressions {
         for (align, expected) in
             [("bottom+right", (65.0, 47.0)), ("center+horizon", (41.0, 31.0))]
         {
-            expect_position(&format!("#box(width:60pt,height:40pt)[#place({align},dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]"),expected);
+            expect_position(
+                &format!(
+                    "#box(width:60pt,height:40pt)[#place({align},dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]"
+                ),
+                expected,
+            );
         }
     }
 
@@ -24958,9 +25339,11 @@ mod place_origin_regressions {
             &format!("#box(width:60pt,height:40pt)[A{PLACED}]"),
             (17.0, 15.0 + edge),
         );
-        for wrapper in ["A#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))",
-            "#box(width:60pt,height:40pt)[A#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]"] {
-            expect_position(wrapper,(17.0,15.0));
+        for wrapper in [
+            "A#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))",
+            "#box(width:60pt,height:40pt)[A#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]",
+        ] {
+            expect_position(wrapper, (17.0, 15.0));
         }
     }
 
@@ -25079,8 +25462,16 @@ mod place_origin_regressions {
     #[test]
     fn place_flow_explicit_top_overlay_and_page_reset() {
         let edge = FixedMetrics.text_edges(Pt(11.0), &TextStyle::default()).0 .0;
-        expect_position("A#linebreak()#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))", (17.0,15.0));
-        expect_position(&format!("A#linebreak()#place(dy:50pt,rect(width:3pt,height:2pt,fill:red,stroke:none)){PLACED}"), (17.0,15.0+edge));
+        expect_position(
+            "A#linebreak()#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))",
+            (17.0, 15.0),
+        );
+        expect_position(
+            &format!(
+                "A#linebreak()#place(dy:50pt,rect(width:3pt,height:2pt,fill:red,stroke:none)){PLACED}"
+            ),
+            (17.0, 15.0 + edge),
+        );
         expect_position(&format!("A#linebreak()#pagebreak(){PLACED}"), (17.0, 15.0));
     }
 
@@ -25097,22 +25488,35 @@ mod place_origin_regressions {
                 (57.0, 37.0),
             ),
         ] {
-            let body = format!("#block(width:60pt,height:40pt,{args})[#place({align}dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]");
+            let body = format!(
+                "#block(width:60pt,height:40pt,{args})[#place({align}dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]"
+            );
             expect_position(&body, expected);
             expect_position(&format!("#box(width:90pt,height:70pt)[{body}]"), expected);
         }
-        expect_position(&format!("#block(width:80pt,height:60pt,inset:4pt)[#block(width:60pt,height:40pt,inset:3pt)[{PLACED}]]"),(24.0,22.0));
+        expect_position(
+            &format!(
+                "#block(width:80pt,height:60pt,inset:4pt)[#block(width:60pt,height:40pt,inset:3pt)[{PLACED}]]"
+            ),
+            (24.0, 22.0),
+        );
     }
 
     #[test]
     fn block_region_place_auto_height_and_pending_text_are_local() {
         let edge = FixedMetrics.text_edges(Pt(11.0), &TextStyle::default()).0 .0;
-        expect_position("#block(width:60pt,inset:3pt)[#place(bottom+right,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]",(62.0,10.0));
+        expect_position(
+            "#block(width:60pt,inset:3pt)[#place(bottom+right,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]",
+            (62.0, 10.0),
+        );
         expect_position(
             &format!("#block(width:60pt,height:40pt,inset:3pt)[A{PLACED}]"),
             (20.0, 18.0 + edge),
         );
-        expect_position("#block(width:60pt,height:40pt,inset:3pt)[A#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]",(20.0,18.0));
+        expect_position(
+            "#block(width:60pt,height:40pt,inset:3pt)[A#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]",
+            (20.0, 18.0),
+        );
         expect_position(
             &format!("#block(width:60pt,height:20pt,inset:3pt)[]{PLACED}"),
             (17.0, 35.0),
@@ -25121,7 +25525,9 @@ mod place_origin_regressions {
 
     #[test]
     fn block_region_clip_uses_allocated_frame_and_local_children() {
-        let src = format!("#set page(width:120pt,height:100pt,margin:10pt)\n#block(width:60pt,height:40pt,inset:3pt,clip:true)[{PLACED}]");
+        let src = format!(
+            "#set page(width:120pt,height:100pt,margin:10pt)\n#block(width:60pt,height:40pt,inset:3pt,clip:true)[{PLACED}]"
+        );
         let doc = layout_test(&src);
         let (pos, w, h, items) = frame_items_recursive(&doc.pages[0].items)
             .into_iter()
@@ -25145,7 +25551,10 @@ mod place_origin_regressions {
         let mut positions = Vec::new();
         blue_shape_positions(items, TransformMatrix::identity(), &mut positions);
         assert_eq!(positions, vec![(10.0, 8.0)]);
-        expect_position("#block(width:60pt,height:40pt,inset:3pt,clip:true)[#place(bottom+right,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]",(62.0,44.0));
+        expect_position(
+            "#block(width:60pt,height:40pt,inset:3pt,clip:true)[#place(bottom+right,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]",
+            (62.0, 44.0),
+        );
     }
     #[test]
     fn block_region_nested_percentages_resolve_against_inner_area() {
@@ -25370,7 +25779,9 @@ mod block_auto_width_regressions {
         None
     }
     fn widths(body: &str, clip: bool) -> (f64, f64) {
-        let source = format!("#set page(width:160pt,height:120pt,margin:0pt)\n#set text(size:10pt)\n#place(dx:17pt,dy:13pt,block(fill:blue,inset:7pt,clip:{clip})[{body}])");
+        let source = format!(
+            "#set page(width:160pt,height:120pt,margin:0pt)\n#set text(size:10pt)\n#place(dx:17pt,dy:13pt,block(fill:blue,inset:7pt,clip:{clip})[{body}])"
+        );
         let doc = layout_test(&source);
         assert_eq!(doc.pages.len(), 1, "{source}");
         let root = root_width(&doc.pages[0].items).expect("Block paint root");
@@ -25495,7 +25906,9 @@ mod block_auto_alignment_regressions {
     }
     const SHAPE: &str = "#rect(width:40pt,height:24pt,fill:red,stroke:none)";
     fn position(body: &str, clip: bool) -> (f64, f64) {
-        let source = format!("#set page(width:160pt,height:120pt,margin:0pt)\n#set text(size:10pt)\n#place(dx:17pt,dy:13pt,block(fill:blue,inset:7pt,clip:{clip})[{body}])");
+        let source = format!(
+            "#set page(width:160pt,height:120pt,margin:0pt)\n#set text(size:10pt)\n#place(dx:17pt,dy:13pt,block(fill:blue,inset:7pt,clip:{clip})[{body}])"
+        );
         let doc = layout_test(&source);
         assert!(doc.layout_errors.is_empty(), "{source}: {:?}", doc.layout_errors);
         assert_eq!(doc.pages.len(), 1);
@@ -25512,7 +25925,12 @@ mod block_auto_alignment_regressions {
                 assert_eq!(p, (24.0, 20.0), "{align}, clip={clip}");
             }
             for (align, x) in [("left", 24.0), ("center", 39.0), ("right", 54.0)] {
-                let p = position(&format!("#align({align})[{SHAPE}]#rect(width:70pt,height:5pt,fill:green,stroke:none)"),clip);
+                let p = position(
+                    &format!(
+                        "#align({align})[{SHAPE}]#rect(width:70pt,height:5pt,fill:green,stroke:none)"
+                    ),
+                    clip,
+                );
                 assert_eq!(p, (x, 20.0), "{align}, wider sibling, clip={clip}");
             }
         }
@@ -25593,7 +26011,9 @@ mod typed_transform_reflow_regression {
 
     #[test]
     fn native_transform_logical_width_ignores_space_at_automatic_break() {
-        let actual = words("#set page(margin:70pt)\n#block(width:50pt)[#scale(x:100pt,y:100%,origin:left+top)[ONE TWO THREE FOUR]]");
+        let actual = words(
+            "#set page(margin:70pt)\n#block(width:50pt)[#scale(x:100pt,y:100%,origin:left+top)[ONE TWO THREE FOUR]]",
+        );
         assert_eq!(actual.len(), 4);
         assert!(
             (actual[1].1 - actual[0].1 - 100.0 * 4.0 / 7.0).abs() < 1e-6,
@@ -25603,7 +26023,9 @@ mod typed_transform_reflow_regression {
 
     #[test]
     fn native_transform_logical_width_keeps_explicit_terminal_spacing() {
-        let actual = words("#set page(margin:70pt)\n#scale(x:100pt,y:100%,origin:left+top)[ONE TWO#h(20pt)]");
+        let actual = words(
+            "#set page(margin:70pt)\n#scale(x:100pt,y:100%,origin:left+top)[ONE TWO#h(20pt)]",
+        );
         assert_eq!(actual.len(), 2);
         let expected = 26.4 * 100.0 / (46.2 + 20.0);
         assert!((actual[1].1 - actual[0].1 - expected).abs() < 1e-6, "{actual:?}");
@@ -25612,7 +26034,9 @@ mod typed_transform_reflow_regression {
     #[test]
     fn native_transform_logical_width_keeps_terminal_fraction() {
         for (fraction, logical_width) in [(1, 160.0), (2, 160.0), (0, 46.2)] {
-            let actual = words(&format!("#set page(width:300pt,height:300pt,margin:70pt)\n#scale(x:100pt,y:100%,origin:left+top)[ONE TWO#h({fraction}fr)]"));
+            let actual = words(&format!(
+                "#set page(width:300pt,height:300pt,margin:70pt)\n#scale(x:100pt,y:100%,origin:left+top)[ONE TWO#h({fraction}fr)]"
+            ));
             assert_eq!(actual.len(), 2);
             assert!(
                 (actual[1].1 - actual[0].1 - 26.4 * 100.0 / logical_width).abs() < 1e-6,
@@ -25641,7 +26065,9 @@ mod typed_transform_reflow_regression {
 
     #[test]
     fn rotate_reflow_wraps_in_rotated_region() {
-        let actual = words("#set page(width:160pt,height:180pt,margin:10pt)\n#block(width:50pt)[#rotate(23deg,reflow:true)[ONE TWO THREE FOUR]]");
+        let actual = words(
+            "#set page(width:160pt,height:180pt,margin:10pt)\n#block(width:50pt)[#rotate(23deg,reflow:true)[ONE TWO THREE FOUR]]",
+        );
         assert_eq!(actual.len(), 4, "{actual:?}");
         let a = 23.0_f64.to_radians();
         let baseline = |p: &(String, f64, f64)| p.2 * libm::cos(a) - p.1 * libm::sin(a);
@@ -25694,10 +26120,16 @@ mod relative_shape_dimensions_regressions {
     #[test]
     fn shape_dimensions_resolve_font_and_region_at_use() {
         for (body, expected) in [
-            ("#rect(width:50%,height:25%,fill:red,stroke:none)", (80.0,40.0)),
-            ("#rect(width:50%+2em,height:25%+1em,fill:red,stroke:none)", (102.0,51.0)),
-            ("#set text(size:15pt)\n#rect(width:2em,height:1em,fill:red,stroke:none)", (30.0,15.0)),
-            ("#let r=rect(width:2em,height:1em,fill:red,stroke:none)\n#text(size:20pt)[#r]", (40.0,20.0)),
+            ("#rect(width:50%,height:25%,fill:red,stroke:none)", (80.0, 40.0)),
+            ("#rect(width:50%+2em,height:25%+1em,fill:red,stroke:none)", (102.0, 51.0)),
+            (
+                "#set text(size:15pt)\n#rect(width:2em,height:1em,fill:red,stroke:none)",
+                (30.0, 15.0),
+            ),
+            (
+                "#let r=rect(width:2em,height:1em,fill:red,stroke:none)\n#text(size:20pt)[#r]",
+                (40.0, 20.0),
+            ),
         ] {
             assert_eq!(dimensions(body), vec![expected], "{body}");
         }
@@ -25707,12 +26139,20 @@ mod relative_shape_dimensions_regressions {
     fn shape_dimensions_keep_real_region_across_containers() {
         let shape = "#rect(width:50%,height:50%,fill:red,stroke:none)";
         for (body, expected) in [
-            (format!("#box(width:80pt,height:60pt)[{shape}]"),(40.0,30.0)),
-            (format!("#box(width:80pt)[{shape}]"),(40.0,80.0)),
-            (format!("#block(width:80pt,height:60pt,inset:5pt)[{shape}]"),(35.0,25.0)),
-            (format!("#block(width:80pt,inset:5pt)[{shape}]"),(35.0,75.0)),
-            (format!("#block(width:80pt,inset:5pt)[#rotate(0deg)[{shape}]]"),(35.0,75.0)),
-            (format!("#box(width:120pt,height:100pt)[#box(width:80pt,height:60pt)[{shape}]]"),(40.0,30.0)),
+            (format!("#box(width:80pt,height:60pt)[{shape}]"), (40.0, 30.0)),
+            (format!("#box(width:80pt)[{shape}]"), (40.0, 80.0)),
+            (format!("#block(width:80pt,height:60pt,inset:5pt)[{shape}]"), (35.0, 25.0)),
+            (format!("#block(width:80pt,inset:5pt)[{shape}]"), (35.0, 75.0)),
+            (
+                format!("#block(width:80pt,inset:5pt)[#rotate(0deg)[{shape}]]"),
+                (35.0, 75.0),
+            ),
+            (
+                format!(
+                    "#box(width:120pt,height:100pt)[#box(width:80pt,height:60pt)[{shape}]]"
+                ),
+                (40.0, 30.0),
+            ),
         ] {
             assert_eq!(dimensions(&body), vec![expected], "{body}");
         }
@@ -25720,11 +26160,151 @@ mod relative_shape_dimensions_regressions {
 
     #[test]
     fn shape_dimensions_restore_parent_region_after_block() {
-        assert_eq!(dimensions("#block(width:80pt,height:60pt,inset:5pt)[#rect(width:50%,height:50%,fill:red,stroke:none)]#rect(width:50%,height:10%,fill:red,stroke:none)"),vec![(35.0,25.0),(80.0,16.0)]);
+        assert_eq!(
+            dimensions(
+                "#block(width:80pt,height:60pt,inset:5pt)[#rect(width:50%,height:50%,fill:red,stroke:none)]#rect(width:50%,height:10%,fill:red,stroke:none)"
+            ),
+            vec![(35.0, 25.0), (80.0, 16.0)]
+        );
     }
 
     #[test]
     fn shape_dimensions_keep_absolute_part_in_unbounded_region() {
-        assert_eq!(dimensions("#set page(width:auto,height:auto)\n#rect(width:50%+10pt,height:50%+10pt,fill:red,stroke:none)"),vec![(10.0,10.0)]);
+        assert_eq!(
+            dimensions(
+                "#set page(width:auto,height:auto)\n#rect(width:50%+10pt,height:50%+10pt,fill:red,stroke:none)"
+            ),
+            vec![(10.0, 10.0)]
+        );
+    }
+}
+
+mod figure_kind_cause_regressions {
+    use super::layout_test;
+
+    fn rendered(source: &str) -> String {
+        layout_test(source).plain_text().trim().to_owned()
+    }
+
+    #[test]
+    fn figure_kind_explicit_element_retains_function_identity() {
+        assert_eq!(
+            rendered(
+                "#show figure: it => repr((type(it.kind), it.kind))\n#figure([A], kind: table)"
+            ),
+            "(function, table)"
+        );
+    }
+
+    #[test]
+    fn figure_kind_custom_name_retains_string_identity() {
+        assert_eq!(
+            rendered(
+                "#show figure: it => repr((type(it.kind), it.kind))\n#figure([A], kind: \"table\", supplement: [Custom])"
+            ),
+            "(str, \"table\")"
+        );
+    }
+
+    #[test]
+    fn figure_kind_omission_inherits_but_explicit_auto_inspects_body() {
+        assert_eq!(
+            rendered(
+                "#set figure(kind: raw)\n#show figure: it => repr(it.kind)\n#figure(table([A]))"
+            ),
+            "raw"
+        );
+        assert_eq!(
+            rendered(
+                "#set figure(kind: raw)\n#show figure: it => repr(it.kind)\n#figure(table([B]), kind: auto)"
+            ),
+            "table"
+        );
+    }
+
+    #[test]
+    fn figure_kind_filtered_show_set_previews_then_resolves() {
+        assert_eq!(
+            rendered(
+                "#show figure.where(kind: table): set figure(kind: raw)\n#show figure: it => repr(it.kind)\n#figure(table([A]))"
+            ),
+            "raw"
+        );
+    }
+
+    #[test]
+    fn figure_kind_metadata_content_is_semantic_descendant() {
+        assert_eq!(
+            rendered("#show figure: it => repr(it.kind)\n#figure(metadata(table([A])))"),
+            "table"
+        );
+    }
+
+    #[test]
+    fn figure_kind_metadata_arrays_recurse_and_dictionaries_stay_opaque() {
+        assert_eq!(
+            rendered(
+                "#show figure: it => repr(it.kind)\n#figure(metadata((1, (table([A]),))))"
+            ),
+            "table"
+        );
+        assert_eq!(
+            rendered(
+                "#show figure: it => repr(it.kind)\n#figure([#metadata((nested: table([A]),))#raw(\"x\")])"
+            ),
+            "raw"
+        );
+    }
+
+    #[test]
+    fn figure_kind_context_output_is_not_evaluated_during_inference() {
+        assert_eq!(
+            rendered("#show figure: it => repr(it.kind)\n#figure(context table([A]))"),
+            "image"
+        );
+    }
+
+    #[test]
+    fn figure_kind_grid_header_order_precedes_or_follows_body() {
+        assert_eq!(
+            rendered(
+                "#show figure: it => repr(it.kind)\n#figure(grid(columns: 1, grid.header(table([A])), raw(\"x\")))"
+            ),
+            "table"
+        );
+        assert_eq!(
+            rendered(
+                "#show figure: it => repr(it.kind)\n#figure(grid(columns: 1, raw(\"x\"), grid.header(table([A]))))"
+            ),
+            "raw"
+        );
+    }
+
+    #[test]
+    fn figure_kind_supplement_callback_targets_actual_element() {
+        assert_eq!(
+            rendered(
+                "#show figure: it => it.supplement\n#figure([#raw(\"x\")#table([A])], kind: table, supplement: it => repr(it.func()))"
+            ),
+            "table"
+        );
+    }
+
+    #[test]
+    fn figure_kind_body_replacement_preserves_body_morphology() {
+        assert_eq!(
+            rendered("#show figure: it => it.body\n#figure([BODY], caption: [CAPTION])"),
+            "BODY"
+        );
+    }
+
+    #[test]
+    fn figure_kind_hidden_parent_does_not_prepare_child() {
+        assert_eq!(
+            rendered(
+                "#show block: none\n#block[#figure([A], supplement: it => panic(\"unreached\"))]\nDONE"
+            ),
+            "DONE"
+        );
     }
 }

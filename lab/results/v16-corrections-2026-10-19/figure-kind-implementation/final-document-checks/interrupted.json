@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-20T03:47:05.495316+00:00",
+  "exit": 130,
+  "worker_sha256": "b4c6d22fd7d463f515eb8e83d91d3511ec8cd8be7871e1ab75825e2e670604e0",
+  "reason": "Read-only final snapshot comparison recomputed the whole frozen-input map once per key. Interrupted this inefficient bookkeeping after the four command logs were produced; no source/L0/document changes. This attempt is not counted as a completed gate. Retry computes one final snapshot.",
+  "logs_preserved": [
+    "diff-check.log",
+    "layout.log",
+    "reverse-lineage.log",
+    "strict-lineage.log"
+  ]
+}

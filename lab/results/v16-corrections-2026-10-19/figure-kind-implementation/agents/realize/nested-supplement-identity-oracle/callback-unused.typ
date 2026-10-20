@@ -1,0 +1,3 @@
+#show figure:it=>it
+#let unused=figure([OUTER],caption:[OUTER-CAP],supplement:it=>figure([INNER], kind: table, caption:[INNER-CAP], supplement:it=>panic("INNER_PREPARATION")))
+[VISIBLE]

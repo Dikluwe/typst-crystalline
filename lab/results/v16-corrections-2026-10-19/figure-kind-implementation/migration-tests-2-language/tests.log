@@ -1,0 +1,24 @@
+    Finished `test` profile [unoptimized] target(s) in 0.14s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 2 tests
+test compiler::eval::tests::regressions::p792_text_lang_dynamic ... ok
+test compiler::eval::tests::regressions::p792_text_lang_outside_context_rejects_the_original_dynamic_read ... FAILED
+
+failures:
+
+---- compiler::eval::tests::regressions::p792_text_lang_outside_context_rejects_the_original_dynamic_read stdout ----
+
+thread 'compiler::eval::tests::regressions::p792_text_lang_outside_context_rejects_the_original_dynamic_read' (2107076) panicked at 01_core/src/compiler/eval/tests.rs:23814:9:
+assertion `left == right` failed
+  left: Some(35..44)
+ right: Some(40..44)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    compiler::eval::tests::regressions::p792_text_lang_outside_context_rejects_the_original_dynamic_read
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 7701 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p typst-core --lib`

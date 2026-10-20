@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/element_payload.md
-//! @prompt-hash 94fc60ad
+//! @prompt-hash db1bce73
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -10,7 +10,7 @@
 //! Campos confirmados em P161 sub-passo .1 (leitura de
 //! `entities/content.rs`):
 //! - `Content::Heading { level: u8, body: Box<Content> }`
-//! - `Content::Figure { body, caption, kind: Option<String>, numbering }`
+//! - `Content::Figure(Arc<FigureElem>)` retains lexical and prepared typed kind/supplement; numbering stays in styles.
 //! - `Content::Cite { key: String, supplement, form }`
 //!
 //! `body_hash` em `Heading` é placeholder (`0`) em P161; função de
@@ -58,15 +58,15 @@ pub enum ElementPayload {
     },
 
     Figure {
-        /// Discriminador de tipo (`"image"`, `"table"`, …).
-        /// `None` = Auto (resolver no consumer).
-        kind: Option<String>,
+        /// Prepared occurrence kind; None is reserved for synthetic unprepared input.
+        kind: Option<crate::entities::elements::figure::FigureKind>,
+        /// Prepared supplement, preserving explicit absence versus unprepared input.
+        supplement: Option<Option<crate::entities::content::Content>>,
 
-        /// Update implícito do contador `figure:{kind}`.
+        /// Implicit update for the typed Figure selector counter, separate from user-string counters.
         counter_update: CounterUpdate,
 
-        /// `true` se a figura conta para a numeração (predicado:
-        /// `figure.numbering.is_some() && figure.caption.is_some()`).
+        /// Effective numbering enables automatic counting, independently of caption.
         /// Adicionado em P168 (M5 sub-passo 2): permite que `from_tags`
         /// indexe apenas figuras numeradas para `figure_label_numbers`,
         /// preservando paridade com `CounterStateLegacy.figure_label_numbers`
@@ -276,11 +276,15 @@ pub enum ElementPayload {
 
 impl std::hash::Hash for ElementPayload {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        // Manual Hash via Debug-string — necessário porque Value em
-        // Metadata variant não impl Hash. Estratégia consistente com
-        // `entities::content_hash::hash_content` (Debug é estrutural
-        // determinístico para tipos derive-Debug).
+        // Preserve the inherited Debug hash because Value-containing payloads
+        // lack a general Hash implementation; additionally hash Figure's exact
+        // typed kind below because Func Debug deliberately hides its identity.
         format!("{:?}", self).hash(state);
+        // Func Debug is deliberately opaque. Preserve the typed Figure counter
+        // identity as causal convergence input without changing other payloads.
+        if let Self::Figure { kind, .. } = self {
+            kind.hash(state);
+        }
     }
 }
 
@@ -311,13 +315,17 @@ mod tests {
     #[test]
     fn figure_kind_none_distinto_de_some() {
         let a = ElementPayload::Figure {
+            supplement: None,
             kind: None,
             counter_update: CounterUpdate::step(),
             is_counted: false,
             caption_text: None,
         };
         let b = ElementPayload::Figure {
-            kind: Some("image".into()),
+            supplement: None,
+            kind: Some(crate::entities::elements::figure::FigureKind::Name(
+                "image".into(),
+            )),
             counter_update: CounterUpdate::step(),
             is_counted: false,
             caption_text: None,
@@ -329,13 +337,19 @@ mod tests {
     fn figure_is_counted_distingue_payloads() {
         // P168: is_counted é parte de igualdade.
         let counted = ElementPayload::Figure {
-            kind: Some("image".into()),
+            supplement: None,
+            kind: Some(crate::entities::elements::figure::FigureKind::Name(
+                "image".into(),
+            )),
             counter_update: CounterUpdate::step(),
             is_counted: true,
             caption_text: None,
         };
         let uncounted = ElementPayload::Figure {
-            kind: Some("image".into()),
+            supplement: None,
+            kind: Some(crate::entities::elements::figure::FigureKind::Name(
+                "image".into(),
+            )),
             counter_update: CounterUpdate::step(),
             is_counted: false,
             caption_text: None,
@@ -371,6 +385,7 @@ mod tests {
             numbering_active: false,
         };
         let f = ElementPayload::Figure {
+            supplement: None,
             kind: None,
             counter_update: CounterUpdate::step(),
             is_counted: false,
@@ -520,6 +535,7 @@ mod tests {
             alt: crate::entities::value::Value::None,
         };
         let fig = ElementPayload::Figure {
+            supplement: None,
             kind: None,
             counter_update: CounterUpdate::step(),
             is_counted: false,

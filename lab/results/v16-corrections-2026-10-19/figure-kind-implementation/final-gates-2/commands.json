@@ -1,0 +1,16 @@
+[
+  {
+    "name": "preflight",
+    "argv": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--start-at",
+      "clippy",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/preflight-final-3"
+    ],
+    "utc_start": "2026-10-20T02:34:36.766646+00:00",
+    "utc_end": "2026-10-20T02:36:15.927661+00:00",
+    "exit": 1
+  }
+]

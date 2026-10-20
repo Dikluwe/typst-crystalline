@@ -1,0 +1,44 @@
+[
+  {
+    "name": "structural",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/structural.py",
+      "candidate",
+      "final"
+    ],
+    "utc_start": "2026-10-20T02:20:12.896461+00:00",
+    "utc_end": "2026-10-20T02:20:26.978049+00:00",
+    "exit": 0
+  },
+  {
+    "name": "clean-product-packages",
+    "argv": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ],
+    "utc_start": "2026-10-20T02:20:27.354051+00:00",
+    "utc_end": "2026-10-20T02:20:27.934555+00:00",
+    "exit": 0
+  },
+  {
+    "name": "integrated12",
+    "argv": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/validation-final"
+    ],
+    "utc_start": "2026-10-20T02:20:28.304269+00:00",
+    "utc_end": "2026-10-20T02:25:34.589768+00:00",
+    "exit": 1
+  }
+]

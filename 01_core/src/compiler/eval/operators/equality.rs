@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/operators/equality.md
-//! @prompt-hash 4b95652c
+//! @prompt-hash 6eed4c3a
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -197,6 +197,46 @@ pub(crate) fn selector_contains_element(selector: &Selector) -> bool {
 
 /// Language equality only refines compositions containing the new carrier.
 /// Old selector pairs retain their historical structural comparison.
+/// Figure kind filters have nominal constructor identity, independently of Func language equality.
+pub(crate) fn figure_kind_values_eq(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Func(a), Value::Func(b)) => {
+            crate::entities::elements::figure::FigureKind::Element(a.clone())
+                == crate::entities::elements::figure::FigureKind::Element(b.clone())
+        }
+        (Value::Func(_), Value::Str(_)) | (Value::Str(_), Value::Func(_)) => false,
+        (a, b) => values_eq(a, b),
+    }
+}
+
+fn figure_function(function: &crate::entities::func::Func) -> bool {
+    function.native_fn_addr().is_some_and(|call| {
+        std::ptr::fn_addr_eq(
+            call,
+            crate::compiler::stdlib::native_figure as fn(_, _, _, _) -> _,
+        )
+    })
+}
+
+fn figure_selector(selector: &Selector) -> bool {
+    match selector {
+        Selector::Kind(kind) => {
+            *kind == crate::entities::element_kind::ElementKind::Figure
+        }
+        Selector::NativeElement(function) | Selector::Element { function, .. } => {
+            figure_function(function)
+        }
+        Selector::Where { base, .. }
+        | Selector::Within { base, .. }
+        | Selector::Before { base, .. }
+        | Selector::After { base, .. } => figure_selector(base),
+        Selector::And(selectors) | Selector::Or(selectors) => {
+            selectors.iter().any(figure_selector)
+        }
+        Selector::Label(_) | Selector::Location(_) | Selector::Regex(_) => false,
+    }
+}
+
 pub(crate) fn selectors_eq(a: &Selector, b: &Selector) -> bool {
     if !selector_contains_element(a) && !selector_contains_element(b) {
         return a == b;
@@ -238,12 +278,22 @@ pub(crate) fn selectors_eq(a: &Selector, b: &Selector) -> bool {
             Selector::Element { function: a, fields: af },
             Selector::Element { function: b, fields: bf },
         ) => {
-            a == b
-                && af.len() == bf.len()
-                && af
-                    .iter()
-                    .zip(bf.iter())
-                    .all(|((an, av), (bn, bv))| an == bn && values_eq(av, bv))
+            (if figure_function(a) || figure_function(b) {
+                figure_function(a) && figure_function(b)
+            } else {
+                a == b
+            }) && af.len() == bf.len()
+                && af.iter().zip(bf.iter()).all(|((an, av), (bn, bv))| {
+                    an == bn
+                        && if an.as_str() == "kind"
+                            && figure_function(a)
+                            && figure_function(b)
+                        {
+                            figure_kind_values_eq(av, bv)
+                        } else {
+                            values_eq(av, bv)
+                        }
+                })
         }
         (Selector::And(a), Selector::And(b)) | (Selector::Or(a), Selector::Or(b)) => {
             a.len() == b.len() && a.iter().zip(b.iter()).all(|(a, b)| selectors_eq(a, b))
@@ -251,7 +301,15 @@ pub(crate) fn selectors_eq(a: &Selector, b: &Selector) -> bool {
         (
             Selector::Where { base: a, field: af, value: av },
             Selector::Where { base: b, field: bf, value: bv },
-        ) => selectors_eq(a, b) && af == bf && values_eq(av, bv),
+        ) => {
+            selectors_eq(a, b)
+                && af == bf
+                && if af.as_str() == "kind" && figure_selector(a) && figure_selector(b) {
+                    figure_kind_values_eq(av, bv)
+                } else {
+                    values_eq(av, bv)
+                }
+        }
         (
             Selector::Within { base: a, ancestor: aa },
             Selector::Within { base: b, ancestor: ba },
@@ -329,6 +387,8 @@ fn content_values_eq(
     if a.elem_name() != b.elem_name() {
         return false;
     }
+    let figure_fields = crate::compiler::realize::figure::is_figure(a)
+        && crate::compiler::realize::figure::is_figure(b);
     let a_raw;
     let b_raw;
     let a = match a_fields {
@@ -351,7 +411,15 @@ fn content_values_eq(
     count(a) == count(b)
         && a.iter()
             .filter(|(key, _)| key.as_str() != "label")
-            .all(|(key, value)| b.get(key).is_some_and(|other| values_eq(value, other)))
+            .all(|(key, value)| {
+                b.get(key).is_some_and(|other| {
+                    if figure_fields && key.as_str() == "kind" {
+                        figure_kind_values_eq(value, other)
+                    } else {
+                        values_eq(value, other)
+                    }
+                })
+            })
 }
 
 #[cfg(test)]
@@ -698,5 +766,47 @@ mod batch_c_format_selector_tests {
             }
         }
         assert!(wrong.is_empty(), "incorrect format/native identity pairs: {wrong:?}");
+    }
+}
+
+#[cfg(test)]
+mod figure_kind_filter_identity_tests {
+    use super::*;
+    use crate::entities::func::Func;
+    fn selector(function: Func, kind: Value) -> Selector {
+        Selector::Element {
+            function,
+            fields: vec![("kind".into(), kind)].into(),
+        }
+    }
+    #[test]
+    fn figure_kind_filter_equality_preserves_aliases_and_rejects_homonyms() {
+        let a = selector(
+            Func::native("figure", crate::compiler::stdlib::native_figure),
+            Value::Func(Func::native("table", crate::compiler::stdlib::native_table)),
+        );
+        let alias = selector(
+            Func::native("renamed", crate::compiler::stdlib::native_figure),
+            Value::Func(Func::native(
+                "other-name",
+                crate::compiler::stdlib::native_table,
+            )),
+        );
+        let homonym = selector(
+            Func::native("figure", crate::compiler::stdlib::native_figure),
+            Value::Func(Func::native("table", crate::compiler::stdlib::native_heading)),
+        );
+        let name = selector(
+            Func::native("figure", crate::compiler::stdlib::native_figure),
+            Value::Str("table".into()),
+        );
+        assert!(selectors_eq(&a, &alias));
+        assert!(!selectors_eq(&a, &homonym));
+        assert!(!selectors_eq(&a, &name));
+        // Generic Func equality deliberately retains its existing relation.
+        assert!(values_eq(
+            &Value::Func(Func::native("same", crate::compiler::stdlib::native_table)),
+            &Value::Func(Func::native("same", crate::compiler::stdlib::native_heading))
+        ));
     }
 }

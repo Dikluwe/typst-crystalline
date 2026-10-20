@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-20T01:57:58.903882+00:00",
+  "source": "01_core/src/compiler/eval/call_dispatch/invoke.rs",
+  "owner": "00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md",
+  "basis": "Actual selected-show native Ref error is detached in build8 vs pinned oracle2:2. Native invocation captures deferred Ref before eval_expr can attach source; retain proven FuncCallNode span before existing interception.",
+  "classification": "ADR-0127 continuous internal source-provenance correction; no signature/entity/default/phase/compatibility change.",
+  "evidence": "agents/entities/reference-acceptance/show-origin-selected-product-8/receipt.json",
+  "scope_pairs": 63
+}

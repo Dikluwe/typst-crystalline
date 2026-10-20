@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: ed7c9822
+Hash do Código: 20ab61b0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -151,3 +151,26 @@ This is observed local source behavior, not a new bilateral result or inferred u
 At layout_content_once keep four distinct transport behaviors: Source recurses transparently; Located reserves/observes its explicit identity and invokes body dispatch; Realized delegates causal-original/visual handling; ShowRecipe delegates its body. Explicitly enumerate all other present Content variants as forwarding to the existing locator gate and body dispatch, not as ignored content. At the quote observer, Text observes its string and Space/SpaceFromNewline observe a single logical space. Explicitly classify every other present Content variant as having no additional event at this observer: wrappers let descendants speak, neutral metadata stays neutral, and object/quote/break policies remain in their existing delegates. Neither match may hide future Content variants behind an open remainder, move the decision to another helper or replace it with an if-let. Preserve location reservation, one causal occurrence, quote event ordering, static form-B delegation and rollback. New Content variants require independent identity and quote-observation decisions.
 
 ADR-0127 classification: continuous-flow internal nominal coverage with no public signature, default, phase or compatibility change. Add behavior-preservation controls before implementation and require baseline/final controls plus disposable future-variant compile-negative evidence at the exact selected decision. Current runtime controls may already pass; the structural RED is failure to reject a future variant at that decision. No new suppression or open catchall is authorized.
+
+
+## Approved Figure/Grid occurrence counter correction
+
+### Evidence before decision
+
+Baseline HEAD `731f0ffdf4c7c152f590551e72ff63f7bd85ef85`; the reviewed current-pin measurements and exact source anchors are retained in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, `agents/counter/design.md` and `agents/counter/counter-probes.json`. In that evidence, captionless/numbered Figures count; manual Set/Func actions make caption ordinal indexing incorrect; typed element kinds and custom names require distinct keys. These are language values/errors, not Rust or rendering-byte equality. The human explicitly approved the complete Figure/Grid contracts, phases and compatibility changes in the current implementation session. This approval satisfies ADR-0127 for this exact scope. Historical conflicting caption-only or productive string-projection clauses are superseded only as described here; unrelated contracts remain.
+
+### Exclusive responsibility
+
+Document and preserve figure_progress exclusively as unprepared synthetic Figure state. Prepared productive Figures use validated typed snapshot at current_location. Preserve current Source span for missing-snapshot diagnostics and child Location transport. No new productive progress map, public API or callback.
+
+### Acceptance and limits
+
+L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.
+
+
+Nearest Source span must survive the public layout_content entrypoint's source_body normalization, with scoped restoration after dispatch. Source(Located(prepared Figure)) lacking a verified snapshot reports that Source span, not detached. Preserve original transaction-content normalization and all marker selection.
+
+
+### Returned styled occurrence root transport
+
+`figure-kind-implementation/integration-tests-2/tests.log` records real RED: Located(Styled(prepared Figure)) changes Location 71 to 72. Direct Located(Figure) bypasses the ordinary gate, but Styled recursion reenters it. Add private scoped transported_root_location:Option<Location>, initially None. Located installs it only while descending transparent Source/Styled/ShowRecipe root carriers, restoring the previous slot afterwards. The first ordinary locatable root consumes the transported identity without allocation or duplicate position publication. An ordinary nonlocatable non-Styled container clears it before children; a nested Figure never borrows its parent's identity. Direct Located(Figure) needs no pending slot. Preserve standard style_scope behavior and all styles rather than copying its business logic. Checkpoint copies/restores this transient root context. Require exact-identity and nested-child regression, existing position/suffix tests unchanged.

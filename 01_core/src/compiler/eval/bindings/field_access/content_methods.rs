@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash ea5bd47e
+//! @prompt-hash 23b3110d
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -56,6 +56,9 @@ pub(super) fn content_field(
         Content::ShowRecipe(e) => content_field(&e.body, field),
         Content::Realized(e) => content_field(&e.visual, field),
         Content::Styled(styled) => {
+            if crate::compiler::realize::figure::is_figure(&styled.body) {
+                return content_field(&styled.body, field);
+            }
             if equation_descendant(c).is_none() {
                 return ContentField::Undeclared;
             }
@@ -82,6 +85,13 @@ pub(super) fn content_field(
                 content_field(child, field)
             }
         }
+        Content::Figure(_) => match field {
+            "body" | "caption" | "kind" | "supplement" => c
+                .get_field(field)
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
         Content::HSpace(e) => match field {
             "amount" => ContentField::Set(c.get_field(field).expect("spacing amount")),
             "weak" if e.weak_explicit => ContentField::Set(Value::Bool(e.weak)),
@@ -283,7 +293,6 @@ pub(super) fn content_field(
         | Content::CounterDisplay(..)
         | Content::CounterUpdate(..)
         | Content::Outline(..)
-        | Content::Figure(..)
         | Content::FigureCaption(..)
         | Content::Image(..)
         | Content::Shape(..)
@@ -348,12 +357,17 @@ pub(super) fn content_set_fields(
 ) -> Vec<(&'static str, Value)> {
     use crate::entities::content::Content;
     let c = c.source_body();
+    if let Content::Styled(styled) = c {
+        if crate::compiler::realize::figure::is_figure(&styled.body) {
+            return content_set_fields(&styled.body);
+        }
+    }
     let candidates: &[&'static str] = match c {
         Content::Source(e) => return content_set_fields(&e.body),
         Content::ShowRecipe(e) => return content_set_fields(&e.body),
         Content::Located(e) => return content_set_fields(&e.body),
         Content::Realized(e) => return content_set_fields(&e.visual),
-        Content::Figure(_) => &["body", "caption"],
+        Content::Figure(_) => &["body", "caption", "kind", "supplement"],
         Content::Metadata(_) => &["value"],
         Content::OutlineEntry(_) => &["level", "element", "fill"],
         Content::Empty | Content::Sequence(_) => &["children"],
@@ -1740,6 +1754,9 @@ mod v16_e_reflection_tests {
                 body: Content::text("body"),
                 caption: Some(caption.clone()),
                 kind: None,
+                resolved_kind: None,
+                supplement: None,
+                resolved_supplement: None,
             }));
             let observed = fields(&figure);
             assert_eq!(
@@ -1757,9 +1774,12 @@ mod v16_e_reflection_tests {
             body: Content::text("body"),
             caption: None,
             kind: None,
+            resolved_kind: None,
+            supplement: None,
+            resolved_supplement: None,
         }));
         assert!(!fields(&absent).contains_key("caption"));
-        assert!(matches!(content_field(&absent, "kind"), ContentField::Undeclared));
+        assert!(matches!(content_field(&absent, "kind"), ContentField::Unset));
         for value in
             [Value::None, Value::Int(7), Value::Content(Content::text("metadata"))]
         {

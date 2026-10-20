@@ -1,0 +1,94 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0599]: the method `as_deref` exists for enum `Option<Option<entities::elements::figure::FigureKind>>`, but its trait bounds were not satisfied
+   --> 01_core/src/compiler/stdlib/tests/figure_image.rs:80:20
+    |
+ 80 |             e.kind.as_deref(),
+    |                    ^^^^^^^^
+    |
+   ::: /home/dikluwe/.rustup/toolchains/1.92.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:599:1
+    |
+599 | pub enum Option<T> {
+    | ------------------ doesn't satisfy `_: Deref`
+    |
+    = note: the following trait bounds were not satisfied:
+            `Option<entities::elements::figure::FigureKind>: Deref`
+
+error[E0599]: the method `as_deref` exists for enum `Option<Option<entities::elements::figure::FigureKind>>`, but its trait bounds were not satisfied
+   --> 01_core/src/compiler/stdlib/tests/figure_image.rs:100:20
+    |
+100 |             e.kind.as_deref(),
+    |                    ^^^^^^^^
+    |
+   ::: /home/dikluwe/.rustup/toolchains/1.92.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:599:1
+    |
+599 | pub enum Option<T> {
+    | ------------------ doesn't satisfy `_: Deref`
+    |
+    = note: the following trait bounds were not satisfied:
+            `Option<entities::elements::figure::FigureKind>: Deref`
+
+error[E0599]: the method `as_deref` exists for enum `Option<Option<entities::elements::figure::FigureKind>>`, but its trait bounds were not satisfied
+   --> 01_core/src/compiler/stdlib/tests/figure_image.rs:119:20
+    |
+119 |             e.kind.as_deref(),
+    |                    ^^^^^^^^
+    |
+   ::: /home/dikluwe/.rustup/toolchains/1.92.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:599:1
+    |
+599 | pub enum Option<T> {
+    | ------------------ doesn't satisfy `_: Deref`
+    |
+    = note: the following trait bounds were not satisfied:
+            `Option<entities::elements::figure::FigureKind>: Deref`
+
+error[E0599]: the method `as_deref` exists for enum `Option<Option<entities::elements::figure::FigureKind>>`, but its trait bounds were not satisfied
+   --> 01_core/src/compiler/stdlib/tests/figure_image.rs:142:20
+    |
+142 |             e.kind.as_deref(),
+    |                    ^^^^^^^^
+    |
+   ::: /home/dikluwe/.rustup/toolchains/1.92.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:599:1
+    |
+599 | pub enum Option<T> {
+    | ------------------ doesn't satisfy `_: Deref`
+    |
+    = note: the following trait bounds were not satisfied:
+            `Option<entities::elements::figure::FigureKind>: Deref`
+
+error[E0599]: the method `as_deref` exists for enum `Option<Option<entities::elements::figure::FigureKind>>`, but its trait bounds were not satisfied
+   --> 01_core/src/compiler/stdlib/tests/figure_image.rs:205:20
+    |
+205 |             e.kind.as_deref(),
+    |                    ^^^^^^^^
+    |
+   ::: /home/dikluwe/.rustup/toolchains/1.92.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:599:1
+    |
+599 | pub enum Option<T> {
+    | ------------------ doesn't satisfy `_: Deref`
+    |
+    = note: the following trait bounds were not satisfied:
+            `Option<entities::elements::figure::FigureKind>: Deref`
+
+error[E0500]: closure requires unique access to `*layouter` but it is already borrowed
+  --> 01_core/src/compiler/layout/figure.rs:49:25
+   |
+36 |               let values = location.and_then(|location| {
+   |                                              ---------- borrow occurs here
+37 |                   layouter.introspector.counter_values_at(&key, location)
+   |                   --------------------- first borrow occurs due to use of `layouter.introspector` in closure
+...
+49 |               pattern.map(|pattern| {
+   |                           ^^^^^^^^^ closure construction occurs here
+50 |                   let number = format_counter(values, &pattern).unwrap_or_default();
+   |                                               ------ first borrow later captured here by closure
+...
+56 | /                 layouter
+57 | |                     .runtime
+58 | |                     .figure_page_numbers
+   | |________________________________________- capture is mutable because of use here
+59 |                       .push(layouter.current_page_number());
+   |                             -------- second borrow occurs due to use of `*layouter` in closure
+
+Some errors have detailed explanations: E0500, E0599.
+For more information about an error, try `rustc --explain E0500`.
+error: could not compile `typst-core` (lib test) due to 6 previous errors

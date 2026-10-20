@@ -1,0 +1,71 @@
+{
+  "utc": "2026-10-20T03:08:39.985038+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "state": "Read-only boundary review against uncommitted source; hashes bind inspected contracts, not a new executable measurement.",
+  "inspected_sha256": {
+    "01_core/src/compiler/stdlib/counter.rs": "ddd41873940c1f1985613a8f8403c024d3517af8531fba67d23bcdda1914455c",
+    "00_nucleo/prompts/core/compiler/stdlib/counter.md": "17c4886e1a3b353eded4ee3ba968c9cb4b366fdd9d81c872b50fba0a8e22c6fe",
+    "01_core/src/compiler/stdlib/counter/filtered_reads.rs": "fafe8489b4424fcca2ac3cc7a1dc89095c9d9c7a1ec3e7193cc8484a99cf9bb1",
+    "00_nucleo/prompts/core/compiler/stdlib/counter/filtered_reads.md": "eb2acbe128e9df2cd333aafdd88da9ebec7eb0d0a9087bc99514517576564786",
+    "01_core/src/compiler/eval/bindings/value_methods.rs": "bd398a5c405dd52ca7f1072b99a6d1250b69f660dcea68e9f04fd456dc2e5239",
+    "01_core/src/compiler/eval/bindings/value_methods/counter.rs": "ddf44b62e46aa6dcad08f11ab124eb5e9fe0711f04919eb6983047b9ba9d0e13",
+    "01_core/src/compiler/eval/context_reads.rs": "123ccebf799acb72480e58e3ca542a091f265e6518a87980d3abd684646e421d",
+    "03_infra/src/pipeline/paged.rs": "1c1f745818f736e02e36d0c12272642f994d0b00baf96887dc711b59bb302e6e",
+    "00_nucleo/prompts/_nuclei/math/callback-realization.toml": "f059540a4af55b75e4089e4191c782c0e739d1a2df93e4e06bad16de1dbb3117",
+    "00_nucleo/prompts/_nuclei/page-counter-snapshot.toml": "ef7f785f4e1290e8fcf46224a620e5f71624bb634aa80732d08a4b109c856810",
+    "00_nucleo/adr/adr-0107-language-parity-not-mechanics.md": "6b1e052a28fbc4e1715e0dae435ff61f4372ec4d2f9fd8c8eb2f3ab936c32f07",
+    "00_nucleo/adr/adr-0108-anti-drift-measure-before-deciding.md": "1c93efdf8edcf1faa334dc5cbeac5c2fc0772efc701440ca09200daba7c735d5",
+    "00_nucleo/adr/adr-0127-l0-gate-stop-vs-continuous-flow.md": "0497442287368b05b01503217a02992990d0493525701c408733c03a11e6d659"
+  },
+  "existing_measurements": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-capability-oracle/receipt.json",
+      "sha256": "e6b89d80cb854a16c1dab952ae2440f0d8318ee28ed02c7a2f01e101c044ee5f"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-capability-product-source14/receipt.json",
+      "sha256": "a01698f773b5b8568a82036a16b291348889506e699cf4fc465e8d14740c2acd"
+    }
+  ],
+  "measured_cause": "Valid outer math callback with known captured styles and no Location should read styles but cannot call modern counter.final. Source14 candidate currently returns unfiltered materialized fallback0 after prior update7; oracle reports unknown context. This actual false-zero is not a passing control or intentional divergence.",
+  "decisive_source": {
+    "upstream": "Pinned introspection/counter.rs:471\u2013480 final_ calls context.location().at(span), independent of general Context::introspect(styles-or-location).",
+    "modern_bound": "value_methods.rs imports counter_final_owned as counter_final; final method reaches it after argument validation.",
+    "modern_static": "counter.rs native_counter_final_static reaches same owned facade, then filtered_reads owner.",
+    "current_bug": "filtered_reads.rs:194\u2013209 delegates unfiltered keys before its contextual guard; filtered finals only require in_context and can also fold without Location.",
+    "replay": "context_reads.rs:300,332\u2013333 records/restores actual read location and in_context; CounterFinal replay invokes same owned helper.",
+    "public_legacy_boundary": "Counter fa\u00e7ade L0 explicitly preserves public noEngine materialized/limited helpers and legacy string native output. Public counter_final and legacy native_counter_final must remain unchanged by this repair."
+  },
+  "classification": {
+    "decision": "ADR-0127 continuous internal language-parity correction, owning L0 first then semantic RED\u2192GREEN/revalidation; no fresh human approval needed for this bounded option.",
+    "reason": "No public signature/entity/trait/default mode/phase/compatibility contract extension; known-language operation correctly rejects absent required Location. Existing public Rust helper remains available unchanged.",
+    "scope": "Add canonical filtered_reads source/L0 pair to manifested work scope (64), plus existing owners only if separately required by real tests. Scope authorization is narrow guard, not a new Context representation or generic capability framework.",
+    "approval_boundary": "Altering public noEngine helper contract, introducing public capability fields or moving callbacks between phases would be a separate contract/phase decision; none is necessary here."
+  },
+  "recommended_order": [
+    "Compute pure filtered-key classification.",
+    "Mark a filtered actual read before any context/Location guard, including failure; never mark unfiltered reads.",
+    "Reject modern .final when !in_context or current_location is absent, before public materialized delegation or filtered history/callback folding.",
+    "For valid unfiltered reads delegate unchanged public helper; valid filtered reads use unchanged fold/observe/replay."
+  ],
+  "preserve": [
+    "Existing bound/static argument validation and source Span/error contracts.",
+    "No fabricated Equation/request/source/hash Location.",
+    "No global in_context reversal: style19 must remain available in style-only callback.",
+    "No guard expansion into query, explicit at(Location/label), get or public legacy/materialized helpers.",
+    "No fallback0 on missing required capability; fallback0 remains valid for untouched counters at valid actual contexts.",
+    "Filtered selection-before-error and no callback/history effects from rejected read.",
+    "Replay uses captured actual capability; no made-up replay Location.",
+    "Existing Tekt Context-return unwrap and reduced14/vanilla20 conflict remain separate unresolved limits."
+  ],
+  "needed_controls": [
+    "Modern bound/static Str/Page/Element finals reject true-context/None Location, even with seeded snapshots or callbacks.",
+    "false-context/Some Location still rejects.",
+    "true-context/Some actual Location succeeds with real final and retains valid untouched0 behavior.",
+    "Rejected filtered read marks selection before error and executes no history callback.",
+    "Public noEngine materialized helper and legacy string final preserve existing results.",
+    "Actual valid plain style19 callback still succeeds; source14 capability probe final now matches sourced oracle rejection."
+  ],
+  "no_source_l0_test_edits_or_cargo": true,
+  "closure_limit": "This is a causal repair classification, not final implementation/validation or blanket math/counter parity. Keep exact failing receipt and oracle policy until actual repaired candidate replay."
+}

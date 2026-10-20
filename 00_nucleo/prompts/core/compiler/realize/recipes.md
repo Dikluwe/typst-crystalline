@@ -1,5 +1,5 @@
 # L0 — compiler/realize/recipes
-Hash do Código: 9ffa46a0
+Hash do Código: 993c0bac
 
 Layer L1. Sole productive consumer:
 `01_core/src/compiler/realize/recipes.rs`. Owner-ratified contract; seal the
@@ -138,3 +138,66 @@ realization hub's private helper and end visit with Some. Execute no closure.
 Remove ContextBlock from this match's nominal complement. Capture occurs only
 after the parent's decision permits this child; preserve style/source wrappers
 and Located's prepared identity.
+
+
+## Approved Figure/Grid kind repair (2026-10-19)
+
+### Measurement and classification before decision
+
+The frozen proposal at baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, `agents/contracts/semantic-partition.json`, and `agents/counter/design.md` bind measurements and full source/oracle provenance. Current-pin oracle is `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Constructor inference loses typed identity and lexical occurrence styles; semantic inspection and final supplement need separate phases. These are language semantics and causal effects, not a requirement for upstream Rust mechanics. The human explicitly approved the exact public carriers, phase changes and compatibility migration in the current session under ADR-0127.
+
+### Exclusive responsibility
+
+Reached Figure roots obtain a pure kind preview after installing lexical styles and before has_root_effect, root filtering and show-set eligibility. Match against one preview throughout; then fold all matching show-set deltas and prepare a final distinct occurrence before replacement. The no-rule path performs the same final preparation before emitted children, locating the prepared root. Parent-hidden Figures never prepare. Original provenance stores final prepared Located Figure; a returned prepared alias retains its snapshot. Errors preserve nearest Source span.
+
+### Acceptance and boundaries
+
+Require functional RED→GREEN, frozen kind/set/show-set/supplement/hidden-parent cases, alias/homonym and field snapshots, full build/tests, paths, strict forward/reverse lineage, V15/V26 and differential lint. No suppressions, opaque catchall, fake neutral child or weakened assertion. Caption omission/none, complete caption synthesis, supplement-dependent preview selection, complete function-number formatting, HTML implicit captions/references, Dynamic field enumeration, and mixed Table header/ordinary-cell supplemental target order remain explicit bounded debts.
+
+## Actual Figure caption children
+
+The feature owner's nested-supplement fixed-oracle receipts and actual
+integration-tests-5 RED distinguish semantic retention from emitted Content.
+At a Figure root, delegate child realization to figure's owning helper and return
+Some to prevent generic entity mapping from visiting a nonemitted retained
+supplement. Keep Located, Source and style identity/restoration. The owner visits
+body, the selected supplement only for the current actual numbered caption
+prefix, then caption. This does not change semantic maps or introduce a Ref phase.
+
+## Ratified reference supplement admission
+
+The frozen Ref phase proposal SHA1578cbea and human approval receipt authorize
+post-root emitted Ref admission. Parent/own show replacement decides before
+capturing a generated contextual producer; private already-prepared and
+passthrough transports prevent re-admission. Delegate producer construction and
+prepared selected-child realization to reference_supplements, preserve guards,
+lexical capture and original Ref fields. A no-rule prepared Figure now retains
+Realized.original as its prepared snapshot before actual child realization and
+visual as same Located Figure afterward, so later reference uses can clone the
+raw selected resolved template. Do not descend original children, rerun outer
+supplement callbacks or introduce a cache/new public carrier.
+
+Source entry scopes a private eval.reference.origin empty Args span carrier while
+realizing its body, restoring Engine styles on every result; reference producer
+binding reads the nearest such actual source span. This is internal metadata,
+never argument execution or user field. Reached raw ContextBlock visits consult
+context_occurrences' scoped template flag so ID instantiation survives lexical
+ShowRecipe style restoration, while Located aliases and classified generated
+producers preserve identities. Prepared/passthrough Ref token-only Styled roots
+are recognized before inherited-style descent; skip their single-root private
+token and do not re-admit returned Refs. Actual selected child realization occurs
+once under the feature owner, not by generic terminal Ref entity mapping.
+
+Nested generic traversal consumes traversal owner's new internal nearest-origin
+preorder callback, retaining the old callback opacity/once contract. Scope the
+nearest proven Span around the whole visited/root-child operation, restore styles
+on every result, and never call the callback on Source itself. This is necessary
+for captured Ref Args spans inside generic containers, not a new public map or
+runtime phase. Source's first-origin and ordinary content mapping remain intact.
+
+
+## Captionless default product Location boundary
+
+Measurement before decision: realize_children:74–81 currently rewraps every Located root. For the narrow Paged captionless default Block product this would bind an actual Block or its replacement at the original Figure Location; walk.rs:415–467 intentionally skips an already indexed non-Figure/Table alias. Layout::realized::layout at realized.rs:558–576 already registers the immutable prepared original before the actual visual. Caller audit: realize_root:494–502 retains original Located Figure in Realized; its guards-empty path cannot bypass that special empty-rules Figure branch; Table entrypoints descend Figure children through ordinary visit/realize_root; sequences::capture_scope:94–109 admits only Empty/Sequence, not root Located Figure; completed products preserve their originals.
+
+For precisely an existing Located captionless Figure under Paged realization, return its actual default Block realization without rewrapping that product at Figure Location. Keep the surrounding canonical Realized.original unchanged. Full-caption Figure numeric Location transport and all other Located cases retain existing behavior. A replacement product's own Located objects remain exactly as returned; do not force Figure identity onto Strong/Block/other output or broaden canonical alias traversal. No new public API/phase/registry rule. Verify same original label/query Location and page capture plus a normally reached raw Context/nested Figure body, independently of the None-pruning control.

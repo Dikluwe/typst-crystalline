@@ -1,0 +1,140 @@
+{
+  "utc_start": "2026-10-20T01:24:36.228477+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "product": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+  "product_sha256": "39b9ef9bb5b445d366416f5053f3ea004a2e7459e425ea1bd81ff2645c711591",
+  "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-build-5/receipt.json",
+  "build_receipt_sha256": "6a04bc1bd83ec59861dac56bec7b10a37b95a236df22cbe4bf2f592e7b33024c",
+  "historical_baseline": false,
+  "oracle_receipt_sha256": "96f530127ec4fa9c62f6ed2a1cf576472c43a261d1d64cdaf0bc7033c0d91487",
+  "matrix_sha256": "5779c4b25407b07ad91cbee7d80267882985cac2956ae34010e93e9726f4e6e3",
+  "policies_sha256": "5d61dcd44dc93541bb1cf9063bd93723554c7f6fe90fb3dadf1bcd860cdbb799",
+  "runner_sha256": "afcfd5ff5dd20312494f2b2ff64d4ef866de8ae186fcfdbdc3d3b2e99d7aee5e",
+  "cases": [
+    {
+      "name": "styled-nested-missing-reference-origin",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<missing>` does not exist in the document",
+        "origin": [
+          2,
+          7
+        ],
+        "criterion": "retained inherited style frame must preserve nested lexical Ref source origin"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:24:36.368716+00:00",
+          "utc_end": "2026-10-20T01:24:36.384488+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/styled-nested-missing-reference-origin.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-5/origin-edge/styled-nested-missing-reference-origin.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<missing>` does not exist in the document\n\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        2,
+        7
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "show-alias-missing-reference-origin",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<missing>` does not exist in the document",
+        "origin": [
+          2,
+          0
+        ],
+        "criterion": "identity show alias preserves original Ref source span through replacement guards"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:24:36.384857+00:00",
+          "utc_end": "2026-10-20T01:24:36.400118+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-alias-missing-reference-origin.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-5/origin-edge/show-alias-missing-reference-origin.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<missing>` does not exist in the document\n\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        2,
+        0
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": false
+      },
+      "pass": false
+    },
+    {
+      "name": "constructor-missing-reference-origin",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<missing>` does not exist in the document",
+        "origin": [
+          1,
+          1
+        ],
+        "criterion": "native ref constructor retains its own call source span through contextual producer"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:24:36.400499+00:00",
+          "utc_end": "2026-10-20T01:24:36.415650+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/constructor-missing-reference-origin.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-5/origin-edge/constructor-missing-reference-origin.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<missing>` does not exist in the document\n\n"
+        }
+      ],
+      "observed_error_origin": null,
+      "expected_error_origin": [
+        1,
+        1
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": false
+      },
+      "pass": false
+    }
+  ],
+  "utc_end": "2026-10-20T01:24:36.415880+00:00",
+  "oracle_comparison_failures": [
+    "styled-nested-missing-reference-origin",
+    "show-alias-missing-reference-origin",
+    "constructor-missing-reference-origin"
+  ],
+  "required_failures": [
+    "styled-nested-missing-reference-origin",
+    "show-alias-missing-reference-origin",
+    "constructor-missing-reference-origin"
+  ]
+}

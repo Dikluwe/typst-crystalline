@@ -1,0 +1,11 @@
+{
+  "utc_recorded": "2026-10-20T00:49:59.190791+00:00",
+  "first_attempt": "Automatic permission review timed out before process creation; no job started.",
+  "retry": "One identical authorized bounded-service retry allowed by tool result, succeeded.",
+  "unit": "tekt-figure-reference-one.service",
+  "resource_limits": {
+    "MemoryMax": "12G",
+    "MemoryHigh": "8G",
+    "MemorySwapMax": "0"
+  }
+}

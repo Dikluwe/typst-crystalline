@@ -1,0 +1,39 @@
+{
+  "utc": "2026-10-20T01:04:21.884805+00:00",
+  "status": "Read-only cause review using actual frozen prephase and build2 receipts; no source edits or Cargo.",
+  "receipts": {
+    "agents/entities/reference-acceptance/pre-reference-product-2/receipt.json": "e9fd8caa92615c16e8ee18a02d0353f53baa4f01ec234f678921139026fd4efa",
+    "reference-matrix-product-2-main/receipt.json": "45e7e034d96ec0e3e9891ba1d45a6d5b7767f3d302df527d838f7242991b77db"
+  },
+  "findings": [
+    {
+      "case": "prepared-alias-two-references",
+      "oracle": "[[2,[1],[1],2]]",
+      "prephase": "contextual stability failure",
+      "build2": "success with [[4,[3],[1],4]], duplicate preexisting Figure Locations",
+      "cause": "figure::supplement_from_value destructures Value::LocatedContent(content, _) and retains only content.content().clone, losing query Location before the selected template is copied.",
+      "source": "01_core/src/compiler/realize/figure.rs:107",
+      "correction_constraint": "Preserve existing actual Location using existing carrier; no wholesale Located stripping or forced re-location of a prepared alias."
+    },
+    {
+      "case": "raw-context-two-references",
+      "oracle": "[[3,[2],[1],3]]",
+      "prephase": "contextual stability failure",
+      "build2": "contextual stability failure",
+      "cause": "L3 collect_context_blocks_into lacks Figure actual-view branch and generic map_content discovers raw resolved-supplement Context despite no caption. Canonical actual walk excludes that nonemitted template, so Session::realize lacks a topology context_block_locations entry and marks impossible.",
+      "source": [
+        "03_infra/src/pipeline.rs:402",
+        "03_infra/src/pipeline/context_stabilization.rs:486",
+        "01_core/src/entities/elements/figure.rs selected supplement map"
+      ],
+      "correction_constraint": "Do not preindex hidden templates or weaken topology validation. Align actual-view admission with emitted Figure children under owning L0 and approved API boundaries."
+    },
+    {
+      "case": "raw-context-caption-two-references",
+      "oracle": "[[4,[3],[1],4]]",
+      "prephase": "success with wrong [[2,[1],[1],2]], reuses one caption insertion identity",
+      "build2": "success with exact [[4,[3],[1],4]] and rendered inner captions1/2/3",
+      "interpretation": "This confirms the reference raw-ID path can work when source ContextID0 already has one real caption occurrence. It does not refute the no-caption phantom admission or two-caption fresh-ID failures."
+    }
+  ]
+}

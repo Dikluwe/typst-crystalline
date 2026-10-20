@@ -1,0 +1,33 @@
+{
+  "utc": "2026-10-20T02:55:52.336440+00:00",
+  "evidence": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-focused-red/state.json.gz",
+      "sha256": "c310ddba468fa9c301104f4bf7d9601512047707065e8aedce501dda0f29ef0a"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle/receipt.json",
+      "sha256": "d287d9a5e1d27c201ce818fd2e28d8c3de341f4eb536dad1fedfd3570bbe3106"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-oracle-v2/receipt.json",
+      "sha256": "087782b8186b01d438e98c415df06f8d0d37dae87f8256ebd376001e504a93bc"
+    }
+  ],
+  "source_measurement": {
+    "path": "lab/typst-original/crates/typst-layout/src/math/cancel.rs",
+    "sha256": "cba25b1519e80562e7d025b6f5cd39d5205bd3161c933cf7dd98d82ac4dd7be8",
+    "lines": [
+      100,
+      105
+    ],
+    "context": "Context::new(None, Some(styles))"
+  },
+  "findings": [
+    "Original3 wiring regressions use Tekt-supported math closure syntax that the pinned oracle rejects as unknown variable context; they prove preservation of prior Tekt behavior, not direct vanilla acceptance.",
+    "Valid code-inserted plain angle callback reads text.size and compiles in pinned oracle, refuting the proposed bare-style-read negative policy.",
+    "Valid code-inserted explicit context callback returns Content and errors expected angle, found content in oracle; the existing Tekt unwrap is a separate supported extension.",
+    "Pinned callback Context has styles and no Location. Runtime repair should not invent a Location, weaken the ordinary outside-context style guard, or claim outerfalse as vanilla behavior."
+  ],
+  "status": "Independent source/oracle review only; root and B own classification and any L0/source repair."
+}

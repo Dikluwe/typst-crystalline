@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized] target(s) in 0.14s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 2 tests
+test compiler::eval::tests::regressions::p792_text_lang_dynamic ... ok
+test compiler::eval::tests::regressions::p792_text_lang_outside_context_rejects_the_original_dynamic_read ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 7712 filtered out; finished in 0.01s
+

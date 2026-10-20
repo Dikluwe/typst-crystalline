@@ -1,0 +1,34 @@
+{
+  "cases": {
+    "raw-namespace-kind-reference": {
+      "class": "required-language",
+      "criterion": "actual success, exact typed language counts/distinct Location cardinality and retained rendered content",
+      "render_token_counts": {
+        "OUTER": 1
+      },
+      "render_text_whitespace_normalized": "OUTER Listing 1",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    },
+    "two-fresh-captions-raw-context-template": {
+      "class": "required-language",
+      "criterion": "actual success, exact typed language counts/distinct Location cardinality and retained rendered content",
+      "render_token_counts": {
+        "INNER": 2,
+        "OUTER": 2,
+        "INNER-CAP": 2,
+        "OUTER-CAP": 2
+      },
+      "render_text_whitespace_normalized": "OUTER INNER Inner 1: INNER-CAP 1: OUTER-CAP OUTER INNER Inner 2: INNER-CAP 2: OUTER-CAP",
+      "render_order_criterion": "Exact visible word/number order, collapsed Unicode whitespace only; preserve nested caption/ref prefixes and occurrence multiplicity."
+    }
+  },
+  "versioned_render_evidence": {
+    "utc": "2026-10-20T01:18:04.769186+00:00",
+    "base_policy_sha256": "9e308bb248488acc32c61ecc2766514dbd90cc070aab4c50fb4c1d432ea82031",
+    "oracle_receipt": "targeted-oracle/receipt.json",
+    "oracle_receipt_sha256": "80095b055cf494be2d1c8de7750e380a1926524e8ad6bcf523f1d11be38a69dc",
+    "normalization": "Unicode whitespace runs collapse to one ASCII space; preserve all nonwhitespace characters, word/number order and exact occurrences.",
+    "pdf_render_cases": 2,
+    "limits": "HTML row does not gain PDF text certification; original policy classifications/gaps/errors and every immutable source/oracle receipt remain unchanged."
+  }
+}

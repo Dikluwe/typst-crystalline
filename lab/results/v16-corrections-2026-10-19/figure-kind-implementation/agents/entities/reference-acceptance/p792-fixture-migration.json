@@ -1,0 +1,13 @@
+{
+  "rejected_reconstruction_sha256": "5e87b4e790d9929858cb5e7941366cf6d5adfccae248de6f73658d3300f24978",
+  "red_frozen_expected_sha256": "2d6ebd463d0ceccb56ad5973fdbe1b0bfb27fc921eb35b01cd048540811513b4",
+  "exact_reconstruction_verified": false,
+  "original_source": "reference-phase-red-frozen/state.json.gz",
+  "oracle_refutation": "oracle/receipt.json case context-language-pt-fr",
+  "corrected_current_sha256": "420cf5b432d9553b4af892ee357ddeb43a84fcd8cdf631abdc7ec8288b6e0c38",
+  "rejected_literal": "#let captured = context { set text(lang: \"pt\"); let lang1 = text.lang; set text(lang: \"fr\"); let lang2 = text.lang; (lang1, lang2) }",
+  "corrected_literal": "#set text(lang: \"pt\")\n#context text.lang\n#set text(lang: \"fr\")\n#context text.lang",
+  "pre_archive_limit": "The full reconstructed rejected Rust source did not match the earlier frozen whole-file hash and is explicitly not certified as an exact earlier snapshot. The immutable oracle fixture and full command receipt preserve the actual language refutation; corrected full Rust source is archived exactly at migration.",
+  "fresh_corrected_oracle": "additional-oracle/receipt.json case context-language-pt-fr-captured-sites (compile success; real PT FR output)",
+  "utc_updated": "2026-10-20T00:50:56.939755+00:00"
+}

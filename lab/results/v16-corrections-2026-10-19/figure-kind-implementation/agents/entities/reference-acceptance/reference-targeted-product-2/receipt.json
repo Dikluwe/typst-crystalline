@@ -1,0 +1,122 @@
+{
+  "utc_start": "2026-10-20T00:59:01.241196+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "product": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+  "product_sha256": "c955314ccfe08a7ae0ff1a1ba3235355020a5962dda07f956f469de0401ac855",
+  "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-build-2/receipt.json",
+  "build_receipt_sha256": "05f73bd08f3920d103d969c42211746d8741d3ba93d5beb2c042802d9d700d73",
+  "historical_baseline": false,
+  "oracle_receipt_sha256": "80095b055cf494be2d1c8de7750e380a1926524e8ad6bcf523f1d11be38a69dc",
+  "matrix_sha256": "ad29f6adc99c1c10337e206fe7eff6dab090d935bd3e41f656d49df12793db19",
+  "policies_sha256": "9e308bb248488acc32c61ecc2766514dbd90cc070aab4c50fb4c1d432ea82031",
+  "runner_sha256": "6cbe77837955541eb6f94cf8dc3dc756aad5b8a04e67f827d1294fcc6e5d8a67",
+  "cases": [
+    {
+      "name": "raw-namespace-kind-reference",
+      "policy": {
+        "class": "required-language",
+        "criterion": "actual success, exact typed language counts/distinct Location cardinality and retained rendered content",
+        "render_token_counts": {
+          "OUTER": 1
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:01.372793+00:00",
+          "utc_end": "2026-10-20T00:59:01.938796+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-namespace-kind-reference.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/reference-targeted-product-2/raw-namespace-kind-reference.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-namespace-kind-reference.typ:1:0\n  \u2502  \n1 \u2502 \u256d #figure([OUTER],kind:raw)<outer>\n2 \u2502 \u2502 @outer\n3 \u2502 \u2502 #context [#metadata((query(figure).len(),counter(figure.where(kind:raw)).final(),query(figure).map(it=>it.location()).dedup().len())) <probe>]\n4 \u2502 \u2502 \n  \u2502 \u2570^\n\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:59:01.938810+00:00",
+          "utc_end": "2026-10-20T00:59:02.511800+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-namespace-kind-reference.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-namespace-kind-reference.typ:1:0\n  \u2502  \n1 \u2502 \u256d #figure([OUTER],kind:raw)<outer>\n2 \u2502 \u2502 @outer\n3 \u2502 \u2502 #context [#metadata((query(figure).len(),counter(figure.where(kind:raw)).final(),query(figure).map(it=>it.location()).dedup().len())) <probe>]\n4 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/raw-namespace-kind-reference.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_OUTER": false
+      },
+      "pass": false
+    },
+    {
+      "name": "two-fresh-captions-raw-context-template",
+      "policy": {
+        "class": "required-language",
+        "criterion": "actual success, exact typed language counts/distinct Location cardinality and retained rendered content",
+        "render_token_counts": {
+          "INNER": 2,
+          "OUTER": 2,
+          "INNER-CAP": 2,
+          "OUTER-CAP": 2
+        }
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T00:59:02.512172+00:00",
+          "utc_end": "2026-10-20T00:59:02.527822+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-fresh-captions-raw-context-template.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/reference-targeted-product-2/two-fresh-captions-raw-context-template.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-fresh-captions-raw-context-template.typ:1:0\n  \u2502  \n1 \u2502 \u256d #let inner=context figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])\n2 \u2502 \u2502 #let outer=figure([OUTER],kind:image,caption:[OUTER-CAP],supplement:inner)\n3 \u2502 \u2502 #outer\n4 \u2502 \u2502 #outer\n5 \u2502 \u2502 #context [#metadata((query(figure).len(),counter(figure.where(kind:table)).final(),counter(figure.where(kind:image)).final(),query(figure).map(it=>it.location()).dedup().len())) <probe>]\n6 \u2502 \u2502 \n  \u2502 \u2570^\n\n"
+        },
+        {
+          "utc_start": "2026-10-20T00:59:02.527836+00:00",
+          "utc_end": "2026-10-20T00:59:02.543495+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-fresh-captions-raw-context-template.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: contextual stability could not be verified\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-fresh-captions-raw-context-template.typ:1:0\n  \u2502  \n1 \u2502 \u256d #let inner=context figure([INNER],kind:table,caption:[INNER-CAP],supplement:[Inner])\n2 \u2502 \u2502 #let outer=figure([OUTER],kind:image,caption:[OUTER-CAP],supplement:inner)\n3 \u2502 \u2502 #outer\n4 \u2502 \u2502 #outer\n5 \u2502 \u2502 #context [#metadata((query(figure).len(),counter(figure.where(kind:table)).final(),counter(figure.where(kind:image)).final(),query(figure).map(it=>it.location()).dedup().len())) <probe>]\n6 \u2502 \u2502 \n  \u2502 \u2570^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/two-fresh-captions-raw-context-template.typ` instead\n\n"
+        }
+      ],
+      "checks": {
+        "compile_success": false,
+        "language_values": false,
+        "render_INNER": false,
+        "render_OUTER": false,
+        "render_INNER-CAP": false,
+        "render_OUTER-CAP": false
+      },
+      "pass": false
+    }
+  ],
+  "utc_end": "2026-10-20T00:59:02.543855+00:00",
+  "oracle_comparison_failures": [
+    "raw-namespace-kind-reference",
+    "two-fresh-captions-raw-context-template"
+  ],
+  "required_failures": [
+    "raw-namespace-kind-reference",
+    "two-fresh-captions-raw-context-template"
+  ]
+}

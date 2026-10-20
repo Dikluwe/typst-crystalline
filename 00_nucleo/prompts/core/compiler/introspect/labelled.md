@@ -1,5 +1,5 @@
 # L0 — introspect/labelled
-Hash do Código: 98bf0d4c
+Hash do Código: ff62dce8
 
 ```text
 Núcleos Tekt:
@@ -220,3 +220,25 @@ source freeze and diff --check. Heavy tasks sequential under
 MemoryMax 12 GiB/High 10 GiB/swap0/jobs1. No commit/push/merge/release. Global and
 preceding work remain active; this scope certifies neither universal bibliography
 nor references.
+
+
+## Approved Figure/Grid occurrence counter correction
+
+### Evidence before decision
+
+Baseline HEAD `731f0ffdf4c7c152f590551e72ff63f7bd85ef85`; the reviewed current-pin measurements and exact source anchors are retained in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, `agents/counter/design.md` and `agents/counter/counter-probes.json`. In that evidence, captionless/numbered Figures count; manual Set/Func actions make caption ordinal indexing incorrect; typed element kinds and custom names require distinct keys. These are language values/errors, not Rust or rendering-byte equality. The human explicitly approved the complete Figure/Grid contracts, phases and compatibility changes in the current implementation session. This approval satisfies ADR-0127 for this exact scope. Historical conflicting caption-only or productive string-projection clauses are superseded only as described here; unrelated contracts remain.
+
+### Exclusive responsibility
+
+Prepared Figure labels retain typed counter identity; pure walk must not synthesize final text/numbers from incomplete Func history or add an empty placeholder that suppresses errors. Synthetic unprepared data alone may retain documented legacy string projection. Preserve Source transparency and Heading/Equation paths.
+
+### Acceptance and limits
+
+L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.
+
+
+## Approved labeled reference contribution identity
+
+Measured source before decision: `01_core/src/compiler/introspect/labelled.rs:228` selects the first descendant Tag for an automatic label; a nonlocatable Ref otherwise publishes no queried source object. The pinned oracle `agents/entities/reference-acceptance/oracle/receipt.json` under current Figure implementation evidence records label-on-reference with query(<reference-label>).len1 and queried .func()==ref. The approved Ref proposal explicitly requires that morphology and prohibits retargeting a label to internal Context transport or inserted Figure.
+
+For a Ref original with a real Located execution identity retained through the approved Realized transport, register that labeled raw Ref snapshot and Label at that same actual Location, then walk its actual contribution without propagating the language label to inserted descendants. Do not make unlabelled Ref or generated Context semantically locatable, fabricate ElementPayload/automatic actions, derive Location from hash, or allocate an unstable second label identity. Preserve ordinary label/duplicate-first semantics outside this exact source Ref case. The walker must still register internal execution transport even if a labeled Ref semantic entry already occupies its Location. Keep original Ref fields and label morphology, Source provenance and generic terminal Ref maps.

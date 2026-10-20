@@ -1,0 +1,29 @@
+Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=8d534ae8 hash-b=96fcb2fb
+Applied ./01_core/src/compiler/eval/context_reads.rs prompt=00_nucleo/prompts/core/compiler/eval/context_reads.md hash-a=26931f3f hash-b=4553a1e9
+Applied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=0b9929a7 hash-b=38506014
+Applied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=32fd9b29 hash-b=16f4e8e2
+Applied ./01_core/src/compiler/eval/mod.rs prompt=00_nucleo/prompts/core/compiler/eval/mod.md hash-a=db761ae7 hash-b=a1a8f0c7
+Applied ./01_core/src/compiler/eval/tests.rs prompt=00_nucleo/prompts/core/compiler/eval/tests.md hash-a=e5db0966 hash-b=ce73c582
+Applied ./01_core/src/compiler/introspect/convergence.rs prompt=00_nucleo/prompts/core/compiler/introspect/convergence.md hash-a=9870343e hash-b=02a01ba6
+Applied ./01_core/src/compiler/introspect/extract_payload.rs prompt=00_nucleo/prompts/core/compiler/introspect/extract_payload.md hash-a=ed27bd64 hash-b=63b2541f
+Applied ./01_core/src/compiler/introspect/figure_demands.rs prompt=00_nucleo/prompts/core/compiler/introspect/figure_demands.md hash-a=6da6484a hash-b=0882b6d7
+Applied ./01_core/src/compiler/introspect/labelled.rs prompt=00_nucleo/prompts/core/compiler/introspect/labelled.md hash-a=e1686ee9 hash-b=ff62dce8
+Applied ./01_core/src/compiler/introspect/locatable.rs prompt=00_nucleo/prompts/core/compiler/introspect/locatable.md hash-a=6fd8a9da hash-b=75e75fd9
+Applied ./01_core/src/compiler/introspect/walk.rs prompt=00_nucleo/prompts/core/compiler/introspect/walk.md hash-a=c298cdfd hash-b=1ea09d57
+Applied ./01_core/src/compiler/introspect.rs prompt=00_nucleo/prompts/core/compiler/introspect.md hash-a=a634f9a8 hash-b=533b8a8c
+Applied ./01_core/src/compiler/layout/references.rs prompt=00_nucleo/prompts/core/compiler/layout/references.md hash-a=3b12441e hash-b=ec64300c
+Applied ./01_core/src/compiler/layout/tests.rs prompt=00_nucleo/prompts/core/compiler/layout/tests.md hash-a=d443061c hash-b=be7de2de
+Applied ./01_core/src/compiler/realize/context_occurrences.rs prompt=00_nucleo/prompts/core/compiler/realize/context_occurrences.md hash-a=5e12e958 hash-b=ed023763
+Applied ./01_core/src/compiler/realize/figure.rs prompt=00_nucleo/prompts/core/compiler/realize/figure.md hash-a=07cbbad6 hash-b=61100b5d
+Applied ./01_core/src/compiler/realize/mod.rs prompt=00_nucleo/prompts/core/compiler/realize/mod.md hash-a=38f6e4e6 hash-b=43b82123
+Applied ./01_core/src/compiler/realize/recipes.rs prompt=00_nucleo/prompts/core/compiler/realize/recipes.md hash-a=06b9528f hash-b=613de8c6
+Applied ./01_core/src/compiler/realize/reference_supplements.rs prompt=00_nucleo/prompts/core/compiler/realize/reference_supplements.md hash-a=8d2730c8 hash-b=545c6a3e
+Applied ./01_core/src/compiler/stdlib/figure_image.rs prompt=00_nucleo/prompts/core/compiler/stdlib/figure_image.md hash-a=ad7423e0 hash-b=c3a8e6b7
+Applied ./01_core/src/entities/content/traversal.rs prompt=00_nucleo/prompts/core/entities/content/traversal.md hash-a=3e75afab hash-b=3909498f
+Applied ./03_infra/src/integration_tests.rs prompt=00_nucleo/prompts/infra/integration_tests.md hash-a=556862a9 hash-b=0b1b51d0
+Applied ./03_infra/src/pipeline/bundle.rs prompt=00_nucleo/prompts/infra/pipeline/bundle.md hash-a=2544b914 hash-b=62d659d7
+Applied ./03_infra/src/pipeline/context_stabilization.rs prompt=00_nucleo/prompts/infra/pipeline/context_stabilization.md hash-a=eddfb819 hash-b=7e719c9e
+Applied ./03_infra/src/pipeline/paged.rs prompt=00_nucleo/prompts/infra/pipeline/paged.md hash-a=0767b0e4 hash-b=0008bec4
+Applied ./03_infra/src/pipeline.rs prompt=00_nucleo/prompts/infra/pipeline.md hash-a=4dfbf129 hash-b=dde3a132
+
+Re-running analysis... ✅ 0 drift warnings remaining

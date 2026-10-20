@@ -1,12 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/mod.md
-//! @prompt-hash 713b28fe
+//! @prompt-hash 38f6e4e6
 //! @layer L1
 //! @updated 2026-10-10
 
 pub(in crate::compiler) mod bare_math;
 pub mod context_occurrences;
+pub(in crate::compiler) mod figure;
+pub(in crate::compiler) mod figure_kind;
 pub(in crate::compiler) mod recipes;
+pub mod reference_supplements;
 pub(in crate::compiler) mod sequences;
 mod table_cells;
 

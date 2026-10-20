@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-20T00:51:31.542413+00:00",
+  "reason": "Stopped after repeated compile-only E0308/E0599; no semantic RED/GREEN count claimed. Core and infra frozen receipts retained.",
+  "changed_inputs": [],
+  "new_error_classes": [
+    "Args has no Default",
+    "LocatedContent contains IntrospectedContent, distinct from Content"
+  ],
+  "final_gates_run": false
+}

@@ -1,0 +1,28 @@
+    Checking typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Checking font-types v0.11.3
+    Checking ring v0.17.14
+    Checking read-fonts v0.39.2
+    Checking rustls-webpki v0.103.13
+    Checking tiny-skia-path v0.12.0
+    Checking rustls v0.23.42
+    Checking write-fonts v0.48.1
+    Checking skrifa v0.42.1
+    Checking rustybuzz v0.20.1
+    Checking image v0.24.9
+    Checking tiny-skia v0.12.0
+    Checking subsetter v0.2.6
+    Checking ureq v2.12.1
+    Checking typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+error: this block may be rewritten with the `?` operator
+   --> 03_infra/src/pipeline/paged.rs:549:21
+    |
+549 | /                     if let Err(errors) = snapshot {
+550 | |                         return Err(errors);
+551 | |                     }
+    | |_____________________^ help: replace it with: `snapshot?;`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#question_mark
+    = note: `-D clippy::question-mark` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::question_mark)]`
+
+error: could not compile `typst-infra` (lib) due to 1 previous error

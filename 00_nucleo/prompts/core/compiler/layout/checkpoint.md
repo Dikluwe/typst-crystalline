@@ -1,5 +1,5 @@
 # L0 — compiler/layout/checkpoint
-Hash do Código: 939c99d8
+Hash do Código: 0e8d050d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -77,3 +77,20 @@ Causal-width and auto-alignment refinements preserve complete bilateral controls
 Bibliography plan acceptance covers functional relative-gutter/interentry-margin RED, public legacy Content/signatures, prefix-free CSL, Hanging/Plain discriminants, empty/order/citations/rollback and bilateral list boxes/text while preserving indent/citation-grouping divergences. Private plan transport does not certify title margins, complete CSL, per-occurrence attribution/multiple bibliographies or all hanging composition/overrides. Do not impose greedy fallback to mask initial-advance support. Prefix/body share actual admitted page and preserve continuation inset/OUTSIDE, Simple/Optimized, PDF90/150/250, RTL, prefix-only/formatted/color and prior controls, without repeated eval/show or new effects. Hanging State is limited to its pinned initial/continuation contract, including signs/lexical boundaries/restoration; Latin RTL needs nucleus conditions without active BidiCursor/tracking or invented BidiSpan. Off-page paint requires frame/SVG inspection, not clipped-extraction equality; do not anticipate separate R3-T1 scope.
 
 For these bibliography/hanging gates, L0 first and RED→GREEN, V15/V26 before resealing, build/workspace/doctests/strict Clippy/Rustdoc/fmt/strict-reverse V1/V5/V15/V26/differential Tekt (hanging pin1279707), with SARIF no new error/warning. Grouped-arm execution never proves every class/variant; test each relevant nominal class. Heavy commands sequential under MemoryMax12GiB/High8GiB/swap0/jobs1/debug0/incremental0. No commit/push/release/publication. Preserve all unresolved scopes rather than closing the overall objective through carrier-only tests.
+
+
+## Approved Figure/Grid occurrence counter correction
+
+### Evidence before decision
+
+Baseline HEAD `731f0ffdf4c7c152f590551e72ff63f7bd85ef85`; the reviewed current-pin measurements and exact source anchors are retained in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, `agents/counter/design.md` and `agents/counter/counter-probes.json`. In that evidence, captionless/numbered Figures count; manual Set/Func actions make caption ordinal indexing incorrect; typed element kinds and custom names require distinct keys. These are language values/errors, not Rust or rendering-byte equality. The human explicitly approved the complete Figure/Grid contracts, phases and compatibility changes in the current implementation session. This approval satisfies ADR-0127 for this exact scope. Historical conflicting caption-only or productive string-projection clauses are superseded only as described here; unrelated contracts remain.
+
+### Exclusive responsibility
+
+Checkpoint copy/restore retains synthetic-only figure_progress exactly; prepared productive Figure layout never reads/increments it. Existing page/layout/measurement rollback remains intact.
+
+### Acceptance and limits
+
+L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.
+
+Checkpoint also preserves the private scoped transported_root_location used solely through a Located root's transparent source/style/recipe transport; rollback neither allocates a replacement identity nor passes the parent's identity to an ordinary child.

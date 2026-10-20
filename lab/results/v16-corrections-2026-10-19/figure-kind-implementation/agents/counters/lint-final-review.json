@@ -1,0 +1,1141 @@
+{
+  "review_utc": "2026-10-20T00:28:35.650619+00:00",
+  "review_state": "Independent evidence-only differential review of frozen lint-final-2; final1 review preserved separately. No source/L0 writes, lint command, suppression or runtime test run by reviewer.",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "state": "uncommitted working tree",
+  "diff_head_stat_at_review": " .../core/compiler/eval/bindings/field_access.md    |  17 +-\n .../eval/bindings/field_access/content_methods.md  |  17 +-\n .../compiler/eval/bindings/field_access/fields.md  |  21 +-\n 00_nucleo/prompts/core/compiler/eval/mod.md        |  23 +-\n .../core/compiler/eval/observation/content.md      |  28 +-\n .../core/compiler/eval/observation/elements.md     |  47 +-\n .../core/compiler/eval/observation/style.md        |  20 +-\n .../core/compiler/eval/operators/equality.md       |  17 +-\n .../prompts/core/compiler/eval/rules/apply.md      |  38 +-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  19 +-\n .../core/compiler/eval/selector_matching.md        |  19 +-\n 00_nucleo/prompts/core/compiler/eval/tests.md      |  26 +-\n 00_nucleo/prompts/core/compiler/introspect.md      |  22 +-\n .../core/compiler/introspect/convergence.md        |  26 +-\n .../core/compiler/introspect/entrypoints.md        |  17 +-\n .../core/compiler/introspect/extract_payload.md    |  17 +-\n .../prompts/core/compiler/introspect/fixpoint.md   |  17 +-\n .../prompts/core/compiler/introspect/labelled.md   |  17 +-\n .../prompts/core/compiler/introspect/locatable.md  |  15 +\n .../core/compiler/introspect/materialize_time.md   |  28 +-\n .../prompts/core/compiler/introspect/populate.md   |  22 +-\n .../prompts/core/compiler/introspect/queries.md    |  17 +-\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  39 +-\n .../prompts/core/compiler/layout/checkpoint.md     |  19 +-\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  17 +-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  25 +-\n .../prompts/core/compiler/layout/placement.md      |  17 +-\n .../prompts/core/compiler/layout/references.md     |  22 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  28 +-\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  17 +-\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  27 +-\n .../prompts/core/compiler/stdlib/figure_image.md   |  19 +-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  17 +-\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  17 +-\n .../core/compiler/stdlib/tests/figure_image.md     |  16 +-\n .../prompts/core/entities/content/construction.md  |  17 +-\n .../core/entities/content/tests/representation.md  |  17 +-\n .../core/entities/content/tests/traversal.md       |  17 +-\n .../prompts/core/entities/content/traversal.md     |  17 +-\n 00_nucleo/prompts/core/entities/element_payload.md |  31 +-\n 00_nucleo/prompts/core/entities/elements/figure.md |  39 +-\n 00_nucleo/prompts/core/entities/elements/grid.md   |  22 +-\n 00_nucleo/prompts/core/entities/introspector.md    |  24 +-\n 00_nucleo/prompts/core/entities/style_chain.md     |  21 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  62 +-\n 00_nucleo/prompts/infra/export/tests/mod.md        |  17 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  17 +-\n .../infra/pipeline/context_stabilization.md        |  39 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |   9 +-\n 00_nucleo/prompts/shell/cli.md                     |  17 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |  45 +-\n .../eval/bindings/field_access/content_methods.rs  |  28 +-\n .../compiler/eval/bindings/field_access/fields.rs  |  23 +-\n 01_core/src/compiler/eval/mod.rs                   |   3 +-\n 01_core/src/compiler/eval/observation/content.rs   | 173 +++-\n 01_core/src/compiler/eval/observation/elements.rs  | 230 ++++-\n 01_core/src/compiler/eval/observation/style.rs     |  78 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 128 ++-\n 01_core/src/compiler/eval/rules/apply.rs           | 185 ++--\n 01_core/src/compiler/eval/rules/set.rs             |  59 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 124 ++-\n 01_core/src/compiler/eval/tests.rs                 |  86 +-\n 01_core/src/compiler/introspect.rs                 | 962 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  83 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  40 +-\n 01_core/src/compiler/introspect/extract_payload.rs |   9 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  32 +-\n 01_core/src/compiler/introspect/labelled.rs        |  22 +-\n 01_core/src/compiler/introspect/locatable.rs       |   2 +-\n .../src/compiler/introspect/materialize_time.rs    |  90 +-\n 01_core/src/compiler/introspect/populate.rs        |  61 +-\n 01_core/src/compiler/introspect/queries.rs         |  45 +-\n 01_core/src/compiler/introspect/walk.rs            |  45 +-\n 01_core/src/compiler/layout/checkpoint.rs          |   8 +-\n 01_core/src/compiler/layout/figure.rs              | 338 +++++++-\n 01_core/src/compiler/layout/measurement.rs         |   7 +-\n 01_core/src/compiler/layout/mod.rs                 |  35 +-\n 01_core/src/compiler/layout/placement.rs           |   3 +-\n 01_core/src/compiler/layout/references.rs          | 142 ++-\n 01_core/src/compiler/layout/tests.rs               | 372 +++++++-\n 01_core/src/compiler/realize/mod.rs                |   4 +-\n 01_core/src/compiler/realize/recipes.rs            |  39 +-\n 01_core/src/compiler/stdlib/figure_image.rs        | 326 +++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  16 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   5 +-\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 114 ++-\n 01_core/src/entities/content/construction.rs       |  13 +-\n .../src/entities/content/tests/representation.rs   |   8 +-\n 01_core/src/entities/content/tests/traversal.rs    |  36 +-\n 01_core/src/entities/content/traversal.rs          |  13 +-\n 01_core/src/entities/element_payload.rs            |  46 +-\n 01_core/src/entities/elements/figure.rs            | 539 +++++++++++-\n 01_core/src/entities/elements/grid.rs              |  61 +-\n 01_core/src/entities/introspector.rs               |  11 +-\n 01_core/src/entities/style_chain.rs                |  33 +-\n 02_shell/src/cli.rs                                |  89 +-\n 03_infra/src/export/html/document.rs               | 139 ++-\n 03_infra/src/export/tests/mod.rs                   |  29 +-\n 03_infra/src/pipeline/bundle.rs                    |  13 +-\n 03_infra/src/pipeline/context_stabilization.rs     | 277 +++++-\n 03_infra/src/pipeline/paged.rs                     | 335 +++----\n 102 files changed, 5931 insertions(+), 838 deletions(-)\n",
+  "scope": {
+    "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/scope.json",
+    "sha256": "3f54453817b46b472a95c8fc6e85506b3c3caa2f594f80227ef61a0ae6e2d9cf",
+    "pairs": 55
+  },
+  "baseline": {
+    "path": "lab/results/v16-corrections-2026-10-19/figure-kind/validation/full-lint.sarif.gz",
+    "sha256": "cf4bf5515a3c479d044d2c9d580002387e3f7f72fb68c87835c8f6173e88a569",
+    "global_counts": {
+      "V16:error": 20,
+      "V19:note": 1262,
+      "V20:note": 877
+    },
+    "scope_counts": {
+      "V16:error": 10,
+      "V19:note": 365,
+      "V20:note": 135
+    }
+  },
+  "final": {
+    "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/lint-final-2/after.sarif.gz",
+    "sha256": "73ac0a3203eded19bc59f3690ec968db734af44166802f4e8a4c5d14dde67855",
+    "state_path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/lint-final-2/lint-state.json.gz",
+    "state_sha256": "9d340ab1967006640c09810a1df40e50631191554c778e20ace4f00438ad5178",
+    "utc_start": "2026-10-20T00:27:32.804724+00:00",
+    "utc_end": "2026-10-20T00:27:38.746157+00:00",
+    "linter_sha256": "421d0797e7ae1a5102e9c5bcd87b488fea70a1997394c38765a03239fe579121",
+    "command": [
+      "/repos/Antigravity/typst-crystalline/lab/target/linter/debug/crystalline-lint",
+      ".",
+      "--format",
+      "sarif"
+    ],
+    "changed_inputs_during_lint": [],
+    "global_counts": {
+      "V16:error": 19,
+      "V19:note": 1306,
+      "V20:note": 904
+    },
+    "scope_counts": {
+      "V16:error": 9,
+      "V19:note": 409,
+      "V20:note": 162
+    }
+  },
+  "outside_scope": {
+    "comparison": "Exact complete canonical JSON result object multiset, including locations/columns/lines/message/level; not merely source/message keys.",
+    "baseline_occurrences": 1649,
+    "final_occurrences": 1649,
+    "removed_occurrences": 0,
+    "added_occurrences": 0,
+    "baseline_canonical_multiset_sha256": "e50fefad7beb9a168c19a90e20ae18618d7bfb796942cde14ca7aaf212af46ca",
+    "final_canonical_multiset_sha256": "e50fefad7beb9a168c19a90e20ae18618d7bfb796942cde14ca7aaf212af46ca"
+  },
+  "inside_scope": {
+    "comparison": "Exact (source,ruleId,level,message) multiset; line shifts ignored. Repeated equal messages retain delta multiplicity; all_snapshot_occurrence_lines includes unchanged identical occurrences when only multiplicity changed.",
+    "baseline_occurrences": 510,
+    "final_occurrences": 580,
+    "unchanged_occurrences": 504,
+    "removed_occurrences": 6,
+    "added_occurrences": 76,
+    "removed_counts": {
+      "V16": 1,
+      "V19": 3,
+      "V20": 2
+    },
+    "added_counts": {
+      "V16": 0,
+      "V19": 47,
+      "V20": 29
+    }
+  },
+  "current_sources_or_owners_differing_from_final_input_hashes": [],
+  "removed": [
+    {
+      "id": "removed-01",
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        239
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 98; guard: ausente; padr\u00e3o: `other @ (Content::Empty\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Sequence(..)\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathSequence(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::Figure(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..))`.",
+      "assessment": "Figure field dispatch extracted from the old grouped fallback; retained fallback is 97 instead of 98 alternatives.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "removed-02",
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        239
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `other @ (Content::Empty\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Sequence(..)\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathSequence(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::Figure(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..))` fora de contexto-tabela",
+      "assessment": "Figure field dispatch extracted from the old grouped fallback; retained fallback is 97 instead of 98 alternatives.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "removed-03",
+      "source": "01_core/src/compiler/eval/selector_matching.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        449
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 47; guard: ausente; padr\u00e3o: `Content::Space\n        | Content::SpaceFromNewline\n        | Content::HtmlElem(_)\n        | Content::HtmlFrame(_)\n        | Content::Par { .. }\n        | Content::Heading(_)\n        | Content::Title(_)\n        | Content::Strong(_)\n        | Content::Emph(_)\n        | Content::Raw(_)\n        | Content::ListItem(_)\n        | Content::EnumItem(_)\n        | Content::Link(_)\n        | Content::MathSequence(_)\n        | Content::MathIdent(_)\n        | Content::MathText(_)\n        | Content::MathDelimited(_)\n        | Content::MathAlignPoint(_)\n        | Content::MathUnderover(_)\n        | Content::MathStyled(_)\n        | Content::Label(_)\n        | Content::CounterDisplay(_)\n        | Content::CounterUpdate(_)\n        | Content::Figure(_)\n        | Content::FigureCaption(_)\n        | Content::Curve(_)\n        | Content::SetPage(_)\n        | Content::Flush(_)\n        | Content::Divider(_)\n        | Content::TermItem(_)\n        | Content::Quote(_)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::PdfAttach(_)\n        | Content::PdfArtifact(_)\n        | Content::Underline(_)\n        | Content::Strike(_)\n        | Content::Overline(_)\n        | Content::SmallCaps { .. }\n        | Content::Footnote(_)\n        | Content::FootnoteEntry(_)\n        | Content::State(_)\n        | Content::StateUpdate(_)\n        | Content::StateDisplay(_)\n        | Content::CounterDisplayCallback(_)\n        | Content::ContextBlock(_)\n        | Content::Dynamic(_)`.",
+      "assessment": "Fifteen Content variants moved from the false group into concrete native-constructor matching; remaining 32 alternatives still emit V19.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "removed-04",
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        30
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela",
+      "assessment": "Numbering style gates, rich Content prefix absence and explicit unresolved synthetic FigureKind boundary; deep nominal patterns remain visible as notes.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "removed-05",
+      "source": "01_core/src/compiler/realize/recipes.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        62
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 116; guard: ausente; padr\u00e3o: `Content::Source(_)\n                | Content::ShowRecipe(_)\n                | Content::Realized(_)\n                | Content::Empty\n                | Content::Text(_)\n                | Content::Space\n                | Content::SpaceFromNewline\n                | Content::Parbreak\n                | Content::HtmlElem(_)\n                | Content::HtmlFrame(_)\n                | Content::Par { .. }\n                | Content::Heading(_)\n                | Content::Title(_)\n                | Content::Strong(_)\n                | Content::Emph(_)\n                | Content::Raw(_)\n                | Content::ListItem(_)\n                | Content::EnumItem(_)\n                | Content::Link(_)\n                | Content::MathSequence(_)\n                | Content::MathIdent(_)\n                | Content::MathText(_)\n                | Content::MathFrac(_)\n                | Content::MathAttach(_)\n                | Content::MathPrimes(_)\n                | Content::MathRoot(_)\n                | Content::MathStretch(_)\n                | Content::MathDelimited(_)\n                | Content::MathLr(_)\n                | Content::MathMid(_)\n                | Content::MathOverbrace(_)\n                | Content::MathUnderbrace(_)\n                | Content::MathUnderbracket(_)\n                | Content::MathUnderparen(_)\n                | Content::MathUndershell(_)\n                | Content::MathOverbracket(_)\n                | Content::MathOverparen(_)\n                | Content::MathOvershell(_)\n                | Content::MathAlignPoint(_)\n                | Content::Linebreak(_)\n                | Content::MathMatrix(_)\n                | Content::MathCases(_)\n                | Content::MathAccent(_)\n                | Content::MathCancel(_)\n                | Content::MathUnderline(_)\n                | Content::MathOverline(_)\n                | Content::MathVec(_)\n                | Content::MathClassOverride(_)\n                | Content::MathLimitsOverride(_)\n                | Content::MathUnderover(_)\n                | Content::MathOp(_)\n                | Content::MathStyled(_)\n                | Content::Label(_)\n                | Content::Ref(_)\n                | Content::CounterDisplay(_)\n                | Content::CounterUpdate(_)\n                | Content::Outline(_)\n                | Content::OutlineEntry(_)\n                | Content::Figure(_)\n                | Content::FigureCaption(_)\n                | Content::Image(_)\n                | Content::Shape(_)\n                | Content::Curve(_)\n                | Content::Transform(_)\n                | Content::Grid(_)\n                | Content::GridHeader(_)\n                | Content::GridFooter(_)\n                | Content::GridCell(_)\n                | Content::SetPage(_)\n                | Content::PageRun(_)\n                | Content::Align(_)\n                | Content::Place(_)\n                | Content::Flush(_)\n                | Content::Divider(_)\n                | Content::Terms(_)\n                | Content::TermItem(_)\n                | Content::Quote(_)\n                | Content::Document { .. }\n                | Content::Asset { .. }\n                | Content::SmartQuote(_)\n                | Content::PdfAttach(_)\n                | Content::PdfArtifact(_)\n                | Content::Underline(_)\n                | Content::Strike(_)\n                | Content::Overline(_)\n                | Content::SmallCaps { .. }\n                | Content::Pad(_)\n                | Content::Hide(_)\n                | Content::HSpace(_)\n                | Content::VSpace(_)\n                | Content::Pagebreak(_)\n                | Content::Colbreak(_)\n                | Content::Stack(_)\n                | Content::Boxed(_)\n                | Content::Block(_)\n                | Content::TableCell(_)\n                | Content::Bibliography(_)\n                | Content::Cite(_)\n                | Content::Footnote(_)\n                | Content::FootnoteEntry(_)\n                | Content::TableHeader(_)\n                | Content::TableFooter(_)\n                | Content::GridHLine(_)\n                | Content::GridVLine(_)\n                | Content::TableHLine(_)\n                | Content::TableVLine(_)\n                | Content::Table(_)\n                | Content::Repeat(_)\n                | Content::Columns(_)\n                | Content::Metadata(_)\n                | Content::State(_)\n                | Content::StateUpdate(_)\n                | Content::StateDisplay(_)\n                | Content::CounterDisplayCallback(_)\n                | Content::ContextBlock(_)\n                | Content::Dynamic(_)`.",
+      "assessment": "Figure removed from the generic child fallback and dispatched to its owner-specific actual emitted children realization. The large remainder still emits V19; no wildcard/suppression replaces it.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "removed-06",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V16",
+      "level": "error",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        69
+      ],
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    }
+  ],
+  "added": [
+    {
+      "id": "added-01",
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        89
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `\"body\" | \"caption\" | \"kind\" | \"supplement\"`.",
+      "assessment": "Figure field dispatch extracted from the old grouped fallback; retained fallback is 97 instead of 98 alternatives.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-02",
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        249
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 97; guard: ausente; padr\u00e3o: `other @ (Content::Empty\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Sequence(..)\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathSequence(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..))`.",
+      "assessment": "Figure field dispatch extracted from the old grouped fallback; retained fallback is 97 instead of 98 alternatives.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-03",
+      "source": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        249
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `other @ (Content::Empty\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Sequence(..)\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathSequence(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..))` fora de contexto-tabela",
+      "assessment": "Figure field dispatch extracted from the old grouped fallback; retained fallback is 97 instead of 98 alternatives.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-04",
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        943
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Self::Auto | Self::Content(_) | Self::Func { .. }`.",
+      "assessment": "Different FigureSupplement variants remain explicit Different observations; grouped mismatches are not evidence of testing every pair.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-05",
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        957
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Self::Auto | Self::None | Self::Content(_)`.",
+      "assessment": "Different FigureSupplement variants remain explicit Different observations; grouped mismatches are not evidence of testing every pair.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-06",
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        949
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Self::Auto | Self::None | Self::Func { .. }`.",
+      "assessment": "Different FigureSupplement variants remain explicit Different observations; grouped mismatches are not evidence of testing every pair.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-07",
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        937
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Self::None | Self::Content(_) | Self::Func { .. }`.",
+      "assessment": "Different FigureSupplement variants remain explicit Different observations; grouped mismatches are not evidence of testing every pair.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-08",
+      "source": "01_core/src/compiler/eval/observation/style.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        22
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `(Some(_), None) | (None, Some(_))`.",
+      "assessment": "Different raw StyleChain lengths explicitly return Different in either direction; all paired deltas retain strict per-value observation, including shadowed opaque Unproven values.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-09",
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        207
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `(Value::Func(_), Value::Str(_)) | (Value::Str(_), Value::Func(_))`.",
+      "assessment": "Nominal Func/String separation and recursive Figure-selector classification; grouped selectors retain their explicit owning recursion.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-10",
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        233
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Selector::And(selectors) | Selector::Or(selectors)`.",
+      "assessment": "Nominal Func/String separation and recursive Figure-selector classification; grouped selectors retain their explicit owning recursion.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-11",
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        226
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Selector::NativeElement(function) | Selector::Element { function, .. }`.",
+      "assessment": "Nominal Func/String separation and recursive Figure-selector classification; grouped selectors retain their explicit owning recursion.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-12",
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        236
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Selector::Label(_) | Selector::Location(_) | Selector::Regex(_)`.",
+      "assessment": "Nominal Func/String separation and recursive Figure-selector classification; grouped selectors retain their explicit owning recursion.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-13",
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        229
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `Selector::Where { base, .. }\n        | Selector::Within { base, .. }\n        | Selector::Before { base, .. }\n        | Selector::After { base, .. }`.",
+      "assessment": "Nominal Func/String separation and recursive Figure-selector classification; grouped selectors retain their explicit owning recursion.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-14",
+      "source": "01_core/src/compiler/eval/selector_matching.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        516
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 32; guard: ausente; padr\u00e3o: `Content::Space\n        | Content::SpaceFromNewline\n        | Content::Par { .. }\n        | Content::Heading(_)\n        | Content::Strong(_)\n        | Content::Emph(_)\n        | Content::Raw(_)\n        | Content::Link(_)\n        | Content::MathSequence(_)\n        | Content::MathIdent(_)\n        | Content::MathText(_)\n        | Content::MathDelimited(_)\n        | Content::MathAlignPoint(_)\n        | Content::MathUnderover(_)\n        | Content::MathStyled(_)\n        | Content::Label(_)\n        | Content::CounterDisplay(_)\n        | Content::CounterUpdate(_)\n        | Content::Figure(_)\n        | Content::SetPage(_)\n        | Content::Quote(_)\n        | Content::Underline(_)\n        | Content::Strike(_)\n        | Content::Overline(_)\n        | Content::SmallCaps { .. }\n        | Content::Footnote(_)\n        | Content::State(_)\n        | Content::StateUpdate(_)\n        | Content::StateDisplay(_)\n        | Content::CounterDisplayCallback(_)\n        | Content::ContextBlock(_)\n        | Content::Dynamic(_)`.",
+      "assessment": "Fifteen Content variants moved from the false group into concrete native-constructor matching; remaining 32 alternatives still emit V19.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-15",
+      "source": "01_core/src/compiler/introspect.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 3,
+      "all_snapshot_occurrence_lines": [
+        1713,
+        1719,
+        1725
+      ],
+      "message": "Profundidade de padr\u00e3o 4 > 2 em `Some(Some(FigureKind::Name(ref name)))` fora de contexto-tabela",
+      "assessment": "Nested Option/FigureKind assertion in regression fixtures, not a new production default.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-16",
+      "source": "01_core/src/compiler/introspect/figure_demands.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        54
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Content::Par { body } | Content::SmallCaps { body }`.",
+      "assessment": "Exhaustive actual-view collector groups structurally shared children and explicit opaque/terminal variants; runtime does not certify every grouped variant.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-17",
+      "source": "01_core/src/compiler/introspect/figure_demands.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        49
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Content::Sequence(parts) | Content::MathSequence(parts)`.",
+      "assessment": "Exhaustive actual-view collector groups structurally shared children and explicit opaque/terminal variants; runtime does not certify every grouped variant.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-18",
+      "source": "01_core/src/compiler/introspect/figure_demands.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        358
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 38; guard: ausente; padr\u00e3o: `Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Raw(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathPrimes(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::SetPage(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..)`.",
+      "assessment": "Exhaustive actual-view collector groups structurally shared children and explicit opaque/terminal variants; runtime does not certify every grouped variant.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-19",
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        70
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(crate::entities::elements::figure::FigureKind::Element(_))\n                | None`.",
+      "assessment": "Explicit legacy/synthetic FigureKind Name versus Element-or-absent projection; no productive typed counter string shadow.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-20",
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        70
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(crate::entities::elements::figure::FigureKind::Element(_))\n                | None` fora de contexto-tabela",
+      "assessment": "Explicit legacy/synthetic FigureKind Name versus Element-or-absent projection; no productive typed counter string shadow.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-21",
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        67
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(crate::entities::elements::figure::FigureKind::Name(name))` fora de contexto-tabela",
+      "assessment": "Explicit legacy/synthetic FigureKind Name versus Element-or-absent projection; no productive typed counter string shadow.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-22",
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        121
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 5; guard: ausente; padr\u00e3o: `Some(crate::entities::elements::figure::FigureSupplement::Auto | crate::entities::elements::figure::FigureSupplement::None | crate::entities::elements::figure::FigureSupplement::Func { .. }) | None`.",
+      "assessment": "Content-only FigureSupplement mapping; Auto/None/Func/absent remain opaque and callbacks are not executed by the map.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-23",
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        121
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(crate::entities::elements::figure::FigureSupplement::Auto | crate::entities::elements::figure::FigureSupplement::None | crate::entities::elements::figure::FigureSupplement::Func { .. }) | None` fora de contexto-tabela",
+      "assessment": "Content-only FigureSupplement mapping; Auto/None/Func/absent remain opaque and callbacks are not executed by the map.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-24",
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        120
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(crate::entities::elements::figure::FigureSupplement::Content(content))` fora de contexto-tabela",
+      "assessment": "Content-only FigureSupplement mapping; Auto/None/Func/absent remain opaque and callbacks are not executed by the map.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-25",
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        29
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None | Value::Func(_))`.",
+      "assessment": "Numbering style gates, rich Content prefix absence and explicit unresolved synthetic FigureKind boundary; deep nominal patterns remain visible as notes.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-26",
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        68
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(_) | None`.",
+      "assessment": "Numbering style gates, rich Content prefix absence and explicit unresolved synthetic FigureKind boundary; deep nominal patterns remain visible as notes.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-27",
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        80
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(crate::entities::elements::figure::FigureKind::Element(_)) | None`.",
+      "assessment": "Numbering style gates, rich Content prefix absence and explicit unresolved synthetic FigureKind boundary; deep nominal patterns remain visible as notes.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-28",
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        29
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::None | Value::Func(_))` fora de contexto-tabela",
+      "assessment": "Numbering style gates, rich Content prefix absence and explicit unresolved synthetic FigureKind boundary; deep nominal patterns remain visible as notes.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-29",
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        27
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(pattern))` fora de contexto-tabela",
+      "assessment": "Numbering style gates, rich Content prefix absence and explicit unresolved synthetic FigureKind boundary; deep nominal patterns remain visible as notes.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-30",
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        80
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(crate::entities::elements::figure::FigureKind::Element(_)) | None` fora de contexto-tabela",
+      "assessment": "Numbering style gates, rich Content prefix absence and explicit unresolved synthetic FigureKind boundary; deep nominal patterns remain visible as notes.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-31",
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        77
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(crate::entities::elements::figure::FigureKind::Name(name))` fora de contexto-tabela",
+      "assessment": "Numbering style gates, rich Content prefix absence and explicit unresolved synthetic FigureKind boundary; deep nominal patterns remain visible as notes.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-32",
+      "source": "01_core/src/compiler/layout/references.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        256
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(_) | None`.",
+      "assessment": "Rich reference supplement empty/absent compose the same number-only result; no neutral missing-history fallback introduced.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-33",
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 2,
+      "all_snapshot_occurrence_lines": [
+        17153,
+        17159
+      ],
+      "message": "Profundidade de padr\u00e3o 4 > 2 em `Some(Some(FigureKind::Name(ref name)))` fora de contexto-tabela",
+      "assessment": "Nested Option/FigureKind assertion in regression fixtures, not a new production default.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-34",
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        65
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 14; guard: ausente; padr\u00e3o: `crate::entities::value::Type::None\n            | crate::entities::value::Type::Auto\n            | crate::entities::value::Type::Module\n            | crate::entities::value::Type::Function\n            | crate::entities::value::Type::Content\n            | crate::entities::value::Type::Length\n            | crate::entities::value::Type::Ratio\n            | crate::entities::value::Type::Angle\n            | crate::entities::value::Type::Color\n            | crate::entities::value::Type::Fraction\n            | crate::entities::value::Type::Alignment\n            | crate::entities::value::Type::Gradient\n            | crate::entities::value::Type::Direction\n            | crate::entities::value::Type::Location`.",
+      "assessment": "Closed semantic search catalogue and explicit Type/Value exclusions, shared child forms and Grid header/footer ordering; compile exhaustiveness is not runtime alternative coverage.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-35",
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        35
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 22; guard: ausente; padr\u00e3o: `crate::entities::value::Type::Int\n            | crate::entities::value::Type::Float\n            | crate::entities::value::Type::Str\n            | crate::entities::value::Type::Array\n            | crate::entities::value::Type::Dictionary\n            | crate::entities::value::Type::Datetime\n            | crate::entities::value::Type::Stroke\n            | crate::entities::value::Type::Regex\n            | crate::entities::value::Type::Tiling\n            | crate::entities::value::Type::Bytes\n            | crate::entities::value::Type::Decimal\n            | crate::entities::value::Type::Duration\n            | crate::entities::value::Type::Version\n            | crate::entities::value::Type::Selector\n            | crate::entities::value::Type::Symbol\n            | crate::entities::value::Type::Arguments\n            | crate::entities::value::Type::State\n            | crate::entities::value::Type::Counter\n            | crate::entities::value::Type::Label\n            | crate::entities::value::Type::Path\n            | crate::entities::value::Type::Type\n            | crate::entities::value::Type::SpotColorant`.",
+      "assessment": "Closed semantic search catalogue and explicit Type/Value exclusions, shared child forms and Grid header/footer ordering; compile exhaustiveness is not runtime alternative coverage.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-36",
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        352
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Content::Par { body } | Content::SmallCaps { body }`.",
+      "assessment": "Closed semantic search catalogue and explicit Type/Value exclusions, shared child forms and Grid header/footer ordering; compile exhaustiveness is not runtime alternative coverage.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-37",
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        355
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Content::Sequence(parts) | Content::MathSequence(parts)`.",
+      "assessment": "Closed semantic search catalogue and explicit Type/Value exclusions, shared child forms and Grid header/footer ordering; compile exhaustiveness is not runtime alternative coverage.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-38",
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        600
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `GridChildOrder::Header | GridChildOrder::Footer`.",
+      "assessment": "Closed semantic search catalogue and explicit Type/Value exclusions, shared child forms and Grid header/footer ordering; compile exhaustiveness is not runtime alternative coverage.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-39",
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        543
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 36; guard: ausente; padr\u00e3o: `Content::Image(..)\n        | Content::Raw(..)\n        | Content::StateUpdate(..)\n        | Content::State(..)\n        | Content::ContextBlock(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::Dynamic(..)\n        | Content::SetPage(..)\n        | Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathPrimes(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)`.",
+      "assessment": "Closed semantic search catalogue and explicit Type/Value exclusions, shared child forms and Grid header/footer ordering; compile exhaustiveness is not runtime alternative coverage.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-40",
+      "source": "01_core/src/compiler/realize/figure_kind.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        266
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 36; guard: ausente; padr\u00e3o: `Value::None\n        | Value::Bool(..)\n        | Value::Int(..)\n        | Value::Float(..)\n        | Value::Str(..)\n        | Value::Dict(..)\n        | Value::Module(..)\n        | Value::Datetime(..)\n        | Value::Func(..)\n        | Value::Auto\n        | Value::Length(..)\n        | Value::Relative(..)\n        | Value::Ratio(..)\n        | Value::Angle(..)\n        | Value::Color(..)\n        | Value::Stroke(..)\n        | Value::Fraction(..)\n        | Value::Align(..)\n        | Value::Location(..)\n        | Value::Gradient(..)\n        | Value::Regex(..)\n        | Value::Tiling(..)\n        | Value::Bytes(..)\n        | Value::Decimal(..)\n        | Value::Duration(..)\n        | Value::Version(..)\n        | Value::Selector(..)\n        | Value::Symbol(..)\n        | Value::Args(..)\n        | Value::State(..)\n        | Value::Counter(..)\n        | Value::Label(..)\n        | Value::Dir(..)\n        | Value::Path(..)\n        | Value::Type(..)\n        | Value::SpotColorant(..)`.",
+      "assessment": "Closed semantic search catalogue and explicit Type/Value exclusions, shared child forms and Grid header/footer ordering; compile exhaustiveness is not runtime alternative coverage.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-41",
+      "source": "01_core/src/compiler/realize/recipes.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        65
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 115; guard: ausente; padr\u00e3o: `Content::Source(_)\n                | Content::ShowRecipe(_)\n                | Content::Realized(_)\n                | Content::Empty\n                | Content::Text(_)\n                | Content::Space\n                | Content::SpaceFromNewline\n                | Content::Parbreak\n                | Content::HtmlElem(_)\n                | Content::HtmlFrame(_)\n                | Content::Par { .. }\n                | Content::Heading(_)\n                | Content::Title(_)\n                | Content::Strong(_)\n                | Content::Emph(_)\n                | Content::Raw(_)\n                | Content::ListItem(_)\n                | Content::EnumItem(_)\n                | Content::Link(_)\n                | Content::MathSequence(_)\n                | Content::MathIdent(_)\n                | Content::MathText(_)\n                | Content::MathFrac(_)\n                | Content::MathAttach(_)\n                | Content::MathPrimes(_)\n                | Content::MathRoot(_)\n                | Content::MathStretch(_)\n                | Content::MathDelimited(_)\n                | Content::MathLr(_)\n                | Content::MathMid(_)\n                | Content::MathOverbrace(_)\n                | Content::MathUnderbrace(_)\n                | Content::MathUnderbracket(_)\n                | Content::MathUnderparen(_)\n                | Content::MathUndershell(_)\n                | Content::MathOverbracket(_)\n                | Content::MathOverparen(_)\n                | Content::MathOvershell(_)\n                | Content::MathAlignPoint(_)\n                | Content::Linebreak(_)\n                | Content::MathMatrix(_)\n                | Content::MathCases(_)\n                | Content::MathAccent(_)\n                | Content::MathCancel(_)\n                | Content::MathUnderline(_)\n                | Content::MathOverline(_)\n                | Content::MathVec(_)\n                | Content::MathClassOverride(_)\n                | Content::MathLimitsOverride(_)\n                | Content::MathUnderover(_)\n                | Content::MathOp(_)\n                | Content::MathStyled(_)\n                | Content::Label(_)\n                | Content::Ref(_)\n                | Content::CounterDisplay(_)\n                | Content::CounterUpdate(_)\n                | Content::Outline(_)\n                | Content::OutlineEntry(_)\n                | Content::FigureCaption(_)\n                | Content::Image(_)\n                | Content::Shape(_)\n                | Content::Curve(_)\n                | Content::Transform(_)\n                | Content::Grid(_)\n                | Content::GridHeader(_)\n                | Content::GridFooter(_)\n                | Content::GridCell(_)\n                | Content::SetPage(_)\n                | Content::PageRun(_)\n                | Content::Align(_)\n                | Content::Place(_)\n                | Content::Flush(_)\n                | Content::Divider(_)\n                | Content::Terms(_)\n                | Content::TermItem(_)\n                | Content::Quote(_)\n                | Content::Document { .. }\n                | Content::Asset { .. }\n                | Content::SmartQuote(_)\n                | Content::PdfAttach(_)\n                | Content::PdfArtifact(_)\n                | Content::Underline(_)\n                | Content::Strike(_)\n                | Content::Overline(_)\n                | Content::SmallCaps { .. }\n                | Content::Pad(_)\n                | Content::Hide(_)\n                | Content::HSpace(_)\n                | Content::VSpace(_)\n                | Content::Pagebreak(_)\n                | Content::Colbreak(_)\n                | Content::Stack(_)\n                | Content::Boxed(_)\n                | Content::Block(_)\n                | Content::TableCell(_)\n                | Content::Bibliography(_)\n                | Content::Cite(_)\n                | Content::Footnote(_)\n                | Content::FootnoteEntry(_)\n                | Content::TableHeader(_)\n                | Content::TableFooter(_)\n                | Content::GridHLine(_)\n                | Content::GridVLine(_)\n                | Content::TableHLine(_)\n                | Content::TableVLine(_)\n                | Content::Table(_)\n                | Content::Repeat(_)\n                | Content::Columns(_)\n                | Content::Metadata(_)\n                | Content::State(_)\n                | Content::StateUpdate(_)\n                | Content::StateDisplay(_)\n                | Content::CounterDisplayCallback(_)\n                | Content::ContextBlock(_)\n                | Content::Dynamic(_)`.",
+      "assessment": "Figure removed from the generic child fallback and dispatched to its owner-specific actual emitted children realization. The large remainder still emits V19; no wildcard/suppression replaces it.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-42",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        242
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 32; guard: ausente; padr\u00e3o: `Some(\n            value @ (Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)),\n        )`.",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-43",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        178
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 34; guard: ausente; padr\u00e3o: `Some(\n            other @ (Value::None\n            | Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::SpotColorant(..)),\n        )`.",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-44",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        290
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 36; guard: ausente; padr\u00e3o: `Some(\n            value @ (Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)),\n        )`.",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-45",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        287
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Some(value @ (Value::Str(_) | Value::Func(_) | Value::None))`.",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-46",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        233
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `Some(\n            value @ (Value::Content(_)\n            | Value::LocatedContent(_, _)\n            | Value::Str(_)\n            | Value::Symbol(_)),\n        )`.",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-47",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        101,
+        229
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Func(function))` fora de contexto-tabela",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-48",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        178
+      ],
+      "message": "Profundidade de padr\u00e3o 4 > 2 em `Some(\n            other @ (Value::None\n            | Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::SpotColorant(..)),\n        )` fora de contexto-tabela",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-49",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        290
+      ],
+      "message": "Profundidade de padr\u00e3o 4 > 2 em `Some(\n            value @ (Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)),\n        )` fora de contexto-tabela",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-50",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        242
+      ],
+      "message": "Profundidade de padr\u00e3o 4 > 2 em `Some(\n            value @ (Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)),\n        )` fora de contexto-tabela",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-51",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        233
+      ],
+      "message": "Profundidade de padr\u00e3o 4 > 2 em `Some(\n            value @ (Value::Content(_)\n            | Value::LocatedContent(_, _)\n            | Value::Str(_)\n            | Value::Symbol(_)),\n        )` fora de contexto-tabela",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-52",
+      "source": "01_core/src/compiler/stdlib/figure_image.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        287
+      ],
+      "message": "Profundidade de padr\u00e3o 4 > 2 em `Some(value @ (Value::Str(_) | Value::Func(_) | Value::None))` fora de contexto-tabela",
+      "assessment": "Explicit constructor Value/FigureKind/FigureSupplement validation groups, preserving actual error paths and Function/Content distinctions.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-53",
+      "source": "01_core/src/entities/content/traversal.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        887
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 5; guard: ausente; padr\u00e3o: `Some(crate::entities::elements::figure::FigureSupplement::Auto | crate::entities::elements::figure::FigureSupplement::None | crate::entities::elements::figure::FigureSupplement::Func { .. }) | None`.",
+      "assessment": "FigureSupplement Content is mapped structurally; Auto/None/Func/absent are not interpreted or executed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-54",
+      "source": "01_core/src/entities/content/traversal.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        887
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(crate::entities::elements::figure::FigureSupplement::Auto | crate::entities::elements::figure::FigureSupplement::None | crate::entities::elements::figure::FigureSupplement::Func { .. }) | None` fora de contexto-tabela",
+      "assessment": "FigureSupplement Content is mapped structurally; Auto/None/Func/absent are not interpreted or executed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-55",
+      "source": "01_core/src/entities/content/traversal.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        886
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(crate::entities::elements::figure::FigureSupplement::Content(content))` fora de contexto-tabela",
+      "assessment": "FigureSupplement Content is mapped structurally; Auto/None/Func/absent are not interpreted or executed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-56",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        132
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `FuncRepr::Closure(_) | FuncRepr::Plugin(_) | FuncRepr::With(_)`.",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-57",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 2,
+      "all_snapshot_occurrence_lines": [
+        197,
+        231
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 5; guard: ausente; padr\u00e3o: `Some(\n                        FigureSupplement::Auto\n                        | FigureSupplement::None\n                        | FigureSupplement::Func { .. },\n                    )\n                    | None`.",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-58",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        40
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padr\u00e3o: `FuncRepr::Format(_, _)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::Plugin(_)\n                        | FuncRepr::With(_)`.",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-59",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        62
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padr\u00e3o: `FuncRepr::Native(_)\n                        | FuncRepr::Format(_, _)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::Plugin(_)\n                        | FuncRepr::With(_)`.",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-60",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        71
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padr\u00e3o: `FuncRepr::Native(_)\n                        | FuncRepr::Format(_, _)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::Plugin(_)\n                        | FuncRepr::With(_)`.",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-61",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        98
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padr\u00e3o: `FuncRepr::Native(_)\n                        | FuncRepr::Format(_, _)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::Plugin(_)`.",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-62",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        89
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padr\u00e3o: `FuncRepr::Native(_)\n                        | FuncRepr::Format(_, _)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::With(_)`.",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-63",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        80
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padr\u00e3o: `FuncRepr::Native(_)\n                        | FuncRepr::Format(_, _)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Plugin(_)\n                        | FuncRepr::With(_)`.",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-64",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        51
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 6; guard: ausente; padr\u00e3o: `FuncRepr::Native(_)\n                        | FuncRepr::NativeWithEngine(_)\n                        | FuncRepr::Element(_)\n                        | FuncRepr::Closure(_)\n                        | FuncRepr::Plugin(_)\n                        | FuncRepr::With(_)`.",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-65",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 2,
+      "all_snapshot_occurrence_lines": [
+        197,
+        231
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(\n                        FigureSupplement::Auto\n                        | FigureSupplement::None\n                        | FigureSupplement::Func { .. },\n                    )\n                    | None` fora de contexto-tabela",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-66",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        258
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(FigureKind::Element(function))` fora de contexto-tabela",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-67",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        259
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(FigureKind::Name(name))` fora de contexto-tabela",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-68",
+      "source": "01_core/src/entities/elements/figure.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 2,
+      "all_snapshot_occurrence_lines": [
+        194,
+        228
+      ],
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(FigureSupplement::Content(content))` fora de contexto-tabela",
+      "assessment": "Nominal FuncRepr cross-kind false cases, pointer-kind hashing, Content-only maps and typed field projections; enum identity depth is deliberate, not suppressed.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-69",
+      "source": "02_shell/src/cli.rs",
+      "rule": "V19",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        1517
+      ],
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(value @ (Value::Func(_) | Value::Str(_)))`.",
+      "assessment": "Query serialization recognizes both Func and String Figure kind language values without collapsing their identity.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    },
+    {
+      "id": "added-70",
+      "source": "02_shell/src/cli.rs",
+      "rule": "V20",
+      "level": "note",
+      "delta_occurrences": 1,
+      "all_snapshot_occurrence_lines": [
+        1517
+      ],
+      "message": "Profundidade de padr\u00e3o 4 > 2 em `Some(value @ (Value::Func(_) | Value::Str(_)))` fora de contexto-tabela",
+      "assessment": "Query serialization recognizes both Func and String Figure kind language values without collapsing their identity.",
+      "runtime_alternative_coverage": "Not inferred from entering a grouped arm or this static note. Real-enum extension probes certify structure; fixed runtime language cases do not certify every listed alternative."
+    }
+  ],
+  "conclusion": "Outside scope, every diagnostic object is identical. Inside scope, only old Figure V16 is removed; no new error/warning or severity downgrade. Five removed notes are accounted source rewrites; all 76 added V19/V20 note occurrences remain visible and individually inventoried. Global lint still has 19 V16 errors and is not zero-violation closure. Runtime coverage of all grouped alternatives is not claimed.",
+  "previous_final_review": {
+    "json_path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/lint-final-1-review.json",
+    "json_sha256": "e21afa82a525ff813d83585fc76232c491751c4ce2cb62284e985dbc56c48e40",
+    "markdown_path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/lint-final-1-review.md",
+    "markdown_sha256": "428062f74c14f2283fc574245df50beb5bddf1bce06e456e4e7b97b99c8413d5"
+  },
+  "final1_to_final2": {
+    "comparison": "Exact complete diagnostic-object multiset, including source positions. Diagnostic inventory separately compared by (source,rule,level,message).",
+    "diagnostic_inventory_identical": true,
+    "exact_objects_removed": [
+      {
+        "occurrences": 1,
+        "diagnostic": {
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "./03_infra/src/export/html/document.rs"
+                },
+                "region": {
+                  "startColumn": 13,
+                  "startLine": 98
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Content::Empty | Content::Space | Content::SpaceFromNewline`."
+          },
+          "ruleId": "V19"
+        }
+      }
+    ],
+    "exact_objects_added": [
+      {
+        "occurrences": 1,
+        "diagnostic": {
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "./03_infra/src/export/html/document.rs"
+                },
+                "region": {
+                  "startColumn": 13,
+                  "startLine": 100
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Content::Empty | Content::Space | Content::SpaceFromNewline`."
+          },
+          "ruleId": "V19"
+        }
+      }
+    ],
+    "assessment": "Only the unchanged V19 in 03_infra/src/export/html/document.rs moves startLine98 to100 after the ShowRecipe projection fix. No message, level, alternative inventory, or outside-scope diagnostic changes."
+  }
+}

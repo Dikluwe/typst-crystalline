@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/extract_payload.md
-//! @prompt-hash 02303e53
+//! @prompt-hash ed27bd64
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -91,7 +91,9 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
 
         // P506 — ContextBlock captura a sua localização no walk para a
         // expansão pós-introspecção. Delega ao elemento para o payload.
-        Content::ContextBlock(e) => e.to_payload(),
+        Content::ContextBlock(e) => {
+            if crate::compiler::realize::reference_supplements::is_reference_supplement_producer(e) { None } else { e.to_payload() }
+        },
 
         // As demais variantes atuais não fornecem payload próprio aqui.
         // Source já foi normalizado e não possui payload próprio.
@@ -223,7 +225,12 @@ mod tests {
             Some(ElementPayload::Figure {
                 kind, counter_update, is_counted: _, ..
             }) => {
-                assert_eq!(kind, Some("image".to_string()));
+                assert_eq!(
+                    kind,
+                    Some(crate::entities::elements::figure::FigureKind::Name(
+                        "image".into()
+                    ))
+                );
                 assert_eq!(counter_update, CounterUpdate::step());
             }
             other => panic!("esperado Some(Figure), obtido {other:?}"),

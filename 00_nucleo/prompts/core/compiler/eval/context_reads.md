@@ -1,5 +1,5 @@
 # L0 — compiler/eval/context_reads
-Hash do Código: 51e5d5f1
+Hash do Código: 4553a1e9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
@@ -103,3 +103,44 @@ outline controls (eight P1405 cases), context/replay/callback/pipeline controls.
 Validate full workspace/build/Clippy/expectations/Rustdoc/fmt/lineage with no new
 Tekt warning, under 12 GiB/zero swap/one job. Tag/Transformation remain measured
 without a public-change authorization in this package.
+
+## Reference target eligibility observation
+
+Ref phase approval SHA1578cbea...7e38ff2 authorizes the delayed actual reference
+producer; current Session validates recorded reads plus producer Location/pages,
+not label-counter membership. Query's Figure snapshot omits effective numbering;
+CounterAt values may remain equal under manual updates even when target numbering
+eligibility changes. Therefore existing Query/CounterAt alone cannot certify the
+actual admission gate. Record one private ReferenceTargetEligibility { label }
+read with the actual first label Location, actual counter-key Option and actual
+bibliographic precedence as ordinary Value observation. Replay delegates the same
+pure eligibility projection to reference_supplements with observation replay
+already disabled; no callback/fake counter read, new public API or cache. Retain
+real Query for selected content, strict Different/Unproven invalidation, both
+none→numbered and numbered→none, first-label/key/bib changes even equal numbers.
+
+Actual raw-namespace-kind-reference probe fails stability because eligibility's
+Value::Counter key embeds an exact Figure kind FuncRepr::Element, whose generic
+Func observer intentionally remains Unproven. For this private read only, compare
+the exact three-field projection with ordinary strict Location/bib observation
+and an exact typed Figure-key proof for the key slot. Recognize only native Figure
+selector with exactly kind Func/Str, then compose the existing strict
+FigureKind::observation_relation (including nominal identity, diagnostic span and
+representation/namespace proof), normal selector Func observation and its
+diagnostic span. Admit this proof only for Location|None plus Bool projection
+slots; other shapes retain the generic strict relation.
+Other keys/results retain generic strict observation; opaque custom selectors or
+callbacks do not gain Same. Global Func/Counter observers stay unchanged. Real
+Query remains independently validated. Preserve none↔numbered, first target/key,
+kind alias/homonym, malformed projection and error-transition distinctions.
+
+Read-only post-stage4 audit measures context_reads.rs:192–213: the first private
+proof used only FigureKind Eq plus slot observation, so same nominal call pointer
+with changed diagnostic/name/namespace or changed outer Figure selector metadata
+could incorrectly become Same. Observation/elements.rs:904–930 already supplies
+the required scoped FigureKind strict proof. Add tests before correcting the
+private projection: cloned dynamic kind with changed diagnostic origin; same
+native kind pointer with changed name/namespace; Figure selector's changed
+name/namespace/origin; malformed nonlocation/nonbool slots with opaque dynamic
+kind remain Unproven. Then compose those existing observations, preserving
+Different dominance and Unproven invalidation. No global observer changes.

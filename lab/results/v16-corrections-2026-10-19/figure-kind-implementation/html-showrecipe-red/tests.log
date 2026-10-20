@@ -1,0 +1,25 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `test` profile [unoptimized] target(s) in 40.05s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 1 test
+test export::html::document::figure_product_morphology::figure_html_captured_showrecipe_original_keeps_real_source_paragraphs ... FAILED
+
+failures:
+
+---- export::html::document::figure_product_morphology::figure_html_captured_showrecipe_original_keeps_real_source_paragraphs stdout ----
+
+thread 'export::html::document::figure_product_morphology::figure_html_captured_showrecipe_original_keeps_real_source_paragraphs' (2062394) panicked at 03_infra/src/export/html/document.rs:557:9:
+assertion `left == right` failed
+  left: ["raw table"]
+ right: ["raw", "table"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    export::html::document::figure_product_morphology::figure_html_captured_showrecipe_original_keeps_real_source_paragraphs
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1386 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p typst-infra --lib`

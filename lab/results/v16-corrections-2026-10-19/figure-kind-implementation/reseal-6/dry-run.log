@@ -1,0 +1,6 @@
+Would fix ./01_core/src/compiler/eval/rules/apply.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/apply.md old=4089415d hash-a=9ec07652 hash-b=31e2bc1c
+Would fix ./01_core/src/compiler/eval/tests.rs prompt=00_nucleo/prompts/core/compiler/eval/tests.md old=e5db0966 hash-a=c263f2c2 hash-b=14eff2e3
+Would fix ./01_core/src/compiler/realize/figure.rs prompt=00_nucleo/prompts/core/compiler/realize/figure.md old=07cbbad6 hash-a=82a77c7f hash-b=6a50bdf0
+Would fix ./01_core/src/compiler/realize/recipes.rs prompt=00_nucleo/prompts/core/compiler/realize/recipes.md old=06b9528f hash-a=57dc9644 hash-b=0492e00e
+Would fix ./01_core/src/compiler/realize/reference_supplements.rs prompt=00_nucleo/prompts/core/compiler/realize/reference_supplements.md old=8d2730c8 hash-a=33dbccda hash-b=d7975fda
+Would fix ./03_infra/src/pipeline/context_stabilization.rs prompt=00_nucleo/prompts/infra/pipeline/context_stabilization.md old=b726dd74 hash-a=5dcdfeae hash-b=1383a515

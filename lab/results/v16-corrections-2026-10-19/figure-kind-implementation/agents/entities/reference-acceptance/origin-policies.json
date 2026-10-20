@@ -1,0 +1,13 @@
+{
+  "cases": {
+    "nested-missing-reference-origin": {
+      "class": "required-error",
+      "message": "label `<missing>` does not exist in the document",
+      "origin": [
+        1,
+        7
+      ],
+      "criterion": "original missing-reference diagnostic at exact nested lexical Ref source origin, no container-span substitution"
+    }
+  }
+}

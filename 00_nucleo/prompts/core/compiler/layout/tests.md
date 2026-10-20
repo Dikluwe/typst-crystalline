@@ -1,5 +1,5 @@
 # L0 — tests
-Hash do Código: 469cbece
+Hash do Código: be7de2de
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -145,3 +145,80 @@ argument, algorithm and output. Equal axes or Ellipse kind do not infer Circle.
 This is only the required migration for the approved field, not a new geometry
 behavior or permission to materialize any unrelated pending proposal. Full-target
 compilation and existing tests must retain all current observations/tolerances.
+
+## Approved Figure/Grid cause regressions
+
+Evidence: the frozen Figure proposal at
+`lab/results/v16-corrections-2026-10-19/figure-kind/review.md` and its paired
+current-pin probes reproduce lost function-kind identity, lexical presence,
+Metadata/Array traversal, ordered Grid children and occurrence show-set behavior.
+The owner explicitly approved its contracts, phases and compatibility changes
+before this amendment (approval recorded under figure-kind-implementation).
+
+Add language-level regressions using the existing evaluator and layout test
+world. Show callbacks must observe a function-valued table kind, a distinct
+string kind, inherited omitted kind versus explicit auto, final kind after a
+filtered show-set, Metadata Content/Array descent, Dictionary and Context opacity,
+first Grid header/body order, and actual supplement callback display. Keep simple
+body replacement and hidden-parent controls. Observe real rendered text rather
+than Rust carrier equality. These tests must compile against the old API and
+fail semantically before implementation. New carrier-specific tests separately
+cover raw presence, clones/maps, identity and malformed order metadata. Existing
+layout assertions remain except exact approved kind/count compatibility migrations;
+changing a source literal alone does not authorize a weaker expected result.
+
+
+### Five legacy Figure numeric fixture migrations
+
+`figure-kind-implementation/integration-tests-2/tests.log` records five failures solely at removed automatic figure:<kind> string projections in p184e_figure_per_kind::{pipeline_completo_figure_kind_image_via_introspector,kinds_distintos_isolados_image_e_table,kind_none_default_image}, p189b_walk_puro_m5::walk_excepcao_e3_figure_via_intr and p195d_walk_labelled::labelled_figure_target_popula_figure_label_numbers. Migrate exactly these tests to actual preparation/runtime, explicit intended image/table Element identities and typed query Locations before reading materialized prefixes. Preserve all per-kind sequence/out-of-range/independence/rendered text/caption assertions; explicitly check absent automatic legacy strings. For labelled Figure, retain the existing scalar label-number assertion and replace obsolete pure resolved_labels placeholder with actual prepared supplement plus rendered reference number/text. Keep synthetic fallback and generic legacy tests unchanged. A shared test-only fixture helper may supply Engine/World and migration, never productive shadow state.
+
+## Existing reference fixture preparation migration
+
+The complete workspace run after GREEN9 identifies the existing p462 explicit
+Figure-reference supplement fixture using a pure synthetic introspector while
+requiring a productive numbered caption. Use the existing prepared_fixture runtime
+helper for that test, preserving both exact default caption text and explicit
+reference override. Strengthen its sibling default Figure reference to require
+both caption and reference occurrences plus empty layout diagnostics, so a caption
+alone cannot make reference assertions pass. Synthetic fallback-only tests stay
+unchanged. This changes no productive code, signature, phase, or accepted outcome;
+it aligns the old fixture with the approved prepared typed counter contract.
+
+## Static reference consumers after the approved contextual Ref phase
+
+reference-tests-2-core records ref_resolves_figure_number's strengthened two-use
+assertion failing with only the caption present. The existing L1 prepared_fixture
+now captures source Ref as a deferred contextual producer but does not execute
+L3 Session. These low-level layout tests must prepare only their labelled Figure,
+then append the existing unchanged static synthetic Ref before direct layout.
+Use the same pattern for the explicit reference override. Preserve exactly two
+caption/reference Figure 1 occurrences, original caption+override expectations,
+and empty layout_errors. This tests the pure numeric consumer using an admitted
+static fixture, without pretending its helper executes the new source producer.
+No generic helper expansion, duplicated producer algorithm or assertion reduction.
+The independent real L3 source Ref regressions and CLI matrix remain required.
+
+## Numeric reference extracted whitespace normalization
+
+reference-tests-4-core's actual default-Ref fixture renders both caption and
+reference, but direct text extraction inserts multiple spacing characters between
+reference supplement and number (`Figure   1`) while caption reads `Figure 1`.
+This tests language text, not exporter spacing mechanics. Collapse extracted
+Unicode whitespace runs for that assertion, preserving word/number order and
+requiring exactly two complete `Figure 1` occurrences. Keep both body/caption
+and explicit override obligations and empty diagnostics; never reduce the count,
+remove a visible reference, or infer success from its caption alone.
+
+For that same normalized default-reference fixture, require the exact caption
+`Figure 1: legenda` once and the final visible text ending `Figure 1`, in addition
+to the two occurrences. Substring `Figure 1` alone must not accept `Figure 10`.
+All nonwhitespace punctuation and exact numeric values remain asserted.
+
+The independent full p462 migration-tests-5-numeric-ref run records the same
+spacing distinction in the explicit override fixture: default caption is correct,
+while `Figura` plus NBSP/multiple extracted spaces plus `1` fails the old one/two
+literal-space alternative. Normalize that fixture's Unicode whitespace runs too;
+require exactly one full `Figure 1: legenda` caption and the exact visible suffix
+`Figura 1`. This preserves the explicit override and both exact numbers, rejects
+`Figura 10`, and retains empty layout errors. No source fixture or production
+behavior changes; nonwhitespace characters and their order remain untouched.

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: eba9d458
+Hash do Código: 73d74e24
 
 
 
@@ -595,3 +595,18 @@ names R3-Symbol/R3-Markup/R3-Textual/R3-Diagnostics identify these completion
 scopes only; they are no L0 or authorization for additional code. Do not label
 the differences accepted mechanics or proven parity. Later scoped ratification
 does not silently certify every recorded debt.
+
+
+## Approved Figure/Grid kind repair (2026-10-19)
+
+### Measurement and classification before decision
+
+The frozen proposal at baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, `agents/contracts/semantic-partition.json`, and `agents/counter/design.md` bind measurements and full source/oracle provenance. Current-pin oracle is `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Constructor inference loses typed identity and lexical occurrence styles; semantic inspection and final supplement need separate phases. These are language semantics and causal effects, not a requirement for upstream Rust mechanics. The human explicitly approved the exact public carriers, phase changes and compatibility migration in the current session under ADR-0127.
+
+### Exclusive responsibility
+
+Figure declares ordered body,caption,kind,supplement fields. Resolved occurrence values project first. Raw explicit kind/auto/supplement project their lexical values; omitted raw fields remain declared-unset, never silently inferred. Prepared supplement None is an authoritative known value, distinct from unprepared. Preserve authoritative Some(empty) snapshots and existing caption projection limitations. Direct getters/fields/query/show callbacks agree on the selected state; no callbacks are executed by projection.
+
+### Acceptance and boundaries
+
+Require functional RED→GREEN, frozen kind/set/show-set/supplement/hidden-parent cases, alias/homonym and field snapshots, full build/tests, paths, strict forward/reverse lineage, V15/V26 and differential lint. No suppressions, opaque catchall, fake neutral child or weakened assertion. Caption omission/none, complete caption synthesis, supplement-dependent preview selection, complete function-number formatting, HTML implicit captions/references, Dynamic field enumeration, and mixed Table header/ordinary-cell supplemental target order remain explicit bounded debts.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/placement.md
-//! @prompt-hash 2e4a6a60
+//! @prompt-hash fcb9dbf9
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -1171,6 +1171,7 @@ mod grid_align_regressions {
 
     fn grid(cols: usize) -> Content {
         Content::Grid(std::sync::Arc::new(GridElem {
+            source_order: None,
             columns: vec![TrackSizing::Fixed(50.0); cols],
             rows: vec![TrackSizing::Fixed(25.0)],
             cells: vec![Content::text("A"); cols],

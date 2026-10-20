@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
-//! @prompt-hash d644f28e
+//! @prompt-hash fef99b61
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -334,6 +334,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
         comemo::Tracked<'a, dyn crate::entities::introspector::Introspector + 'a>,
     /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
     /// kind → número de figuras já dispostas. Reiniciado por invocação de layout().
+    // Compatibility progress exclusively for unprepared synthetic Figure data.
     figure_progress: std::collections::HashMap<String, usize>,
     /// Indica que o contexto de layout actual não tem altura delimitada
     /// (ex: célula de grid Auto, box sem height explícito). Passo 82.
@@ -421,6 +422,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// em vez de snapshot final (cf. ADR-0068 PROPOSTO). (F-4 E0, P338:
     /// `is_numbering_active_at` saiu — gate vive no campo assado.)
     pub(super) current_location: Option<Location>,
+    pub(super) current_source_span: crate::entities::span::Span,
+    transported_root_location: Option<Location>,
     /// P1493 — emite carriers geométricos privados para ContextBlock nesta passagem.
     pub(super) capture_html_context_markers: bool,
     position_captures: Vec<position_marker::Target>,
@@ -972,6 +975,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             locator: Locator::new(),
             locations_reserved: false,
             current_location: None,
+            current_source_span: crate::entities::span::Span::detached(),
+            transported_root_location: None,
             math_callback_pass: None,
             par_line_callback_pass: None,
             runtime:
@@ -1178,6 +1183,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// que set `current_location`. Idempotência via `insert`.
     fn advance_locator_if_locatable(&mut self, content: &Content) {
         if is_locatable(content) {
+            if let Some(location) = self.transported_root_location.take() {
+                self.current_location = Some(location);
+                return;
+            }
             let loc = self.locator.next();
             self.current_location = Some(loc);
             // P204D: emit Position concrete single-pass.
@@ -1196,6 +1205,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     }
 
     pub fn layout_content(&mut self, content: &Content) {
+        let previous_span = self.current_source_span;
+        let mut source = content;
+        while let Content::Source(origin) = source {
+            if !origin.span.is_detached() {
+                self.current_source_span = origin.span;
+            }
+            source = &origin.body;
+        }
         let content = content.source_body();
         if self.flow_suffix_checkpoint_pending {
             self.flow_suffix_checkpoint_pending = false;
@@ -1210,6 +1227,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         } else {
             self.layout_content_once(content);
         }
+        self.current_source_span = previous_span;
     }
 
     /// Executa uma ocorrência sem reabrir a sentinela transaccional. O
@@ -1226,7 +1244,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         }
         match content {
             Content::Source(e) => {
+                let previous = self.current_source_span;
+                if !e.span.is_detached() {
+                    self.current_source_span = e.span;
+                }
                 self.layout_content_once(&e.body);
+                self.current_source_span = previous;
                 return;
             }
             Content::Located(e) => {
@@ -1242,7 +1265,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     crate::entities::position::Position { page, point },
                     false,
                 );
+                let previous_root = self.transported_root_location;
+                self.transported_root_location = matches!(
+                    &e.body,
+                    Content::Source(_) | Content::Styled(_) | Content::ShowRecipe(_)
+                )
+                .then_some(e.location);
                 self.layout_content_body(&e.body);
+                self.transported_root_location = previous_root;
                 return;
             }
             Content::Realized(e) => {
@@ -1370,6 +1400,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::CounterDisplayCallback(..)
             | Content::ContextBlock(..)
             | Content::Dynamic(..) => {}
+        }
+        if !is_locatable(content) && !matches!(content, Content::Styled(_)) {
+            self.transported_root_location = None;
         }
         // P185C: gating Locator atómico no topo, antes do match.
         // Avança em sincronia com walk de introspect; current_location

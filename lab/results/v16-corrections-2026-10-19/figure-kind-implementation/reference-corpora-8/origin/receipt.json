@@ -1,0 +1,59 @@
+{
+  "utc_start": "2026-10-20T01:55:30.918474+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "product": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+  "product_sha256": "f1e204cb843614da876d6c0e37cd6fcebab78bbbec34f587391434f2e90c990e",
+  "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-build-8/receipt.json",
+  "build_receipt_sha256": "d987560f6702534dcd2ce012b06a84c48a09bb6ff75838719e3324d341a3073a",
+  "historical_baseline": false,
+  "oracle_receipt_sha256": "b28aa7aadca9b3db3abae3ac8610eed42b7631757d04b77fdd4ce53fd956c909",
+  "matrix_sha256": "14b097bc87257762d1e5bc317644be901e005ef35ca833b7958443d28a41ebd7",
+  "policies_sha256": "4ad90fb0f2a9e4444f3e5035b37d5e545753bd31b45710e88468f219ffa9927d",
+  "runner_sha256": "afcfd5ff5dd20312494f2b2ff64d4ef866de8ae186fcfdbdc3d3b2e99d7aee5e",
+  "cases": [
+    {
+      "name": "nested-missing-reference-origin",
+      "policy": {
+        "class": "required-error",
+        "message": "label `<missing>` does not exist in the document",
+        "origin": [
+          1,
+          7
+        ],
+        "criterion": "original missing-reference diagnostic at exact nested lexical Ref source origin, no container-span substitution"
+      },
+      "runs": [
+        {
+          "utc_start": "2026-10-20T01:55:31.051433+00:00",
+          "utc_end": "2026-10-20T01:55:31.067490+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/nested-missing-reference-origin.typ",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/reference-corpora-8/origin/nested-missing-reference-origin.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: label `<missing>` does not exist in the document\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/nested-missing-reference-origin.typ:1:7\n  \u2502\n1 \u2502 #block[@missing]\n  \u2502        ^^^^^^^^\n\n"
+        }
+      ],
+      "observed_error_origin": [
+        1,
+        7
+      ],
+      "expected_error_origin": [
+        1,
+        7
+      ],
+      "checks": {
+        "terminates_with_error": true,
+        "error_message": true,
+        "error_origin": true
+      },
+      "pass": true
+    }
+  ],
+  "utc_end": "2026-10-20T01:55:31.067792+00:00",
+  "oracle_comparison_failures": [],
+  "required_failures": []
+}

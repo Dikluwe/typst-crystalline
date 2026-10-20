@@ -1,0 +1,80 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 24s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 11 tests
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_body_replacement_preserves_body_morphology ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_context_output_is_not_evaluated_during_inference ... FAILED
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_custom_name_retains_string_identity ... FAILED
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_explicit_element_retains_function_identity ... FAILED
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_filtered_show_set_previews_then_resolves ... FAILED
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_grid_header_order_precedes_or_follows_body ... FAILED
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_hidden_parent_does_not_prepare_child ... ok
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_metadata_arrays_recurse_and_dictionaries_stay_opaque ... FAILED
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_metadata_content_is_semantic_descendant ... FAILED
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_omission_inherits_but_explicit_auto_inspects_body ... FAILED
+test compiler::layout::tests::figure_kind_cause_regressions::figure_kind_supplement_callback_targets_actual_element ... FAILED
+
+failures:
+
+---- compiler::layout::tests::figure_kind_cause_regressions::figure_kind_context_output_is_not_evaluated_during_inference stdout ----
+
+thread 'compiler::layout::tests::figure_kind_cause_regressions::figure_kind_context_output_is_not_evaluated_during_inference' (1988395) panicked at 01_core/src/compiler/layout/tests.rs:2875:49:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(292904783631953), message: "figure does not have field \"kind\"", hints: [], trace: [] }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::layout::tests::figure_kind_cause_regressions::figure_kind_custom_name_retains_string_identity stdout ----
+
+thread 'compiler::layout::tests::figure_kind_cause_regressions::figure_kind_custom_name_retains_string_identity' (1988397) panicked at 01_core/src/compiler/layout/tests.rs:2875:49:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(288824883729900), message: "figure does not have field \"kind\"", hints: [], trace: [] }]
+
+---- compiler::layout::tests::figure_kind_cause_regressions::figure_kind_explicit_element_retains_function_identity stdout ----
+
+thread 'compiler::layout::tests::figure_kind_cause_regressions::figure_kind_explicit_element_retains_function_identity' (1988398) panicked at 01_core/src/compiler/layout/tests.rs:2875:49:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(290268615465830), message: "figure does not have field \"kind\"", hints: [], trace: [] }]
+
+---- compiler::layout::tests::figure_kind_cause_regressions::figure_kind_filtered_show_set_previews_then_resolves stdout ----
+
+thread 'compiler::layout::tests::figure_kind_cause_regressions::figure_kind_filtered_show_set_previews_then_resolves' (1988400) panicked at 01_core/src/compiler/layout/tests.rs:2875:49:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(319576108812046), message: "figure does not have field \"kind\"", hints: [], trace: [] }]
+
+---- compiler::layout::tests::figure_kind_cause_regressions::figure_kind_grid_header_order_precedes_or_follows_body stdout ----
+
+thread 'compiler::layout::tests::figure_kind_cause_regressions::figure_kind_grid_header_order_precedes_or_follows_body' (1988401) panicked at 01_core/src/compiler/layout/tests.rs:2875:49:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(288702648734412), message: "figure does not have field \"kind\"", hints: [], trace: [] }]
+
+---- compiler::layout::tests::figure_kind_cause_regressions::figure_kind_metadata_arrays_recurse_and_dictionaries_stay_opaque stdout ----
+
+thread 'compiler::layout::tests::figure_kind_cause_regressions::figure_kind_metadata_arrays_recurse_and_dictionaries_stay_opaque' (1988405) panicked at 01_core/src/compiler/layout/tests.rs:2875:49:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(290411007576395), message: "figure does not have field \"kind\"", hints: [], trace: [] }]
+
+---- compiler::layout::tests::figure_kind_cause_regressions::figure_kind_metadata_content_is_semantic_descendant stdout ----
+
+thread 'compiler::layout::tests::figure_kind_cause_regressions::figure_kind_metadata_content_is_semantic_descendant' (1988406) panicked at 01_core/src/compiler/layout/tests.rs:2875:49:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(292396792213220), message: "figure does not have field \"kind\"", hints: [], trace: [] }]
+
+---- compiler::layout::tests::figure_kind_cause_regressions::figure_kind_omission_inherits_but_explicit_auto_inspects_body stdout ----
+
+thread 'compiler::layout::tests::figure_kind_cause_regressions::figure_kind_omission_inherits_but_explicit_auto_inspects_body' (1988407) panicked at 01_core/src/compiler/layout/tests.rs:2875:49:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(308820238119950), message: "figure does not have field \"kind\"", hints: [], trace: [] }]
+
+---- compiler::layout::tests::figure_kind_cause_regressions::figure_kind_supplement_callback_targets_actual_element stdout ----
+
+thread 'compiler::layout::tests::figure_kind_cause_regressions::figure_kind_supplement_callback_targets_actual_element' (1988408) panicked at 01_core/src/compiler/layout/tests.rs:2875:49:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(287654510416124), message: "figure does not have field \"supplement\"", hints: [], trace: [] }]
+
+
+failures:
+    compiler::layout::tests::figure_kind_cause_regressions::figure_kind_context_output_is_not_evaluated_during_inference
+    compiler::layout::tests::figure_kind_cause_regressions::figure_kind_custom_name_retains_string_identity
+    compiler::layout::tests::figure_kind_cause_regressions::figure_kind_explicit_element_retains_function_identity
+    compiler::layout::tests::figure_kind_cause_regressions::figure_kind_filtered_show_set_previews_then_resolves
+    compiler::layout::tests::figure_kind_cause_regressions::figure_kind_grid_header_order_precedes_or_follows_body
+    compiler::layout::tests::figure_kind_cause_regressions::figure_kind_metadata_arrays_recurse_and_dictionaries_stay_opaque
+    compiler::layout::tests::figure_kind_cause_regressions::figure_kind_metadata_content_is_semantic_descendant
+    compiler::layout::tests::figure_kind_cause_regressions::figure_kind_omission_inherits_but_explicit_auto_inspects_body
+    compiler::layout::tests::figure_kind_cause_regressions::figure_kind_supplement_callback_targets_actual_element
+
+test result: FAILED. 2 passed; 9 failed; 0 ignored; 0 measured; 7619 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p typst-core --lib`

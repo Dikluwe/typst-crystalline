@@ -1,0 +1,12 @@
+{
+  "utc_recorded": "2026-10-20T00:39:44.459742+00:00",
+  "accepted_gate": "reference-phase-red-frozen/state.json.gz",
+  "gate_exit": 0,
+  "test_process_exit": 101,
+  "semantic_failed_tests": 2,
+  "changed_inputs": [],
+  "before_productive_extension": true,
+  "superseded_attempt": "reference-phase-red/state.json.gz",
+  "superseded_reason": "Same real failures but snapshot coincided with final agent test/L0 edits; freeze assertion failed, not accepted as gate.",
+  "phase_assertion": "Exact archived sources and original INNER_PREPARATION expectation now use actual Paged L3 facade; eval-only panic expectation would contradict newly approved deferred phase."
+}

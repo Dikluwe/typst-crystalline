@@ -1,10 +1,38 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/queries.md
-//! @prompt-hash a867e6a4
+//! @prompt-hash 16af5578
 //! @layer L1
 //! @updated 2026-10-06
 
 use super::*;
+
+fn prepared_figure_history<'a>(
+    intr: &'a TagIntrospector,
+    key: &CounterKey,
+) -> Option<&'a [(Location, Vec<usize>)]> {
+    intr.figure_counter_snapshots
+        .iter()
+        .find(|snapshot| {
+            crate::compiler::eval::operators::equality::counter_keys_eq(
+                &snapshot.key,
+                key,
+            )
+        })
+        .map(|snapshot| snapshot.history.as_slice())
+}
+
+fn prepared_figure_prefix<'a>(
+    intr: &TagIntrospector,
+    history: &'a [(Location, Vec<usize>)],
+    location: Location,
+) -> Option<&'a [usize]> {
+    let order = intr.counters.order_key(location);
+    history
+        .iter()
+        .rev()
+        .find(|(at, _)| intr.counters.order_key(*at) <= order)
+        .map(|(_, state)| state.as_slice())
+}
 
 impl Introspector for TagIntrospector {
     fn query_by_kind(&self, kind: ElementKind) -> Vec<Location> {
@@ -239,7 +267,11 @@ impl Introspector for TagIntrospector {
         key: &CounterKey,
         location: Location,
     ) -> Option<String> {
-        let counter = self.counters.value_at(key, location)?;
+        let counter = if let Some(history) = prepared_figure_history(self, key) {
+            prepared_figure_prefix(self, history, location)?
+        } else {
+            self.counters.value_at(key, location)?
+        };
         if counter.is_empty() {
             None
         } else {
@@ -259,6 +291,9 @@ impl Introspector for TagIntrospector {
         key: &CounterKey,
         location: Location,
     ) -> Option<&[usize]> {
+        if let Some(history) = prepared_figure_history(self, key) {
+            return prepared_figure_prefix(self, history, location);
+        }
         let counter = self.counters.value_at(key, location)?;
         if counter.is_empty() {
             None
@@ -268,6 +303,9 @@ impl Introspector for TagIntrospector {
     }
 
     fn counter_final_values(&self, key: &CounterKey) -> Option<&[usize]> {
+        if let Some(history) = prepared_figure_history(self, key) {
+            return history.last().map(|(_, state)| state.as_slice());
+        }
         let counter = self.counters.value(key)?;
         if counter.is_empty() {
             None
@@ -348,6 +386,9 @@ impl Introspector for TagIntrospector {
     }
 
     fn flat_counter_at(&self, key: &CounterKey, location: Location) -> Option<usize> {
+        if let Some(history) = prepared_figure_history(self, key) {
+            return prepared_figure_prefix(self, history, location)?.last().copied();
+        }
         self.counters.value_at(key, location)?.last().copied()
     }
 

@@ -1,0 +1,28 @@
+{
+  "utc": "2026-10-20T00:56:17.237322+00:00",
+  "status": "evidence-only independent static review; dynamic candidate proof pending root stage2",
+  "approved_public_surface": "Exact doc-hidden public module and all three facade function signatures match approval; other helpers remain compiler/private. No public entity/trait addition in this extension.",
+  "checked_invariants": [
+    "Exact private typed pointer With(rawRef Args) classifier; named/extra/malformed bindings excluded.",
+    "Canonical Styled(Ref) single private-token delta and actual Some child; None malformed; map once/error propagation and token retention.",
+    "Eligibility projection is a real admission dependency (first label Location, counter-key Option, bibliography flag); no fake counter read, global observer weakening or result cache.",
+    "Shared arena context IDs use retained per-frame slots and cursor; Result::Err restores parent flag/slots/allocator under existing nonpanic policy.",
+    "Paged-only emitted Ref gate preserves HTML and unused lexical Ref inertness."
+  ],
+  "targeted_risks": [
+    {
+      "source": "01_core/src/compiler/realize/reference_supplements.rs",
+      "line": 204,
+      "issue": "Eligibility ValueCounter contains full typed selector key. Raw namespace kind travels generic Func observer, whose raw.line Element is Unproven; may prevent stable reference replay despite scoped FigureKind proof.",
+      "proof_control": "targeted-matrix.json raw-namespace-kind-reference; pinned oracle actual [[1,[1],1]], candidate proof required."
+    },
+    {
+      "source": "01_core/src/compiler/realize/figure.rs",
+      "line": 238,
+      "issue": "Caption selected supplement calls recipes::realize without with_template, while reference selected supplement activates fresh Context IDs. Two fresh captions sharing raw ContextBlock template may reuse source ID.",
+      "proof_control": "targeted-matrix.json two-fresh-captions-raw-context-template; pinned oracle actual [[4,[2],[2],4]], candidate proof required."
+    }
+  ],
+  "targeted_oracle_sha256": "80095b055cf494be2d1c8de7750e380a1926524e8ad6bcf523f1d11be38a69dc",
+  "limits": "No productive/L0/test edits or Cargo; no claim of full validation or parity. Strict observer repair requires observed failure and bounded L0-first proof; no generic Arc shortcut."
+}

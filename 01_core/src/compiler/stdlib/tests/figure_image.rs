@@ -1,10 +1,33 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/tests/figure_image.md
-//! @prompt-hash 94367124
+//! @prompt-hash 7931e164
 //! @layer L1
 //! @updated 2026-09-26
 
 use super::*;
+
+fn assert_omitted_figure_kind_previews_as(
+    figure: &std::sync::Arc<crate::entities::elements::figure::FigureElem>,
+    function: crate::entities::func::Func,
+) {
+    use crate::entities::content::Content;
+    use crate::entities::elements::figure::FigureKind;
+    assert_eq!(figure.kind, None, "construction must retain lexical omission");
+    assert_eq!(figure.resolved_kind, None);
+    assert_eq!(figure.resolved_supplement, None);
+    let preview = crate::compiler::realize::figure::preview(
+        &Content::Figure(figure.clone()),
+        &crate::entities::style_chain::StyleChain::default_chain(),
+    )
+    .unwrap();
+    let Content::Figure(prepared) = preview else { panic!("expected Figure preview") };
+    assert_eq!(prepared.resolved_kind, Some(FigureKind::Element(function)));
+    assert_eq!(prepared.kind, None, "preview must preserve lexical omission");
+    assert_eq!(
+        prepared.resolved_supplement, None,
+        "kind preview cannot prepare supplement effects"
+    );
+}
 
 #[test]
 fn native_figure_com_body_e_caption() {
@@ -65,8 +88,7 @@ fn native_figure_sem_body_retorna_err() {
 
 #[test]
 fn figure_auto_detect_image() {
-    // P158A: figure(image(...)) sem `kind:` → kind="image"
-    // via inferência (não via default).
+    // Lexical omission is retained; the occurrence preview infers image identity.
     null_ctx!(ctx);
     use crate::entities::content::Content;
     use crate::entities::ptr_eq_arc::PtrEqArc;
@@ -76,10 +98,12 @@ fn figure_auto_detect_image() {
     let args = p(vec![Value::Content(img)]);
     let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Figure(e)) = r {
-        assert_eq!(
-            e.kind.as_deref(),
-            Some("image"),
-            "auto-detect Image → kind=Some(\"image\")"
+        assert_omitted_figure_kind_previews_as(
+            &e,
+            crate::entities::func::Func::native(
+                "image",
+                crate::compiler::stdlib::native_image,
+            ),
         );
     } else {
         panic!("esperado Content::Figure");
@@ -88,7 +112,7 @@ fn figure_auto_detect_image() {
 
 #[test]
 fn figure_auto_detect_table() {
-    // P158A: figure(table(...)) sem `kind:` → kind=Some("table").
+    // The occurrence preview infers the actual table element identity.
     null_ctx!(ctx);
     use crate::entities::content::Content;
     use crate::entities::layout_types::TrackSizing;
@@ -96,10 +120,12 @@ fn figure_auto_detect_table() {
     let args = p(vec![Value::Content(tab)]);
     let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Figure(e)) = r {
-        assert_eq!(
-            e.kind.as_deref(),
-            Some("table"),
-            "auto-detect Table → kind=Some(\"table\")"
+        assert_omitted_figure_kind_previews_as(
+            &e,
+            crate::entities::func::Func::native(
+                "table",
+                crate::compiler::stdlib::native_table,
+            ),
         );
     } else {
         panic!("esperado Content::Figure");
@@ -108,17 +134,19 @@ fn figure_auto_detect_table() {
 
 #[test]
 fn figure_auto_detect_raw() {
-    // P158A: figure(raw(...)) sem `kind:` → kind=Some("raw").
+    // The occurrence preview infers the actual raw element identity.
     null_ctx!(ctx);
     use crate::entities::content::Content;
     let raw = Content::raw("fn x() {}", None, false);
     let args = p(vec![Value::Content(raw)]);
     let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Figure(e)) = r {
-        assert_eq!(
-            e.kind.as_deref(),
-            Some("raw"),
-            "auto-detect Raw → kind=Some(\"raw\")"
+        assert_omitted_figure_kind_previews_as(
+            &e,
+            crate::entities::func::Func::native(
+                "raw",
+                crate::compiler::stdlib::native_raw,
+            ),
         );
     } else {
         panic!("esperado Content::Figure");
@@ -139,10 +167,12 @@ fn figure_kind_explicit_override_auto_detect() {
     let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Figure(e)) = r {
         assert_eq!(
-            e.kind.as_deref(),
-            Some("custom-kind"),
-            "kind explícito vence auto-detecção (precedência absoluta)"
+            e.kind,
+            Some(Some(crate::entities::elements::figure::FigureKind::Name(
+                "custom-kind".into()
+            )))
         );
+        assert_eq!(e.resolved_kind, None);
     } else {
         panic!("esperado Content::Figure");
     }
@@ -161,8 +191,25 @@ fn figure_kind_auto_explicito_devolve_none() {
     let args = pn(vec![Value::Content(img)], "kind", Value::Auto);
     let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Figure(e)) = r {
-        assert!(e.kind.is_none(),
-            "kind=auto explícito produz None (Caso A); auto-detect ignorado quando explícito");
+        assert_eq!(e.kind, Some(None), "explicit auto must remain lexically present");
+        assert_eq!(e.resolved_kind, None);
+        let Content::Figure(preview) = crate::compiler::realize::figure::preview(
+            &Content::Figure(e.clone()),
+            &crate::entities::style_chain::StyleChain::default_chain(),
+        )
+        .unwrap() else {
+            panic!("expected Figure preview")
+        };
+        assert_eq!(
+            preview.resolved_kind,
+            Some(crate::entities::elements::figure::FigureKind::Element(
+                crate::entities::func::Func::native(
+                    "image",
+                    crate::compiler::stdlib::native_image
+                )
+            ))
+        );
+        assert_eq!(preview.kind, Some(None));
     } else {
         panic!("esperado Content::Figure");
     }
@@ -170,16 +217,19 @@ fn figure_kind_auto_explicito_devolve_none() {
 
 #[test]
 fn figure_kind_none_quando_body_nao_detectavel() {
-    // P158C: body=Text sem `kind:` → kind=None directo (default
-    // "image" resolvido em uso, não em construção; ADR-0064 Caso A
-    // estrito refactor de String → Option<String>).
+    // A noninferable body retains omission and previews the actual image default.
     null_ctx!(ctx);
     use crate::entities::content::Content;
     let args = p(vec![Value::Content(Content::text("apenas texto"))]);
     let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Figure(e)) = r {
-        assert!(e.kind.is_none(),
-            "body Text sem auto-detect produz kind=None (default 'image' resolvido em uso)");
+        assert_omitted_figure_kind_previews_as(
+            &e,
+            crate::entities::func::Func::native(
+                "image",
+                crate::compiler::stdlib::native_image,
+            ),
+        );
     } else {
         panic!("esperado Content::Figure");
     }
@@ -201,10 +251,12 @@ fn figure_auto_detect_image_dentro_de_sequence() {
     let args = p(vec![Value::Content(seq)]);
     let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Figure(e)) = r {
-        assert_eq!(
-            e.kind.as_deref(),
-            Some("image"),
-            "Sequence com Image dentro auto-detecta Some(\"image\") via recursão"
+        assert_omitted_figure_kind_previews_as(
+            &e,
+            crate::entities::func::Func::native(
+                "image",
+                crate::compiler::stdlib::native_image,
+            ),
         );
     } else {
         panic!("esperado Content::Figure");

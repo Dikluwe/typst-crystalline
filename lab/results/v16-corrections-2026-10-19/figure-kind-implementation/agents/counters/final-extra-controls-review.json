@@ -1,0 +1,457 @@
+{
+  "utc": "2026-10-20T03:42:30.304511+00:00",
+  "head": "731f0ffdf4c7c152f590551e72ff63f7bd85ef85",
+  "state": "uncommitted working tree, exact finalbuild4 inputs; evidence-only review",
+  "diff_head_stat": " .../core/compiler/eval/bindings/field_access.md    |  17 +-\n .../eval/bindings/field_access/content_methods.md  |  17 +-\n .../compiler/eval/bindings/field_access/fields.md  |  28 +-\n .../core/compiler/eval/call_dispatch/invoke.md     |  29 +-\n .../prompts/core/compiler/eval/context_reads.md    |  43 +-\n .../core/compiler/eval/expression_dispatch.md      |  20 +-\n .../prompts/core/compiler/eval/markup_stream.md    |  12 +-\n 00_nucleo/prompts/core/compiler/eval/mod.md        |  32 +-\n .../core/compiler/eval/observation/content.md      |  28 +-\n .../core/compiler/eval/observation/elements.md     |  47 +-\n .../core/compiler/eval/observation/style.md        |  20 +-\n .../core/compiler/eval/operators/equality.md       |  17 +-\n .../prompts/core/compiler/eval/rules/apply.md      |  52 +-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  19 +-\n .../core/compiler/eval/selector_matching.md        |  19 +-\n 00_nucleo/prompts/core/compiler/eval/tests.md      | 124 ++-\n 00_nucleo/prompts/core/compiler/introspect.md      |  27 +-\n .../core/compiler/introspect/convergence.md        |  26 +-\n .../core/compiler/introspect/entrypoints.md        |  17 +-\n .../core/compiler/introspect/extract_payload.md    |  28 +-\n .../prompts/core/compiler/introspect/fixpoint.md   |  17 +-\n .../prompts/core/compiler/introspect/labelled.md   |  24 +-\n .../prompts/core/compiler/introspect/locatable.md  |  28 +-\n .../core/compiler/introspect/materialize_time.md   |  28 +-\n .../prompts/core/compiler/introspect/populate.md   |  22 +-\n .../prompts/core/compiler/introspect/queries.md    |  17 +-\n 00_nucleo/prompts/core/compiler/introspect/walk.md |  61 +-\n .../prompts/core/compiler/layout/checkpoint.md     |  19 +-\n 00_nucleo/prompts/core/compiler/layout/figure.md   |  29 +-\n .../prompts/core/compiler/layout/measurement.md    |  17 +-\n 00_nucleo/prompts/core/compiler/layout/mod.md      |  25 +-\n .../prompts/core/compiler/layout/placement.md      |  17 +-\n .../prompts/core/compiler/layout/references.md     |  40 +-\n 00_nucleo/prompts/core/compiler/layout/tests.md    |  79 +-\n .../core/compiler/realize/context_occurrences.md   |  20 +-\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  29 +-\n 00_nucleo/prompts/core/compiler/realize/recipes.md |  65 +-\n .../core/compiler/stdlib/counter/filtered_reads.md |  73 +-\n .../prompts/core/compiler/stdlib/figure_image.md   |  48 +-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  17 +-\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  17 +-\n .../core/compiler/stdlib/tests/figure_image.md     |  16 +-\n .../prompts/core/entities/content/construction.md  |  17 +-\n .../core/entities/content/tests/representation.md  |  17 +-\n .../core/entities/content/tests/traversal.md       |  17 +-\n .../prompts/core/entities/content/traversal.md     |  33 +-\n 00_nucleo/prompts/core/entities/element_payload.md |  31 +-\n 00_nucleo/prompts/core/entities/elements/figure.md |  39 +-\n 00_nucleo/prompts/core/entities/elements/grid.md   |  22 +-\n 00_nucleo/prompts/core/entities/introspector.md    |  24 +-\n 00_nucleo/prompts/core/entities/style_chain.md     |  21 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  62 +-\n 00_nucleo/prompts/infra/export/tests/mod.md        |  17 +-\n 00_nucleo/prompts/infra/integration_tests.md       |  34 +-\n 00_nucleo/prompts/infra/pipeline.md                |  31 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         |  17 +-\n .../infra/pipeline/context_stabilization.md        |  86 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |  66 +-\n 00_nucleo/prompts/shell/cli.md                     |  17 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |  45 +-\n .../eval/bindings/field_access/content_methods.rs  |  28 +-\n .../compiler/eval/bindings/field_access/fields.rs  |  23 +-\n 01_core/src/compiler/eval/call_dispatch/invoke.rs  |  43 +-\n 01_core/src/compiler/eval/context_reads.rs         | 288 +++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |  12 +-\n 01_core/src/compiler/eval/markup_stream.rs         |   5 +-\n 01_core/src/compiler/eval/mod.rs                   |   7 +-\n 01_core/src/compiler/eval/observation/content.rs   | 173 +++-\n 01_core/src/compiler/eval/observation/elements.rs  | 230 ++++-\n 01_core/src/compiler/eval/observation/style.rs     |  78 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 128 ++-\n 01_core/src/compiler/eval/rules/apply.rs           | 186 ++--\n 01_core/src/compiler/eval/rules/set.rs             |  59 +-\n 01_core/src/compiler/eval/selector_matching.rs     | 124 ++-\n 01_core/src/compiler/eval/tests.rs                 | 673 ++++++++++++--\n 01_core/src/compiler/introspect.rs                 | 979 ++++++++++++++++++---\n 01_core/src/compiler/introspect/convergence.rs     |  87 +-\n 01_core/src/compiler/introspect/entrypoints.rs     |  40 +-\n 01_core/src/compiler/introspect/extract_payload.rs |  13 +-\n 01_core/src/compiler/introspect/fixpoint.rs        |  32 +-\n 01_core/src/compiler/introspect/labelled.rs        |  63 +-\n 01_core/src/compiler/introspect/locatable.rs       |   4 +-\n .../src/compiler/introspect/materialize_time.rs    |  90 +-\n 01_core/src/compiler/introspect/populate.rs        |  61 +-\n 01_core/src/compiler/introspect/queries.rs         |  45 +-\n 01_core/src/compiler/introspect/walk.rs            | 143 ++-\n 01_core/src/compiler/layout/checkpoint.rs          |   8 +-\n 01_core/src/compiler/layout/figure.rs              | 338 ++++++-\n 01_core/src/compiler/layout/measurement.rs         |   7 +-\n 01_core/src/compiler/layout/mod.rs                 |  35 +-\n 01_core/src/compiler/layout/placement.rs           |   3 +-\n 01_core/src/compiler/layout/references.rs          | 201 ++++-\n 01_core/src/compiler/layout/tests.rs               | 878 ++++++++++++++----\n .../src/compiler/realize/context_occurrences.rs    |  91 +-\n 01_core/src/compiler/realize/mod.rs                |   5 +-\n 01_core/src/compiler/realize/recipes.rs            | 391 ++++----\n .../src/compiler/stdlib/counter/filtered_reads.rs  | 221 ++++-\n 01_core/src/compiler/stdlib/figure_image.rs        | 412 +++++++--\n 01_core/src/compiler/stdlib/layout/grid.rs         |  16 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   5 +-\n 01_core/src/compiler/stdlib/tests/figure_image.rs  | 114 ++-\n 01_core/src/entities/content/construction.rs       |  13 +-\n .../src/entities/content/tests/representation.rs   |   8 +-\n 01_core/src/entities/content/tests/traversal.rs    |  36 +-\n 01_core/src/entities/content/traversal.rs          | 353 +++++---\n 01_core/src/entities/element_payload.rs            |  46 +-\n 01_core/src/entities/elements/figure.rs            | 539 +++++++++++-\n 01_core/src/entities/elements/grid.rs              |  61 +-\n 01_core/src/entities/introspector.rs               |  11 +-\n 01_core/src/entities/style_chain.rs                |  33 +-\n 02_shell/src/cli.rs                                |  89 +-\n 03_infra/src/export/html/document.rs               | 139 ++-\n 03_infra/src/export/tests/mod.rs                   |  29 +-\n 03_infra/src/integration_tests.rs                  | 104 ++-\n 03_infra/src/pipeline.rs                           | 387 +++++++-\n 03_infra/src/pipeline/bundle.rs                    |  15 +-\n 03_infra/src/pipeline/context_stabilization.rs     | 944 +++++++++++++++++++-\n 03_infra/src/pipeline/paged.rs                     | 345 ++++----\n 118 files changed, 10004 insertions(+), 1413 deletions(-)\n",
+  "build_receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-build-4/receipt.json",
+  "build_receipt_sha256": "6015e9d8b3ab7836a199b321c9e41165bead3ffc44d1d90fc218570b0ce42602",
+  "final_binary_sha256": "47773b808cf589b7e0f31602b2d791856196ae92ee49d0af24184ca4cfd90f76",
+  "build_utc_start": "2026-10-20T03:39:48.536557+00:00",
+  "build_utc_end": "2026-10-20T03:39:49.130736+00:00",
+  "oracle": {
+    "commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+    "tree": "cac836c07e4dec2a89219370428292393a3216b5",
+    "binary_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  },
+  "matrices": [
+    {
+      "name": "final-captionless-controls",
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-captionless-controls/receipt.json",
+      "receipt_sha256": "6cd6ff1a98e56579003b8798b0f9e8e2a1df7d7046bd1bcf38b1d00ef43ec795",
+      "utc_start": "2026-10-20T03:40:39.698924+00:00",
+      "utc_end": "2026-10-20T03:40:47.759725+00:00",
+      "source_cases": 10,
+      "summary": {
+        "full_fixed_case_checks_passed": 10,
+        "full_fixed_case_checks_failed": 0,
+        "runner_exit": 0
+      },
+      "case_names": [
+        "captionless-block-controls-v2-callback-body-morphology",
+        "captionless-block-controls-v2-location-reference",
+        "captionless-block-controls-v2-none-prunes-context",
+        "captionless-block-controls-v2-none-prunes-nested-figure",
+        "captionless-block-controls-v2-own-figure-replacement",
+        "captionless-block-controls-v2-reached-context-and-nested-figure",
+        "default-figure-block-oracle-v2-empty-body",
+        "default-figure-block-oracle-v2-sequence-body",
+        "default-figure-block-oracle-v2-source-empty-body",
+        "default-figure-block-oracle-v2-nested-empty-strong"
+      ]
+    },
+    {
+      "name": "final-reference-extra-controls",
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-reference-extra-controls/receipt.json",
+      "receipt_sha256": "de68c6c78bc61582740c8583f7e04256ff73ac9fde1410829f906889c6e20ddb",
+      "utc_start": "2026-10-20T03:40:39.671861+00:00",
+      "utc_end": "2026-10-20T03:40:43.547010+00:00",
+      "source_cases": 3,
+      "summary": {
+        "full_fixed_case_checks_passed": 3,
+        "full_fixed_case_checks_failed": 0,
+        "runner_exit": 0
+      },
+      "case_names": [
+        "plain-bibliography-reference",
+        "dynamic-nonfigure-forward-reference",
+        "nested-grid-dormant-template"
+      ]
+    },
+    {
+      "name": "final-ancillary-controls",
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-ancillary-controls/receipt.json",
+      "receipt_sha256": "f76d89f0f9af16df4b2ad33cbfd86d9df4aa720205796b4711bb98d692624f98",
+      "utc_start": "2026-10-20T03:40:39.575239+00:00",
+      "utc_end": "2026-10-20T03:40:44.987238+00:00",
+      "source_cases": 5,
+      "summary": {
+        "full_fixed_case_checks_passed": 4,
+        "full_fixed_case_checks_failed": 1,
+        "runner_exit": 1
+      },
+      "case_names": [
+        "ordinary-block-hidden-heading-none-prunes-heading",
+        "ordinary-block-hidden-heading-identity-retains-heading",
+        "ordinary-block-labelled-identity-labelled-block",
+        "reference-layout-origin-heading-without-numbering",
+        "reference-layout-origin-page-without-numbering"
+      ]
+    },
+    {
+      "name": "final-math-style-controls",
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-math-style-controls/receipt.json",
+      "receipt_sha256": "0844da4584e5daeb4bbd28761ac762da7bcff379bc9e4a3d357d907a7e0cf9c3",
+      "utc_start": "2026-10-20T03:40:39.590591+00:00",
+      "utc_end": "2026-10-20T03:40:45.462179+00:00",
+      "source_cases": 8,
+      "summary": {
+        "required_checks": {
+          "top_level_callback_compiles": true,
+          "top_level_callback_matches_explicit_zero": true,
+          "top_level_callback_differs_explicit_ninety": true,
+          "ordinary_outside_context_rejects": true
+        },
+        "required_checks_passed": 4,
+        "required_checks_failed": 0,
+        "source_exit_matches": 8,
+        "known_script_contract_observation": {
+          "callback_exit": 0,
+          "matches_existing_Tekt_effective14_zero": true,
+          "matches_pinned_oracle_lexical20_ninety": false,
+          "classification": "Existing Tekt rendered-script14 contract versus pinned target lexical20 style observation remains a separately recorded debt; no all-callback-parity claim."
+        },
+        "runner_exit": 0
+      },
+      "case_names": [
+        "plain-style-callback",
+        "plain-style-zero",
+        "plain-style-ninety",
+        "script-style-callback",
+        "script-style-zero",
+        "script-style-ninety",
+        "script-style-fortyfive",
+        "ordinary-outside-context"
+      ]
+    },
+    {
+      "name": "final-math-capability-controls",
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-math-capability-controls/receipt.json",
+      "receipt_sha256": "008ac14ca57f0fe717b301a73e3d1dffeb615a6a5a481cf06423f9f47017ef34",
+      "utc_start": "2026-10-20T03:40:39.578873+00:00",
+      "utc_end": "2026-10-20T03:40:44.209975+00:00",
+      "source_cases": 5,
+      "summary": {
+        "source_exit_matches": 5,
+        "source_exit_mismatches": 0,
+        "message_gaps_retained": [
+          "here-no-location",
+          "counter-get-no-location"
+        ],
+        "observed_final_branch": {
+          "exit": 1,
+          "matches_seven_zero": false,
+          "matches_other_ninety": false,
+          "oracle": "Rejects unknown context before any angle branch; do not reinterpret as expected7 or0."
+        },
+        "observation_complete": true,
+        "runner_exit": 0
+      },
+      "case_names": [
+        "here-no-location",
+        "counter-get-no-location",
+        "counter-final-seven",
+        "counter-final-explicit-zero",
+        "counter-final-explicit-ninety"
+      ]
+    },
+    {
+      "name": "final-counter-owned-controls",
+      "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-counter-owned-controls/receipt.json",
+      "receipt_sha256": "e7acd6ff49291dc2785d7de707d1a5c91ee092751b32d917b8929b51f225e746",
+      "utc_start": "2026-10-20T03:40:39.592160+00:00",
+      "utc_end": "2026-10-20T03:40:43.259811+00:00",
+      "source_cases": 4,
+      "summary": {
+        "required_cases_passed": 4,
+        "required_cases_failed": 0,
+        "runner_exit": 0
+      },
+      "case_names": [
+        "modern-bound-no-location",
+        "modern-static-no-location",
+        "modern-bound-located-seven",
+        "modern-static-located-seven"
+      ]
+    }
+  ],
+  "accounting": {
+    "compile_source_cases": 35,
+    "compile_exit_successes": 27,
+    "compile_exit_rejections": 8,
+    "additional_language_queries": 7,
+    "successful_query_processes": 7,
+    "primary_figure_nonfigure_fixed_cases": 18,
+    "primary_full_fixed_checks_passed": 17,
+    "primary_full_fixed_checks_failed": 1,
+    "modern_final_required_cases_passed": 4,
+    "modern_final_required_cases_failed": 0,
+    "math_style_required_checks_passed": 4,
+    "math_style_required_checks_failed": 0,
+    "math_capability_exit_matches": 5,
+    "math_capability_exit_mismatches": 0,
+    "diagnostic_cases_compared": 6,
+    "diagnostic_cases_with_retained_differences": 6,
+    "counts_are_not_additive": "Source compilations, query processes, required predicates and retained diagnostic fields are different axes. No all-parity aggregate pass rate is inferred."
+  },
+  "full_fixed_case_failure": {
+    "case": "ordinary-block-labelled-identity-labelled-block",
+    "actual_query": [
+      [
+        1,
+        0
+      ]
+    ],
+    "oracle_query": [
+      [
+        1,
+        1
+      ]
+    ],
+    "partial_checks": {
+      "actual_child_count_once": true,
+      "Block_label_membership": false
+    },
+    "reason": "Ordinary Block child traversal is fixed, but the Block own-label membership is absent; full query failure retained unchanged."
+  },
+  "script_semantic_debt": {
+    "callback_exit": 0,
+    "matches_existing_Tekt_effective14_zero": true,
+    "matches_pinned_oracle_lexical20_ninety": false,
+    "classification": "Existing Tekt rendered-script14 contract versus pinned target lexical20 style observation remains a separately recorded debt; no all-callback-parity claim."
+  },
+  "diagnostic_payload_comparisons": [
+    {
+      "matrix": "final-math-style-controls",
+      "case": "ordinary-outside-context",
+      "actual": {
+        "errors": [
+          "can only be used when context is known"
+        ],
+        "hints": [
+          "try wrapping this in a `context` expression"
+        ],
+        "location": [
+          3,
+          6
+        ],
+        "calling_trace_names": []
+      },
+      "oracle": {
+        "errors": [
+          "can only be used when context is known"
+        ],
+        "hints": [
+          "try wrapping this in a `context` expression",
+          "the `context` expression should wrap everything that depends on this function"
+        ],
+        "location": [
+          3,
+          6
+        ],
+        "calling_trace_names": []
+      },
+      "differing_fields": [
+        "hints"
+      ],
+      "full_diagnostic_payload_matches": false,
+      "scope": "Messages/hints/call coordinates/trace-name comparison; exact raw stderr remains in the linked immutable receipts."
+    },
+    {
+      "matrix": "final-math-capability-controls",
+      "case": "here-no-location",
+      "actual": {
+        "errors": [
+          "here() chamado fora de contexto locatable — current_location não populado (P208B: infra minimal; captura automática no walk é deferred)"
+        ],
+        "hints": [],
+        "location": [
+          3,
+          7
+        ],
+        "calling_trace_names": [
+          "here"
+        ]
+      },
+      "oracle": {
+        "errors": [
+          "can only be used when context is known"
+        ],
+        "hints": [
+          "try wrapping this in a `context` expression",
+          "the `context` expression should wrap everything that depends on this function"
+        ],
+        "location": [
+          3,
+          35
+        ],
+        "calling_trace_names": []
+      },
+      "differing_fields": [
+        "errors",
+        "hints",
+        "location",
+        "calling_trace_names"
+      ],
+      "full_diagnostic_payload_matches": false,
+      "scope": "Messages/hints/call coordinates/trace-name comparison; exact raw stderr remains in the linked immutable receipts."
+    },
+    {
+      "matrix": "final-math-capability-controls",
+      "case": "counter-get-no-location",
+      "actual": {
+        "errors": [
+          "counter.get() requer uma localização de contexto"
+        ],
+        "hints": [],
+        "location": [
+          4,
+          7
+        ],
+        "calling_trace_names": []
+      },
+      "oracle": {
+        "errors": [
+          "can only be used when context is known"
+        ],
+        "hints": [
+          "try wrapping this in a `context` expression",
+          "the `context` expression should wrap everything that depends on this function"
+        ],
+        "location": [
+          4,
+          35
+        ],
+        "calling_trace_names": []
+      },
+      "differing_fields": [
+        "errors",
+        "hints",
+        "location"
+      ],
+      "full_diagnostic_payload_matches": false,
+      "scope": "Messages/hints/call coordinates/trace-name comparison; exact raw stderr remains in the linked immutable receipts."
+    },
+    {
+      "matrix": "final-math-capability-controls",
+      "case": "counter-final-seven",
+      "actual": {
+        "errors": [
+          "can only be used when context is known"
+        ],
+        "hints": [
+          "try wrapping this in a `context` expression",
+          "the `context` expression should wrap everything that depends on this function"
+        ],
+        "location": [
+          4,
+          7
+        ],
+        "calling_trace_names": []
+      },
+      "oracle": {
+        "errors": [
+          "can only be used when context is known"
+        ],
+        "hints": [
+          "try wrapping this in a `context` expression",
+          "the `context` expression should wrap everything that depends on this function"
+        ],
+        "location": [
+          4,
+          28
+        ],
+        "calling_trace_names": []
+      },
+      "differing_fields": [
+        "location"
+      ],
+      "full_diagnostic_payload_matches": false,
+      "scope": "Messages/hints/call coordinates/trace-name comparison; exact raw stderr remains in the linked immutable receipts."
+    },
+    {
+      "matrix": "final-counter-owned-controls",
+      "case": "modern-bound-no-location",
+      "actual": {
+        "errors": [
+          "can only be used when context is known"
+        ],
+        "hints": [
+          "try wrapping this in a `context` expression",
+          "the `context` expression should wrap everything that depends on this function"
+        ],
+        "location": [
+          3,
+          7
+        ],
+        "calling_trace_names": []
+      },
+      "oracle": {
+        "errors": [
+          "can only be used when context is known"
+        ],
+        "hints": [
+          "try wrapping this in a `context` expression",
+          "the `context` expression should wrap everything that depends on this function"
+        ],
+        "location": [
+          3,
+          27
+        ],
+        "calling_trace_names": []
+      },
+      "differing_fields": [
+        "location"
+      ],
+      "full_diagnostic_payload_matches": false,
+      "scope": "Messages/hints/call coordinates/trace-name comparison; exact raw stderr remains in the linked immutable receipts."
+    },
+    {
+      "matrix": "final-counter-owned-controls",
+      "case": "modern-static-no-location",
+      "actual": {
+        "errors": [
+          "can only be used when context is known"
+        ],
+        "hints": [
+          "try wrapping this in a `context` expression",
+          "the `context` expression should wrap everything that depends on this function"
+        ],
+        "location": [
+          3,
+          7
+        ],
+        "calling_trace_names": []
+      },
+      "oracle": {
+        "errors": [
+          "can only be used when context is known"
+        ],
+        "hints": [
+          "try wrapping this in a `context` expression",
+          "the `context` expression should wrap everything that depends on this function"
+        ],
+        "location": [
+          3,
+          27
+        ],
+        "calling_trace_names": []
+      },
+      "differing_fields": [
+        "location"
+      ],
+      "full_diagnostic_payload_matches": false,
+      "scope": "Messages/hints/call coordinates/trace-name comparison; exact raw stderr remains in the linked immutable receipts."
+    }
+  ],
+  "rejected_hypotheses_preserved": {
+    "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/math-callback-context-language-review.json",
+    "sha256": "c774e8d8fa9feebf8ca3f56c30bd92a1cb1157cf8ff762ce5790fa127cf52523",
+    "classification": "Invalid raw-math controls, invalid numeric controls, refuted outerfalse policy and script14-parity hypothesis remain historical evidence; no fixture was weakened."
+  },
+  "identity_verification": {
+    "all_six_full_build_input_snapshots_equal": true,
+    "all_six_binary_checks_match_finalbuild4": true,
+    "all_six_pre_post_input_and_corpus_changes": [],
+    "all_current_build_inputs_match": true,
+    "source_input_count": 2142,
+    "linked_receipt_hashes": {
+      "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-captionless-controls/receipt.json": "6cd6ff1a98e56579003b8798b0f9e8e2a1df7d7046bd1bcf38b1d00ef43ec795",
+      "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-reference-extra-controls/receipt.json": "de68c6c78bc61582740c8583f7e04256ff73ac9fde1410829f906889c6e20ddb",
+      "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-ancillary-controls/receipt.json": "f76d89f0f9af16df4b2ad33cbfd86d9df4aa720205796b4711bb98d692624f98",
+      "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-math-style-controls/receipt.json": "0844da4584e5daeb4bbd28761ac762da7bcff379bc9e4a3d357d907a7e0cf9c3",
+      "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-math-capability-controls/receipt.json": "008ac14ca57f0fe717b301a73e3d1dffeb615a6a5a481cf06423f9f47017ef34",
+      "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/counters/final-counter-owned-controls/receipt.json": "e7acd6ff49291dc2785d7de707d1a5c91ee092751b32d917b8929b51f225e746"
+    }
+  },
+  "limits": "No complete language/render/diagnostic parity, all-alternative runtime coverage, global zero-lint or F-closure claim. Final workspace-gate outcomes belong to root receipts; this review observes only these final CLI matrices. Existing explicit-Context math callback handling remains a Tekt compatibility extension."
+}
